@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import React from 'react';
 
 const BoardOuter = styled.div`
   position: relative;
@@ -13,7 +14,9 @@ const BoardOuter = styled.div`
   align-items: center;
 `;
 
-const BoardInner = styled.div`
+interface BoardProps {}
+
+const BoardInner = styled.div<BoardProps>`
   display: flex;
   flex-direction: column;
   flex; 1;
@@ -29,7 +32,7 @@ const Circle = styled.div`
   align-items: center;
 `;
 
-export const Board = props => (
+export const Board: React.FunctionComponent<BoardProps> = props => (
   <BoardOuter>
     <Circle>
       <BoardInner {...props} />

@@ -32,79 +32,79 @@ class Water extends Cell {
   }
 }
 
-const land = (...props) => new Land(...props);
-const water = (...props) => new Water(...props);
+const land = (bonus?: Resource[]): Land => new Land(bonus);
+const water = (bonus?: Resource[]): Water => new Water(bonus);
 
 export const INITIAL_BOARD_STATE: Cell[][] = [
   [
-    land([Resource.STEEL, Resource.STEEL]),
-    water([Resource.STEEL, Resource.STEEL]),
+    land([Resource.Steel, Resource.Steel]),
+    water([Resource.Steel, Resource.Steel]),
     land(),
-    water([Resource.CARD]),
+    water([Resource.Card]),
     water()
   ],
   [
     land(),
-    land([Resource.STEEL]),
+    land([Resource.Steel]),
     land(),
     land(),
     land(),
-    water([Resource.CARD, Resource.CARD])
+    water([Resource.Card, Resource.Card])
   ],
   [
-    land([Resource.CARD]),
+    land([Resource.Card]),
     land(),
     land(),
     land(),
     land(),
     land(),
-    land([Resource.STEEL])
+    land([Resource.Steel])
   ],
   [
-    land([Resource.PLANT, Resource.TITANIUM]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT]),
-    water([Resource.PLANT, Resource.PLANT])
+    land([Resource.Plant, Resource.Titanium]),
+    land([Resource.Plant]),
+    land([Resource.Plant]),
+    land([Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant]),
+    land([Resource.Plant]),
+    water([Resource.Plant, Resource.Plant])
   ],
   [
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    water([Resource.PLANT, Resource.PLANT]),
-    water([Resource.PLANT, Resource.PLANT]),
-    water([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT])
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    water([Resource.Plant, Resource.Plant]),
+    water([Resource.Plant, Resource.Plant]),
+    water([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant])
   ],
   [
-    land([Resource.PLANT]),
-    land([Resource.PLANT, Resource.PLANT]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT]),
-    land([Resource.PLANT]),
-    water([Resource.PLANT]),
-    water([Resource.PLANT]),
-    water([Resource.PLANT])
+    land([Resource.Plant]),
+    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant]),
+    land([Resource.Plant]),
+    land([Resource.Plant]),
+    water([Resource.Plant]),
+    water([Resource.Plant]),
+    water([Resource.Plant])
   ],
-  [land(), land(), land(), land(), land(), land([Resource.PLANT]), land()],
+  [land(), land(), land(), land(), land(), land([Resource.Plant]), land()],
   [
-    land([Resource.STEEL, Resource.STEEL]),
+    land([Resource.Steel, Resource.Steel]),
     land(),
-    land([Resource.CARD]),
-    land([Resource.CARD]),
+    land([Resource.Card]),
+    land([Resource.Card]),
     land(),
-    land([Resource.TITANIUM])
+    land([Resource.Titanium])
   ],
   [
-    land([Resource.STEEL]),
-    land([Resource.STEEL, Resource.STEEL]),
+    land([Resource.Steel]),
+    land([Resource.Steel, Resource.Steel]),
     land(),
     land(),
-    water([Resource.TITANIUM, Resource.TITANIUM])
+    water([Resource.Titanium, Resource.Titanium])
   ]
 ];

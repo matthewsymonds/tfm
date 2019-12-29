@@ -1,33 +1,15 @@
 import {CellType} from '../constants/board';
-import {
-  getResourceSymbol,
-  getResourceColor,
-  getResourceBackgroundColor
-} from '../constants/resource';
+import {Resource} from '../constants/resource';
+import {ResourceIcon} from './resource';
 import {Hexagon} from './hexagon';
-import styled from 'styled-components';
+import React from 'react';
 
-interface ResourceProps {
-  readonly color: string;
-  readonly background: string;
+interface CellProps {
+  bonus: Resource[];
+  type: CellType;
 }
 
-const Resource = styled.div<ResourceProps>`
-  display: inline-block;
-  height: 20px;
-  width: 20px;
-  margin: 4px;
-  font-size: 17px;
-  font-weight: bold;
-  color: ${props => props.color};
-  background: ${props => props.background};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px;
-`;
-
-const getColor = props => {
+const getColor = (props: CellProps) => {
   switch (props.type) {
     case CellType.LAND:
       return 'rgba(255, 255, 255, 0.2)';
@@ -36,15 +18,10 @@ const getColor = props => {
   }
 };
 
-export const Cell = props => (
+export const Cell: React.FunctionComponent<CellProps> = props => (
   <Hexagon color={getColor(props)}>
     {props.bonus.map((resource, index) => (
-      <Resource
-        key={index}
-        color={getResourceColor(resource)}
-        background={getResourceBackgroundColor(resource)}>
-        <span>{getResourceSymbol(resource)}</span>
-      </Resource>
+      <ResourceIcon key={index} name={resource} />
     ))}
   </Hexagon>
 );
