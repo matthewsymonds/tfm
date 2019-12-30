@@ -1,8 +1,12 @@
 import styled from 'styled-components';
 
-const color = props => props.color;
+const color = (props: HexagonProps) => props.color;
 
-export const Hexagon = styled.div`
+interface HexagonProps {
+  color: string;
+}
+
+export const Hexagon = styled.div<HexagonProps>`
   position: relative;
   width: 78px;
   height: 45px;

@@ -3,8 +3,12 @@ import {ServerStyleSheet, createGlobalStyle} from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
     body {
-        margin: 20px;
         background: #fefefe;
+    }
+    * {
+      -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
+      -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
+      outline: none !important;
     }
 `;
 
