@@ -1,20 +1,21 @@
 import styled from 'styled-components';
 import {
   Resource,
-  getResourceColor,
   getResourceSymbol,
+  getResourceColor,
   getResourceBackgroundColor
 } from '../constants/resource';
 
-interface ResourceBaseProps {
+interface ResourceIconBaseProps {
   readonly color: string;
   readonly background: string;
 }
 
-const ResourceBase = styled.div<ResourceBaseProps>`
+const ResourceIconBase = styled.div<ResourceIconBaseProps>`
   display: inline-block;
-  height: 20px;
-  width: 20px;
+  height: 25px;
+  width 25px;
+  text-align: center;
   margin: 4px;
   font-size: 17px;
   font-weight: bold;
@@ -23,19 +24,96 @@ const ResourceBase = styled.div<ResourceBaseProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
 `;
 
 interface ResourceIconProps {
   name: Resource;
+  className?: string;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
-  name
+  name,
+  className
 }) => (
-  <ResourceBase
+  <ResourceIconBase
     color={getResourceColor(name)}
+    className={className}
     background={getResourceBackgroundColor(name)}>
     <span>{getResourceSymbol(name)}</span>
-  </ResourceBase>
+  </ResourceIconBase>
 );
+
+const ResourceBoardCellBase = styled.div`
+  display: flex;
+  margin: 16px;
+  width: 140px;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 16px;
+  border: 2px solid gray;
+  border-radius: 4px;
+  table {
+    padding: 8px;
+    width: 100%;
+  }
+  td:last-child {
+    text-align: right;
+  }
+`;
+
+interface ResourceBoardCellProps {
+  name: string;
+  amount: number;
+  production: number;
+  resource: Resource;
+}
+
+const InlineResourceIcon = styled(ResourceIcon)`
+  display: inline-flex;
+  margin: 0;
+  border: 1px solid gray;
+`;
+
+export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
+  name,
+  amount,
+  production,
+  resource
+}) => {
+  return (
+    <ResourceBoardCellBase>
+      <table>
+        <tbody>
+          <tr>
+            <td>{name}</td>
+            <td>
+              <InlineResourceIcon name={resource} />
+            </td>
+          </tr>
+          <tr>
+            <td>Production</td>
+            <td>{production}</td>
+          </tr>
+          <tr>
+            <td>Amount</td>
+            <td>{amount}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ResourceBoardCellBase>
+  );
+};
+
+export const ResourceBoardRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const ResourceBoard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;

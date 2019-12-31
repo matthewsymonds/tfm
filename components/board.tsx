@@ -8,7 +8,7 @@ const BoardOuter = styled.div`
   width: 800px;
   height: 800px;
   border: 2px solid gray;
-  background: #2a0e4e;
+  background: #212121;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,7 +26,7 @@ const Circle = styled.div`
   border-radius: 50%;
   width: 800px;
   height: 800px;
-  background: #e0a052;
+  background: #ce7e47;
   display: flex;
   justify-content: center;
   align-items: center;

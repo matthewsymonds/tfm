@@ -10,6 +10,22 @@ const GlobalStyles = createGlobalStyle`
       -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
       outline: none !important;
     }
+    button {
+      display: block;
+      cursor: pointer;
+      margin-top: auto;
+      margin-left: auto;
+      margin-right: auto;
+      justify-self: flex-end;
+      border: 0;
+      background: none;
+      box-shadow: none;
+      border-radius: 0px;
+      padding: 12px;
+      min-width: 100px;
+      font-size: 14px;
+      background: #dddddd;
+    }
 `;
 
 export default class MyDocument extends Document {

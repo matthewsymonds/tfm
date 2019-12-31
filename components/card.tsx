@@ -23,20 +23,6 @@ const CardComponentBase = styled.div<CardComponentBaseProps>`
   justify-content: flex-start;
 
   button {
-    display: block;
-    cursor: pointer;
-    margin-top: auto;
-    margin-left: auto;
-    margin-right: auto;
-    justify-self: flex-end;
-    border: 0;
-    background: none;
-    box-shadow: none;
-    border-radius: 0px;
-    padding: 12px;
-    width: 100px;
-    font-size: 14px;
-    background: #dddddd;
     visibility: ${props => (props.canToggle ? 'visible' : 'hidden')};
   }
 `;

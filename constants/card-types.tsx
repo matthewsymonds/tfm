@@ -1,4 +1,6 @@
 import {Resource} from './resource';
+import {TileType} from './board';
+import {ActionType, StandardProjectType} from './action';
 
 export interface Card {
   actionOrEffectText?: string;
@@ -38,6 +40,32 @@ export interface Card {
   terraformRatingIncrease?: number;
   venus?: number;
   victoryPoints?: number;
+  condition?(condition: Condition): boolean;
+  effect?(effect: Effect): void;
+}
+
+export interface Condition {
+  card?: Card;
+  tileType?: TileType;
+  tag?: Tag;
+  onMars?: boolean;
+  samePlayer?: boolean;
+  actionType?: ActionType;
+  cost?: number;
+  standardProjectType?: StandardProjectType;
+  newTag?: boolean;
+}
+
+export interface Effect {
+  // A reference to the condition that triggered the effect.
+  condition: Condition;
+  increaseProduction(name: Resource, amount: number): void;
+  gainResource(name: Resource, amount: number): void;
+  discardThenDraw(): void;
+  gainOneResource(options: Resource[], target: Card): void;
+  drawCard(): void;
+  discardThenDraw(): void;
+  addOrRemoveOneResource(resource: Resource, callback: Function): void;
 }
 
 export enum Deck {

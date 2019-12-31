@@ -1,10 +1,12 @@
-import {/*Card,*/ Deck, Tag, CardType} from './card-types';
+import {Card, Deck, Tag, CardType} from './card-types';
 import {Resource} from './resource';
+import {TileType} from './board';
+import {ActionType} from './action';
 
 // CardType check commented out for performance.
 // Good to check new cards for type safety.
 
-export const cards /*: Card[] */ = [
+export const cards: Card[] = [
   {
     cost: 8,
     deck: Deck.Basic,
@@ -237,7 +239,9 @@ export const cards /*: Card[] */ = [
     oneTimeText: 'It must be -12°C or colder to play. Gain 1 plant.',
     requiredMaxTemperature: -12,
     tags: [Tag.Plant],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.tileType === TileType.Ocean,
+    effect: effect => effect.gainResource(Resource.Plant, 2)
   },
   {
     actionOrEffectText:
@@ -320,7 +324,15 @@ export const cards /*: Card[] */ = [
     deck: Deck.Basic,
     name: 'Optimal Aerobraking',
     tags: [Tag.Space],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition =>
+      condition.samePlayer &&
+      condition.card.tags.includes(Tag.Space) &&
+      condition.card.tags.includes(Tag.Event),
+    effect: effect => {
+      effect.gainResource(Resource.Megacredit, 3);
+      effect.gainResource(Resource.Heat, 3);
+    }
   },
   {
     cost: 18,
@@ -392,7 +404,11 @@ export const cards /*: Card[] */ = [
     name: 'Rover Construction',
     tags: [Tag.Building],
     type: CardType.Active,
-    victoryPoints: 1
+    victoryPoints: 1,
+    condition: condition => condition.tileType === TileType.City,
+    effect: effect => {
+      effect.gainResource(Resource.Megacredit, 2);
+    }
   },
   {
     cost: 31,
@@ -744,7 +760,9 @@ export const cards /*: Card[] */ = [
     name: 'Mars University',
     tags: [Tag.Building, Tag.Science],
     type: CardType.Active,
-    victoryPoints: 1
+    victoryPoints: 1,
+    condition: condition => condition.tag === Tag.Science,
+    effect: effect => effect.discardThenDraw()
   },
   {
     actionOrEffectText:
@@ -753,7 +771,16 @@ export const cards /*: Card[] */ = [
     deck: Deck.Corporate,
     name: 'Viral Enhancers',
     tags: [Tag.Microbe, Tag.Science],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition =>
+      condition.tag === Tag.Plant ||
+      condition.tag === Tag.Microbe ||
+      condition.tag === Tag.Animal,
+    effect: effect =>
+      effect.gainOneResource(
+        [Resource.Plant, Resource.Microbe, Resource.Animal],
+        effect.condition.card
+      )
   },
   {
     cost: 23,
@@ -1088,7 +1115,9 @@ export const cards /*: Card[] */ = [
     deck: Deck.Corporate,
     name: 'Media Group',
     tags: [Tag.Earth],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.card.type === CardType.Event,
+    effect: effect => effect.gainResource(Resource.Megacredit, 3)
   },
   {
     actionOrEffectText:
@@ -1274,7 +1303,12 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
     tags: [Tag.Animal, Tag.Plant],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition =>
+      condition.tag === Tag.Animal || condition.tag === Tag.Plant,
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     cost: 13,
@@ -1307,7 +1341,12 @@ export const cards /*: Card[] */ = [
     oneTimeText: 'Requires 3# oxygen. 1 VP per 3 microbes on this card.',
     requiredOxygen: 3,
     tags: [Tag.Microbe],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition =>
+      [Tag.Animal, Tag.Plant, Tag.Microbe].includes(condition.tag),
+    effect(effect) {
+      effect.gainOneResource([Resource.Microbe], this);
+    }
   },
   {
     cost: 14,
@@ -1472,7 +1511,11 @@ export const cards /*: Card[] */ = [
       'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
     requiredOxygen: 8,
     tags: [Tag.Animal],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.tileType === TileType.Greenery,
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     cost: 9,
@@ -1560,7 +1603,9 @@ export const cards /*: Card[] */ = [
     deck: Deck.Corporate,
     name: 'Standard Technology',
     tags: [Tag.Science],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.actionType === ActionType.StandardProject,
+    effect: effect => effect.gainResource(Resource.Megacredit, 3)
   },
   {
     actionOrEffectText:
@@ -1720,7 +1765,11 @@ export const cards /*: Card[] */ = [
     name: 'Pets',
     oneTimeText: 'Add 1 animal to this card. 1 VP per 2 animals here.',
     tags: [Tag.Animal, Tag.Earth],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.tileType === TileType.City,
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     actionOrEffectText:
@@ -1853,7 +1902,12 @@ export const cards /*: Card[] */ = [
     name: 'Olympus Conference',
     tags: [Tag.Building, Tag.Earth, Tag.Science],
     type: CardType.Active,
-    victoryPoints: 1
+    victoryPoints: 1,
+    condition: condition => condition.tag === Tag.Science,
+    effect: effect =>
+      effect.addOrRemoveOneResource(Resource.Science, () => {
+        effect.drawCard();
+      })
   },
   {
     cost: 6,
@@ -1997,7 +2051,9 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'Decrease your energy production 1 step and decrease your MC production 2 steps. Place a city tile.',
     tags: [Tag.Building, Tag.City],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.tileType === TileType.City,
+    effect: effect => effect.increaseProduction(Resource.Megacredit, 1)
   },
   {
     cost: 3,
@@ -2610,7 +2666,11 @@ export const cards /*: Card[] */ = [
     oneTimeText: 'Requires Venus 18%. 1 VP for each animal on this card.',
     requiredVenus: 18,
     tags: [Tag.Animal, Tag.Science, Tag.Venus],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.tag === Tag.Venus,
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     actionOrEffectText: 'Action: Add 1 microbe to this card.',
@@ -2872,7 +2932,11 @@ export const cards /*: Card[] */ = [
     oneTimeText: 'Requires 2 city tiles in play.',
     tags: [Tag.Animal, Tag.Building],
     type: CardType.Active,
-    victoryPoints: 1
+    victoryPoints: 1,
+    condition: condition => condition.tag === Tag.Earth,
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     cost: 20,
@@ -3037,7 +3101,9 @@ export const cards /*: Card[] */ = [
     name: 'Spin-Off Department',
     oneTimeText: 'Increase your MC production 2 steps.',
     tags: [Tag.Building],
-    type: CardType.Active
+    type: CardType.Active,
+    condition: condition => condition.card && condition.card.cost > 20,
+    effect: effect => effect.drawCard()
   },
   {
     actionOrEffectText: 'Action: Add 1 animal to this card.',
@@ -3491,7 +3557,9 @@ export const cards /*: Card[] */ = [
     name: 'CrediCor',
     oneTimeText: 'You start with 57 MC.',
     tags: [],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => condition.cost && condition.cost >= 20,
+    effect: effect => effect.gainResource(Resource.Megacredit, 4)
   },
   {
     actionOrEffectText:
@@ -3522,7 +3590,10 @@ export const cards /*: Card[] */ = [
     name: 'Interplanetary Cinematics',
     oneTimeText: 'You start with 20 steel and 30 MC.',
     tags: [Tag.Building],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition =>
+      condition.card && condition.card.tags.includes(Tag.Event),
+    effect: effect => effect.gainResource(Resource.Megacredit, 2)
   },
   {
     actionOrEffectText:
@@ -3531,7 +3602,7 @@ export const cards /*: Card[] */ = [
     gainMegacredit: 45,
     name: 'Inventrix',
     oneTimeText:
-      'As your first action in the game, draw 3 cards. Start with 45 MC.',
+      'As your first action in the game, draw 3 cards. You start with 45 MC.',
     tags: [Tag.Science],
     type: CardType.Corporation
   },
@@ -3542,8 +3613,7 @@ export const cards /*: Card[] */ = [
     gainMegacredit: 30,
     gainSteel: 5,
     name: 'Mining Guild',
-    oneTimeText:
-      'The earliest private enterprises on Mars focused on mining and exporting minerals off the surface. As the mega-corporations arrive to terraform, the miners unite in the Guild to defend their interests. With their expertise and knowledg of the planet they will be a worthy contender in the race.',
+    oneTimeText: 'You start with 30 MC, 5 steel, and 1 steel production.',
     tags: [Tag.Building, Tag.Building],
     type: CardType.Corporation
   },
@@ -3555,7 +3625,9 @@ export const cards /*: Card[] */ = [
     name: 'Saturn Systems',
     oneTimeText: 'You start with 1 titanium production and 42 MC.',
     tags: [Tag.Jovian],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => condition.tag === Tag.Jovian,
+    effect: effect => effect.increaseProduction(Resource.Megacredit, 1)
   },
   {
     actionOrEffectText:
@@ -3587,7 +3659,18 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'You start with 40 MC. As your first action in the game, place a city tile.',
     tags: [Tag.Building],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition =>
+      condition.tileType === TileType.City &&
+      (condition.onMars || condition.samePlayer),
+    effect: effect => {
+      if (effect.condition.onMars) {
+        effect.increaseProduction(Resource.Megacredit, 1);
+      }
+      if (effect.condition.samePlayer) {
+        effect.gainResource(Resource.Megacredit, 3);
+      }
+    }
   },
   {
     actionOrEffectText:
@@ -3679,7 +3762,9 @@ export const cards /*: Card[] */ = [
     name: 'Point Luna',
     oneTimeText: 'You start with 38 MC and 1 titanium production.',
     tags: [Tag.Earth, Tag.Space],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => condition.tag === Tag.Earth,
+    effect: effect => effect.drawCard()
   },
   {
     actionOrEffectText:
@@ -3711,7 +3796,18 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'You start with 45 MC. As your first action, fund an award for free.',
     tags: [Tag.Earth],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => {
+      if (!condition.card) return false;
+
+      if (!condition.card.victoryPoints) return false;
+
+      if (typeof condition.card.victoryPoints === 'number') {
+        return condition.card.victoryPoints > 0;
+      }
+
+      return true;
+    }
   },
   {
     actionOrEffectText:
@@ -3722,7 +3818,9 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
     tags: [],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => condition.newTag,
+    effect: effect => effect.increaseProduction(Resource.Megacredit, 1)
   },
   {
     actionOrEffectText:
@@ -3734,7 +3832,11 @@ export const cards /*: Card[] */ = [
     oneTimeText:
       'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
     tags: [Tag.Animal],
-    type: CardType.Corporation
+    type: CardType.Corporation,
+    condition: condition => [Tag.Animal, Tag.Plant].includes(condition.tag),
+    effect(effect) {
+      effect.gainOneResource([Resource.Animal], this);
+    }
   },
   {
     actionOrEffectText:

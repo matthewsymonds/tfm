@@ -4,12 +4,14 @@ import {Hexagon} from './hexagon';
 
 const getColor = props => {
   switch (props.type) {
-    case TileType.CITY:
+    case TileType.City:
       return 'gray';
-    case TileType.GREENERY:
+    case TileType.Greenery:
       return 'green';
-    case TileType.OCEAN:
+    case TileType.Ocean:
       return 'blue';
+    case TileType.Other:
+      return 'brown';
   }
 };
 

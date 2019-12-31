@@ -6,7 +6,7 @@ import React from 'react';
 
 interface CardSelectorProps {
   max: number;
-  onSelect: (card: Card[]) => void;
+  onSelect: (cards: Card[]) => void;
   options: Card[];
   orientation: string;
   selectedCards: Card[];
@@ -46,20 +46,22 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
   };
 
   return (
-    <CardSelectorBase orientation={orientation}>
-      {options.map((option, key) => {
-        const selected = selectedCards.indexOf(option) >= 0;
-        return (
-          <CardComponent
-            key={key}
-            content={option}
-            canToggle={canSelect || selected}
-            selected={selected}
-            onSelect={handleSelect}
-            orientation={orientation}
-          />
-        );
-      })}
-    </CardSelectorBase>
+    <>
+      <CardSelectorBase orientation={orientation}>
+        {options.map((option, key) => {
+          const selected = selectedCards.indexOf(option) >= 0;
+          return (
+            <CardComponent
+              key={key}
+              content={option}
+              canToggle={canSelect || selected}
+              selected={selected}
+              onSelect={handleSelect}
+              orientation={orientation}
+            />
+          );
+        })}
+      </CardSelectorBase>
+    </>
   );
 };

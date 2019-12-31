@@ -1,14 +1,15 @@
 import {Resource} from './resource';
 
 export enum CellType {
-  LAND,
-  WATER
+  Land,
+  Water
 }
 
 export enum TileType {
-  GREENERY,
-  CITY,
-  OCEAN
+  Greenery,
+  City,
+  Ocean,
+  Other
 }
 
 class Tile {
@@ -22,13 +23,13 @@ class Cell {
 
 class Land extends Cell {
   constructor(bonus: Resource[] = []) {
-    super(CellType.LAND, bonus);
+    super(CellType.Land, bonus);
   }
 }
 
 class Water extends Cell {
   constructor(bonus: Resource[] = []) {
-    super(CellType.WATER, bonus);
+    super(CellType.Water, bonus);
   }
 }
 
