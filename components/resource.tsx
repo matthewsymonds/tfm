@@ -62,11 +62,13 @@ const ResourceBoardCellBase = styled.div`
   }
 `;
 
-interface ResourceBoardCellProps {
+export interface ResourceBoardCellProps {
   name: string;
   amount: number;
   production: number;
   resource: Resource;
+  setProduction: (n: number) => void;
+  setAmount: (n: number) => void;
 }
 
 const InlineResourceIcon = styled(ResourceIcon)`

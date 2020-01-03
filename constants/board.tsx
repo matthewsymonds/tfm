@@ -6,34 +6,97 @@ export enum CellType {
 }
 
 export enum TileType {
-  Greenery,
+  Capital,
   City,
+  EcologicalZone,
+  Greenery,
+  IndustrialCenter,
+  LandClaim,
+  LavaFlow,
+  MoholeArea,
+  Mining,
+  MiningAdjacent,
+  NaturalPreserve,
+  Noctis,
   Ocean,
-  Other
+  Other,
+  RestrictedArea
 }
 
-class Tile {
+export enum Location {
+  CityAdjacent,
+  DoubleCityAdjacent,
+  Ganymede,
+  GreeneryAdjacent,
+  Isolated,
+  Noctis,
+  NonReserved,
+  NotReservedForOcean,
+  Phobos,
+  ReservedForOcean,
+  SteelOrTitanium,
+  SteelOrTitaniumPlayerAdjacent,
+  Volcanic
+}
+
+export enum Parameter {
+  Temperature,
+  Ocean,
+  Oxygen,
+  TerraformRating
+}
+
+export interface TilePlacement {
+  type: TileType;
+  location?: Location;
+}
+
+export const t = (type: TileType, location?: Location): TilePlacement => ({
+  type,
+  location
+});
+
+const CURRENT_PLAYER = 'matt';
+
+export class Tile {
+  cell?: Cell;
   constructor(readonly owner: string, readonly type: TileType) {}
+
+  get ownedByCurrentPlayer(): boolean {
+    return this.owner === CURRENT_PLAYER;
+  }
 }
 
 class Cell {
+  onMars: boolean = false;
+
   tile?: Tile;
-  constructor(readonly type: CellType, readonly bonus: Resource[] = []) {}
+  constructor(
+    readonly type: CellType,
+    readonly bonus: Resource[] = [],
+    readonly location?: Location
+  ) {}
+
+  addTile(tile: Tile) {
+    this.tile = tile;
+    this.tile.cell = this;
+  }
 }
 
 class Land extends Cell {
-  constructor(bonus: Resource[] = []) {
-    super(CellType.Land, bonus);
+  constructor(bonus: Resource[] = [], location?: Location) {
+    super(CellType.Land, bonus, location);
   }
 }
 
 class Water extends Cell {
-  constructor(bonus: Resource[] = []) {
-    super(CellType.Water, bonus);
+  constructor(bonus: Resource[] = [], location?: Location) {
+    super(CellType.Water, bonus, location);
   }
 }
 
-const land = (bonus?: Resource[]): Land => new Land(bonus);
+const land = (bonus?: Resource[], location?: Location): Land =>
+  new Land(bonus, location);
 const water = (bonus?: Resource[]): Water => new Water(bonus);
 
 export const INITIAL_BOARD_STATE: Cell[][] = [
@@ -46,14 +109,14 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
   ],
   [
     land(),
-    land([Resource.Steel]),
+    land([Resource.Steel], Location.Volcanic),
     land(),
     land(),
     land(),
     water([Resource.Card, Resource.Card])
   ],
   [
-    land([Resource.Card]),
+    land([Resource.Card], Location.Volcanic),
     land(),
     land(),
     land(),
@@ -62,7 +125,7 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     land([Resource.Steel])
   ],
   [
-    land([Resource.Plant, Resource.Titanium]),
+    land([Resource.Plant, Resource.Titanium], Location.Volcanic),
     land([Resource.Plant]),
     land([Resource.Plant]),
     land([Resource.Plant]),
@@ -72,9 +135,9 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     water([Resource.Plant, Resource.Plant])
   ],
   [
+    land([Resource.Plant, Resource.Plant], Location.Volcanic),
     land([Resource.Plant, Resource.Plant]),
-    land([Resource.Plant, Resource.Plant]),
-    land([Resource.Plant, Resource.Plant]),
+    land([Resource.Plant, Resource.Plant], Location.Noctis),
     water([Resource.Plant, Resource.Plant]),
     water([Resource.Plant, Resource.Plant]),
     water([Resource.Plant, Resource.Plant]),
@@ -109,3 +172,14 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     water([Resource.Titanium, Resource.Titanium])
   ]
 ];
+
+for (const row of INITIAL_BOARD_STATE) {
+  for (const cell of row) {
+    cell.onMars = true;
+  }
+}
+
+INITIAL_BOARD_STATE.push([
+  land([], Location.Phobos),
+  land([], Location.Ganymede)
+]);

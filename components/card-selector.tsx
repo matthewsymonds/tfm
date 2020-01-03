@@ -11,27 +11,25 @@ interface CardSelectorProps {
   orientation: string;
   selectedCards: Card[];
   budget?: number;
+  width: number;
 }
 
-interface CardSelectorBaseProps {
-  orientation: string;
-}
-
-const CardSelectorBase = styled.div<CardSelectorBaseProps>`
+const CardSelectorBase = styled.div`
   display: flex;
   align-items: stretch;
-  justify-content: ${props =>
-    props.orientation === 'horizontal' ? 'center' : 'flex-start'};
-  width: 100%;
-  overflow-y: auto;
+  justify-content: center;
   flex-wrap: wrap;
+  flex: 1;
+  margin: 0 auto;
+  max-width: 1300px;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
-  const {max, onSelect, budget, options, orientation, selectedCards} = props;
+  const {max, onSelect, budget, options, width, selectedCards} = props;
   const canSelect = budget === undefined || budget >= 3;
 
   const handleSelect = (card: Card) => {
+    if (!canSelect) return;
     let newSelectedCards = [...selectedCards];
     const index = selectedCards.indexOf(card);
     if (index < 0) {
@@ -46,22 +44,21 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
   };
 
   return (
-    <>
-      <CardSelectorBase orientation={orientation}>
-        {options.map((option, key) => {
-          const selected = selectedCards.indexOf(option) >= 0;
-          return (
-            <CardComponent
-              key={key}
-              content={option}
-              canToggle={canSelect || selected}
-              selected={selected}
-              onSelect={handleSelect}
-              orientation={orientation}
-            />
-          );
-        })}
-      </CardSelectorBase>
-    </>
+    <CardSelectorBase>
+      {options.map((option, key) => {
+        const selected = selectedCards.indexOf(option) >= 0;
+        return (
+          <CardComponent
+            width={width}
+            key={key}
+            content={option}
+            selected={selected}>
+            <button disabled={!canSelect} onClick={() => handleSelect(option)}>
+              {selected ? 'Unselect' : 'Select'}
+            </button>
+          </CardComponent>
+        );
+      })}
+    </CardSelectorBase>
   );
 };

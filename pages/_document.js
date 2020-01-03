@@ -10,9 +10,21 @@ const GlobalStyles = createGlobalStyle`
       -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
       outline: none !important;
     }
+    h1, h2, h3, h4 {
+      text-align: center;
+      margin-top: 0px;
+      margin-bottom: 12px;
+      display: inherit;
+    }
+    h4 {
+      font-weight: normal;
+    }
     button {
       display: block;
       cursor: pointer;
+      &:disabled {
+        cursor: auto;
+      }
       margin-top: auto;
       margin-left: auto;
       margin-right: auto;

@@ -1,5 +1,5 @@
 import {Resource} from './resource';
-import {TileType} from './board';
+import {Tile, TileType, TilePlacement, Parameter} from './board';
 import {ActionType, StandardProjectType} from './action';
 
 export interface Card {
@@ -7,19 +7,14 @@ export interface Card {
   addsResourceToCards?: Resource;
   cost?: number;
   deck: Deck;
-  gainHeat?: number;
-  gainMegacredit?: number;
-  gainPlant?: number;
-  gainSteel?: number;
-  gainTitanium?: number;
   holdsResource?: Resource;
   name: string;
-  ocean?: number;
   oneTimeText?: string;
-  oxygen?: number;
   tags: Tag[];
-  temperature?: number;
   type: CardType;
+  resources?: Resource[];
+  requirement?(requirement: Requirement): boolean;
+  requirementFailedMessage?: string;
   requiredAnimal?: number;
   requiredEarth?: number;
   requiredEnergy?: number;
@@ -42,30 +37,73 @@ export interface Card {
   victoryPoints?: number;
   condition?(condition: Condition): boolean;
   effect?(effect: Effect): void;
+  oneTimeAction?(oneTimeAction: OneTimeAction): void;
+  increaseProduction?: Resource[];
+  decreaseProduction?: Resource[];
+  decreaseAnyProduction?: Resource[];
+  gainResource?: Resource[];
+  removeResource?: Resource[];
+  removeAnyResource?: Resource[];
+  gainResourceOption?: Resource[][];
+  removeAnyResourceOption?: Resource[][];
+  increaseProductionOption?: Resource[][];
+  loseAnyResourceOption?: Resource[][];
+  placeTile?: TilePlacement[];
+  increaseParameter?: Parameter[];
+  state?: State;
+  ownedByCurrentPlayer?: boolean;
 }
 
+interface State {
+  tags: Tag[];
+  cards: Card[];
+}
+
+interface OneTimeAction {
+  increaseProduction(resource: Resource, amount?: number): void;
+  duplicateBuildingTagProduction(): void;
+  tags: Tag[];
+}
+
+interface VictoryPointsCondition {
+  tags: Tag[];
+}
+
+type VictoryPoints = (condition: VictoryPointsCondition) => number;
+
 export interface Condition {
+  actionType?: ActionType;
   card?: Card;
-  tileType?: TileType;
-  tag?: Tag;
+  cost?: number;
+  newTag?: boolean;
   onMars?: boolean;
   samePlayer?: boolean;
-  actionType?: ActionType;
-  cost?: number;
   standardProjectType?: StandardProjectType;
-  newTag?: boolean;
+  tag?: Tag;
+  tileType?: TileType;
 }
 
 export interface Effect {
+  addOrRemoveOneResource(
+    resource: Resource,
+    removeResourceCallback: Function
+  ): void;
+  discardThenDraw(): void;
+  drawCard(): void;
+  gainResourceOption(options: Resource[][]): void;
   // A reference to the condition that triggered the effect.
   condition: Condition;
+  gainResource(name: Resource, amount: number, target?: Card): void;
   increaseProduction(name: Resource, amount: number): void;
-  gainResource(name: Resource, amount: number): void;
-  discardThenDraw(): void;
-  gainOneResource(options: Resource[], target: Card): void;
-  drawCard(): void;
-  discardThenDraw(): void;
-  addOrRemoveOneResource(resource: Resource, callback: Function): void;
+}
+
+export interface Requirement {
+  plants: number;
+  steelProduction: number;
+  titaniumProduction: number;
+  energyProduction: number;
+  megacreditProduction: number;
+  tiles: Tile[];
 }
 
 export enum Deck {
