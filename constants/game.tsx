@@ -1,7 +1,7 @@
 export enum GameStage {
-  CorporationSelection,
-  ActiveRound,
-  DiscardThenDraw,
-  Drafting,
-  EndOfGame
+    CorporationSelection,
+    ActiveRound,
+    DiscardThenDraw,
+    Drafting,
+    EndOfGame
 }
