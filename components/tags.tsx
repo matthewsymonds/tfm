@@ -30,19 +30,7 @@ interface TagsComponentProps {
     tags: Tag[];
 }
 
-const {
-    Animal,
-    Building,
-    City,
-    Earth,
-    Energy,
-    Jovian,
-    Microbe,
-    Plant,
-    Science,
-    Space,
-    Venus
-} = Tag;
+const {Animal, Building, City, Earth, Energy, Jovian, Microbe, Plant, Science, Space, Venus} = Tag;
 
 function getIcon(tag: Tag) {
     switch (tag) {
@@ -142,10 +130,7 @@ export const getOuterBackgroundColor = (tag: Tag) => {
 export const TagsComponent = (props: TagsComponentProps) => (
     <TagsBase>
         {props.tags.map((tag, index) => (
-            <TagBase
-                color={getTagColor(tag)}
-                background={getTagBackgroundColor(tag)}
-                key={index}>
+            <TagBase color={getTagColor(tag)} background={getTagBackgroundColor(tag)} key={index}>
                 {getIcon(tag)}
             </TagBase>
         ))}

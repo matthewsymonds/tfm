@@ -48,14 +48,8 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
             {options.map((option, key) => {
                 const selected = selectedCards.indexOf(option) >= 0;
                 return (
-                    <CardComponent
-                        width={width}
-                        key={key}
-                        content={option}
-                        selected={selected}>
-                        <button
-                            disabled={!canSelect}
-                            onClick={() => handleSelect(option)}>
+                    <CardComponent width={width} key={key} content={option} selected={selected}>
+                        <button disabled={!canSelect} onClick={() => handleSelect(option)}>
                             {selected ? 'Unselect' : 'Select'}
                         </button>
                     </CardComponent>
