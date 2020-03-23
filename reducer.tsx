@@ -45,7 +45,9 @@ const possibleCards = cards.filter(
 
 shuffle(possibleCards);
 
-const allCorporations = possibleCards.filter(card => card.type === CardType.Corporation);
+const allCorporations = possibleCards.filter(
+    card => card.type === CardType.Corporation
+);
 
 const deck = possibleCards.filter(card => card.type !== CardType.Corporation);
 const possibleCorporations = sampleCards(allCorporations, 2);
@@ -130,9 +132,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS:
                 const citiesOnMars = getCitiesOnMars(state.board);
-                handleChangeResource(draft, Resource.Megacredit, citiesOnMars);
+                draft.resources[Resource.Megacredit] += citiesOnMars;
             case CHANGE_RESOURCE:
-                handleChangeResource(draft, action.payload.resource, action.payload.amount);
+                draft.resources[action.payload.resource] +=
+                    action.payload.amount;
             default:
                 return draft;
         }
@@ -150,27 +153,4 @@ function getCitiesOnMars(state): number {
 
         return citiesInRow + acc;
     }, 0);
-}
-
-function handleChangeResource(draft, resource: Resource, amount: number) {
-    switch (resource) {
-        case Resource.Megacredit:
-            draft.resources.megacredit += amount;
-            break;
-        case Resource.Steel:
-            draft.resources.steel += amount;
-            break;
-        case Resource.Titanium:
-            draft.resources.titanium += amount;
-            break;
-        case Resource.Plant:
-            draft.resources.plant += amount;
-            break;
-        case Resource.Energy:
-            draft.resources.energy += amount;
-            break;
-        case Resource.Heat:
-            draft.resources.energy += amount;
-            break;
-    }
 }
