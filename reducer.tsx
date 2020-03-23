@@ -45,9 +45,7 @@ const possibleCards = cards.filter(
 
 shuffle(possibleCards);
 
-const allCorporations = possibleCards.filter(
-    card => card.type === CardType.Corporation
-);
+const allCorporations = possibleCards.filter(card => card.type === CardType.Corporation);
 
 const deck = possibleCards.filter(card => card.type !== CardType.Corporation);
 const possibleCorporations = sampleCards(allCorporations, 2);
@@ -134,11 +132,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 const citiesOnMars = getCitiesOnMars(state.board);
                 handleChangeResource(draft, Resource.Megacredit, citiesOnMars);
             case CHANGE_RESOURCE:
-                handleChangeResource(
-                    draft,
-                    action.payload.resource,
-                    action.payload.amount
-                );
+                handleChangeResource(draft, action.payload.resource, action.payload.amount);
             default:
                 return draft;
         }

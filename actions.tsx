@@ -22,8 +22,7 @@ export const revealAndDiscardTopCard = () => ({
     type: REVEAL_AND_DISCARD_TOP_CARD
 });
 
-export const ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG =
-    'ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG';
+export const ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG = 'ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG';
 
 export const addResourceIfRevealedCardHasTag = (
     cardName: string,
@@ -49,8 +48,7 @@ export const changeResource = (resource: Resource, amount: number) => {
     };
 };
 
-export const GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS =
-    'GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS';
+export const GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS = 'GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS';
 export const gainOneMegacreditPerCityOnMars = () => {
     return {
         type: GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS
