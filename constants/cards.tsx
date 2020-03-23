@@ -62,7 +62,8 @@ export const cards: Card[] = [
         cost: 13,
         deck: Deck.Basic,
         name: 'Deep Well Heating',
-        oneTimeText: 'Increase your energy production 1 step. Increase temperature 1 step.',
+        oneTimeText:
+            'Increase your energy production 1 step. Increase temperature 1 step.',
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         increaseProduction: [Titanium],
@@ -84,7 +85,9 @@ export const cards: Card[] = [
     {
         action: function(dispatch) {
             dispatch(revealAndDiscardTopCard());
-            dispatch(addResourceIfRevealedCardHasTag(this.name, Science, Tag.Microbe));
+            dispatch(
+                addResourceIfRevealedCardHasTag(this.name, Science, Tag.Microbe)
+            );
         },
         actionOrEffectText:
             'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
@@ -104,7 +107,8 @@ export const cards: Card[] = [
     },
     {
         action: dispatch => dispatch(goToGameStage(GameStage.BuyOrDiscard)),
-        actionOrEffectText: 'Action: Look at the top card and either buy it or discard it',
+        actionOrEffectText:
+            'Action: Look at the top card and either buy it or discard it',
         cost: 9,
         deck: Deck.Corporate,
         name: "Inventors' Guild",
@@ -116,7 +120,8 @@ export const cards: Card[] = [
             dispatch(changeResource(Resource.Energy, -1));
             dispatch(gainOneMegacreditPerCityOnMars());
         },
-        actionOrEffectText: 'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.',
+        actionOrEffectText:
+            'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.',
         cost: 13,
         deck: Deck.Basic,
         name: 'Martian Rails',
@@ -134,7 +139,13 @@ export const cards: Card[] = [
         type: CardType.Automated,
         placeTile: [t(TileType.Capital)],
         decreaseProduction: [Energy],
-        increaseProduction: [Megacredit, Megacredit, Megacredit, Megacredit, Megacredit]
+        increaseProduction: [
+            Megacredit,
+            Megacredit,
+            Megacredit,
+            Megacredit,
+            Megacredit
+        ]
     },
     {
         cost: 14,
@@ -261,10 +272,15 @@ export const cards: Card[] = [
             'Gain 3 plants, or add 3 microbes or 2 animals to ANOTHER card. Place an ocean tile.',
         tags: [Tag.Earth, Tag.Event, Tag.Space],
         type: CardType.Event,
-        gainResourceOption: [Array(3).fill(Plant), Array(3).fill(Microbe), Array(2).fill(Animal)]
+        gainResourceOption: [
+            Array(3).fill(Plant),
+            Array(3).fill(Microbe),
+            Array(2).fill(Animal)
+        ]
     },
     {
-        actionOrEffectText: 'Effect: When you play a card, you pay 1 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a card, you pay 1 MC less for it.',
         cost: 18,
         deck: Deck.Basic,
         name: 'Research Outpost',
@@ -298,7 +314,8 @@ export const cards: Card[] = [
         increaseProduction: Array(3).fill(Heat)
     },
     {
-        actionOrEffectText: 'Effect: When anyone places an ocean tile, gain 2 plants.',
+        actionOrEffectText:
+            'Effect: When anyone places an ocean tile, gain 2 plants.',
         cost: 12,
         deck: Deck.Basic,
         name: 'Arctic Algae',
@@ -311,7 +328,8 @@ export const cards: Card[] = [
         gainResource: [Plant]
     },
     {
-        actionOrEffectText: 'Action: Remove 1 animal from any card and add it to this card.',
+        actionOrEffectText:
+            'Action: Remove 1 animal from any card and add it to this card.',
         cost: 14,
         deck: Deck.Basic,
         holdsResource: Animal,
@@ -326,7 +344,8 @@ export const cards: Card[] = [
         }
     },
     {
-        actionOrEffectText: 'Effect: When you play a space card, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a space card, you pay 2 MC less for it.',
         cost: 10,
         deck: Deck.Corporate,
         name: 'Space Station',
@@ -358,7 +377,8 @@ export const cards: Card[] = [
         victoryPoints: 4
     },
     {
-        actionOrEffectText: 'Action: Spend 1 titanium to add 1 fighter resource to this card.',
+        actionOrEffectText:
+            'Action: Spend 1 titanium to add 1 fighter resource to this card.',
         cost: 12,
         deck: Deck.Corporate,
         holdsResource: Fighter,
@@ -396,7 +416,8 @@ export const cards: Card[] = [
         increaseProduction: [...Array(2).fill(Heat), ...Array(2).fill(Energy)]
     },
     {
-        actionOrEffectText: 'Effect: When you place a space event, you gain 3 MC and 3 heat.',
+        actionOrEffectText:
+            'Effect: When you place a space event, you gain 3 MC and 3 heat.',
         cost: 7,
         deck: Deck.Basic,
         name: 'Optimal Aerobraking',
@@ -448,7 +469,8 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
-        actionOrEffectText: 'Action: Remove 1 microbe from any card to add 1 to this card.',
+        actionOrEffectText:
+            'Action: Remove 1 microbe from any card to add 1 to this card.',
         cost: 9,
         deck: Deck.Basic,
         holdsResource: Microbe,
@@ -481,7 +503,8 @@ export const cards: Card[] = [
         get increaseProduction() {
             if (!this.state) return [Plant];
 
-            if (this.state.tags.filter(tag => tag === Tag.Plant).length < 3) return [Plant];
+            if (this.state.tags.filter(tag => tag === Tag.Plant).length < 3)
+                return [Plant];
 
             return [Plant, Plant, Plant, Plant];
         }
@@ -536,7 +559,8 @@ export const cards: Card[] = [
         cost: 6,
         deck: Deck.Basic,
         name: 'Archaebacteria',
-        oneTimeText: 'It must be -18°C or colder. Increase your plant production 1 step.',
+        oneTimeText:
+            'It must be -18°C or colder. Increase your plant production 1 step.',
         requiredMaxTemperature: -18,
         tags: [Tag.Microbe],
         type: CardType.Automated,
@@ -637,7 +661,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Corporate,
         name: 'Miranda Resort',
-        oneTimeText: 'Increase your MC production 1 step for each Earth tag you have.',
+        oneTimeText:
+            'Increase your MC production 1 step for each Earth tag you have.',
         tags: [Tag.Jovian, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -645,7 +670,9 @@ export const cards: Card[] = [
             if (!this.state) {
                 return [];
             }
-            return this.state.tags.filter(tag => tag === Tag.Earth).fill(Megacredit);
+            return this.state.tags
+                .filter(tag => tag === Tag.Earth)
+                .fill(Megacredit);
         }
     },
     {
@@ -703,7 +730,10 @@ export const cards: Card[] = [
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1,
-        increaseProduction: [...Array(2).fill(Megacredit), ...Array(3).fill(Plant)],
+        increaseProduction: [
+            ...Array(2).fill(Megacredit),
+            ...Array(3).fill(Plant)
+        ],
         gainResource: [Plant, Plant]
     },
     {
@@ -788,7 +818,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Basic,
         name: 'Mining Expedition',
-        oneTimeText: 'Raise oxygen 1 step. Remove 2 plants from any player. Gain 2 steel.',
+        oneTimeText:
+            'Raise oxygen 1 step. Remove 2 plants from any player. Gain 2 steel.',
         tags: [Tag.Event],
         type: CardType.Event,
         increaseParameter: [Oxygen],
@@ -803,11 +834,15 @@ export const cards: Card[] = [
             'Place [the mining] tile on an area with a steel or titanium placement bonus, adjacent to another of your tiles. Increase your production of that resource 1 step.',
         tags: [Tag.Building],
         type: CardType.Automated,
-        placeTile: [t(TileType.MiningAdjacent, Location.SteelOrTitaniumPlayerAdjacent)],
+        placeTile: [
+            t(TileType.MiningAdjacent, Location.SteelOrTitaniumPlayerAdjacent)
+        ],
         get increaseProduction() {
             if (!this.state) return [];
 
-            const tile = this.state.tiles.find(tile => tile.type === TileType.MiningAdjacent);
+            const tile = this.state.tiles.find(
+                tile => tile.type === TileType.MiningAdjacent
+            );
             if (!tile) return [];
 
             const {bonus} = tile.cell;
@@ -830,7 +865,8 @@ export const cards: Card[] = [
         cost: 1,
         deck: Deck.Corporate,
         name: 'Land Claim',
-        oneTimeText: 'Place your marker on a non-reserved area. Only you may place a tile here',
+        oneTimeText:
+            'Place your marker on a non-reserved area. Only you may place a tile here',
         tags: [Tag.Event],
         type: CardType.Event,
         placeTile: [t(TileType.LandClaim, Location.NonReserved)]
@@ -859,7 +895,8 @@ export const cards: Card[] = [
         cost: 17,
         deck: Deck.Corporate,
         name: 'Electro Catapult',
-        oneTimeText: 'Oxygen must be 8% or less. Decrease your energy production 1 step.',
+        oneTimeText:
+            'Oxygen must be 8% or less. Decrease your energy production 1 step.',
         requiredMaxOxygen: 8,
         tags: [Tag.Building],
         type: CardType.Active,
@@ -867,7 +904,8 @@ export const cards: Card[] = [
         decreaseProduction: [Energy]
     },
     {
-        actionOrEffectText: 'Effect: when you play a card, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: when you play a card, you pay 2 MC less for it.',
         cost: 23,
         deck: Deck.Corporate,
         name: 'Earth Catapult',
@@ -921,14 +959,17 @@ export const cards: Card[] = [
         name: 'Viral Enhancers',
         tags: [Tag.Microbe, Tag.Science],
         type: CardType.Active,
-        condition: condition => [Tag.Plant, Tag.Microbe, Tag.Animal].includes(condition.tag),
-        effect: effect => effect.gainResourceOption([[Plant], [Microbe], [Microbe]])
+        condition: condition =>
+            [Tag.Plant, Tag.Microbe, Tag.Animal].includes(condition.tag),
+        effect: effect =>
+            effect.gainResourceOption([[Plant], [Microbe], [Microbe]])
     },
     {
         cost: 23,
         deck: Deck.Basic,
         name: 'Towing a Comet',
-        oneTimeText: 'Gain 2 plants. Raise oxygen level 1 step and place an ocean tile.',
+        oneTimeText:
+            'Gain 2 plants. Raise oxygen level 1 step and place an ocean tile.',
         tags: [Tag.Event, Tag.Space],
         type: CardType.Event,
         gainResource: [Plant, Plant],
@@ -936,7 +977,8 @@ export const cards: Card[] = [
         placeTile: [t(TileType.Ocean)]
     },
     {
-        actionOrEffectText: 'Action: Spend 7MC to increase your energy production 1 step.',
+        actionOrEffectText:
+            'Action: Spend 7MC to increase your energy production 1 step.',
         cost: 3,
         deck: Deck.Basic,
         name: 'Space Mirrors',
@@ -947,7 +989,8 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.Basic,
         name: 'Solar Wind Power',
-        oneTimeText: 'Increase your energy production 1 step and gain 2 titanium.',
+        oneTimeText:
+            'Increase your energy production 1 step and gain 2 titanium.',
         tags: [Tag.Energy, Tag.Science, Tag.Space],
         type: CardType.Automated,
         increaseProduction: [Energy],
@@ -963,7 +1006,8 @@ export const cards: Card[] = [
         placeTile: [t(TileType.Ocean), t(TileType.Ocean)]
     },
     {
-        actionOrEffectText: 'Effect: When you play a space card, you pay 2 MC less for it',
+        actionOrEffectText:
+            'Effect: When you play a space card, you pay 2 MC less for it',
         cost: 13,
         deck: Deck.Corporate,
         name: 'Quantum Extractor',
@@ -1042,7 +1086,8 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.Corporate,
         name: 'Robotic Workforce',
-        oneTimeText: 'Duplicate only the production box of one of your building cards.',
+        oneTimeText:
+            'Duplicate only the production box of one of your building cards.',
         tags: [Tag.Science],
         type: CardType.Automated,
         oneTimeAction(action) {
@@ -1098,7 +1143,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Corporate,
         name: 'Gene Repair',
-        oneTimeText: 'Requires 3 science tags. Increase your MC production 2 steps.',
+        oneTimeText:
+            'Requires 3 science tags. Increase your MC production 2 steps.',
         requiredScience: 3,
         tags: [Tag.Science],
         type: CardType.Automated,
@@ -1128,18 +1174,21 @@ export const cards: Card[] = [
         gainResource: [Plant, Plant]
     },
     {
-        actionOrEffectText: 'Effect: When you play a space card, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a space card, you pay 2 MC less for it.',
         cost: 8,
         deck: Deck.Corporate,
         name: 'Mass Converter',
-        oneTimeText: 'Requires 5 science tags. Increase your energy production 6 steps.',
+        oneTimeText:
+            'Requires 5 science tags. Increase your energy production 6 steps.',
         requiredScience: 5,
         tags: [Tag.Energy, Tag.Science],
         type: CardType.Active,
         increaseProduction: Array(6).fill(Energy)
     },
     {
-        actionOrEffectText: 'Action: Spend 6 energy to add a science resource to this card.',
+        actionOrEffectText:
+            'Action: Spend 6 energy to add a science resource to this card.',
         cost: 12,
         deck: Deck.Corporate,
         holdsResource: Science,
@@ -1161,14 +1210,17 @@ export const cards: Card[] = [
         type: CardType.Automated,
         get gainResource() {
             if (!this.state) return [];
-            return this.state.tiles.filter(tile => tile.type === TileType.City).fill(Plant);
+            return this.state.tiles
+                .filter(tile => tile.type === TileType.City)
+                .fill(Plant);
         }
     },
     {
         cost: 10,
         deck: Deck.Basic,
         name: 'Nuclear Zone',
-        oneTimeText: 'Place [the nuclear zone] tile and raise the temperature 2 steps.',
+        oneTimeText:
+            'Place [the nuclear zone] tile and raise the temperature 2 steps.',
         tags: [Tag.Earth],
         type: CardType.Automated,
         victoryPoints: -2,
@@ -1190,7 +1242,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Corporate,
         name: 'Toll Station',
-        oneTimeText: 'Increase your MC production 1 step for each space tag your OPPONENTS have.',
+        oneTimeText:
+            'Increase your MC production 1 step for each space tag your OPPONENTS have.',
         tags: [Tag.Space],
         type: CardType.Automated,
         get increaseProduction() {
@@ -1214,7 +1267,8 @@ export const cards: Card[] = [
         increaseProduction: [Energy]
     },
     {
-        actionOrEffectText: 'Action: Spend 4 energy to gain 1 steel and increase oxygen 1 step.',
+        actionOrEffectText:
+            'Action: Spend 4 energy to gain 1 steel and increase oxygen 1 step.',
         cost: 11,
         deck: Deck.Basic,
         name: 'Ironworks',
@@ -1231,11 +1285,14 @@ export const cards: Card[] = [
         type: CardType.Automated,
         get increaseProduction() {
             if (!this.state) return [];
-            return this.state.tags.filter(tag => tag === Tag.Energy).fill(Energy);
+            return this.state.tags
+                .filter(tag => tag === Tag.Energy)
+                .fill(Energy);
         }
     },
     {
-        actionOrEffectText: 'Action: Spend 4 energy to gain 2 steel and increase oxygen 1 step.',
+        actionOrEffectText:
+            'Action: Spend 4 energy to gain 2 steel and increase oxygen 1 step.',
         cost: 15,
         deck: Deck.Basic,
         name: 'Steelworks',
@@ -1243,7 +1300,8 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
-        actionOrEffectText: 'Action: Spend 4 energy to gain 1 titanium and increase oxygen 1 step.',
+        actionOrEffectText:
+            'Action: Spend 4 energy to gain 1 titanium and increase oxygen 1 step.',
         cost: 13,
         deck: Deck.Basic,
         name: 'Ore Processor',
@@ -1251,7 +1309,8 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
-        actionOrEffectText: 'Effect: When you play an Earth tag, you pay 3 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play an Earth tag, you pay 3 MC less for it.',
         cost: 1,
         deck: Deck.Corporate,
         name: 'Earth Office',
@@ -1276,7 +1335,9 @@ export const cards: Card[] = [
         get gainResource() {
             if (!this.state) return [];
 
-            return this.state.cards.filter(card => card.type === CardType.Event).fill(Megacredit);
+            return this.state.cards
+                .filter(card => card.type === CardType.Event)
+                .fill(Megacredit);
         }
     },
     {
@@ -1293,17 +1354,20 @@ export const cards: Card[] = [
         increaseProduction: Array(4).fill(Energy)
     },
     {
-        actionOrEffectText: 'Effect: After you play an event card, you gain 3MC',
+        actionOrEffectText:
+            'Effect: After you play an event card, you gain 3MC',
         cost: 6,
         deck: Deck.Corporate,
         name: 'Media Group',
         tags: [Tag.Earth],
         type: CardType.Active,
-        condition: condition => condition.card && condition.card.type === CardType.Event,
+        condition: condition =>
+            condition.card && condition.card.type === CardType.Event,
         effect: effect => effect.gainResource(Megacredit, 3)
     },
     {
-        actionOrEffectText: 'Action: Look at the top card and either buy it or discard it',
+        actionOrEffectText:
+            'Action: Look at the top card and either buy it or discard it',
         cost: 4,
         deck: Deck.Corporate,
         name: 'Business Network',
@@ -1356,7 +1420,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Basic,
         name: 'Artificial Photosynthesis',
-        oneTimeText: 'Increase your plant production 1 step or your energy production 2 steps.',
+        oneTimeText:
+            'Increase your plant production 1 step or your energy production 2 steps.',
         tags: [Tag.Science],
         type: CardType.Automated,
         increaseProductionOption: [[Plant], [Energy, Energy]]
@@ -1419,7 +1484,8 @@ export const cards: Card[] = [
         cost: 1,
         deck: Deck.Corporate,
         name: 'Sabotage',
-        oneTimeText: 'Remove up to 3 titanium from any player, or 4 steel, or 7 MC.',
+        oneTimeText:
+            'Remove up to 3 titanium from any player, or 4 steel, or 7 MC.',
         tags: [Tag.Event],
         type: CardType.Event,
         removeAnyResource: [Titanium, Titanium, Titanium]
@@ -1436,11 +1502,13 @@ export const cards: Card[] = [
         removeResource: [Plant]
     },
     {
-        actionOrEffectText: 'Action: Spend 7 MC to increase your steel production 1 step.',
+        actionOrEffectText:
+            'Action: Spend 7 MC to increase your steel production 1 step.',
         cost: 4,
         deck: Deck.Corporate,
         name: 'Industrial Center',
-        oneTimeText: 'Place [the Industrial Center] tile ADJACENT TO A CITY TILE.',
+        oneTimeText:
+            'Place [the Industrial Center] tile ADJACENT TO A CITY TILE.',
         tags: [Tag.Building],
         type: CardType.Active,
         placeTile: [t(TileType.IndustrialCenter, Location.CityAdjacent)]
@@ -1537,7 +1605,9 @@ export const cards: Card[] = [
         type: CardType.Automated,
         get increaseProduction() {
             if (!this.state) return [];
-            const numMicrobeTags = this.state.tags.filter(tag => tag === Tag.Microbe).length;
+            const numMicrobeTags = this.state.tags.filter(
+                tag => tag === Tag.Microbe
+            ).length;
 
             return Array(Math.floor(numMicrobeTags / 2)).fill(Plant);
         }
@@ -1554,7 +1624,8 @@ export const cards: Card[] = [
         requiredOxygen: 3,
         tags: [Tag.Microbe],
         type: CardType.Active,
-        condition: condition => [Tag.Animal, Tag.Plant, Tag.Microbe].includes(condition.tag),
+        condition: condition =>
+            [Tag.Animal, Tag.Plant, Tag.Microbe].includes(condition.tag),
         effect(effect) {
             effect.gainResource(Microbe, 1, this);
         },
@@ -1566,7 +1637,8 @@ export const cards: Card[] = [
         cost: 14,
         deck: Deck.Basic,
         name: 'Fusion Power',
-        oneTimeText: 'Requires 2 power tags. Increase your energy production 3 steps.',
+        oneTimeText:
+            'Requires 2 power tags. Increase your energy production 3 steps.',
         requiredEnergy: 2,
         tags: [Tag.Building, Tag.Energy, Tag.Science],
         type: CardType.Automated,
@@ -1583,7 +1655,8 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
-        actionOrEffectText: 'Action: Gain 1 plant or add 2 microbes to ANOTHER card.',
+        actionOrEffectText:
+            'Action: Gain 1 plant or add 2 microbes to ANOTHER card.',
         cost: 13,
         deck: Deck.Basic,
         name: 'Extreme-Cold Fungus',
@@ -1608,7 +1681,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Basic,
         name: 'Great Dam',
-        oneTimeText: 'Requires 4 ocean tiles. Increase your energy production 2 steps.',
+        oneTimeText:
+            'Requires 4 ocean tiles. Increase your energy production 2 steps.',
         requiredOcean: 4,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
@@ -1643,7 +1717,8 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.Basic,
         name: 'Wave Power',
-        oneTimeText: 'Requires 3 ocean tiles. Increase your energy production 1 step.',
+        oneTimeText:
+            'Requires 3 ocean tiles. Increase your energy production 1 step.',
         requiredOcean: 3,
         tags: [Tag.Energy],
         type: CardType.Automated,
@@ -1706,7 +1781,8 @@ export const cards: Card[] = [
         cost: 18,
         deck: Deck.Basic,
         name: 'Tectonic Stress Power',
-        oneTimeText: 'Requires 2 science tags. Increase your energy production 3 steps.',
+        oneTimeText:
+            'Requires 2 science tags. Increase your energy production 3 steps.',
         requiredScience: 2,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
@@ -1726,7 +1802,8 @@ export const cards: Card[] = [
         increaseProduction: [Plant, Plant]
     },
     {
-        actionOrEffectText: 'Effect: When you place a greenery tile, add an animal to this card.',
+        actionOrEffectText:
+            'Effect: When you place a greenery tile, add an animal to this card.',
         cost: 12,
         deck: Deck.Basic,
         holdsResource: Animal,
@@ -1769,7 +1846,8 @@ export const cards: Card[] = [
         type: CardType.Event
     },
     {
-        actionOrEffectText: 'Effect: when you play a card, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: when you play a card, you pay 2 MC less for it.',
         cost: 14,
         deck: Deck.Corporate,
         name: 'Anti-Gravity Technology',
@@ -1809,7 +1887,8 @@ export const cards: Card[] = [
         victoryPoints: 1
     },
     {
-        actionOrEffectText: 'Action: Spend 8 heat to increase your terraforming rating 1 step.',
+        actionOrEffectText:
+            'Action: Spend 8 heat to increase your terraforming rating 1 step.',
         cost: 3,
         deck: Deck.Corporate,
         name: 'Caretaker Contract',
@@ -1822,7 +1901,8 @@ export const cards: Card[] = [
         cost: 16,
         deck: Deck.Basic,
         name: 'Designed Microorganisms',
-        oneTimeText: 'It must be -14°C or colder. Increase your plant production 2 steps.',
+        oneTimeText:
+            'It must be -14°C or colder. Increase your plant production 2 steps.',
         requiredMaxTemperature: -14,
         tags: [Tag.Microbe, Tag.Science],
         type: CardType.Automated,
@@ -1836,7 +1916,8 @@ export const cards: Card[] = [
         name: 'Standard Technology',
         tags: [Tag.Science],
         type: CardType.Active,
-        condition: condition => condition.actionType === ActionType.StandardProject,
+        condition: condition =>
+            condition.actionType === ActionType.StandardProject,
         effect: effect => effect.gainResource(Megacredit, 3)
     },
     {
@@ -1855,7 +1936,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Basic,
         name: 'Industrial Microbes',
-        oneTimeText: 'Increase your energy production and your steel production 1 step each.',
+        oneTimeText:
+            'Increase your energy production and your steel production 1 step each.',
         tags: [Tag.Building, Tag.Microbe],
         type: CardType.Automated,
         increaseProduction: [Energy, Steel]
@@ -1864,7 +1946,8 @@ export const cards: Card[] = [
         cost: 7,
         deck: Deck.Basic,
         name: 'Lichen',
-        oneTimeText: 'Requires -24°C or warmer. Increase your plant production 1 step.',
+        oneTimeText:
+            'Requires -24°C or warmer. Increase your plant production 1 step.',
         requiredTemperature: -24,
         tags: [Tag.Plant],
         type: CardType.Automated,
@@ -1912,7 +1995,11 @@ export const cards: Card[] = [
         tags: [Tag.Earth, Tag.Event, Tag.Space],
         type: CardType.Event,
         increaseParameter: [TerraformRating],
-        gainResource: [...Array(4).fill(Plant), ...Array(3).fill(Microbe), ...Array(2).fill(Animal)]
+        gainResource: [
+            ...Array(4).fill(Plant),
+            ...Array(3).fill(Microbe),
+            ...Array(2).fill(Animal)
+        ]
     },
     {
         cost: 3,
@@ -1937,7 +2024,8 @@ export const cards: Card[] = [
         increaseParameter: Array(3).fill(TerraformRating)
     },
     {
-        actionOrEffectText: 'Effect: When you play a space card, you pay 2MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a space card, you pay 2MC less for it.',
         cost: 10,
         deck: Deck.Basic,
         name: 'Shuttles',
@@ -1963,7 +2051,8 @@ export const cards: Card[] = [
         cost: 6,
         deck: Deck.Basic,
         name: 'Windmills',
-        oneTimeText: 'Requires 7% oxygen. Increase your energy production 1 step.',
+        oneTimeText:
+            'Requires 7% oxygen. Increase your energy production 1 step.',
         requiredOxygen: 7,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
@@ -2024,7 +2113,8 @@ export const cards: Card[] = [
         }
     },
     {
-        actionOrEffectText: '[Effect: ]Opponents may not remove your [plants, animals or microbes]',
+        actionOrEffectText:
+            '[Effect: ]Opponents may not remove your [plants, animals or microbes]',
         cost: 5,
         deck: Deck.Corporate,
         name: 'Protected Habitats',
@@ -2052,7 +2142,9 @@ export const cards: Card[] = [
         type: CardType.Automated,
         get increaseProduction() {
             if (!this.state) return [];
-            return this.state.tags.filter(tag => tag === Tag.Space).fill(Megacredit);
+            return this.state.tags
+                .filter(tag => tag === Tag.Space)
+                .fill(Megacredit);
         }
     },
     {
@@ -2188,12 +2280,14 @@ export const cards: Card[] = [
         cost: 6,
         deck: Deck.Corporate,
         name: 'Rad-Suits',
-        oneTimeText: 'Requires 2 cities in play. Increase your MC production 1 step.',
+        oneTimeText:
+            'Requires 2 cities in play. Increase your MC production 1 step.',
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1,
         requirement: requirement =>
-            requirement.tiles.filter(tile => tile.type === TileType.City).length > 2,
+            requirement.tiles.filter(tile => tile.type === TileType.City)
+                .length > 2,
         requirementFailedMessage: 'There must be two cities in play',
         increaseProduction: [Megacredit]
     },
@@ -2220,19 +2314,23 @@ export const cards: Card[] = [
         cost: 15,
         deck: Deck.Basic,
         name: 'Energy Saving',
-        oneTimeText: 'Increase your energy production 1 step for each city tile in play.',
+        oneTimeText:
+            'Increase your energy production 1 step for each city tile in play.',
         tags: [Tag.Energy],
         type: CardType.Automated,
         get increaseProduction() {
             if (!this.state) return [];
-            return this.state.tiles.filter(tile => tile.type === TileType.City).fill(Megacredit);
+            return this.state.tiles
+                .filter(tile => tile.type === TileType.City)
+                .fill(Megacredit);
         }
     },
     {
         cost: 1,
         deck: Deck.Basic,
         name: 'Local Heat Trapping',
-        oneTimeText: 'Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card.',
+        oneTimeText:
+            'Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card.',
         tags: [Tag.Event],
         type: CardType.Event,
         removeResource: Array(5).fill(Heat),
@@ -2261,14 +2359,16 @@ export const cards: Card[] = [
         cost: 15,
         deck: Deck.Basic,
         name: 'Plantation',
-        oneTimeText: 'Requires 2 science tags. Place a greenery tile and raise oxygen 1 step.',
+        oneTimeText:
+            'Requires 2 science tags. Place a greenery tile and raise oxygen 1 step.',
         requiredScience: 2,
         tags: [Tag.Plant],
         type: CardType.Automated,
         placeTile: [t(TileType.Greenery)]
     },
     {
-        actionOrEffectText: 'Action: Spend any amount of energy to gain that amount of MC.',
+        actionOrEffectText:
+            'Action: Spend any amount of energy to gain that amount of MC.',
         cost: 4,
         deck: Deck.Corporate,
         name: 'Power Infrastructure',
@@ -2298,26 +2398,32 @@ export const cards: Card[] = [
         cost: 33,
         deck: Deck.Corporate,
         name: 'Terraforming Ganymede',
-        oneTimeText: 'Raise your TR 1 step for each Jovian tag you have, including this.',
+        oneTimeText:
+            'Raise your TR 1 step for each Jovian tag you have, including this.',
         tags: [Tag.Jovian, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 2,
         get increaseParameter() {
             if (!this.state) return [];
-            return this.state.tags.filter(tag => tag === Tag.Jovian).fill(TerraformRating);
+            return this.state.tags
+                .filter(tag => tag === Tag.Jovian)
+                .fill(TerraformRating);
         }
     },
     {
         cost: 31,
         deck: Deck.Basic,
         name: 'Immigration Shuttles',
-        oneTimeText: 'Increase your MC production 5 steps. 1 VP for every 3rd city in play.',
+        oneTimeText:
+            'Increase your MC production 5 steps. 1 VP for every 3rd city in play.',
         tags: [Tag.Earth, Tag.Space],
         type: CardType.Automated,
         increaseProduction: Array(5).fill(Megacredit),
         get victoryPoints() {
             if (!this.state) return 0;
-            const cities = this.state.tile.filter(tile => tile.type === TileType.City);
+            const cities = this.state.tile.filter(
+                tile => tile.type === TileType.City
+            );
 
             return Math.floor(cities.length / 3);
         }
@@ -2351,7 +2457,8 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.Corporate,
         name: 'Energy Tapping',
-        oneTimeText: 'Decrease any energy production 1 step and increase your own 1 step.',
+        oneTimeText:
+            'Decrease any energy production 1 step and increase your own 1 step.',
         tags: [Tag.Energy],
         type: CardType.Automated,
         victoryPoints: -1,
@@ -2359,7 +2466,8 @@ export const cards: Card[] = [
         increaseProduction: [Energy]
     },
     {
-        actionOrEffectText: 'Action: Spend 10 MC to increase your heat production 2 steps.',
+        actionOrEffectText:
+            'Action: Spend 10 MC to increase your heat production 2 steps.',
         cost: 6,
         deck: Deck.Basic,
         name: 'Underground Detonations',
@@ -2389,7 +2497,8 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.Basic,
         name: 'Rad-Chem Factory',
-        oneTimeText: 'Decrease your energy production 1 step. Raise your terraform rating 2 steps.',
+        oneTimeText:
+            'Decrease your energy production 1 step. Raise your terraform rating 2 steps.',
         tags: [Tag.Building],
         type: CardType.Automated,
         decreaseProduction: [Energy],
@@ -2428,7 +2537,8 @@ export const cards: Card[] = [
         cost: 21,
         deck: Deck.Corporate,
         name: 'AI Central',
-        oneTimeText: 'Requires 3 science tags to play. Decrease your energy production 1 step.',
+        oneTimeText:
+            'Requires 3 science tags to play. Decrease your energy production 1 step.',
         requiredScience: 3,
         tags: [Tag.Building, Tag.Science],
         type: CardType.Active,
@@ -2493,7 +2603,8 @@ export const cards: Card[] = [
         cost: 7,
         deck: Deck.Venus,
         name: 'Aerosport Tournament',
-        oneTimeText: 'Requires that you have 5 floaters. Gain 1 MC for each city tile in play.',
+        oneTimeText:
+            'Requires that you have 5 floaters. Gain 1 MC for each city tile in play.',
         tags: [Tag.Event],
         type: CardType.Event,
         victoryPoints: 1
@@ -2544,7 +2655,8 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.Venus,
         name: 'Corroder Suits',
-        oneTimeText: 'Increase your MC production 2 steps. Add 1 resource to ANY VENUS CARD.',
+        oneTimeText:
+            'Increase your MC production 2 steps. Add 1 resource to ANY VENUS CARD.',
         tags: [Tag.Venus],
         type: CardType.Automated
     },
@@ -2600,7 +2712,8 @@ export const cards: Card[] = [
         holdsResource: Microbe,
         resources: [],
         name: 'Extremophiles',
-        oneTimeText: 'Requires 2 science tags. 1 VP for per 3 microbes on this card.',
+        oneTimeText:
+            'Requires 2 science tags. 1 VP for per 3 microbes on this card.',
         requiredScience: 2,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Active
@@ -2612,7 +2725,8 @@ export const cards: Card[] = [
         holdsResource: Floater,
         resources: [],
         name: 'Floating Habs',
-        oneTimeText: 'Requires 2 science tags. 1 VP per 2 floaters on this card.',
+        oneTimeText:
+            'Requires 2 science tags. 1 VP per 2 floaters on this card.',
         requiredScience: 2,
         tags: [Tag.Venus],
         type: CardType.Active
@@ -2644,7 +2758,8 @@ export const cards: Card[] = [
         cost: 23,
         deck: Deck.Venus,
         name: 'GHG Import from Venus',
-        oneTimeText: 'Raise Venus 1 step. Increase your heat production 3 steps.',
+        oneTimeText:
+            'Raise Venus 1 step. Increase your heat production 3 steps.',
         tags: [Tag.Event, Tag.Space, Tag.Venus],
         type: CardType.Event
     },
@@ -2681,7 +2796,8 @@ export const cards: Card[] = [
         cost: 17,
         deck: Deck.Venus,
         name: 'Io Sulphur Research',
-        oneTimeText: 'Draw 1 card, or draw 3 cards if you have at least 3 Venus tags.',
+        oneTimeText:
+            'Draw 1 card, or draw 3 cards if you have at least 3 Venus tags.',
         tags: [Tag.Jovian, Tag.Science],
         type: CardType.Automated,
         victoryPoints: 2
@@ -2690,7 +2806,8 @@ export const cards: Card[] = [
         cost: 5,
         deck: Deck.Venus,
         name: 'Ishtar Mining',
-        oneTimeText: 'Requires Venus 8%. Increase your titanium production 1 step.',
+        oneTimeText:
+            'Requires Venus 8%. Increase your titanium production 1 step.',
         requiredVenus: 8,
         tags: [Tag.Venus],
         type: CardType.Automated
@@ -2778,7 +2895,8 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.Venus,
         name: 'Omnicourt',
-        oneTimeText: 'Requires Venus, Earth, and Jovian tags. Increase your TR 2 steps.',
+        oneTimeText:
+            'Requires Venus, Earth, and Jovian tags. Increase your TR 2 steps.',
         requiredEarth: 1,
         requiredJovian: 1,
         requiredVenusTags: 1,
@@ -2790,7 +2908,8 @@ export const cards: Card[] = [
         cost: 26,
         deck: Deck.Venus,
         name: 'Orbital Reflectors',
-        oneTimeText: 'Raise Venus 2 steps. Increase your heat production 2 steps.',
+        oneTimeText:
+            'Raise Venus 2 steps. Increase your heat production 2 steps.',
         tags: [Tag.Space, Tag.Venus],
         type: CardType.Automated
     },
@@ -2809,7 +2928,8 @@ export const cards: Card[] = [
         cost: 7,
         deck: Deck.Venus,
         name: 'Sister Planet Support',
-        oneTimeText: 'Requires Venus and Earth tag. Increase your MC production 3 steps.',
+        oneTimeText:
+            'Requires Venus and Earth tag. Increase your MC production 3 steps.',
         requiredEarth: 1,
         requiredVenusTags: 1,
         tags: [Tag.Earth, Tag.Venus],
@@ -2841,7 +2961,8 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.Venus,
         name: 'Sponsored Academies',
-        oneTimeText: 'Discard 1 card from hand and THEN draw 3 cards. All OPPONENTS draw 1 card.',
+        oneTimeText:
+            'Discard 1 card from hand and THEN draw 3 cards. All OPPONENTS draw 1 card.',
         tags: [Tag.Earth, Tag.Science],
         type: CardType.Automated,
         victoryPoints: 1
@@ -2899,7 +3020,8 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.Venus,
         name: 'Terraforming Contract',
-        oneTimeText: 'Requires that you have at least 25 TR. Increase your MC production 4 steps.',
+        oneTimeText:
+            'Requires that you have at least 25 TR. Increase your MC production 4 steps.',
         tags: [Tag.Earth],
         type: CardType.Automated
     },
@@ -2929,13 +3051,15 @@ export const cards: Card[] = [
         cost: 4,
         deck: Deck.Venus,
         name: 'Venus Governor',
-        oneTimeText: 'Requires 2 Venus tags. Increase your MC production 2 steps.',
+        oneTimeText:
+            'Requires 2 Venus tags. Increase your MC production 2 steps.',
         requiredVenusTags: 2,
         tags: [Tag.Venus, Tag.Venus],
         type: CardType.Automated
     },
     {
-        actionOrEffectText: 'Action: Decrease your energy production 1 step to raise Venus 1 step.',
+        actionOrEffectText:
+            'Action: Decrease your energy production 1 step to raise Venus 1 step.',
         cost: 7,
         deck: Deck.Venus,
         name: 'Venus Magnetizer',
@@ -2955,7 +3079,8 @@ export const cards: Card[] = [
         type: CardType.Automated
     },
     {
-        actionOrEffectText: 'Effect: When you play a Venus tag, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a Venus tag, you pay 2 MC less for it.',
         cost: 9,
         deck: Deck.Venus,
         name: 'Venus Waystation',
@@ -3017,7 +3142,8 @@ export const cards: Card[] = [
         cost: 0,
         deck: Deck.Colonies,
         name: 'Air Raid',
-        oneTimeText: 'Requires that you lose 1 floater. Steal 5 MC from any player.',
+        oneTimeText:
+            'Requires that you lose 1 floater. Steal 5 MC from any player.',
         tags: [Tag.Event],
         type: CardType.Event
     },
@@ -3037,7 +3163,8 @@ export const cards: Card[] = [
         cost: 13,
         deck: Deck.Colonies,
         name: 'Community Services',
-        oneTimeText: 'Increase your MC production 1 step per CARD WITH NO TAGS, including this.',
+        oneTimeText:
+            'Increase your MC production 1 step per CARD WITH NO TAGS, including this.',
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1
@@ -3057,13 +3184,15 @@ export const cards: Card[] = [
         cost: 10,
         deck: Deck.Colonies,
         name: 'Corona Extractor',
-        oneTimeText: 'Requires 4 science tags. Increase your energy production 4 steps.',
+        oneTimeText:
+            'Requires 4 science tags. Increase your energy production 4 steps.',
         requiredScience: 4,
         tags: [Tag.Energy, Tag.Space],
         type: CardType.Automated
     },
     {
-        actionOrEffectText: 'Effect: When you trade, you pay 1 less resource for it.',
+        actionOrEffectText:
+            'Effect: When you trade, you pay 1 less resource for it.',
         cost: 10,
         deck: Deck.Colonies,
         name: 'Cryo-Sleep',
@@ -3094,7 +3223,8 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.Colonies,
         name: 'Floater Leasing',
-        oneTimeText: 'Increase your MC production 1 step per 3 floaters you have.',
+        oneTimeText:
+            'Increase your MC production 1 step per 3 floaters you have.',
         tags: [],
         type: CardType.Automated
     },
@@ -3119,7 +3249,8 @@ export const cards: Card[] = [
         cost: 15,
         deck: Deck.Colonies,
         name: 'Gaillean Waystation',
-        oneTimeText: 'Increase your MC production 1 step for every Jovian tags in play.',
+        oneTimeText:
+            'Increase your MC production 1 step for every Jovian tags in play.',
         tags: [Tag.Space],
         type: CardType.Automated,
         victoryPoints: 1
@@ -3128,7 +3259,8 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.Colonies,
         name: 'Heavy Taxation',
-        oneTimeText: 'Requires 2 Earth tags. Increase your MC production 2 steps, and gain 4 MC.',
+        oneTimeText:
+            'Requires 2 Earth tags. Increase your MC production 2 steps, and gain 4 MC.',
         requiredEarth: 2,
         tags: [Tag.Earth],
         type: CardType.Automated,
@@ -3146,7 +3278,8 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.Colonies,
         name: 'Impactor Swarm',
-        oneTimeText: 'Requries 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.',
+        oneTimeText:
+            'Requries 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.',
         requiredJovian: 2,
         tags: [Tag.Event, Tag.Space],
         type: CardType.Event
@@ -3191,7 +3324,8 @@ export const cards: Card[] = [
         cost: 4,
         deck: Deck.Colonies,
         name: 'Luna Governor',
-        oneTimeText: 'Requires 3 Earch tags. Increase your MC production 2 steps.',
+        oneTimeText:
+            'Requires 3 Earch tags. Increase your MC production 2 steps.',
         requiredEarth: 3,
         tags: [Tag.Earth, Tag.Earth],
         type: CardType.Automated
@@ -3244,7 +3378,8 @@ export const cards: Card[] = [
         cost: 20,
         deck: Deck.Colonies,
         name: 'Mining Colony',
-        oneTimeText: 'Increase your titanium production 1 step. Place a colony.',
+        oneTimeText:
+            'Increase your titanium production 1 step. Place a colony.',
         tags: [Tag.Space],
         type: CardType.Automated
     },
@@ -3260,7 +3395,8 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.Colonies,
         name: 'Molecular Printing',
-        oneTimeText: 'Gain 1 MC fo each city tile in play. Gain 1 MC for each colony in play.',
+        oneTimeText:
+            'Gain 1 MC fo each city tile in play. Gain 1 MC for each colony in play.',
         tags: [Tag.Science],
         type: CardType.Automated,
         victoryPoints: 1
@@ -3333,12 +3469,14 @@ export const cards: Card[] = [
         cost: 20,
         deck: Deck.Colonies,
         name: 'Research Colony',
-        oneTimeText: 'Place a colony. MAY BE PLACED WHERE YOU ALREADY HAVE A COLONY. Draw 2 cards.',
+        oneTimeText:
+            'Place a colony. MAY BE PLACED WHERE YOU ALREADY HAVE A COLONY. Draw 2 cards.',
         tags: [Tag.Science, Tag.Space],
         type: CardType.Automated
     },
     {
-        actionOrEffectText: 'Effect: When you trade, you pay 1 less resource for it.',
+        actionOrEffectText:
+            'Effect: When you trade, you pay 1 less resource for it.',
         cost: 4,
         deck: Deck.Colonies,
         name: 'Rim Freighters',
@@ -3346,7 +3484,8 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
-        actionOrEffectText: 'Effect: When you play a card, you pay 1 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a card, you pay 1 MC less for it.',
         cost: 18,
         deck: Deck.Colonies,
         name: 'Sky Docks',
@@ -3360,7 +3499,8 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.Colonies,
         name: 'Solar Probe',
-        oneTimeText: 'Draw 1 card for every 3 science tags you have, including this.',
+        oneTimeText:
+            'Draw 1 card for every 3 science tags you have, including this.',
         tags: [Tag.Event, Tag.Science, Tag.Space],
         type: CardType.Event,
         victoryPoints: 1
@@ -3483,7 +3623,8 @@ export const cards: Card[] = [
         type: CardType.Automated
     },
     {
-        actionOrEffectText: 'Effect: When you play a space tag, you pay 4 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a space tag, you pay 4 MC less for it.',
         cost: 14,
         deck: Deck.Colonies,
         name: 'Warp Drive',
@@ -3503,7 +3644,8 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Aquifer Turbines',
-        oneTimeText: 'Place an ocean tile. Increase your energy production 2 steps. Remove 3 MC.',
+        oneTimeText:
+            'Place an ocean tile. Increase your energy production 2 steps. Remove 3 MC.',
         tags: [Tag.Energy],
         type: CardType.Prelude
     },
@@ -3525,7 +3667,8 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Biosphere Support',
-        oneTimeText: 'Decrease your MC production 1 step. Increase your plant production 2 steps.',
+        oneTimeText:
+            'Decrease your MC production 1 step. Increase your plant production 2 steps.',
         tags: [Tag.Plant],
         type: CardType.Prelude
     },
@@ -3539,7 +3682,8 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Dome Farming',
-        oneTimeText: 'Increase your plant production 1 step. Increase your MC production 2 steps.',
+        oneTimeText:
+            'Increase your plant production 1 step. Increase your MC production 2 steps.',
         tags: [Tag.Building, Tag.Plant],
         type: CardType.Prelude
     },
@@ -3553,7 +3697,8 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Early Settlement',
-        oneTimeText: 'Place a city tile. Increase your plant production 1 step.',
+        oneTimeText:
+            'Place a city tile. Increase your plant production 1 step.',
         tags: [Tag.Building, Tag.City],
         type: CardType.Prelude
     },
@@ -3618,7 +3763,8 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Martian Industries',
-        oneTimeText: 'Increase your energy production and steel production 1 step each. Gain 6 MC.',
+        oneTimeText:
+            'Increase your energy production and steel production 1 step each. Gain 6 MC.',
         tags: [Tag.Building],
         type: CardType.Prelude
     },
@@ -3671,14 +3817,16 @@ export const cards: Card[] = [
     {
         deck: Deck.Prelude,
         name: 'Orbital Construction Yard',
-        oneTimeText: 'Increase your titanium produciton [sic] 1 step. Gain 4 titanium.',
+        oneTimeText:
+            'Increase your titanium produciton [sic] 1 step. Gain 4 titanium.',
         tags: [Tag.Space],
         type: CardType.Prelude
     },
     {
         deck: Deck.Prelude,
         name: 'Polar Industries',
-        oneTimeText: 'Place 1 ocean tile. Increase your heat production 2 steps.',
+        oneTimeText:
+            'Place 1 ocean tile. Increase your heat production 2 steps.',
         tags: [Tag.Building],
         type: CardType.Prelude
     },
@@ -3812,7 +3960,8 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.Prelude,
         name: 'Space Hotels',
-        oneTimeText: 'Requires 2 Earth tags. Increase your MC production 4 steps.',
+        oneTimeText:
+            'Requires 2 Earth tags. Increase your MC production 4 steps.',
         requiredEarth: 2,
         tags: [Tag.Earth, Tag.Space],
         type: CardType.Automated
@@ -3841,7 +3990,8 @@ export const cards: Card[] = [
         increaseProduction: [Plant, Plant]
     },
     {
-        actionOrEffectText: 'Effect: You may use heat as MC. You may not use MC as heat.',
+        actionOrEffectText:
+            'Effect: You may use heat as MC. You may not use MC as heat.',
         deck: Deck.Basic,
         name: 'Helion',
         oneTimeText: 'You start with 3 heat production and 42 MC.',
@@ -3851,13 +4001,15 @@ export const cards: Card[] = [
         gainResource: Array(42).fill(Megacredit)
     },
     {
-        actionOrEffectText: 'Effect: Each time you play an event, you gain 2 MC.',
+        actionOrEffectText:
+            'Effect: Each time you play an event, you gain 2 MC.',
         deck: Deck.Basic,
         name: 'Interplanetary Cinematics',
         oneTimeText: 'You start with 20 steel and 30 MC.',
         tags: [Tag.Building],
         type: CardType.Corporation,
-        condition: condition => condition.card && condition.card.tags.includes(Tag.Event),
+        condition: condition =>
+            condition.card && condition.card.tags.includes(Tag.Event),
         effect: effect => effect.gainResource(Megacredit, 2),
         gainResource: [...Array(30).fill(Megacredit), ...Array(20).fill(Steel)]
     },
@@ -3866,7 +4018,8 @@ export const cards: Card[] = [
             'Effect: Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.',
         deck: Deck.Basic,
         name: 'Inventrix',
-        oneTimeText: 'As your first action in the game, draw 3 cards. You start with 45 MC.',
+        oneTimeText:
+            'As your first action in the game, draw 3 cards. You start with 45 MC.',
         tags: [Tag.Science],
         type: CardType.Corporation,
         gainResource: Array(45).fill(Megacredit)
@@ -3896,16 +4049,21 @@ export const cards: Card[] = [
         gainResource: Array(42).fill(Megacredit)
     },
     {
-        actionOrEffectText: 'Effect: Your titanium resources are each worth 1 MC extra.',
+        actionOrEffectText:
+            'Effect: Your titanium resources are each worth 1 MC extra.',
         deck: Deck.Basic,
         name: 'PhoboLog',
         oneTimeText: 'You start with 10 titanium and 23 MC',
         tags: [Tag.Space],
         type: CardType.Corporation,
-        gainResource: [...Array(10).fill(Titanium), ...Array(23).fill(Megacredit)]
+        gainResource: [
+            ...Array(10).fill(Titanium),
+            ...Array(23).fill(Megacredit)
+        ]
     },
     {
-        actionOrEffectText: 'Effect: When playing an Earth card, you pay 3 MC less for it.',
+        actionOrEffectText:
+            'Effect: When playing an Earth card, you pay 3 MC less for it.',
         deck: Deck.Corporate,
         name: 'Teractor',
         oneTimeText: 'You start with 60 MC.',
@@ -3918,11 +4076,13 @@ export const cards: Card[] = [
             'Effect: When any city tile is placed ON MARS, increase your MC production 1 step. When you place a city tile, gain 3 MC.',
         deck: Deck.Basic,
         name: 'Tharsis Republic',
-        oneTimeText: 'You start with 40 MC. As your first action in the game, place a city tile.',
+        oneTimeText:
+            'You start with 40 MC. As your first action in the game, place a city tile.',
         tags: [Tag.Building],
         type: CardType.Corporation,
         condition: condition =>
-            condition.tileType === TileType.City && (condition.onMars || condition.samePlayer),
+            condition.tileType === TileType.City &&
+            (condition.onMars || condition.samePlayer),
         effect: effect => {
             if (effect.condition.onMars) {
                 effect.increaseProduction(Megacredit, 1);
@@ -3955,7 +4115,8 @@ export const cards: Card[] = [
         gainResource: Array(40).fill(Megacredit)
     },
     {
-        actionOrEffectText: 'Effect: Whenever Venus is terraformed 1 step, you gain 2 MC.',
+        actionOrEffectText:
+            'Effect: Whenever Venus is terraformed 1 step, you gain 2 MC.',
         deck: Deck.Venus,
         name: 'Aphrodite',
         oneTimeText: 'You start with 47 MC and 1 plant production.',
@@ -4002,7 +4163,8 @@ export const cards: Card[] = [
         type: CardType.Corporation
     },
     {
-        actionOrEffectText: 'Effect: When you play a building tag, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a building tag, you pay 2 MC less for it.',
         deck: Deck.Prelude,
         name: 'Cheung Shing Mars',
         oneTimeText: 'You start with 44 MC and 3 MC production.',
@@ -4010,7 +4172,8 @@ export const cards: Card[] = [
         type: CardType.Corporation
     },
     {
-        actionOrEffectText: 'Effect: When you play a Earth tag, including this, draw a card.',
+        actionOrEffectText:
+            'Effect: When you play a Earth tag, including this, draw a card.',
         deck: Deck.Prelude,
         name: 'Point Luna',
         oneTimeText: 'You start with 38 MC and 1 titanium production.',
@@ -4029,7 +4192,8 @@ export const cards: Card[] = [
         type: CardType.Corporation
     },
     {
-        actionOrEffectText: 'Effect: When you play a science tag, you pay 2 MC less for it.',
+        actionOrEffectText:
+            'Effect: When you play a science tag, you pay 2 MC less for it.',
         deck: Deck.Prelude,
         name: 'Valley Trust',
         oneTimeText:
@@ -4042,7 +4206,8 @@ export const cards: Card[] = [
             'Effect: When you play a card with a NON-NEGATIVE VP icon, including this, gain 3 MC.',
         deck: Deck.Prelude,
         name: 'Vitor',
-        oneTimeText: 'You start with 45 MC. As your first action, fund an award for free.',
+        oneTimeText:
+            'You start with 45 MC. As your first action, fund an award for free.',
         tags: [Tag.Earth],
         type: CardType.Corporation,
         condition: condition => {
@@ -4084,7 +4249,8 @@ export const cards: Card[] = [
             'Effect: When you buy a card to hand, pay 5 MC instead of 3 MC, including the starting hand.',
         deck: Deck.Colonies,
         name: 'Polyphemos',
-        oneTimeText: 'You start with 50 MC. Increase your MC production 5 steps. Gain 5 titanium.',
+        oneTimeText:
+            'You start with 50 MC. Increase your MC production 5 steps. Gain 5 titanium.',
         tags: [],
         type: CardType.Corporation
     },
@@ -4093,7 +4259,8 @@ export const cards: Card[] = [
             'Effect: When any colony is placed, including this, raise your MC production 1 step.',
         deck: Deck.Colonies,
         name: 'Poseidon',
-        oneTimeText: 'You start with 45 MC. As your first action, place a colony.',
+        oneTimeText:
+            'You start with 45 MC. As your first action, place a colony.',
         tags: [],
         type: CardType.Corporation
     },
@@ -4118,4 +4285,5 @@ for (const card of cards) {
     cardNames.push(card.name);
 }
 
-export const getCardsFromNames = (names: string[]) => names.map(name => cardsDict[name]);
+export const getCardsFromNames = (names: string[]) =>
+    names.map(name => cardsDict[name]);
