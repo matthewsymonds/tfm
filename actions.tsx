@@ -60,7 +60,3 @@ export const CONFIRM_CORPORATION_AND_CARDS = 'CONFIRM_CORPORATION_AND_CARDS';
 export const confirmCorporationAndCards = () => ({
     type: CONFIRM_CORPORATION_AND_CARDS
 });
-export const CONFIRM_CORPORATION_AND_CARDS = 'CONFIRM_CORPORATION_AND_CARDS';
-export const confirmCorporationAndCards = () => ({
-    type: CONFIRM_CORPORATION_AND_CARDS
-});
