@@ -84,10 +84,7 @@ export interface Condition {
 }
 
 export interface Effect {
-    addOrRemoveOneResource(
-        resource: Resource,
-        removeResourceCallback: Function
-    ): void;
+    addOrRemoveOneResource(resource: Resource, removeResourceCallback: Function): void;
     discardThenDraw(): void;
     drawCard(): void;
     gainResourceOption(options: Resource[][]): void;
