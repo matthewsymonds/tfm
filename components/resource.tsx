@@ -31,10 +31,7 @@ interface ResourceIconProps {
     className?: string;
 }
 
-export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
-    name,
-    className
-}) => (
+export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, className}) => (
     <ResourceIconBase
         color={getResourceColor(name)}
         className={className}
@@ -63,12 +60,9 @@ const ResourceBoardCellBase = styled.div`
 `;
 
 export interface ResourceBoardCellProps {
-    name: string;
     amount: number;
     production: number;
     resource: Resource;
-    setProduction: (n: number) => void;
-    setAmount: (n: number) => void;
 }
 
 const InlineResourceIcon = styled(ResourceIcon)`
@@ -78,7 +72,6 @@ const InlineResourceIcon = styled(ResourceIcon)`
 `;
 
 export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
-    name,
     amount,
     production,
     resource
@@ -88,7 +81,7 @@ export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> 
             <table>
                 <tbody>
                     <tr>
-                        <td>{name}</td>
+                        <td>{resource}</td>
                         <td>
                             <InlineResourceIcon name={resource} />
                         </td>
