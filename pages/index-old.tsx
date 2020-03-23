@@ -39,11 +39,7 @@ function handleProductionChanges(list: Resource[] = [], multiplier: number) {
     }
 }
 
-function handleResourceChanges(
-    list: Resource[] = [],
-    multiplier: number,
-    setCards: Function
-) {
+function handleResourceChanges(list: Resource[] = [], multiplier: number, setCards: Function) {
     const resourceChanges = tokenize(list);
 
     for (const token of resourceChanges) {
@@ -95,10 +91,7 @@ function tokenize(list: Resource[]): Token[] {
     let i = 0;
     while (i < list.length) {
         const item = list[i];
-        if (
-            tokens[tokens.length - 1] &&
-            tokens[tokens.length - 1][0] === item
-        ) {
+        if (tokens[tokens.length - 1] && tokens[tokens.length - 1][0] === item) {
             tokens[tokens.length - 1][1]++;
         } else {
             tokens.push([item, 1]);
@@ -321,12 +314,8 @@ export default function Index(props: IndexProps) {
 
     function handleConfirm(corporation: Card, cards: Card[]) {
         setCorporation(corporation);
-        const megacredits = corporation.gainResource.filter(
-            r => r === Resource.Megacredit
-        );
-        const otherResources = corporation.gainResource.filter(
-            r => r !== Resource.Megacredit
-        );
+        const megacredits = corporation.gainResource.filter(r => r === Resource.Megacredit);
+        const otherResources = corporation.gainResource.filter(r => r !== Resource.Megacredit);
 
         megacredits.length -= cards.length * 3;
 
@@ -346,9 +335,7 @@ export default function Index(props: IndexProps) {
 
     return (
         <GameBase>
-            {gameStage === GameStage.DiscardThenDraw && (
-                <div>Discard then draw</div>
-            )}
+            {gameStage === GameStage.DiscardThenDraw && <div>Discard then draw</div>}
             {gameStage === GameStage.CorporationSelection && (
                 <CorporationSelection
                     startingCards={startingCards}
@@ -373,10 +360,7 @@ export default function Index(props: IndexProps) {
                         {row.map(
                             (cell, index) =>
                                 cell.onMars && (
-                                    <Cell
-                                        type={cell.type}
-                                        bonus={cell.bonus}
-                                        key={index}>
+                                    <Cell type={cell.type} bonus={cell.bonus} key={index}>
                                         {cell.tile && <TileComponent />}
                                     </Cell>
                                 )

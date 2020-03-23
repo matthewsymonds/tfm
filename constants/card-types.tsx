@@ -3,6 +3,8 @@ import {Tile, TileType, TilePlacement, Parameter} from './board';
 import {ActionType, StandardProjectType} from './action';
 
 export interface Card {
+    action?: (dispatch: Function) => void;
+    usedActionThisRound?: boolean;
     actionOrEffectText?: string;
     addsResourceToCards?: Resource;
     cost?: number;

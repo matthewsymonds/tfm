@@ -1,8 +1,11 @@
 import {GameStage} from './constants/game';
+import {INITIAL_BOARD_STATE, TileType, Board} from './constants/board';
 import {
     SET_CORPORATION,
     SET_CARDS,
     GO_TO_GAME_STAGE,
+    CHANGE_RESOURCE,
+    GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS,
     CONFIRM_CORPORATION_AND_CARDS
 } from './actions';
 import produce from 'immer';
@@ -42,7 +45,9 @@ const possibleCards = cards.filter(
 
 shuffle(possibleCards);
 
-const allCorporations = possibleCards.filter(card => card.type === CardType.Corporation);
+const allCorporations = possibleCards.filter(
+    card => card.type === CardType.Corporation
+);
 
 const deck = possibleCards.filter(card => card.type !== CardType.Corporation);
 const possibleCorporations = sampleCards(allCorporations, 2);
@@ -72,6 +77,7 @@ export type GameState = {
     temperature: number;
     ocean: number;
     oxygen: number;
+    board: Board;
 };
 
 const INITIAL_STATE: GameState = {
@@ -89,7 +95,8 @@ const INITIAL_STATE: GameState = {
     productions: initialResources(),
     temperature: -30,
     ocean: 0,
-    oxygen: 0
+    oxygen: 0,
+    board: INITIAL_BOARD_STATE
 };
 
 export const reducer = (state = INITIAL_STATE, action) => {
@@ -123,8 +130,27 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case GO_TO_GAME_STAGE:
                 draft.gameStage = action.payload;
                 break;
+            case GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS:
+                const citiesOnMars = getCitiesOnMars(state.board);
+                draft.resources[Resource.Megacredit] += citiesOnMars;
+            case CHANGE_RESOURCE:
+                draft.resources[action.payload.resource] +=
+                    action.payload.amount;
             default:
                 return draft;
         }
     });
 };
+
+function getCitiesOnMars(state): number {
+    return state.board.reduce((acc, row) => {
+        const citiesInRow = row.reduce((rowAcc, cell) => {
+            if (!cell.onMars) return rowAcc;
+            if (!cell.tile) return rowAcc;
+
+            return cell.tile.type == TileType.City ? rowAcc + 1 : rowAcc;
+        }, 0);
+
+        return citiesInRow + acc;
+    }, 0);
+}

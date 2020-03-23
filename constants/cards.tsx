@@ -1,7 +1,15 @@
 import {Card, Deck, Tag, CardType} from './card-types';
 import {Resource} from './resource';
 import {TileType, Location, Parameter, t} from './board';
+import {GameStage} from './game';
 import {ActionType} from './action';
+import {
+    goToGameStage,
+    changeResource,
+    gainOneMegacreditPerCityOnMars,
+    revealAndDiscardTopCard,
+    addResourceIfRevealedCardHasTag
+} from '../actions';
 
 const {
     Animal,
@@ -74,6 +82,10 @@ export const cards: Card[] = [
         increaseProduction: [Plant, Plant]
     },
     {
+        action: function(dispatch) {
+            dispatch(revealAndDiscardTopCard());
+            dispatch(addResourceIfRevealedCardHasTag(this.name, Science, Tag.Microbe));
+        },
         actionOrEffectText:
             'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
         cost: 3,
@@ -91,6 +103,7 @@ export const cards: Card[] = [
         }
     },
     {
+        action: dispatch => dispatch(goToGameStage(GameStage.BuyOrDiscard)),
         actionOrEffectText: 'Action: Look at the top card and either buy it or discard it',
         cost: 9,
         deck: Deck.Corporate,
@@ -99,6 +112,10 @@ export const cards: Card[] = [
         type: CardType.Active
     },
     {
+        action: dispatch => {
+            dispatch(changeResource(Resource.Energy, -1));
+            dispatch(gainOneMegacreditPerCityOnMars());
+        },
         actionOrEffectText: 'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.',
         cost: 13,
         deck: Deck.Basic,

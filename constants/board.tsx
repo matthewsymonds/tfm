@@ -95,9 +95,10 @@ class Water extends Cell {
     }
 }
 
-const land = (bonus?: Resource[], location?: Location): Land =>
-    new Land(bonus, location);
+const land = (bonus?: Resource[], location?: Location): Land => new Land(bonus, location);
 const water = (bonus?: Resource[]): Water => new Water(bonus);
+
+export type Board = Cell[][];
 
 export const INITIAL_BOARD_STATE: Cell[][] = [
     [
@@ -179,7 +180,4 @@ for (const row of INITIAL_BOARD_STATE) {
     }
 }
 
-INITIAL_BOARD_STATE.push([
-    land([], Location.Phobos),
-    land([], Location.Ganymede)
-]);
+INITIAL_BOARD_STATE.push([land([], Location.Phobos), land([], Location.Ganymede)]);
