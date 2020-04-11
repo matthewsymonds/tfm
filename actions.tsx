@@ -1,15 +1,15 @@
 import {GameStage} from './constants/game';
-import {Tag} from './constants/card-types';
+import {Tag, Card} from './constants/card-types';
 import {Resource} from './constants/resource';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
-export const setCorporation = corporation => ({
+export const setCorporation = (corporation, playerId) => ({
     type: SET_CORPORATION,
-    payload: corporation
+    payload: {corporation, playerId}
 });
 
 export const SET_CARDS = 'SET_CARDS';
-export const setCards = cards => ({type: SET_CARDS, payload: cards});
+export const setCards = (cards, playerId) => ({type: SET_CARDS, payload: {cards, playerId}});
 
 export const GO_TO_GAME_STAGE = 'GO_TO_GAME_STAGE';
 export const goToGameStage = (stage: GameStage) => ({
@@ -55,6 +55,13 @@ export const gainOneMegacreditPerCityOnMars = () => {
     };
 };
 export const CONFIRM_CORPORATION_AND_CARDS = 'CONFIRM_CORPORATION_AND_CARDS';
-export const confirmCorporationAndCards = () => ({
-    type: CONFIRM_CORPORATION_AND_CARDS
+export const confirmCorporationAndCards = (playerId: number) => ({
+    type: CONFIRM_CORPORATION_AND_CARDS,
+    payload: {playerId}
+});
+
+export const PAY_FOR_CARD = 'PAY_FOR_CARD';
+export const payForCard = (card: Card, playerId: number) => ({
+    type: PAY_FOR_CARD,
+    payload: {card, playerId}
 });
