@@ -9,6 +9,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {GameStage} from '../constants/game';
 
 import {setCorporation, setCards, goToGameStage, confirmCorporationAndCards} from '../actions';
+import {useTypedSelector} from '../reducer';
 
 const MarginalButton = styled.button`
     margin-top: 10px;
@@ -25,51 +26,54 @@ function getStartingAmount(corporation: Card): number {
     return corporation.gainResource.filter(r => r === Resource.Megacredit).length;
 }
 
-export const CorporationSelection = () => {
+export const CorporationSelection = ({playerId}: {playerId: number}) => {
     const dispatch = useDispatch();
 
-    const corporation = useSelector(state => state.corporation);
-    const possibleCorporations = useSelector(state => state.possibleCorporations);
-    const startingCards = useSelector(state => state.startingCards);
-    const cards = useSelector(state => state.cards);
+    const corporation = useTypedSelector(state => state.players[playerId].corporation);
+    const possibleCorporations = useTypedSelector(state => state.players[playerId].possibleCorporations);
+    const startingCards = useTypedSelector(state => state.players[playerId].startingCards);
+    const cards = useTypedSelector(state => state.players[playerId].cards);
 
     const corporationName = corporation && corporation.name;
     const startingAmount = getStartingAmount(corporation);
     const totalCardCost = cards.length * 3;
     const remaining = (startingAmount && startingAmount - totalCardCost) || 0;
 
+    // If they switch to a corporation that can't afford the currently seleted cards,
+    // clear all the cards.
     useEffect(() => {
         if (startingAmount && startingAmount < cards.length * 3) {
-            dispatch(setCards([]));
+            dispatch(setCards(playerId, []));
         }
-    }, [corporationName]);
+    }, [corporationName, cards]);
 
     return (
         <>
-            <h1>Select a corporation</h1>
+            <h3>Select a corporation</h3>
             <CardSelector
                 width={400}
                 max={1}
                 selectedCards={[corporation]}
-                onSelect={([corporation]) => dispatch(setCorporation(corporation))}
+                onSelect={([corporation]) => dispatch(setCorporation(corporation, playerId))}
                 options={possibleCorporations}
                 orientation="horizontal"
             />
-            <h1>Select up to 10 cards</h1>
+            <h3>Select up to 10 cards</h3>
             <MaybeVisible left={true} visible={!!startingAmount}>
-                <h2>
-                    You start with {startingAmount}€. You have {remaining}€ remaining.
-                </h2>
                 <h4>
-                    You have selected{' '}
-                    {cards.length ? cards.map(card => card.name).join(', ') : 'no cards.'}
+                    You start with {startingAmount}€. You have {remaining}€ remaining.
                 </h4>
             </MaybeVisible>
+            {cards.length < 10 ? (
+                <button onClick={() => dispatch(setCards(startingCards, playerId))}>Select all</button>
+            ) : (
+                <button onClick={() => dispatch(setCards([], playerId))}>Unselect all</button>
+            )}
             <CardSelector
                 max={10}
                 width={250}
                 selectedCards={corporationName ? cards : []}
-                onSelect={cards => dispatch(setCards(cards))}
+                onSelect={cards => dispatch(setCards(cards, playerId))}
                 options={startingCards}
                 budget={remaining}
                 orientation="vertical"
@@ -77,7 +81,7 @@ export const CorporationSelection = () => {
             <MaybeVisible visible={!!corporationName}>
                 <ConfirmButton
                     onClick={() => {
-                        dispatch(confirmCorporationAndCards());
+                        dispatch(confirmCorporationAndCards(playerId));
                         dispatch(goToGameStage(GameStage.ActiveRound));
                     }}
                 />

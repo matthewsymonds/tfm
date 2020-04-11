@@ -1,6 +1,7 @@
 import {Resource} from './resource';
 import {Tile, TileType, TilePlacement, Parameter} from './board';
 import {ActionType, StandardProjectType} from './action';
+import {GameState} from '../reducer';
 
 export interface Card {
     action?: (dispatch: Function) => void;
@@ -15,25 +16,9 @@ export interface Card {
     tags: Tag[];
     type: CardType;
     resources?: Resource[];
-    requirement?(requirement: Requirement): boolean;
+    canBePlayed?: (state: GameState) => boolean;
+    play?: (dispatch) => void;
     requirementFailedMessage?: string;
-    requiredAnimal?: number;
-    requiredEarth?: number;
-    requiredEnergy?: number;
-    requiredJovian?: number;
-    requiredMaxOcean?: number;
-    requiredMaxOxygen?: number;
-    requiredMaxTemperature?: number;
-    requiredMaxVenus?: number;
-    requiredMicrobe?: number;
-    requiredOcean?: number;
-    requiredOxygen?: number;
-    requiredPlant?: number;
-    requiredScience?: number;
-    requiredSpace?: number;
-    requiredTemperature?: number;
-    requiredVenus?: number;
-    requiredVenusTags?: number;
     terraformRatingIncrease?: number;
     venus?: number;
     victoryPoints?: number;
@@ -94,15 +79,6 @@ export interface Effect {
     condition: Condition;
     gainResource(name: Resource, amount: number, target?: Card): void;
     increaseProduction(name: Resource, amount: number): void;
-}
-
-export interface Requirement {
-    plants: number;
-    steelProduction: number;
-    titaniumProduction: number;
-    energyProduction: number;
-    megacreditProduction: number;
-    tiles: Tile[];
 }
 
 export enum Deck {

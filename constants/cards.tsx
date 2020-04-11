@@ -1,14 +1,15 @@
 import {Card, Deck, Tag, CardType} from './card-types';
 import {Resource} from './resource';
 import {TileType, Location, Parameter, t} from './board';
-import {GameStage} from './game';
+import {GameStage, MAX_TEMP, MAX_OXYGEN, MIN_MEGACREDIT_PRODUCTION, MAX_OCEAN} from './game';
 import {ActionType} from './action';
 import {
     goToGameStage,
     changeResource,
     gainOneMegacreditPerCityOnMars,
     revealAndDiscardTopCard,
-    addResourceIfRevealedCardHasTag
+    addResourceIfRevealedCardHasTag,
+    payForCard,
 } from '../actions';
 
 const {
@@ -28,16 +29,19 @@ const {
 
 const {Temperature, Oxygen, TerraformRating} = Parameter;
 
-// CardType check commented out for performance.
-// Good to check new cards for type safety.
-
 export const cards: Card[] = [
     {
         cost: 8,
         deck: Deck.Basic,
         name: 'Colonizer Training Camp',
         oneTimeText: 'Oxygen must be 5% or less.',
-        requiredMaxOxygen: 5,
+        canBePlayed: state => state.common.oxygen <= 5,
+        play(playerId) {
+            const card = this;
+            return function(dispatch) {
+                dispatch(payForCard(card, playerId))
+            }
+        },
         tags: [Tag.Building, Tag.Jovian],
         type: CardType.Automated,
         victoryPoints: 2
@@ -51,9 +55,8 @@ export const cards: Card[] = [
         tags: [Tag.Jovian],
         type: CardType.Automated,
         victoryPoints: 1,
-        requirement: requirement => {
-            return requirement.titaniumProduction > 0;
-        },
+        // TODO(multi): Add check to verify opponent has production to lose
+        canBePlayed: state => state.players[state.currentPlayerIndex].productions.Titanium > 0,
         requirementFailedMessage: 'You need titanium production to play',
         decreaseAnyProduction: [Titanium],
         increaseProduction: [Titanium]
@@ -63,6 +66,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Deep Well Heating',
         oneTimeText: 'Increase your energy production 1 step. Increase temperature 1 step.',
+        canBePlayed: state => state.common.temperature < MAX_TEMP,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         increaseProduction: [Titanium],
@@ -74,7 +78,11 @@ export const cards: Card[] = [
         name: 'Cloud Seeding',
         oneTimeText:
             'Requires 3 ocean tiles. Decrease your MC production 1 step and any heat production 1 step.  Increase your plant production 2 steps.',
-        requiredOcean: 3,
+        // TODO(multi): validate opponent production reduction
+        canBePlayed: state =>
+            state.common.ocean >= 3 &&
+            state.common.ocean < MAX_OCEAN &&
+            state.players[state.currentPlayerIndex].productions.Megacredit > MIN_MEGACREDIT_PRODUCTION,
         tags: [],
         type: CardType.Automated,
         decreaseProduction: [Megacredit],
@@ -95,7 +103,7 @@ export const cards: Card[] = [
         name: 'Search For Life',
         oneTimeText:
             'Oxygen must be 6% or less. 3 VPs if you have one or more science resource here.',
-        requiredMaxOxygen: 6,
+        // requiredMaxOxygen: 6,
         tags: [Tag.Science],
         type: CardType.Active,
         get victoryPoints() {
@@ -129,7 +137,7 @@ export const cards: Card[] = [
         name: 'Capital',
         oneTimeText:
             'Requires 4 ocean tiles. Place [the capital city] tile. Decrease your energy production 2 steps and increase your MC production 5 steps. 1 ADDITIONAL VP FOR EACH OCEAN TILE ADJACENT TO THIS CITY TILE.',
-        requiredOcean: 4,
+        // requiredOcean: 4,
         tags: [Tag.Building, Tag.City],
         type: CardType.Automated,
         placeTile: [t(TileType.Capital)],
@@ -220,7 +228,7 @@ export const cards: Card[] = [
         name: 'Domed Crater',
         oneTimeText:
             'Oxygen must be 7% or less. Gain 3 plants and place a city tile. Decrease your energy production 1 step and increase MC production 3 steps.',
-        requiredMaxOxygen: 7,
+        // requiredMaxOxygen: 7,
         tags: [Tag.Building, Tag.City],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -247,7 +255,7 @@ export const cards: Card[] = [
         name: 'Methane From Titan',
         oneTimeText:
             'Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps.',
-        requiredOxygen: 2,
+        // requiredOxygen: 2,
         tags: [Tag.Jovian, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 2,
@@ -303,7 +311,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Arctic Algae',
         oneTimeText: 'It must be -12°C or colder to play. Gain 1 plant.',
-        requiredMaxTemperature: -12,
+        // requiredMaxTemperature: -12,
         tags: [Tag.Plant],
         type: CardType.Active,
         condition: condition => condition.tileType === TileType.Ocean,
@@ -318,7 +326,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Predators',
         oneTimeText: 'Requires 11% oxygen. 1 VP per animal on this card.',
-        requiredOxygen: 11,
+        // requiredOxygen: 11,
         tags: [Tag.Animal],
         type: CardType.Active,
         get victoryPoints() {
@@ -340,7 +348,7 @@ export const cards: Card[] = [
         name: 'Eos Chasma National Park',
         oneTimeText:
             'Requires -12°C  or warmer. Add 1 animal TO ANY ANIMAL CARD. Gain 3 plants. Increase your MC production 2 steps.',
-        requiredTemperature: -12,
+        // requiredTemperature: -12,
         tags: [Tag.Building, Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -352,7 +360,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Interstellar Colony Ship',
         oneTimeText: 'Requires 5 science tags.',
-        requiredScience: 5,
+        // requiredScience: 5,
         tags: [Tag.Earth, Tag.Event, Tag.Space],
         type: CardType.Event,
         victoryPoints: 4
@@ -377,7 +385,7 @@ export const cards: Card[] = [
         name: 'Cupola City',
         oneTimeText:
             'Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your MC production 3 steps.',
-        requiredMaxOxygen: 9,
+        // requiredMaxOxygen: 9,
         tags: [Tag.Building, Tag.City],
         type: CardType.Automated,
         placeTile: [t(TileType.City)],
@@ -443,7 +451,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'GHG Producing Bacteria',
         oneTimeText: 'Requires 4% oxygen.',
-        requiredOxygen: 4,
+        // requiredOxygen: 4,
         tags: [Tag.Microbe, Tag.Science],
         type: CardType.Active
     },
@@ -455,7 +463,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Ants',
         oneTimeText: 'Requires 4% oxygen. 1 VP per 2 microbes on this card.',
-        requiredOxygen: 4,
+        // requiredOxygen: 4,
         tags: [Tag.Microbe],
         type: CardType.Active
     },
@@ -537,7 +545,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Archaebacteria',
         oneTimeText: 'It must be -18°C or colder. Increase your plant production 1 step.',
-        requiredMaxTemperature: -18,
+        // requiredMaxTemperature: -18,
         tags: [Tag.Microbe],
         type: CardType.Automated,
         increaseProduction: [Plant]
@@ -559,7 +567,7 @@ export const cards: Card[] = [
         name: 'Natural Preserve',
         oneTimeText:
             'Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your MC production 1 step.',
-        requiredMaxOxygen: 4,
+        // requiredMaxOxygen: 4,
         tags: [Tag.Building, Tag.Science],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -583,7 +591,7 @@ export const cards: Card[] = [
         name: 'Lightning Harvest',
         oneTimeText:
             'Requires 3 science tags. Increase your energy production and your MC production 1 step each.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Energy],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -595,7 +603,7 @@ export const cards: Card[] = [
         name: 'Algae',
         oneTimeText:
             'Requires 5 ocean tiles. Gain 1 plant and increase your plant production 2 steps.',
-        requiredOcean: 5,
+        // requiredOcean: 5,
         tags: [Tag.Plant],
         type: CardType.Automated,
         gainResource: [Plant],
@@ -657,7 +665,7 @@ export const cards: Card[] = [
         name: 'Fish',
         oneTimeText:
             'Requires 2°C or warmer. Decrease any plant production 1 step. 1 VP for each animal on this card.',
-        requiredTemperature: 2,
+        // requiredTemperature: 2,
         tags: [Tag.Animal],
         type: CardType.Active,
         decreaseAnyProduction: [Animal],
@@ -670,7 +678,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Lake Marineris',
         oneTimeText: 'Requires 0°C or warmer. Place 2 ocean tiles.',
-        requiredTemperature: 0,
+        // requiredTemperature: 0,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 2,
@@ -685,7 +693,7 @@ export const cards: Card[] = [
         name: 'Small Animals',
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        requiredOxygen: 6,
+        // requiredOxygen: 6,
         tags: [Tag.Animal],
         type: CardType.Active,
         decreaseAnyProduction: [Plant],
@@ -699,7 +707,7 @@ export const cards: Card[] = [
         name: 'Kelp Farming',
         oneTimeText:
             'Requires 6 ocean tiles. Increase your MC production 2 steps and your plant production 3 steps. Gain 2 plants.',
-        requiredOcean: 6,
+        // requiredOcean: 6,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -731,7 +739,7 @@ export const cards: Card[] = [
         name: 'Beam From a Thorium Asteroid',
         oneTimeText:
             'Requires a Jovian tag. Increase your heat production and energy production 3 steps each.',
-        requiredJovian: 1,
+        // requiredJovian: 1,
         tags: [Tag.Energy, Tag.Jovian, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -743,7 +751,7 @@ export const cards: Card[] = [
         name: 'Mangrove',
         oneTimeText:
             'Requires +4°C or warmer. Place a Greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
-        requiredTemperature: 4,
+        // requiredTemperature: 4,
         tags: [Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -755,7 +763,7 @@ export const cards: Card[] = [
         name: 'Trees',
         oneTimeText:
             'Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant.',
-        requiredTemperature: -4,
+        // requiredTemperature: -4,
         tags: [Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -768,7 +776,7 @@ export const cards: Card[] = [
         name: 'Great Escarpment Consortium',
         oneTimeText:
             'Requires that you have steel production. Decrease any steel production 1 step and increase your own 1 step',
-        requirement: requirement => requirement.steelProduction > 0,
+        // canBePlayed: requirement => requirement.steelProduction > 0,
         requirementFailedMessage: 'You need steel production to play',
         tags: [],
         type: CardType.Automated,
@@ -860,7 +868,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Electro Catapult',
         oneTimeText: 'Oxygen must be 8% or less. Decrease your energy production 1 step.',
-        requiredMaxOxygen: 8,
+        // requiredMaxOxygen: 8,
         tags: [Tag.Building],
         type: CardType.Active,
         victoryPoints: 1,
@@ -893,7 +901,7 @@ export const cards: Card[] = [
         name: 'Birds',
         oneTimeText:
             'Requires 13% oxygen. Decrease any plant production 2 steps. 1 VP for each animal on this card',
-        requiredOxygen: 13,
+        // requiredOxygen: 13,
         tags: [Tag.Animal],
         type: CardType.Active,
         decreaseAnyProduction: [Plant],
@@ -967,7 +975,7 @@ export const cards: Card[] = [
         cost: 13,
         deck: Deck.Corporate,
         name: 'Quantum Extractor',
-        requiredScience: 4,
+        // requiredScience: 4,
         tags: [Tag.Energy, Tag.Science],
         type: CardType.Active,
         oneTimeText: 'Increase your energy production 4 steps.',
@@ -1055,7 +1063,7 @@ export const cards: Card[] = [
         name: 'Grass',
         oneTimeText:
             'Requires -16°C or warmer. Increase your plant production 1 step. Gain 3 plants.',
-        requiredTemperature: -16,
+        // requiredTemperature: -16,
         tags: [Tag.Plant],
         type: CardType.Automated,
         increaseProduction: [Plant],
@@ -1067,7 +1075,7 @@ export const cards: Card[] = [
         name: 'Heather',
         oneTimeText:
             'Requires -14°C or warmer. Increase your plant production 1 step. Gain 1 plant.',
-        requiredTemperature: -14,
+        // requiredTemperature: -14,
         tags: [Tag.Plant],
         type: CardType.Automated,
         increaseProduction: [Plant],
@@ -1099,7 +1107,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Gene Repair',
         oneTimeText: 'Requires 3 science tags. Increase your MC production 2 steps.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Science],
         type: CardType.Automated,
         victoryPoints: 2,
@@ -1121,7 +1129,7 @@ export const cards: Card[] = [
         name: 'Bushes',
         oneTimeText:
             'Requires -10°C or warmer. Increase your plant production 2 steps. Gain 2 plants.',
-        requiredTemperature: -10,
+        // requiredTemperature: -10,
         tags: [Tag.Plant],
         type: CardType.Automated,
         increaseProduction: [Plant, Plant],
@@ -1133,7 +1141,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Mass Converter',
         oneTimeText: 'Requires 5 science tags. Increase your energy production 6 steps.',
-        requiredScience: 5,
+        // requiredScience: 5,
         tags: [Tag.Energy, Tag.Science],
         type: CardType.Active,
         increaseProduction: Array(6).fill(Energy)
@@ -1285,7 +1293,7 @@ export const cards: Card[] = [
         name: 'Open City',
         oneTimeText:
             'Requires 12% oxygen. Decrease your energy production 1 step and increase your MC production 4 steps. Gain 2 plants and place a city tile.',
-        requiredOxygen: 12,
+        // requiredOxygen: 12,
         tags: [Tag.Building, Tag.City],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1347,7 +1355,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Breathing Filters',
         oneTimeText: 'Requires 7% oxygen.',
-        requiredOxygen: 7,
+        // requiredOxygen: 7,
         tags: [Tag.Science],
         type: CardType.Automated,
         victoryPoints: 2
@@ -1367,7 +1375,7 @@ export const cards: Card[] = [
         name: 'Artificial Lake',
         oneTimeText:
             'Requires -6°C or warmer. Place 1 ocean tile ON AN AREA NOT RESERVED FOR OCEAN.',
-        requiredTemperature: -6,
+        // requiredTemperature: -6,
         tags: [Tag.Building],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1388,7 +1396,7 @@ export const cards: Card[] = [
         name: 'Farming',
         oneTimeText:
             'Requires +4°C or warmer. Increase your MC production 2 steps and your plant production 2 steps. Gain 2 plants.',
-        requiredTemperature: 4,
+        // requiredTemperature: 4,
         tags: [Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 2,
@@ -1400,7 +1408,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Dust Seals',
         oneTimeText: 'Requires 3 or less ocean tiles.',
-        requiredMaxOcean: 3,
+        // requiredMaxOcean: 3,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1
@@ -1430,7 +1438,7 @@ export const cards: Card[] = [
         name: 'Moss',
         oneTimeText:
             'Requires 3 ocean tiles and that you lose 1 plant. Increase your plant production 1 step.',
-        requiredOcean: 3,
+        // requiredOcean: 3,
         tags: [Tag.Plant],
         type: CardType.Automated,
         removeResource: [Plant]
@@ -1514,7 +1522,7 @@ export const cards: Card[] = [
         name: 'Zeppelins',
         oneTimeText:
             'Requires 5% oxygen. Increase your MC production 1 step for each city tile ON MARS.',
-        requiredOxygen: 5,
+        // requiredOxygen: 5,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1532,7 +1540,7 @@ export const cards: Card[] = [
         name: 'Worms',
         oneTimeText:
             'Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have, including this.',
-        requiredOxygen: 4,
+        // requiredOxygen: 4,
         tags: [Tag.Microbe],
         type: CardType.Automated,
         get increaseProduction() {
@@ -1551,7 +1559,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Decomposers',
         oneTimeText: 'Requires 3% oxygen. 1 VP per 3 microbes on this card.',
-        requiredOxygen: 3,
+        // requiredOxygen: 3,
         tags: [Tag.Microbe],
         type: CardType.Active,
         condition: condition => [Tag.Animal, Tag.Plant, Tag.Microbe].includes(condition.tag),
@@ -1567,7 +1575,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Fusion Power',
         oneTimeText: 'Requires 2 power tags. Increase your energy production 3 steps.',
-        requiredEnergy: 2,
+        // requiredEnergy: 2,
         tags: [Tag.Building, Tag.Energy, Tag.Science],
         type: CardType.Automated,
         increaseProduction: [Energy, Energy, Energy]
@@ -1578,7 +1586,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Symbiotic Fungus',
         oneTimeText: 'Requires -14°C or warmer.',
-        requiredTemperature: -14,
+        // requiredTemperature: -14,
         tags: [Tag.Microbe],
         type: CardType.Active
     },
@@ -1588,7 +1596,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Extreme-Cold Fungus',
         oneTimeText: 'It must be -10°C or colder.',
-        requiredMaxTemperature: -10,
+        // requiredMaxTemperature: -10,
         tags: [Tag.Microbe],
         type: CardType.Active
     },
@@ -1597,9 +1605,9 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Advanced Ecosystems',
         oneTimeText: 'Requires a plant tag, a microbe tag, and an animal tag.',
-        requiredAnimal: 1,
-        requiredMicrobe: 1,
-        requiredPlant: 1,
+        // requiredAnimal: 1,
+        // requiredMicrobe: 1,
+        // requiredPlant: 1,
         tags: [Tag.Animal, Tag.Microbe, Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 3
@@ -1609,7 +1617,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Great Dam',
         oneTimeText: 'Requires 4 ocean tiles. Increase your energy production 2 steps.',
-        requiredOcean: 4,
+        // requiredOcean: 4,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1644,7 +1652,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Wave Power',
         oneTimeText: 'Requires 3 ocean tiles. Increase your energy production 1 step.',
-        requiredOcean: 3,
+        // requiredOcean: 3,
         tags: [Tag.Energy],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1707,7 +1715,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Tectonic Stress Power',
         oneTimeText: 'Requires 2 science tags. Increase your energy production 3 steps.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1719,7 +1727,7 @@ export const cards: Card[] = [
         name: 'Nitrophilic Moss',
         oneTimeText:
             'Requires 3 ocean tiles and that you lose 2 plants. Increase your plant production 2 steps.',
-        requiredOcean: 3,
+        // requiredOcean: 3,
         tags: [Tag.Plant],
         type: CardType.Automated,
         removeResource: [Plant, Plant],
@@ -1734,7 +1742,7 @@ export const cards: Card[] = [
         name: 'Herbivores',
         oneTimeText:
             'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        requiredOxygen: 8,
+        // requiredOxygen: 8,
         tags: [Tag.Animal],
         type: CardType.Active,
         condition: condition => condition.tileType === TileType.Greenery,
@@ -1751,7 +1759,7 @@ export const cards: Card[] = [
         name: 'Insects',
         oneTimeText:
             'Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.',
-        requiredOxygen: 6,
+        // requiredOxygen: 6,
         tags: [Tag.Microbe],
         type: CardType.Automated,
         get increaseProduction() {
@@ -1774,7 +1782,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Anti-Gravity Technology',
         oneTimeText: 'Requires 7 science tags.',
-        requiredScience: 7,
+        // requiredScience: 7,
         tags: [Tag.Science],
         type: CardType.Active,
         victoryPoints: 3
@@ -1814,7 +1822,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'Caretaker Contract',
         oneTimeText: 'Requires 0°C or warmer.',
-        requiredTemperature: 0,
+        // requiredTemperature: 0,
         tags: [],
         type: CardType.Active
     },
@@ -1823,7 +1831,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Designed Microorganisms',
         oneTimeText: 'It must be -14°C or colder. Increase your plant production 2 steps.',
-        requiredMaxTemperature: -14,
+        // requiredMaxTemperature: -14,
         tags: [Tag.Microbe, Tag.Science],
         type: CardType.Automated,
         increaseProduction: [Plant, Plant]
@@ -1865,7 +1873,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Lichen',
         oneTimeText: 'Requires -24°C or warmer. Increase your plant production 1 step.',
-        requiredTemperature: -24,
+        // requiredTemperature: -24,
         tags: [Tag.Plant],
         type: CardType.Automated,
         increaseProduction: [Plant]
@@ -1876,7 +1884,7 @@ export const cards: Card[] = [
         name: 'Power Supply Consortium',
         oneTimeText:
             'Requires 2 power tags. Decrease any energy production 1 step and increase your own 1 step.',
-        requiredEnergy: 2,
+        // requiredEnergy: 2,
         tags: [Tag.Energy],
         type: CardType.Automated,
         decreaseAnyProduction: [Energy],
@@ -1943,7 +1951,7 @@ export const cards: Card[] = [
         name: 'Shuttles',
         oneTimeText:
             'Requires 5% oxygen. Decrease your energy production 1 step and increase your MC production 2 steps.',
-        requiredOxygen: 5,
+        // requiredOxygen: 5,
         tags: [Tag.Space],
         type: CardType.Active,
         victoryPoints: 1,
@@ -1964,7 +1972,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Windmills',
         oneTimeText: 'Requires 7% oxygen. Increase your energy production 1 step.',
-        requiredOxygen: 7,
+        // requiredOxygen: 7,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -1976,7 +1984,7 @@ export const cards: Card[] = [
         name: 'Tundra Farming',
         oneTimeText:
             'Requires -6°C or warmer. Increase your plant production 1 step and your MC production 2 steps. Gain 1 plant.',
-        requiredTemperature: -6,
+        // requiredTemperature: -6,
         tags: [Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 2,
@@ -2061,7 +2069,7 @@ export const cards: Card[] = [
         name: 'Noctis Farming',
         oneTimeText:
             'Requires -20°C or warmer. Increase your MC production 1 step and gain 2 plants.',
-        requiredTemperature: -20,
+        // requiredTemperature: -20,
         tags: [Tag.Building, Tag.Plant],
         type: CardType.Automated,
         victoryPoints: 1,
@@ -2074,7 +2082,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Water Splitting Plant',
         oneTimeText: 'Requires 2 ocean tiles.',
-        requiredOcean: 2,
+        // requiredOcean: 2,
         tags: [Tag.Building],
         type: CardType.Active
     },
@@ -2118,7 +2126,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Ice cap Melting',
         oneTimeText: 'Requires +2°C or warmer. Place 1 ocean tile.',
-        requiredTemperature: 2,
+        // requiredTemperature: 2,
         tags: [Tag.Event],
         type: CardType.Event,
         placeTile: [t(TileType.Ocean)]
@@ -2142,7 +2150,7 @@ export const cards: Card[] = [
         name: 'Biomass Combustors',
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step and increase your energy production 2 steps.',
-        requiredOxygen: 6,
+        // requiredOxygen: 6,
         tags: [Tag.Building, Tag.Energy],
         type: CardType.Automated,
         victoryPoints: -1,
@@ -2158,7 +2166,7 @@ export const cards: Card[] = [
         name: 'Livestock',
         oneTimeText:
             'Requires 9% oxygen. Decrease your plant production 1 step and increase your MC production 2 steps. 1 VP for each animal on this card.',
-        requiredOxygen: 9,
+        // requiredOxygen: 9,
         tags: [Tag.Animal],
         type: CardType.Active,
         decreaseProduction: [Plant],
@@ -2192,8 +2200,8 @@ export const cards: Card[] = [
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1,
-        requirement: requirement =>
-            requirement.tiles.filter(tile => tile.type === TileType.City).length > 2,
+        // canBePlayed: requirement =>
+        //     requirement.tiles.filter(tile => tile.type === TileType.City).length > 2,
         requirementFailedMessage: 'There must be two cities in play',
         increaseProduction: [Megacredit]
     },
@@ -2243,7 +2251,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Permafrost extraction',
         oneTimeText: 'Requires -8°C or warmer. Place 1 ocean tile.',
-        requiredTemperature: -8,
+        // requiredTemperature: -8,
         tags: [Tag.Event],
         type: CardType.Event,
         placeTile: [t(TileType.Ocean)]
@@ -2262,7 +2270,7 @@ export const cards: Card[] = [
         deck: Deck.Basic,
         name: 'Plantation',
         oneTimeText: 'Requires 2 science tags. Place a greenery tile and raise oxygen 1 step.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [Tag.Plant],
         type: CardType.Automated,
         placeTile: [t(TileType.Greenery)]
@@ -2429,7 +2437,7 @@ export const cards: Card[] = [
         deck: Deck.Corporate,
         name: 'AI Central',
         oneTimeText: 'Requires 3 science tags to play. Decrease your energy production 1 step.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Building, Tag.Science],
         type: CardType.Active,
         victoryPoints: 1,
@@ -2451,7 +2459,7 @@ export const cards: Card[] = [
         deck: Deck.Promo,
         name: 'Self-Replicating Robots',
         oneTimeText: 'Requires 2 science tags.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [],
         type: CardType.Active
     },
@@ -2461,7 +2469,7 @@ export const cards: Card[] = [
         name: 'Snow Algae',
         oneTimeText:
             'Requires 2 oceans. Increase your plant production and your heat production 1 step each.',
-        requiredOcean: 2,
+        // requiredOcean: 2,
         tags: [Tag.Plant],
         type: CardType.Active
     },
@@ -2473,7 +2481,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Penguins',
         oneTimeText: 'Requires 8 Oceans. 1 VP per animal on this card.',
-        requiredOcean: 8,
+        // requiredOcean: 8,
         tags: [Tag.Animal],
         type: CardType.Active
     },
@@ -2513,7 +2521,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Atalanta Planitia Lab',
         oneTimeText: 'Requires 3 science tags. Draw 2 cards.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Science, Tag.Venus],
         type: CardType.Automated,
         victoryPoints: 2
@@ -2525,7 +2533,7 @@ export const cards: Card[] = [
         name: 'Atmoscoop',
         oneTimeText:
             'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Jovian, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 1
@@ -2554,7 +2562,7 @@ export const cards: Card[] = [
         name: 'Dawn City',
         oneTimeText:
             'Requires 4 science tags. Decrease your energy production 1 step. Increase your titanium production 1 step. Place a city tile ON THE RESERVED AREA.',
-        requiredScience: 4,
+        // requiredScience: 4,
         tags: [Tag.City, Tag.Space],
         type: CardType.Automated,
         victoryPoints: 3
@@ -2601,7 +2609,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Extremophiles',
         oneTimeText: 'Requires 2 science tags. 1 VP for per 3 microbes on this card.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Active
     },
@@ -2613,7 +2621,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Floating Habs',
         oneTimeText: 'Requires 2 science tags. 1 VP per 2 floaters on this card.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [Tag.Venus],
         type: CardType.Active
     },
@@ -2634,7 +2642,7 @@ export const cards: Card[] = [
         name: 'Freyja Biodomes',
         oneTimeText:
             'Requires Venus 10%. Add 2 microbes or 2 animals TO ANOTHER VENUS CARD. Decrease your energy production 1 step, and increase your MC production by 2 steps.',
-        requiredVenus: 10,
+        // requiredVenus: 10,
         tags: [Tag.Plant, Tag.Venus],
         type: CardType.Automated,
         victoryPoints: 2
@@ -2691,7 +2699,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Ishtar Mining',
         oneTimeText: 'Requires Venus 8%. Increase your titanium production 1 step.',
-        requiredVenus: 8,
+        // requiredVenus: 8,
         tags: [Tag.Venus],
         type: CardType.Automated
     },
@@ -2732,9 +2740,9 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Luxury Foods',
         oneTimeText: 'Requires Venus, Earth and Jovian tags.',
-        requiredEarth: 1,
-        requiredJovian: 1,
-        requiredVenusTags: 1,
+        // requiredEarth: 1,
+        // requiredJovian: 1,
+        // requiredVenusTags: 1,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 2
@@ -2746,7 +2754,7 @@ export const cards: Card[] = [
         name: 'Maxwell Base',
         oneTimeText:
             'Requires Venus 12%. Decrease your energy production 1 step. Place a city tile ON THE RESERVED AREA.',
-        requiredVenus: 12,
+        // requiredVenus: 12,
         tags: [Tag.City, Tag.Venus],
         type: CardType.Active,
         victoryPoints: 3
@@ -2757,9 +2765,9 @@ export const cards: Card[] = [
         name: 'Mining Quota',
         oneTimeText:
             'Requires Venus, Earth and Jovian tags. Increase your steel production 2 steps.',
-        requiredEarth: 1,
-        requiredJovian: 1,
-        requiredVenusTags: 1,
+        // requiredEarth: 1,
+        // requiredJovian: 1,
+        // requiredVenusTags: 1,
         tags: [Tag.Building],
         type: CardType.Automated
     },
@@ -2769,7 +2777,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Neutralizer Factory',
         oneTimeText: 'Requires Venus 10%. Increase Venus 1 step.',
-        requiredVenus: 10,
+        // requiredVenus: 10,
         tags: [Tag.Venus],
         type: CardType.Automated
     },
@@ -2779,9 +2787,9 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Omnicourt',
         oneTimeText: 'Requires Venus, Earth, and Jovian tags. Increase your TR 2 steps.',
-        requiredEarth: 1,
-        requiredJovian: 1,
-        requiredVenusTags: 1,
+        // requiredEarth: 1,
+        // requiredJovian: 1,
+        // requiredVenusTags: 1,
         tags: [Tag.Building],
         type: CardType.Automated
     },
@@ -2801,7 +2809,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Rotator Impacts',
         oneTimeText: 'Venus must be 14% or lower.',
-        requiredMaxVenus: 14,
+        // requiredMaxVenus: 14,
         tags: [Tag.Space],
         type: CardType.Active
     },
@@ -2810,8 +2818,8 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Sister Planet Support',
         oneTimeText: 'Requires Venus and Earth tag. Increase your MC production 3 steps.',
-        requiredEarth: 1,
-        requiredVenusTags: 1,
+        // requiredEarth: 1,
+        // requiredVenusTags: 1,
         tags: [Tag.Earth, Tag.Venus],
         type: CardType.Automated
     },
@@ -2820,9 +2828,9 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Solarnet',
         oneTimeText: 'Requires Venus, Earth, and Jovian tags. Draw 2 cards.',
-        requiredEarth: 1,
-        requiredJovian: 1,
-        requiredVenusTags: 1,
+        // requiredEarth: 1,
+        // requiredJovian: 1,
+        // requiredVenusTags: 1,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1
@@ -2833,7 +2841,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Spin-Inducing Asteroid',
         oneTimeText: 'Venus must be 10% or lower. Raise Venus 2 steps.',
-        requiredMaxVenus: 10,
+        // requiredMaxVenus: 10,
         tags: [Tag.Event, Tag.Space],
         type: CardType.Event
     },
@@ -2855,7 +2863,7 @@ export const cards: Card[] = [
         name: 'Stratopolis',
         oneTimeText:
             'Requires 2 science tags. Increase your MC production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP per 3 floaters on this card.',
-        requiredScience: 2,
+        // requiredScience: 2,
         tags: [Tag.City, Tag.Venus],
         type: CardType.Active
     },
@@ -2868,7 +2876,7 @@ export const cards: Card[] = [
         name: 'Stratospheric Birds',
         oneTimeText:
             'Requires Venus 12%, and that you spend 1 floater from any card. 1 VP for each animal on this card.',
-        requiredVenus: 12,
+        // requiredVenus: 12,
         tags: [Tag.Animal, Tag.Venus],
         type: CardType.Active
     },
@@ -2891,7 +2899,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Sulphur-Eating Bacteria',
         oneTimeText: 'Requires Venus 6%.',
-        requiredVenus: 6,
+        // requiredVenus: 6,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Active
     },
@@ -2912,7 +2920,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Thermophiles',
         oneTimeText: 'Requires Venus 6%.',
-        requiredVenus: 6,
+        // requiredVenus: 6,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Active
     },
@@ -2930,7 +2938,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Venus Governor',
         oneTimeText: 'Requires 2 Venus tags. Increase your MC production 2 steps.',
-        requiredVenusTags: 2,
+        // requiredVenusTags: 2,
         tags: [Tag.Venus, Tag.Venus],
         type: CardType.Automated
     },
@@ -2940,7 +2948,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Venus Magnetizer',
         oneTimeText: 'Requires Venus 10%',
-        requiredVenus: 10,
+        // requiredVenus: 10,
         tags: [Tag.Venus],
         type: CardType.Active
     },
@@ -2972,7 +2980,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Venusian Animals',
         oneTimeText: 'Requires Venus 18%. 1 VP for each animal on this card.',
-        requiredVenus: 18,
+        // requiredVenus: 18,
         tags: [Tag.Animal, Tag.Science, Tag.Venus],
         type: CardType.Active,
         condition: condition => condition.tag === Tag.Venus,
@@ -2986,7 +2994,7 @@ export const cards: Card[] = [
         deck: Deck.Venus,
         name: 'Venusian Insects',
         oneTimeText: 'Requires Venus 12%. 1 VP per 2 microbes on this card.',
-        requiredVenus: 12,
+        // requiredVenus: 12,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Active
     },
@@ -2997,7 +3005,7 @@ export const cards: Card[] = [
         name: 'Venusian Plants',
         oneTimeText:
             'Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to ANOTHER VENUS CARD.',
-        requiredVenus: 16,
+        // requiredVenus: 16,
         tags: [Tag.Microbe, Tag.Venus],
         type: CardType.Automated,
         victoryPoints: 1
@@ -3048,7 +3056,7 @@ export const cards: Card[] = [
         name: 'Conscription',
         oneTimeText:
             'Requires 2 Earth tags. The next card you play this generation costs 16 MC less.',
-        requiredEarth: 2,
+        // requiredEarth: 2,
         tags: [Tag.Earth, Tag.Event],
         type: CardType.Event,
         victoryPoints: -1
@@ -3058,7 +3066,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Corona Extractor',
         oneTimeText: 'Requires 4 science tags. Increase your energy production 4 steps.',
-        requiredScience: 4,
+        // requiredScience: 4,
         tags: [Tag.Energy, Tag.Space],
         type: CardType.Automated
     },
@@ -3129,7 +3137,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Heavy Taxation',
         oneTimeText: 'Requires 2 Earth tags. Increase your MC production 2 steps, and gain 4 MC.',
-        requiredEarth: 2,
+        // requiredEarth: 2,
         tags: [Tag.Earth],
         type: CardType.Automated,
         victoryPoints: -1
@@ -3147,7 +3155,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Impactor Swarm',
         oneTimeText: 'Requries 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.',
-        requiredJovian: 2,
+        // requiredJovian: 2,
         tags: [Tag.Event, Tag.Space],
         type: CardType.Event
     },
@@ -3169,7 +3177,7 @@ export const cards: Card[] = [
         name: 'Jovian Lanterns',
         oneTimeText:
             'Requires 1 Jovian tag. Increase your TR 1 step. Add 2 floaters to ANY card. 1 VP per 2 floaters here.',
-        requiredJovian: 1,
+        // requiredJovian: 1,
         tags: [Tag.Jovian],
         type: CardType.Active
     },
@@ -3182,7 +3190,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Jupiter Floating Station',
         oneTimeText: 'Requires 3 science tags.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Jovian],
         type: CardType.Active,
         victoryPoints: 1
@@ -3192,7 +3200,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Luna Governor',
         oneTimeText: 'Requires 3 Earch tags. Increase your MC production 2 steps.',
-        requiredEarth: 3,
+        // requiredEarth: 3,
         tags: [Tag.Earth, Tag.Earth],
         type: CardType.Automated
     },
@@ -3300,7 +3308,7 @@ export const cards: Card[] = [
         name: 'Quantum Communications',
         oneTimeText:
             'Requires 4 science tags. Increase your MC production 1 step for each colony in play.',
-        requiredScience: 4,
+        // requiredScience: 4,
         tags: [],
         type: CardType.Automated,
         victoryPoints: 1
@@ -3312,7 +3320,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Red Spot Observatory',
         oneTimeText: 'Requires 3 science tags. Draw 2 cards.',
-        requiredScience: 3,
+        // requiredScience: 3,
         tags: [Tag.Jovian, Tag.Science],
         type: CardType.Active,
         victoryPoints: 2
@@ -3351,7 +3359,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Sky Docks',
         oneTimeText: 'Requires 2 Earth tags. Gain 1 Trade Fleet.',
-        requiredEarth: 2,
+        // requiredEarth: 2,
         tags: [Tag.Earth, Tag.Space],
         type: CardType.Active,
         victoryPoints: 2
@@ -3412,7 +3420,7 @@ export const cards: Card[] = [
         name: 'Sub-Zero Salt Fish',
         oneTimeText:
             'Requires -6°C or warmer. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        requiredTemperature: -6,
+        // requiredTemperature: -6,
         tags: [Tag.Animal],
         type: CardType.Active
     },
@@ -3478,7 +3486,7 @@ export const cards: Card[] = [
         name: 'Urban Decomposers',
         oneTimeText:
             'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
-        requiredSpace: 1,
+        // requiredSpace: 1,
         tags: [Tag.Microbe],
         type: CardType.Automated
     },
@@ -3488,7 +3496,7 @@ export const cards: Card[] = [
         deck: Deck.Colonies,
         name: 'Warp Drive',
         oneTimeText: 'Requires 5 science tags.',
-        requiredScience: 5,
+        // requiredScience: 5,
         tags: [Tag.Science],
         type: CardType.Active,
         victoryPoints: 2
@@ -3772,7 +3780,7 @@ export const cards: Card[] = [
         deck: Deck.Prelude,
         name: 'Martian Survey',
         oneTimeText: 'Oxygen must be 4% or lower. Draw 2 cards.',
-        requiredMaxOxygen: 4,
+        // requiredMaxOxygen: 4,
         tags: [Tag.Event, Tag.Science],
         type: CardType.Event,
         victoryPoints: 1
@@ -3786,7 +3794,7 @@ export const cards: Card[] = [
         resources: [],
         name: 'Psychrophiles',
         oneTimeText: 'Requires temperature -20°C or colder.',
-        requiredMaxTemperature: -20,
+        // requiredMaxTemperature: -20,
         tags: [Tag.Microbe],
         type: CardType.Active
     },
@@ -3813,7 +3821,7 @@ export const cards: Card[] = [
         deck: Deck.Prelude,
         name: 'Space Hotels',
         oneTimeText: 'Requires 2 Earth tags. Increase your MC production 4 steps.',
-        requiredEarth: 2,
+        // requiredEarth: 2,
         tags: [Tag.Earth, Tag.Space],
         type: CardType.Automated
     },

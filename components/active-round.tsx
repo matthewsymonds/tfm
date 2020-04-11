@@ -1,8 +1,11 @@
 import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from '../components/resource';
 import styled from 'styled-components';
-import React from 'react';
+import React, {useContext} from 'react';
 import {CardComponent} from './card';
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector, useDispatch, useStore} from 'react-redux';
+import stateHelpers from '../util/state-helpers';
+
+import {GameState, useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
 
 interface ButtonProps {
@@ -22,11 +25,13 @@ const Button = styled.button<ButtonProps>`
     margin: 0 auto;
 `;
 
-export const ActiveRound = ({}) => {
-    const corporation = useSelector(state => state.corporation);
-    const resources = useSelector(state => state.resources);
-    const productions = useSelector(state => state.productions);
-    const cards = useSelector(state => state.cards);
+export const ActiveRound = ({ playerId }: {playerId: number}) => {
+    const corporation = useTypedSelector(state => state.players[playerId].corporation);
+    const resources = useTypedSelector(state => state.players[playerId].resources);
+    const productions = useTypedSelector(state => state.players[playerId].productions);
+    const cards = useTypedSelector(state => state.players[playerId].cards);
+    const store = useStore<RootState>();
+    const dispatch = useDispatch();
 
     return (
         <>
@@ -54,14 +59,13 @@ export const ActiveRound = ({}) => {
             <h3>Hand</h3>
             <Hand>
                 {cards.map((card, index) => {
-                    // const noPlay = cannotPlay(card);
+                    const canCardBePlayed = stateHelpers.canCardBePlayed(store.getState(), card);
 
                     return (
                         <CardComponent content={card} width={250}>
-                            {/* {noPlay && <p>({noPlay})</p>} */}
-                            {/* <Button disabled={!!noPlay} onClick={() => playCard(card)}>
+                            <Button disabled={!canCardBePlayed} onClick={() => dispatch(card.play(playerId))}>
                                 Play
-                            </Button> */}
+                            </Button>
                         </CardComponent>
                     );
                 })}
