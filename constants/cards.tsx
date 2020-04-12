@@ -1196,7 +1196,12 @@ export const cardConfigs: CardConfig[] = [
             if (!this.state) return [];
 
             return this.state.cards
-                .filter(card => !this.state.players[this.state.common.currentPlayerIndex].cards.includes(card))
+                .filter(
+                    card =>
+                        !this.state.players[this.state.common.currentPlayerIndex].cards.includes(
+                            card
+                        )
+                )
                 .filter(card => card.tags.includes(Tag.SPACE))
                 .fill(Resource.MEGACREDIT);
         }

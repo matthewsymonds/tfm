@@ -49,6 +49,11 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
         }
     }, [corporationName, cards]);
 
+    function handleSelectAll() {
+        const selectAllCards = startingCards.slice(0, Math.floor(startingAmount / 3));
+        dispatch(setCards(selectAllCards, playerId));
+    }
+
     return (
         <>
             <h3>Select a corporation</h3>
@@ -67,9 +72,7 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
                 </h4>
             </MaybeVisible>
             {cards.length < 10 ? (
-                <button onClick={() => dispatch(setCards(startingCards, playerId))}>
-                    Select all
-                </button>
+                <button onClick={() => handleSelectAll()}>Select all</button>
             ) : (
                 <button onClick={() => dispatch(setCards([], playerId))}>Unselect all</button>
             )}

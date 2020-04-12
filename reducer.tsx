@@ -221,6 +221,8 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     playerState.productions[production] -=
                         corporation.decreaseProduction[production];
                 }
+                const {cards} = draft.players[payload.playerId];
+                playerState.resources[Resource.MEGACREDIT] -= cards.length * 3;
                 playerState.playedCards.push(playerState.corporation);
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;

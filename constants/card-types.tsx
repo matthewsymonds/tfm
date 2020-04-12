@@ -16,8 +16,8 @@ export interface CardConfig {
     victoryPoints?: number;
     condition?(condition: Condition): boolean;
     effect?(effect: Effect): void;
-    
-    requiredProduction?: Resource; 
+
+    requiredProduction?: Resource;
     requiredTags?: Tag[];
     requiredResources?: Resource[];
     gainResource?: Resource[];
@@ -29,7 +29,7 @@ export interface CardConfig {
     increaseProductionOption?: Resource[][];
     decreaseProduction?: Resource[];
     decreaseAnyProduction?: Resource[];
-    
+
     tilePlacements?: TilePlacement[];
     increaseParameter?: Parameter[];
     increaseTerraformRating?: number;
@@ -58,7 +58,6 @@ export type Condition = {
     tag?: Tag;
     tileType?: TileType;
 };
-
 
 type MinimumGlobalParameter = {
     type: Parameter;

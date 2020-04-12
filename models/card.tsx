@@ -41,7 +41,7 @@ export class Card {
     actionOrEffectText?: string;
     deck: Deck;
     victoryPoints?: number;
-    
+
     // ====================================================
     // Requirements
     // ====================================================
@@ -59,7 +59,7 @@ export class Card {
     tilePlacements?: TilePlacement[];
 
     // ====================================================
-    // Resource & production implications 
+    // Resource & production implications
     // ====================================================
     /** e.g. "Gain 12 heat" */
     gainResource: PropertyCount<Resource>;
@@ -83,7 +83,7 @@ export class Card {
     increaseParameter: PropertyCount<Parameter>;
     /** e.g. "Raise your TR 1 step" */
     increaseTerraformRating?: number;
-    
+
     // ====================================================
     // Card effects, actions, and held resources
     // ====================================================
@@ -95,7 +95,7 @@ export class Card {
     effect?(effect: Effect): void;
     /* What type of resources can be stored on this card, if any */
     storedResourceType?: Resource;
-    
+
     // ====================================================
     // state
     // ====================================================
@@ -117,7 +117,7 @@ export class Card {
         this.type = config.type;
         this.deck = config.deck;
         this.victoryPoints = config.victoryPoints;
-        
+
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;
         this.requiredTags = Card.process(config.requiredTags);
@@ -127,7 +127,7 @@ export class Card {
         this.minTerraformRating = config.minTerraformRating;
         this.requiredProduction = config.requiredProduction;
         this.tilePlacements = config.tilePlacements;
-        
+
         // Resource & production implications
         this.gainResource = Card.process(config.gainResource);
         this.gainResourceOption = (config.gainResourceOption || []).map(Card.process);
@@ -140,7 +140,7 @@ export class Card {
         this.decreaseAnyProduction = Card.process(config.decreaseAnyProduction);
         this.increaseParameter = Card.process(config.increaseParameter);
         this.increaseTerraformRating = config.increaseTerraformRating;
-        
+
         // card effects, actions, long-term play (ACTIVE cards)
         this.cardActions = config.cardActions;
         this.playlist = config.playlist;
@@ -148,7 +148,7 @@ export class Card {
         this.effect = config.effect;
         this.actionOrEffectText = config.actionOrEffectText;
         this.storedResourceType = config.storedResourceType;
-        
+
         // State
         this.state = config.state;
         if (config.cardActions) {
