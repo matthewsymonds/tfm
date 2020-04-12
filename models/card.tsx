@@ -17,13 +17,17 @@ type PropertyCount<K extends Resource | Tag | Parameter> = {
     [k in K]?: number;
 };
 
+type ResourcePropertyCount = {
+    [key in Resource]: number;
+};
+
 export class Card {
     static process<K extends Resource | Tag | Parameter>(list: K[] = []): PropertyCount<K> {
         const result: PropertyCount<K> = {};
 
         for (const item of list) {
             result[item] = result[item] || 0;
-            result[item]++;
+            result[item]!++;
         }
 
         return result;
@@ -45,8 +49,6 @@ export class Card {
     // ====================================================
     // Requirements
     // ====================================================
-    minColonies?: number; // only for colonies expansion
-    maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
     requiredTags: PropertyCount<Tag>;
     /** If unset, defaults to `removeResources`. e.g. "Requires that you have 5 floaters". Basically only required for Aerosport Tournament */
@@ -57,6 +59,8 @@ export class Card {
     requiredGlobalParameter?: RequiredGlobalParameter;
     /** Restrictions about where this tile can be placed */
     tilePlacements?: TilePlacement[];
+    minColonies?: number; // only for colonies expansion
+    maxColonies?: number; // only for colonies expansion
 
     // ====================================================
     // Resource & production implications

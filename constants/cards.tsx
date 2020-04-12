@@ -393,8 +393,10 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
         condition: condition =>
             condition.samePlayer &&
-            condition.card.tags.includes(Tag.SPACE) &&
-            condition.card.tags.includes(Tag.EVENT),
+            condition.card?.tags.includes(Tag.SPACE) &&
+            condition.card?.tags.includes(Tag.EVENT)
+                ? true
+                : false,
         effect: effect => {
             effect.gainResource(Resource.MEGACREDIT, 3);
             effect.gainResource(Resource.HEAT, 3);
@@ -911,7 +913,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Viral Enhancers',
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.ACTIVE,
-        condition: condition => [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL].includes(condition.tag),
+        condition: condition =>
+            condition.tag && [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL].includes(condition.tag)
+                ? true
+                : false,
         effect: effect =>
             effect.gainResourceOption([[Resource.PLANT], [Resource.MICROBE], [Resource.MICROBE]])
     },
@@ -1305,7 +1310,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Media Group',
         tags: [Tag.EARTH],
         type: CardType.ACTIVE,
-        condition: condition => condition.card && condition.card.type === CardType.EVENT,
+        condition: condition =>
+            condition.card && condition.card.type === CardType.EVENT ? true : false,
         effect: effect => effect.gainResource(Resource.MEGACREDIT, 3)
     },
     {
@@ -1512,7 +1518,8 @@ export const cardConfigs: CardConfig[] = [
             'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL, Tag.PLANT],
         type: CardType.ACTIVE,
-        condition: condition => [Tag.ANIMAL, Tag.PLANT].includes(condition.tag),
+        condition: condition =>
+            condition.tag && [Tag.ANIMAL, Tag.PLANT].includes(condition.tag) ? true : false,
         effect(effect) {
             effect.gainResource(Resource.ANIMAL, 1, this);
         },
@@ -1563,7 +1570,10 @@ export const cardConfigs: CardConfig[] = [
         // requiredOxygen: 3,
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE,
-        condition: condition => [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE].includes(condition.tag),
+        condition: condition =>
+            condition.tag && [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE].includes(condition.tag)
+                ? true
+                : false,
         effect(effect) {
             effect.gainResource(Resource.MICROBE, 1, this);
         },
@@ -3402,7 +3412,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Increase your MC production 2 steps.',
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
-        condition: condition => condition.card && condition.card.cost > 20,
+        condition: condition => (condition.card?.cost ?? 0 > 20 ? true : false),
         effect: effect => effect.drawCard()
     },
     {
@@ -3822,7 +3832,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'You start with 57 MC.',
         tags: [],
         type: CardType.CORPORATION,
-        condition: condition => condition.cost && condition.cost >= 20,
+        condition: condition => (condition.cost && condition.cost >= 20 ? true : false),
         effect: effect => effect.gainResource(Resource.MEGACREDIT, 4),
         gainResource: Array(57).fill(Resource.MEGACREDIT)
     },
@@ -3854,7 +3864,8 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'You start with 20 steel and 30 MC.',
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
-        condition: condition => condition.card && condition.card.tags.includes(Tag.EVENT),
+        condition: condition =>
+            condition.card && condition.card.tags.includes(Tag.EVENT) ? true : false,
         effect: effect => effect.gainResource(Resource.MEGACREDIT, 2),
         gainResource: [...Array(30).fill(Resource.MEGACREDIT), ...Array(20).fill(Resource.STEEL)]
     },
@@ -3919,7 +3930,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
         condition: condition =>
-            condition.tileType === TileType.CITY && (condition.onMars || condition.samePlayer),
+            condition.tileType === TileType.CITY && (condition.onMars || condition.samePlayer)
+                ? true
+                : false,
         effect: effect => {
             if (effect.condition.onMars) {
                 effect.increaseProduction(Resource.MEGACREDIT, 1);
@@ -4056,7 +4069,7 @@ export const cardConfigs: CardConfig[] = [
             'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
         tags: [],
         type: CardType.CORPORATION,
-        condition: condition => condition.newTag,
+        condition: condition => condition.newTag ?? false,
         effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1)
     },
     {
@@ -4069,7 +4082,7 @@ export const cardConfigs: CardConfig[] = [
             'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL],
         type: CardType.CORPORATION,
-        condition: condition => [Tag.ANIMAL, Tag.PLANT].includes(condition.tag),
+        condition: condition => !!condition.tag && [Tag.ANIMAL, Tag.PLANT].includes(condition.tag),
         effect(effect) {
             effect.gainResource(Resource.ANIMAL, 1, this);
         }

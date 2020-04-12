@@ -8,7 +8,7 @@ import {MinimumProductions} from '../constants/game';
 
 function canAfford(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
-    let {cost} = card;
+    let {cost = 0} = card;
 
     const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
     if (isBuildingCard) {
@@ -108,7 +108,11 @@ function meetsProductionRequirements(card: Card, state: RootState) {
     return true;
 }
 
-function playCard(card: Card, dispatch: Function, state: RootState) {}
+function meetsTilePlacementRequirements(card: Card, state: RootState): boolean {
+    // card.tilePlacements.forEach(() => {});
+
+    return true;
+}
 
 function canPlayCard(card: Card, state: RootState): [boolean, string | undefined] {
     if (!canAfford(card, state)) {
@@ -123,21 +127,29 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
         return [false, 'Required tags not met'];
     }
 
+    // Also accounts for opponent resources if applicable
     if (!doesPlayerHaveRequiredResources(card, state)) {
         return [false, 'Not enough of required resource'];
     }
 
+    // Also accounts for opponent productions if applicable
     if (!meetsProductionRequirements(card, state)) {
         return [false, 'Does not have required production'];
+    }
+
+    if (!meetsTilePlacementRequirements(card, state)) {
+        return [false, 'Cannot place tile'];
     }
 
     return [true, 'Good to go'];
 }
 
+function playCard(card: Card, dispatch: Function, state: RootState) {}
+
 export const ctx = {
     queue: [],
-    playCard,
-    canPlayCard
+    canPlayCard,
+    playCard
 };
 
 export const AppContext = createContext(ctx);
