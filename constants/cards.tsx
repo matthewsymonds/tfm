@@ -77,7 +77,6 @@ export const cardConfigs: CardConfig[] = [
         name: 'Search For Life',
         oneTimeText:
             'Oxygen must be 6% or less. 3 VPs if you have one or more science resource here.',
-        // requiredMaxOxygen: 6,
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
         get victoryPoints() {
@@ -111,7 +110,6 @@ export const cardConfigs: CardConfig[] = [
         name: 'Capital',
         oneTimeText:
             'Requires 4 ocean tiles. Place [the capital city] tile. Decrease your energy production 2 steps and increase your MC production 5 steps. 1 ADDITIONAL VP FOR EACH OCEAN TILE ADJACENT TO THIS CITY TILE.',
-        // requiredOcean: 4,
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 4
@@ -362,7 +360,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Interstellar Colony Ship',
         oneTimeText: 'Requires 5 science tags.',
-        requiredTags: Array(5).fill(Tag.SCIENCE),
+        requiredTags: {[Tag.SCIENCE]: 5},
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         victoryPoints: 4
@@ -610,7 +608,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Lightning Harvest',
         oneTimeText:
             'Requires 3 science tags. Increase your energy production and your MC production 1 step each.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -773,7 +771,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Beam From a Thorium Asteroid',
         oneTimeText:
             'Requires a Jovian tag. Increase your heat production and energy production 3 steps each.',
-        // requiredJovian: 1,
+        requiredTags: {[Tag.JOVIAN]: 1},
         tags: [Tag.POWER, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1021,7 +1019,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.CORPORATE,
         name: 'Quantum Extractor',
-        // requiredScience: 4,
+        requiredTags: {[Tag.SCIENCE]: 4},
         tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
         oneTimeText: 'Increase your energy production 4 steps.',
@@ -1161,7 +1159,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Gene Repair',
         oneTimeText: 'Requires 3 science tags. Increase your MC production 2 steps.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -1203,7 +1201,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Mass Converter',
         oneTimeText: 'Requires 5 science tags. Increase your energy production 6 steps.',
-        // requiredScience: 5,
+        requiredTags: {[Tag.SCIENCE]: 5},
         tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
         increaseProduction: Array(6).fill(Resource.ENERGY)
@@ -1680,7 +1678,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Fusion Power',
         oneTimeText: 'Requires 2 power tags. Increase your energy production 3 steps.',
-        // requiredEnergy: 2,
+        requiredTags: {[Tag.POWER]: 2},
         tags: [Tag.BUILDING, Tag.POWER, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY, Resource.ENERGY]
@@ -1716,9 +1714,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Advanced Ecosystems',
         oneTimeText: 'Requires a plant tag, a microbe tag, and an animal tag.',
-        // requiredAnimal: 1,
-        // requiredMicrobe: 1,
-        // requiredPlant: 1,
+        requiredTags: {[Tag.PLANT]: 1, [Tag.MICROBE]: 1, [Tag.ANIMAL]: 1},
         tags: [Tag.ANIMAL, Tag.MICROBE, Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 3
@@ -1833,7 +1829,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Tectonic Stress Power',
         oneTimeText: 'Requires 2 science tags. Increase your energy production 3 steps.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1908,7 +1904,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Anti-Gravity Technology',
         oneTimeText: 'Requires 7 science tags.',
-        // requiredScience: 7,
+        requiredTags: {[Tag.SCIENCE]: 7},
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 3
@@ -2018,7 +2014,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Power Supply Consortium',
         oneTimeText:
             'Requires 2 power tags. Decrease any energy production 1 step and increase your own 1 step.',
-        // requiredResources.ENERGY: 2,
+        requiredTags: {[Tag.POWER]: 2},
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseAnyProduction: [Resource.ENERGY],
@@ -2434,7 +2430,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Plantation',
         oneTimeText: 'Requires 2 science tags. Place a greenery tile and raise oxygen 1 step.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.GREENERY)]
@@ -2603,7 +2599,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'AI Central',
         oneTimeText: 'Requires 3 science tags to play. Decrease your energy production 1 step.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 1,
@@ -2625,7 +2621,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.PROMO,
         name: 'Self-Replicating Robots',
         oneTimeText: 'Requires 2 science tags.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [],
         type: CardType.ACTIVE
     },
@@ -2698,7 +2694,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Atalanta Planitia Lab',
         oneTimeText: 'Requires 3 science tags. Draw 2 cards.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.SCIENCE, Tag.VENUS],
         type: CardType.AUTOMATED,
         victoryPoints: 2
@@ -2710,7 +2706,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Atmoscoop',
         oneTimeText:
             'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -2739,7 +2735,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Dawn City',
         oneTimeText:
             'Requires 4 science tags. Decrease your energy production 1 step. Increase your titanium production 1 step. Place a city tile ON THE RESERVED AREA.',
-        // requiredScience: 4,
+        requiredTags: {[Tag.SCIENCE]: 4},
         tags: [Tag.CITY, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 3
@@ -2782,7 +2778,7 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Extremophiles',
         oneTimeText: 'Requires 2 science tags. 1 VP for per 3 microbes on this card.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2793,7 +2789,7 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.FLOATER,
         name: 'Floating Habs',
         oneTimeText: 'Requires 2 science tags. 1 VP per 2 floaters on this card.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2915,9 +2911,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Luxury Foods',
         oneTimeText: 'Requires Venus, Earth and Jovian tags.',
-        // requiredEarth: 1,
-        // requiredJovian: 1,
-        // requiredVenusTags: 1,
+        requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1, [Tag.JOVIAN]: 1},
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 2
@@ -2943,9 +2937,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Mining Quota',
         oneTimeText:
             'Requires Venus, Earth and Jovian tags. Increase your steel production 2 steps.',
-        // requiredEarth: 1,
-        // requiredJovian: 1,
-        // requiredVenusTags: 1,
+        requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1, [Tag.JOVIAN]: 1},
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED
     },
@@ -2968,9 +2960,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Omnicourt',
         oneTimeText: 'Requires Venus, Earth, and Jovian tags. Increase your TR 2 steps.',
-        // requiredEarth: 1,
-        // requiredJovian: 1,
-        // requiredVenusTags: 1,
+        requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1, [Tag.JOVIAN]: 1},
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED
     },
@@ -3002,8 +2992,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Sister Planet Support',
         oneTimeText: 'Requires Venus and Earth tag. Increase your MC production 3 steps.',
-        // requiredEarth: 1,
-        // requiredVenusTags: 1,
+        requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1},
         tags: [Tag.EARTH, Tag.VENUS],
         type: CardType.AUTOMATED
     },
@@ -3012,9 +3001,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Solarnet',
         oneTimeText: 'Requires Venus, Earth, and Jovian tags. Draw 2 cards.',
-        // requiredEarth: 1,
-        // requiredJovian: 1,
-        // requiredVenusTags: 1,
+        requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1, [Tag.JOVIAN]: 1},
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -3049,7 +3036,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Stratopolis',
         oneTimeText:
             'Requires 2 science tags. Increase your MC production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP per 3 floaters on this card.',
-        // requiredScience: 2,
+        requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -3130,7 +3117,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Venus Governor',
         oneTimeText: 'Requires 2 Venus tags. Increase your MC production 2 steps.',
-        // requiredVenusTags: 2,
+        requiredTags: {[Tag.VENUS]: 2},
         tags: [Tag.VENUS, Tag.VENUS],
         type: CardType.AUTOMATED
     },
@@ -3260,7 +3247,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Conscription',
         oneTimeText:
             'Requires 2 Earth tags. The next card you play this generation costs 16 MC less.',
-        // requiredEarth: 2,
+        requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -1
@@ -3270,7 +3257,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Corona Extractor',
         oneTimeText: 'Requires 4 science tags. Increase your energy production 4 steps.',
-        // requiredScience: 4,
+        requiredTags: {[Tag.SCIENCE]: 4},
         tags: [Tag.POWER, Tag.SPACE],
         type: CardType.AUTOMATED
     },
@@ -3341,7 +3328,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Heavy Taxation',
         oneTimeText: 'Requires 2 Earth tags. Increase your MC production 2 steps, and gain 4 MC.',
-        // requiredEarth: 2,
+        requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         victoryPoints: -1
@@ -3358,8 +3345,8 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Impactor Swarm',
-        oneTimeText: 'Requries 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.',
-        // requiredJovian: 2,
+        oneTimeText: 'Requires 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.',
+        requiredTags: {[Tag.JOVIAN]: 2},
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT
     },
@@ -3380,7 +3367,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Jovian Lanterns',
         oneTimeText:
             'Requires 1 Jovian tag. Increase your TR 1 step. Add 2 floaters to ANY card. 1 VP per 2 floaters here.',
-        // requiredJovian: 1,
+        requiredTags: {[Tag.JOVIAN]: 1},
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE
     },
@@ -3392,7 +3379,7 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.FLOATER,
         name: 'Jupiter Floating Station',
         oneTimeText: 'Requires 3 science tags.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE,
         victoryPoints: 1
@@ -3402,7 +3389,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Luna Governor',
         oneTimeText: 'Requires 3 Earch tags. Increase your MC production 2 steps.',
-        // requiredEarth: 3,
+        requiredTags: {[Tag.EARTH]: 3},
         tags: [Tag.EARTH, Tag.EARTH],
         type: CardType.AUTOMATED
     },
@@ -3509,7 +3496,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Quantum Communications',
         oneTimeText:
             'Requires 4 science tags. Increase your MC production 1 step for each colony in play.',
-        // requiredScience: 4,
+        requiredTags: {[Tag.SCIENCE]: 4},
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -3521,7 +3508,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Red Spot Observatory',
         oneTimeText: 'Requires 3 science tags. Draw 2 cards.',
-        // requiredScience: 3,
+        requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.JOVIAN, Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 2
@@ -3559,7 +3546,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Sky Docks',
         oneTimeText: 'Requires 2 Earth tags. Gain 1 Trade Fleet.',
-        // requiredEarth: 2,
+        requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.ACTIVE,
         victoryPoints: 2
@@ -3685,7 +3672,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Urban Decomposers',
         oneTimeText:
             'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
-        // requiredSpace: 1,
+        requiredTags: {[Tag.SPACE]: 1},
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED
     },
@@ -3695,7 +3682,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Warp Drive',
         oneTimeText: 'Requires 5 science tags.',
-        // requiredScience: 5,
+        requiredTags: {[Tag.SCIENCE]: 5},
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 2
@@ -4025,7 +4012,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.PRELUDE,
         name: 'Space Hotels',
         oneTimeText: 'Requires 2 Earth tags. Increase your MC production 4 steps.',
-        // requiredEarth: 2,
+        requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED
     },

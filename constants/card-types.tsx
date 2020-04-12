@@ -18,7 +18,7 @@ export interface CardConfig {
     effect?(effect: Effect): void;
 
     requiredProduction?: Resource;
-    requiredTags?: Tag[];
+    requiredTags?: {[key in Tag]?: number};
     requiredResources?: Resource[];
     gainResource?: Resource[];
     gainResourceOption?: Resource[][];

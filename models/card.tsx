@@ -124,7 +124,6 @@ export class Card {
 
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;
-        this.requiredTags = Card.process(config.requiredTags);
         this.requiredResources = Card.process(config.requiredResources || config.removeResources);
         this.minColonies = config.minColonies;
         this.maxColonies = config.maxColonies;
@@ -144,6 +143,7 @@ export class Card {
         this.decreaseAnyProduction = Card.process(config.decreaseAnyProduction);
         this.increaseParameter = Card.process(config.increaseParameter);
         this.increaseTerraformRating = config.increaseTerraformRating;
+        this.requiredTags = config.requiredTags || {};
 
         // card effects, actions, long-term play (ACTIVE cards)
         this.cardActions = config.cardActions;
