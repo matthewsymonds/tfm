@@ -62,12 +62,12 @@ export type Condition = {
 type MinimumGlobalParameter = {
     type: Parameter;
     min: number;
-    max: undefined;
+    max?: undefined;
 };
 
 type MaximumGlobalParameter = {
     type: Parameter;
-    min: undefined;
+    min?: undefined;
     max: number;
 };
 

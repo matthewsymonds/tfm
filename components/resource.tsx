@@ -71,6 +71,10 @@ const InlineResourceIcon = styled(ResourceIcon)`
     border: 1px solid gray;
 `;
 
+function name(resource: Resource): string {
+    return resource.slice('resource'.length);
+}
+
 export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
     amount,
     production,
@@ -81,7 +85,7 @@ export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> 
             <table>
                 <tbody>
                     <tr>
-                        <td>{resource}</td>
+                        <td>{name(resource)}</td>
                         <td>
                             <InlineResourceIcon name={resource} />
                         </td>

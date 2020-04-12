@@ -9,13 +9,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Colonizer Training Camp',
         oneTimeText: 'Oxygen must be 5% or less.',
-        // canBePlayed: state => state.common.oxygen <= 5,
-        // play(playerId) {
-        //     const card = this;
-        //     return function(dispatch) {
-        //         dispatch(payForCard(card, playerId))
-        //     }
-        // },
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 5
+        },
         tags: [Tag.BUILDING, Tag.JOVIAN],
         type: CardType.AUTOMATED,
         victoryPoints: 2
@@ -33,14 +30,14 @@ export const cardConfigs: CardConfig[] = [
         // canBePlayed: state => state.players[state.currentPlayerIndex].productions[Resource.TITANIUM] > 0,
         // requirementFailedMessage: 'You need titanium production to play',
         decreaseAnyProduction: [Resource.TITANIUM],
-        increaseProduction: [Resource.TITANIUM]
+        increaseProduction: [Resource.TITANIUM],
+        requiredProduction: Resource.TITANIUM
     },
     {
         cost: 13,
         deck: Deck.BASIC,
         name: 'Deep Well Heating',
         oneTimeText: 'Increase your energy production 1 step. Increase temperature 1 step.',
-        // canBePlayed: state => state.common.temperature < MAX_TEMP,
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.TITANIUM],
@@ -53,10 +50,10 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText:
             'Requires 3 ocean tiles. Decrease your MC production 1 step and any heat production 1 step.  Increase your plant production 2 steps.',
         // TODO(multi): validate opponent production reduction
-        // canBePlayed: state =>
-        //     state.common.ocean >= 3 &&
-        //     state.common.ocean < MAX_OCEAN &&
-        //     state.players[state.currentPlayerIndex].productions[Resource.MEGACREDIT] > MIN_MEGACREDIT_PRODUCTION,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 3
+        },
         tags: [],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.MEGACREDIT],
@@ -71,6 +68,10 @@ export const cardConfigs: CardConfig[] = [
         actionOrEffectText:
             'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
         cost: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 6
+        },
         deck: Deck.BASIC,
         storedResourceType: Resource.SCIENCE,
         name: 'Search For Life',
@@ -111,6 +112,10 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText:
             'Requires 4 ocean tiles. Place [the capital city] tile. Decrease your energy production 2 steps and increase your MC production 5 steps. 1 ADDITIONAL VP FOR EACH OCEAN TILE ADJACENT TO THIS CITY TILE.',
         // requiredOcean: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 4
+        },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CAPITAL)],
@@ -207,7 +212,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Domed Crater',
         oneTimeText:
             'Oxygen must be 7% or less. Gain 3 plants and place a city tile. Decrease your energy production 1 step and increase MC production 3 steps.',
-        // requiredMaxOxygen: 7,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 7
+        },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -234,7 +242,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Methane From Titan',
         oneTimeText:
             'Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps.',
-        // requiredOxygen: 2,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 2
+        },
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -294,7 +305,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Arctic Algae',
         oneTimeText: 'It must be -12°C or colder to play. Gain 1 plant.',
-        // requiredMaxTemperature: -12,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            max: -12
+        },
         tags: [Tag.PLANT],
         type: CardType.ACTIVE,
         condition: condition => condition.tileType === TileType.OCEAN,
@@ -308,7 +322,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.ANIMAL,
         name: 'Predators',
         oneTimeText: 'Requires 11% oxygen. 1 VP per animal on this card.',
-        // requiredOxygen: 11,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 11
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         get victoryPoints() {
@@ -330,7 +347,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Eos Chasma National Park',
         oneTimeText:
             'Requires -12°C  or warmer. Add 1 animal TO ANY animal CARD. Gain 3 plants. Increase your MC production 2 steps.',
-        // requiredTemperature: -12,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -12
+        },
         tags: [Tag.BUILDING, Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -342,7 +362,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Interstellar Colony Ship',
         oneTimeText: 'Requires 5 science tags.',
-        // requiredScience: 5,
+        requiredTags: Array(5).fill(Tag.SCIENCE),
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         victoryPoints: 4
@@ -366,7 +386,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Cupola City',
         oneTimeText:
             'Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your MC production 3 steps.',
-        // requiredMaxOxygen: 9,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 9
+        },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CITY)],
@@ -392,11 +415,10 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.ACTIVE,
         condition: condition =>
-            condition.samePlayer &&
-            condition.card?.tags.includes(Tag.SPACE) &&
-            condition.card?.tags.includes(Tag.EVENT)
-                ? true
-                : false,
+            (!!condition.samePlayer &&
+                condition.card?.tags.includes(Tag.SPACE) &&
+                condition.card?.tags.includes(Tag.EVENT)) ??
+            false,
         effect: effect => {
             effect.gainResource(Resource.MEGACREDIT, 3);
             effect.gainResource(Resource.HEAT, 3);
@@ -432,7 +454,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'GHG Producing Bacteria',
         oneTimeText: 'Requires 4% oxygen.',
-        // requiredOxygen: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 4
+        },
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.ACTIVE
     },
@@ -443,7 +468,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Ants',
         oneTimeText: 'Requires 4% oxygen. 1 VP per 2 microbes on this card.',
-        // requiredOxygen: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 4
+        },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE
     },
@@ -530,7 +558,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Archaebacteria',
         oneTimeText: 'It must be -18°C or colder. Increase your plant production 1 step.',
-        // requiredMaxTemperature: -18,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            max: -18
+        },
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT]
@@ -552,7 +583,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Natural Preserve',
         oneTimeText:
             'Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your MC production 1 step.',
-        // requiredMaxOxygen: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 4
+        },
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -588,7 +622,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Algae',
         oneTimeText:
             'Requires 5 ocean tiles. Gain 1 plant and increase your plant production 2 steps.',
-        // requiredOcean: 5,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 5
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         gainResource: [Resource.PLANT],
@@ -648,7 +685,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Fish',
         oneTimeText:
             'Requires 2°C or warmer. Decrease any plant production 1 step. 1 VP for each animal on this card.',
-        // requiredTemperature: 2,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 2
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         decreaseAnyProduction: [Resource.ANIMAL],
@@ -661,7 +701,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Lake Marineris',
         oneTimeText: 'Requires 0°C or warmer. Place 2 ocean tiles.',
-        // requiredTemperature: 0,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 0
+        },
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -675,7 +718,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Small Animals',
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        // requiredOxygen: 6,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 6
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         decreaseAnyProduction: [Resource.PLANT],
@@ -689,7 +735,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Kelp Farming',
         oneTimeText:
             'Requires 6 ocean tiles. Increase your MC production 2 steps and your plant production 3 steps. Gain 2 plants.',
-        // requiredOcean: 6,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 6
+        },
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -736,7 +785,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Mangrove',
         oneTimeText:
             'Requires +4°C or warmer. Place a Greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
-        // requiredTemperature: 4,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 4
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -748,7 +800,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Trees',
         oneTimeText:
             'Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant.',
-        // requiredTemperature: -4,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -4
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -761,12 +816,11 @@ export const cardConfigs: CardConfig[] = [
         name: 'Great Escarpment Consortium',
         oneTimeText:
             'Requires that you have steel production. Decrease any steel production 1 step and increase your own 1 step',
-        // canBePlayed: requirement => requirement.steelProduction > 0,
-        // requirementFailedMessage: 'You need steel production to play',
         tags: [],
         type: CardType.AUTOMATED,
         decreaseAnyProduction: [Resource.STEEL],
-        increaseProduction: [Resource.STEEL]
+        increaseProduction: [Resource.STEEL],
+        requiredProduction: Resource.STEEL
     },
     {
         cost: 5,
@@ -853,7 +907,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Electro Catapult',
         oneTimeText: 'Oxygen must be 8% or less. Decrease your energy production 1 step.',
-        // requiredMaxOxygen: 8,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 8
+        },
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
         victoryPoints: 1,
@@ -885,7 +942,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Birds',
         oneTimeText:
             'Requires 13% oxygen. Decrease any plant production 2 steps. 1 VP for each animal on this card',
-        // requiredOxygen: 13,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 13
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         decreaseAnyProduction: [Resource.PLANT],
@@ -914,9 +974,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.ACTIVE,
         condition: condition =>
-            condition.tag && [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL].includes(condition.tag)
-                ? true
-                : false,
+            !!condition.tag && [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL].includes(condition.tag),
         effect: effect =>
             effect.gainResourceOption([[Resource.PLANT], [Resource.MICROBE], [Resource.MICROBE]])
     },
@@ -1053,7 +1111,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Grass',
         oneTimeText:
             'Requires -16°C or warmer. Increase your plant production 1 step. Gain 3 plants.',
-        // requiredTemperature: -16,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -16
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT],
@@ -1065,7 +1126,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Heather',
         oneTimeText:
             'Requires -14°C or warmer. Increase your plant production 1 step. Gain 1 plant.',
-        // requiredTemperature: -14,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -14
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT],
@@ -1124,7 +1188,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Bushes',
         oneTimeText:
             'Requires -10°C or warmer. Increase your plant production 2 steps. Gain 2 plants.',
-        // requiredTemperature: -10,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -10
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT, Resource.PLANT],
@@ -1296,7 +1363,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Open City',
         oneTimeText:
             'Requires 12% oxygen. Decrease your energy production 1 step and increase your MC production 4 steps. Gain 2 plants and place a city tile.',
-        // requiredOxygen: 12,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 12
+        },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1359,7 +1429,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Breathing Filters',
         oneTimeText: 'Requires 7% oxygen.',
-        // requiredOxygen: 7,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 7
+        },
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 2
@@ -1379,7 +1452,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Artificial Lake',
         oneTimeText:
             'Requires -6°C or warmer. Place 1 ocean tile ON AN AREA NOT RESERVED FOR OCEAN.',
-        // requiredTemperature: -6,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -6
+        },
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1400,7 +1476,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Farming',
         oneTimeText:
             'Requires +4°C or warmer. Increase your MC production 2 steps and your plant production 2 steps. Gain 2 plants.',
-        // requiredTemperature: 4,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 4
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -1417,7 +1496,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Dust Seals',
         oneTimeText: 'Requires 3 or less ocean tiles.',
-        // requiredMaxOcean: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            max: 3
+        },
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -1447,7 +1529,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Moss',
         oneTimeText:
             'Requires 3 ocean tiles and that you lose 1 plant. Increase your plant production 1 step.',
-        // requiredOcean: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 3
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         removeResources: [Resource.PLANT]
@@ -1519,7 +1604,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.ANIMAL, Tag.PLANT],
         type: CardType.ACTIVE,
         condition: condition =>
-            condition.tag && [Tag.ANIMAL, Tag.PLANT].includes(condition.tag) ? true : false,
+            !!condition.tag && [Tag.ANIMAL, Tag.PLANT].includes(condition.tag) ? true : false,
         effect(effect) {
             effect.gainResource(Resource.ANIMAL, 1, this);
         },
@@ -1531,7 +1616,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Zeppelins',
         oneTimeText:
             'Requires 5% oxygen. Increase your MC production 1 step for each city tile ON MARS.',
-        // requiredOxygen: 5,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 5
+        },
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1549,7 +1637,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Worms',
         oneTimeText:
             'Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have, including this.',
-        // requiredOxygen: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 4
+        },
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         get increaseProduction() {
@@ -1567,7 +1658,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Decomposers',
         oneTimeText: 'Requires 3% oxygen. 1 VP per 3 microbes on this card.',
-        // requiredOxygen: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 3
+        },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE,
         condition: condition =>
@@ -1597,7 +1691,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Symbiotic Fungus',
         oneTimeText: 'Requires -14°C or warmer.',
-        // requiredTemperature: -14,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -14
+        },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE
     },
@@ -1607,7 +1704,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Extreme-Cold Fungus',
         oneTimeText: 'It must be -10°C or colder.',
-        // requiredMaxTemperature: -10,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            max: -10
+        },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE
     },
@@ -1628,7 +1728,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Great Dam',
         oneTimeText: 'Requires 4 ocean tiles. Increase your energy production 2 steps.',
-        // requiredOcean: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 4
+        },
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1664,7 +1767,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Wave Power',
         oneTimeText: 'Requires 3 ocean tiles. Increase your energy production 1 step.',
-        // requiredOcean: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 3
+        },
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1739,7 +1845,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Nitrophilic Moss',
         oneTimeText:
             'Requires 3 ocean tiles and that you lose 2 plants. Increase your plant production 2 steps.',
-        // requiredOcean: 3,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 3
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         removeResources: [Resource.PLANT, Resource.PLANT],
@@ -1753,7 +1862,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Herbivores',
         oneTimeText:
             'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        // requiredOxygen: 8,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 8
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         condition: condition => condition.tileType === TileType.GREENERY,
@@ -1770,7 +1882,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Insects',
         oneTimeText:
             'Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.',
-        // requiredOxygen: 6,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 6
+        },
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         get increaseProduction() {
@@ -1833,7 +1948,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Caretaker Contract',
         oneTimeText: 'Requires 0°C or warmer.',
-        // requiredTemperature: 0,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 0
+        },
         tags: [],
         type: CardType.ACTIVE
     },
@@ -1842,7 +1960,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Designed Microorganisms',
         oneTimeText: 'It must be -14°C or colder. Increase your plant production 2 steps.',
-        // requiredMaxTemperature: -14,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            max: -14
+        },
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT, Resource.PLANT]
@@ -1883,7 +2004,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Lichen',
         oneTimeText: 'Requires -24°C or warmer. Increase your plant production 1 step.',
-        // requiredTemperature: -24,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -24
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.PLANT]
@@ -1965,7 +2089,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Shuttles',
         oneTimeText:
             'Requires 5% oxygen. Decrease your energy production 1 step and increase your MC production 2 steps.',
-        // requiredOxygen: 5,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 5
+        },
         tags: [Tag.SPACE],
         type: CardType.ACTIVE,
         victoryPoints: 1,
@@ -1986,7 +2113,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Windmills',
         oneTimeText: 'Requires 7% oxygen. Increase your energy production 1 step.',
-        // requiredOxygen: 7,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 7
+        },
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -1998,7 +2128,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Tundra Farming',
         oneTimeText:
             'Requires -6°C or warmer. Increase your plant production 1 step and your MC production 2 steps. Gain 1 plant.',
-        // requiredTemperature: -6,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -6
+        },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -2082,7 +2215,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Noctis Farming',
         oneTimeText:
             'Requires -20°C or warmer. Increase your MC production 1 step and gain 2 plants.',
-        // requiredTemperature: -20,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -20
+        },
         tags: [Tag.BUILDING, Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -2095,7 +2231,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Water Splitting Plant',
         oneTimeText: 'Requires 2 ocean tiles.',
-        // requiredOcean: 2,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 2
+        },
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE
     },
@@ -2139,7 +2278,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Ice cap Melting',
         oneTimeText: 'Requires +2°C or warmer. Place 1 ocean tile.',
-        // requiredTemperature: 2,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: 2
+        },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         tilePlacements: [t(TileType.OCEAN)]
@@ -2163,7 +2305,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Biomass Combustors',
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step and increase your energy production 2 steps.',
-        // requiredOxygen: 6,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 6
+        },
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
@@ -2178,7 +2323,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Livestock',
         oneTimeText:
             'Requires 9% oxygen. Decrease your plant production 1 step and increase your MC production 2 steps. 1 VP for each animal on this card.',
-        // requiredOxygen: 9,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            min: 9
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         decreaseProduction: [Resource.PLANT],
@@ -2264,7 +2412,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Permafrost extraction',
         oneTimeText: 'Requires -8°C or warmer. Place 1 ocean tile.',
-        // requiredTemperature: -8,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -8
+        },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         tilePlacements: [t(TileType.OCEAN)]
@@ -2484,7 +2635,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Snow Algae',
         oneTimeText:
             'Requires 2 oceans. Increase your plant production and your heat production 1 step each.',
-        // requiredOcean: 2,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 2
+        },
         tags: [Tag.PLANT],
         type: CardType.ACTIVE
     },
@@ -2495,7 +2649,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.ANIMAL,
         name: 'Penguins',
         oneTimeText: 'Requires 8 Oceans. 1 VP per animal on this card.',
-        // requiredOcean: 8,
+        requiredGlobalParameter: {
+            type: Parameter.OCEAN,
+            min: 8
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE
     },
@@ -2609,7 +2766,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         actionOrEffectText:
-            'Action: Add 1 flaoter to this card, or remove 2 floaters here to raise Venus 1 step.',
+            'Action: Add 1 floater to this card, or remove 2 floaters here to raise Venus 1 step.',
         cost: 21,
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
@@ -2656,7 +2813,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Freyja Biodomes',
         oneTimeText:
             'Requires Venus 10%. Add 2 microbes or 2 animals TO ANOTHER VENUS CARD. Decrease your energy production 1 step, and increase your MC production by 2 steps.',
-        // requiredVenus: 10,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 10
+        },
         tags: [Tag.PLANT, Tag.VENUS],
         type: CardType.AUTOMATED,
         victoryPoints: 2
@@ -2713,7 +2873,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Ishtar Mining',
         oneTimeText: 'Requires Venus 8%. Increase your titanium production 1 step.',
-        // requiredVenus: 8,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 8
+        },
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED
     },
@@ -2766,7 +2929,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Maxwell Base',
         oneTimeText:
             'Requires Venus 12%. Decrease your energy production 1 step. Place a city tile ON THE RESERVED AREA.',
-        // requiredVenus: 12,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 12
+        },
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: 3
@@ -2789,7 +2955,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Neutralizer Factory',
         oneTimeText: 'Requires Venus 10%. Increase Venus 1 step.',
-        // requiredVenus: 10,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 10
+        },
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED
     },
@@ -2821,7 +2990,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Rotator Impacts',
         oneTimeText: 'Venus must be 14% or lower.',
-        // requiredMaxVenus: 14,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            max: 14
+        },
         tags: [Tag.SPACE],
         type: CardType.ACTIVE
     },
@@ -2853,7 +3025,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Spin-Inducing Asteroid',
         oneTimeText: 'Venus must be 10% or lower. Raise Venus 2 steps.',
-        // requiredMaxVenus: 10,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            max: 10
+        },
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT
     },
@@ -2886,7 +3061,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Stratospheric Birds',
         oneTimeText:
             'Requires Venus 12%, and that you spend 1 floater from any card. 1 VP for each animal on this card.',
-        // requiredVenus: 12,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 12
+        },
         tags: [Tag.ANIMAL, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2908,7 +3086,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Sulphur-Eating Bacteria',
         oneTimeText: 'Requires Venus 6%.',
-        // requiredVenus: 6,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 6
+        },
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2928,7 +3109,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Thermophiles',
         oneTimeText: 'Requires Venus 6%.',
-        // requiredVenus: 6,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 6
+        },
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2956,7 +3140,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Venus Magnetizer',
         oneTimeText: 'Requires Venus 10%',
-        // requiredVenus: 10,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 10
+        },
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -2987,7 +3174,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.ANIMAL,
         name: 'Venusian Animals',
         oneTimeText: 'Requires Venus 18%. 1 VP for each animal on this card.',
-        // requiredVenus: 18,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 18
+        },
         tags: [Tag.ANIMAL, Tag.SCIENCE, Tag.VENUS],
         type: CardType.ACTIVE,
         condition: condition => condition.tag === Tag.VENUS,
@@ -3001,7 +3191,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Venusian Insects',
         oneTimeText: 'Requires Venus 12%. 1 VP per 2 microbes on this card.',
-        // requiredVenus: 12,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 12
+        },
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.ACTIVE
     },
@@ -3012,7 +3205,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Venusian Plants',
         oneTimeText:
             'Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to ANOTHER VENUS CARD.',
-        // requiredVenus: 16,
+        requiredGlobalParameter: {
+            type: Parameter.VENUS,
+            min: 16
+        },
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -3423,7 +3619,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Sub-Zero Salt Fish',
         oneTimeText:
             'Requires -6°C or warmer. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
-        // requiredTemperature: -6,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            min: -6
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE
     },
@@ -3780,7 +3979,10 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.PRELUDE,
         name: 'Martian Survey',
         oneTimeText: 'Oxygen must be 4% or lower. Draw 2 cards.',
-        // requiredMaxOxygen: 4,
+        requiredGlobalParameter: {
+            type: Parameter.OXYGEN,
+            max: 4
+        },
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
         victoryPoints: 1
@@ -3793,7 +3995,10 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.MICROBE,
         name: 'Psychrophiles',
         oneTimeText: 'Requires temperature -20°C or colder.',
-        // requiredMaxTemperature: -20,
+        requiredGlobalParameter: {
+            type: Parameter.TEMPERATURE,
+            max: -20
+        },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE
     },
