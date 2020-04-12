@@ -20,9 +20,13 @@ import {Card} from './models/card';
 const cards = cardConfigs.map(config => new Card(config));
 
 function sampleCards(cards: Card[], num: number) {
-    const result = [];
+    const result: Card[] = [];
     for (let i = 0; i < num; i++) {
-        result.push(cards.shift());
+        const card = cards.shift();
+        if (!card) {
+            throw new Error('Out of cards to sample');
+        }
+        result.push(card);
     }
     return result;
 }

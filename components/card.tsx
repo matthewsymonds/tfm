@@ -57,7 +57,7 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
 
     return (
         <CardBase width={width}>
-            <Selection selected={selected}>
+            <Selection selected={selected || false}>
                 <TagsComponent tags={tags} />
                 <Name>{name}</Name>
                 {typeof cost === 'number' && <Text>Cost: {cost}€</Text>}

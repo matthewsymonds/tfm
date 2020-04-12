@@ -23,10 +23,10 @@ const ConfirmButton = props => (
 function getStartingAmount(corporation: Card): number {
     if (!corporation) return 0;
 
-    return corporation.gainResource[Resource.MEGACREDIT];
+    return corporation.gainResource[Resource.MEGACREDIT] || 0;
 }
 
-export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
+export const CorporationSelection = ({playerId}: {playerId: number}) => {
     const dispatch = useDispatch();
 
     const corporation = useTypedSelector(state => state.players[playerId].corporation);
@@ -37,7 +37,7 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
     const cards = useTypedSelector(state => state.players[playerId].cards);
 
     const corporationName = corporation && corporation.name;
-    const startingAmount = getStartingAmount(corporation);
+    const startingAmount = (corporation && getStartingAmount(corporation)) || 0;
     const totalCardCost = cards.length * 3;
     const remaining = (startingAmount && startingAmount - totalCardCost) || 0;
 
@@ -50,7 +50,7 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
     }, [corporationName, cards]);
 
     function handleSelectAll() {
-        const selectAllCards = startingCards.slice(0, Math.floor(startingAmount / 3));
+        const selectAllCards = (startingCards || []).slice(0, Math.floor(startingAmount / 3));
         dispatch(setCards(selectAllCards, playerId));
     }
 
@@ -60,9 +60,9 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
             <CardSelector
                 width={400}
                 max={1}
-                selectedCards={[corporation]}
+                selectedCards={corporation ? [corporation] : []}
                 onSelect={([corporation]) => dispatch(setCorporation(corporation, playerId))}
-                options={possibleCorporations}
+                options={possibleCorporations || []}
                 orientation="horizontal"
             />
             <h3>Select up to 10 cards</h3>
@@ -81,7 +81,7 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
                 width={250}
                 selectedCards={corporationName ? cards : []}
                 onSelect={cards => dispatch(setCards(cards, playerId))}
-                options={startingCards}
+                options={startingCards || []}
                 budget={remaining}
                 orientation="vertical"
             />
