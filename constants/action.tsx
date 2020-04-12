@@ -1,17 +1,17 @@
 export enum ActionType {
-    PlayCard,
-    CardAction,
-    StandardProject,
-    Pass
+    PLAY_CARD,
+    CARD_ACTION,
+    STANDARD_PROJECT,
+    PASS
 }
 
 export enum StandardProjectType {
     SellPatents,
-    PowerPlant,
-    Asteroid,
-    Aquifer,
-    Greenery,
-    City,
-    Venus,
-    Colony
+    POWER_PLANT,
+    ASTEROID,
+    AQUIFER,
+    GREENERY,
+    CITY,
+    VENUS,
+    COLONY
 }

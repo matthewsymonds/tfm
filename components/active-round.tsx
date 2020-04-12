@@ -2,10 +2,9 @@ import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from '../components/
 import styled from 'styled-components';
 import React, {useContext} from 'react';
 import {CardComponent} from './card';
-import {useSelector, useDispatch, useStore} from 'react-redux';
-import stateHelpers from '../util/state-helpers';
+import {useDispatch, useStore} from 'react-redux';
 import {AppContext} from '../context/app-context';
-import {GameState, useTypedSelector, RootState} from '../reducer';
+import {useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
 
 interface ButtonProps {

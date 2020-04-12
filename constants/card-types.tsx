@@ -1,58 +1,13 @@
 import {Resource} from './resource';
-import {Tile, TileType, TilePlacement, Parameter} from './board';
-import {ActionType, StandardProjectType} from './action';
+import {TileType, TilePlacement, Parameter} from './board';
+import {ActionType} from './action';
 
-type MinimumGlobalParameter = {
-    type: Parameter;
-    min: number;
-    max: undefined;
-};
-
-type MaximumGlobalParameter = {
-    type: Parameter;
-    min: undefined;
-    max: number;
-};
-
-export type RequiredGlobalParameter = MinimumGlobalParameter | MaximumGlobalParameter;
-
-interface CardRequirement {
-    cost?: number;
-    requiredGlobalParameter?: RequiredGlobalParameter;
-    minColonies?: number;
-    maxColonies?: number; // only for colonies expansion
-    minTerraformRating?: number;
-    requiredProduction?: Resource; // e.g. Asteroid Mining Consortium
-    requiredTags?: Tag[];
-    requiredResources?: Resource[];
-
-    removeResources?: Resource[];
-    decreaseProduction?: Resource[];
-    decreaseAnyProduction?: Resource[];
-}
-
-type CardActionRequirement = {
-    canPayWith: Resource[];
-    canPayFromOtherCards?: boolean; // e.g. predators, ants
-};
-
-export type CardAction = {
-    playlist: ReduxAction[];
-    requirement?: CardActionRequirement;
-};
-
-export type ReduxAction = {
-    type: string;
-    payload: any;
-};
-
-export interface CardConfig extends CardRequirement {
+export interface CardConfig {
     cardActions?: CardAction[];
     resources?: Resource[];
-    usedActionThisRound?: boolean;
     actionOrEffectText?: string;
     deck: Deck;
-    holdsResource?: Resource;
+    storedResourceType?: Resource;
     name: string;
     oneTimeText?: string;
     tags: Tag[];
@@ -61,19 +16,31 @@ export interface CardConfig extends CardRequirement {
     victoryPoints?: number;
     condition?(condition: Condition): boolean;
     effect?(effect: Effect): void;
-    increaseProduction?: Resource[];
+    
+    requiredProduction?: Resource; 
+    requiredTags?: Tag[];
+    requiredResources?: Resource[];
     gainResource?: Resource[];
-    removeAnyResource?: Resource[];
     gainResourceOption?: Resource[][];
+    removeResources?: Resource[];
+    removeAnyResource?: Resource[];
     removeAnyResourceOption?: Resource[][];
+    increaseProduction?: Resource[];
     increaseProductionOption?: Resource[][];
+    decreaseProduction?: Resource[];
+    decreaseAnyProduction?: Resource[];
+    
     tilePlacements?: TilePlacement[];
     increaseParameter?: Parameter[];
     increaseTerraformRating?: number;
+    cost?: number;
+    requiredGlobalParameter?: RequiredGlobalParameter;
+    minColonies?: number;
+    maxColonies?: number; // only for colonies expansion
+    minTerraformRating?: number;
 
     // ????
     state?: State;
-    ownedByCurrentPlayer?: boolean;
 }
 
 export interface State {
@@ -92,6 +59,35 @@ export type Condition = {
     tileType?: TileType;
 };
 
+
+type MinimumGlobalParameter = {
+    type: Parameter;
+    min: number;
+    max: undefined;
+};
+
+type MaximumGlobalParameter = {
+    type: Parameter;
+    min: undefined;
+    max: number;
+};
+
+export type RequiredGlobalParameter = MinimumGlobalParameter | MaximumGlobalParameter;
+
+type CardActionRequirement = {
+    canPayWith: Resource[];
+    canPayFromOtherCards?: boolean; // e.g. predators, ants
+};
+
+export type CardAction = {
+    playlist: ReduxAction[];
+    requirement?: CardActionRequirement;
+};
+
+export type ReduxAction = {
+    type: string;
+    payload: any;
+};
 export interface Effect {
     addOrRemoveOneResource(resource: Resource, removeResourcesCallback: Function): void;
     discardThenDraw(): void;
