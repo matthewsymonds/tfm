@@ -1,54 +1,54 @@
 import {Resource} from './resource';
 
 export enum CellType {
-    Land,
-    Water
+    LAND,
+    WATER
 }
 
 export enum TileType {
-    Capital,
-    City,
-    EcologicalZone,
-    Greenery,
-    IndustrialCenter,
-    LandClaim,
-    LavaFlow,
-    MoholeArea,
-    Mining,
-    MiningAdjacent,
-    NaturalPreserve,
-    Noctis,
-    Ocean,
-    Other,
-    RestrictedArea
+    CAPITAL,
+    CITY,
+    ECOLOGICAL_ZONE,
+    GREENERY,
+    INDUSTRIAL_CENTER,
+    LAND_CLAIM,
+    LAVA_FLOW,
+    MOHOLE_AREA,
+    MINING,
+    NATURAL_PRESERVE,
+    NOCTIS,
+    OCEAN,
+    OTHER,
+    RESTRICTED_AREA
 }
 
 export enum Location {
-    CityAdjacent,
-    DoubleCityAdjacent,
-    Ganymede,
-    GreeneryAdjacent,
-    Isolated,
-    Noctis,
-    NonReserved,
-    NotReservedForOcean,
-    Phobos,
-    ReservedForOcean,
-    SteelOrTitanium,
-    SteelOrTitaniumPlayerAdjacent,
-    Volcanic
+    CITY_ADJACENT,
+    DOUBLE_CITY_ADJACENT,
+    GANYMEDE,
+    GREENERY_ADJACENT,
+    ISOLATED,
+    NOCTIS,
+    NON_RESERVED,
+    NOT_RESERVED_FOR_OCEAN,
+    PHOBOS,
+    RESERVED_FOR_OCEAN,
+    STEEL_OR_TITANIUM,
+    STEEL_OR_TITANIUM_PLAYER_ADJACENT,
+    VOLCANIC
 }
 
 export enum Parameter {
-    Temperature,
-    Ocean,
-    Oxygen,
-    TerraformRating
+    TEMPERATURE,
+    OCEAN,
+    OXYGEN,
+    TERRAFORM_RATING
 }
 
 export interface TilePlacement {
     type: TileType;
     location?: Location;
+    isRequired?: boolean;
 }
 
 export const t = (type: TileType, location?: Location): TilePlacement => ({
@@ -85,13 +85,13 @@ class Cell {
 
 class Land extends Cell {
     constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.Land, bonus, location);
+        super(CellType.LAND, bonus, location);
     }
 }
 
 class Water extends Cell {
     constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.Water, bonus, location);
+        super(CellType.WATER, bonus, location);
     }
 }
 
@@ -102,75 +102,75 @@ export type Board = Cell[][];
 
 export const INITIAL_BOARD_STATE: Cell[][] = [
     [
-        land([Resource.Steel, Resource.Steel]),
-        water([Resource.Steel, Resource.Steel]),
+        land([Resource.STEEL, Resource.STEEL]),
+        water([Resource.STEEL, Resource.STEEL]),
         land(),
-        water([Resource.Card]),
+        water([Resource.CARD]),
         water()
     ],
     [
         land(),
-        land([Resource.Steel], Location.Volcanic),
+        land([Resource.STEEL], Location.VOLCANIC),
         land(),
         land(),
         land(),
-        water([Resource.Card, Resource.Card])
+        water([Resource.CARD, Resource.CARD])
     ],
     [
-        land([Resource.Card], Location.Volcanic),
+        land([Resource.CARD], Location.VOLCANIC),
         land(),
         land(),
         land(),
         land(),
         land(),
-        land([Resource.Steel])
+        land([Resource.STEEL])
     ],
     [
-        land([Resource.Plant, Resource.Titanium], Location.Volcanic),
-        land([Resource.Plant]),
-        land([Resource.Plant]),
-        land([Resource.Plant]),
-        land([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant]),
-        land([Resource.Plant]),
-        water([Resource.Plant, Resource.Plant])
+        land([Resource.PLANT, Resource.TITANIUM], Location.VOLCANIC),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        water([Resource.PLANT, Resource.PLANT])
     ],
     [
-        land([Resource.Plant, Resource.Plant], Location.Volcanic),
-        land([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant, Resource.Plant], Location.Noctis),
-        water([Resource.Plant, Resource.Plant]),
-        water([Resource.Plant, Resource.Plant]),
-        water([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant, Resource.Plant])
+        land([Resource.PLANT, Resource.PLANT], Location.VOLCANIC),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT], Location.NOCTIS),
+        water([Resource.PLANT, Resource.PLANT]),
+        water([Resource.PLANT, Resource.PLANT]),
+        water([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT])
     ],
     [
-        land([Resource.Plant]),
-        land([Resource.Plant, Resource.Plant]),
-        land([Resource.Plant]),
-        land([Resource.Plant]),
-        land([Resource.Plant]),
-        water([Resource.Plant]),
-        water([Resource.Plant]),
-        water([Resource.Plant])
+        land([Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        water([Resource.PLANT]),
+        water([Resource.PLANT]),
+        water([Resource.PLANT])
     ],
-    [land(), land(), land(), land(), land(), land([Resource.Plant]), land()],
+    [land(), land(), land(), land(), land(), land([Resource.PLANT]), land()],
     [
-        land([Resource.Steel, Resource.Steel]),
+        land([Resource.STEEL, Resource.STEEL]),
         land(),
-        land([Resource.Card]),
-        land([Resource.Card]),
+        land([Resource.CARD]),
+        land([Resource.CARD]),
         land(),
-        land([Resource.Titanium])
+        land([Resource.TITANIUM])
     ],
     [
-        land([Resource.Steel]),
-        land([Resource.Steel, Resource.Steel]),
+        land([Resource.STEEL]),
+        land([Resource.STEEL, Resource.STEEL]),
         land(),
         land(),
-        water([Resource.Titanium, Resource.Titanium])
+        water([Resource.TITANIUM, Resource.TITANIUM])
     ]
 ];
 
@@ -180,4 +180,4 @@ for (const row of INITIAL_BOARD_STATE) {
     }
 }
 
-INITIAL_BOARD_STATE.push([land([], Location.Phobos), land([], Location.Ganymede)]);
+INITIAL_BOARD_STATE.push([land([], Location.PHOBOS), land([], Location.GANYMEDE)]);

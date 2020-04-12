@@ -3,40 +3,69 @@ import {Tile, TileType, TilePlacement, Parameter} from './board';
 import {ActionType, StandardProjectType} from './action';
 import {GameState} from '../reducer';
 
-export interface Card {
-    action?: (dispatch: Function) => void;
+interface CardRequirement {
+    cost?: number;
+    minOcean?: number;
+    maxOcean?: number;
+    minOxygen?: number;
+    maxOxygen?: number;
+    minTemperature?: number;
+    maxTemperature?: number;
+    minVenus?: number;
+    maxVenus?: number;
+    minColonies?: number;
+    maxColonies?: number; // only for colonies expansion
+    minTerraformRating?: number;
+    requiredProduction?: Resource; // e.g. Asteroid Mining Consortium
+    requiredTags?: Tag[];
+    requiredResource?: Resource[];
+
+    removeResource?: Resource[];
+    decreaseProduction?: Resource[];
+    decreaseAnyProduction?: Resource[];
+}
+
+type CardActionRequirement = {
+    canPayWith: Resource[];
+    canPayFromOtherCards?: boolean; // e.g. predators, ants
+};
+
+type CardAction = {
+    playlist: ReduxAction[];
+    requirement?: CardActionRequirement;
+};
+
+type ReduxAction = {
+    type: string;
+    payload: any;
+};
+
+export interface Card extends CardRequirement {
+    cardActions?: CardAction[];
     usedActionThisRound?: boolean;
     actionOrEffectText?: string;
-    addsResourceToCards?: Resource;
-    cost?: number;
     deck: Deck;
     holdsResource?: Resource;
     name: string;
     oneTimeText?: string;
     tags: Tag[];
     type: CardType;
-    resources?: Resource[];
-    canBePlayed?: (state: GameState) => boolean;
-    play?: (dispatch) => void;
-    requirementFailedMessage?: string;
+    storedResources?: Resource[];
+    playlist?: ReduxAction[];
     terraformRatingIncrease?: number;
-    venus?: number;
     victoryPoints?: number;
     condition?(condition: Condition): boolean;
     effect?(effect: Effect): void;
-    oneTimeAction?(oneTimeAction: OneTimeAction): void;
     increaseProduction?: Resource[];
-    decreaseProduction?: Resource[];
-    decreaseAnyProduction?: Resource[];
     gainResource?: Resource[];
-    removeResource?: Resource[];
     removeAnyResource?: Resource[];
     gainResourceOption?: Resource[][];
     removeAnyResourceOption?: Resource[][];
     increaseProductionOption?: Resource[][];
-    loseAnyResourceOption?: Resource[][];
-    placeTile?: TilePlacement[];
+    tilePlacements?: TilePlacement[];
     increaseParameter?: Parameter[];
+
+    // ????
     state?: State;
     ownedByCurrentPlayer?: boolean;
 }
@@ -46,26 +75,13 @@ interface State {
     cards: Card[];
 }
 
-interface OneTimeAction {
-    increaseProduction(resource: Resource, amount?: number): void;
-    duplicateBuildingTagProduction(): void;
-    tags: Tag[];
-}
-
-interface VictoryPointsCondition {
-    tags: Tag[];
-}
-
-type VictoryPoints = (condition: VictoryPointsCondition) => number;
-
-export interface Condition {
+export type Condition = {
     actionType?: ActionType;
     card?: Card;
     cost?: number;
     newTag?: boolean;
     onMars?: boolean;
     samePlayer?: boolean;
-    standardProjectType?: StandardProjectType;
     tag?: Tag;
     tileType?: TileType;
 }
@@ -82,33 +98,33 @@ export interface Effect {
 }
 
 export enum Deck {
-    Basic,
-    Colonies,
-    Corporate,
-    Prelude,
-    Promo,
-    Venus
+    BASIC,
+    COLONIES,
+    CORPORATE,
+    PRELUDE,
+    PROMO,
+    VENUS
 }
 
 export enum Tag {
-    Animal,
-    Building,
-    City,
-    Earth,
-    Energy,
-    Event,
-    Jovian,
-    Microbe,
-    Plant,
-    Science,
-    Space,
-    Venus
+    ANIMAL,
+    BUILDING,
+    CITY,
+    EARTH,
+    ENERGY,
+    EVENT,
+    JOVIAN,
+    MICROBE,
+    PLANT,
+    SCIENCE,
+    SPACE,
+    VENUS
 }
 
 export enum CardType {
-    Active,
-    Automated,
-    Corporation,
-    Event,
-    Prelude
+    ACTIVE,
+    AUTOMATED,
+    CORPORATION,
+    EVENT,
+    PRELUDE
 }

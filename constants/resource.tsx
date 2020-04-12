@@ -1,109 +1,109 @@
 // Can appear on the board, on a card, or in a colony.
 export enum Resource {
-    Animal = 'Animal',
-    Camp = 'Camp',
-    Card = 'Card',
-    Energy = 'Energy',
-    Fighter = 'Fighter',
-    Floater = 'Floater',
-    Heat = 'Heat',
-    Megacredit = 'Megacredit',
-    Microbe = 'Microbe',
-    Plant = 'Plant',
-    Science = 'Science',
-    Steel = 'Steel',
-    Titanium = 'Titanium'
+    ANIMAL = 'animal',
+    CAMP = 'camp',
+    CARD = 'card',
+    ENERGY = 'energy',
+    FIGHTER = 'fighter',
+    FLOATER = 'floater',
+    HEAT = 'heat',
+    MEGACREDIT = 'megacredit',
+    MICROBE = 'microbe',
+    PLANT = 'plant',
+    SCIENCE = 'science',
+    STEEL = 'steel',
+    TITANIUM = 'titanium'
 }
 
 export const getResourceSymbol = (resource: Resource) => {
     switch (resource) {
-        case Resource.Animal:
+        case Resource.ANIMAL:
             return '🐶';
-        case Resource.Camp:
+        case Resource.CAMP:
             return '🏠';
-        case Resource.Card:
+        case Resource.CARD:
             return '🌎';
-        case Resource.Energy:
+        case Resource.ENERGY:
             return '⚡';
-        case Resource.Fighter:
+        case Resource.FIGHTER:
             return '🚀';
-        case Resource.Floater:
+        case Resource.FLOATER:
             return '☁️';
-        case Resource.Heat:
+        case Resource.HEAT:
             return '🔥';
-        case Resource.Megacredit:
+        case Resource.MEGACREDIT:
             return '€';
-        case Resource.Microbe:
+        case Resource.MICROBE:
             return '🐛';
-        case Resource.Plant:
+        case Resource.PLANT:
             return '🍂';
-        case Resource.Science:
+        case Resource.SCIENCE:
             return '⚛️';
-        case Resource.Steel:
+        case Resource.STEEL:
             return '🔨';
-        case Resource.Titanium:
+        case Resource.TITANIUM:
             return '☆';
     }
 };
 
 export const getResourceColor = (resource: Resource) => {
     switch (resource) {
-        case Resource.Animal:
+        case Resource.ANIMAL:
             return 'brown';
-        case Resource.Camp:
+        case Resource.CAMP:
             return 'brown';
-        case Resource.Card:
+        case Resource.CARD:
             return 'orange';
-        case Resource.Energy:
+        case Resource.ENERGY:
             return 'white';
-        case Resource.Floater:
+        case Resource.FLOATER:
             return 'gray';
-        case Resource.Fighter:
+        case Resource.FIGHTER:
             return 'gray';
-        case Resource.Heat:
+        case Resource.HEAT:
             return 'gold';
-        case Resource.Megacredit:
+        case Resource.MEGACREDIT:
             return 'gold';
-        case Resource.Microbe:
+        case Resource.MICROBE:
             return 'green';
-        case Resource.Plant:
+        case Resource.PLANT:
             return 'darkgreen';
-        case Resource.Science:
+        case Resource.SCIENCE:
             return 'white';
-        case Resource.Steel:
+        case Resource.STEEL:
             return 'brown';
-        case Resource.Titanium:
+        case Resource.TITANIUM:
             return 'yellow';
     }
 };
 
 export const getResourceBackgroundColor = (resource: Resource) => {
     switch (resource) {
-        case Resource.Animal:
+        case Resource.ANIMAL:
             return 'brown';
-        case Resource.Camp:
+        case Resource.CAMP:
             return 'lightbrown';
-        case Resource.Card:
+        case Resource.CARD:
             return 'black';
-        case Resource.Energy:
+        case Resource.ENERGY:
             return 'purple';
-        case Resource.Floater:
+        case Resource.FLOATER:
             return 'red';
-        case Resource.Fighter:
+        case Resource.FIGHTER:
             return 'black';
-        case Resource.Heat:
+        case Resource.HEAT:
             return 'orange';
-        case Resource.Megacredit:
+        case Resource.MEGACREDIT:
             return 'lightgoldenrodyellow';
-        case Resource.Microbe:
+        case Resource.MICROBE:
             return 'white';
-        case Resource.Plant:
+        case Resource.PLANT:
             return 'lightgreen';
-        case Resource.Science:
+        case Resource.SCIENCE:
             return 'darkgray';
-        case Resource.Steel:
+        case Resource.STEEL:
             return '#EBA980';
-        case Resource.Titanium:
+        case Resource.TITANIUM:
             return 'black';
     }
 };

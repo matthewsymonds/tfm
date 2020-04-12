@@ -7,7 +7,7 @@ const stateHelpers = {
         card: Card
     ): {result: false; reasons: string} | {result: true} {
         // todo -- account for steel/titanium/discounts
-        if (state.players[state.currentPlayerIndex].resources.Megacredit < card.cost) {
+        if (state.players[state.common.currentPlayerIndex].resources.Megacredit < card.cost) {
             return {
                 result: false,
                 reasons: 'Cannot afford to play this card',

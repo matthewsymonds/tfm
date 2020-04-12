@@ -1,10 +1,10 @@
 export enum GameStage {
-    CorporationSelection,
-    ActiveRound,
-    BuyOrDiscard,
-    DiscardThenDraw,
-    Drafting,
-    EndOfGame
+    CORPORATION_SELECTION,
+    ACTIVE_ROUND,
+    BUY_OR_DISCARD,
+    DISCARD_THEN_DRAW,
+    DRAFTING,
+    END_OF_GAME
 }
 
 export const MIN_TEMP = -30;

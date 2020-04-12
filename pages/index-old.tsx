@@ -10,7 +10,7 @@ import {Resource} from '../constants/resource';
 import {CardType, Card, Deck} from '../constants/card-types';
 import styled from 'styled-components';
 import React from 'react';
-import {CorporationSelection} from '../components/corporation-selection';
+import {CORPORATION_SELECTION} from '../components/corporation-selection';
 import {useSelector} from 'react-redux';
 import {ActiveRound} from '../components/active-round';
 
@@ -43,7 +43,7 @@ function handleResourceChanges(list: Resource[] = [], multiplier: number, setCar
     const resourceChanges = tokenize(list);
 
     for (const token of resourceChanges) {
-        if (token[0] === Resource.Card) {
+        if (token[0] === Resource.CARD) {
             const newCards = sampleCards(deck, token[1]);
             setCards([...cards, ...newCards]);
             continue;
@@ -76,7 +76,7 @@ function cannotDecreaseProduction(list: Resource[] = []) {
         if (!resources[token[0]]) continue;
         const {production} = resources[token[0]];
         const decrease = token[1];
-        if (token[0] === Resource.Megacredit) {
+        if (token[0] === Resource.MEGACREDIT) {
             if (decrease - production < -5) return true;
         } else {
             if (decrease > production) return true;
@@ -222,7 +222,7 @@ export default function Index(props: IndexProps) {
         topRow = [
             {
                 name: 'Megacredits',
-                resource: Resource.Megacredit,
+                resource: Resource.MEGACREDIT,
                 amount: megacredits,
                 setAmount: setMegacredits,
                 production: megacreditProduction,
@@ -230,7 +230,7 @@ export default function Index(props: IndexProps) {
             },
             {
                 name: 'Steel',
-                resource: Resource.Steel,
+                resource: Resource.STEEL,
                 amount: steel,
                 setAmount: setSteel,
                 production: steelProduction,
@@ -239,7 +239,7 @@ export default function Index(props: IndexProps) {
 
             {
                 name: 'Titanium',
-                resource: Resource.Titanium,
+                resource: Resource.TITANIUM,
                 amount: titanium,
                 setAmount: setTitanium,
                 production: titaniumProduction,
@@ -250,7 +250,7 @@ export default function Index(props: IndexProps) {
         bottomRow = [
             {
                 name: 'Plants',
-                resource: Resource.Plant,
+                resource: Resource.PLANT,
                 amount: plants,
                 setAmount: setPlants,
                 production: plantProduction,
@@ -258,7 +258,7 @@ export default function Index(props: IndexProps) {
             },
             {
                 name: 'Energy',
-                resource: Resource.Energy,
+                resource: Resource.ENERGY,
                 amount: energy,
                 setAmount: setEnergy,
                 production: energyProduction,
@@ -267,7 +267,7 @@ export default function Index(props: IndexProps) {
 
             {
                 name: 'Heat',
-                resource: Resource.Heat,
+                resource: Resource.HEAT,
                 amount: heat,
                 setAmount: setHeat,
                 production: heatProduction,
@@ -314,8 +314,8 @@ export default function Index(props: IndexProps) {
 
     function handleConfirm(corporation: Card, cards: Card[]) {
         setCorporation(corporation);
-        const megacredits = corporation.gainResource.filter(r => r === Resource.Megacredit);
-        const otherResources = corporation.gainResource.filter(r => r !== Resource.Megacredit);
+        const megacredits = corporation.gainResource.filter(r => r === Resource.MEGACREDIT);
+        const otherResources = corporation.gainResource.filter(r => r !== Resource.MEGACREDIT);
 
         megacredits.length -= cards.length * 3;
 
@@ -327,7 +327,7 @@ export default function Index(props: IndexProps) {
     }
 
     function goToNextRound() {
-        setGameStage(GameStage.ActiveRound);
+        setGameStage(GameStage.ACTIVE_ROUND);
         setGeneration(generation + 1);
         setRound(0);
         setTurn(0);
@@ -335,16 +335,16 @@ export default function Index(props: IndexProps) {
 
     return (
         <GameBase>
-            {gameStage === GameStage.DiscardThenDraw && <div>Discard then draw</div>}
-            {gameStage === GameStage.CorporationSelection && (
-                <CorporationSelection
+            {gameStage === GameStage.DISCARD_THEN_DRAW && <div>Discard then draw</div>}
+            {gameStage === GameStage.CORPORATIONSelection && (
+                <CORPORATION_SELECTION
                     startingCards={startingCards}
                     corporations={corporations}
                     handleConfirm={handleConfirm}
                 />
             )}
             <div>{foo}</div>
-            {gameStage === GameStage.ActiveRound && (
+            {gameStage === GameStage.ACTIVE_ROUND && (
                 <ActiveRound
                     corporation={corporation}
                     cards={cards}

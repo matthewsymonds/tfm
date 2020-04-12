@@ -38,16 +38,16 @@ export const ActiveRound = ({ playerId }: {playerId: number}) => {
             <h1>{corporation && corporation.name}</h1>
             <ResourceBoard>
                 <ResourceBoardRow>
-                    {[Resource.Megacredit, Resource.Steel, Resource.Titanium].map(resourceType => (
+                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => (
                         <ResourceBoardCell
-                            resource={resourceType}
+                                resource={resourceType}
                             production={productions[resourceType]}
                             amount={resources[resourceType]}
                         />
                     ))}
                 </ResourceBoardRow>
                 <ResourceBoardRow>
-                    {[Resource.Plant, Resource.Energy, Resource.Heat].map(resourceType => (
+                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resourceType => (
                         <ResourceBoardCell
                             resource={resourceType}
                             production={productions[resourceType]}
@@ -59,11 +59,11 @@ export const ActiveRound = ({ playerId }: {playerId: number}) => {
             <h3>Hand</h3>
             <Hand>
                 {cards.map((card, index) => {
-                    const canCardBePlayed = stateHelpers.canCardBePlayed(store.getState(), card);
+                    // const canCardBePlayed = stateHelpers.canCardBePlayed(store.getState(), card);
 
                     return (
                         <CardComponent content={card} width={250}>
-                            <Button disabled={!canCardBePlayed} onClick={() => dispatch(card.play(playerId))}>
+                            <Button onClick={() => {}}>
                                 Play
                             </Button>
                         </CardComponent>

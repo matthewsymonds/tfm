@@ -33,48 +33,50 @@ function shuffle(array: Card[]) {
 
 function initialResources() {
     return {
-        [Resource.Megacredit]: 0,
-        [Resource.Steel]: 0,
-        [Resource.Titanium]: 0,
-        [Resource.Plant]: 0,
-        [Resource.Energy]: 0,
-        [Resource.Heat]: 0
+        [Resource.MEGACREDIT]: 0,
+        [Resource.STEEL]: 0,
+        [Resource.TITANIUM]: 0,
+        [Resource.PLANT]: 0,
+        [Resource.ENERGY]: 0,
+        [Resource.HEAT]: 0
     };
 }
 
 const possibleCards = cards.filter(
-    card => card.deck === Deck.Basic || card.deck === Deck.Corporate
+    card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
 );
 
 shuffle(possibleCards);
 
 const allCorporations = possibleCards.filter(
-    card => card.type === CardType.Corporation
+    card => card.type === CardType.CORPORATION
 );
 
-const deck = possibleCards.filter(card => card.type !== CardType.Corporation);
+const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
 const possibleCorporations = sampleCards(allCorporations, 2);
 const startingCards = sampleCards(deck, 10);
 
 export type Resources = {
-    [Resource.Megacredit]: number;
-    [Resource.Steel]: number;
-    [Resource.Titanium]: number;
-    [Resource.Plant]: number;
-    [Resource.Energy]: number;
-    [Resource.Heat]: number;
+    [Resource.MEGACREDIT]: number;
+    [Resource.STEEL]: number;
+    [Resource.TITANIUM]: number;
+    [Resource.PLANT]: number;
+    [Resource.ENERGY]: number;
+    [Resource.HEAT]: number;
 };
 
 type PlayerId = number;
 
 export type GameState = {
-    currentPlayerIndex: number,
+    loggedInPlayerId?: string,
     players: Array<PlayerState>,
     common: {
         gameStage: GameStage,
         generation: number,
         round: number,
         turn: number,
+        firstPlayerIndex: number,
+        currentPlayerIndex: number,
         temperature: number,
         ocean: number,
         oxygen: number,
@@ -88,6 +90,7 @@ export type GameState = {
 
 type PlayerState = {
     id: PlayerId,
+    playerIndex: number,
     corporation: null | Card,
     startingCards: null | Card[],
     possibleCorporations: null | Card[],
@@ -100,18 +103,20 @@ type PlayerState = {
 
 const INITIAL_STATE: GameState = {
     common: {
-        gameStage: GameStage.CorporationSelection,
+        gameStage: GameStage.CORPORATION_SELECTION,
         generation: 0,
         round: 0,
         turn: 0,
         temperature: -30,
         ocean: 0,
         oxygen: 0,
-        board: INITIAL_BOARD_STATE
+        board: INITIAL_BOARD_STATE,
+        currentPlayerIndex: 0,
+        firstPlayerIndex: 0,
     },
-    currentPlayerIndex: 0,
     players: [{
         id: 0,
+        playerIndex: 0,
         corporation: null,
         // TODO: should this be replaced with "possibleCards", and recycled between rounds?
         startingCards,
@@ -163,7 +168,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             // could this be generalized to GAIN_ONE_RESOURCE_PER_CONDITION(resource, condition)
             // case GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS:
             //     const citiesOnMars = getCitiesOnMars(state.board);
-            //     draft.resources[Resource.Megacredit] += citiesOnMars;
+            //     draft.resources[Resource.MEGACREDIT] += citiesOnMars;
             // case CHANGE_RESOURCE:
             //     draft.resources[action.payload.resource] +=
             //         action.payload.amount;
@@ -182,7 +187,7 @@ function getCitiesOnMars(state): number {
             if (!cell.onMars) return rowAcc;
             if (!cell.tile) return rowAcc;
 
-            return cell.tile.type == TileType.City ? rowAcc + 1 : rowAcc;
+            return cell.tile.type == TileType.CITY ? rowAcc + 1 : rowAcc;
         }, 0);
 
         return citiesInRow + acc;

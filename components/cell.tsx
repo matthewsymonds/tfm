@@ -11,9 +11,9 @@ interface CellProps {
 
 const getColor = (props: CellProps) => {
     switch (props.type) {
-        case CellType.Land:
+        case CellType.LAND:
             return 'rgba(255, 255, 255, 0.2)';
-        case CellType.Water:
+        case CellType.WATER:
             return 'rgba(206, 247, 253, 0.5)';
     }
 };

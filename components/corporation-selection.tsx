@@ -23,10 +23,10 @@ const ConfirmButton = props => (
 function getStartingAmount(corporation: Card): number {
     if (!corporation) return 0;
 
-    return corporation.gainResource.filter(r => r === Resource.Megacredit).length;
+    return corporation.gainResource.filter(r => r === Resource.MEGACREDIT).length;
 }
 
-export const CorporationSelection = ({playerId}: {playerId: number}) => {
+export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
     const dispatch = useDispatch();
 
     const corporation = useTypedSelector(state => state.players[playerId].corporation);
@@ -82,7 +82,7 @@ export const CorporationSelection = ({playerId}: {playerId: number}) => {
                 <ConfirmButton
                     onClick={() => {
                         dispatch(confirmCorporationAndCards(playerId));
-                        dispatch(goToGameStage(GameStage.ActiveRound));
+                        dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
                     }}
                 />
             </MaybeVisible>

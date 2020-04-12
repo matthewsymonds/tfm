@@ -30,98 +30,98 @@ interface TagsComponentProps {
     tags: Tag[];
 }
 
-const {Animal, Building, City, Earth, Energy, Jovian, Microbe, Plant, Science, Space, Venus} = Tag;
+const {ANIMAL, BUILDING, CITY, EARTH, ENERGY, EVENT, JOVIAN, MICROBE, PLANT, SCIENCE, SPACE, VENUS} = Tag;
 
 function getIcon(tag: Tag) {
     switch (tag) {
-        case Animal:
+        case ANIMAL:
             return '🐶';
-        case Building:
+        case BUILDING:
             return '🏛️';
-        case City:
+        case CITY:
             return '🌆';
-        case Earth:
+        case EARTH:
             return '🌎';
-        case Energy:
+        case ENERGY:
             return '⚡';
-        case Tag.Event:
+        case EVENT:
             return '⬇️';
-        case Jovian:
+        case JOVIAN:
             return 'J';
-        case Microbe:
+        case MICROBE:
             return '🐛';
-        case Plant:
+        case PLANT:
             return '🍂';
-        case Science:
+        case SCIENCE:
             return '⚛️';
-        case Space:
+        case SPACE:
             return '✴️';
-        case Venus:
+        case VENUS:
             return 'V';
     }
 }
 
 export const getTagColor = (tag: Tag) => {
     switch (tag) {
-        case Animal:
+        case Tag.ANIMAL:
             return 'brown';
-        case Building:
+        case Tag.BUILDING:
             return 'brown';
-        case City:
+        case Tag.CITY:
             return '#333333';
-        case Earth:
+        case Tag.EARTH:
             return 'darkgreen';
-        case Energy:
+        case Tag.ENERGY:
             return 'white';
-        case Tag.Event:
+        case Tag.EVENT:
             return 'gold';
-        case Jovian:
+        case Tag.JOVIAN:
             return 'purple';
-        case Microbe:
+        case Tag.MICROBE:
             return 'green';
-        case Plant:
+        case Tag.PLANT:
             return 'darkgreen';
-        case Science:
+        case Tag.SCIENCE:
             return 'white';
-        case Space:
+        case Tag.SPACE:
             return 'white';
-        case Venus:
+        case Tag.VENUS:
             return 'lightblue';
     }
 };
 
 export const getTagBackgroundColor = (tag: Tag) => {
     switch (tag) {
-        case Animal:
+        case Tag.ANIMAL:
             return 'darkgreen';
-        case Building:
+        case Tag.BUILDING:
             return '#d7d7d7';
-        case City:
+        case Tag.CITY:
             return '#C8B3C5';
-        case Earth:
+        case Tag.EARTH:
             return 'lightblue';
-        case Energy:
+        case Tag.ENERGY:
             return 'purple';
-        case Tag.Event:
+        case Tag.EVENT:
             return 'black';
-        case Jovian:
+        case Tag.JOVIAN:
             return 'darkgray';
-        case Microbe:
+        case Tag.MICROBE:
             return 'white';
-        case Plant:
+        case Tag.PLANT:
             return 'lightgreen';
-        case Science:
+        case Tag.SCIENCE:
             return 'darkgray';
-        case Space:
+        case Tag.SPACE:
             return 'black';
-        case Venus:
+        case Tag.VENUS:
             return 'lightblue';
     }
 };
 
 export const getOuterBackgroundColor = (tag: Tag) => {
     switch (tag) {
-        case Earth:
+        case Tag.EARTH:
             return 'black';
     }
     return '';
