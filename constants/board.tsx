@@ -2,7 +2,8 @@ import {Resource} from './resource';
 
 export enum CellType {
     LAND,
-    WATER
+    WATER,
+    OFF_MARS // e.g. ganymede
 }
 
 export enum TileType {
@@ -22,10 +23,19 @@ export enum TileType {
     RESTRICTED_AREA
 }
 
-export enum Location {
-    CITY_ADJACENT,
-    DOUBLE_CITY_ADJACENT,
+// only set for certain cells
+export enum SpecialLocation {
     GANYMEDE,
+    NOCTIS,
+    PHOBOS,
+    VOLCANIC
+}
+
+export enum PlacementRequirement {
+    CITY_NON_ADJACENT,
+    CITY_ADJACENT,
+    GANYMEDE,
+    DOUBLE_CITY_ADJACENT,
     GREENERY_ADJACENT,
     ISOLATED,
     NOCTIS,
@@ -48,13 +58,20 @@ export enum Parameter {
 
 export interface TilePlacement {
     type: TileType;
-    location?: Location;
-    isRequired?: boolean;
+    placementRequirement: PlacementRequirement;
+    // By default, cards can be played even if the tile they would place cannot be played.
+    // This behavior is overridden for asterisked cards (e.g. Urbanized Area).
+    isRequired: boolean;
 }
 
-export const t = (type: TileType, location?: Location): TilePlacement => ({
+export const t = (
+    type: TileType,
+    placementRequirement: PlacementRequirement,
+    isRequired: boolean = false
+): TilePlacement => ({
     type,
-    location
+    placementRequirement,
+    isRequired
 });
 
 const CURRENT_PLAYER = 'matt';
@@ -69,35 +86,46 @@ export class Tile {
 }
 
 export class Cell {
-    onMars: boolean = false;
-
     tile?: Tile;
     constructor(
         readonly type: CellType,
         readonly bonus: Resource[] = [],
-        readonly location?: Location
+        readonly specialLocation?: SpecialLocation
     ) {}
 
     addTile(tile: Tile) {
         this.tile = tile;
         this.tile.cell = this;
     }
+
+    get onMars(): boolean {
+        return this.type === CellType.LAND || this.type === CellType.WATER;
+    }
 }
 
 class Land extends Cell {
-    constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.LAND, bonus, location);
+    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
+        super(CellType.LAND, bonus, specialLocation);
     }
 }
 
 class Water extends Cell {
-    constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.WATER, bonus, location);
+    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
+        super(CellType.WATER, bonus, specialLocation);
     }
 }
 
-const land = (bonus?: Resource[], location?: Location): Land => new Land(bonus, location);
+class OffMars extends Cell {
+    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
+        super(CellType.OFF_MARS, bonus, specialLocation);
+    }
+}
+
+const land = (bonus?: Resource[], specialLocation?: SpecialLocation): Land =>
+    new Land(bonus, specialLocation);
 const water = (bonus?: Resource[]): Water => new Water(bonus);
+const offMars = (bonus?: Resource[], specialLocation?: SpecialLocation): OffMars =>
+    new OffMars(bonus, specialLocation);
 
 export type Board = Cell[][];
 
@@ -111,14 +139,14 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     ],
     [
         land(),
-        land([Resource.STEEL], Location.VOLCANIC),
+        land([Resource.STEEL], SpecialLocation.VOLCANIC),
         land(),
         land(),
         land(),
         water([Resource.CARD, Resource.CARD])
     ],
     [
-        land([Resource.CARD], Location.VOLCANIC),
+        land([Resource.CARD], SpecialLocation.VOLCANIC),
         land(),
         land(),
         land(),
@@ -127,7 +155,7 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.STEEL])
     ],
     [
-        land([Resource.PLANT, Resource.TITANIUM], Location.VOLCANIC),
+        land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
@@ -137,9 +165,9 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
         water([Resource.PLANT, Resource.PLANT])
     ],
     [
-        land([Resource.PLANT, Resource.PLANT], Location.VOLCANIC),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.VOLCANIC),
         land([Resource.PLANT, Resource.PLANT]),
-        land([Resource.PLANT, Resource.PLANT], Location.NOCTIS),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.NOCTIS),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
@@ -175,10 +203,7 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     ]
 ];
 
-for (const row of INITIAL_BOARD_STATE) {
-    for (const cell of row) {
-        cell.onMars = true;
-    }
-}
-
-INITIAL_BOARD_STATE.push([land([], Location.PHOBOS), land([], Location.GANYMEDE)]);
+INITIAL_BOARD_STATE.push([
+    offMars([], SpecialLocation.PHOBOS),
+    offMars([], SpecialLocation.GANYMEDE)
+]);
