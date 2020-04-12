@@ -3,7 +3,7 @@ export enum Resource {
     ANIMAL = 'resourceAnimal',
     CAMP = 'resourceCamp',
     CARD = 'resourceCard',
-    ENERGY = 'resourceEnerge',
+    ENERGY = 'resourceEnergy',
     FIGHTER = 'resourceFighter',
     FLOATER = 'resourceFloater',
     HEAT = 'resourceHeat',
