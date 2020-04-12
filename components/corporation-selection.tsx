@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {Resource} from '../constants/resource';
-import {Card} from '../constants/card-types';
+import {Card} from '../models/card';
 import {CardSelector} from '../components/card-selector';
 import {MaybeVisible} from '../components/maybe-visible';
 import styled from 'styled-components';
@@ -23,14 +23,16 @@ const ConfirmButton = props => (
 function getStartingAmount(corporation: Card): number {
     if (!corporation) return 0;
 
-    return corporation.gainResource.filter(r => r === Resource.MEGACREDIT).length;
+    return corporation.gainResource[Resource.MEGACREDIT];
 }
 
 export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
     const dispatch = useDispatch();
 
     const corporation = useTypedSelector(state => state.players[playerId].corporation);
-    const possibleCorporations = useTypedSelector(state => state.players[playerId].possibleCorporations);
+    const possibleCorporations = useTypedSelector(
+        state => state.players[playerId].possibleCorporations
+    );
     const startingCards = useTypedSelector(state => state.players[playerId].startingCards);
     const cards = useTypedSelector(state => state.players[playerId].cards);
 
@@ -65,7 +67,9 @@ export const CORPORATION_SELECTION = ({playerId}: {playerId: number}) => {
                 </h4>
             </MaybeVisible>
             {cards.length < 10 ? (
-                <button onClick={() => dispatch(setCards(startingCards, playerId))}>Select all</button>
+                <button onClick={() => dispatch(setCards(startingCards, playerId))}>
+                    Select all
+                </button>
             ) : (
                 <button onClick={() => dispatch(setCards([], playerId))}>Unselect all</button>
             )}

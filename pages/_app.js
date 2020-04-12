@@ -2,6 +2,8 @@ import {Provider} from 'react-redux';
 import App from 'next/app';
 import withRedux from 'next-redux-wrapper';
 import {makeStore} from '../store';
+import {AppContext, ctx} from '../context/app-context';
+
 class MyApp extends App {
     static async getInitialProps({Component, ctx}) {
         // we can dispatch from here too
@@ -16,7 +18,9 @@ class MyApp extends App {
         const {Component, pageProps, store} = this.props;
         return (
             <Provider store={store}>
-                <Component {...pageProps} />
+                <AppContext.Provider value={ctx}>
+                    <Component {...pageProps} />
+                </AppContext.Provider>
             </Provider>
         );
     }

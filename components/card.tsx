@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {Card} from '../constants/card-types';
+import {Card} from '../models/card';
 import {TagsComponent} from './tags';
 
 const Name = styled.div`

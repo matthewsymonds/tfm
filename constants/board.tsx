@@ -42,7 +42,8 @@ export enum Parameter {
     TEMPERATURE,
     OCEAN,
     OXYGEN,
-    TERRAFORM_RATING
+    VENUS,
+    TERRAFORM_RATING // Remove
 }
 
 export interface TilePlacement {

@@ -1,3 +1,5 @@
+import {Resource} from './resource';
+
 export enum GameStage {
     CORPORATION_SELECTION,
     ACTIVE_ROUND,
@@ -16,4 +18,11 @@ export const MAX_OCEAN = 9;
 export const MIN_OXYGEN = 0;
 export const MAX_OXYGEN = 14;
 
-export const MIN_MEGACREDIT_PRODUCTION = -5;
+export const MinimumProductions = {
+    [Resource.MEGACREDIT]: -5,
+    [Resource.STEEL]: 0,
+    [Resource.TITANIUM]: 0,
+    [Resource.PLANT]: 0,
+    [Resource.ENERGY]: 0,
+    [Resource.HEAT]: 0
+};

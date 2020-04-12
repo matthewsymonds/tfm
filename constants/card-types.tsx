@@ -1,26 +1,32 @@
 import {Resource} from './resource';
 import {Tile, TileType, TilePlacement, Parameter} from './board';
 import {ActionType, StandardProjectType} from './action';
-import {GameState} from '../reducer';
+
+type MinimumGlobalParameter = {
+    type: Parameter;
+    min: number;
+    max: undefined;
+};
+
+type MaximumGlobalParameter = {
+    type: Parameter;
+    min: undefined;
+    max: number;
+};
+
+export type RequiredGlobalParameter = MinimumGlobalParameter | MaximumGlobalParameter;
 
 interface CardRequirement {
     cost?: number;
-    minOcean?: number;
-    maxOcean?: number;
-    minOxygen?: number;
-    maxOxygen?: number;
-    minTemperature?: number;
-    maxTemperature?: number;
-    minVenus?: number;
-    maxVenus?: number;
+    requiredGlobalParameter?: RequiredGlobalParameter;
     minColonies?: number;
     maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
     requiredProduction?: Resource; // e.g. Asteroid Mining Consortium
     requiredTags?: Tag[];
-    requiredResource?: Resource[];
+    requiredResources?: Resource[];
 
-    removeResource?: Resource[];
+    removeResources?: Resource[];
     decreaseProduction?: Resource[];
     decreaseAnyProduction?: Resource[];
 }
@@ -30,18 +36,19 @@ type CardActionRequirement = {
     canPayFromOtherCards?: boolean; // e.g. predators, ants
 };
 
-type CardAction = {
+export type CardAction = {
     playlist: ReduxAction[];
     requirement?: CardActionRequirement;
 };
 
-type ReduxAction = {
+export type ReduxAction = {
     type: string;
     payload: any;
 };
 
-export interface Card extends CardRequirement {
+export interface CardConfig extends CardRequirement {
     cardActions?: CardAction[];
+    resources?: Resource[];
     usedActionThisRound?: boolean;
     actionOrEffectText?: string;
     deck: Deck;
@@ -50,9 +57,7 @@ export interface Card extends CardRequirement {
     oneTimeText?: string;
     tags: Tag[];
     type: CardType;
-    storedResources?: Resource[];
     playlist?: ReduxAction[];
-    terraformRatingIncrease?: number;
     victoryPoints?: number;
     condition?(condition: Condition): boolean;
     effect?(effect: Effect): void;
@@ -64,36 +69,37 @@ export interface Card extends CardRequirement {
     increaseProductionOption?: Resource[][];
     tilePlacements?: TilePlacement[];
     increaseParameter?: Parameter[];
+    increaseTerraformRating?: number;
 
     // ????
     state?: State;
     ownedByCurrentPlayer?: boolean;
 }
 
-interface State {
+export interface State {
     tags: Tag[];
-    cards: Card[];
+    cards: CardConfig[];
 }
 
 export type Condition = {
     actionType?: ActionType;
-    card?: Card;
+    card?: CardConfig;
     cost?: number;
     newTag?: boolean;
     onMars?: boolean;
     samePlayer?: boolean;
     tag?: Tag;
     tileType?: TileType;
-}
+};
 
 export interface Effect {
-    addOrRemoveOneResource(resource: Resource, removeResourceCallback: Function): void;
+    addOrRemoveOneResource(resource: Resource, removeResourcesCallback: Function): void;
     discardThenDraw(): void;
     drawCard(): void;
     gainResourceOption(options: Resource[][]): void;
     // A reference to the condition that triggered the effect.
     condition: Condition;
-    gainResource(name: Resource, amount: number, target?: Card): void;
+    gainResource(name: Resource, amount: number, target?: CardConfig): void;
     increaseProduction(name: Resource, amount: number): void;
 }
 
@@ -107,18 +113,18 @@ export enum Deck {
 }
 
 export enum Tag {
-    ANIMAL,
-    BUILDING,
-    CITY,
-    EARTH,
-    ENERGY,
-    EVENT,
-    JOVIAN,
-    MICROBE,
-    PLANT,
-    SCIENCE,
-    SPACE,
-    VENUS
+    ANIMAL = 'tagAnimal',
+    BUILDING = 'tagBuilding',
+    CITY = 'tagCity',
+    EARTH = 'tagEarth',
+    EVENT = 'tagEvent',
+    JOVIAN = 'tagJovian',
+    MICROBE = 'tagMicrobe',
+    PLANT = 'tagPlant',
+    POWER = 'tagPower',
+    SCIENCE = 'tagScience',
+    SPACE = 'tagSpace',
+    VENUS = 'tagVenus'
 }
 
 export enum CardType {

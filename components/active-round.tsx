@@ -4,7 +4,7 @@ import React, {useContext} from 'react';
 import {CardComponent} from './card';
 import {useSelector, useDispatch, useStore} from 'react-redux';
 import stateHelpers from '../util/state-helpers';
-
+import {AppContext} from '../context/app-context';
 import {GameState, useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
 
@@ -25,13 +25,17 @@ const Button = styled.button<ButtonProps>`
     margin: 0 auto;
 `;
 
-export const ActiveRound = ({ playerId }: {playerId: number}) => {
+export const ActiveRound = ({playerId}: {playerId: number}) => {
     const corporation = useTypedSelector(state => state.players[playerId].corporation);
     const resources = useTypedSelector(state => state.players[playerId].resources);
     const productions = useTypedSelector(state => state.players[playerId].productions);
     const cards = useTypedSelector(state => state.players[playerId].cards);
     const store = useStore<RootState>();
+    const state = store.getState();
     const dispatch = useDispatch();
+    const context = useContext(AppContext);
+
+    console.log('here is context', context);
 
     return (
         <>
@@ -40,7 +44,7 @@ export const ActiveRound = ({ playerId }: {playerId: number}) => {
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => (
                         <ResourceBoardCell
-                                resource={resourceType}
+                            resource={resourceType}
                             production={productions[resourceType]}
                             amount={resources[resourceType]}
                         />
@@ -59,11 +63,15 @@ export const ActiveRound = ({ playerId }: {playerId: number}) => {
             <h3>Hand</h3>
             <Hand>
                 {cards.map((card, index) => {
-                    // const canCardBePlayed = stateHelpers.canCardBePlayed(store.getState(), card);
-
                     return (
                         <CardComponent content={card} width={250}>
-                            <Button onClick={() => {}}>
+                            <Button
+                                onClick={() => {
+                                    const [canPlayCard, message] = context.canPlayCard(card, state);
+                                    console.log('heres card', card);
+                                    console.log('can play', canPlayCard);
+                                    console.log('why', message);
+                                }}>
                                 Play
                             </Button>
                         </CardComponent>

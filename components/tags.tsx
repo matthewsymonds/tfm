@@ -30,7 +30,20 @@ interface TagsComponentProps {
     tags: Tag[];
 }
 
-const {ANIMAL, BUILDING, CITY, EARTH, ENERGY, EVENT, JOVIAN, MICROBE, PLANT, SCIENCE, SPACE, VENUS} = Tag;
+const {
+    ANIMAL,
+    BUILDING,
+    CITY,
+    EARTH,
+    POWER,
+    EVENT,
+    JOVIAN,
+    MICROBE,
+    PLANT,
+    SCIENCE,
+    SPACE,
+    VENUS
+} = Tag;
 
 function getIcon(tag: Tag) {
     switch (tag) {
@@ -42,7 +55,7 @@ function getIcon(tag: Tag) {
             return '🌆';
         case EARTH:
             return '🌎';
-        case ENERGY:
+        case POWER:
             return '⚡';
         case EVENT:
             return '⬇️';
@@ -71,7 +84,7 @@ export const getTagColor = (tag: Tag) => {
             return '#333333';
         case Tag.EARTH:
             return 'darkgreen';
-        case Tag.ENERGY:
+        case Tag.POWER:
             return 'white';
         case Tag.EVENT:
             return 'gold';
@@ -100,7 +113,7 @@ export const getTagBackgroundColor = (tag: Tag) => {
             return '#C8B3C5';
         case Tag.EARTH:
             return 'lightblue';
-        case Tag.ENERGY:
+        case Tag.POWER:
             return 'purple';
         case Tag.EVENT:
             return 'black';

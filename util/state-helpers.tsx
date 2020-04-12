@@ -1,5 +1,5 @@
 import {GameState} from '../reducer';
-import {Card} from '../constants/card-types';
+import {Card} from '../models/card';
 import {Resource} from '../constants/resource';
 
 const stateHelpers = {
@@ -14,7 +14,6 @@ const stateHelpers = {
     //             reasons: 'Cannot afford to play this card',
     //         };
     //     }
-
     //     const canCardBePlayed = card.canBePlayed ? card.canBePlayed(state) : true;
     //     return canCardBePlayed
     //         ? {result: true}

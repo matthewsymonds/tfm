@@ -1,18 +1,18 @@
 // Can appear on the board, on a card, or in a colony.
 export enum Resource {
-    ANIMAL = 'animal',
-    CAMP = 'camp',
-    CARD = 'card',
-    ENERGY = 'energy',
-    FIGHTER = 'fighter',
-    FLOATER = 'floater',
-    HEAT = 'heat',
-    MEGACREDIT = 'megacredit',
-    MICROBE = 'microbe',
-    PLANT = 'plant',
-    SCIENCE = 'science',
-    STEEL = 'steel',
-    TITANIUM = 'titanium'
+    ANIMAL = 'resourceAnimal',
+    CAMP = 'resourceCamp',
+    CARD = 'resourceCard',
+    ENERGY = 'resourceEnerge',
+    FIGHTER = 'resourceFighter',
+    FLOATER = 'resourceFloater',
+    HEAT = 'resourceHeat',
+    MEGACREDIT = 'resourceMegacredit',
+    MICROBE = 'resourceMicrobe',
+    PLANT = 'resourcePlant',
+    SCIENCE = 'resourceScience',
+    STEEL = 'resourceSteel',
+    TITANIUM = 'resourceTitanium'
 }
 
 export const getResourceSymbol = (resource: Resource) => {

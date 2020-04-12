@@ -1,5 +1,6 @@
 import {GameStage} from './constants/game';
-import {Tag, Card} from './constants/card-types';
+import {Tag} from './constants/card-types';
+import {Card} from './models/card';
 import {Resource} from './constants/resource';
 
 export const SET_CORPORATION = 'SET_CORPORATION';

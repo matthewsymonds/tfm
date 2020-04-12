@@ -8,7 +8,7 @@ export default {};
 // import {useState, useEffect} from 'react';
 // import {getCardsFromNames, cards} from '../constants/cards';
 // import {Resource} from '../constants/resource';
-// import {CardType, Card, Deck} from '../constants/card-types';
+// import {CardType, CardConfig, Deck} from '../constants/card-types';
 // import styled from 'styled-components';
 // import React from 'react';
 // import {CORPORATION_SELECTION} from '../components/corporation-selection';
@@ -20,7 +20,7 @@ export default {};
 //     return () => setIt(it => !it);
 // };
 
-// const effects: Card[] = [];
+// const effects: CardConfig[] = [];
 
 // let topRow: ResourceBoardCellProps[] = [];
 // let bottomRow: ResourceBoardCellProps[] = [];
@@ -156,7 +156,7 @@ export default {};
 //     const [oceans, setOceans] = useState(0);
 //     const [oxygen, setOxygen] = useState(0);
 
-//     function cannotPlay(card: Card): string {
+//     function cannotPlay(card: CardConfig): string {
 //         switch (true) {
 //             case megacredits < card.cost:
 //                 return `Cannot afford ${card.cost}€, only have ${megacredits}€`;
@@ -187,7 +187,7 @@ export default {};
 //             return 'Must be able to decrease production';
 //         }
 
-//         if (cannotRemoveResources(card.removeResource)) {
+//         if (cannotRemoveResources(card.removeResources)) {
 //             return 'Not enough resources to remove';
 //         }
 
@@ -294,17 +294,17 @@ export default {};
 //         heatProduction
 //     ]);
 
-//     function addEffect(card: Card) {
+//     function addEffect(card: CardConfig) {
 //         if (card.condition && card.effect) {
 //             effects.push(card);
 //         }
 //     }
 
-//     function playCard(card: Card) {
+//     function playCard(card: CardConfig) {
 //         addEffect(card);
 //         handleProductionChanges(card.decreaseProduction, -1);
 //         handleProductionChanges(card.increaseProduction, 1);
-//         handleResourceChanges(card.removeResource, -1, setCards);
+//         handleResourceChanges(card.removeResources, -1, setCards);
 //         handleResourceChanges(card.gainResource, 1, setCards);
 
 //         setPlayedCard(card);
@@ -313,7 +313,7 @@ export default {};
 //         forceUpdate();
 //     }
 
-//     function handleConfirm(corporation: Card, cards: Card[]) {
+//     function handleConfirm(corporation: CardConfig, cards: CardConfig[]) {
 //         setCorporation(corporation);
 //         const megacredits = corporation.gainResource.filter(r => r === Resource.MEGACREDIT);
 //         const otherResources = corporation.gainResource.filter(r => r !== Resource.MEGACREDIT);

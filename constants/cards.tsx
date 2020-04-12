@@ -1,18 +1,9 @@
-import {Card, Deck, Tag, CardType} from './card-types';
+import {CardConfig, Deck, Tag, CardType} from './card-types';
 import {Resource} from './resource';
 import {TileType, Location, Parameter, t} from './board';
-import {GameStage, MAX_TEMP, MAX_OXYGEN, MIN_MEGACREDIT_PRODUCTION, MAX_OCEAN} from './game';
 import {ActionType} from './action';
-import {
-    goToGameStage,
-    changeResource,
-    gainOneMegacreditPerCityOnMars,
-    revealAndDiscardTopCard,
-    addResourceIfRevealedCardHasTag,
-    payForCard,
-} from '../actions';
 
-export const cards: Card[] = [
+export const cardConfigs: CardConfig[] = [
     {
         cost: 8,
         deck: Deck.BASIC,
@@ -50,7 +41,7 @@ export const cards: Card[] = [
         name: 'Deep Well Heating',
         oneTimeText: 'Increase your energy production 1 step. Increase temperature 1 step.',
         // canBePlayed: state => state.common.temperature < MAX_TEMP,
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.TITANIUM],
         increaseParameter: [Parameter.TEMPERATURE]
@@ -82,7 +73,6 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.BASIC,
         holdsResource: Resource.SCIENCE,
-        storedResources: [],
         name: 'Search For Life',
         oneTimeText:
             'Oxygen must be 6% or less. 3 VPs if you have one or more science resource here.',
@@ -125,7 +115,13 @@ export const cards: Card[] = [
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CAPITAL)],
         decreaseProduction: [Resource.ENERGY],
-        increaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT]
+        increaseProduction: [
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT
+        ]
     },
     {
         cost: 14,
@@ -252,7 +248,11 @@ export const cards: Card[] = [
             'Gain 3 plants, or add 3 microbes or 2 animals to ANOTHER card. Place an ocean tile.',
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        gainResourceOption: [Array(3).fill(Resource.PLANT), Array(3).fill(Resource.MICROBE), Array(2).fill(Resource.ANIMAL)]
+        gainResourceOption: [
+            Array(3).fill(Resource.PLANT),
+            Array(3).fill(Resource.MICROBE),
+            Array(2).fill(Resource.ANIMAL)
+        ]
     },
     {
         actionOrEffectText: 'Effect: When you play a card, you pay 1 MC less for it.',
@@ -306,7 +306,6 @@ export const cards: Card[] = [
         cost: 14,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Predators',
         oneTimeText: 'Requires 11% oxygen. 1 VP per animal on this card.',
         // requiredOxygen: 11,
@@ -353,7 +352,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.CORPORATE,
         holdsResource: Resource.FIGHTER,
-        storedResources: [],
         name: 'Security Fleet',
         oneTimeText: '1 VP for each fighter resource on this card.',
         tags: [Tag.SPACE],
@@ -381,7 +379,7 @@ export const cards: Card[] = [
         name: 'Lunar Beam',
         oneTimeText:
             'Decrease your MC production 2 steps and increase your heat production and energy production 2 steps each.',
-        tags: [Tag.EARTH, Tag.ENERGY],
+        tags: [Tag.EARTH, Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT],
         increaseProduction: [...Array(2).fill(Resource.HEAT), ...Array(2).fill(Resource.ENERGY)]
@@ -420,7 +418,6 @@ export const cards: Card[] = [
         cost: 13,
         deck: Deck.BASIC,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Regolith Eaters',
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.ACTIVE
@@ -431,7 +428,6 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.BASIC,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'GHG Producing Bacteria',
         oneTimeText: 'Requires 4% oxygen.',
         // requiredOxygen: 4,
@@ -443,7 +439,6 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.BASIC,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Ants',
         oneTimeText: 'Requires 4% oxygen. 1 VP per 2 microbes on this card.',
         // requiredOxygen: 4,
@@ -451,7 +446,7 @@ export const cards: Card[] = [
         type: CardType.ACTIVE
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         cost: 14,
         deck: Deck.BASIC,
         name: 'Release of Inert Gases',
@@ -460,7 +455,7 @@ export const cards: Card[] = [
         type: CardType.EVENT
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         cost: 31,
         deck: Deck.BASIC,
         name: 'Nitrogen-Rich Asteroid',
@@ -468,11 +463,16 @@ export const cards: Card[] = [
             'Raise your terraforming rating 2 steps and temperature 1 step. Increase your plant production 1 step, or 4 steps if you have 3 plant tags.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        increaseParameter: [Parameter.TERRAFORM_RATING, Parameter.TEMPERATURE, Parameter.TEMPERATURE],
+        increaseParameter: [
+            Parameter.TERRAFORM_RATING,
+            Parameter.TEMPERATURE,
+            Parameter.TEMPERATURE
+        ],
         get increaseProduction() {
             if (!this.state) return [Resource.PLANT];
 
-            if (this.state.tags.filter(tag => tag === Tag.PLANT).length < 3) return [Resource.PLANT];
+            if (this.state.tags.filter(tag => tag === Tag.PLANT).length < 3)
+                return [Resource.PLANT];
 
             return [Resource.PLANT, Resource.PLANT, Resource.PLANT, Resource.PLANT];
         }
@@ -563,7 +563,7 @@ export const cards: Card[] = [
         name: 'Nuclear Power',
         oneTimeText:
             'Decrease your MC production 2 steps and increase your energy production 3 steps.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT],
         increaseProduction: [Resource.ENERGY, Resource.ENERGY]
@@ -575,7 +575,7 @@ export const cards: Card[] = [
         oneTimeText:
             'Requires 3 science tags. Increase your energy production and your MC production 1 step each.',
         // requiredScience: 3,
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY, Resource.MEGACREDIT]
@@ -606,7 +606,6 @@ export const cards: Card[] = [
         cost: 4,
         deck: Deck.CORPORATE,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Tardigrades',
         oneTimeText: '1 VP per 4 microbes on this card.',
         tags: [Tag.MICROBE],
@@ -644,7 +643,6 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Fish',
         oneTimeText:
             'Requires 2°C or warmer. Decrease any plant production 1 step. 1 VP for each animal on this card.',
@@ -672,7 +670,6 @@ export const cards: Card[] = [
         cost: 6,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Small Animals',
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
@@ -694,7 +691,10 @@ export const cards: Card[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        increaseProduction: [...Array(2).fill(Resource.MEGACREDIT), ...Array(3).fill(Resource.PLANT)],
+        increaseProduction: [
+            ...Array(2).fill(Resource.MEGACREDIT),
+            ...Array(3).fill(Resource.PLANT)
+        ],
         gainResource: [Resource.PLANT, Resource.PLANT]
     },
     {
@@ -723,7 +723,7 @@ export const cards: Card[] = [
         oneTimeText:
             'Requires a Jovian tag. Increase your heat production and energy production 3 steps each.',
         // requiredJovian: 1,
-        tags: [Tag.ENERGY, Tag.JOVIAN, Tag.SPACE],
+        tags: [Tag.POWER, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [...Array(3).fill(Resource.HEAT), ...Array(3).fill(Resource.ENERGY)]
@@ -880,7 +880,6 @@ export const cards: Card[] = [
         cost: 10,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Birds',
         oneTimeText:
             'Requires 13% oxygen. Decrease any plant production 2 steps. 1 VP for each animal on this card',
@@ -913,7 +912,8 @@ export const cards: Card[] = [
         tags: [Tag.MICROBE, Tag.SCIENCE],
         type: CardType.ACTIVE,
         condition: condition => [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL].includes(condition.tag),
-        effect: effect => effect.gainResourceOption([[Resource.PLANT], [Resource.MICROBE], [Resource.MICROBE]])
+        effect: effect =>
+            effect.gainResourceOption([[Resource.PLANT], [Resource.MICROBE], [Resource.MICROBE]])
     },
     {
         cost: 23,
@@ -931,7 +931,7 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.BASIC,
         name: 'Space Mirrors',
-        tags: [Tag.ENERGY, Tag.SPACE],
+        tags: [Tag.POWER, Tag.SPACE],
         type: CardType.ACTIVE
     },
     {
@@ -939,7 +939,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Solar Wind Power',
         oneTimeText: 'Increase your energy production 1 step and gain 2 titanium.',
-        tags: [Tag.ENERGY, Tag.SCIENCE, Tag.SPACE],
+        tags: [Tag.POWER, Tag.SCIENCE, Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY],
         gainResource: [Resource.TITANIUM, Resource.TITANIUM]
@@ -959,7 +959,7 @@ export const cards: Card[] = [
         deck: Deck.CORPORATE,
         name: 'Quantum Extractor',
         // requiredScience: 4,
-        tags: [Tag.ENERGY, Tag.SCIENCE],
+        tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
         oneTimeText: 'Increase your energy production 4 steps.',
         increaseProduction: Array(4).fill(Resource.ENERGY)
@@ -1005,7 +1005,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Giant Space Mirror',
         oneTimeText: 'Increase your energy production 3 steps.',
-        tags: [Tag.ENERGY, Tag.SPACE],
+        tags: [Tag.POWER, Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY, Resource.ENERGY]
     },
@@ -1027,7 +1027,12 @@ export const cards: Card[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.ENERGY],
-        increaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT]
+        increaseProduction: [
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT
+        ]
     },
     {
         cost: 9,
@@ -1035,7 +1040,7 @@ export const cards: Card[] = [
         name: 'Robotic Workforce',
         oneTimeText: 'Duplicate only the production box of one of your building cards.',
         tags: [Tag.SCIENCE],
-        type: CardType.AUTOMATED,
+        type: CardType.AUTOMATED
     },
     {
         cost: 11,
@@ -1067,7 +1072,7 @@ export const cards: Card[] = [
         name: 'Peroxide Power',
         oneTimeText:
             'Decrease your MC production 1 step and increase your energy production 2 steps.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.MEGACREDIT],
         increaseProduction: [Resource.ENERGY, Resource.ENERGY]
@@ -1101,7 +1106,12 @@ export const cards: Card[] = [
             'Increase your titanium production 2 steps and your MC production 2 steps. 1 VP per Jovian tag you have.',
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
-        increaseProduction: [Resource.TITANIUM, Resource.TITANIUM, Resource.MEGACREDIT, Resource.MEGACREDIT]
+        increaseProduction: [
+            Resource.TITANIUM,
+            Resource.TITANIUM,
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT
+        ]
     },
     {
         cost: 10,
@@ -1122,7 +1132,7 @@ export const cards: Card[] = [
         name: 'Mass Converter',
         oneTimeText: 'Requires 5 science tags. Increase your energy production 6 steps.',
         // requiredScience: 5,
-        tags: [Tag.ENERGY, Tag.SCIENCE],
+        tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
         increaseProduction: Array(6).fill(Resource.ENERGY)
     },
@@ -1131,7 +1141,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.CORPORATE,
         holdsResource: Resource.SCIENCE,
-        storedResources: [],
         name: 'Physics Complex',
         oneTimeText: '2 VP for each science resource on this card.',
         tags: [Tag.BUILDING, Tag.SCIENCE],
@@ -1149,7 +1158,9 @@ export const cards: Card[] = [
         type: CardType.AUTOMATED,
         get gainResource() {
             if (!this.state) return [];
-            return this.state.tiles.filter(tile => tile.type === TileType.CITY).fill(Resource.PLANT);
+            return this.state.tiles
+                .filter(tile => tile.type === TileType.CITY)
+                .fill(Resource.PLANT);
         }
     },
     {
@@ -1196,7 +1207,7 @@ export const cards: Card[] = [
         name: 'Fueled Generators',
         oneTimeText:
             'Decrease your MC production 1 step and increase your energy production 1 step.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.MEGACREDIT],
         increaseProduction: [Resource.ENERGY]
@@ -1215,11 +1226,11 @@ export const cards: Card[] = [
         name: 'Power Grid',
         oneTimeText:
             'Increase your energy production 1 step for each power tag you have, including this.)',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         get increaseProduction() {
             if (!this.state) return [];
-            return this.state.tags.filter(tag => tag === Tag.ENERGY).fill(Resource.ENERGY);
+            return this.state.tags.filter(tag => tag === Tag.POWER).fill(Resource.ENERGY);
         }
     },
     {
@@ -1264,7 +1275,9 @@ export const cards: Card[] = [
         get gainResource() {
             if (!this.state) return [];
 
-            return this.state.cards.filter(card => card.type === CardType.EVENT).fill(Resource.MEGACREDIT);
+            return this.state.cards
+                .filter(card => card.type === CardType.EVENT)
+                .fill(Resource.MEGACREDIT);
         }
     },
     {
@@ -1310,7 +1323,7 @@ export const cards: Card[] = [
         type: CardType.EVENT
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         cost: 7,
         deck: Deck.CORPORATE,
         name: 'Bribed Committee',
@@ -1325,7 +1338,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Solar Power',
         oneTimeText: 'Increase your energy production 1 step.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY]
@@ -1366,7 +1379,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Geothermal Power',
         oneTimeText: 'Increase your energy production 2 steps.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY]
     },
@@ -1380,7 +1393,12 @@ export const cards: Card[] = [
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        increaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.PLANT, Resource.PLANT],
+        increaseProduction: [
+            Resource.MEGACREDIT,
+            Resource.MEGACREDIT,
+            Resource.PLANT,
+            Resource.PLANT
+        ],
         gainResource: [Resource.PLANT, Resource.PLANT]
     },
     {
@@ -1421,7 +1439,7 @@ export const cards: Card[] = [
         // requiredOcean: 3,
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        removeResource: [Resource.PLANT]
+        removeResources: [Resource.PLANT]
     },
     {
         actionOrEffectText: 'Action: Spend 7 MC to increase your steel production 1 step.',
@@ -1484,7 +1502,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Ecological Zone',
         oneTimeText:
             'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
@@ -1536,7 +1553,6 @@ export const cards: Card[] = [
         cost: 5,
         deck: Deck.BASIC,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Decomposers',
         oneTimeText: 'Requires 3% oxygen. 1 VP per 3 microbes on this card.',
         // requiredOxygen: 3,
@@ -1556,7 +1572,7 @@ export const cards: Card[] = [
         name: 'Fusion Power',
         oneTimeText: 'Requires 2 power tags. Increase your energy production 3 steps.',
         // requiredEnergy: 2,
-        tags: [Tag.BUILDING, Tag.ENERGY, Tag.SCIENCE],
+        tags: [Tag.BUILDING, Tag.POWER, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY, Resource.ENERGY]
     },
@@ -1598,7 +1614,7 @@ export const cards: Card[] = [
         name: 'Great Dam',
         oneTimeText: 'Requires 4 ocean tiles. Increase your energy production 2 steps.',
         // requiredOcean: 4,
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY]
@@ -1610,10 +1626,11 @@ export const cards: Card[] = [
         oneTimeText:
             'Increase your MC production 1 step for each Earth tag you have, including this.',
         tags: [Tag.EARTH],
-        type: CardType.AUTOMATED,
-        get increaseProduction() {
-            return this.tags.filter(tag => tag === Tag.EARTH).fill(Resource.MEGACREDIT);
-        }
+        type: CardType.AUTOMATED
+        // get increaseProduction() {
+        //     return [];
+        //     // return this.tags.filter(tag => tag === Tag.EARTH).fill(Resource.MEGACREDIT);
+        // }
     },
     {
         cost: 25,
@@ -1633,7 +1650,7 @@ export const cards: Card[] = [
         name: 'Wave Power',
         oneTimeText: 'Requires 3 ocean tiles. Increase your energy production 1 step.',
         // requiredOcean: 3,
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY]
@@ -1654,7 +1671,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Power Plant',
         oneTimeText: 'Increase your energy production 1 step.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: [Resource.ENERGY]
     },
@@ -1696,7 +1713,7 @@ export const cards: Card[] = [
         name: 'Tectonic Stress Power',
         oneTimeText: 'Requires 2 science tags. Increase your energy production 3 steps.',
         // requiredScience: 2,
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY, Resource.ENERGY, Resource.ENERGY]
@@ -1710,7 +1727,7 @@ export const cards: Card[] = [
         // requiredOcean: 3,
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        removeResource: [Resource.PLANT, Resource.PLANT],
+        removeResources: [Resource.PLANT, Resource.PLANT],
         increaseProduction: [Resource.PLANT, Resource.PLANT]
     },
     {
@@ -1718,7 +1735,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Herbivores',
         oneTimeText:
             'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
@@ -1743,7 +1759,7 @@ export const cards: Card[] = [
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         get increaseProduction() {
-            if (this.state) return [];
+            if (!this.state) return [];
 
             return this.state.tags.filter(tag => tag === Tag.PLANT).fill(Resource.PLANT);
         }
@@ -1833,7 +1849,6 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.BASIC,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Nitrite Reducing Bacteria',
         oneTimeText: 'Add 3 microbes to this card.',
         tags: [Tag.MICROBE],
@@ -1864,8 +1879,8 @@ export const cards: Card[] = [
         name: 'Power Supply Consortium',
         oneTimeText:
             'Requires 2 power tags. Decrease any energy production 1 step and increase your own 1 step.',
-        // requiredResource.ENERGY: 2,
-        tags: [Tag.ENERGY],
+        // requiredResources.ENERGY: 2,
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseAnyProduction: [Resource.ENERGY],
         increaseProduction: [Resource.ENERGY]
@@ -1891,7 +1906,7 @@ export const cards: Card[] = [
         gainResource: [Resource.HEAT, Resource.HEAT, Resource.HEAT]
     },
     {
-        terraformRatingIncrease: 1,
+        increaseTerraformRating: 1,
         cost: 23,
         deck: Deck.BASIC,
         name: 'Imported Nitrogen',
@@ -1900,7 +1915,11 @@ export const cards: Card[] = [
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: [Parameter.TERRAFORM_RATING],
-        gainResource: [...Array(4).fill(Resource.PLANT), ...Array(3).fill(Resource.MICROBE), ...Array(2).fill(Resource.ANIMAL)]
+        gainResource: [
+            ...Array(4).fill(Resource.PLANT),
+            ...Array(3).fill(Resource.MICROBE),
+            ...Array(2).fill(Resource.ANIMAL)
+        ]
     },
     {
         cost: 3,
@@ -1912,7 +1931,7 @@ export const cards: Card[] = [
         increaseProduction: [Resource.HEAT]
     },
     {
-        terraformRatingIncrease: 3,
+        increaseTerraformRating: 3,
         cost: 20,
         deck: Deck.BASIC,
         name: 'Magnetic Field Generators',
@@ -1953,7 +1972,7 @@ export const cards: Card[] = [
         name: 'Windmills',
         oneTimeText: 'Requires 7% oxygen. Increase your energy production 1 step.',
         // requiredOxygen: 7,
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: [Resource.ENERGY]
@@ -1983,7 +2002,7 @@ export const cards: Card[] = [
         increaseProduction: [...Array(3).fill(Resource.HEAT), Resource.PLANT]
     },
     {
-        terraformRatingIncrease: 1,
+        increaseTerraformRating: 1,
         cost: 5,
         deck: Deck.BASIC,
         name: 'Magnetic Field Dome',
@@ -2001,7 +2020,6 @@ export const cards: Card[] = [
         cost: 10,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Pets',
         oneTimeText: 'Add 1 animal to this card. 1 VP per 2 animals here.',
         tags: [Tag.ANIMAL, Tag.EARTH],
@@ -2072,7 +2090,7 @@ export const cards: Card[] = [
         name: 'Heat Trappers',
         oneTimeText:
             'Decrease any heat production 2 steps and increase your energy production 1 step.',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
         decreaseAnyProduction: [Resource.HEAT, Resource.HEAT],
@@ -2131,7 +2149,7 @@ export const cards: Card[] = [
         oneTimeText:
             'Requires 6% oxygen. Decrease any plant production 1 step and increase your energy production 2 steps.',
         // requiredOxygen: 6,
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
         decreaseAnyProduction: [Resource.PLANT],
@@ -2142,7 +2160,6 @@ export const cards: Card[] = [
         cost: 13,
         deck: Deck.BASIC,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Livestock',
         oneTimeText:
             'Requires 9% oxygen. Decrease your plant production 1 step and increase your MC production 2 steps. 1 VP for each animal on this card.',
@@ -2161,7 +2178,6 @@ export const cards: Card[] = [
         cost: 10,
         deck: Deck.CORPORATE,
         holdsResource: Resource.SCIENCE,
-        storedResources: [],
         name: 'Olympus Conference',
         tags: [Tag.BUILDING, Tag.EARTH, Tag.SCIENCE],
         type: CardType.ACTIVE,
@@ -2209,11 +2225,13 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'Energy Saving',
         oneTimeText: 'Increase your energy production 1 step for each city tile in play.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         get increaseProduction() {
             if (!this.state) return [];
-            return this.state.tiles.filter(tile => tile.type === TileType.CITY).fill(Resource.MEGACREDIT);
+            return this.state.tiles
+                .filter(tile => tile.type === TileType.CITY)
+                .fill(Resource.MEGACREDIT);
         }
     },
     {
@@ -2223,7 +2241,7 @@ export const cards: Card[] = [
         oneTimeText: 'Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        removeResource: Array(5).fill(Resource.HEAT),
+        removeResources: Array(5).fill(Resource.HEAT),
         gainResourceOption: [Array(4).fill(Resource.PLANT), Array(2).fill(Resource.ANIMAL)]
     },
     {
@@ -2260,7 +2278,7 @@ export const cards: Card[] = [
         cost: 4,
         deck: Deck.CORPORATE,
         name: 'Power Infrastructure',
-        tags: [Tag.BUILDING, Tag.ENERGY],
+        tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.ACTIVE
     },
     {
@@ -2292,7 +2310,9 @@ export const cards: Card[] = [
         victoryPoints: 2,
         get increaseParameter() {
             if (!this.state) return [];
-            return this.state.tags.filter(tag => tag === Tag.JOVIAN).fill(Parameter.TERRAFORM_RATING);
+            return this.state.tags
+                .filter(tag => tag === Tag.JOVIAN)
+                .fill(Parameter.TERRAFORM_RATING);
         }
     },
     {
@@ -2340,7 +2360,7 @@ export const cards: Card[] = [
         deck: Deck.CORPORATE,
         name: 'Energy Tapping',
         oneTimeText: 'Decrease any energy production 1 step and increase your own 1 step.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
         decreaseAnyProduction: [Resource.ENERGY],
@@ -2373,7 +2393,7 @@ export const cards: Card[] = [
         gainResource: [Resource.CARD, Resource.CARD]
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         cost: 8,
         deck: Deck.BASIC,
         name: 'Rad-Chem Factory',
@@ -2458,7 +2478,6 @@ export const cards: Card[] = [
         cost: 7,
         deck: Deck.PROMO,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Penguins',
         oneTimeText: 'Requires 8 Oceans. 1 VP per animal on this card.',
         // requiredOcean: 8,
@@ -2471,7 +2490,6 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Aerial Mappers',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE,
@@ -2481,6 +2499,13 @@ export const cards: Card[] = [
         cost: 7,
         deck: Deck.VENUS,
         name: 'Aerosport Tournament',
+        requiredResources: [
+            Resource.FLOATER,
+            Resource.FLOATER,
+            Resource.FLOATER,
+            Resource.FLOATER,
+            Resource.FLOATER
+        ],
         oneTimeText: 'Requires that you have 5 floaters. Gain 1 MC for each city tile in play.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
@@ -2553,9 +2578,8 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Deuterium Export',
-        tags: [Tag.ENERGY, Tag.SPACE, Tag.VENUS],
+        tags: [Tag.POWER, Tag.SPACE, Tag.VENUS],
         type: CardType.ACTIVE
     },
     {
@@ -2564,7 +2588,6 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Dirigibles',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
@@ -2575,7 +2598,6 @@ export const cards: Card[] = [
         cost: 21,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Extractor Balloons',
         oneTimeText: 'Add 3 floaters to this card.',
         tags: [Tag.VENUS],
@@ -2586,7 +2608,6 @@ export const cards: Card[] = [
         cost: 3,
         deck: Deck.VENUS,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Extremophiles',
         oneTimeText: 'Requires 2 science tags. 1 VP for per 3 microbes on this card.',
         // requiredScience: 2,
@@ -2598,7 +2619,6 @@ export const cards: Card[] = [
         cost: 5,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Floating Habs',
         oneTimeText: 'Requires 2 science tags. 1 VP per 2 floaters on this card.',
         // requiredScience: 2,
@@ -2611,7 +2631,6 @@ export const cards: Card[] = [
         cost: 8,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Forced Precipitation',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
@@ -2689,7 +2708,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Jet Stream Microscrappers',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
@@ -2700,7 +2718,6 @@ export const cards: Card[] = [
         cost: 4,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Local Shading',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
@@ -2762,7 +2779,7 @@ export const cards: Card[] = [
         type: CardType.AUTOMATED
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         cost: 11,
         deck: Deck.VENUS,
         name: 'Omnicourt',
@@ -2839,7 +2856,6 @@ export const cards: Card[] = [
         cost: 22,
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Stratopolis',
         oneTimeText:
             'Requires 2 science tags. Increase your MC production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP per 3 floaters on this card.',
@@ -2852,7 +2868,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.VENUS,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Stratospheric Birds',
         oneTimeText:
             'Requires Venus 12%, and that you spend 1 floater from any card. 1 VP for each animal on this card.',
@@ -2876,7 +2891,6 @@ export const cards: Card[] = [
         cost: 6,
         deck: Deck.VENUS,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Sulphur-Eating Bacteria',
         oneTimeText: 'Requires Venus 6%.',
         // requiredVenus: 6,
@@ -2897,7 +2911,6 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.VENUS,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Thermophiles',
         oneTimeText: 'Requires Venus 6%.',
         // requiredVenus: 6,
@@ -2957,7 +2970,6 @@ export const cards: Card[] = [
         cost: 15,
         deck: Deck.VENUS,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Venusian Animals',
         oneTimeText: 'Requires Venus 18%. 1 VP for each animal on this card.',
         // requiredVenus: 18,
@@ -2995,6 +3007,7 @@ export const cards: Card[] = [
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Airliners',
+        requiredResources: Array(3).fill(Resource.FLOATER),
         oneTimeText:
             'Requires that you have 3 floaters. Increase your MC production 2 steps. Add 2 floaters to ANOTHER card.',
         tags: [],
@@ -3005,6 +3018,7 @@ export const cards: Card[] = [
         cost: 0,
         deck: Deck.COLONIES,
         name: 'Air Raid',
+        removeResources: [Resource.FLOATER],
         oneTimeText: 'Requires that you lose 1 floater. Steal 5 MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT
@@ -3015,7 +3029,6 @@ export const cards: Card[] = [
         cost: 15,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Atmo Collectors',
         oneTimeText: 'Add 2 floaters to ANY card.',
         tags: [],
@@ -3047,7 +3060,7 @@ export const cards: Card[] = [
         name: 'Corona Extractor',
         oneTimeText: 'Requires 4 science tags. Increase your energy production 4 steps.',
         // requiredScience: 4,
-        tags: [Tag.ENERGY, Tag.SPACE],
+        tags: [Tag.POWER, Tag.SPACE],
         type: CardType.AUTOMATED
     },
     {
@@ -3148,12 +3161,11 @@ export const cards: Card[] = [
         type: CardType.EVENT
     },
     {
-        terraformRatingIncrease: 1,
+        increaseTerraformRating: 1,
         actionOrEffectText: 'Action: Spend 1 titanium to add 2 floaters here.',
         cost: 20,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Jovian Lanterns',
         oneTimeText:
             'Requires 1 Jovian tag. Increase your TR 1 step. Add 2 floaters to ANY card. 1 VP per 2 floaters here.',
@@ -3167,7 +3179,6 @@ export const cards: Card[] = [
         cost: 9,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Jupiter Floating Station',
         oneTimeText: 'Requires 3 science tags.',
         // requiredScience: 3,
@@ -3217,7 +3228,6 @@ export const cards: Card[] = [
         cost: 12,
         deck: Deck.COLONIES,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Martian Zoo',
         oneTimeText: 'Requires 2 city tiles in play.',
         tags: [Tag.ANIMAL, Tag.BUILDING],
@@ -3254,7 +3264,7 @@ export const cards: Card[] = [
         victoryPoints: 1
     },
     {
-        terraformRatingIncrease: 2,
+        increaseTerraformRating: 2,
         // addsResourceToCards: Resource.FLOATER,
         cost: 25,
         deck: Deck.COLONIES,
@@ -3311,7 +3321,6 @@ export const cards: Card[] = [
         cost: 10,
         deck: Deck.COLONIES,
         holdsResource: Resource.CAMP,
-        storedResources: [],
         name: 'Refugee Camps',
         oneTimeText: '1 VP for each camp resource on this card.',
         tags: [Tag.EARTH],
@@ -3396,7 +3405,6 @@ export const cards: Card[] = [
         cost: 5,
         deck: Deck.COLONIES,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Sub-Zero Salt Fish',
         oneTimeText:
             'Requires -6°C or warmer. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
@@ -3410,7 +3418,6 @@ export const cards: Card[] = [
         cost: 21,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Titan Air-Scrapping',
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE,
@@ -3422,7 +3429,6 @@ export const cards: Card[] = [
         cost: 18,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Titan Floating Launch-Pad',
         oneTimeText: 'Add 2 foaters to ANY JOVIAN CARD.',
         tags: [Tag.JOVIAN],
@@ -3435,7 +3441,6 @@ export const cards: Card[] = [
         cost: 23,
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Titan Shuttles',
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.ACTIVE,
@@ -3492,7 +3497,7 @@ export const cards: Card[] = [
         deck: Deck.PRELUDE,
         name: 'Aquifer Turbines',
         oneTimeText: 'Place an ocean tile. Increase your energy production 2 steps. Remove 3 MC.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.PRELUDE
     },
     {
@@ -3648,7 +3653,7 @@ export const cards: Card[] = [
         type: CardType.PRELUDE
     },
     {
-        terraformRatingIncrease: 1,
+        increaseTerraformRating: 1,
         deck: Deck.PRELUDE,
         name: 'Nitrogen Shipment',
         oneTimeText:
@@ -3674,7 +3679,7 @@ export const cards: Card[] = [
         deck: Deck.PRELUDE,
         name: 'Power Generation',
         oneTimeText: 'Increase your energy production 3 steps.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.PRELUDE
     },
     {
@@ -3711,7 +3716,7 @@ export const cards: Card[] = [
         deck: Deck.PRELUDE,
         name: 'Supplier',
         oneTimeText: 'Increase your energy production 2 steps. Gain 4 steel.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.PRELUDE
     },
     {
@@ -3722,7 +3727,7 @@ export const cards: Card[] = [
         type: CardType.PRELUDE
     },
     {
-        terraformRatingIncrease: 3,
+        increaseTerraformRating: 3,
         deck: Deck.PRELUDE,
         name: 'UNMI Contractor',
         oneTimeText: 'Raise your terraform rating 3 steps. Draw 1 card.',
@@ -3771,7 +3776,6 @@ export const cards: Card[] = [
         cost: 2,
         deck: Deck.PRELUDE,
         holdsResource: Resource.MICROBE,
-        storedResources: [],
         name: 'Psychrophiles',
         oneTimeText: 'Requires temperature -20°C or colder.',
         // requiredMaxTemperature: -20,
@@ -3927,7 +3931,7 @@ export const cards: Card[] = [
         deck: Deck.BASIC,
         name: 'ThorGate',
         oneTimeText: 'You start with 1 energy production and 48 MC.',
-        tags: [Tag.ENERGY],
+        tags: [Tag.POWER],
         type: CardType.CORPORATION,
         increaseProduction: [Resource.ENERGY],
         gainResource: Array(48).fill(Resource.MEGACREDIT)
@@ -3954,7 +3958,6 @@ export const cards: Card[] = [
         actionOrEffectText: 'Action: Add a floater to ANY card.',
         deck: Deck.VENUS,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Celestic',
         oneTimeText:
             'You start with 42 MC. As your first action, reveal cards from the deck until you have revealed 2 cards with a floater icon on it. Take those 2 cards into hand, and discard the rest. 1 VP per 3 floaters on this card.',
@@ -4056,7 +4059,6 @@ export const cards: Card[] = [
             'Effect: When you play an animal or plant tag, including this, add 1 animal to this card.',
         deck: Deck.COLONIES,
         holdsResource: Resource.ANIMAL,
-        storedResources: [],
         name: 'Arklight',
         oneTimeText:
             'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
@@ -4090,20 +4092,9 @@ export const cards: Card[] = [
             'Action: Add 1 floater to ANY card. Effect: Floaters on this card may be used as 2 heat each',
         deck: Deck.COLONIES,
         holdsResource: Resource.FLOATER,
-        storedResources: [],
         name: 'Stormcraft Incorporated',
         oneTimeText: 'You start with 48 MC.',
         tags: [Tag.JOVIAN],
         type: CardType.CORPORATION
     }
 ];
-
-export const cardsDict: {[key: string]: Card} = {};
-export const cardNames: string[] = [];
-
-for (const card of cards) {
-    cardsDict[card.name] = card;
-    cardNames.push(card.name);
-}
-
-export const getCardsFromNames = (names: string[]) => names.map(name => cardsDict[name]);

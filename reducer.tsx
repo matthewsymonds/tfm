@@ -2,7 +2,7 @@ import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
 import {GameStage} from './constants/game';
-import {INITIAL_BOARD_STATE, TileType, Board} from './constants/board';
+import {INITIAL_BOARD_STATE, TileType, Board, Parameter} from './constants/board';
 import {
     SET_CORPORATION,
     SET_CARDS,
@@ -12,9 +12,12 @@ import {
     GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS,
     CONFIRM_CORPORATION_AND_CARDS
 } from './actions';
-import {Card, Deck, CardType} from './constants/card-types';
+import {CardConfig, Deck, CardType, Tag} from './constants/card-types';
 import {Resource} from './constants/resource';
-import {cards} from './constants/cards';
+import {cardConfigs} from './constants/cards';
+import {Card} from './models/card';
+
+const cards = cardConfigs.map(config => new Card(config));
 
 function sampleCards(cards: Card[], num: number) {
     const result = [];
@@ -48,9 +51,7 @@ const possibleCards = cards.filter(
 
 shuffle(possibleCards);
 
-const allCorporations = possibleCards.filter(
-    card => card.type === CardType.CORPORATION
-);
+const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
 const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
 const possibleCorporations = sampleCards(allCorporations, 2);
@@ -68,67 +69,123 @@ export type Resources = {
 type PlayerId = number;
 
 export type GameState = {
-    loggedInPlayerId?: string,
-    players: Array<PlayerState>,
+    loggedInPlayerIndex: number;
+    players: Array<PlayerState>;
     common: {
-        gameStage: GameStage,
-        generation: number,
-        round: number,
-        turn: number,
-        firstPlayerIndex: number,
-        currentPlayerIndex: number,
-        temperature: number,
-        ocean: number,
-        oxygen: number,
-        board: Board
-    },
+        gameStage: GameStage;
+        generation: number;
+        round: number;
+        turn: number;
+        firstPlayerIndex: number;
+        currentPlayerIndex: number;
+        parameters: {
+            [Parameter.OCEAN]: number;
+            [Parameter.OXYGEN]: number;
+            [Parameter.TEMPERATURE]: number;
+            [Parameter.VENUS]: number;
+        };
+        board: Board;
+    };
     transaction: {
-        isPending: boolean,
-        pendingPlayers: Array<PlayerId>
-    }
-}
-
-type PlayerState = {
-    id: PlayerId,
-    playerIndex: number,
-    corporation: null | Card,
-    startingCards: null | Card[],
-    possibleCorporations: null | Card[],
-    cards: Card[],
-    playedCards: Card[],
-    resources: Resources,
-    productions: Resources,
+        isPending: boolean;
+        pendingPlayers: Array<PlayerId>;
+    };
 };
 
+export type PlayerState = {
+    index: number;
+    playerIndex: number;
+    corporation: null | Card;
+    startingCards: null | Card[];
+    possibleCorporations: null | Card[];
+    cards: Card[];
+    playedCards: Card[];
+    resources: Resources;
+    productions: Resources;
+    exchangeRates: {
+        [Resource.STEEL]: number;
+        [Resource.TITANIUM]: number;
+    };
+    discounts: Discounts;
+};
+
+export type Discounts = {
+    card: number;
+    tags: {
+        [Tag.SPACE]: number;
+        [Tag.VENUS]: number;
+        [Tag.BUILDING]: number;
+        [Tag.SCIENCE]: number;
+        [Tag.EARTH]: number;
+        [Tag.POWER]: number;
+    };
+    cards: {
+        [Tag.SPACE]: number;
+        [Tag.EARTH]: number;
+    };
+    standardProjects: number;
+    standardProjectPowerPlant: number;
+    nextCardThisGeneration: number;
+    trade: number;
+};
 
 const INITIAL_STATE: GameState = {
+    loggedInPlayerIndex: 0,
     common: {
         gameStage: GameStage.CORPORATION_SELECTION,
         generation: 0,
         round: 0,
         turn: 0,
-        temperature: -30,
-        ocean: 0,
-        oxygen: 0,
+        parameters: {
+            [Parameter.OCEAN]: 0,
+            [Parameter.OXYGEN]: 0,
+            [Parameter.TEMPERATURE]: -30,
+            [Parameter.VENUS]: 0
+        },
         board: INITIAL_BOARD_STATE,
         currentPlayerIndex: 0,
-        firstPlayerIndex: 0,
+        firstPlayerIndex: 0
     },
-    players: [{
-        id: 0,
-        playerIndex: 0,
-        corporation: null,
-        // TODO: should this be replaced with "possibleCards", and recycled between rounds?
-        startingCards,
-        possibleCorporations,
-        cards: [],
-        playedCards: [],
-        resources: initialResources(),
-        productions: initialResources(),
-    }],
+    players: [
+        {
+            index: 0,
+            playerIndex: 0,
+            corporation: null,
+            // TODO: should this be replaced with "possibleCards", and recycled between rounds?
+            startingCards,
+            possibleCorporations,
+            cards: [],
+            playedCards: [],
+            resources: initialResources(),
+            productions: initialResources(),
+            exchangeRates: {
+                [Resource.STEEL]: 2,
+                [Resource.TITANIUM]: 3
+            },
+            discounts: {
+                card: 0,
+                tags: {
+                    [Tag.SPACE]: 0,
+                    [Tag.VENUS]: 0,
+                    [Tag.BUILDING]: 0,
+                    [Tag.SCIENCE]: 0,
+                    [Tag.EARTH]: 0,
+                    [Tag.POWER]: 0
+                },
+                cards: {
+                    [Tag.SPACE]: 0,
+                    [Tag.EARTH]: 0
+                },
+                standardProjects: 0,
+                standardProjectPowerPlant: 0,
+                nextCardThisGeneration: 0,
+                trade: 0
+            }
+        }
+    ],
     transaction: {
         isPending: false,
-        pendingPlayers: [],
+        pendingPlayers: []
     }
 };
 
@@ -148,19 +205,19 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     throw new Error('You must select a corporation');
                 }
                 playerState.possibleCorporations = null; // no longer relevant
-                playerState.startingCards = null; // no longer relevant
-                playerState.corporation.gainResource?.forEach(resource => {
-                    playerState.resources[resource]++;
-                });
-                playerState.corporation.removeResource?.forEach(resource => {
-                    playerState.resources[resource]--;
-                });
-                playerState.corporation.increaseProduction?.forEach(production => {
-                    playerState.productions[production]++;
-                });
-                playerState.corporation.decreaseProduction?.forEach(production => {
-                    playerState.productions[production]--;
-                });
+                // playerState.startingCards = null; // no longer relevant
+                // playerState.corporation.gainResource?.forEach(resource => {
+                //     playerState.resources[resource]++;
+                // });
+                // playerState.corporation.removeResources?.forEach(resource => {
+                //     playerState.resources[resource]--;
+                // });
+                // playerState.corporation.increaseProduction?.forEach(production => {
+                //     playerState.productions[production]++;
+                // });
+                // playerState.corporation.decreaseProduction?.forEach(production => {
+                //     playerState.productions[production]--;
+                // });
                 playerState.playedCards.push(playerState.corporation);
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
