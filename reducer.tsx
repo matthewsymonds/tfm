@@ -205,19 +205,22 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     throw new Error('You must select a corporation');
                 }
                 playerState.possibleCorporations = null; // no longer relevant
-                // playerState.startingCards = null; // no longer relevant
-                // playerState.corporation.gainResource?.forEach(resource => {
-                //     playerState.resources[resource]++;
-                // });
-                // playerState.corporation.removeResources?.forEach(resource => {
-                //     playerState.resources[resource]--;
-                // });
-                // playerState.corporation.increaseProduction?.forEach(production => {
-                //     playerState.productions[production]++;
-                // });
-                // playerState.corporation.decreaseProduction?.forEach(production => {
-                //     playerState.productions[production]--;
-                // });
+                playerState.startingCards = null; // no longer relevant
+                const {corporation} = playerState;
+                for (const resource in corporation.gainResource) {
+                    playerState.resources[resource] += corporation.gainResource[resource];
+                }
+                for (const resource in corporation.removeResources) {
+                    playerState.resources[resource] -= corporation.removeResources[resource];
+                }
+                for (const production in corporation.increaseProduction) {
+                    playerState.productions[production] +=
+                        corporation.increaseProduction[production];
+                }
+                for (const production in corporation.decreaseProduction) {
+                    playerState.productions[production] -=
+                        corporation.decreaseProduction[production];
+                }
                 playerState.playedCards.push(playerState.corporation);
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;

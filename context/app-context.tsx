@@ -25,11 +25,11 @@ function canAfford(card: Card, state: RootState) {
     cost -= discounts.card;
 
     for (const tag of card.tags) {
-        cost -= discounts.tags[tag];
+        cost -= discounts.tags[tag] || 0;
     }
 
     for (const tag of [...new Set(card.tags)]) {
-        cost -= discounts.cards[tag];
+        cost -= discounts.cards[tag] || 0;
     }
 
     cost -= discounts.nextCardThisGeneration;
