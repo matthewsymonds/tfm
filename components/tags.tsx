@@ -30,122 +30,48 @@ interface TagsComponentProps {
     tags: Tag[];
 }
 
-const {
-    ANIMAL,
-    BUILDING,
-    CITY,
-    EARTH,
-    POWER,
-    EVENT,
-    JOVIAN,
-    MICROBE,
-    PLANT,
-    SCIENCE,
-    SPACE,
-    VENUS
-} = Tag;
-
-function getIcon(tag: Tag) {
-    switch (tag) {
-        case ANIMAL:
-            return '🐶';
-        case BUILDING:
-            return '🏛️';
-        case CITY:
-            return '🌆';
-        case EARTH:
-            return '🌎';
-        case POWER:
-            return '⚡';
-        case EVENT:
-            return '⬇️';
-        case JOVIAN:
-            return 'J';
-        case MICROBE:
-            return '🐛';
-        case PLANT:
-            return '🍂';
-        case SCIENCE:
-            return '⚛️';
-        case SPACE:
-            return '✴️';
-        case VENUS:
-            return 'V';
-    }
+interface TagProps {
+    icon: string;
+    color: string;
+    backgroundColor: string;
+    outerBackgroundColor?: string;
 }
 
-export const getTagColor = (tag: Tag) => {
-    switch (tag) {
-        case Tag.ANIMAL:
-            return 'brown';
-        case Tag.BUILDING:
-            return 'brown';
-        case Tag.CITY:
-            return '#333333';
-        case Tag.EARTH:
-            return 'darkgreen';
-        case Tag.POWER:
-            return 'white';
-        case Tag.EVENT:
-            return 'gold';
-        case Tag.JOVIAN:
-            return 'purple';
-        case Tag.MICROBE:
-            return 'green';
-        case Tag.PLANT:
-            return 'darkgreen';
-        case Tag.SCIENCE:
-            return 'white';
-        case Tag.SPACE:
-            return 'white';
-        case Tag.VENUS:
-            return 'lightblue';
-    }
+const dict = {
+    [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen'],
+    [Tag.BUILDING]: ['🏛️', 'brown', '#d7d7d7'],
+    [Tag.CITY]: ['🌆', '#333333', '#C8B3C5'],
+    [Tag.EARTH]: ['🌎', 'darkgreen', 'lightblue', 'black'],
+    [Tag.POWER]: ['⚡', 'white', 'purple'],
+    [Tag.EVENT]: ['⬇️', 'gold', 'black'],
+    [Tag.JOVIAN]: ['J', 'purple', 'darkgray'],
+    [Tag.MICROBE]: ['🐛', 'green', 'white'],
+    [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen'],
+    [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray'],
+    [Tag.SPACE]: ['✴️', 'white', 'black'],
+    [Tag.VENUS]: ['V', 'lightblue', 'lightblue']
 };
 
-export const getTagBackgroundColor = (tag: Tag) => {
-    switch (tag) {
-        case Tag.ANIMAL:
-            return 'darkgreen';
-        case Tag.BUILDING:
-            return '#d7d7d7';
-        case Tag.CITY:
-            return '#C8B3C5';
-        case Tag.EARTH:
-            return 'lightblue';
-        case Tag.POWER:
-            return 'purple';
-        case Tag.EVENT:
-            return 'black';
-        case Tag.JOVIAN:
-            return 'darkgray';
-        case Tag.MICROBE:
-            return 'white';
-        case Tag.PLANT:
-            return 'lightgreen';
-        case Tag.SCIENCE:
-            return 'darkgray';
-        case Tag.SPACE:
-            return 'black';
-        case Tag.VENUS:
-            return 'lightblue';
-    }
-};
+function getTagProps(tag: Tag): TagProps {
+    const [icon, color, backgroundColor, outerBackgroundColor] = dict[tag];
 
-export const getOuterBackgroundColor = (tag: Tag) => {
-    switch (tag) {
-        case Tag.EARTH:
-            return 'black';
-    }
-    return '';
-};
+    return {
+        icon,
+        color,
+        backgroundColor,
+        outerBackgroundColor
+    };
+}
 
 export const TagsComponent = (props: TagsComponentProps) => (
     <TagsBase>
-        {props.tags.map((tag, index) => (
-            <TagBase color={getTagColor(tag)} background={getTagBackgroundColor(tag)} key={index}>
-                {getIcon(tag)}
-            </TagBase>
-        ))}
+        {props.tags.map((tag, index) => {
+            const tagProps = getTagProps(tag);
+            return (
+                <TagBase color={tagProps.color} background={tagProps.backgroundColor} key={index}>
+                    <div>{tagProps.icon}</div>
+                </TagBase>
+            );
+        })}
     </TagsBase>
 );

@@ -43,6 +43,7 @@ export const ActiveRound = ({playerId}: {playerId: number}) => {
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => (
                         <ResourceBoardCell
+                            key={resourceType}
                             resource={resourceType}
                             production={productions[resourceType]}
                             amount={resources[resourceType]}
@@ -52,6 +53,7 @@ export const ActiveRound = ({playerId}: {playerId: number}) => {
                 <ResourceBoardRow>
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resourceType => (
                         <ResourceBoardCell
+                            key={resourceType}
                             resource={resourceType}
                             production={productions[resourceType]}
                             amount={resources[resourceType]}
@@ -63,7 +65,7 @@ export const ActiveRound = ({playerId}: {playerId: number}) => {
             <Hand>
                 {cards.map((card, index) => {
                     return (
-                        <CardComponent content={card} width={250}>
+                        <CardComponent content={card} width={250} key={card.name}>
                             <Button
                                 onClick={() => {
                                     const [canPlayCard, message] = context.canPlayCard(card, state);
