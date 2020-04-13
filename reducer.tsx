@@ -1,8 +1,8 @@
 import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
-import {GameStage} from './constants/game';
-import {INITIAL_BOARD_STATE, TileType, Parameter, Board} from './constants/board';
+import {GameStage, MAX_PARAMETERS} from './constants/game';
+import {INITIAL_BOARD_STATE, TileType, Parameter, Board, TilePlacement} from './constants/board';
 import {
     SET_CORPORATION,
     GO_TO_GAME_STAGE,

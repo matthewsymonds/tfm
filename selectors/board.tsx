@@ -8,7 +8,6 @@ import {
     SpecialLocation,
     cellHelpers
 } from '../constants/board';
-import {Card} from '../models/card';
 
 function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     if (!cell.coords) {
@@ -51,7 +50,7 @@ function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     neighborCoords.forEach(([neighborRowIndex, neighborCellIndex]) => {
         if (
             state.common.board[neighborRowIndex] &&
-            this.common.board[neighborRowIndex][neighborCellIndex]
+            state.common.board[neighborRowIndex][neighborCellIndex]
         ) {
             validNeighborCells.push(state.common.board[neighborRowIndex][neighborCellIndex]);
         }

@@ -69,13 +69,13 @@ export enum Parameter {
     TERRAFORM_RATING = 'terraformRating'
 }
 
-export interface TilePlacement {
+export type TilePlacement = {
     type: TileType;
     placementRequirement: PlacementRequirement;
     // By default, cards can be played even if the tile they would place cannot be played.
     // This behavior is overridden for asterisked cards (e.g. Urbanized Area).
     isRequired: boolean;
-}
+};
 
 export const t = (
     type: TileType,
@@ -87,39 +87,19 @@ export const t = (
     isRequired
 });
 
-export class Tile {
-    cell?: Cell;
-    constructor(readonly ownerPlayerIndex: number, readonly type: TileType) {}
-}
+export type Tile = {
+    ownerPlayerIndex: number;
+    type: TileType;
+};
 
-// export type Tile = {
-//     cellId: number;
-//     ownerPlayerIndex: number;
-//     type: TileType;
-// };
-
-// export interface Cell {
-//     tileId?: number;
-//     coords?: [number, number];
-//     landClaimedBy: number | null;
-//     type: CellType;
-//     bonus: Resource[];
-//     specialLocation: SpecialLocation;
-// }
-
-export class Cell {
+export type Cell = {
+    type: CellType;
     tile?: Tile;
-    coords?: [number, number]; // this should be set in the constructor, but we'll need to refactor the land and water helpers
-    landClaimedBy: number | null;
-
-    constructor(
-        readonly type: CellType,
-        readonly bonus: Resource[] = [],
-        readonly specialLocation?: SpecialLocation
-    ) {
-        this.landClaimedBy = null;
-    }
-}
+    coords?: [number, number];
+    landClaimedBy?: number;
+    bonus?: Resource[];
+    specialLocation?: SpecialLocation;
+};
 
 export const cellHelpers = {
     onMars(cell: Cell): boolean {
@@ -134,47 +114,44 @@ export const cellHelpers = {
         return !cell.tile;
     },
 
-    hasAttribute(cell: Cell, attribute: CellAttribute) {
+    hasAttribute(cell: Cell, attribute: CellAttribute): boolean {
         switch (attribute) {
             case CellAttribute.RESERVED_FOR_CITY:
-                return cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation);
+                return (
+                    (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) ??
+                    false
+                );
             case CellAttribute.RESERVED_FOR_OCEAN:
                 return cell.type === CellType.WATER;
             case CellAttribute.VOLCANIC:
-                return cell.specialLocation && cell.specialLocation === SpecialLocation.VOLCANIC;
+                return (
+                    (cell.specialLocation && cell.specialLocation === SpecialLocation.VOLCANIC) ??
+                    false
+                );
             case CellAttribute.HAS_STEEL:
-                return cell.bonus.includes(Resource.STEEL);
+                return cell.bonus?.includes(Resource.STEEL) ?? false;
             case CellAttribute.HAS_TITANIUM:
-                return cell.bonus.includes(Resource.TITANIUM);
+                return cell.bonus?.includes(Resource.TITANIUM) ?? false;
             default:
                 return false;
         }
     }
 };
 
-class Land extends Cell {
-    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
-        super(CellType.LAND, bonus, specialLocation);
-    }
-}
-
-class Water extends Cell {
-    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
-        super(CellType.WATER, bonus, specialLocation);
-    }
-}
-
-class OffMars extends Cell {
-    constructor(bonus: Resource[] = [], specialLocation?: SpecialLocation) {
-        super(CellType.OFF_MARS, bonus, specialLocation);
-    }
-}
-
-const land = (bonus?: Resource[], specialLocation?: SpecialLocation): Land =>
-    new Land(bonus, specialLocation);
-const water = (bonus?: Resource[]): Water => new Water(bonus);
-const offMars = (bonus?: Resource[], specialLocation?: SpecialLocation): OffMars =>
-    new OffMars(bonus, specialLocation);
+const land = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+    type: CellType.LAND,
+    bonus,
+    specialLocation
+});
+const water = (bonus?: Resource[]): Cell => ({
+    type: CellType.WATER,
+    bonus
+});
+const offMars = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+    type: CellType.OFF_MARS,
+    bonus,
+    specialLocation
+});
 
 const INITIAL_BOARD_STATE: Cell[][] = [
     [
