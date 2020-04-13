@@ -4,8 +4,8 @@ import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {RootState, PlayerState} from '../reducer';
 import {getLoggedInPlayer} from '../selectors/players';
+import {getValidPlacementsForRequirement} from '../selectors/board';
 import {MinimumProductions} from '../constants/game';
-import {Location} from '../constants/board';
 
 import {
     payToPlayCard,
@@ -123,53 +123,10 @@ function meetsProductionRequirements(card: Card, state: RootState) {
 function meetsTilePlacementRequirements(card: Card, state: RootState): boolean {
     if (!card.tilePlacements) return true;
 
-    for (const tilePlacement of card.tilePlacements) {
-        if (!tilePlacement.isRequired || !tilePlacement.location) continue;
-
-        const location = tilePlacement.location;
-        switch (location as Location) {
-            case Location.CITY_ADJACENT:
-                // getAllCitiesOnMars(board).forEach(cityLocation => {
-                //     return getAdjacentHexes(cityLocation).some(l => l.isEmpty && l.isNonReserved)
-                // })
-                continue;
-            case Location.DOUBLE_CITY_ADJACENT:
-            // getAllCitiesOnMars(board).forEach(() => {
-            // const adjacentHexes = getAdjacentHexes(cityLocation).forEach(adjacentHexToCity => {
-            // return true if getAdjacentHexes(adjacentHexToCity) contains 2 cities and is non reserved
-            // });
-            // })
-            case Location.GREENERY_ADJACENT:
-            // getAllGreeneries(board).forEach(() => {
-            //     return getAdjacentHexes(greeneryLocation).some(l => l.isEmpty && l.isNonReserved)
-            // })
-            case Location.ISOLATED:
-                // board.allLocations.some(location => getAjdacentHexes(location).every(adj => adj.isEmpty))
-                // Only noctis can go on noctis
-                continue;
-            case Location.NON_RESERVED:
-            // board.allLocations.some(location => location.isNonReserved)
-            case Location.NOT_RESERVED_FOR_OCEAN:
-            // board.allLocations.some(location => location.isNonReserved)
-            case Location.VOLCANIC:
-            // getVolcanicTiles(board).some(location => location.isEmpty)
-            case Location.STEEL_OR_TITANIUM:
-            // getSteelOrTitaniumLocations(board).some(location => location.isEmpty && isNonReserved)
-            case Location.STEEL_OR_TITANIUM_PLAYER_ADJACENT:
-            // getOccupiedHexesForPlayer(currentplayer, board).some(occupiedHex => {
-            //     getAdjacentHex(occupiedHex).some(adj => adj.isEmpty && isNonReserved && hasSteelOrTitanium)
-            // })
-            case Location.RESERVED_FOR_OCEAN:
-                // getReservedForOceanHexes(board).some(hex => hex.isEmpty && isNonReserved)
-                break;
-            case Location.PHOBOS:
-            case Location.NOCTIS:
-            case Location.GANYMEDE:
-                // Only can be occupied using these cards
-                continue;
-            default:
-                throw new Error('case not handled');
-        }
+    for (const {isRequired, placementRequirement} of card.tilePlacements) {
+        if (!isRequired || !placementRequirement) continue;
+        const possiblePlacements = getValidPlacementsForRequirement(state, placementRequirement);
+        if (possiblePlacements.length === 0) return false;
     }
 
     return true;

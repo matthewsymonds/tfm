@@ -116,7 +116,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CAPITAL, PlacementRequirement.CITY_NON_ADJACENT)],
+        tilePlacements: [t(TileType.CAPITAL, PlacementRequirement.CITY)],
         decreaseProduction: [Resource.ENERGY],
         increaseProduction: [
             Resource.MEGACREDIT,
@@ -147,7 +147,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: [Parameter.TEMPERATURE],
-        tilePlacements: [t(TileType.OCEAN)],
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
         removeAnyResource: [Resource.PLANT]
     },
     {
@@ -218,7 +218,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         gainResource: [Resource.PLANT, Resource.PLANT, Resource.PLANT],
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY_NON_ADJACENT)],
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
         decreaseProduction: [Resource.ENERGY],
         increaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT]
     },
@@ -232,7 +232,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         decreaseProduction: [Resource.ENERGY],
         increaseParameter: Array(3).fill(Resource.MEGACREDIT),
-        tilePlacements: [t(TileType.NOCTIS, PlacementRequirement.NOCTIS)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.NOCTIS, true)]
     },
     {
         cost: 28,
@@ -271,7 +271,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place a city tile NEXT TO NO OTHER TILE.',
         tags: [Tag.BUILDING, Tag.CITY, Tag.SCIENCE],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.ISOLATED)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.ISOLATED, true)]
     },
     {
         cost: 25,
@@ -283,7 +283,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 3,
         increaseProduction: [Resource.TITANIUM],
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.PHOBOS)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.PHOBOS, true)]
     },
     {
         cost: 15,
@@ -293,7 +293,7 @@ export const cardConfigs: CardConfig[] = [
             'Place an ocean tile. Decrease your MC production 2 steps and increase your heat production 3 steps.',
         tags: [],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.OCEAN)],
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
         decreaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT],
         increaseProduction: Array(3).fill(Resource.HEAT)
     },
@@ -390,7 +390,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY)],
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
         decreaseProduction: [Resource.ENERGY],
         increaseProduction: Array(3).fill(Resource.MEGACREDIT)
     },
@@ -430,7 +430,7 @@ export const cardConfigs: CardConfig[] = [
             'Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY)],
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
         decreaseProduction: [Resource.ENERGY, Resource.ENERGY],
         increaseProduction: [Resource.STEEL, Resource.STEEL]
     },
@@ -588,7 +588,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.NATURAL_PRESERVE, PlacementRequirement.ISOLATED)],
+        tilePlacements: [t(TileType.NATURAL_PRESERVE, PlacementRequirement.ISOLATED, true)],
         increaseProduction: [Resource.MEGACREDIT]
     },
     {
@@ -706,7 +706,10 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)]
+        tilePlacements: [
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
+        ]
     },
     {
         actionOrEffectText: 'Action: Add 1 animal to this card.',
@@ -790,7 +793,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN, true)]
     },
     {
         cost: 13,
@@ -849,7 +852,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         tilePlacements: [
-            t(TileType.MINING, PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT)
+            t(TileType.MINING, PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT, true)
         ],
         get increaseProduction() {
             if (!this.state) return [];
@@ -879,8 +882,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Land Claim',
         oneTimeText: 'Place your marker on a non-reserved area. Only you may place a tile here',
         tags: [Tag.EVENT],
-        type: CardType.EVENT,
-        tilePlacements: [t(TileType.LAND_CLAIM, PlacementRequirement.NON_RESERVED)]
+        type: CardType.EVENT
     },
     {
         cost: 9,
@@ -890,7 +892,7 @@ export const cardConfigs: CardConfig[] = [
             'Place [the mining] tile on an area with a steel or titanium placement bonus. Increase that production 1 step.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.MINING, PlacementRequirement.STEEL_OR_TITANIUM)]
+        tilePlacements: [t(TileType.MINING, PlacementRequirement.STEEL_OR_TITANIUM, true)]
     },
     {
         cost: 6,
@@ -987,7 +989,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         gainResource: [Resource.PLANT, Resource.PLANT],
         increaseParameter: [Parameter.OXYGEN],
-        tilePlacements: [t(TileType.OCEAN)]
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
     },
     {
         actionOrEffectText: 'Action: Spend 7MC to increase your energy production 1 step.',
@@ -1014,7 +1016,10 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place 2 ocean tiles.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)]
+        tilePlacements: [
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
+        ]
     },
     {
         actionOrEffectText: 'Effect: When you play a space card, you pay 2 MC less for it',
@@ -1035,7 +1040,10 @@ export const cardConfigs: CardConfig[] = [
             'Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any plyer.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
+        tilePlacements: [
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
+            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
+        ],
         increaseParameter: [Parameter.TEMPERATURE, Parameter.TEMPERATURE],
         removeAnyResource: Array(6).fill(Resource.PLANT)
     },
@@ -1047,7 +1055,7 @@ export const cardConfigs: CardConfig[] = [
             'Place a city tile ON THE RESERVED AREA [for Ganymede Colony]. 1 VP per Jovian tag you have.',
         tags: [Tag.CITY, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.GANYMEDE)],
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.GANYMEDE, true)],
         get victoryPoints() {
             if (!this.state) return [];
             return this.state.tags.filter(tag => tag === Tag.JOVIAN).length;
@@ -1459,7 +1467,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.NOT_RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.NOT_RESERVED_FOR_OCEAN, true)]
     },
     {
         cost: 11,
@@ -1512,7 +1520,7 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 1 step and increase your MC production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.DOUBLE_CITY_ADJACENT)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.DOUBLE_CITY_ADJACENT, true)]
     },
     {
         cost: 1,
@@ -1545,7 +1553,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place [the Industrial Center] tile ADJACENT TO A CITY TILE.',
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.INDUSTRIAL_CENTER, PlacementRequirement.CITY_ADJACENT)]
+        tilePlacements: [t(TileType.INDUSTRIAL_CENTER, PlacementRequirement.CITY_ADJACENT, true)]
     },
     {
         cost: 1,
@@ -1590,7 +1598,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place 1 ocean tile.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN)]
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
     },
     {
         actionOrEffectText:
@@ -1608,7 +1616,7 @@ export const cardConfigs: CardConfig[] = [
         effect(effect) {
             effect.gainResource(Resource.ANIMAL, 1, this);
         },
-        tilePlacements: [t(TileType.ECOLOGICAL_ZONE, PlacementRequirement.GREENERY_ADJACENT)]
+        tilePlacements: [t(TileType.ECOLOGICAL_ZONE, PlacementRequirement.GREENERY_ADJACENT, true)]
     },
     {
         cost: 13,
@@ -1783,7 +1791,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: [Parameter.TEMPERATURE, Parameter.TEMPERATURE],
-        tilePlacements: [t(TileType.LAVA_FLOW, PlacementRequirement.VOLCANIC)]
+        tilePlacements: [t(TileType.LAVA_FLOW, PlacementRequirement.VOLCANIC, true)]
     },
     {
         cost: 4,
@@ -1802,7 +1810,7 @@ export const cardConfigs: CardConfig[] = [
             'Increase your heat production 4 steps. Place [the Mohole Area] tile ON AN AREA RESERVED FOR OCEAN.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.MOHOLE_AREA, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.MOHOLE_AREA, PlacementRequirement.RESERVED_FOR_OCEAN, true)]
     },
     {
         cost: 36,
@@ -1813,7 +1821,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         victoryPoints: 2,
-        tilePlacements: [t(TileType.OCEAN)],
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
         gainResource: [Resource.CARD, Resource.CARD],
         gainResourceOption: [Array(5).fill(Resource.PLANT), Array(4).fill(Resource.ANIMAL)]
     },
@@ -2029,7 +2037,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place 1 ocean tile and draw 1 card.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN)],
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
         gainResource: [Resource.CARD]
     },
     {
@@ -2282,12 +2290,12 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN)]
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
     },
     {
         cost: 11,
         deck: Deck.CORPORATE,
-        name: 'CORPORATE Stronghold',
+        name: 'Corporate Stronghold',
         oneTimeText:
             'Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
@@ -2295,7 +2303,7 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: -2,
         decreaseProduction: [Resource.ENERGY],
         increaseProduction: [Resource.MEGACREDIT, Resource.MEGACREDIT, Resource.MEGACREDIT],
-        tilePlacements: [t(TileType.CITY)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)]
     },
     {
         cost: 4,
@@ -2416,7 +2424,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN)]
+        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
     },
     {
         cost: 2,
@@ -2435,7 +2443,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.GREENERY)]
+        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.GREENERY)]
     },
     {
         actionOrEffectText: 'Action: Spend any amount of energy to gain that amount of MC.',
@@ -2502,7 +2510,7 @@ export const cardConfigs: CardConfig[] = [
         oneTimeText: 'Place [the restricted area] tile.',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.RESTRICTED_AREA)]
+        tilePlacements: [t(TileType.RESTRICTED_AREA, PlacementRequirement.NON_RESERVED)]
     },
     {
         actionOrEffectText:
@@ -2517,7 +2525,7 @@ export const cardConfigs: CardConfig[] = [
         condition: condition => condition.tileType === TileType.CITY,
         effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1),
         decreaseProduction: [Resource.ENERGY, Resource.MEGACREDIT, Resource.MEGACREDIT],
-        tilePlacements: [t(TileType.CITY)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)]
     },
     {
         cost: 3,
