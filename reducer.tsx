@@ -1,16 +1,25 @@
 import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
-import {GameStage} from './constants/game';
-import {INITIAL_BOARD_STATE, TileType, Board, Parameter} from './constants/board';
+import {GameStage, MAX_PARAMETERS} from './constants/game';
+import {INITIAL_BOARD_STATE, TileType, Board, Parameter, TilePlacement} from './constants/board';
 import {
     SET_CORPORATION,
-    SET_CARDS,
     GO_TO_GAME_STAGE,
-    PAY_FOR_CARD,
-    CHANGE_RESOURCE,
-    GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS,
-    CONFIRM_CORPORATION_AND_CARDS
+    REVEAL_AND_DISCARD_TOP_CARD,
+    DRAW_CARDS,
+    PAY_FOR_CARDS,
+    DECREASE_PRODUCTION,
+    INCREASE_PRODUCTION,
+    REMOVE_RESOURCE,
+    GAIN_RESOURCE,
+    MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
+    ASK_USER_TO_PLACE_TILE,
+    PAY_TO_PLAY_CARD,
+    PLACE_TILE,
+    INCREASE_PARAMETER,
+    SET_CARDS,
+    DISCARD_CARDS
 } from './actions';
 import {CardConfig, Deck, CardType, Tag} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -73,9 +82,13 @@ export type Resources = {
 type PlayerId = number;
 
 export type GameState = {
+    queuePaused: boolean;
     loggedInPlayerIndex: number;
     players: Array<PlayerState>;
     common: {
+        deck: Card[];
+        discardPile: Card[];
+        revealedCard?: Card;
         gameStage: GameStage;
         generation: number;
         round: number;
@@ -98,9 +111,11 @@ export type GameState = {
 
 export type PlayerState = {
     index: number;
+    terraformRating: number;
+    tilePlacement?: TilePlacement;
     playerIndex: number;
     corporation: null | Card;
-    startingCards: null | Card[];
+    possibleCards: Card[];
     possibleCorporations: null | Card[];
     cards: Card[];
     playedCards: Card[];
@@ -134,12 +149,15 @@ export type Discounts = {
 };
 
 const INITIAL_STATE: GameState = {
+    queuePaused: false,
     loggedInPlayerIndex: 0,
     common: {
+        discardPile: [],
         gameStage: GameStage.CORPORATION_SELECTION,
         generation: 0,
         round: 0,
         turn: 0,
+        deck: [],
         parameters: {
             [Parameter.OCEAN]: 0,
             [Parameter.OXYGEN]: 0,
@@ -153,10 +171,10 @@ const INITIAL_STATE: GameState = {
     players: [
         {
             index: 0,
+            terraformRating: 20,
             playerIndex: 0,
             corporation: null,
-            // TODO: should this be replaced with "possibleCards", and recycled between rounds?
-            startingCards,
+            possibleCards: startingCards,
             possibleCorporations,
             cards: [],
             playedCards: [],
@@ -196,51 +214,70 @@ const INITIAL_STATE: GameState = {
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
     return produce(state, draft => {
+        const player = draft.players[payload?.playerIndex];
         switch (action.type) {
             case SET_CORPORATION:
-                draft.players[payload.playerId].corporation = payload.corporation;
+                player.corporation = payload.corporation;
+                break;
+            case PAY_FOR_CARDS:
+                player.resources[Resource.MEGACREDIT] -= action.payload.cards.length * 3;
+                break;
+            case REVEAL_AND_DISCARD_TOP_CARD:
+                draft.common.revealedCard = draft.common.deck.pop();
                 break;
             case SET_CARDS:
-                draft.players[payload.playerId].cards = action.payload.cards;
+                player.cards = action.payload.cards;
                 break;
-            case CONFIRM_CORPORATION_AND_CARDS:
-                const playerState = draft.players[payload.playerId];
-                if (!playerState.corporation) {
-                    throw new Error('You must select a corporation');
+            case DISCARD_CARDS:
+                draft.common.discardPile.push(...payload.cards);
+                player.cards = player.cards.filter(
+                    c => !payload.cards.map(cn => cn.name).includes(c.name)
+                );
+                break;
+            case DRAW_CARDS:
+                player.cards.push(...draft.common.deck.splice(0, payload.numCards));
+                break;
+            case DECREASE_PRODUCTION:
+                player.productions[payload.resource] -= payload.amount;
+                break;
+            case INCREASE_PRODUCTION:
+                player.productions[payload.resource] += payload.amount;
+                break;
+            case REMOVE_RESOURCE:
+                player.resources[payload.resource] -= payload.amount;
+                break;
+            case GAIN_RESOURCE:
+                player.resources[payload.resource] += payload.amount;
+                break;
+            case PAY_TO_PLAY_CARD:
+                player.resources[Resource.MEGACREDIT] -= payload.card.cost;
+                break;
+            case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
+                player.cards = player.cards.filter(c => c.name !== payload.card.name);
+                player.playedCards.push(payload.card);
+                break;
+            case ASK_USER_TO_PLACE_TILE:
+                player.tilePlacement = payload.tilePlacement;
+                break;
+            case PLACE_TILE:
+                break;
+            case INCREASE_PARAMETER:
+                const {parameter, amount} = payload;
+                if (parameter === Parameter.TERRAFORM_RATING) {
+                    player.terraformRating += amount;
+                    break;
                 }
-                playerState.possibleCorporations = null; // no longer relevant
-                playerState.startingCards = null; // no longer relevant
-                const {corporation} = playerState;
-                for (const resource in corporation.gainResource) {
-                    playerState.resources[resource] += corporation.gainResource[resource];
-                }
-                for (const resource in corporation.removeResources) {
-                    playerState.resources[resource] -= corporation.removeResources[resource];
-                }
-                for (const production in corporation.increaseProduction) {
-                    playerState.productions[production] +=
-                        corporation.increaseProduction[production];
-                }
-                for (const production in corporation.decreaseProduction) {
-                    playerState.productions[production] -=
-                        corporation.decreaseProduction[production];
-                }
-                const {cards} = draft.players[payload.playerId];
-                playerState.resources[Resource.MEGACREDIT] -= cards.length * 3;
-                playerState.playedCards.push(playerState.corporation);
+                const scale = 1 + Number(parameter === Parameter.TEMPERATURE);
+                const increase = amount * scale;
+                const startingAmount = draft.common.parameters[parameter];
+                const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
+                const userTerraformRatingChange = (newAmount - startingAmount) / scale;
+                draft.common.parameters[parameter] = newAmount;
+                player.terraformRating += userTerraformRatingChange;
+                break;
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
                 break;
-            // could this be generalized to GAIN_ONE_RESOURCE_PER_CONDITION(resource, condition)
-            // case GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS:
-            //     const citiesOnMars = getCitiesOnMars(state.board);
-            //     draft.resources[Resource.MEGACREDIT] += citiesOnMars;
-            // case CHANGE_RESOURCE:
-            //     draft.resources[action.payload.resource] +=
-            //         action.payload.amount;
-            case PAY_FOR_CARD:
-                draft.transaction.isPending = true;
-                draft.transaction.pendingPlayers = [payload.playerId];
             default:
                 return draft;
         }

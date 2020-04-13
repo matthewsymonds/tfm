@@ -39,11 +39,11 @@ export enum Location {
 }
 
 export enum Parameter {
-    TEMPERATURE,
-    OCEAN,
-    OXYGEN,
-    VENUS,
-    TERRAFORM_RATING // Remove
+    TEMPERATURE = 'temperature',
+    OCEAN = 'ocean',
+    OXYGEN = 'oxygen',
+    VENUS = 'venus',
+    TERRAFORM_RATING = 'terraformRating'
 }
 
 export interface TilePlacement {
@@ -68,7 +68,7 @@ export class Tile {
     }
 }
 
-class Cell {
+export class Cell {
     onMars: boolean = false;
 
     tile?: Tile;

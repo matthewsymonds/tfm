@@ -6,6 +6,17 @@ import {RootState, PlayerState} from '../reducer';
 import {getLoggedInPlayer} from '../selectors/players';
 import {MinimumProductions} from '../constants/game';
 
+import {
+    payToPlayCard,
+    decreaseProduction,
+    increaseProduction,
+    removeResource,
+    increaseParameter,
+    gainResource,
+    moveCardFromHandToPlayArea
+} from '../actions';
+import {Parameter} from '../constants/board';
+
 function canAfford(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
     let {cost = 0} = card;
@@ -144,12 +155,60 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
     return [true, 'Good to go'];
 }
 
-function playCard(card: Card, dispatch: Function, state: RootState) {}
+function playCard(card: Card, state: RootState) {
+    const playerIndex = state.loggedInPlayerIndex;
+    if (card.cost) {
+        this.queue.push(payToPlayCard(card, playerIndex));
+    }
+
+    for (const resource in card.decreaseProduction) {
+        this.queue.push(
+            decreaseProduction(resource as Resource, card.decreaseProduction[resource], playerIndex)
+        );
+    }
+
+    for (const resource in card.increaseProduction) {
+        this.queue.push(
+            increaseProduction(resource as Resource, card.increaseProduction[resource], playerIndex)
+        );
+    }
+
+    for (const resource in card.removeResources) {
+        this.queue.push(
+            removeResource(resource as Resource, card.removeResources[resource], playerIndex)
+        );
+    }
+
+    for (const resource in card.gainResource) {
+        this.queue.push(
+            gainResource(resource as Resource, card.gainResource[resource], playerIndex)
+        );
+    }
+
+    for (const parameter in card.increaseParameter) {
+        this.queue.push(
+            increaseParameter(
+                parameter as Parameter,
+                card.increaseParameter[parameter],
+                playerIndex
+            )
+        );
+    }
+
+    this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
+}
+
+function processQueue(dispatch: Function) {
+    while (this.queue.length > 0) {
+        dispatch(this.queue.shift());
+    }
+}
 
 export const ctx = {
     queue: [],
     canPlayCard,
-    playCard
+    playCard,
+    processQueue
 };
 
 export const AppContext = createContext(ctx);

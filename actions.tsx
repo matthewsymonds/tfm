@@ -2,15 +2,13 @@ import {GameStage} from './constants/game';
 import {Tag} from './constants/card-types';
 import {Card} from './models/card';
 import {Resource} from './constants/resource';
+import {TilePlacement, Tile, Cell, Parameter} from './constants/board';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
-export const setCorporation = (corporation, playerId) => ({
+export const setCorporation = (corporation: Card, playerIndex: number) => ({
     type: SET_CORPORATION,
-    payload: {corporation, playerId}
+    payload: {corporation, playerIndex}
 });
-
-export const SET_CARDS = 'SET_CARDS';
-export const setCards = (cards, playerId) => ({type: SET_CARDS, payload: {cards, playerId}});
 
 export const GO_TO_GAME_STAGE = 'GO_TO_GAME_STAGE';
 export const goToGameStage = (stage: GameStage) => ({
@@ -23,46 +21,80 @@ export const revealAndDiscardTopCard = () => ({
     type: REVEAL_AND_DISCARD_TOP_CARD
 });
 
-export const ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG = 'ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG';
-
-export const addResourceIfRevealedCardHasTag = (
-    cardName: string,
-    resource: Resource,
-    tag: Tag
-) => ({
-    type: ADD_RESOURCE_IF_REVEALED_CARD_HAS_TAG,
-    payload: {
-        cardName,
-        resource,
-        tag
-    }
+export const DISCARD_CARDS = 'DISCARD_CARDS';
+export const discardCards = (cards: Card[], playerIndex: number) => ({
+    type: DISCARD_CARDS,
+    payload: {cards, playerIndex}
 });
 
-export const CHANGE_RESOURCE = 'CHANGE_RESOURCE';
-export const changeResource = (resource: Resource, amount: number) => {
-    return {
-        type: CHANGE_RESOURCE,
-        payload: {
-            resource,
-            amount
-        }
-    };
-};
-
-export const GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS = 'GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS';
-export const gainOneMegacreditPerCityOnMars = () => {
-    return {
-        type: GAIN_ONE_MEGACREDIT_PER_CITY_ON_MARS
-    };
-};
-export const CONFIRM_CORPORATION_AND_CARDS = 'CONFIRM_CORPORATION_AND_CARDS';
-export const confirmCorporationAndCards = (playerId: number) => ({
-    type: CONFIRM_CORPORATION_AND_CARDS,
-    payload: {playerId}
+export const SET_CARDS = 'SET_CARDS';
+export const setCards = (cards: Card[], playerIndex: number) => ({
+    type: SET_CARDS,
+    payload: {cards, playerIndex}
 });
 
-export const PAY_FOR_CARD = 'PAY_FOR_CARD';
-export const payForCard = (card: Card, playerId: number) => ({
-    type: PAY_FOR_CARD,
-    payload: {card, playerId}
+export const DRAW_CARDS = 'DRAW_CARDS';
+export const drawCards = (numCards: number, playerIndex: number) => ({
+    type: DRAW_CARDS,
+    payload: {numCards, playerIndex}
+});
+
+export const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
+export const payForCards = (cards: Card[], playerIndex: number) => ({
+    type: PAY_FOR_CARDS,
+    payload: {cards, playerIndex}
+});
+
+export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
+export const decreaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
+    type: DECREASE_PRODUCTION,
+    payload: {resource, amount, playerIndex}
+});
+
+export const INCREASE_PRODUCTION = 'INCREASE_PRODUCTION';
+export const increaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
+    type: INCREASE_PRODUCTION,
+    payload: {resource, amount, playerIndex}
+});
+
+export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
+export const removeResource = (resource: Resource, amount: number, playerIndex: number) => ({
+    type: REMOVE_RESOURCE,
+    payload: {resource, amount, playerIndex}
+});
+
+export const GAIN_RESOURCE = 'GAIN_RESOURCE';
+export const gainResource = (resource: Resource, amount: number, playerIndex: number) => ({
+    type: GAIN_RESOURCE,
+    payload: {resource, amount, playerIndex}
+});
+
+export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';
+export const payToPlayCard = (card: Card, playerIndex: number) => ({
+    type: PAY_TO_PLAY_CARD,
+    payload: {card, playerIndex}
+});
+
+export const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';
+export const moveCardFromHandToPlayArea = (card: Card, playerIndex: number) => ({
+    type: MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
+    payload: {card, playerIndex}
+});
+
+export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
+export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: string) => ({
+    type: ASK_USER_TO_PLACE_TILE,
+    payload: {playerIndex, tilePlacement}
+});
+
+export const PLACE_TILE = 'PLACE_TILE';
+export const placeTile = (tile: Tile, cell: Cell, playerIndex: number) => ({
+    type: PLACE_TILE,
+    payload: {tile, cell, playerIndex}
+});
+
+export const INCREASE_PARAMETER = 'INCREASE_PARAMETER';
+export const increaseParameter = (parameter: Parameter, amount: number, playerIndex: number) => ({
+    type: INCREASE_PARAMETER,
+    payload: {parameter, amount, playerIndex}
 });

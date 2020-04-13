@@ -29,7 +29,6 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     const canSelect = budget === undefined || budget >= 3;
 
     const handleSelect = (card: Card) => {
-        if (!canSelect) return;
         let newSelectedCards = [...selectedCards];
         const index = selectedCards.indexOf(card);
         if (index < 0) {

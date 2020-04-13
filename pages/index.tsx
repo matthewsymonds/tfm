@@ -8,9 +8,9 @@ export default function IndexReplacement() {
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
-            return <CorporationSelection playerId={0} />;
+            return <CorporationSelection playerIndex={0} />;
         case GameStage.ACTIVE_ROUND:
-            return <ActiveRound playerId={0} />;
+            return <ActiveRound playerIndex={0} />;
         default:
             return <span>All done!</span>;
     }

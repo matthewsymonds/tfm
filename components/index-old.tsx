@@ -111,7 +111,7 @@ export default {};
 
 // interface IndexProps {
 //     corporations: string[];
-//     startingCards: string[];
+//     possibleCards: string[];
 // }
 
 // export default function Index(props: IndexProps) {
@@ -127,9 +127,9 @@ export default {};
 //     const [round, setRound] = useState(0);
 //     const [turn, setTurn] = useState(0);
 
-//     const {corporations: corpNames, startingCards: startingCardNames} = props;
+//     const {corporations: corpNames, possibleCards: startingCardNames} = props;
 //     const corporations = getCardsFromNames(corpNames);
-//     const startingCards = getCardsFromNames(startingCardNames);
+//     const possibleCards = getCardsFromNames(startingCardNames);
 
 //     // Raw values
 //     const [megacredits, setMegacredits] = useState(0);
@@ -339,7 +339,7 @@ export default {};
 //             {gameStage === GameStage.DISCARD_THEN_DRAW && <div>Discard then draw</div>}
 //             {gameStage === GameStage.CORPORATIONSelection && (
 //                 <CORPORATION_SELECTION
-//                     startingCards={startingCards}
+//                     possibleCards={possibleCards}
 //                     corporations={corporations}
 //                     handleConfirm={handleConfirm}
 //                 />

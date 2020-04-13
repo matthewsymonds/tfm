@@ -2,7 +2,7 @@ import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from '../components/
 import styled from 'styled-components';
 import React, {useContext} from 'react';
 import {CardComponent} from './card';
-import {useDispatch, useStore} from 'react-redux';
+import {useDispatch, useStore, shallowEqual} from 'react-redux';
 import {AppContext} from '../context/app-context';
 import {useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
@@ -24,17 +24,16 @@ const Button = styled.button<ButtonProps>`
     margin: 0 auto;
 `;
 
-export const ActiveRound = ({playerId}: {playerId: number}) => {
-    const corporation = useTypedSelector(state => state.players[playerId].corporation);
-    const resources = useTypedSelector(state => state.players[playerId].resources);
-    const productions = useTypedSelector(state => state.players[playerId].productions);
-    const cards = useTypedSelector(state => state.players[playerId].cards);
+export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
+    const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
+    const resources = useTypedSelector(state => state.players[playerIndex].resources);
+    const productions = useTypedSelector(state => state.players[playerIndex].productions);
+    const cards = useTypedSelector(state => state.players[playerIndex].cards);
+    const playedCards = useTypedSelector(state => state.players[playerIndex].playedCards);
     const store = useStore<RootState>();
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-
-    console.log('here is context', context);
 
     return (
         <>
@@ -63,15 +62,16 @@ export const ActiveRound = ({playerId}: {playerId: number}) => {
             </ResourceBoard>
             <h3>Hand</h3>
             <Hand>
-                {cards.map((card, index) => {
+                {cards.map(card => {
+                    const [canPlay, reason] = context.canPlayCard(card, state);
                     return (
                         <CardComponent content={card} width={250} key={card.name}>
+                            {!canPlay && <em>{reason}</em>}
                             <Button
+                                disabled={!context.canPlayCard(card, state)[0]}
                                 onClick={() => {
-                                    const [canPlayCard, message] = context.canPlayCard(card, state);
-                                    console.log('heres card', card);
-                                    console.log('can play', canPlayCard);
-                                    console.log('why', message);
+                                    context.playCard(card, state);
+                                    context.processQueue(dispatch);
                                 }}>
                                 Play
                             </Button>
@@ -79,6 +79,11 @@ export const ActiveRound = ({playerId}: {playerId: number}) => {
                     );
                 })}
             </Hand>
+            <hr></hr>
+            <h3>Played cards</h3>
+            {playedCards.map(card => {
+                return <CardComponent content={card} width={250} key={card.name}></CardComponent>;
+            })}
         </>
     );
 };

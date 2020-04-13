@@ -1,4 +1,5 @@
 import {Resource} from './resource';
+import {Parameter} from './board';
 
 export enum GameStage {
     CORPORATION_SELECTION,
@@ -8,6 +9,12 @@ export enum GameStage {
     DRAFTING,
     END_OF_GAME
 }
+
+export const MAX_PARAMETERS = {
+    [Parameter.TEMPERATURE]: 8,
+    [Parameter.OCEAN]: 9,
+    [Parameter.OXYGEN]: 14
+};
 
 export const MIN_TEMP = -30;
 export const MAX_TEMP = 8;
