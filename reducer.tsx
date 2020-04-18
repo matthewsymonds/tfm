@@ -2,7 +2,7 @@ import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
 import {GameStage, MAX_PARAMETERS} from './constants/game';
-import {INITIAL_BOARD_STATE, TileType, Board, Parameter, TilePlacement} from './constants/board';
+import {INITIAL_BOARD_STATE, TileType, Parameter, Board, TilePlacement} from './constants/board';
 import {
     SET_CORPORATION,
     GO_TO_GAME_STAGE,
@@ -37,6 +37,8 @@ function sampleCards(cards: Card[], num: number) {
         }
         result.push(card);
     }
+    const ua = cards.filter(c => c.name === 'Urbanized Area')[0];
+    ua && result.push(ua);
     return result;
 }
 

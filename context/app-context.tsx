@@ -4,6 +4,7 @@ import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {RootState, PlayerState} from '../reducer';
 import {getLoggedInPlayer} from '../selectors/players';
+import {getValidPlacementsForRequirement} from '../selectors/board';
 import {MinimumProductions} from '../constants/game';
 
 import {
@@ -120,7 +121,13 @@ function meetsProductionRequirements(card: Card, state: RootState) {
 }
 
 function meetsTilePlacementRequirements(card: Card, state: RootState): boolean {
-    // card.tilePlacements.forEach(() => {});
+    if (!card.tilePlacements) return true;
+
+    for (const {isRequired, placementRequirement} of card.tilePlacements) {
+        if (!isRequired || !placementRequirement) continue;
+        const possiblePlacements = getValidPlacementsForRequirement(state, placementRequirement);
+        if (possiblePlacements.length === 0) return false;
+    }
 
     return true;
 }

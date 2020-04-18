@@ -1,8 +1,10 @@
 import {Resource} from './resource';
+import {RootState} from '../reducer';
 
 export enum CellType {
     LAND,
-    WATER
+    WATER,
+    OFF_MARS // e.g. ganymede
 }
 
 export enum TileType {
@@ -11,21 +13,34 @@ export enum TileType {
     ECOLOGICAL_ZONE,
     GREENERY,
     INDUSTRIAL_CENTER,
-    LAND_CLAIM,
     LAVA_FLOW,
     MOHOLE_AREA,
     MINING,
     NATURAL_PRESERVE,
-    NOCTIS,
     OCEAN,
     OTHER,
     RESTRICTED_AREA
 }
 
-export enum Location {
-    CITY_ADJACENT,
-    DOUBLE_CITY_ADJACENT,
+// only set for certain cells
+export enum SpecialLocation {
+    GANYMEDE = 'ganymede',
+    NOCTIS = 'noctis',
+    PHOBOS = 'phobos',
+    VOLCANIC = 'volcanic'
+}
+const RESERVED_LOCATIONS = [
+    SpecialLocation.GANYMEDE,
+    SpecialLocation.NOCTIS,
+    SpecialLocation.PHOBOS
+];
+
+export enum PlacementRequirement {
+    CITY, // normal city requirement (not touching another city)
+    CITY_ADJACENT, // e.g. industrial center
+    DOUBLE_CITY_ADJACENT, // e.g. urbanized area
     GANYMEDE,
+    GREENERY, // normal greenery (next to existing city if possible)
     GREENERY_ADJACENT,
     ISOLATED,
     NOCTIS,
@@ -38,6 +53,14 @@ export enum Location {
     VOLCANIC
 }
 
+export enum CellAttribute {
+    HAS_STEEL,
+    HAS_TITANIUM,
+    RESERVED_FOR_OCEAN,
+    RESERVED_FOR_CITY,
+    VOLCANIC
+}
+
 export enum Parameter {
     TEMPERATURE = 'temperature',
     OCEAN = 'ocean',
@@ -46,62 +69,91 @@ export enum Parameter {
     TERRAFORM_RATING = 'terraformRating'
 }
 
-export interface TilePlacement {
+export type TilePlacement = {
     type: TileType;
-    location?: Location;
-    isRequired?: boolean;
-}
+    placementRequirement: PlacementRequirement;
+    // By default, cards can be played even if the tile they would place cannot be played.
+    // This behavior is overridden for asterisked cards (e.g. Urbanized Area).
+    isRequired: boolean;
+};
 
-export const t = (type: TileType, location?: Location): TilePlacement => ({
+export const t = (
+    type: TileType,
+    placementRequirement: PlacementRequirement,
+    isRequired: boolean = false
+): TilePlacement => ({
     type,
-    location
+    placementRequirement,
+    isRequired
 });
 
-const CURRENT_PLAYER = 'matt';
+export type Tile = {
+    ownerPlayerIndex: number;
+    type: TileType;
+};
 
-export class Tile {
-    cell?: Cell;
-    constructor(readonly owner: string, readonly type: TileType) {}
-
-    get ownedByCurrentPlayer(): boolean {
-        return this.owner === CURRENT_PLAYER;
-    }
-}
-
-export class Cell {
-    onMars: boolean = false;
-
+export type Cell = {
+    type: CellType;
     tile?: Tile;
-    constructor(
-        readonly type: CellType,
-        readonly bonus: Resource[] = [],
-        readonly location?: Location
-    ) {}
+    coords?: [number, number];
+    landClaimedBy?: number;
+    bonus?: Resource[];
+    specialLocation?: SpecialLocation;
+};
 
-    addTile(tile: Tile) {
-        this.tile = tile;
-        this.tile.cell = this;
+export const cellHelpers = {
+    onMars(cell: Cell): boolean {
+        return cell.type === CellType.LAND || cell.type === CellType.WATER;
+    },
+
+    containsCity(cell: Cell): boolean {
+        return cell.tile?.type === TileType.CITY || cell.tile?.type === TileType.CAPITAL;
+    },
+
+    isEmpty(cell: Cell): boolean {
+        return !cell.tile;
+    },
+
+    hasAttribute(cell: Cell, attribute: CellAttribute): boolean {
+        switch (attribute) {
+            case CellAttribute.RESERVED_FOR_CITY:
+                return (
+                    (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) ??
+                    false
+                );
+            case CellAttribute.RESERVED_FOR_OCEAN:
+                return cell.type === CellType.WATER;
+            case CellAttribute.VOLCANIC:
+                return (
+                    (cell.specialLocation && cell.specialLocation === SpecialLocation.VOLCANIC) ??
+                    false
+                );
+            case CellAttribute.HAS_STEEL:
+                return cell.bonus?.includes(Resource.STEEL) ?? false;
+            case CellAttribute.HAS_TITANIUM:
+                return cell.bonus?.includes(Resource.TITANIUM) ?? false;
+            default:
+                return false;
+        }
     }
-}
+};
 
-class Land extends Cell {
-    constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.LAND, bonus, location);
-    }
-}
+const land = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+    type: CellType.LAND,
+    bonus,
+    specialLocation
+});
+const water = (bonus?: Resource[]): Cell => ({
+    type: CellType.WATER,
+    bonus
+});
+const offMars = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+    type: CellType.OFF_MARS,
+    bonus,
+    specialLocation
+});
 
-class Water extends Cell {
-    constructor(bonus: Resource[] = [], location?: Location) {
-        super(CellType.WATER, bonus, location);
-    }
-}
-
-const land = (bonus?: Resource[], location?: Location): Land => new Land(bonus, location);
-const water = (bonus?: Resource[]): Water => new Water(bonus);
-
-export type Board = Cell[][];
-
-export const INITIAL_BOARD_STATE: Cell[][] = [
+const INITIAL_BOARD_STATE: Cell[][] = [
     [
         land([Resource.STEEL, Resource.STEEL]),
         water([Resource.STEEL, Resource.STEEL]),
@@ -111,14 +163,14 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     ],
     [
         land(),
-        land([Resource.STEEL], Location.VOLCANIC),
+        land([Resource.STEEL], SpecialLocation.VOLCANIC),
         land(),
         land(),
         land(),
         water([Resource.CARD, Resource.CARD])
     ],
     [
-        land([Resource.CARD], Location.VOLCANIC),
+        land([Resource.CARD], SpecialLocation.VOLCANIC),
         land(),
         land(),
         land(),
@@ -127,7 +179,7 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.STEEL])
     ],
     [
-        land([Resource.PLANT, Resource.TITANIUM], Location.VOLCANIC),
+        land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
@@ -137,9 +189,9 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
         water([Resource.PLANT, Resource.PLANT])
     ],
     [
-        land([Resource.PLANT, Resource.PLANT], Location.VOLCANIC),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.VOLCANIC),
         land([Resource.PLANT, Resource.PLANT]),
-        land([Resource.PLANT, Resource.PLANT], Location.NOCTIS),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.NOCTIS),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
@@ -175,10 +227,17 @@ export const INITIAL_BOARD_STATE: Cell[][] = [
     ]
 ];
 
-for (const row of INITIAL_BOARD_STATE) {
-    for (const cell of row) {
-        cell.onMars = true;
-    }
-}
+INITIAL_BOARD_STATE.push([
+    offMars([], SpecialLocation.PHOBOS),
+    offMars([], SpecialLocation.GANYMEDE)
+]);
 
-INITIAL_BOARD_STATE.push([land([], Location.PHOBOS), land([], Location.GANYMEDE)]);
+INITIAL_BOARD_STATE.forEach((row, rowIndex) => {
+    row.forEach((cell, cellIndex) => {
+        cell.coords = [rowIndex, cellIndex];
+    });
+});
+
+export type Board = Cell[][];
+
+export {INITIAL_BOARD_STATE};
