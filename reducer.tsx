@@ -231,7 +231,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case DISCARD_CARDS:
                 draft.common.discardPile.push(...payload.cards);
                 player.cards = player.cards.filter(
-                    c => !payload.cards.map(cn => cn.name).includes(c.name)
+                    playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
                 break;
             case DRAW_CARDS:
