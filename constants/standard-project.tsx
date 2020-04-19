@@ -1,4 +1,4 @@
-import {Action, VariableMultiplier, ActionType} from './action';
+import {Action, VariableAmount, ActionType} from './action';
 import {Resource} from './resource';
 import {Parameter, TileType, PlacementRequirement} from './board';
 
@@ -24,7 +24,10 @@ export const standardProjectActions: StandardProjectAction[] = [
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.SELL_PATENTS,
         removeResources: {
-            [Resource.CARD]: VariableMultiplier.ONE_MEGACREDIT_PER_CARD_DISCARDED
+            [Resource.CARD]: VariableAmount.USER_CHOICE
+        },
+        gainResource: {
+            [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE
         }
     },
     {

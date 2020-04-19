@@ -7,9 +7,12 @@ type ResourceCounter = PropertyCounter<Resource>;
 type ParameterCounter = PropertyCounter<Parameter>;
 type TagCounter = PropertyCounter<Tag>;
 
-export enum VariableMultiplier {
-    ONE_MEGACREDIT_PER_CARD_DISCARDED
+export enum VariableAmount {
+    USER_CHOICE = 'userChoice',
+    BASED_ON_USER_CHOICE = 'basedOnUserChoice',
 }
+
+export type Amount = number | VariableAmount;
 
 export enum ActionType {
     CARD = 'card',

@@ -18,6 +18,7 @@ import {
 } from '../actions';
 import {useTypedSelector, RootState} from '../reducer';
 import {AppContext} from '../context/app-context';
+import {Amount} from '../constants/action';
 
 const MarginalButton = styled.button`
     margin-top: 10px;
@@ -31,7 +32,7 @@ const ConfirmButton = props => (
 function getStartingAmount(corporation: Card): number {
     if (!corporation) return 0;
 
-    return corporation.gainResource[Resource.MEGACREDIT] || 0;
+    return Number(corporation.gainResource[Resource.MEGACREDIT] || 0);
 }
 
 export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
