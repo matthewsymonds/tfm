@@ -63,6 +63,10 @@ function isAvailable(state: RootState, cell: Cell) {
     return !cell.tile || cell.landClaimedBy === state.loggedInPlayerIndex;
 }
 
+function isOwnedByCurrentPlayer(state: RootState, cell: Cell) {
+    return cell.tile && cell.tile.ownerPlayerIndex === state.common.currentPlayerIndex;
+}
+
 function getAvailableCells(state: RootState) {
     return state.common.board.flat().filter(cell => isAvailable(state, cell));
 }
@@ -120,17 +124,27 @@ export function getPossibleValidPlacementsForRequirement(
                         cellHelpers.containsCity(adjCell)
                     ).length >= 2
             );
-        case PlacementRequirement.GREENERY:
-            return getAvailableLandCellsOnMars(state);
+        case PlacementRequirement.GREENERY: {
+            const availableLandCellsOnMars = getAvailableLandCellsOnMars(state);
+            const cellsAdjacentToCurrentTiles = availableLandCellsOnMars.filter(cell =>
+                getAdjacentCellsForCell(state, cell).some(adjCell =>
+                    isOwnedByCurrentPlayer(state, adjCell)
+                )
+            );
+            if (cellsAdjacentToCurrentTiles.length === 0) {
+                return availableLandCellsOnMars;
+            }
+            return cellsAdjacentToCurrentTiles;
+        }
         case PlacementRequirement.GREENERY_ADJACENT:
-            return getGreeneries(state).filter(greeneryCell => {
-                getAdjacentCellsForCell(state, greeneryCell).some(adjacentCell =>
-                    isAvailable(state, adjacentCell)
-                );
-            });
+            return getGreeneries(state).filter(greeneryCell =>
+                getAdjacentCellsForCell(state, greeneryCell).some(adjCell =>
+                    isAvailable(state, adjCell)
+                )
+            );
         case PlacementRequirement.ISOLATED:
             return getAvailableLandCellsOnMars(state).filter(cell =>
-                getAdjacentCellsForCell(state, cell).every(adj => !cellHelpers.isEmpty(adj))
+                getAdjacentCellsForCell(state, cell).every(adjCell => !cellHelpers.isEmpty(adjCell))
             );
         case PlacementRequirement.NON_RESERVED:
         case PlacementRequirement.NOT_RESERVED_FOR_OCEAN:
