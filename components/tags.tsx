@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {Tag} from '../constants/card-types';
+import {Tag} from '../constants/tag';
 
 const TagsBase = styled.div`
     display: flex;

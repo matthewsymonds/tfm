@@ -1,5 +1,5 @@
 import {GameStage} from './constants/game';
-import {Tag} from './constants/card-types';
+import {Tag} from './constants/tag';
 import {Card} from './models/card';
 import {Resource} from './constants/resource';
 import {TilePlacement, Tile, Cell, Parameter} from './constants/board';

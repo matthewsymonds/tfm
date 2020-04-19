@@ -2,6 +2,7 @@ import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
 import {GameStage, MAX_PARAMETERS} from './constants/game';
+import {Tag} from './constants/tag';
 import {INITIAL_BOARD_STATE, TileType, Parameter, Board, TilePlacement} from './constants/board';
 import {
     SET_CORPORATION,
@@ -21,7 +22,7 @@ import {
     SET_CARDS,
     DISCARD_CARDS
 } from './actions';
-import {CardConfig, Deck, CardType, Tag} from './constants/card-types';
+import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
 import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';

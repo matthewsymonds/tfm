@@ -1,5 +1,5 @@
 import {createContext} from 'react';
-import {Tag} from '../constants/card-types';
+import {Tag} from '../constants/tag';
 import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {RootState, PlayerState} from '../reducer';

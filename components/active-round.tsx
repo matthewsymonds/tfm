@@ -6,6 +6,7 @@ import {useDispatch, useStore, shallowEqual} from 'react-redux';
 import {AppContext} from '../context/app-context';
 import {useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
+import {Card} from '../models/card';
 
 interface ButtonProps {
     disabled?: boolean;
@@ -82,8 +83,27 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             <hr></hr>
             <h3>Played cards</h3>
             {playedCards.map(card => {
-                return <CardComponent content={card} width={250} key={card.name}></CardComponent>;
+                const resourceMessage = getResourceMessage(card);
+
+                return (
+                    <CardComponent content={card} width={250} key={card.name}>
+                        <div>{resourceMessage}</div>
+                        {card.action && <button>Play action</button>}
+                    </CardComponent>
+                );
             })}
         </>
     );
 };
+
+function getResourceMessage(card: Card) {
+    const {storedResourceType: type, storedResourceAmount: amount} = card;
+
+    if (!type) return '';
+
+    if (amount) {
+        return `Holding ${amount} ${type}${amount > 1 ? 's' : ''}`;
+    }
+
+    `Holds ${type}s`;
+}

@@ -53,7 +53,7 @@ interface CardComponentProps extends CardBaseProps {
 
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width, selected} = props;
-    const {name, oneTimeText, actionOrEffectText, cost, tags} = content;
+    const {name, text, action, effect, cost, tags} = content;
 
     return (
         <CardBase width={width}>
@@ -61,8 +61,9 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                 <TagsComponent tags={tags} />
                 <Name>{name}</Name>
                 {typeof cost === 'number' && <Text>Cost: {cost}€</Text>}
-                {oneTimeText && <Text>{oneTimeText}</Text>}
-                {actionOrEffectText && <Text>{actionOrEffectText}</Text>}
+                {text && <Text>{text}</Text>}
+                {effect?.text && <Text>{effect.text}</Text>}
+                {action?.text && <Text>{action.text}</Text>}
                 {props.children}
             </Selection>
         </CardBase>
