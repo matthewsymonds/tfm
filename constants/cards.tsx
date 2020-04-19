@@ -1081,7 +1081,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
-        increaseProduction: {[Resource.MEGACREDIT]: 4}
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
+        tilePlacements: [t(TileType.COMMERCIAL_DISTRICT)]
     },
     {
         cost: 9,
@@ -1220,6 +1221,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         victoryPoints: -2,
+        tilePlacements: [t(TileType.NUCLEAR_ZONE)],
         increaseParameter: {[Parameter.TEMPERATURE]: 2}
     },
     {
@@ -4147,7 +4149,8 @@ export const cardConfigs: CardConfig[] = [
         //         effect.gainResource(Resource.MEGACREDIT, 3);
         //     }
         // },
-        gainResource: {[Resource.MEGACREDIT]: 40}
+        gainResource: {[Resource.MEGACREDIT]: 40},
+        tilePlacements: [t(TileType.CITY)]
     },
     {
         effect: {

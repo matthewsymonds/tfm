@@ -10,6 +10,7 @@ export enum CellType {
 export enum TileType {
     CAPITAL,
     CITY,
+    COMMERCIAL_DISTRICT,
     ECOLOGICAL_ZONE,
     GREENERY,
     INDUSTRIAL_CENTER,
@@ -17,6 +18,7 @@ export enum TileType {
     MOHOLE_AREA,
     MINING,
     NATURAL_PRESERVE,
+    NUCLEAR_ZONE,
     OCEAN,
     OTHER,
     RESTRICTED_AREA

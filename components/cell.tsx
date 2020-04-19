@@ -3,6 +3,7 @@ import {Resource} from '../constants/resource';
 import {ResourceIcon} from './resource';
 import {Hexagon} from './hexagon';
 import React from 'react';
+import {Tile} from './tile';
 
 interface CellProps {
     bonus: Resource[];

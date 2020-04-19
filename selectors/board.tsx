@@ -102,7 +102,7 @@ export function getPossibleValidPlacementsForRequirement(
     if (!requirement) return [];
     switch (requirement) {
         case PlacementRequirement.CITY:
-            return getAvailableCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state).filter(cell =>
                 getAdjacentCellsForCell(state, cell).every(
                     adjCell => !cellHelpers.containsCity(adjCell)
                 )

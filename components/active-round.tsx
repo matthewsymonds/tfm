@@ -8,6 +8,7 @@ import {useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {Board} from './board';
+import {TileType} from '../constants/board';
 
 interface ButtonProps {
     disabled?: boolean;
@@ -25,6 +26,27 @@ const Hand = styled.div`
 const Button = styled.button<ButtonProps>`
     margin: 0 auto;
 `;
+
+function getTileHumanName(type: TileType): string {
+    return (
+        {
+            [TileType.CAPITAL]: 'Capital',
+            [TileType.CITY]: 'City',
+            [TileType.COMMERCIAL_DISTRICT]: 'Commercial District',
+            [TileType.ECOLOGICAL_ZONE]: 'Ecological Zone',
+            [TileType.GREENERY]: 'Greenery',
+            [TileType.INDUSTRIAL_CENTER]: 'Industrial Center',
+            [TileType.LAVA_FLOW]: 'Lava Flow',
+            [TileType.MINING]: 'Mining',
+            [TileType.MOHOLE_AREA]: 'Mohole Area',
+            [TileType.NATURAL_PRESERVE]: 'Natural Preserve',
+            [TileType.NUCLEAR_ZONE]: 'Nuclear zone',
+            [TileType.OCEAN]: 'Ocean',
+            [TileType.OTHER]: 'Unknown',
+            [TileType.RESTRICTED_AREA]: 'Restricted Area'
+        }[type] || 'Unknown'
+    );
+}
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
@@ -69,7 +91,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 </ResourceBoardRow>
             </ResourceBoard>
             {player.tilePlacement && (
-                <div>Tile Placement: {JSON.stringify(player.tilePlacement)}</div>
+                <div>Please place the {getTileHumanName(player.tilePlacement.type)} tile.</div>
             )}
             <h3>Hand</h3>
             <Hand>

@@ -3,7 +3,15 @@ import produce from 'immer';
 
 import {GameStage, MAX_PARAMETERS} from './constants/game';
 import {Tag} from './constants/tag';
-import {INITIAL_BOARD_STATE, TileType, Parameter, Board, TilePlacement} from './constants/board';
+import {
+    INITIAL_BOARD_STATE,
+    TileType,
+    Parameter,
+    Board,
+    TilePlacement,
+    Tile,
+    Cell
+} from './constants/board';
 import {
     SET_CORPORATION,
     GO_TO_GAME_STAGE,
@@ -151,9 +159,7 @@ function getInitialState(): GameState {
 
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
-    const deck = possibleCards
-        .filter(card => card.type !== CardType.CORPORATION)
-        .filter(card => card.text.toLowerCase().includes('ocean'));
+    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
     const possibleCorporations = sampleCards(allCorporations, 2);
     const startingCards = sampleCards(deck, 10);
 
@@ -221,12 +227,59 @@ function getInitialState(): GameState {
     };
 }
 
+function getParameterForTile(tile: Tile): Parameter | undefined {
+    if (tile.type === TileType.OCEAN) {
+        return Parameter.OCEAN;
+    }
+
+    if (tile.type === TileType.GREENERY) {
+        return Parameter.OXYGEN;
+    }
+
+    return undefined;
+}
+
+function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: number}> {
+    const bonuses = cell.bonus || [];
+    const uniqueBonuses = new Set(bonuses);
+
+    return [...uniqueBonuses].map(bonus => {
+        return {
+            resource: bonus,
+            amount: bonuses.filter(b => b === bonus).length
+        };
+    });
+}
+
 const INITIAL_STATE: GameState = getInitialState();
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
+        function handleParameterIncrease(parameter: Parameter, amount: number) {
+            if (parameter === Parameter.TERRAFORM_RATING) {
+                player.terraformRating += amount;
+                return;
+            }
+            const scale = 1 + Number(parameter === Parameter.TEMPERATURE);
+            const increase = amount * scale;
+            const startingAmount = draft.common.parameters[parameter];
+            const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
+            const userTerraformRatingChange = (newAmount - startingAmount) / scale;
+            draft.common.parameters[parameter] = newAmount;
+            player.terraformRating += userTerraformRatingChange;
+        }
+
+        function handleGainResource(resource: Resource, amount: number) {
+            if (resource === Resource.CARD) {
+                // Sometimes we list cards as a resource.
+                // handle as a draw action.
+                player.cards.push(...draft.common.deck.splice(0, amount));
+                return;
+            }
+            player.resources[resource] += amount;
+        }
         switch (action.type) {
             case START_OVER:
                 return getInitialState();
@@ -261,13 +314,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[payload.resource] -= payload.amount;
                 break;
             case GAIN_RESOURCE:
-                if (payload.resource === Resource.CARD) {
-                    // Sometimes we list cards as a resource on a card.
-                    // handle as a draw action.
-                    player.cards.push(...draft.common.deck.splice(0, payload.amount));
-                    break;
-                }
-                player.resources[payload.resource] += payload.amount;
+                handleGainResource(payload.resource, payload.amount);
                 break;
             case PAY_TO_PLAY_CARD:
                 player.resources[Resource.MEGACREDIT] -= payload.card.cost;
@@ -280,20 +327,27 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.tilePlacement = payload.tilePlacement;
                 break;
             case PLACE_TILE:
+                player.tilePlacement = undefined;
+                const matchingCell = draft.common.board.flat().find(cell => {
+                    const coords = cell.coords || [];
+                    return (
+                        coords[0] === payload.cell.coords[0] && coords[1] === payload.cell.coords[1]
+                    );
+                });
+                matchingCell!.tile = payload.tile;
+                const parameterFromTile = getParameterForTile(payload.tile);
+                if (parameterFromTile) {
+                    handleParameterIncrease(parameterFromTile, 1);
+                }
+
+                const tilePlacementBonus = getTilePlacementBonus(payload.cell);
+                for (const b of tilePlacementBonus) {
+                    handleGainResource(b.resource, b.amount);
+                }
                 break;
             case INCREASE_PARAMETER:
                 const {parameter, amount} = payload;
-                if (parameter === Parameter.TERRAFORM_RATING) {
-                    player.terraformRating += amount;
-                    break;
-                }
-                const scale = 1 + Number(parameter === Parameter.TEMPERATURE);
-                const increase = amount * scale;
-                const startingAmount = draft.common.parameters[parameter];
-                const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
-                const userTerraformRatingChange = (newAmount - startingAmount) / scale;
-                draft.common.parameters[parameter] = newAmount;
-                player.terraformRating += userTerraformRatingChange;
+                handleParameterIncrease(parameter, amount);
                 break;
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;

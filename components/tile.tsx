@@ -13,7 +13,7 @@ const getColor = (type: TileType) => {
         case TileType.OTHER:
             return 'brown';
         default:
-            return '';
+            return 'white';
     }
 };
 
@@ -22,6 +22,8 @@ const getIcon = (type: TileType) => {
         case TileType.CAPITAL:
         case TileType.CITY:
             return '🏙️';
+        case TileType.COMMERCIAL_DISTRICT:
+            return '$';
         case TileType.ECOLOGICAL_ZONE:
             return '🐾';
         case TileType.GREENERY:
@@ -36,6 +38,8 @@ const getIcon = (type: TileType) => {
             return '🕳️';
         case TileType.NATURAL_PRESERVE:
             return '♂️';
+        case TileType.NUCLEAR_ZONE:
+            return '☢️';
         case TileType.OCEAN:
             return '🌊';
         case TileType.OTHER:
@@ -51,4 +55,8 @@ type TileProps = {
     type: TileType;
 };
 
-export const Tile = (props: TileProps) => <Hexagon color={getColor(props.type)} />;
+export const Tile = (props: TileProps) => (
+    <Hexagon overlap={true} color={getColor(props.type)}>
+        <div>{getIcon(props.type)}</div>
+    </Hexagon>
+);

@@ -168,6 +168,8 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
 
 function playCard(card: Card, state: RootState) {
     const playerIndex = state.loggedInPlayerIndex;
+    this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
+
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex));
     }
@@ -217,8 +219,6 @@ function playCard(card: Card, state: RootState) {
     for (const tilePlacement of card.tilePlacements) {
         this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
     }
-
-    this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
 }
 
 function processQueue(dispatch: Function) {

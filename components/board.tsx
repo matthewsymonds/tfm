@@ -1,13 +1,22 @@
 import styled from 'styled-components';
-import React from 'react';
-import {Board as BoardModel, cellHelpers, Parameter, GlobalParameters} from '../constants/board';
+import React, {useContext} from 'react';
+import {
+    Board as BoardModel,
+    cellHelpers,
+    Parameter,
+    GlobalParameters,
+    t,
+    Cell as CellType
+} from '../constants/board';
 import GlobalParams from './global-params';
 import {Row} from './row';
-import {Cell} from './cell';
 import {Tile} from './tile';
+import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from '../selectors/board';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {useTypedSelector} from '../reducer';
+import {placeTile} from '../actions';
+import {AppContext} from '../context/app-context';
 
 const BoardOuter = styled.div`
     position: relative;
@@ -48,9 +57,26 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
     const validPlacements = useTypedSelector(state =>
         getValidPlacementsForRequirement(state, tilePlacement?.placementRequirement)
     );
+
+    const context = useContext(AppContext);
+
+    const dispatch = useDispatch();
+
+    function handleClick(cell: CellType) {
+        if (!validPlacements.includes(cell)) return;
+
+        dispatch(
+            placeTile(
+                {type: tilePlacement!.type!, ownerPlayerIndex: props.playerIndex},
+                cell,
+                props.playerIndex
+            )
+        );
+
+        context.processQueue(dispatch);
+    }
     return (
         <>
-            <div>{JSON.stringify(validPlacements)}</div>
             <BoardOuter>
                 <GlobalParams parameters={props.parameters} />
                 <Circle>
@@ -60,13 +86,16 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                 {row.map(
                                     (cell, index) =>
                                         cellHelpers.onMars(cell) && (
-                                            <Cell
-                                                selectable={validPlacements.includes(cell)}
-                                                type={cell.type}
-                                                bonus={cell.bonus ?? []}
-                                                key={index}>
+                                            <div
+                                                style={{position: 'relative'}}
+                                                onClick={event => handleClick(cell)}>
+                                                <Cell
+                                                    selectable={validPlacements.includes(cell)}
+                                                    type={cell.type}
+                                                    bonus={cell.bonus ?? []}
+                                                    key={index}></Cell>
                                                 {cell.tile && <Tile type={cell.tile.type} />}
-                                            </Cell>
+                                            </div>
                                         )
                                 )}
                             </Row>

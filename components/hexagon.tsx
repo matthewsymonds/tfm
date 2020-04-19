@@ -5,12 +5,15 @@ const color = (props: HexagonProps) => props.color;
 interface HexagonProps {
     color: string;
     selectable?: boolean;
+    overlap?: boolean;
 }
 
 const borderWidth = 2;
 
 export const Hexagon = styled.div<HexagonProps>`
-    position: relative;
+    color: black;
+    position: ${props => (props.overlap ? 'absolute' : 'relative')};
+    top: 0px;
     width: 78px;
     height: 78px;
     margin: -4px 4px;
@@ -27,6 +30,11 @@ export const Hexagon = styled.div<HexagonProps>`
     &,
     &:before {
         clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    & > * {
+        // Make elements visible!
+        z-index: 0;
     }
 
     &:before {
