@@ -816,7 +816,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 5 steel.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        gainResource: {[Resource.STEEL]: 1}
+        gainResource: {[Resource.STEEL]: 5}
     },
     {
         cost: 12,
