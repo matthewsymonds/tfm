@@ -1,7 +1,7 @@
 import {CardConfig, Deck, Tag, CardType} from './card-types';
 import {Resource} from './resource';
 import {TileType, PlacementRequirement, Parameter, t} from './board';
-import {ActionType} from './action';
+import {MoveType} from './moves';
 
 export const cardConfigs: CardConfig[] = [
     {
@@ -1982,7 +1982,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Standard Technology',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        condition: condition => condition.actionType === ActionType.STANDARD_PROJECT,
+        condition: condition => condition.moveType === MoveType.STANDARD_PROJECT,
         effect: effect => effect.gainResource(Resource.MEGACREDIT, 3)
     },
     {

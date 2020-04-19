@@ -1,6 +1,6 @@
 import {Resource} from './resource';
 import {TileType, TilePlacement, Parameter} from './board';
-import {ActionType} from './action';
+import {MoveType} from './moves';
 
 export interface CardConfig {
     cardActions?: CardAction[];
@@ -49,7 +49,7 @@ export interface State {
 }
 
 export type Condition = {
-    actionType?: ActionType;
+    moveType?: MoveType;
     card?: CardConfig;
     cost?: number;
     newTag?: boolean;
