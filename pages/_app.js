@@ -3,6 +3,7 @@ import App from 'next/app';
 import withRedux from 'next-redux-wrapper';
 import {makeStore} from '../store';
 import {AppContext, ctx} from '../context/app-context';
+import '../styles/index.css';
 
 class MyApp extends App {
     static async getInitialProps({Component, ctx}) {

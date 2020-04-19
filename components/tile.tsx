@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import {TileType} from '../constants/board';
 import {Hexagon} from './hexagon';
 
-const getColor = props => {
-    switch (props.type) {
+const getColor = (type: TileType) => {
+    switch (type) {
         case TileType.CITY:
             return 'gray';
         case TileType.GREENERY:
@@ -12,7 +12,13 @@ const getColor = props => {
             return 'blue';
         case TileType.OTHER:
             return 'brown';
+        default:
+            return '';
     }
 };
 
-export const Tile = props => <Hexagon color={getColor(props)} />;
+type TileProps = {
+    type: TileType;
+};
+
+export const Tile = (props: TileProps) => <Hexagon color={getColor(props.type)} />;

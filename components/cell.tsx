@@ -9,9 +9,10 @@ interface CellProps {
     type: CellType;
 }
 
-const getColor = (props: CellProps) => {
-    switch (props.type) {
+const getColor = (type: CellType) => {
+    switch (type) {
         case CellType.LAND:
+        case CellType.OFF_MARS:
             return 'rgba(255, 255, 255, 0.2)';
         case CellType.WATER:
             return 'rgba(206, 247, 253, 0.5)';
@@ -19,7 +20,7 @@ const getColor = (props: CellProps) => {
 };
 
 export const Cell: React.FunctionComponent<CellProps> = props => (
-    <Hexagon color={getColor(props)}>
+    <Hexagon color={getColor(props.type)}>
         {props.bonus.map((resource, index) => (
             <ResourceIcon key={index} name={resource} />
         ))}

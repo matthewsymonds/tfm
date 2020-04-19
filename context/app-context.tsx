@@ -168,15 +168,23 @@ function playCard(card: Card, state: RootState) {
         this.queue.push(payToPlayCard(card, playerIndex));
     }
 
-    for (const resource in card.decreaseProduction) {
+    for (const production in card.decreaseProduction) {
         this.queue.push(
-            decreaseProduction(resource as Resource, card.decreaseProduction[resource], playerIndex)
+            decreaseProduction(
+                production as Resource,
+                card.decreaseProduction[production],
+                playerIndex
+            )
         );
     }
 
-    for (const resource in card.increaseProduction) {
+    for (const production in card.increaseProduction) {
         this.queue.push(
-            increaseProduction(resource as Resource, card.increaseProduction[resource], playerIndex)
+            increaseProduction(
+                production as Resource,
+                card.increaseProduction[production],
+                playerIndex
+            )
         );
     }
 

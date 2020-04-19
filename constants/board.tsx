@@ -69,6 +69,13 @@ export enum Parameter {
     TERRAFORM_RATING = 'terraformRating'
 }
 
+export type GlobalParameters = {
+    [Parameter.TEMPERATURE]: number;
+    [Parameter.OCEAN]: number;
+    [Parameter.OXYGEN]: number;
+    [Parameter.VENUS]: number;
+};
+
 export type TilePlacement = {
     type: TileType;
     placementRequirement: PlacementRequirement;

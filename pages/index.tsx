@@ -3,7 +3,7 @@ import {CorporationSelection} from '../components/corporation-selection';
 import {ActiveRound} from '../components/active-round';
 import {useTypedSelector} from '../reducer';
 
-export default function IndexReplacement() {
+export default function Index() {
     const gameStage = useTypedSelector(state => state.common.gameStage);
 
     switch (gameStage) {

@@ -7,6 +7,7 @@ import {AppContext} from '../context/app-context';
 import {useTypedSelector, RootState} from '../reducer';
 import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
+import {Board} from './board';
 
 interface ButtonProps {
     disabled?: boolean;
@@ -38,6 +39,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     return (
         <>
+            <Board board={state.common.board} parameters={state.common.parameters} />
             <h1>{corporation && corporation.name}</h1>
             <ResourceBoard>
                 <ResourceBoardRow>
