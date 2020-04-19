@@ -2,7 +2,7 @@ import {Provider} from 'react-redux';
 import App from 'next/app';
 import withRedux from 'next-redux-wrapper';
 import {makeStore} from '../store';
-import {AppContext, ctx} from '../context/app-context';
+import {AppContext, appContext} from '../context/app-context';
 import '../styles/index.css';
 
 class MyApp extends App {
@@ -19,7 +19,7 @@ class MyApp extends App {
         const {Component, pageProps, store} = this.props;
         return (
             <Provider store={store}>
-                <AppContext.Provider value={ctx}>
+                <AppContext.Provider value={appContext}>
                     <Component {...pageProps} />
                 </AppContext.Provider>
             </Provider>

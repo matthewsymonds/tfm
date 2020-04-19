@@ -7,8 +7,20 @@ type ResourceCounter = PropertyCounter<Resource>;
 type ParameterCounter = PropertyCounter<Parameter>;
 type TagCounter = PropertyCounter<Tag>;
 
+export enum VariableMultiplier {
+    ONE_MEGACREDIT_PER_CARD_DISCARDED
+}
+
+export enum ActionType {
+    CARD = 'card',
+    STANDARD_PROJECT = 'standardProject',
+    CARD_ACTION = 'cardAction'
+}
+
 export interface Action {
     text?: string;
+    cost?: number;
+    actionType?: ActionType; // should be required
     gainResource?: ResourceCounter;
     gainResourceOption?: ResourceCounter;
     removeResources?: ResourceCounter;

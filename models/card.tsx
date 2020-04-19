@@ -7,7 +7,7 @@ import {
 } from '../constants/card-types';
 import {Tag} from '../constants/tag';
 import {Effect} from '../constants/effect';
-import {Action} from '../constants/action';
+import {Action, ActionType} from '../constants/action';
 import {Resource} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
@@ -23,6 +23,7 @@ export class Card {
     type: CardType;
     deck: Deck;
     victoryPoints?: number;
+    actionType: ActionType;
     action?: Action;
     effect?: Effect;
 
@@ -90,6 +91,7 @@ export class Card {
         this.type = config.type;
         this.deck = config.deck;
         this.victoryPoints = config.victoryPoints;
+        this.actionType = ActionType.CARD;
 
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;

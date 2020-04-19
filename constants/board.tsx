@@ -1,5 +1,4 @@
 import {Resource} from './resource';
-import {RootState} from '../reducer';
 
 export enum CellType {
     LAND,

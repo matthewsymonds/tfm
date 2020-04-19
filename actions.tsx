@@ -3,6 +3,7 @@ import {Tag} from './constants/tag';
 import {Card} from './models/card';
 import {Resource} from './constants/resource';
 import {TilePlacement, Tile, Cell, Parameter} from './constants/board';
+import {StandardProjectAction} from './constants/standard-project';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -73,6 +74,15 @@ export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';
 export const payToPlayCard = (card: Card, playerIndex: number) => ({
     type: PAY_TO_PLAY_CARD,
     payload: {card, playerIndex}
+});
+
+export const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
+export const payToPlayStandardProject = (
+    standardProjectAction: StandardProjectAction,
+    playerIndex: number
+) => ({
+    type: PAY_TO_PLAY_STANDARD_PROJECT,
+    payload: {standardProjectAction, playerIndex}
 });
 
 export const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';

@@ -9,6 +9,7 @@ import {MinimumProductions} from '../constants/game';
 
 import {
     payToPlayCard,
+    payToPlayStandardProject,
     decreaseProduction,
     increaseProduction,
     removeResource,
@@ -21,6 +22,12 @@ import {
     ASK_USER_TO_PLACE_TILE
 } from '../actions';
 import {Parameter} from '../constants/board';
+import {
+    StandardProjectAction,
+    StandardProjectType,
+    standardProjectActions
+} from '../constants/standard-project';
+import {Action, ActionType} from '../constants/action';
 
 function canAfford(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -166,6 +173,57 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
     return [true, 'Good to go'];
 }
 
+function playAction(action: Action, state: RootState) {
+    const playerIndex = state.loggedInPlayerIndex;
+    for (const production in action.decreaseProduction) {
+        this.queue.push(
+            decreaseProduction(
+                production as Resource,
+                action.decreaseProduction[production],
+                playerIndex
+            )
+        );
+    }
+
+    for (const production in action.increaseProduction) {
+        this.queue.push(
+            increaseProduction(
+                production as Resource,
+                action.increaseProduction[production],
+                playerIndex
+            )
+        );
+    }
+
+    for (const resource in action.removeResources) {
+        this.queue.push(
+            removeResource(resource as Resource, action.removeResources[resource], playerIndex)
+        );
+    }
+
+    for (const resource in action.gainResource) {
+        this.queue.push(
+            gainResource(resource as Resource, action.gainResource[resource], playerIndex)
+        );
+    }
+
+    for (const parameter in action.increaseParameter) {
+        this.queue.push(
+            increaseParameter(
+                parameter as Parameter,
+                action.increaseParameter[parameter],
+                playerIndex
+            )
+        );
+    }
+
+    if (action.tilePlacements) {
+        for (const tilePlacement of action.tilePlacements) {
+            this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
+        }
+    }
+}
+
 function playCard(card: Card, state: RootState) {
     const playerIndex = state.loggedInPlayerIndex;
     this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
@@ -174,51 +232,35 @@ function playCard(card: Card, state: RootState) {
         this.queue.push(payToPlayCard(card, playerIndex));
     }
 
-    for (const production in card.decreaseProduction) {
-        this.queue.push(
-            decreaseProduction(
-                production as Resource,
-                card.decreaseProduction[production],
-                playerIndex
-            )
-        );
+    this.playAction(card, state);
+}
+
+function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
+    const player = getLoggedInPlayer(state);
+
+    // Selling patents is the only standard project whose cost is cards, not megacredits
+    if (standardProjectAction.type === StandardProjectType.SELL_PATENTS) {
+        return player.cards.length > 0;
     }
 
-    for (const production in card.increaseProduction) {
-        this.queue.push(
-            increaseProduction(
-                production as Resource,
-                card.increaseProduction[production],
-                playerIndex
-            )
-        );
+    let cost = standardProjectAction.cost!;
+    const {discounts} = player;
+
+    cost -= discounts.standardProjects;
+    if (standardProjectAction.type === StandardProjectType.POWER_PLANT) {
+        cost -= discounts.standardProjectPowerPlant;
     }
 
-    for (const resource in card.removeResources) {
-        this.queue.push(
-            removeResource(resource as Resource, card.removeResources[resource], playerIndex)
-        );
+    return cost <= player.resources[Resource.MEGACREDIT];
+}
+
+function playStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
+    const playerIndex = state.loggedInPlayerIndex;
+    if (standardProjectAction.cost) {
+        this.queue.push(payToPlayStandardProject(standardProjectAction, playerIndex));
     }
 
-    for (const resource in card.gainResource) {
-        this.queue.push(
-            gainResource(resource as Resource, card.gainResource[resource], playerIndex)
-        );
-    }
-
-    for (const parameter in card.increaseParameter) {
-        this.queue.push(
-            increaseParameter(
-                parameter as Parameter,
-                card.increaseParameter[parameter],
-                playerIndex
-            )
-        );
-    }
-
-    for (const tilePlacement of card.tilePlacements) {
-        this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
-    }
+    this.playAction(standardProjectAction, state);
 }
 
 function processQueue(dispatch: Function) {
@@ -237,11 +279,14 @@ function shouldPause(action: {type: string}): boolean {
     return PAUSE_ACTIONS.includes(action.type);
 }
 
-export const ctx = {
+export const appContext = {
     queue: [],
     canPlayCard,
     playCard,
+    playAction,
+    canPlayStandardProject,
+    playStandardProject,
     processQueue
 };
 
-export const AppContext = createContext(ctx);
+export const AppContext = createContext(appContext);

@@ -31,7 +31,8 @@ import {
     DISCARD_CARDS,
     drawCards,
     discardCards,
-    START_OVER
+    START_OVER,
+    PAY_TO_PLAY_STANDARD_PROJECT
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -318,6 +319,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case PAY_TO_PLAY_CARD:
                 player.resources[Resource.MEGACREDIT] -= payload.card.cost;
+                break;
+            case PAY_TO_PLAY_STANDARD_PROJECT:
+                player.resources[Resource.MEGACREDIT] -= payload.standardProjectAction.cost;
                 break;
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);

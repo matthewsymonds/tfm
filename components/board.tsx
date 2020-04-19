@@ -3,17 +3,16 @@ import React, {useContext} from 'react';
 import {
     Board as BoardModel,
     cellHelpers,
-    Parameter,
     GlobalParameters,
-    t,
     Cell as CellType
 } from '../constants/board';
 import GlobalParams from './global-params';
+import StandardProjects from './standard-projects';
 import {Row} from './row';
 import {Tile} from './tile';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from '../selectors/board';
-import {useSelector, useDispatch} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {useTypedSelector} from '../reducer';
 import {placeTile} from '../actions';
 import {AppContext} from '../context/app-context';
@@ -88,12 +87,14 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                         cellHelpers.onMars(cell) && (
                                             <div
                                                 style={{position: 'relative'}}
-                                                onClick={event => handleClick(cell)}>
+                                                onClick={event => handleClick(cell)}
+                                            >
                                                 <Cell
                                                     selectable={validPlacements.includes(cell)}
                                                     type={cell.type}
                                                     bonus={cell.bonus ?? []}
-                                                    key={index}></Cell>
+                                                    key={index}
+                                                ></Cell>
                                                 {cell.tile && <Tile type={cell.tile.type} />}
                                             </div>
                                         )
@@ -102,6 +103,7 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                         ))}
                     </BoardInner>
                 </Circle>
+                <StandardProjects />
             </BoardOuter>
         </>
     );

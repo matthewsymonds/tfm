@@ -105,7 +105,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 onClick={() => {
                                     context.playCard(card, state);
                                     context.processQueue(dispatch);
-                                }}>
+                                }}
+                            >
                                 Play
                             </Button>
                         </CardComponent>

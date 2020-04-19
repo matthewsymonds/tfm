@@ -5,9 +5,9 @@ const GlobalParamsBase = styled.div`
     display: flex;
     flex-direction: column;
     padding: 8px;
-    backgroundcolor: hsla(28, 0%, 85%, 1);
+    background-color: hsla(28, 0%, 85%, 1);
     border-radius: 3px;
-    color: white;
+    color: black;
 `;
 
 const GlobalParamValue = styled.span`

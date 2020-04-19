@@ -1,7 +1,7 @@
 import {Resource} from './resource';
 import {TileType, TilePlacement, Parameter} from './board';
 import {MoveType} from './moves';
-import {Action} from './action';
+import {Action, ActionType} from './action';
 import {Effect} from './effect';
 import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
@@ -20,7 +20,6 @@ export interface CardConfig extends Action {
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
     requiredResources?: PropertyCounter<Resource>;
-    cost?: number;
     minColonies?: number;
     maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
