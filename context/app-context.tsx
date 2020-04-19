@@ -14,7 +14,11 @@ import {
     removeResource,
     increaseParameter,
     gainResource,
-    moveCardFromHandToPlayArea
+    moveCardFromHandToPlayArea,
+    PLACE_TILE,
+    placeTile,
+    askUserToPlaceTile,
+    ASK_USER_TO_PLACE_TILE
 } from '../actions';
 import {Parameter} from '../constants/board';
 
@@ -210,13 +214,27 @@ function playCard(card: Card, state: RootState) {
         );
     }
 
+    for (const tilePlacement of card.tilePlacements) {
+        this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
+    }
+
     this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
 }
 
 function processQueue(dispatch: Function) {
     while (this.queue.length > 0) {
-        dispatch(this.queue.shift());
+        const item = this.queue.shift();
+        dispatch(item);
+        if (shouldPause(item)) {
+            break;
+        }
     }
+}
+
+const PAUSE_ACTIONS = [ASK_USER_TO_PLACE_TILE];
+
+function shouldPause(action: {type: string}): boolean {
+    return PAUSE_ACTIONS.includes(action.type);
 }
 
 export const ctx = {

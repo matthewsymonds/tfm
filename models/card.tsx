@@ -38,7 +38,7 @@ export class Card {
     /** e.g. "Requires 5% oxygen" */
     requiredGlobalParameter?: RequiredGlobalParameter;
     /** Restrictions about where this tile can be placed */
-    tilePlacements?: TilePlacement[];
+    tilePlacements: TilePlacement[];
     minColonies?: number; // only for colonies expansion
     maxColonies?: number; // only for colonies expansion
 
@@ -98,7 +98,7 @@ export class Card {
         this.maxColonies = config.maxColonies;
         this.minTerraformRating = config.minTerraformRating;
         this.requiredProduction = config.requiredProduction;
-        this.tilePlacements = config.tilePlacements;
+        this.tilePlacements = config.tilePlacements || [];
 
         // Resource & production implications
         this.gainResource = config.gainResource || {};

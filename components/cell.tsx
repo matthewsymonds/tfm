@@ -7,6 +7,7 @@ import React from 'react';
 interface CellProps {
     bonus: Resource[];
     type: CellType;
+    selectable?: boolean;
 }
 
 const getColor = (type: CellType) => {
@@ -20,7 +21,7 @@ const getColor = (type: CellType) => {
 };
 
 export const Cell: React.FunctionComponent<CellProps> = props => (
-    <Hexagon color={getColor(props.type)}>
+    <Hexagon color={getColor(props.type)} selectable={props.selectable}>
         {props.bonus.map((resource, index) => (
             <ResourceIcon key={index} name={resource} />
         ))}

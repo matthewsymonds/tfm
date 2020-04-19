@@ -20,58 +20,15 @@ import {
     PLACE_TILE,
     INCREASE_PARAMETER,
     SET_CARDS,
-    DISCARD_CARDS
+    DISCARD_CARDS,
+    drawCards,
+    discardCards,
+    START_OVER
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
 import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';
-
-const cards = cardConfigs.map(config => new Card(config));
-
-function sampleCards(cards: Card[], num: number) {
-    const result: Card[] = [];
-    for (let i = 0; i < num; i++) {
-        const card = cards.shift();
-        if (!card) {
-            throw new Error('Out of cards to sample');
-        }
-        result.push(card);
-    }
-    const ua = cards.filter(c => c.name === 'Urbanized Area')[0];
-    ua && result.push(ua);
-    return result;
-}
-
-function shuffle(array: Card[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-function initialResources() {
-    return {
-        [Resource.MEGACREDIT]: 0,
-        [Resource.STEEL]: 0,
-        [Resource.TITANIUM]: 0,
-        [Resource.PLANT]: 0,
-        [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0
-    };
-}
-
-const possibleCards = cards.filter(
-    card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
-);
-
-shuffle(possibleCards);
-
-const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
-
-const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
-const possibleCorporations = sampleCards(allCorporations, 2);
-const startingCards = sampleCards(deck, 10);
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -151,74 +108,128 @@ export type Discounts = {
     trade: number;
 };
 
-const INITIAL_STATE: GameState = {
-    queuePaused: false,
-    loggedInPlayerIndex: 0,
-    common: {
-        discardPile: [],
-        gameStage: GameStage.CORPORATION_SELECTION,
-        generation: 0,
-        round: 0,
-        turn: 0,
-        deck: [],
-        parameters: {
-            [Parameter.OCEAN]: 0,
-            [Parameter.OXYGEN]: 0,
-            [Parameter.TEMPERATURE]: -30,
-            [Parameter.VENUS]: 0
-        },
-        board: INITIAL_BOARD_STATE,
-        currentPlayerIndex: 0,
-        firstPlayerIndex: 0
-    },
-    players: [
-        {
-            index: 0,
-            terraformRating: 20,
-            playerIndex: 0,
-            corporation: null,
-            possibleCards: startingCards,
-            possibleCorporations,
-            cards: [],
-            playedCards: [],
-            resources: initialResources(),
-            productions: initialResources(),
-            exchangeRates: {
-                [Resource.STEEL]: 2,
-                [Resource.TITANIUM]: 3
-            },
-            discounts: {
-                card: 0,
-                tags: {
-                    [Tag.SPACE]: 0,
-                    [Tag.VENUS]: 0,
-                    [Tag.BUILDING]: 0,
-                    [Tag.SCIENCE]: 0,
-                    [Tag.EARTH]: 0,
-                    [Tag.POWER]: 0
-                },
-                cards: {
-                    [Tag.SPACE]: 0,
-                    [Tag.EARTH]: 0
-                },
-                standardProjects: 0,
-                standardProjectPowerPlant: 0,
-                nextCardThisGeneration: 0,
-                trade: 0
-            }
+function sampleCards(cards: Card[], num: number) {
+    const result: Card[] = [];
+    for (let i = 0; i < num; i++) {
+        const card = cards.shift();
+        if (!card) {
+            throw new Error('Out of cards to sample');
         }
-    ],
-    transaction: {
-        isPending: false,
-        pendingPlayers: []
+        result.push(card);
     }
-};
+    const ua = cards.filter(c => c.name === 'Urbanized Area')[0];
+    ua && result.push(ua);
+    return result;
+}
+
+function shuffle(array: Card[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function initialResources() {
+    return {
+        [Resource.MEGACREDIT]: 0,
+        [Resource.STEEL]: 0,
+        [Resource.TITANIUM]: 0,
+        [Resource.PLANT]: 0,
+        [Resource.ENERGY]: 0,
+        [Resource.HEAT]: 0
+    };
+}
+
+function getInitialState(): GameState {
+    const cards = cardConfigs.map(config => new Card(config));
+
+    const possibleCards = cards.filter(
+        card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
+    );
+
+    shuffle(possibleCards);
+
+    const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
+
+    const deck = possibleCards
+        .filter(card => card.type !== CardType.CORPORATION)
+        .filter(card => card.text.toLowerCase().includes('ocean'));
+    const possibleCorporations = sampleCards(allCorporations, 2);
+    const startingCards = sampleCards(deck, 10);
+
+    return {
+        queuePaused: false,
+        loggedInPlayerIndex: 0,
+        common: {
+            discardPile: [],
+            gameStage: GameStage.CORPORATION_SELECTION,
+            generation: 0,
+            round: 0,
+            turn: 0,
+            deck,
+            parameters: {
+                [Parameter.OCEAN]: 0,
+                [Parameter.OXYGEN]: 0,
+                [Parameter.TEMPERATURE]: -30,
+                [Parameter.VENUS]: 0
+            },
+            board: INITIAL_BOARD_STATE,
+            currentPlayerIndex: 0,
+            firstPlayerIndex: 0
+        },
+        players: [
+            {
+                index: 0,
+                terraformRating: 20,
+                playerIndex: 0,
+                corporation: null,
+                possibleCards: startingCards,
+                possibleCorporations,
+                cards: [],
+                playedCards: [],
+                resources: initialResources(),
+                productions: initialResources(),
+                exchangeRates: {
+                    [Resource.STEEL]: 2,
+                    [Resource.TITANIUM]: 3
+                },
+                discounts: {
+                    card: 0,
+                    tags: {
+                        [Tag.SPACE]: 0,
+                        [Tag.VENUS]: 0,
+                        [Tag.BUILDING]: 0,
+                        [Tag.SCIENCE]: 0,
+                        [Tag.EARTH]: 0,
+                        [Tag.POWER]: 0
+                    },
+                    cards: {
+                        [Tag.SPACE]: 0,
+                        [Tag.EARTH]: 0
+                    },
+                    standardProjects: 0,
+                    standardProjectPowerPlant: 0,
+                    nextCardThisGeneration: 0,
+                    trade: 0
+                }
+            }
+        ],
+        transaction: {
+            isPending: false,
+            pendingPlayers: []
+        }
+    };
+}
+
+const INITIAL_STATE: GameState = getInitialState();
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
         switch (action.type) {
+            case START_OVER:
+                return getInitialState();
             case SET_CORPORATION:
                 player.corporation = payload.corporation;
                 break;
@@ -250,6 +261,12 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[payload.resource] -= payload.amount;
                 break;
             case GAIN_RESOURCE:
+                if (payload.resource === Resource.CARD) {
+                    // Sometimes we list cards as a resource on a card.
+                    // handle as a draw action.
+                    player.cards.push(...draft.common.deck.splice(0, payload.amount));
+                    break;
+                }
                 player.resources[payload.resource] += payload.amount;
                 break;
             case PAY_TO_PLAY_CARD:

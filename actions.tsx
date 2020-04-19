@@ -82,7 +82,7 @@ export const moveCardFromHandToPlayArea = (card: Card, playerIndex: number) => (
 });
 
 export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
-export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: string) => ({
+export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: number) => ({
     type: ASK_USER_TO_PLACE_TILE,
     payload: {playerIndex, tilePlacement}
 });
@@ -98,3 +98,7 @@ export const increaseParameter = (parameter: Parameter, amount: number, playerIn
     type: INCREASE_PARAMETER,
     payload: {parameter, amount, playerIndex}
 });
+
+// For debugging
+export const START_OVER = 'START_OVER';
+export const startOver = () => ({type: START_OVER});

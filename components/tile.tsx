@@ -17,6 +17,36 @@ const getColor = (type: TileType) => {
     }
 };
 
+const getIcon = (type: TileType) => {
+    switch (type) {
+        case TileType.CAPITAL:
+        case TileType.CITY:
+            return '🏙️';
+        case TileType.ECOLOGICAL_ZONE:
+            return '🐾';
+        case TileType.GREENERY:
+            return '🌳';
+        case TileType.INDUSTRIAL_CENTER:
+            return '🏭';
+        case TileType.LAVA_FLOW:
+            return '🌋';
+        case TileType.MINING:
+            return '⛏️';
+        case TileType.MOHOLE_AREA:
+            return '🕳️';
+        case TileType.NATURAL_PRESERVE:
+            return '♂️';
+        case TileType.OCEAN:
+            return '🌊';
+        case TileType.OTHER:
+            return '?';
+        case TileType.RESTRICTED_AREA:
+            return '🚫';
+        default:
+            return '?';
+    }
+};
+
 type TileProps = {
     type: TileType;
 };

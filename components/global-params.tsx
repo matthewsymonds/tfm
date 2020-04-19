@@ -1,6 +1,18 @@
-/** @jsx jsx */
-import {jsx} from '@emotion/core';
+import styled from 'styled-components';
 import {Parameter, GlobalParameters} from '../constants/board';
+
+const GlobalParamsBase = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    backgroundcolor: hsla(28, 0%, 85%, 1);
+    border-radius: 3px;
+    color: white;
+`;
+
+const GlobalParamValue = styled.span`
+    margin-left: 4px;
+`;
 
 type GlobalParamsProps = {
     parameters: GlobalParameters;
@@ -10,32 +22,23 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const {parameters} = props;
 
     return (
-        <div
-            css={{
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'absolute',
-                left: 50,
-                padding: 8,
-                backgroundColor: 'hsla(28, 0%, 85%, 1)',
-                borderRadius: 3
-            }}>
+        <GlobalParamsBase>
             <div>
                 <span>Temperature</span>
-                <span css={{marginLeft: 4}}>{parameters[Parameter.TEMPERATURE]}</span>
+                <GlobalParamValue>{parameters[Parameter.TEMPERATURE]}</GlobalParamValue>
             </div>
             <div>
                 <span>Oxygen</span>
-                <span css={{marginLeft: 4}}>{parameters[Parameter.OXYGEN]}</span>
+                <GlobalParamValue>{parameters[Parameter.OXYGEN]}</GlobalParamValue>
             </div>
             <div>
                 <span>Ocean</span>
-                <span css={{marginLeft: 4}}>{parameters[Parameter.OCEAN]}</span>
+                <GlobalParamValue>{parameters[Parameter.OCEAN]}</GlobalParamValue>
             </div>
             <div>
                 <span>Venus</span>
-                <span css={{marginLeft: 4}}>{parameters[Parameter.VENUS]}</span>
+                <GlobalParamValue>{parameters[Parameter.VENUS]}</GlobalParamValue>
             </div>
-        </div>
+        </GlobalParamsBase>
     );
 }

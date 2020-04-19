@@ -143,7 +143,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
+        tilePlacements: [t(TileType.OCEAN)],
         removeAnyResource: {[Resource.PLANT]: 1}
     },
     {
@@ -218,7 +218,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         gainResource: {[Resource.PLANT]: 3},
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
+        tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 3}
     },
@@ -288,7 +288,7 @@ export const cardConfigs: CardConfig[] = [
             'Place an ocean tile. Decrease your MC production 2 steps and increase your heat production 3 steps.',
         tags: [],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
+        tilePlacements: [t(TileType.OCEAN)],
         decreaseProduction: {[Resource.MEGACREDIT]: 2},
         increaseProduction: {[Resource.HEAT]: 3}
     },
@@ -385,7 +385,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
+        tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 3}
     },
@@ -425,7 +425,7 @@ export const cardConfigs: CardConfig[] = [
             'Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)],
+        tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 2},
         increaseProduction: {[Resource.STEEL]: 2}
     },
@@ -696,10 +696,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        tilePlacements: [
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
-        ]
+        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)]
     },
     {
         action: {text: 'Action: Add 1 animal to this card.'},
@@ -982,7 +979,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         gainResource: {[Resource.PLANT]: 2},
         increaseParameter: {[Parameter.OXYGEN]: 1},
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.OCEAN)]
     },
     {
         action: {text: 'Action: Spend 7MC to increase your energy production 1 step.'},
@@ -1009,10 +1006,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 2 ocean tiles.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
-        ]
+        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)]
     },
     {
         effect: {text: 'Effect: When you play a space card, you pay 2 MC less for it'},
@@ -1033,10 +1027,7 @@ export const cardConfigs: CardConfig[] = [
             'Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any plyer.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN),
-            t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)
-        ],
+        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
         removeAnyResource: {[Resource.PLANT]: 6}
     },
@@ -1564,7 +1555,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 1 ocean tile.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.OCEAN)]
     },
     {
         effect: {
@@ -1789,7 +1780,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         victoryPoints: 2,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
+        tilePlacements: [t(TileType.OCEAN)],
         gainResource: {[Resource.CARD]: 2},
         gainResourceOption: {[Resource.PLANT]: 5, [Resource.ANIMAL]: 4}
     },
@@ -2010,7 +2001,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 1 ocean tile and draw 1 card.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)],
+        tilePlacements: [t(TileType.OCEAN)],
         gainResource: {[Resource.CARD]: 1}
     },
     {
@@ -2257,7 +2248,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.OCEAN)]
     },
     {
         cost: 11,
@@ -2270,7 +2261,7 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: -2,
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 3},
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)]
+        tilePlacements: [t(TileType.CITY)]
     },
     {
         cost: 4,
@@ -2395,7 +2386,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.RESERVED_FOR_OCEAN)]
+        tilePlacements: [t(TileType.OCEAN)]
     },
     {
         cost: 2,
@@ -2414,7 +2405,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.GREENERY)]
+        tilePlacements: [t(TileType.GREENERY)]
     },
     {
         action: {text: 'Action: Spend any amount of energy to gain that amount of MC.'},
@@ -2498,7 +2489,7 @@ export const cardConfigs: CardConfig[] = [
         // condition: condition => condition.tileType === TileType.CITY,
         // effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1),
         decreaseProduction: {[Resource.ENERGY]: 1, [Resource.MEGACREDIT]: 2},
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.CITY)]
+        tilePlacements: [t(TileType.CITY)]
     },
     {
         cost: 3,

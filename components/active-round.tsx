@@ -27,6 +27,7 @@ const Button = styled.button<ButtonProps>`
 `;
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
+    const player = useTypedSelector(state => state.players[playerIndex]);
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
     const resources = useTypedSelector(state => state.players[playerIndex].resources);
     const productions = useTypedSelector(state => state.players[playerIndex].productions);
@@ -39,7 +40,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     return (
         <>
-            <Board board={state.common.board} parameters={state.common.parameters} />
+            <Board
+                board={state.common.board}
+                playerIndex={playerIndex}
+                parameters={state.common.parameters}
+            />
             <h1>{corporation && corporation.name}</h1>
             <ResourceBoard>
                 <ResourceBoardRow>
@@ -63,6 +68,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     ))}
                 </ResourceBoardRow>
             </ResourceBoard>
+            {player.tilePlacement && (
+                <div>Tile Placement: {JSON.stringify(player.tilePlacement)}</div>
+            )}
             <h3>Hand</h3>
             <Hand>
                 {cards.map(card => {

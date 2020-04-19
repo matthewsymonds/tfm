@@ -88,8 +88,18 @@ function getGreeneries(state: RootState) {
 
 export function getValidPlacementsForRequirement(
     state: RootState,
-    requirement: PlacementRequirement
+    requirement: PlacementRequirement | undefined
+) {
+    const candidates = getPossibleValidPlacementsForRequirement(state, requirement);
+    // Check the candidate is empty!
+    return candidates.filter(cell => !cell.tile);
+}
+
+export function getPossibleValidPlacementsForRequirement(
+    state: RootState,
+    requirement: PlacementRequirement | undefined
 ): Cell[] {
+    if (!requirement) return [];
     switch (requirement) {
         case PlacementRequirement.CITY:
             return getAvailableCellsOnMars(state).filter(cell =>

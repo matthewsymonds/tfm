@@ -5,6 +5,9 @@ import GlobalParams from './global-params';
 import {Row} from './row';
 import {Cell} from './cell';
 import {Tile} from './tile';
+import {getValidPlacementsForRequirement} from '../selectors/board';
+import {useSelector} from 'react-redux';
+import {useTypedSelector} from '../reducer';
 
 const BoardOuter = styled.div`
     position: relative;
@@ -21,6 +24,7 @@ const BoardOuter = styled.div`
 interface BoardProps {
     board: BoardModel;
     parameters: GlobalParameters;
+    playerIndex: number;
 }
 
 const BoardInner = styled.div`
@@ -39,24 +43,37 @@ const Circle = styled.div`
     align-items: center;
 `;
 
-export const Board: React.FunctionComponent<BoardProps> = props => (
-    <BoardOuter>
-        <GlobalParams parameters={props.parameters} />
-        <Circle>
-            <BoardInner>
-                {props.board.map((row, outerIndex) => (
-                    <Row key={outerIndex}>
-                        {row.map(
-                            (cell, index) =>
-                                cellHelpers.onMars(cell) && (
-                                    <Cell type={cell.type} bonus={cell.bonus ?? []} key={index}>
-                                        {cell.tile && <Tile type={cell.tile.type} />}
-                                    </Cell>
-                                )
-                        )}
-                    </Row>
-                ))}
-            </BoardInner>
-        </Circle>
-    </BoardOuter>
-);
+export const Board: React.FunctionComponent<BoardProps> = props => {
+    const tilePlacement = useTypedSelector(state => state.players[props.playerIndex].tilePlacement);
+    const validPlacements = useTypedSelector(state =>
+        getValidPlacementsForRequirement(state, tilePlacement?.placementRequirement)
+    );
+    return (
+        <>
+            <div>{JSON.stringify(validPlacements)}</div>
+            <BoardOuter>
+                <GlobalParams parameters={props.parameters} />
+                <Circle>
+                    <BoardInner>
+                        {props.board.map((row, outerIndex) => (
+                            <Row key={outerIndex}>
+                                {row.map(
+                                    (cell, index) =>
+                                        cellHelpers.onMars(cell) && (
+                                            <Cell
+                                                selectable={validPlacements.includes(cell)}
+                                                type={cell.type}
+                                                bonus={cell.bonus ?? []}
+                                                key={index}>
+                                                {cell.tile && <Tile type={cell.tile.type} />}
+                                            </Cell>
+                                        )
+                                )}
+                            </Row>
+                        ))}
+                    </BoardInner>
+                </Circle>
+            </BoardOuter>
+        </>
+    );
+};

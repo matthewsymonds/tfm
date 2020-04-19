@@ -8,7 +8,14 @@ import React from 'react';
 import {useSelector, useDispatch, useStore} from 'react-redux';
 import {GameStage} from '../constants/game';
 
-import {setCorporation, setCards, goToGameStage, discardCards, payForCards} from '../actions';
+import {
+    setCorporation,
+    setCards,
+    goToGameStage,
+    discardCards,
+    payForCards,
+    startOver
+} from '../actions';
 import {useTypedSelector, RootState} from '../reducer';
 import {AppContext} from '../context/app-context';
 
@@ -59,8 +66,13 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         dispatch(setCards(selectAllCards, playerIndex));
     }
 
+    function handleStartOver() {
+        dispatch(startOver());
+    }
+
     return (
         <>
+            <button onClick={() => handleStartOver()}>Start over</button>
             <h3>Select a corporation</h3>
             <CardSelector
                 width={400}

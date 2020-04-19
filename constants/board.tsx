@@ -36,21 +36,21 @@ const RESERVED_LOCATIONS = [
 ];
 
 export enum PlacementRequirement {
-    CITY, // normal city requirement (not touching another city)
-    CITY_ADJACENT, // e.g. industrial center
-    DOUBLE_CITY_ADJACENT, // e.g. urbanized area
-    GANYMEDE,
-    GREENERY, // normal greenery (next to existing city if possible)
-    GREENERY_ADJACENT,
-    ISOLATED,
-    NOCTIS,
-    NON_RESERVED,
-    NOT_RESERVED_FOR_OCEAN,
-    PHOBOS,
-    RESERVED_FOR_OCEAN,
-    STEEL_OR_TITANIUM,
-    STEEL_OR_TITANIUM_PLAYER_ADJACENT,
-    VOLCANIC
+    CITY = 'placementCity', // normal city requirement (not touching another city)
+    CITY_ADJACENT = 'placementCityAdjacemt', // e.g. industrial center
+    DOUBLE_CITY_ADJACENT = 'placementDoubleCityAdjacent', // e.g. urbanized area
+    GANYMEDE = 'placementGanymede',
+    GREENERY = 'placementGreenery', // normal greenery (next to existing city if possible)
+    GREENERY_ADJACENT = 'placementGreeneryAdjacent',
+    ISOLATED = 'placementIsolated',
+    NOCTIS = 'placementNoctis',
+    NON_RESERVED = 'placementNonReserved',
+    NOT_RESERVED_FOR_OCEAN = 'placementNotReservedForOcean',
+    PHOBOS = 'placementPhobos',
+    RESERVED_FOR_OCEAN = 'placementReservedForOcean',
+    STEEL_OR_TITANIUM = 'placementSteelOrTitanium',
+    STEEL_OR_TITANIUM_PLAYER_ADJACENT = 'placementSteelOrTitaniumPlayerAdjacent',
+    VOLCANIC = 'placementVolcanic'
 }
 
 export enum CellAttribute {
@@ -84,9 +84,15 @@ export type TilePlacement = {
     isRequired: boolean;
 };
 
+const DEFAULT_PLACEMENT_REQUIREMENTS = {
+    [TileType.OCEAN]: PlacementRequirement.RESERVED_FOR_OCEAN,
+    [TileType.GREENERY]: PlacementRequirement.GREENERY,
+    [TileType.CITY]: PlacementRequirement.CITY
+};
+
 export const t = (
     type: TileType,
-    placementRequirement: PlacementRequirement,
+    placementRequirement: PlacementRequirement = DEFAULT_PLACEMENT_REQUIREMENTS[type],
     isRequired: boolean = false
 ): TilePlacement => ({
     type,
