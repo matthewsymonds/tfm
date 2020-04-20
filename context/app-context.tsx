@@ -29,7 +29,7 @@ import {
 } from '../constants/standard-project';
 import {Action, ActionType} from '../constants/action';
 
-function canAfford(card: Card, state: RootState) {
+function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
     let {cost = 0} = card;
 
@@ -60,7 +60,7 @@ function canAfford(card: Card, state: RootState) {
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
-function canPlayCardWithGlobalParameters(card: Card, state: RootState) {
+function canPlayWithGlobalParameters(card: Card, state: RootState) {
     const {requiredGlobalParameter} = card;
     if (!requiredGlobalParameter) return true;
 
@@ -85,11 +85,11 @@ function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     return true;
 }
 
-function doesPlayerHaveRequiredResources(card: Card, state: RootState) {
+function doesPlayerHaveRequiredResources(action: Action, state: RootState) {
     const player = getLoggedInPlayer(state);
 
-    for (const resource in card.requiredResources) {
-        const requiredAmount = card.requiredResources[resource];
+    for (const resource in action.removeResources) {
+        const requiredAmount = action.removeResources[resource];
 
         const playerAmount = player.resources[resource];
 
@@ -99,14 +99,10 @@ function doesPlayerHaveRequiredResources(card: Card, state: RootState) {
     return true;
 }
 
-function meetsProductionRequirements(card: Card, state: RootState) {
+function meetsProductionRequirements(action: Action, state: RootState) {
     const player = getLoggedInPlayer(state);
 
-    const {requiredProduction, decreaseProduction, decreaseAnyProduction} = card;
-
-    if (requiredProduction && player.productions[requiredProduction] < requiredProduction) {
-        return false;
-    }
+    const {decreaseProduction, decreaseAnyProduction} = action;
 
     for (const production in decreaseProduction) {
         if (
@@ -120,7 +116,7 @@ function meetsProductionRequirements(card: Card, state: RootState) {
     for (const production in decreaseAnyProduction) {
         for (const p of state.players) {
             if (
-                p.productions[production] - decreaseProduction[production] <
+                p.productions[production] - decreaseAnyProduction[production] <
                 MinimumProductions[production]
             ) {
                 return false;
@@ -131,10 +127,10 @@ function meetsProductionRequirements(card: Card, state: RootState) {
     return true;
 }
 
-function meetsTilePlacementRequirements(card: Card, state: RootState): boolean {
-    if (!card.tilePlacements) return true;
+function meetsTilePlacementRequirements(action: Action, state: RootState): boolean {
+    if (!action.tilePlacements) return true;
 
-    for (const {isRequired, placementRequirement} of card.tilePlacements) {
+    for (const {isRequired, placementRequirement} of action.tilePlacements) {
         if (!isRequired || !placementRequirement) continue;
         const possiblePlacements = getValidPlacementsForRequirement(state, placementRequirement);
         if (possiblePlacements.length === 0) return false;
@@ -144,29 +140,43 @@ function meetsTilePlacementRequirements(card: Card, state: RootState): boolean {
 }
 
 function canPlayCard(card: Card, state: RootState): [boolean, string | undefined] {
-    if (!canAfford(card, state)) {
+    if (!canAffordCard(card, state)) {
         return [false, 'Cannot afford to play'];
-    }
-
-    if (!canPlayCardWithGlobalParameters(card, state)) {
-        return [false, 'Global parameters not met'];
     }
 
     if (!doesPlayerHaveRequiredTags(card, state)) {
         return [false, 'Required tags not met'];
     }
 
+    if (!canPlayWithGlobalParameters(card, state)) {
+        return [false, 'Global parameters not met'];
+    }
+
+    const {requiredProduction} = card;
+
+    if (
+        requiredProduction &&
+        state.players[state.loggedInPlayerIndex].productions[requiredProduction] <
+            requiredProduction
+    ) {
+        return [false, 'Required production not met.'];
+    }
+
+    return canPlayAction(card, state);
+}
+
+function canPlayAction(action: Action, state: RootState): [boolean, string | undefined] {
     // Also accounts for opponent resources if applicable
-    if (!doesPlayerHaveRequiredResources(card, state)) {
+    if (!doesPlayerHaveRequiredResources(action, state)) {
         return [false, 'Not enough of required resource'];
     }
 
     // Also accounts for opponent productions if applicable
-    if (!meetsProductionRequirements(card, state)) {
+    if (!meetsProductionRequirements(action, state)) {
         return [false, 'Does not have required production'];
     }
 
-    if (!meetsTilePlacementRequirements(card, state)) {
+    if (!meetsTilePlacementRequirements(action, state)) {
         return [false, 'Cannot place tile'];
     }
 
@@ -283,6 +293,7 @@ export const appContext = {
     queue: [],
     canPlayCard,
     playCard,
+    canPlayAction,
     playAction,
     canPlayStandardProject,
     playStandardProject,

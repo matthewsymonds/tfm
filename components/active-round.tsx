@@ -1,14 +1,15 @@
-import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from '../components/resource';
+import React, { useContext } from 'react';
+import { useDispatch, useStore } from 'react-redux';
 import styled from 'styled-components';
-import React, {useContext} from 'react';
-import {CardComponent} from './card';
-import {useDispatch, useStore, shallowEqual} from 'react-redux';
-import {AppContext} from '../context/app-context';
-import {useTypedSelector, RootState} from '../reducer';
-import {Resource} from '../constants/resource';
-import {Card} from '../models/card';
-import {Board} from './board';
-import {TileType} from '../constants/board';
+import { markCardActionAsPlayed } from '../actions';
+import { ResourceBoard, ResourceBoardCell, ResourceBoardRow } from '../components/resource';
+import { TileType } from '../constants/board';
+import { Resource } from '../constants/resource';
+import { AppContext } from '../context/app-context';
+import { Card } from '../models/card';
+import { RootState, useTypedSelector } from '../reducer';
+import { Board } from './board';
+import { CardComponent } from './card';
 
 interface ButtonProps {
     disabled?: boolean;
@@ -59,6 +60,20 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
+
+    function playAction(card: Card) {
+        dispatch(markCardActionAsPlayed(card, playerIndex));
+        context.playAction(card.action!, state);
+        context.processQueue(dispatch);
+    }
+
+    function canPlayAction(card: Card) {
+        if (card.usedActionThisRound) return false;
+
+        if (!card.action) return false;
+
+        return context.canPlayAction(card.action, state)[0];
+    }
 
     return (
         <>
@@ -121,7 +136,14 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 return (
                     <CardComponent content={card} width={250} key={card.name}>
                         <div>{resourceMessage}</div>
-                        {card.action && <button>Play action</button>}
+                        {card.action && (
+                            <button
+                                disabled={!canPlayAction(card)}
+                                onClick={() => playAction(card)}
+                            >
+                                Play action
+                            </button>
+                        )}
                     </CardComponent>
                 );
             })}

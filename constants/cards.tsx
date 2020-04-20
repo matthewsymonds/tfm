@@ -3,6 +3,8 @@ import {Tag} from './tag';
 import {Resource} from './resource';
 import {TileType, PlacementRequirement, Parameter, t} from './board';
 import {MoveType} from './moves';
+import {VariableAmount} from './action';
+import {removeResource} from '../actions';
 
 export const cardConfigs: CardConfig[] = [
     {
@@ -87,7 +89,9 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         // action: dispatch => dispatch(goToGameStage(GameStage.BUY_OR_DISCARD)),
-        action: {text: 'Action: Look at the top card and either buy it or discard it'},
+        action: {
+            text: 'Action: Look at the top card and either buy it or discard it'
+        },
         cost: 9,
         deck: Deck.CORPORATE,
         name: "Inventors' Guild",
@@ -99,7 +103,11 @@ export const cardConfigs: CardConfig[] = [
         //     dispatch(changeResource(Resource.ENERGY, -1));
         //     dispatch(gainOneMegacreditPerCityOnMars());
         // },
-        action: {text: 'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.'},
+        action: {
+            text: 'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.',
+            removeResources: {[Resource.ENERGY]: 1},
+            gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITIES_ON_MARS}
+        },
         cost: 13,
         deck: Deck.BASIC,
         name: 'Martian Rails',
@@ -161,7 +169,10 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Pay 12 MC to place an ocean tile. TITANIUM MAY BE USED as if playing a space card.'
+                'Action: Pay 12 MC to place an ocean tile. TITANIUM MAY BE USED as if playing a space card.',
+            // TODO: Add titanium exchange rate
+            cost: 12,
+            tilePlacements: [t(TileType.OCEAN)]
         },
         cost: 25,
         deck: Deck.BASIC,
@@ -175,7 +186,11 @@ export const cardConfigs: CardConfig[] = [
         }
     },
     {
-        action: {text: 'Action: Spend 1 steel to gain 5 MC'},
+        action: {
+            text: 'Action: Spend 1 steel to gain 5 MC',
+            removeResources: {[Resource.STEEL]: 1},
+            gainResource: {[Resource.MEGACREDIT]: 5}
+        },
         cost: 27,
         deck: Deck.CORPORATE,
         name: 'Space Elevator',
@@ -186,7 +201,11 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.TITANIUM]: 1}
     },
     {
-        action: {text: 'Action: Spend 1 energy to draw a card.'},
+        action: {
+            text: 'Action: Spend 1 energy to draw a card.',
+            removeResources: {[Resource.ENERGY]: 1},
+            gainResource: {[Resource.CARD]: 1}
+        },
         cost: 11,
         deck: Deck.CORPORATE,
         name: 'Development Center',
@@ -196,7 +215,9 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Decrease your energy production 1 step to increase your terraforming rating 1 step.'
+                'Action: Decrease your energy production 1 step to increase your terraforming rating 1 step.',
+            decreaseProduction: {[Resource.ENERGY]: 1},
+            increaseParameter: {[Parameter.TERRAFORM_RATING]: 1}
         },
         cost: 11,
         deck: Deck.BASIC,
@@ -309,7 +330,11 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.PLANT]: 1}
     },
     {
-        action: {text: 'Action: Remove 1 animal from any card and add it to this card.'},
+        action: {
+            text: 'Action: Remove 1 animal from any card and add it to this card.',
+            removeAnyResource: {[Resource.ANIMAL]: 1},
+            gainResource: {[Resource.ANIMAL]: 1}
+        },
         cost: 14,
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
@@ -361,7 +386,11 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 4
     },
     {
-        action: {text: 'Action: Spend 1 titanium to add 1 fighter resource to this card.'},
+        action: {
+            text: 'Action: Spend 1 titanium to add 1 fighter resource to this card.',
+            removeResources: {[Resource.TITANIUM]: 1},
+            gainResource: {[Resource.FIGHTER]: 1}
+        },
         cost: 12,
         deck: Deck.CORPORATE,
         storedResourceType: Resource.FIGHTER,
@@ -432,7 +461,18 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 microbe to this card, or remove 2 microbe from this card to raise oxygen level 1 step.'
+                'Action: Add 1 microbe to this card, or remove 2 microbe from this card to raise oxygen level 1 step.',
+            choice: [
+                {
+                    text: 'Add one microbe',
+                    gainResource: {[Resource.MICROBE]: 1}
+                },
+                {
+                    text: 'Remove two microbes, raise oxygen one step',
+                    removeResources: {[Resource.MICROBE]: 2},
+                    increaseParameter: {[Parameter.OXYGEN]: 1}
+                }
+            ]
         },
         cost: 13,
         deck: Deck.BASIC,
@@ -444,7 +484,18 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 microbe to this card, or remove 2 microbes to raise temperature 1 step.'
+                'Action: Add 1 microbe to this card, or remove 2 microbes to raise temperature 1 step.',
+            choice: [
+                {
+                    text: 'Add one microbe',
+                    gainResource: {[Resource.MICROBE]: 1}
+                },
+                {
+                    text: 'Remove two microbes, raise temperature one step',
+                    removeResources: {[Resource.MICROBE]: 2},
+                    increaseParameter: {[Parameter.TEMPERATURE]: 1}
+                }
+            ]
         },
         cost: 8,
         deck: Deck.BASIC,
@@ -459,7 +510,11 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Remove 1 microbe from any card to add 1 to this card.'},
+        action: {
+            text: 'Action: Remove 1 microbe from any card to add 1 to this card.',
+            removeAnyResource: {[Resource.MICROBE]: 1},
+            gainResource: {[Resource.MICROBE]: 1}
+        },
         cost: 9,
         deck: Deck.BASIC,
         storedResourceType: Resource.MICROBE,
@@ -629,7 +684,10 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.PLANT]: 1}
     },
     {
-        action: {text: 'Action: Add 1 microbe to this card.'},
+        action: {
+            text: 'Action: Add 1 microbe to this card.',
+            gainResource: {[Resource.MICROBE]: 1}
+        },
         cost: 4,
         deck: Deck.CORPORATE,
         storedResourceType: Resource.MICROBE,
@@ -666,7 +724,7 @@ export const cardConfigs: CardConfig[] = [
         }
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 9,
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
@@ -699,7 +757,7 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)]
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 6,
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
@@ -888,7 +946,11 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.MEGACREDIT]: 2}
     },
     {
-        action: {text: 'Action: Spend 1 plant or 1 steel to gain 7 MC'},
+        action: {
+            text: 'Action: Spend 1 plant or 1 steel to gain 7 MC',
+            removeResourceOption: {[Resource.PLANT]: 1, [Resource.STEEL]: 1},
+            gainResource: {[Resource.MEGACREDIT]: 7}
+        },
         cost: 17,
         deck: Deck.CORPORATE,
         name: 'Electro Catapult',
@@ -923,7 +985,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Add an animal to this card.'},
+        action: {text: 'Action: Add an animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 10,
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
@@ -982,7 +1044,11 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.OCEAN)]
     },
     {
-        action: {text: 'Action: Spend 7MC to increase your energy production 1 step.'},
+        action: {
+            text: 'Action: Spend 7MC to increase your energy production 1 step.',
+            removeResources: {[Resource.MEGACREDIT]: 7},
+            increaseProduction: {[Resource.ENERGY]: 1}
+        },
         cost: 3,
         deck: Deck.BASIC,
         name: 'Space Mirrors',
@@ -1187,7 +1253,11 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.ENERGY]: 6}
     },
     {
-        action: {text: 'Action: Spend 6 energy to add a science resource to this card.'},
+        action: {
+            text: 'Action: Spend 6 energy to add a science resource to this card.',
+            removeResources: {[Resource.ENERGY]: 6},
+            gainResource: {[Resource.SCIENCE]: 1}
+        },
         cost: 12,
         deck: Deck.CORPORATE,
         storedResourceType: Resource.SCIENCE,
@@ -1267,7 +1337,12 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.ENERGY]: 1}
     },
     {
-        action: {text: 'Action: Spend 4 energy to gain 1 steel and increase oxygen 1 step.'},
+        action: {
+            text: 'Action: Spend 4 energy to gain 1 steel and increase oxygen 1 step.',
+            removeResources: {[Resource.ENERGY]: 4},
+            gainResource: {[Resource.STEEL]: 1},
+            increaseParameter: {[Parameter.OXYGEN]: 1}
+        },
         cost: 11,
         deck: Deck.BASIC,
         name: 'Ironworks',
@@ -1288,7 +1363,12 @@ export const cardConfigs: CardConfig[] = [
         }
     },
     {
-        action: {text: 'Action: Spend 4 energy to gain 2 steel and increase oxygen 1 step.'},
+        action: {
+            text: 'Action: Spend 4 energy to gain 2 steel and increase oxygen 1 step.',
+            removeResources: {[Resource.ENERGY]: 4},
+            gainResource: {[Resource.STEEL]: 2},
+            increaseParameter: {[Parameter.OXYGEN]: 1}
+        },
         cost: 15,
         deck: Deck.BASIC,
         name: 'Steelworks',
@@ -1296,7 +1376,12 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Spend 4 energy to gain 1 titanium and increase oxygen 1 step.'},
+        action: {
+            text: 'Action: Spend 4 energy to gain 1 titanium and increase oxygen 1 step.',
+            removeResources: {[Resource.ENERGY]: 4},
+            gainResource: {[Resource.TITANIUM]: 1},
+            increaseParameter: {[Parameter.OXYGEN]: 1}
+        },
         cost: 13,
         deck: Deck.BASIC,
         name: 'Ore Processor',
@@ -1509,7 +1594,11 @@ export const cardConfigs: CardConfig[] = [
         removeResources: {[Resource.PLANT]: 1}
     },
     {
-        action: {text: 'Action: Spend 7 MC to increase your steel production 1 step.'},
+        action: {
+            text: 'Action: Spend 7 MC to increase your steel production 1 step.',
+            removeResources: {[Resource.MEGACREDIT]: 7},
+            increaseProduction: {[Resource.STEEL]: 1}
+        },
         cost: 4,
         deck: Deck.CORPORATE,
         name: 'Industrial Center',
@@ -1656,7 +1745,12 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.ENERGY]: 3}
     },
     {
-        action: {text: 'Action: Add a microbe to ANOTHER card.'},
+        action: {
+            text: 'Action: Add a microbe to ANOTHER card.',
+            // TODO Designate that it's not for this card.
+            gainResource: {[Resource.MICROBE]: 1}
+        },
+
         cost: 4,
         deck: Deck.BASIC,
         name: 'Symbiotic Fungus',
@@ -1669,7 +1763,13 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Gain 1 plant or add 2 microbes to ANOTHER card.'},
+        action: {
+            text: 'Action: Gain 1 plant or add 2 microbes to ANOTHER card.',
+            gainResourceOption: {
+                [Resource.PLANT]: 1,
+                [Resource.MICROBE]: 2
+            }
+        },
         cost: 13,
         deck: Deck.BASIC,
         name: 'Extreme-Cold Fungus',
@@ -1911,7 +2011,11 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 1
     },
     {
-        action: {text: 'Action: Spend 8 heat to increase your terraforming rating 1 step.'},
+        action: {
+            text: 'Action: Spend 8 heat to increase your terraforming rating 1 step.',
+            removeResources: {[Resource.HEAT]: 8},
+            increaseParameter: {[Parameter.TERRAFORM_RATING]: 1}
+        },
         cost: 3,
         deck: Deck.CORPORATE,
         name: 'Caretaker Contract',
@@ -1952,7 +2056,14 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 microbe to this card, or remove 3 microbes to increase your TR 1 step.'
+                'Action: Add 1 microbe to this card, or remove 3 microbes to increase your TR 1 step.',
+            choice: [
+                {gainResource: {[Resource.MICROBE]: 1}},
+                {
+                    removeResources: {[Resource.MICROBE]: 3},
+                    increaseParameter: {[Parameter.TERRAFORM_RATING]: 1}
+                }
+            ]
         },
         cost: 11,
         deck: Deck.BASIC,
@@ -2194,7 +2305,11 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.PLANT]: 2}
     },
     {
-        action: {text: 'Action: Spend 3 energy to raise oxygen 1 step.'},
+        action: {
+            text: 'Action: Spend 3 energy to raise oxygen 1 step.',
+            removeResources: {[Resource.ENERGY]: 1},
+            increaseParameter: {[Parameter.OXYGEN]: 1}
+        },
         cost: 12,
         deck: Deck.BASIC,
         name: 'Water Splitting Plant',
@@ -2282,7 +2397,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.ENERGY]: 2}
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 13,
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
@@ -2335,7 +2450,9 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.'
+                'Action: Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.',
+            removeResources: {[Resource.MEGACREDIT]: 8},
+            tilePlacements: [t(TileType.OCEAN)]
         },
         cost: 18,
         deck: Deck.BASIC,
@@ -2410,7 +2527,11 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.GREENERY)]
     },
     {
-        action: {text: 'Action: Spend any amount of energy to gain that amount of MC.'},
+        action: {
+            text: 'Action: Spend any amount of energy to gain that amount of MC.',
+            removeResources: {[Resource.ENERGY]: VariableAmount.USER_CHOICE},
+            gainResource: {[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE}
+        },
         cost: 4,
         deck: Deck.CORPORATE,
         name: 'Power Infrastructure',
@@ -2467,7 +2588,11 @@ export const cardConfigs: CardConfig[] = [
         }
     },
     {
-        action: {text: 'Action: Spend 2MC to draw a card.'},
+        action: {
+            text: 'Action: Spend 2MC to draw a card.',
+            removeResources: {[Resource.MEGACREDIT]: 2},
+            gainResource: {[Resource.CARD]: 1}
+        },
         cost: 11,
         deck: Deck.CORPORATE,
         name: 'Restricted Area',
@@ -2574,7 +2699,7 @@ export const cardConfigs: CardConfig[] = [
         // }
     },
     {
-        action: {text: 'Action: Draw 2 cards.'},
+        action: {text: 'Action: Draw 2 cards.', gainResource: {[Resource.CARD]: 2}},
         cost: 21,
         deck: Deck.CORPORATE,
         name: 'AI Central',
@@ -2621,7 +2746,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 7,
         deck: Deck.PROMO,
         storedResourceType: Resource.ANIMAL,
@@ -2636,7 +2761,17 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text: 'Action: Add 1 floater to ANY card, or spend 1 floater here to draw a card.'
+            text: 'Action: Add 1 floater to ANY card, or spend 1 floater here to draw a card.',
+            choice: [
+                {
+                    // TODO fix ANY card issue
+                    gainResource: {[Resource.FLOATER]: 1}
+                },
+                {
+                    removeResources: {[Resource.FLOATER]: 1},
+                    gainResource: {[Resource.CARD]: 1}
+                }
+            ]
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -2651,6 +2786,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Aerosport Tournament',
         requiredResources: {[Resource.FLOATER]: 5},
+        gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITY_TILES_IN_PLAY},
         text: 'Requires that you have 5 floaters. Gain 1 MC for each city tile in play.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
@@ -2663,6 +2799,9 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Air-Scrapping Expedition',
         text: 'Raise Venus 1 step. Add 3 floaters to ANY VENUS CARD.',
+        increaseParameter: {[Parameter.VENUS]: 1},
+        // TODO fix any card issue
+        gainResource: {[Resource.FLOATER]: 3},
         tags: [Tag.EVENT, Tag.VENUS],
         type: CardType.EVENT
     },
@@ -2671,6 +2810,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Atalanta Planitia Lab',
         text: 'Requires 3 science tags. Draw 2 cards.',
+        gainResource: {[Resource.CARD]: 2},
         requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.SCIENCE, Tag.VENUS],
         type: CardType.AUTOMATED,
@@ -2684,6 +2824,11 @@ export const cardConfigs: CardConfig[] = [
         text:
             'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
         requiredTags: {[Tag.SCIENCE]: 3},
+        choice: [
+            {increaseParameter: {[Parameter.TEMPERATURE]: 2}},
+            {increaseParameter: {[Parameter.VENUS]: 2}}
+        ],
+        gainResource: {[Resource.FLOATER]: 3},
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1
@@ -2694,6 +2839,8 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Comet for Venus',
         text: 'Raise Venus 1 step. Remove up to 4 MC from a player WITH A VENUS TAG IN PLAY.',
+        increaseParameter: {[Parameter.VENUS]: 1},
+        removeAnyResource: {[Resource.MEGACREDIT]: 4},
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT
     },
@@ -2702,6 +2849,8 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Corroder Suits',
         text: 'Increase your MC production 2 steps. Add 1 resource to ANY VENUS CARD.',
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        // TODO Add support for variable resource
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED
     },
@@ -2712,6 +2861,9 @@ export const cardConfigs: CardConfig[] = [
         text:
             'Requires 4 science tags. Decrease your energy production 1 step. Increase your titanium production 1 step. Place a city tile ON THE RESERVED AREA.',
         requiredTags: {[Tag.SCIENCE]: 4},
+        decreaseProduction: {[Resource.ENERGY]: 1},
+        increaseProduction: {[Resource.TITANIUM]: 1},
+        // TODO tile placement
         tags: [Tag.CITY, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 3
@@ -2719,7 +2871,14 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 floater to this card, or spend 1 floater here to increase your energy production 1 step.'
+                'Action: Add 1 floater to this card, or spend 1 floater here to increase your energy production 1 step.',
+            choice: [
+                {gainResource: {[Resource.FLOATER]: 1}},
+                {
+                    removeResources: {[Resource.FLOATER]: 1},
+                    increaseProduction: {[Resource.ENERGY]: 1}
+                }
+            ]
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -2731,7 +2890,9 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 floater to ANY card. Effect: When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each'
+                'Action: Add 1 floater to ANY card. Effect: When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
+            gainResource: {[Resource.FLOATER]: 1}
+            // TODO effect
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -2743,18 +2904,26 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 floater to this card, or remove 2 floaters here to raise Venus 1 step.'
+                'Action: Add 1 floater to this card, or remove 2 floaters here to raise Venus 1 step.',
+            choice: [
+                {gainResource: {[Resource.FLOATER]: 1}},
+                {
+                    removeResources: {[Resource.FLOATER]: 2},
+                    increaseParameter: {[Parameter.VENUS]: 1}
+                }
+            ]
         },
         cost: 21,
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
         name: 'Extractor Balloons',
         text: 'Add 3 floaters to this card.',
+        gainResource: {[Resource.FLOATER]: 3},
         tags: [Tag.VENUS],
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Add 1 microbe to ANY card.'},
+        action: {text: 'Action: Add 1 microbe to ANY card.', gainResource: {[Resource.FLOATER]: 1}},
         cost: 3,
         deck: Deck.VENUS,
         storedResourceType: Resource.MICROBE,
@@ -2765,7 +2934,12 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Spend 2 MC to add 1 floater to ANY card.'},
+        action: {
+            text: 'Action: Spend 2 MC to add 1 floater to ANY card.',
+            removeResources: {[Resource.MEGACREDIT]: 2},
+            // TODO any card
+            gainResource: {[Resource.FLOATER]: 1}
+        },
         cost: 5,
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
@@ -2778,7 +2952,17 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.'
+                'Action: Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
+            choice: [
+                {
+                    removeResources: {[Resource.MEGACREDIT]: 2},
+                    gainResource: {[Resource.FLOATER]: 2}
+                },
+                {
+                    removeResources: {[Resource.FLOATER]: 2},
+                    increaseParameter: {[Parameter.VENUS]: 1}
+                }
+            ]
         },
         cost: 8,
         deck: Deck.VENUS,
@@ -2799,7 +2983,10 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.PLANT, Tag.VENUS],
         type: CardType.AUTOMATED,
-        victoryPoints: 2
+        victoryPoints: 2,
+        decreaseProduction: {[Resource.ENERGY]: 1},
+        increaseProduction: {[Resource.MEGACREDIT]: 1},
+        choice: [{gainResource: {[Resource.MICROBE]: 2}}, {gainResource: {[Resource.ANIMAL]: 2}}]
     },
     {
         // venus: 1,
@@ -2808,7 +2995,9 @@ export const cardConfigs: CardConfig[] = [
         name: 'GHG Import from Venus',
         text: 'Raise Venus 1 step. Increase your heat production 3 steps.',
         tags: [Tag.EVENT, Tag.SPACE, Tag.VENUS],
-        type: CardType.EVENT
+        type: CardType.EVENT,
+        increaseProduction: {[Resource.HEAT]: 3},
+        increaseParameter: {[Parameter.VENUS]: 1}
     },
     {
         // venus: 3,
@@ -2817,7 +3006,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Giant Solar Shade',
         text: 'Raise Venus 3 steps.',
         tags: [Tag.SPACE, Tag.VENUS],
-        type: CardType.AUTOMATED
+        type: CardType.AUTOMATED,
+        increaseParameter: {[Parameter.VENUS]: 3}
     },
     {
         cost: 20,
@@ -2827,6 +3017,7 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 2 steps. Increase your MC production 1  step for each Venus and Earth tag you have. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED
+        // TODO
     },
     {
         // venus: 1,
@@ -2837,6 +3028,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise Venus 1 step. Add 1 floater to A VENUS CARD for each Jovian tag you have.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT
+        // TODO...
     },
     {
         cost: 17,
@@ -2874,7 +3066,14 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
-                'Action: Add 1 floater to this card, or spend 1 floater here to raise your MC production 1 step.'
+                'Action: Add 1 floater to this card, or spend 1 floater here to raise your MC production 1 step.',
+            choice: [
+                {gainResource: {[Resource.FLOATER]: 1}},
+                {
+                    removeResources: {[Resource.FLOATER]: 1},
+                    increaseProduction: {[Resource.MEGACREDIT]: 1}
+                }
+            ]
         },
         cost: 4,
         deck: Deck.VENUS,
@@ -3029,7 +3228,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 12,
         deck: Deck.VENUS,
         storedResourceType: Resource.ANIMAL,
@@ -3598,7 +3797,7 @@ export const cardConfigs: CardConfig[] = [
         // effect: effect => effect.drawCard()
     },
     {
-        action: {text: 'Action: Add 1 animal to this card.'},
+        action: {text: 'Action: Add 1 animal to this card.', gainResource: {[Resource.ANIMAL]: 1}},
         cost: 5,
         deck: Deck.COLONIES,
         storedResourceType: Resource.ANIMAL,

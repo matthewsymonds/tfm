@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import {
-    Resource,
-    getResourceSymbol,
+    getResourceBackgroundColor,
     getResourceColor,
-    getResourceBackgroundColor
+    getResourceSymbol,
+    Resource
 } from '../constants/resource';
 
 interface ResourceIconBaseProps {

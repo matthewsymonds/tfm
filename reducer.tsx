@@ -32,7 +32,8 @@ import {
     drawCards,
     discardCards,
     START_OVER,
-    PAY_TO_PLAY_STANDARD_PROJECT
+    PAY_TO_PLAY_STANDARD_PROJECT,
+    MARK_CARD_ACTION_AS_PLAYED
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -355,6 +356,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
+                break;
+            case MARK_CARD_ACTION_AS_PLAYED:
+                const playedCard = player.playedCards.find(card => card.name === payload.card.name);
+                playedCard!.usedActionThisRound = true;
                 break;
             default:
                 return draft;

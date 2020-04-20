@@ -112,3 +112,12 @@ export const increaseParameter = (parameter: Parameter, amount: number, playerIn
 // For debugging
 export const START_OVER = 'START_OVER';
 export const startOver = () => ({type: START_OVER});
+
+export const MARK_CARD_ACTION_AS_PLAYED = 'MARK_CARD_ACTION_AS_PLAYED';
+export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
+    type: MARK_CARD_ACTION_AS_PLAYED,
+    payload: {
+        card,
+        playerIndex
+    }
+});
