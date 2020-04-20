@@ -10,6 +10,7 @@ import {MinimumProductions} from '../constants/game';
 import {
     payToPlayCard,
     payToPlayStandardProject,
+    askUserToRemoveResource,
     decreaseProduction,
     increaseProduction,
     removeResource,
@@ -19,7 +20,8 @@ import {
     PLACE_TILE,
     placeTile,
     askUserToPlaceTile,
-    ASK_USER_TO_PLACE_TILE
+    ASK_USER_TO_PLACE_TILE,
+    ASK_USER_TO_REMOVE_RESOURCE
 } from '../actions';
 import {Parameter} from '../constants/board';
 import {
@@ -27,7 +29,7 @@ import {
     StandardProjectType,
     standardProjectActions
 } from '../constants/standard-project';
-import {Action, ActionType} from '../constants/action';
+import {Action, ActionType, VariableAmount, Amount} from '../constants/action';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -183,6 +185,14 @@ function canPlayAction(action: Action, state: RootState): [boolean, string | und
     return [true, 'Good to go'];
 }
 
+function createRemoveResourceAction(resource: Resource, amount: Amount, playerIndex: number) {
+    if (typeof amount === 'number') {
+        return removeResource(resource, amount, playerIndex);
+    } else {
+        return askUserToRemoveResource(resource, amount, playerIndex);
+    }
+}
+
 function playAction(action: Action, state: RootState) {
     const playerIndex = state.loggedInPlayerIndex;
     for (const production in action.decreaseProduction) {
@@ -195,6 +205,16 @@ function playAction(action: Action, state: RootState) {
         );
     }
 
+    for (const resource in action.removeResources) {
+        this.queue.push(
+            createRemoveResourceAction(
+                resource as Resource,
+                action.removeResources[resource],
+                playerIndex
+            )
+        );
+    }
+
     for (const production in action.increaseProduction) {
         this.queue.push(
             increaseProduction(
@@ -202,12 +222,6 @@ function playAction(action: Action, state: RootState) {
                 action.increaseProduction[production],
                 playerIndex
             )
-        );
-    }
-
-    for (const resource in action.removeResources) {
-        this.queue.push(
-            removeResource(resource as Resource, action.removeResources[resource], playerIndex)
         );
     }
 
@@ -283,7 +297,7 @@ function processQueue(dispatch: Function) {
     }
 }
 
-const PAUSE_ACTIONS = [ASK_USER_TO_PLACE_TILE];
+const PAUSE_ACTIONS = [ASK_USER_TO_PLACE_TILE, ASK_USER_TO_REMOVE_RESOURCE];
 
 function shouldPause(action: {type: string}): boolean {
     return PAUSE_ACTIONS.includes(action.type);

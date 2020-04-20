@@ -24,6 +24,7 @@ import {
     GAIN_RESOURCE,
     MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
     ASK_USER_TO_PLACE_TILE,
+    ASK_USER_TO_REMOVE_RESOURCE,
     PAY_TO_PLAY_CARD,
     PLACE_TILE,
     INCREASE_PARAMETER,
@@ -39,6 +40,8 @@ import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
 import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';
+import {Amount, Action, VariableAmount} from './constants/action';
+import {StandardProjectType} from './constants/standard-project';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -53,6 +56,7 @@ type PlayerId = number;
 
 export type GameState = {
     queuePaused: boolean;
+    pendingVariableAmount?: number;
     loggedInPlayerIndex: number;
     players: Array<PlayerState>;
     common: {
@@ -82,7 +86,11 @@ export type GameState = {
 export type PlayerState = {
     index: number;
     terraformRating: number;
-    tilePlacement?: TilePlacement;
+    pendingTilePlacement?: TilePlacement;
+    pendingResourceReduction?: {
+        resource: Resource;
+        amount: Amount;
+    };
     playerIndex: number;
     corporation: null | Card;
     possibleCards: Card[];
@@ -273,14 +281,20 @@ export const reducer = (state = INITIAL_STATE, action) => {
             player.terraformRating += userTerraformRatingChange;
         }
 
-        function handleGainResource(resource: Resource, amount: number) {
+        function handleGainResource(resource: Resource, amount: Amount) {
+            let numberAmount: number;
+            if (typeof amount === 'number') {
+                numberAmount = amount;
+            } else {
+                numberAmount = draft.pendingVariableAmount!;
+            }
             if (resource === Resource.CARD) {
                 // Sometimes we list cards as a resource.
                 // handle as a draw action.
-                player.cards.push(...draft.common.deck.splice(0, amount));
+                player.cards.push(...draft.common.deck.splice(0, numberAmount));
                 return;
             }
-            player.resources[resource] += amount;
+            player.resources[resource] += numberAmount;
         }
         switch (action.type) {
             case START_OVER:
@@ -302,6 +316,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
+                if (player.pendingResourceReduction) {
+                    player.pendingResourceReduction = undefined;
+                    draft.pendingVariableAmount = payload.cards.length;
+                }
                 break;
             case DRAW_CARDS:
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
@@ -329,10 +347,16 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.playedCards.push(payload.card);
                 break;
             case ASK_USER_TO_PLACE_TILE:
-                player.tilePlacement = payload.tilePlacement;
+                player.pendingTilePlacement = payload.tilePlacement;
+                break;
+            case ASK_USER_TO_REMOVE_RESOURCE:
+                player.pendingResourceReduction = {
+                    resource: payload.resource,
+                    amount: payload.amount
+                };
                 break;
             case PLACE_TILE:
-                player.tilePlacement = undefined;
+                player.pendingTilePlacement = undefined;
                 const matchingCell = draft.common.board.flat().find(cell => {
                     const coords = cell.coords || [];
                     return (
