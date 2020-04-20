@@ -1,6 +1,6 @@
 import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from '../components/resource';
 import styled from 'styled-components';
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {CardComponent} from './card';
 import {useDispatch, useStore, shallowEqual} from 'react-redux';
 import {AppContext} from '../context/app-context';
@@ -9,9 +9,12 @@ import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {Board} from './board';
 import {TileType} from '../constants/board';
+import {Amount, VariableAmount} from '../constants/action';
+import {discardCards} from '../actions';
 
 interface ButtonProps {
     disabled?: boolean;
+    onClick?: () => void;
 }
 
 const Hand = styled.div`
@@ -47,6 +50,13 @@ function getTileHumanName(type: TileType): string {
         }[type] || 'Unknown'
     );
 }
+function getResourceReductionAmountHumanName(amount: Amount) {
+    if (typeof amount !== 'number') {
+        return 'any number of';
+    } else {
+        return amount;
+    }
+}
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
@@ -59,6 +69,25 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
+    const [cardsToDiscard, setCardsToDiscard] = useState<Set<Card>>(new Set());
+
+    function handleCardClick(card) {
+        if (player.pendingResourceReduction?.resource === Resource.CARD) {
+            const newCardsToDiscard = new Set(cardsToDiscard);
+            if (cardsToDiscard.has(card)) {
+                newCardsToDiscard.delete(card);
+            } else {
+                newCardsToDiscard.add(card);
+            }
+            setCardsToDiscard(newCardsToDiscard);
+        }
+    }
+
+    function confirmDiscardSelection() {
+        dispatch(discardCards(Array.from(cardsToDiscard), playerIndex));
+        context.processQueue(dispatch);
+        setCardsToDiscard(new Set());
+    }
 
     return (
         <>
@@ -90,18 +119,41 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     ))}
                 </ResourceBoardRow>
             </ResourceBoard>
-            {player.tilePlacement && (
-                <div>Please place the {getTileHumanName(player.tilePlacement.type)} tile.</div>
+            {player.pendingTilePlacement && (
+                <div>
+                    Please place the {getTileHumanName(player.pendingTilePlacement.type)} tile.
+                </div>
+            )}
+            {player.pendingResourceReduction?.resource === Resource.CARD && (
+                <>
+                    <div>
+                        Please select{' '}
+                        {getResourceReductionAmountHumanName(
+                            player.pendingResourceReduction.amount
+                        )}{' '}
+                        card{player.pendingResourceReduction.amount === 1 ? '' : 's'} to discard.
+                    </div>
+                    <Button onClick={confirmDiscardSelection}>Confirm discard selection</Button>
+                </>
             )}
             <h3>Hand</h3>
             <Hand>
                 {cards.map(card => {
                     const [canPlay, reason] = context.canPlayCard(card, state);
                     return (
-                        <CardComponent content={card} width={250} key={card.name}>
+                        <CardComponent
+                            content={card}
+                            width={250}
+                            key={card.name}
+                            onClick={() => handleCardClick(card)}
+                            selected={cardsToDiscard.has(card)}
+                        >
                             {!canPlay && <em>{reason}</em>}
                             <Button
-                                disabled={!context.canPlayCard(card, state)[0]}
+                                disabled={
+                                    !context.canPlayCard(card, state)[0] ||
+                                    player.pendingResourceReduction?.resource === Resource.CARD
+                                }
                                 onClick={() => {
                                     context.playCard(card, state);
                                     context.processQueue(dispatch);

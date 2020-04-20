@@ -18,6 +18,7 @@ const Text = styled.div`
 
 interface CardBaseProps {
     width: number;
+    onClick?: () => void;
 }
 
 interface SelectionProps {
@@ -49,14 +50,16 @@ const CardBase = styled.div<CardBaseProps>`
 interface CardComponentProps extends CardBaseProps {
     content: Card;
     selected?: boolean;
+    onClick?: () => void;
+    width: number;
 }
 
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
-    const {content, width, selected} = props;
+    const {content, width, selected, onClick} = props;
     const {name, text, action, effect, cost, tags} = content;
 
     return (
-        <CardBase width={width}>
+        <CardBase width={width} onClick={onClick}>
             <Selection selected={selected || false}>
                 <TagsComponent tags={tags} />
                 <Name>{name}</Name>

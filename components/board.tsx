@@ -52,9 +52,11 @@ const Circle = styled.div`
 `;
 
 export const Board: React.FunctionComponent<BoardProps> = props => {
-    const tilePlacement = useTypedSelector(state => state.players[props.playerIndex].tilePlacement);
+    const pendingTilePlacement = useTypedSelector(
+        state => state.players[props.playerIndex].pendingTilePlacement
+    );
     const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, tilePlacement?.placementRequirement)
+        getValidPlacementsForRequirement(state, pendingTilePlacement?.placementRequirement)
     );
 
     const context = useContext(AppContext);
@@ -66,7 +68,7 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
 
         dispatch(
             placeTile(
-                {type: tilePlacement!.type!, ownerPlayerIndex: props.playerIndex},
+                {type: pendingTilePlacement!.type!, ownerPlayerIndex: props.playerIndex},
                 cell,
                 props.playerIndex
             )

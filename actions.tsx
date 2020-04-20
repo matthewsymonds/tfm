@@ -4,6 +4,7 @@ import {Card} from './models/card';
 import {Resource} from './constants/resource';
 import {TilePlacement, Tile, Cell, Parameter} from './constants/board';
 import {StandardProjectAction} from './constants/standard-project';
+import {Amount, Action, VariableAmount} from './constants/action';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -65,7 +66,7 @@ export const removeResource = (resource: Resource, amount: number, playerIndex: 
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
-export const gainResource = (resource: Resource, amount: number, playerIndex: number) => ({
+export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: GAIN_RESOURCE,
     payload: {resource, amount, playerIndex}
 });
@@ -95,6 +96,16 @@ export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
 export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: number) => ({
     type: ASK_USER_TO_PLACE_TILE,
     payload: {playerIndex, tilePlacement}
+});
+
+export const ASK_USER_TO_REMOVE_RESOURCE = 'ASK_USER_TO_REMOVE_RESOURCE';
+export const askUserToRemoveResource = (
+    resource: Resource,
+    amount: VariableAmount,
+    playerIndex: number
+) => ({
+    type: ASK_USER_TO_REMOVE_RESOURCE,
+    payload: {resource, amount, playerIndex}
 });
 
 export const PLACE_TILE = 'PLACE_TILE';
