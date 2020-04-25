@@ -6,10 +6,17 @@ import {Effect} from './effect';
 import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
 
+export type RequiredTilePlacements = {
+    type: TileType;
+    currentPlayer?: boolean;
+};
+
 export interface CardConfig extends Action {
     resources?: PropertyCounter<Resource>;
     action?: Action;
     effect?: Effect;
+    // Use very rarely, in case we need multiple effects (e.g. Tharsis Republic).
+    effects?: Effect[];
     deck: Deck;
     storedResourceType?: Resource;
     name: string;
@@ -19,6 +26,7 @@ export interface CardConfig extends Action {
     requiredGlobalParameter?: RequiredGlobalParameter;
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
+    requiredTilePlacements?: RequiredTilePlacements[];
     requiredResources?: PropertyCounter<Resource>;
     minColonies?: number;
     maxColonies?: number; // only for colonies expansion

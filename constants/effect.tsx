@@ -1,5 +1,5 @@
 import {Action} from './action';
-
+import {EffectTrigger} from './effect-trigger';
 // export interface Effect {
 //     addOrRemoveOneResource(resource: Resource, removeResourcesCallback: Function): void;
 //     discardThenDraw(): void;
@@ -25,8 +25,7 @@ import {Action} from './action';
 export enum Condition {}
 
 export interface Effect {
-    text: string;
-    // TODO(matthewwsymonds) mark as non-optional
-    condition?: Condition;
-    result?: Action;
+    trigger?: EffectTrigger;
+    action?: Action;
+    text?: string;
 }

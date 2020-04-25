@@ -42,4 +42,7 @@ export interface Action {
     increaseTerraformRating?: number;
 
     choice?: Action[];
+
+    // For UNMI
+    requiresTerraformRatingIncrease?: boolean;
 }
