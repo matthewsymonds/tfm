@@ -10,7 +10,7 @@ const StandardProjectsBase = styled.div`
     display: flex;
     flex-direction: column;
     padding: 8px;
-    background-color: hsla(28, 0%, 85%, 1);
+    background-color: lightgray;
     border-radius: 3px;
     color: white;
 `;
@@ -21,8 +21,9 @@ const StandardProjectRow = styled.div<{selectable: boolean}>`
     flex-direction: row;
     justify-content: space-between;
     padding: 4px;
+    cursor: ${props => (props.selectable ? 'pointer' : 'default')};
     &:hover {
-        background-color: ${props => (props.selectable ? 'red' : '')};
+        background: ${props => (props.selectable ? 'lightgreen' : 'white')};
     }
 `;
 
@@ -90,8 +91,7 @@ export default function StandardProjects() {
                                 context.playStandardProject(standardProjectAction, state);
                                 context.processQueue(dispatch);
                             }
-                        }}
-                    >
+                        }}>
                         <StandardProjectPayment>{config.payment}</StandardProjectPayment>
                         <StandardProjectLabel>{config.label}</StandardProjectLabel>
                     </StandardProjectRow>

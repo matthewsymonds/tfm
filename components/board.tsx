@@ -23,10 +23,12 @@ const BoardOuter = styled.div`
     margin: 0 auto;
     width: 100%;
     height: 800px;
+    width: 1200px;
     background: #212121;
     display: flex;
     justify-content: center;
     align-items: center;
+    transform: scale(0.9);
 `;
 
 interface BoardProps {
@@ -66,13 +68,7 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
     function handleClick(cell: CellType) {
         if (!validPlacements.includes(cell)) return;
 
-        dispatch(
-            placeTile(
-                {type: pendingTilePlacement!.type!, ownerPlayerIndex: props.playerIndex},
-                cell,
-                props.playerIndex
-            )
-        );
+        dispatch(placeTile({type: pendingTilePlacement!.type!}, cell, props.playerIndex));
 
         context.processQueue(dispatch);
     }
@@ -89,14 +85,14 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                         cellHelpers.onMars(cell) && (
                                             <div
                                                 style={{position: 'relative'}}
-                                                onClick={event => handleClick(cell)}
-                                            >
+                                                onClick={event => handleClick(cell)}>
                                                 <Cell
                                                     selectable={validPlacements.includes(cell)}
                                                     type={cell.type}
                                                     bonus={cell.bonus ?? []}
-                                                    key={index}
-                                                ></Cell>
+                                                    key={index}>
+                                                    {cell.specialName ?? ''}
+                                                </Cell>
                                                 {cell.tile && <Tile type={cell.tile.type} />}
                                             </div>
                                         )

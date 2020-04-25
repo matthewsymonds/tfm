@@ -169,7 +169,9 @@ function getInitialState(): GameState {
 
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
-    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
+    const deck = possibleCards.filter(
+        card => card.type !== CardType.CORPORATION && card.tilePlacements.length > 0
+    );
     const possibleCorporations = sampleCards(allCorporations, 2);
     const startingCards = sampleCards(deck, 10);
 
@@ -357,6 +359,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case PLACE_TILE:
                 player.pendingTilePlacement = undefined;
+                if (payload.tile?.type !== TileType.OCEAN) {
+                    payload.tile.ownerPlayerIndex = player.index;
+                }
                 const matchingCell = draft.common.board.flat().find(cell => {
                     const coords = cell.coords || [];
                     return (

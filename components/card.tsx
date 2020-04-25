@@ -9,8 +9,8 @@ const Name = styled.div`
     align-items: center;
 `;
 
-const Text = styled.div`
-    margin: 20px;
+export const CardText = styled.div`
+    margin: 10px;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -35,8 +35,10 @@ const Selection = styled.div<SelectionProps>`
 
 const CardBase = styled.div<CardBaseProps>`
     margin: 8px;
-    border: 1px solid gray;
-    border-radius: 2px;
+    box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.3);
+    background: #f7f7f7;
+    border-radius: 5px;
+    border: 3px solid white;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -63,10 +65,10 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
             <Selection selected={selected || false}>
                 <TagsComponent tags={tags} />
                 <Name>{name}</Name>
-                {typeof cost === 'number' && <Text>Cost: {cost}€</Text>}
-                {text && <Text>{text}</Text>}
-                {effect?.text && <Text>{effect.text}</Text>}
-                {action?.text && <Text>{action.text}</Text>}
+                {typeof cost === 'number' && <CardText>Cost: {cost}€</CardText>}
+                {text && <CardText>{text}</CardText>}
+                {effect?.text && <CardText>{effect.text}</CardText>}
+                {action?.text && <CardText>{action.text}</CardText>}
                 {props.children}
             </Selection>
         </CardBase>

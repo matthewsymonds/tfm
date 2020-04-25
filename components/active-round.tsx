@@ -10,12 +10,7 @@ import {AppContext} from '../context/app-context';
 import {Card} from '../models/card';
 import {RootState, useTypedSelector} from '../reducer';
 import {Board} from './board';
-import {CardComponent} from './card';
-
-interface ButtonProps {
-    disabled?: boolean;
-    onClick?: () => void;
-}
+import {CardComponent, CardText} from './card';
 
 const Hand = styled.div`
     display: flex;
@@ -24,10 +19,6 @@ const Hand = styled.div`
     width: 100%;
     overflow-y: auto;
     flex-wrap: wrap;
-`;
-
-const Button = styled.button<ButtonProps>`
-    margin: 0 auto;
 `;
 
 function getTileHumanName(type: TileType): string {
@@ -147,7 +138,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         )}{' '}
                         card{player.pendingResourceReduction.amount === 1 ? '' : 's'} to discard.
                     </div>
-                    <Button onClick={confirmDiscardSelection}>Confirm discard selection</Button>
+                    <button onClick={confirmDiscardSelection}>Confirm discard selection</button>
                 </>
             )}
             <h3>Hand</h3>
@@ -160,10 +151,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             width={250}
                             key={card.name}
                             onClick={() => handleCardClick(card)}
-                            selected={cardsToDiscard.has(card)}
-                        >
-                            {!canPlay && <em>{reason}</em>}
-                            <Button
+                            selected={cardsToDiscard.has(card)}>
+                            {!canPlay && (
+                                <CardText>
+                                    <em>{reason}</em>
+                                </CardText>
+                            )}
+                            <button
                                 disabled={
                                     !context.canPlayCard(card, state)[0] ||
                                     player.pendingResourceReduction?.resource === Resource.CARD
@@ -171,33 +165,33 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 onClick={() => {
                                     context.playCard(card, state);
                                     context.processQueue(dispatch);
-                                }}
-                            >
+                                }}>
                                 Play
-                            </Button>
+                            </button>
                         </CardComponent>
                     );
                 })}
             </Hand>
             <hr></hr>
             <h3>Played cards</h3>
-            {playedCards.map(card => {
-                const resourceMessage = getResourceMessage(card);
+            <Hand>
+                {playedCards.map(card => {
+                    const resourceMessage = getResourceMessage(card);
 
-                return (
-                    <CardComponent content={card} width={250} key={card.name}>
-                        <div>{resourceMessage}</div>
-                        {card.action && (
-                            <button
-                                disabled={!canPlayAction(card)}
-                                onClick={() => playAction(card)}
-                            >
-                                Play action
-                            </button>
-                        )}
-                    </CardComponent>
-                );
-            })}
+                    return (
+                        <CardComponent content={card} width={250} key={card.name}>
+                            <div>{resourceMessage}</div>
+                            {card.action && (
+                                <button
+                                    disabled={!canPlayAction(card)}
+                                    onClick={() => playAction(card)}>
+                                    Play action
+                                </button>
+                            )}
+                        </CardComponent>
+                    );
+                })}
+            </Hand>
         </>
     );
 };

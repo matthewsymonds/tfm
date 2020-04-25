@@ -6,7 +6,9 @@ import {
     TileType,
     CellType,
     SpecialLocation,
-    cellHelpers
+    cellHelpers,
+    Tile,
+    RESERVED_LOCATIONS
 } from '../constants/board';
 
 function getAdjacentCellsForCell(state: RootState, cell: Cell) {
@@ -60,6 +62,7 @@ function getAdjacentCellsForCell(state: RootState, cell: Cell) {
 }
 
 function isAvailable(state: RootState, cell: Cell) {
+    if (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) return false;
     return !cell.tile || cell.landClaimedBy === state.loggedInPlayerIndex;
 }
 
@@ -72,18 +75,11 @@ function getAvailableCells(state: RootState) {
 }
 
 function getAvailableCellsOnMars(state: RootState) {
-    return state.common.board
-        .flat()
-        .filter(cell => isAvailable(state, cell) && cellHelpers.onMars(cell));
+    return getAvailableCells(state).filter(cell => cellHelpers.onMars(cell));
 }
 
 function getAvailableLandCellsOnMars(state: RootState) {
-    return state.common.board
-        .flat()
-        .filter(
-            cell =>
-                isAvailable(state, cell) && cellHelpers.onMars(cell) && cell.type === CellType.LAND
-        );
+    return getAvailableCellsOnMars(state).filter(cell => cell.type === CellType.LAND);
 }
 
 function getGreeneries(state: RootState) {
@@ -104,6 +100,7 @@ export function getPossibleValidPlacementsForRequirement(
     requirement: PlacementRequirement | undefined
 ): Cell[] {
     if (!requirement) return [];
+
     switch (requirement) {
         case PlacementRequirement.CITY:
             return getAvailableLandCellsOnMars(state).filter(cell =>
@@ -112,13 +109,13 @@ export function getPossibleValidPlacementsForRequirement(
                 )
             );
         case PlacementRequirement.CITY_ADJACENT:
-            return getAvailableCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state).filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
                     cellHelpers.containsCity(adjCell)
                 )
             );
         case PlacementRequirement.DOUBLE_CITY_ADJACENT:
-            return getAvailableCellsOnMars(state).filter(
+            return getAvailableLandCellsOnMars(state).filter(
                 cell =>
                     getAdjacentCellsForCell(state, cell).filter(adjCell =>
                         cellHelpers.containsCity(adjCell)
@@ -137,20 +134,19 @@ export function getPossibleValidPlacementsForRequirement(
             return cellsAdjacentToCurrentTiles;
         }
         case PlacementRequirement.GREENERY_ADJACENT:
-            return getGreeneries(state).filter(greeneryCell =>
-                getAdjacentCellsForCell(state, greeneryCell).some(adjCell =>
-                    isAvailable(state, adjCell)
+            return getAvailableLandCellsOnMars(state).filter(cell =>
+                getAdjacentCellsForCell(state, cell).some(adjCell =>
+                    cellHelpers.containsGreenery(adjCell)
                 )
             );
         case PlacementRequirement.ISOLATED:
             return getAvailableLandCellsOnMars(state).filter(cell =>
-                getAdjacentCellsForCell(state, cell).every(adjCell => !cellHelpers.isEmpty(adjCell))
+                getAdjacentCellsForCell(state, cell).every(adjCell => cellHelpers.isEmpty(adjCell))
             );
         case PlacementRequirement.NON_RESERVED:
         case PlacementRequirement.NOT_RESERVED_FOR_OCEAN:
             return getAvailableLandCellsOnMars(state);
         case PlacementRequirement.RESERVED_FOR_OCEAN:
-            // I think it's impossible for this condition to be false, maybe just skip the check?
             return getAvailableCells(state).filter(cell => cell.type === CellType.WATER);
         case PlacementRequirement.STEEL_OR_TITANIUM:
             return getAvailableCells(state).filter(

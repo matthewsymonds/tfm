@@ -9,7 +9,9 @@ const getColor = (type: TileType) => {
         case TileType.GREENERY:
             return 'green';
         case TileType.OCEAN:
-            return 'blue';
+            return '#3987c9';
+        case TileType.LAVA_FLOW:
+            return '#ff2222';
         case TileType.OTHER:
             return 'brown';
         default:
@@ -55,8 +57,12 @@ type TileProps = {
     type: TileType;
 };
 
+const Icon = styled.div`
+    font-size: 40px;
+`;
+
 export const Tile = (props: TileProps) => (
     <Hexagon overlap={true} color={getColor(props.type)}>
-        <div>{getIcon(props.type)}</div>
+        <Icon>{getIcon(props.type)}</Icon>
     </Hexagon>
 );

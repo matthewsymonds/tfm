@@ -4,6 +4,7 @@ import {ResourceIcon} from './resource';
 import {Hexagon} from './hexagon';
 import React from 'react';
 import {Tile} from './tile';
+import styled from 'styled-components';
 
 interface CellProps {
     bonus: Resource[];
@@ -21,10 +22,42 @@ const getColor = (type: CellType) => {
     }
 };
 
+const ChildrenWrapper = styled.div<{selectable?: boolean}>`
+    position: absolute;
+    color: #333333;
+    cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
+    padding: 3px;
+    border-radius: 2px;
+
+    font-family: sans-serif;
+    user-select: none;
+    background: rgba(255, 255, 255, 0.8);
+    overflow: auto;
+    z-index: 2;
+    top: 4px;
+    font-weight: bold;
+    font-size: 10px;
+    transform: scale(1.3);
+    &:hover {
+        transform: scale(1.5);
+        background: rgba(255, 255, 255, 0.9);
+    }
+`;
+
+const CellWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+`;
+
 export const Cell: React.FunctionComponent<CellProps> = props => (
-    <Hexagon color={getColor(props.type)} selectable={props.selectable}>
-        {props.bonus.map((resource, index) => (
-            <ResourceIcon key={index} name={resource} />
-        ))}
-    </Hexagon>
+    <CellWrapper>
+        <Hexagon color={getColor(props.type)} selectable={props.selectable}>
+            {props.bonus.map((resource, index) => (
+                <ResourceIcon key={index} name={resource} />
+            ))}
+        </Hexagon>
+        {props.children && (
+            <ChildrenWrapper selectable={props.selectable}>{props.children}</ChildrenWrapper>
+        )}
+    </CellWrapper>
 );

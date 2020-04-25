@@ -30,7 +30,7 @@ export enum SpecialLocation {
     PHOBOS = 'phobos',
     VOLCANIC = 'volcanic'
 }
-const RESERVED_LOCATIONS = [
+export const RESERVED_LOCATIONS = [
     SpecialLocation.GANYMEDE,
     SpecialLocation.NOCTIS,
     SpecialLocation.PHOBOS
@@ -102,7 +102,7 @@ export const t = (
 });
 
 export type Tile = {
-    ownerPlayerIndex: number;
+    ownerPlayerIndex?: number;
     type: TileType;
 };
 
@@ -113,6 +113,7 @@ export type Cell = {
     landClaimedBy?: number;
     bonus?: Resource[];
     specialLocation?: SpecialLocation;
+    specialName?: string;
 };
 
 export const cellHelpers = {
@@ -122,6 +123,10 @@ export const cellHelpers = {
 
     containsCity(cell: Cell): boolean {
         return cell.tile?.type === TileType.CITY || cell.tile?.type === TileType.CAPITAL;
+    },
+
+    containsGreenery(cell: Cell): boolean {
+        return cell.tile?.type === TileType.GREENERY;
     },
 
     isEmpty(cell: Cell): boolean {
@@ -152,18 +157,28 @@ export const cellHelpers = {
     }
 };
 
-const land = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+const land = (
+    bonus?: Resource[],
+    specialLocation?: SpecialLocation,
+    specialName?: string
+): Cell => ({
     type: CellType.LAND,
     bonus,
-    specialLocation
+    specialLocation,
+    specialName
 });
 const water = (bonus?: Resource[]): Cell => ({
     type: CellType.WATER,
     bonus
 });
-const offMars = (bonus?: Resource[], specialLocation?: SpecialLocation): Cell => ({
+const offMars = (
+    bonus?: Resource[],
+    specialLocation?: SpecialLocation,
+    specialName?: string
+): Cell => ({
     type: CellType.OFF_MARS,
     bonus,
+    specialName,
     specialLocation
 });
 
@@ -177,14 +192,14 @@ const INITIAL_BOARD_STATE: Cell[][] = [
     ],
     [
         land(),
-        land([Resource.STEEL], SpecialLocation.VOLCANIC),
+        land([Resource.STEEL], SpecialLocation.VOLCANIC, 'Tharsis Tholus'),
         land(),
         land(),
         land(),
         water([Resource.CARD, Resource.CARD])
     ],
     [
-        land([Resource.CARD], SpecialLocation.VOLCANIC),
+        land([Resource.CARD], SpecialLocation.VOLCANIC, 'Ascraeus Mons'),
         land(),
         land(),
         land(),
@@ -193,7 +208,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.STEEL])
     ],
     [
-        land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC),
+        land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC, 'Pavonis Mons'),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
@@ -203,9 +218,9 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         water([Resource.PLANT, Resource.PLANT])
     ],
     [
-        land([Resource.PLANT, Resource.PLANT], SpecialLocation.VOLCANIC),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.VOLCANIC, 'Arsia Mons'),
         land([Resource.PLANT, Resource.PLANT]),
-        land([Resource.PLANT, Resource.PLANT], SpecialLocation.NOCTIS),
+        land([Resource.PLANT, Resource.PLANT], SpecialLocation.NOCTIS, 'Noctis City'),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
         water([Resource.PLANT, Resource.PLANT]),
