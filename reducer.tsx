@@ -169,9 +169,7 @@ function getInitialState(): GameState {
 
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
-    const deck = possibleCards.filter(
-        card => card.type !== CardType.CORPORATION && card.tilePlacements.length > 0
-    );
+    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
     const possibleCorporations = sampleCards(allCorporations, 2);
     const startingCards = sampleCards(deck, 10);
 
