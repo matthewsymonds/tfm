@@ -31,6 +31,14 @@ const CardPaymentRow = styled.div`
         width: 40px;
         margin-left: 16px;
     }
+    .payment-row-input-container {
+        display: flex;
+        margin-right: 8px;
+        > button {
+            padding: 4px;
+            min-width: 0;
+        }
+    }
 `;
 
 const CardConfirmationRow = styled.div<{isValidPayment: boolean}>`
@@ -51,65 +59,76 @@ export default function CardPaymentPopover({
     onConfirmPayment
 }: Props) {
     const player = useLoggedInPlayer();
-    const {resources, discounts, exchangeRates} = player;
+    const {resources, exchangeRates} = player;
     const cardCost = getDiscountedCardCost(card, player);
     const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], cardCost || 0));
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
 
-    function handleInputChange(e: ChangeEvent<HTMLInputElement>, resource: Resource) {
-        const proposedValue = parseInt(e.target.value || '0');
-        // if they're trying to spend resources they don't have, disallow it
-        if (proposedValue > resources[resource]) {
-            return;
-        }
-
-        const currentRunningTotal = calculateRunningTotal();
-        if (currentRunningTotal > cardCost) {
-            return;
-        }
-        const proposedRunningTotal = calculateRunningTotal({[resource]: proposedValue});
-        let newMC = numMC;
-        if (proposedRunningTotal > cardCost) {
-            // attempting to overpay. disallow this for megacredits
-            if (resource === Resource.MEGACREDIT) return;
-            // otherwise, reduce megacredits accordingly
-            const delta = proposedRunningTotal - cardCost;
-            newMC = Math.max(0, numMC - delta);
-            setNumMC(newMC);
-        }
-
+    function handleDecrease(resource: Resource) {
+        const runningTotal = calculateRunningTotal();
         switch (resource) {
             case Resource.MEGACREDIT:
+                const proposedValue = Math.max(0, numMC - 1);
                 setNumMC(proposedValue);
                 return;
-            case Resource.STEEL:
-                setNumSteel(proposedValue);
-                break;
             case Resource.TITANIUM:
-                setNumTitanium(proposedValue);
-                break;
-            default:
-                throw new Error('Unrecognized resource type');
-        }
-
-        // finally, bump up MC to cover any remaining delta
-        const delta =
-            cardCost! -
-            calculateRunningTotal({
-                [Resource.MEGACREDIT]: newMC,
-                [resource]: proposedValue
-            });
-        if (delta > 0) {
-            setNumMC(Math.min(newMC + delta, resources[Resource.MEGACREDIT]));
+                if (numTitanium > 0) {
+                    setNumTitanium(numTitanium - 1);
+                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.TITANIUM]);
+                    setNumMC(
+                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                    );
+                }
+                return;
+            case Resource.STEEL:
+                if (numSteel > 0) {
+                    setNumSteel(numSteel - 1);
+                    const newDelta = cardCost - (runningTotal - exchangeRates[Resource.STEEL]);
+                    setNumMC(
+                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                    );
+                }
+                return;
         }
     }
 
-    function calculateRunningTotal(overrides: {[k in Resource]?: number} = {}) {
+    function handleIncrease(resource: Resource) {
+        const runningTotal = calculateRunningTotal();
+        switch (resource) {
+            case Resource.MEGACREDIT:
+                if (runningTotal >= cardCost) return;
+                const proposedValue = Math.min(numMC + 1, resources[Resource.MEGACREDIT]);
+                setNumMC(proposedValue);
+                return;
+            case Resource.TITANIUM:
+                if (runningTotal > cardCost && numMC === 0) return;
+                if (numTitanium < resources[Resource.TITANIUM]) {
+                    setNumTitanium(numTitanium + 1);
+                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.TITANIUM]);
+                    setNumMC(
+                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                    );
+                }
+                return;
+            case Resource.STEEL:
+                if (runningTotal > cardCost && numMC === 0) return;
+                if (numSteel < resources[Resource.STEEL]) {
+                    setNumSteel(numSteel + 1);
+                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.STEEL]);
+                    setNumMC(
+                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                    );
+                }
+                return;
+        }
+    }
+
+    function calculateRunningTotal() {
         return (
-            (overrides[Resource.MEGACREDIT] ?? numMC) +
-            (overrides[Resource.STEEL] ?? numSteel) * exchangeRates[Resource.STEEL] +
-            (overrides[Resource.TITANIUM] ?? numTitanium) * exchangeRates[Resource.TITANIUM]
+            numMC +
+            numSteel * exchangeRates[Resource.STEEL] +
+            numTitanium * exchangeRates[Resource.TITANIUM]
         );
     }
 
@@ -120,16 +139,12 @@ export default function CardPaymentPopover({
             <CardPaymentBase>
                 <CardPaymentRow>
                     <div>Megacredit ({resources[Resource.MEGACREDIT]})</div>
-                    <div>
-                        <input
-                            type="number"
-                            value={numMC}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                handleInputChange(e, Resource.MEGACREDIT)
-                            }
-                            min="0"
-                            max={resources[Resource.MEGACREDIT]}
-                        />
+                    <div style={{display: 'flex'}}>
+                        <div className="payment-row-input-container">
+                            <button onClick={() => handleDecrease(Resource.MEGACREDIT)}>-</button>
+                            <span>{numMC}</span>
+                            <button onClick={() => handleIncrease(Resource.MEGACREDIT)}>+</button>
+                        </div>
                         <span>
                             <em>{numMC} MC</em>
                         </span>
@@ -138,16 +153,12 @@ export default function CardPaymentPopover({
                 {card.tags.includes(Tag.BUILDING) && (
                     <CardPaymentRow>
                         <div>Steel ({resources[Resource.STEEL]})</div>
-                        <div>
-                            <input
-                                type="number"
-                                value={numSteel}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                    handleInputChange(e, Resource.STEEL)
-                                }
-                                min="0"
-                                max={resources[Resource.STEEL]}
-                            />
+                        <div style={{display: 'flex'}}>
+                            <div className="payment-row-input-container">
+                                <button onClick={() => handleDecrease(Resource.STEEL)}>-</button>
+                                <span>{numSteel}</span>
+                                <button onClick={() => handleIncrease(Resource.STEEL)}>+</button>
+                            </div>
                             <span>
                                 <em>{numSteel * exchangeRates[Resource.STEEL]} MC</em>
                             </span>
@@ -156,17 +167,13 @@ export default function CardPaymentPopover({
                 )}
                 {card.tags.includes(Tag.SPACE) && (
                     <CardPaymentRow>
-                        <div>Titanium ({resources[Resource.TITANIUM]})</div>
-                        <div>
-                            <input
-                                type="number"
-                                value={numTitanium}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                                    handleInputChange(e, Resource.TITANIUM)
-                                }
-                                min="0"
-                                max={resources[Resource.TITANIUM]}
-                            />
+                        <div>Titainum ({resources[Resource.TITANIUM]})</div>
+                        <div style={{display: 'flex'}}>
+                            <div className="payment-row-input-container">
+                                <button onClick={() => handleDecrease(Resource.TITANIUM)}>-</button>
+                                <span>{numTitanium}</span>
+                                <button onClick={() => handleIncrease(Resource.TITANIUM)}>+</button>
+                            </div>
                             <span>
                                 <em>{numTitanium * exchangeRates[Resource.TITANIUM]} MC</em>
                             </span>
