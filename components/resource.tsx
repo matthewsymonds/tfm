@@ -14,14 +14,11 @@ interface ResourceIconBaseProps {
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
   display: inline-block;
-  height: ${props => (props.tall ? '18px' : '12px')};
-  width 12px;
+  height: ${props => (props.tall ? '38px' : '25px')};
+  width 25px;
   text-align: center;
-  margin: 10px;
-  font-size: 9px;
-  transform: scale(2);
-  padding-left: 1px;
-  padding-right: 1px;
+  margin: 4px;
+  font-size: 17px;
   font-weight: bold;
   color: ${props => props.color};
   background: ${props => props.background};
