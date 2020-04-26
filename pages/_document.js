@@ -5,6 +5,12 @@ const GlobalStyles = createGlobalStyle`
     body {
         background: #fefefe;
     }
+    div.mac {
+      span.icon {
+        position: relative;
+        left: 2px;
+      }
+    }
     * {
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
       -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;

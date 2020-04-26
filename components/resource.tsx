@@ -39,7 +39,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, 
         tall={name === Resource.CARD}
         background={getResourceBackgroundColor(name)}
     >
-        <span>{getResourceSymbol(name)}</span>
+        <span className="icon">{getResourceSymbol(name)}</span>
     </ResourceIconBase>
 );
 

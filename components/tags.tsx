@@ -69,7 +69,7 @@ export const TagsComponent = (props: TagsComponentProps) => (
             const tagProps = getTagProps(tag);
             return (
                 <TagBase color={tagProps.color} background={tagProps.backgroundColor} key={index}>
-                    <div>{tagProps.icon}</div>
+                    <span className="icon">{tagProps.icon}</span>
                 </TagBase>
             );
         })}

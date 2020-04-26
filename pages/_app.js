@@ -4,6 +4,7 @@ import withRedux from 'next-redux-wrapper';
 import {makeStore} from '../store';
 import {AppContext, appContext} from '../context/app-context';
 import '../styles/index.css';
+import platform from 'platform-detect';
 
 class MyApp extends App {
     static async getInitialProps({Component, ctx}) {
@@ -17,10 +18,17 @@ class MyApp extends App {
 
     render() {
         const {Component, pageProps, store} = this.props;
+        let className;
+        if (platform.macos) {
+            className = 'mac';
+        }
+
         return (
             <Provider store={store}>
                 <AppContext.Provider value={appContext}>
-                    <Component {...pageProps} />
+                    <div className={className}>
+                        <Component {...pageProps} />
+                    </div>
                 </AppContext.Provider>
             </Provider>
         );
