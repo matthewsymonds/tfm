@@ -26,23 +26,36 @@ const CardPaymentBase = styled.div`
 
 const CardPaymentRow = styled.div`
     display: flex;
+    align-items: center;
     justify-content: space-between;
     input {
         width: 40px;
         margin-left: 16px;
     }
+    .payment-row-right {
+        display: flex;
+        align-items: center;
+    }
     .payment-row-input-container {
         display: flex;
-        margin-right: 8px;
+        align-items: center;
+        margin: 4px 8px;
         > button {
-            padding: 4px;
+            padding: 8px;
             min-width: 0;
+        }
+        > span {
+            display: flex;
+            justify-content: center;
+            width: 32px;
         }
     }
 `;
 
 const CardConfirmationRow = styled.div<{isValidPayment: boolean}>`
     display: flex;
+    align-items: center;
+    padding: 12px 0;
     border-top: 1px solid black;
     font-weight: 600;
     justify-content: space-between;
@@ -102,7 +115,7 @@ export default function CardPaymentPopover({
                 setNumMC(proposedValue);
                 return;
             case Resource.TITANIUM:
-                if (runningTotal > cardCost && numMC === 0) return;
+                if (runningTotal >= cardCost && numMC === 0) return;
                 if (numTitanium < resources[Resource.TITANIUM]) {
                     setNumTitanium(numTitanium + 1);
                     const newDelta = cardCost - (runningTotal + exchangeRates[Resource.TITANIUM]);
@@ -112,7 +125,7 @@ export default function CardPaymentPopover({
                 }
                 return;
             case Resource.STEEL:
-                if (runningTotal > cardCost && numMC === 0) return;
+                if (runningTotal >= cardCost && numMC === 0) return;
                 if (numSteel < resources[Resource.STEEL]) {
                     setNumSteel(numSteel + 1);
                     const newDelta = cardCost - (runningTotal + exchangeRates[Resource.STEEL]);
@@ -135,11 +148,11 @@ export default function CardPaymentPopover({
     const isValidPayment = cardCost <= calculateRunningTotal();
 
     return (
-        <Popover placement="right" isOpen={isOpen} target={target} toggle={toggle}>
+        <Popover placement="right" isOpen={isOpen} target={target} toggle={toggle} fade={true}>
             <CardPaymentBase>
                 <CardPaymentRow>
                     <div>Megacredit ({resources[Resource.MEGACREDIT]})</div>
-                    <div style={{display: 'flex'}}>
+                    <div className="payment-row-right">
                         <div className="payment-row-input-container">
                             <button onClick={() => handleDecrease(Resource.MEGACREDIT)}>-</button>
                             <span>{numMC}</span>
@@ -153,7 +166,7 @@ export default function CardPaymentPopover({
                 {card.tags.includes(Tag.BUILDING) && (
                     <CardPaymentRow>
                         <div>Steel ({resources[Resource.STEEL]})</div>
-                        <div style={{display: 'flex'}}>
+                        <div className="payment-row-right">
                             <div className="payment-row-input-container">
                                 <button onClick={() => handleDecrease(Resource.STEEL)}>-</button>
                                 <span>{numSteel}</span>
@@ -168,7 +181,7 @@ export default function CardPaymentPopover({
                 {card.tags.includes(Tag.SPACE) && (
                     <CardPaymentRow>
                         <div>Titainum ({resources[Resource.TITANIUM]})</div>
-                        <div style={{display: 'flex'}}>
+                        <div className="payment-row-right">
                             <div className="payment-row-input-container">
                                 <button onClick={() => handleDecrease(Resource.TITANIUM)}>-</button>
                                 <span>{numTitanium}</span>
