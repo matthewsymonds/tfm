@@ -83,17 +83,19 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 options={possibleCorporations || []}
                 orientation="horizontal"
             />
-            <h3>Select up to 10 cards</h3>
             <MaybeVisible left={true} visible={!!startingAmount}>
                 <h4>
                     You start with {startingAmount}€. You have {remaining}€ remaining.
                 </h4>
+                {cards.length < selectAllCards.length ? (
+                    <button onClick={() => handleSelectAll()}>Select all</button>
+                ) : (
+                    <button onClick={() => dispatch(setCards([], playerIndex))}>
+                        Unselect all
+                    </button>
+                )}
             </MaybeVisible>
-            {cards.length < selectAllCards.length ? (
-                <button onClick={() => handleSelectAll()}>Select all</button>
-            ) : (
-                <button onClick={() => dispatch(setCards([], playerIndex))}>Unselect all</button>
-            )}
+            <h3>Select up to 10 cards</h3>
             <CardSelector
                 max={10}
                 width={250}

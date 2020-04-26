@@ -12,8 +12,8 @@ const GlobalStyles = createGlobalStyle`
     }
     h1, h2, h3, h4 {
       text-align: center;
-      margin-top: 0px;
-      margin-bottom: 12px;
+      margin-top: 16px;
+      margin-bottom: 16px;
       display: inherit;
     }
     h4 {
@@ -22,21 +22,30 @@ const GlobalStyles = createGlobalStyle`
     button {
       display: block;
       cursor: pointer;
-      &:disabled {
-        cursor: auto;
-      }
+      border-radius: 4px;
       margin-top: auto;
+      :not(:last-child) {
+          margin-top: 16px;
+          margin-bottom: 16px;
+      }
       margin-left: auto;
       margin-right: auto;
       justify-self: flex-end;
-      border: 0;
-      background: none;
-      box-shadow: none;
-      border-radius: 0px;
+      border-radius: 5px;
+      border: 2px solid white;
+      &:hover {
+        background: #bcbcbc;
+        border: 2px solid #fefefe;
+      }
+      &:disabled {
+        cursor: auto;
+        background: #dedede;
+        box-shadow: none;
+      }
       padding: 12px;
       min-width: 100px;
       font-size: 14px;
-      background: #dddddd;
+      background: #cdcdcd;
     }
 `;
 
