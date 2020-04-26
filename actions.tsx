@@ -66,11 +66,7 @@ export const removeResource = (resource: Resource, amount: number, playerIndex: 
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
-export const gainResource = (
-    resource: Resource,
-    amount: Amount,
-    playerIndex: number,
-) => ({
+export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: GAIN_RESOURCE,
     payload: {resource, amount, playerIndex}
 });
