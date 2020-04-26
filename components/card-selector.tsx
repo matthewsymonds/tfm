@@ -50,7 +50,8 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                     <CardComponent width={width} key={key} content={option} selected={selected}>
                         <button
                             disabled={!selected && !canSelect}
-                            onClick={() => handleSelect(option)}>
+                            onClick={() => handleSelect(option)}
+                        >
                             {selected ? 'Unselect' : 'Select'}
                         </button>
                     </CardComponent>
