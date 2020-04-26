@@ -15,6 +15,17 @@ export enum Resource {
     TITANIUM = 'resourceTitanium'
 }
 
+export const getClassName = (resource: Resource) => {
+    switch (resource) {
+        case Resource.TITANIUM:
+            return 'titanium-icon';
+        case Resource.MEGACREDIT:
+            return 'megacredit-icon';
+        default:
+            return 'resource-icon';
+    }
+};
+
 export const getResourceSymbol = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:

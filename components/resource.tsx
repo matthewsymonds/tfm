@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
     getResourceBackgroundColor,
     getResourceColor,
+    getClassName,
     getResourceSymbol,
     Resource
 } from '../constants/resource';
@@ -39,7 +40,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, 
         tall={name === Resource.CARD}
         background={getResourceBackgroundColor(name)}
     >
-        <span className="icon">{getResourceSymbol(name)}</span>
+        <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
     </ResourceIconBase>
 );
 

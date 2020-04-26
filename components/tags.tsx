@@ -35,31 +35,33 @@ interface TagProps {
     color: string;
     backgroundColor: string;
     outerBackgroundColor?: string;
+    className: string;
 }
 
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen'],
-    [Tag.BUILDING]: ['🏛️', 'brown', '#d7d7d7'],
+    [Tag.BUILDING]: ['🏛️', 'brown', '#d7d7d7', '', 'building-icon'],
     [Tag.CITY]: ['🌆', '#333333', '#C8B3C5'],
     [Tag.EARTH]: ['🌎', 'darkgreen', 'lightblue', 'black'],
     [Tag.POWER]: ['⚡', 'white', 'purple'],
     [Tag.EVENT]: ['⬇️', 'gold', 'black'],
-    [Tag.JOVIAN]: ['J', 'purple', 'darkgray'],
+    [Tag.JOVIAN]: ['J', 'purple', 'darkgray', '', 'jovian-icon'],
     [Tag.MICROBE]: ['🐛', 'green', 'white'],
     [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen'],
     [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray'],
-    [Tag.SPACE]: ['✴️', 'white', 'black'],
+    [Tag.SPACE]: ['✴️', 'white', 'black', '', 'space-icon'],
     [Tag.VENUS]: ['V', 'lightblue', 'lightblue']
 };
 
 function getTagProps(tag: Tag): TagProps {
-    const [icon, color, backgroundColor, outerBackgroundColor] = dict[tag];
+    const [icon, color, backgroundColor, outerBackgroundColor, className] = dict[tag];
 
     return {
         icon,
         color,
         backgroundColor,
-        outerBackgroundColor
+        outerBackgroundColor,
+        className: className || 'tag-icon'
     };
 }
 
@@ -69,7 +71,7 @@ export const TagsComponent = (props: TagsComponentProps) => (
             const tagProps = getTagProps(tag);
             return (
                 <TagBase color={tagProps.color} background={tagProps.backgroundColor} key={index}>
-                    <span className="icon">{tagProps.icon}</span>
+                    <span className={tagProps.className}>{tagProps.icon}</span>
                 </TagBase>
             );
         })}

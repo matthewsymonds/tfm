@@ -6,9 +6,39 @@ const GlobalStyles = createGlobalStyle`
         background: #fefefe;
     }
     div.mac {
-      span.icon {
+      span.tag-icon {
         position: relative;
-        left: 2px;
+        left: 3px;
+        bottom: 0.5px;
+      }
+      span.resource-icon {
+        position: relative;
+        left: 2.5px;
+        bottom: 0.5px;
+      }
+      span.titanium-icon {
+        position: relative;
+        bottom: 0.5px;
+      }
+      span.megacredit-icon {
+        position: relative;
+        left: 1px;
+        bottom: 0.5px;
+      }
+      span.jovian-icon {
+        position: relative;
+        left: 0.5px;
+        bottom: 0.5px;
+      }
+      span.building-icon {
+        position: relative;
+        left: 2.75px;
+        bottom: 0.5px;
+      }
+      span.space-icon {
+        position: relative;
+        left: 3px;
+        bottom: 0.5px;
       }
     }
     * {
@@ -73,9 +103,7 @@ export default class MyDocument extends Document {
     render() {
         return (
             <html>
-                <Head>{this.props.styleTags}
-                  <meta charset="UTF-8" />
-                </Head>
+                <Head>{this.props.styleTags}</Head>
                 <body>
                     <Main />
                     <NextScript />
