@@ -1,7 +1,7 @@
 import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
 
-import {GameStage, MAX_PARAMETERS} from './constants/game';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS, MIN_PARAMETERS} from './constants/game';
 import {Tag} from './constants/tag';
 import {
     INITIAL_BOARD_STATE,
@@ -185,12 +185,7 @@ function getInitialState(): GameState {
             round: 0,
             turn: 0,
             deck,
-            parameters: {
-                [Parameter.OCEAN]: 0,
-                [Parameter.OXYGEN]: 0,
-                [Parameter.TEMPERATURE]: -30,
-                [Parameter.VENUS]: 0
-            },
+            parameters: MIN_PARAMETERS,
             board: INITIAL_BOARD_STATE,
             currentPlayerIndex: 0,
             firstPlayerIndex: 0
@@ -263,8 +258,8 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
     });
 }
 
-// const INITIAL_STATE: GameState = getInitialState();
-const INITIAL_STATE: GameState = BILLY_TEST;
+const INITIAL_STATE: GameState = getInitialState();
+// const INITIAL_STATE: GameState = BILLY_TEST;
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -275,7 +270,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.terraformRating += amount;
                 return;
             }
-            const scale = 1 + Number(parameter === Parameter.TEMPERATURE);
+            const scale = PARAMETER_STEPS[parameter];
             const increase = amount * scale;
             const startingAmount = draft.common.parameters[parameter];
             const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);

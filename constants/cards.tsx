@@ -4278,7 +4278,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'As your first action in the game, draw 3 cards. You start with 45 MC.',
         tags: [Tag.SCIENCE],
         type: CardType.CORPORATION,
-        gainResource: {[Resource.MEGACREDIT]: 45}
+        gainResource: {[Resource.MEGACREDIT]: 45, [Resource.CARD]: 3}
     },
     {
         effect: {

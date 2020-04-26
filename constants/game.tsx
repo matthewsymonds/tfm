@@ -13,17 +13,23 @@ export enum GameStage {
 export const MAX_PARAMETERS = {
     [Parameter.TEMPERATURE]: 8,
     [Parameter.OCEAN]: 9,
-    [Parameter.OXYGEN]: 14
+    [Parameter.OXYGEN]: 14,
+    [Parameter.VENUS]: 30
 };
 
-export const MIN_TEMP = -30;
-export const MAX_TEMP = 8;
+export const MIN_PARAMETERS = {
+    [Parameter.TEMPERATURE]: -30,
+    [Parameter.OCEAN]: 0,
+    [Parameter.OXYGEN]: 0,
+    [Parameter.VENUS]: 0
+};
 
-export const MIN_OCEAN = 0;
-export const MAX_OCEAN = 9;
-
-export const MIN_OXYGEN = 0;
-export const MAX_OXYGEN = 14;
+export const PARAMETER_STEPS = {
+    [Parameter.TEMPERATURE]: 2,
+    [Parameter.OCEAN]: 1,
+    [Parameter.OXYGEN]: 2,
+    [Parameter.VENUS]: 2
+};
 
 export const MinimumProductions = {
     [Resource.MEGACREDIT]: -5,
