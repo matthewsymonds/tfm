@@ -335,12 +335,7 @@ function playAction(action: Action, state: RootState) {
 
     for (const resource in action.gainResource) {
         this.queue.push(
-            gainResource(
-                resource as Resource,
-                action.gainResource[resource],
-                playerIndex,
-                action instanceof Card ? action : undefined
-            )
+            gainResource(resource as Resource, action.gainResource[resource], playerIndex)
         );
     }
 

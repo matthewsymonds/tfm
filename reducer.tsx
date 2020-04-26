@@ -170,8 +170,7 @@ function getInitialState(): GameState {
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
     const deck = possibleCards
-        .filter(card => card.type !== CardType.CORPORATION)
-        .filter(card => card.effects.length);
+        .filter(card => card.type !== CardType.CORPORATION);
     const possibleCorporations = sampleCards(allCorporations, 2);
     const startingCards = sampleCards(deck, 10);
 
@@ -283,7 +282,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             player.terraformRating += userTerraformRatingChange;
         }
 
-        function handleGainResource(resource: Resource, amount: Amount, card?: Card) {
+        function handleGainResource(resource: Resource, amount: Amount) {
             let numberAmount: number;
             if (typeof amount === 'number') {
                 numberAmount = amount;
@@ -296,12 +295,14 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards.push(...draft.common.deck.splice(0, numberAmount));
                 return;
             }
-            if (card && card.storedResourceType === resource) {
-                // TODO handle having a different target card.
-                card.storedResourceAmount = (card.storedResourceAmount || 0) + numberAmount;
-            }
+            const card = player.playedCards.find(card => card.storedResourceType === resource);
 
-            player.resources[resource] += numberAmount;
+            if (card) {
+                // TODO this is silly. Handle having a different target card.
+                card.storedResourceAmount = (card.storedResourceAmount || 0) + numberAmount;
+            } else {
+                player.resources[resource] += numberAmount;
+            }
         }
         switch (action.type) {
             case START_OVER:
@@ -341,7 +342,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[payload.resource] -= payload.amount;
                 break;
             case GAIN_RESOURCE:
-                handleGainResource(payload.resource, payload.amount, payload.card);
+                handleGainResource(payload.resource, payload.amount);
                 break;
             case PAY_TO_PLAY_CARD:
                 player.resources[Resource.MEGACREDIT] -= payload.card.cost;

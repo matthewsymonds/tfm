@@ -443,15 +443,6 @@ export const cardConfigs: CardConfig[] = [
         name: 'Optimal Aerobraking',
         tags: [Tag.SPACE],
         type: CardType.ACTIVE
-        // condition: condition =>
-        //     (!!condition.samePlayer &&
-        //         condition.card?.tags.includes(Tag.SPACE) &&
-        //         condition.card?.tags.includes(Tag.EVENT)) ??
-        //     false,
-        // effect: effect => {
-        //     effect.gainResource(Resource.MEGACREDIT, 3);
-        //     effect.gainResource(Resource.HEAT, 3);
-        // }
     },
     {
         cost: 18,
@@ -574,10 +565,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
         victoryPoints: 1
-        // condition: condition => condition.tileType === TileType.CITY,
-        // effect: effect => {
-        //     effect.gainResource(Resource.MEGACREDIT, 2);
-        // }
     },
     {
         cost: 31,
@@ -1740,13 +1727,6 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.MICROBE],
         type: CardType.ACTIVE,
-        // condition: condition =>
-        //     condition.tag && [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE].includes(condition.tag)
-        //         ? true
-        //         : false,
-        // effect(effect) {
-        //     effect.gainResource(Resource.MICROBE, 1, this);
-        // },
         get victoryPoints() {
             return Math.floor(this.resources / 3);
         }
@@ -2062,15 +2042,13 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Effect: After you pay for a standard project, except selling patents, you gain 3 MC.',
             trigger: {standardProject: true},
-            action: {gainResource: {[Resource.MEGACREDIT]: 1}}
+            action: {gainResource: {[Resource.MEGACREDIT]: 3}}
         },
         cost: 6,
         deck: Deck.CORPORATE,
         name: 'Standard Technology',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE
-        // condition: condition => condition.moveType === MoveType.STANDARD_PROJECT,
-        // effect: effect => effect.gainResource(Resource.MEGACREDIT, 3)
     },
     {
         action: {
@@ -2263,7 +2241,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             trigger: {placedTile: TileType.CITY, anyPlayer: true},
-            action: {gainResource: {[Resource.ANIMAL]: 2}},
+            action: {gainResource: {[Resource.ANIMAL]: 1}},
             text:
                 'Effect: When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.'
         },
@@ -2274,10 +2252,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'Add 1 animal to this card. 1 VP per 2 animals here.',
         tags: [Tag.ANIMAL, Tag.EARTH],
         type: CardType.ACTIVE
-        // condition: condition => condition.tileType === TileType.CITY,
-        // effect(effect) {
-        //     effect.gainResource(Resource.ANIMAL, 1, this);
-        // }
     },
     {
         text: 'Opponents may not remove your [plants, animals or microbes]',
@@ -3392,10 +3366,6 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.ANIMAL, Tag.SCIENCE, Tag.VENUS],
         type: CardType.ACTIVE
-        // condition: condition => condition.tag === Tag.VENUS,
-        // effect(effect) {
-        //     effect.gainResource(Resource.ANIMAL, 1, this);
-        // }
     },
     {
         action: {text: 'Action: Add 1 microbe to this card.'},
@@ -3659,10 +3629,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.ANIMAL, Tag.BUILDING],
         type: CardType.ACTIVE,
         victoryPoints: 1
-        // condition: condition => condition.tag === Tag.EARTH,
-        // effect(effect) {
-        //     effect.gainResource(Resource.ANIMAL, 1, this);
-        // }
     },
     {
         cost: 20,
@@ -4384,18 +4350,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 40 MC. As your first action in the game, place a city tile.',
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
-        // condition: condition =>
-        //     condition.tileType === TileType.CITY && (condition.onMars || condition.samePlayer)
-        //         ? true
-        //         : false,
-        // effect: effect => {
-        //     if (effect.condition.onMars) {
-        //         effect.increaseProduction(Resource.MEGACREDIT, 1);
-        //     }
-        //     if (effect.condition.samePlayer) {
-        //         effect.gainResource(Resource.MEGACREDIT, 3);
-        //     }
-        // },
         gainResource: {[Resource.MEGACREDIT]: 40},
         tilePlacements: [t(TileType.CITY)]
     },

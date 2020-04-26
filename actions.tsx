@@ -70,10 +70,9 @@ export const gainResource = (
     resource: Resource,
     amount: Amount,
     playerIndex: number,
-    card?: Card
 ) => ({
     type: GAIN_RESOURCE,
-    payload: {resource, amount, playerIndex, card}
+    payload: {resource, amount, playerIndex}
 });
 
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';
