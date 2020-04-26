@@ -79,22 +79,26 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         }
     }
 
-    function handlePlayCard(card) {
+    function playCard(card: Card, payment?: PropertyCounter<Resource>) {
+        context.playCard(card, state, payment);
+        context.processQueue(dispatch);
+        // Have to trigger effects from the card we just played.
+        // Must be processed separatedly in case the card effects itself.
+        context.triggerEffectsFromPlayedCard(
+            card.cost || 0,
+            card.tags,
+            // refreshed state so that the card we just played is present.
+            store.getState()
+        );
+        context.processQueue(dispatch);
+    }
+
+    function handlePlayCard(card: Card) {
         if (doesCardPaymentRequiresPlayerInput(card)) {
             setCardPendingPayment(card);
             setIsCardPaymentPopoverOpen(true);
         } else {
-            context.playCard(card, state);
-            context.processQueue(dispatch);
-            // Have to trigger effects from the card we just played.
-            // Must be processed separatedly in case the card effects itself.
-            context.triggerEffectsFromPlayedCard(
-                card.cost || 0,
-                card.tags,
-                // refreshed state so that the card we just played is present.
-                store.getState()
-            );
-            context.processQueue(dispatch);
+            playCard(card);
         }
     }
 
@@ -102,8 +106,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         if (!cardPendingPayment) {
             throw new Error('No card pending payment');
         }
-        context.playCard(cardPendingPayment, state, payment);
-        context.processQueue(dispatch);
+        playCard(cardPendingPayment, payment);
         setIsCardPaymentPopoverOpen(false);
         setCardPendingPayment(null);
     }
