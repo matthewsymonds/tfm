@@ -1,3 +1,4 @@
+import {MouseEvent} from 'react';
 import styled from 'styled-components';
 import {Card} from '../models/card';
 import {TagsComponent} from './tags';
@@ -18,7 +19,7 @@ export const CardText = styled.div`
 
 interface CardBaseProps {
     width: number;
-    onClick?: () => void;
+    onClick?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
 interface SelectionProps {
@@ -52,7 +53,6 @@ const CardBase = styled.div<CardBaseProps>`
 interface CardComponentProps extends CardBaseProps {
     content: Card;
     selected?: boolean;
-    onClick?: () => void;
     width: number;
 }
 

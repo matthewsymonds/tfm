@@ -88,13 +88,16 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                     (cell, index) =>
                                         cellHelpers.onMars(cell) && (
                                             <div
+                                                key={`${outerIndex}-${index}`}
                                                 style={{position: 'relative'}}
-                                                onClick={event => handleClick(cell)}>
+                                                onClick={() => handleClick(cell)}
+                                            >
                                                 <Cell
                                                     selectable={validPlacements.includes(cell)}
                                                     type={cell.type}
                                                     bonus={cell.bonus ?? []}
-                                                    key={index}>
+                                                    key={index}
+                                                >
                                                     {cell.specialName ?? ''}
                                                 </Cell>
                                                 {cell.tile && <Tile type={cell.tile.type} />}

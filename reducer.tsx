@@ -42,6 +42,8 @@ import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';
 import {Amount, Action, VariableAmount} from './constants/action';
 import {StandardProjectType} from './constants/standard-project';
+import {BILLY_TEST} from './test-states';
+import {getDiscountedCardCost} from './context/app-context';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -261,7 +263,8 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
     });
 }
 
-const INITIAL_STATE: GameState = getInitialState();
+// const INITIAL_STATE: GameState = getInitialState();
+const INITIAL_STATE: GameState = BILLY_TEST;
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -344,7 +347,14 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 handleGainResource(payload.resource, payload.amount);
                 break;
             case PAY_TO_PLAY_CARD:
-                player.resources[Resource.MEGACREDIT] -= payload.card.cost;
+                const cardCost = getDiscountedCardCost(payload.card, player);
+                if (payload.payment) {
+                    for (const resource in payload.payment) {
+                        player.resources[resource] -= payload.payment[resource];
+                    }
+                } else {
+                    player.resources[Resource.MEGACREDIT] -= cardCost;
+                }
                 break;
             case PAY_TO_PLAY_STANDARD_PROJECT:
                 player.resources[Resource.MEGACREDIT] -= payload.standardProjectAction.cost;

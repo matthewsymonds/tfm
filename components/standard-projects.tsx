@@ -81,17 +81,19 @@ export default function StandardProjects() {
 
     return (
         <StandardProjectsBase>
-            {standardProjectActions.map(standardProjectAction => {
+            {standardProjectActions.map((standardProjectAction, index) => {
                 const config = STANDARD_PROJECT_RENDER_CONFIGS[standardProjectAction.type];
                 return (
                     <StandardProjectRow
+                        key={index}
                         selectable={context.canPlayStandardProject(standardProjectAction, state)}
                         onClick={() => {
                             if (context.canPlayStandardProject(standardProjectAction, state)) {
                                 context.playStandardProject(standardProjectAction, state);
                                 context.processQueue(dispatch);
                             }
-                        }}>
+                        }}
+                    >
                         <StandardProjectPayment>{config.payment}</StandardProjectPayment>
                         <StandardProjectLabel>{config.label}</StandardProjectLabel>
                     </StandardProjectRow>

@@ -30,6 +30,7 @@ import {
 import {Action, ActionType, VariableAmount, Amount} from '../constants/action';
 import {Effect} from '../constants/effect';
 import {EffectTrigger} from '../constants/effect-trigger';
+import {PropertyCounter} from '../constants/property-counter';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -45,21 +46,29 @@ function canAffordCard(card: Card, state: RootState) {
         cost -= player.exchangeRates[Resource.TITANIUM] * player.resources[Resource.TITANIUM];
     }
 
+    const discountedCost = getDiscountedCardCost(card, player);
+
+    return discountedCost <= player.resources[Resource.MEGACREDIT];
+}
+
+export function getDiscountedCardCost(card: Card, player: PlayerState) {
+    let {cost = 0} = card;
     const {discounts} = player;
 
     cost -= discounts.card;
-
     for (const tag of card.tags) {
         cost -= discounts.tags[tag] || 0;
     }
-
     for (const tag of [...new Set(card.tags)]) {
         cost -= discounts.cards[tag] || 0;
     }
-
     cost -= discounts.nextCardThisGeneration;
 
-    return cost <= player.resources[Resource.MEGACREDIT];
+    return Math.max(0, cost);
+}
+
+export function doesCardPaymentRequiresPlayerInput(card: Card) {
+    return card.tags.includes(Tag.BUILDING) || card.tags.includes(Tag.SPACE);
 }
 
 function canPlayWithGlobalParameters(card: Card, state: RootState) {
@@ -356,12 +365,12 @@ function playAction(action: Action, state: RootState) {
     }
 }
 
-function playCard(card: Card, state: RootState) {
+function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
     const playerIndex = state.loggedInPlayerIndex;
     this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
 
     if (card.cost) {
-        this.queue.push(payToPlayCard(card, playerIndex));
+        this.queue.push(payToPlayCard(card, playerIndex, payment));
     }
 
     this.playAction(card, state);

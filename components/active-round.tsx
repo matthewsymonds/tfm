@@ -1,16 +1,18 @@
-import {useContext, useState} from 'react';
+import {useContext, useState, MouseEvent, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
 import {discardCards, markCardActionAsPlayed} from '../actions';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
+import CardPaymentPopover from '../components/popovers/card-payment';
 import {Amount} from '../constants/action';
 import {TileType} from '../constants/board';
 import {Resource} from '../constants/resource';
-import {AppContext} from '../context/app-context';
+import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
 import {RootState, useTypedSelector} from '../reducer';
 import {Board} from './board';
 import {CardComponent, CardText} from './card';
+import {PropertyCounter} from '../constants/property-counter';
 
 const Hand = styled.div`
     display: flex;
@@ -62,6 +64,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const context = useContext(AppContext);
     const [cardsToDiscard, setCardsToDiscard] = useState<Set<Card>>(new Set());
 
+    const [isCardPaymentPopoverOpen, setIsCardPaymentPopoverOpen] = useState(false);
+    const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
+
     function handleCardClick(card) {
         if (player.pendingResourceReduction?.resource === Resource.CARD) {
             const newCardsToDiscard = new Set(cardsToDiscard);
@@ -72,6 +77,35 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             }
             setCardsToDiscard(newCardsToDiscard);
         }
+    }
+
+    function handlePlayCard(card) {
+        if (doesCardPaymentRequiresPlayerInput(card)) {
+            setCardPendingPayment(card);
+            setIsCardPaymentPopoverOpen(true);
+        } else {
+            context.playCard(card, state);
+            context.processQueue(dispatch);
+            // Have to trigger effects from the card we just played.
+            // Must be processed separatedly in case the card effects itself.
+            context.triggerEffectsFromPlayedCard(
+                card.cost || 0,
+                card.tags,
+                // refreshed state so that the card we just played is present.
+                store.getState()
+            );
+            context.processQueue(dispatch);
+        }
+    }
+
+    function handleConfirmCardPayment(payment: PropertyCounter<Resource>) {
+        if (!cardPendingPayment) {
+            throw new Error('No card pending payment');
+        }
+        context.playCard(cardPendingPayment, state, payment);
+        context.processQueue(dispatch);
+        setIsCardPaymentPopoverOpen(false);
+        setCardPendingPayment(null);
     }
 
     function confirmDiscardSelection() {
@@ -150,8 +184,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             content={card}
                             width={250}
                             key={card.name}
-                            onClick={() => handleCardClick(card)}
-                            selected={cardsToDiscard.has(card)}>
+                            onClick={(e: MouseEvent<HTMLDivElement>) => handleCardClick(card)}
+                            selected={cardsToDiscard.has(card)}
+                        >
                             {!canPlay && (
                                 <CardText>
                                     <em>{reason}</em>
@@ -162,24 +197,23 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     !context.canPlayCard(card, state)[0] ||
                                     player.pendingResourceReduction?.resource === Resource.CARD
                                 }
-                                onClick={() => {
-                                    context.playCard(card, state);
-                                    context.processQueue(dispatch);
-                                    // Have to trigger effects from the card we just played.
-                                    // Must be processed separatedly in case the card effects itself.
-                                    context.triggerEffectsFromPlayedCard(
-                                        card.cost || 0,
-                                        card.tags,
-                                        // refreshed state so that the card we just played is present.
-                                        store.getState()
-                                    );
-                                    context.processQueue(dispatch);
-                                }}>
+                                onClick={() => handlePlayCard(card)}
+                                id={card.name.replace(/\s+/g, '-')}
+                            >
                                 Play
                             </button>
                         </CardComponent>
                     );
                 })}
+                {cardPendingPayment && (
+                    <CardPaymentPopover
+                        isOpen={isCardPaymentPopoverOpen}
+                        target={cardPendingPayment.name.replace(/\s+/g, '-')}
+                        card={cardPendingPayment}
+                        toggle={() => setIsCardPaymentPopoverOpen(!isCardPaymentPopoverOpen)}
+                        onConfirmPayment={(...args) => handleConfirmCardPayment(...args)}
+                    />
+                )}
             </Hand>
             <hr></hr>
             <h3>Played cards</h3>
@@ -197,7 +231,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             {card.action && (
                                 <button
                                     disabled={!canPlayAction(card)}
-                                    onClick={() => playAction(card)}>
+                                    onClick={() => playAction(card)}
+                                >
                                     Play action
                                 </button>
                             )}
