@@ -58,8 +58,8 @@ interface CardComponentProps extends CardBaseProps {
 
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width, selected, onClick} = props;
-    const {name, text, action, effect, cost, tags} = content;
-
+    const {name, text, action, effects, cost, tags} = content;
+    const effect = effects[0];
     return (
         <CardBase width={width} onClick={onClick}>
             <Selection selected={selected || false}>

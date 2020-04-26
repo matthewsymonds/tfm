@@ -73,7 +73,8 @@ export const standardProjectActions: StandardProjectAction[] = [
     {
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.CITY,
-        cost: 23,
+        cost: 25,
+        increaseProduction: {[Resource.MEGACREDIT]: 1},
         tilePlacements: [
             {
                 type: TileType.CITY,

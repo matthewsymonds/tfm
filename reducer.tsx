@@ -169,7 +169,9 @@ function getInitialState(): GameState {
 
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
-    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
+    const deck = possibleCards
+        .filter(card => card.type !== CardType.CORPORATION)
+        .filter(card => card.effects.length);
     const possibleCorporations = sampleCards(allCorporations, 2);
     const startingCards = sampleCards(deck, 10);
 
@@ -281,7 +283,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             player.terraformRating += userTerraformRatingChange;
         }
 
-        function handleGainResource(resource: Resource, amount: Amount) {
+        function handleGainResource(resource: Resource, amount: Amount, card?: Card) {
             let numberAmount: number;
             if (typeof amount === 'number') {
                 numberAmount = amount;
@@ -294,6 +296,11 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards.push(...draft.common.deck.splice(0, numberAmount));
                 return;
             }
+            if (card && card.storedResourceType === resource) {
+                // TODO handle having a different target card.
+                card.storedResourceAmount = (card.storedResourceAmount || 0) + numberAmount;
+            }
+
             player.resources[resource] += numberAmount;
         }
         switch (action.type) {
@@ -334,7 +341,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[payload.resource] -= payload.amount;
                 break;
             case GAIN_RESOURCE:
-                handleGainResource(payload.resource, payload.amount);
+                handleGainResource(payload.resource, payload.amount, payload.card);
                 break;
             case PAY_TO_PLAY_CARD:
                 player.resources[Resource.MEGACREDIT] -= payload.card.cost;

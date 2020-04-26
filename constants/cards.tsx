@@ -316,7 +316,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            trigger: {tilePlacements: [t(TileType.OCEAN)], anyPlayer: true},
+            trigger: {placedTile: TileType.OCEAN, anyPlayer: true},
             action: {gainResource: {[Resource.PLANT]: 2}},
             text: 'Effect: When anyone places an ocean tile, gain 2 plants.'
         },
@@ -330,8 +330,6 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.PLANT],
         type: CardType.ACTIVE,
-        // condition: condition => condition.tileType === TileType.OCEAN,
-        // effect: effect => effect.gainResource(Resource.PLANT, 2),
         gainResource: {[Resource.PLANT]: 1}
     },
     {
@@ -566,7 +564,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            trigger: {tilePlacements: [t(TileType.CITY)], anyPlayer: true},
+            trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
             text: 'Effect: When any city tile is placed, gain 2 MC'
         },
@@ -1943,7 +1941,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text: 'Effect: When you place a greenery tile, add an animal to this card.',
-            trigger: {tilePlacements: [t(TileType.GREENERY)]},
+            trigger: {placedTile: TileType.GREENERY},
             action: {gainResource: {[Resource.ANIMAL]: 1}}
         },
         cost: 12,
@@ -2264,7 +2262,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            trigger: {tilePlacements: [t(TileType.CITY)], anyPlayer: true},
+            trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {gainResource: {[Resource.ANIMAL]: 2}},
             text:
                 'Effect: When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.'
@@ -2640,7 +2638,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: Each time a city tile is placed, including this, increase your MC production 1 step.',
-            trigger: {tilePlacements: [t(TileType.CITY)]},
+            trigger: {placedTile: TileType.CITY},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}}
         },
         cost: 13,
@@ -2650,8 +2648,6 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 1 step and decrease your MC production 2 steps. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.ACTIVE,
-        // condition: condition => condition.tileType === TileType.CITY,
-        // effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1),
         decreaseProduction: {[Resource.ENERGY]: 1, [Resource.MEGACREDIT]: 2},
         tilePlacements: [t(TileType.CITY)]
     },
@@ -4271,8 +4267,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 57 MC.',
         tags: [],
         type: CardType.CORPORATION,
-        // condition: condition => (condition.cost && condition.cost >= 20 ? true : false),
-        // effect: effect => effect.gainResource(Resource.MEGACREDIT, 4),
         gainResource: {[Resource.MEGACREDIT]: 57}
     },
     {
@@ -4306,9 +4300,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 20 steel and 30 MC.',
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
-        // condition: condition =>
-        //     condition.card && condition.card.tags.includes(Tag.EVENT) ? true : false,
-        // effect: effect => effect.gainResource(Resource.MEGACREDIT, 2),
         gainResource: {[Resource.MEGACREDIT]: 30, [Resource.STEEL]: 20}
     },
     {
@@ -4380,11 +4371,11 @@ export const cardConfigs: CardConfig[] = [
         },
         effects: [
             {
-                trigger: {tilePlacements: [t(TileType.CITY)], anyPlayer: true, onMars: true},
+                trigger: {placedTile: TileType.CITY, anyPlayer: true, onMars: true},
                 action: {increaseProduction: {[Resource.MEGACREDIT]: 1}}
             },
             {
-                trigger: {tilePlacements: [t(TileType.CITY)]},
+                trigger: {placedTile: TileType.CITY},
                 action: {gainResource: {[Resource.MEGACREDIT]: 3}}
             }
         ],
@@ -4439,7 +4430,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text: 'Effect: Whenever Venus is terraformed 1 step, you gain 2 MC.',
-            trigger: {increaseParameter: {[Parameter.VENUS]: 1}},
+            trigger: {increaseParameter: Parameter.VENUS},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}}
         },
         deck: Deck.VENUS,
@@ -4537,11 +4528,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 45 MC. As your first action, fund an award for free.',
         tags: [Tag.EARTH],
         type: CardType.CORPORATION
-        // condition: condition => {
-        //     if (!condition.card) return false;
-        //     if (!condition.card.victoryPoints) return false;
-        //     return condition.card.victoryPoints > 0;
-        // }
     },
     {
         effect: {
@@ -4554,8 +4540,6 @@ export const cardConfigs: CardConfig[] = [
             'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
         tags: [],
         type: CardType.CORPORATION
-        // condition: condition => condition.newTag ?? false,
-        // effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1)
     },
     {
         effect: {
@@ -4569,10 +4553,6 @@ export const cardConfigs: CardConfig[] = [
             'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL],
         type: CardType.CORPORATION
-        // condition: condition => !!condition.tag && [Tag.ANIMAL, Tag.PLANT].includes(condition.tag),
-        // effect(effect) {
-        //     effect.gainResource(Resource.ANIMAL, 1, this);
-        // }
     },
     {
         effect: {

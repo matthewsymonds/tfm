@@ -25,7 +25,7 @@ export class Card {
     victoryPoints?: number;
     actionType: ActionType;
     action?: Action;
-    effect?: Effect;
+    effects: Effect[] = [];
 
     // ====================================================
     // Requirements
@@ -117,7 +117,14 @@ export class Card {
         this.requiredTags = config.requiredTags || {};
 
         // card effects, actions, long-term play (ACTIVE cards)
-        this.effect = config.effect;
+        this.effects = [];
+        if (config.effect) {
+            this.effects.push(config.effect);
+        }
+        if (config.effects) {
+            this.effects.push(...config.effects);
+        }
+
         this.action = config.action;
         this.storedResourceType = config.storedResourceType;
         if (config.action) {

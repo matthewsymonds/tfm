@@ -17,19 +17,19 @@ import {
     increaseParameter,
     gainResource,
     moveCardFromHandToPlayArea,
-    PLACE_TILE,
-    placeTile,
     askUserToPlaceTile,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE
 } from '../actions';
-import {Parameter} from '../constants/board';
+import {Parameter, CellType, TileType, Cell} from '../constants/board';
 import {
     StandardProjectAction,
     StandardProjectType,
     standardProjectActions
 } from '../constants/standard-project';
 import {Action, ActionType, VariableAmount, Amount} from '../constants/action';
+import {Effect} from '../constants/effect';
+import {EffectTrigger} from '../constants/effect-trigger';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -193,8 +193,116 @@ function createRemoveResourceAction(resource: Resource, amount: Amount, playerIn
     }
 }
 
+function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state: RootState) {
+    this.triggerEffects(
+        {
+            placedTile,
+            cell
+        },
+        state
+    );
+}
+
+function triggerEffectsFromStandardProject(cost: number, state: RootState) {
+    if (!cost) return;
+
+    this.triggerEffects(
+        {
+            standardProject: true,
+            cost
+        },
+        state
+    );
+}
+
+function triggerEffectsFromPlayedCard(cost: number, tags: Tag[], state: RootState) {
+    this.triggerEffects(
+        {
+            cost,
+            tags
+        },
+        state
+    );
+}
+
+interface Event {
+    standardProject?: StandardProjectType;
+    cost?: number;
+    placedTile?: TileType;
+    cell?: Cell;
+    tags?: Tag[];
+}
+
+function triggerEffects(event: Event, state: RootState) {
+    const actions: Action[] = [];
+    for (const player of state.players) {
+        for (const card of player.playedCards) {
+            for (const effect of card.effects) {
+                if (effect.trigger && effect.action) {
+                    actions.push(
+                        ...this.getActionsFromEffect(
+                            event,
+                            effect.trigger,
+                            effect.action,
+                            player,
+                            state.loggedInPlayerIndex
+                        )
+                    );
+                }
+            }
+        }
+    }
+    for (const action of actions) {
+        this.playAction(action, state);
+    }
+}
+
+function getActionsFromEffect(
+    event: Event,
+    trigger: EffectTrigger,
+    effectAction: Action,
+    player: PlayerState,
+    currentPlayerIndex: number
+): Action[] {
+    if (!trigger.anyPlayer && player.index !== currentPlayerIndex) return [];
+
+    if (trigger.placedTile) {
+        if (event.placedTile !== trigger.placedTile) return [];
+        if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
+    }
+
+    if (trigger.steelOrTitaniumPlacementBonus) {
+        const bonus = event.cell?.bonus || [];
+        if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
+    }
+
+    if (trigger.standardProject && !event.standardProject) {
+        return [];
+    }
+
+    if (trigger.cost) {
+        if ((event.cost || 0) < trigger.cost) return [];
+    }
+
+    const eventTags = event.tags || [];
+
+    for (const tag of trigger.cardTags || []) {
+        if (!eventTags.includes(tag)) return [];
+    }
+
+    const triggerTags = trigger.tags || [];
+    const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
+
+    if (numTagsTriggered > 0) {
+        return Array(numTagsTriggered).fill(effectAction);
+    }
+
+    return [effectAction];
+}
+
 function playAction(action: Action, state: RootState) {
     const playerIndex = state.loggedInPlayerIndex;
+
     for (const production in action.decreaseProduction) {
         this.queue.push(
             decreaseProduction(
@@ -227,7 +335,12 @@ function playAction(action: Action, state: RootState) {
 
     for (const resource in action.gainResource) {
         this.queue.push(
-            gainResource(resource as Resource, action.gainResource[resource], playerIndex)
+            gainResource(
+                resource as Resource,
+                action.gainResource[resource],
+                playerIndex,
+                action instanceof Card ? action : undefined
+            )
         );
     }
 
@@ -284,6 +397,8 @@ function playStandardProject(standardProjectAction: StandardProjectAction, state
         this.queue.push(payToPlayStandardProject(standardProjectAction, playerIndex));
     }
 
+    this.triggerEffectsFromStandardProject(standardProjectAction.cost, state);
+
     this.playAction(standardProjectAction, state);
 }
 
@@ -311,7 +426,12 @@ export const appContext = {
     playAction,
     canPlayStandardProject,
     playStandardProject,
-    processQueue
+    processQueue,
+    triggerEffects,
+    triggerEffectsFromTilePlacement,
+    triggerEffectsFromStandardProject,
+    triggerEffectsFromPlayedCard,
+    getActionsFromEffect
 };
 
 export const AppContext = createContext(appContext);

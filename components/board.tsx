@@ -12,7 +12,7 @@ import {Row} from './row';
 import {Tile} from './tile';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from '../selectors/board';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector} from '../reducer';
 import {placeTile} from '../actions';
 import {AppContext} from '../context/app-context';
@@ -64,12 +64,16 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
     const context = useContext(AppContext);
 
     const dispatch = useDispatch();
+    const store = useStore();
+    const state = store.getState();
 
     function handleClick(cell: CellType) {
         if (!validPlacements.includes(cell)) return;
 
-        dispatch(placeTile({type: pendingTilePlacement!.type!}, cell, props.playerIndex));
+        const type = pendingTilePlacement!.type!;
 
+        dispatch(placeTile({type}, cell, props.playerIndex));
+        context.triggerEffectsFromTilePlacement(type, cell, state);
         context.processQueue(dispatch);
     }
     return (

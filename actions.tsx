@@ -66,9 +66,14 @@ export const removeResource = (resource: Resource, amount: number, playerIndex: 
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
-export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
+export const gainResource = (
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    card?: Card
+) => ({
     type: GAIN_RESOURCE,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex, card}
 });
 
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';

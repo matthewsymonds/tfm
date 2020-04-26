@@ -106,7 +106,10 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
             <MaybeVisible visible={!!corporationName}>
                 <ConfirmButton
                     onClick={() => {
-                        context.playCard(corporation!, state);
+                        const card = corporation!;
+                        context.playCard(card, state);
+                        context.processQueue(dispatch);
+                        context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
                         context.processQueue(dispatch);
                         dispatch(
                             discardCards(

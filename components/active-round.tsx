@@ -145,6 +145,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             <Hand>
                 {cards.map(card => {
                     const [canPlay, reason] = context.canPlayCard(card, state);
+                    let resources = '';
+                    const {storedResourceType: type, storedResourceAmount: amount} = card;
+                    if (type) {
+                        resources = `Holds ${amount} ${type}${amount === 1 ? '' : 's'}`;
+                    }
                     return (
                         <CardComponent
                             content={card}
@@ -157,6 +162,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     <em>{reason}</em>
                                 </CardText>
                             )}
+                            {resources && <CardText>{resources}</CardText>}
                             <button
                                 disabled={
                                     !context.canPlayCard(card, state)[0] ||
@@ -164,6 +170,15 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 }
                                 onClick={() => {
                                     context.playCard(card, state);
+                                    context.processQueue(dispatch);
+                                    // Have to trigger effects from the card we just played.
+                                    // Must be processed separatedly in case the card effects itself.
+                                    context.triggerEffectsFromPlayedCard(
+                                        card.cost || 0,
+                                        card.tags,
+                                        // refreshed state so that the card we just played is present.
+                                        store.getState()
+                                    );
                                     context.processQueue(dispatch);
                                 }}>
                                 Play
@@ -176,11 +191,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             <h3>Played cards</h3>
             <Hand>
                 {playedCards.map(card => {
-                    const resourceMessage = getResourceMessage(card);
-
                     return (
                         <CardComponent content={card} width={250} key={card.name}>
-                            <div>{resourceMessage}</div>
                             {card.action && (
                                 <button
                                     disabled={!canPlayAction(card)}
@@ -195,15 +207,3 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         </>
     );
 };
-
-function getResourceMessage(card: Card) {
-    const {storedResourceType: type, storedResourceAmount: amount} = card;
-
-    if (!type) return '';
-
-    if (amount) {
-        return `Holding ${amount} ${type}${amount > 1 ? 's' : ''}`;
-    }
-
-    `Holds ${type}s`;
-}
