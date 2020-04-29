@@ -28,7 +28,7 @@ const Selection = styled.div<SelectionProps>`
 `;
 
 const CardBase = styled.div<CardBaseProps>`
-    margin: 8px;
+    margin: 10px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
     background: #f7f7f7;
     border-radius: 5px;

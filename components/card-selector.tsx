@@ -18,10 +18,15 @@ const CardSelectorBase = styled.div`
     display: flex;
     align-items: stretch;
     justify-content: center;
+    font-family: serif;
     flex-wrap: wrap;
     flex: 1;
     margin: 0 auto;
     max-width: 1300px;
+    :last-child {
+        max-width: fit-content;
+        margin-right: 32px;
+    }
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {

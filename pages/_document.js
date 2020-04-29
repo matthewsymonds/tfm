@@ -59,7 +59,7 @@ const GlobalStyles = createGlobalStyle`
       box-shadow: none;
       border: 0;
       height: 2px;
-      background: #7d7d7d;
+      background: #cecece;
       margin: 0;
     }
     button {

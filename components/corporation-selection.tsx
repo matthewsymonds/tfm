@@ -71,46 +71,40 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     function handleStartOver() {
         dispatch(startOver());
     }
-
-    let additionalActions: ReactElement[] = [];
-    if (corporationName) {
-        additionalActions = [
-            cards.length < selectAllCards.length ? (
-                <button onClick={() => handleSelectAll()}>Select all</button>
-            ) : (
-                <button onClick={() => dispatch(setCards([], playerIndex))}>Unselect all</button>
-            )
-        ];
-
-        additionalActions.push(
-            <ConfirmButton
-                onClick={() => {
-                    const card = corporation!;
-                    context.playCard(card, state);
-                    context.processQueue(dispatch);
-                    context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
-                    context.processQueue(dispatch);
-                    dispatch(
-                        discardCards(
-                            possibleCards.filter(card => !cards.includes(card)),
-                            playerIndex
-                        )
-                    );
-                    dispatch(payForCards(cards, playerIndex));
-                    dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
-                }}
-            />
-        );
-    }
-
     let additionalRow: ReactElement | null = null;
     if (corporationName) {
         additionalRow = (
             <>
                 <ActionBarDivider />
-                <div>
-                    You start with {startingAmount}€. You have {remaining}€ remaining.
-                </div>
+                <ActionBarRow>
+                    <div>
+                        You start with {startingAmount}€. You have {remaining}€ remaining.
+                    </div>
+                    {cards.length < selectAllCards.length ? (
+                        <button onClick={() => handleSelectAll()}>Select all</button>
+                    ) : (
+                        <button onClick={() => dispatch(setCards([], playerIndex))}>
+                            Unselect all
+                        </button>
+                    )}
+                    <ConfirmButton
+                        onClick={() => {
+                            const card = corporation!;
+                            context.playCard(card, state);
+                            context.processQueue(dispatch);
+                            context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
+                            context.processQueue(dispatch);
+                            dispatch(
+                                discardCards(
+                                    possibleCards.filter(card => !cards.includes(card)),
+                                    playerIndex
+                                )
+                            );
+                            dispatch(payForCards(cards, playerIndex));
+                            dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
+                        }}
+                    />
+                </ActionBarRow>
             </>
         );
     }
@@ -126,18 +120,19 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 <ActionBarRow>
                     {prompt}
                     <button onClick={() => handleStartOver()}>Start over</button>
-                    {additionalActions}
+                    <CardSelector
+                        width={400}
+                        max={1}
+                        selectedCards={corporation ? [corporation] : []}
+                        onSelect={([corporation]) =>
+                            dispatch(setCorporation(corporation, playerIndex))
+                        }
+                        options={possibleCorporations || []}
+                        orientation="horizontal"
+                    />
                 </ActionBarRow>
                 {additionalRow}
             </ActionBar>
-            <CardSelector
-                width={400}
-                max={1}
-                selectedCards={corporation ? [corporation] : []}
-                onSelect={([corporation]) => dispatch(setCorporation(corporation, playerIndex))}
-                options={possibleCorporations || []}
-                orientation="horizontal"
-            />
             <CardSelector
                 max={10}
                 width={250}
