@@ -8,11 +8,13 @@ const TagsBase = styled.div`
     justify-content: flex-end;
     align-items: center;
     height: 40px;
+    margin-bottom: 8px;
 `;
 
 const TagBase = styled.div<TagBaseProps>`
     border-radius: 50%;
     width: 32px;
+    min-width: 32px;
     height: 32px;
     margin: 4px;
     display: flex;

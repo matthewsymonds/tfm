@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext} from 'react';
+import {useState, useEffect, useContext, ReactElement} from 'react';
 import {Resource} from '../constants/resource';
 import {Card} from '../models/card';
 import {CardSelector} from '../components/card-selector';
@@ -19,6 +19,7 @@ import {
 import {useTypedSelector, RootState} from '../reducer';
 import {AppContext} from '../context/app-context';
 import {Amount} from '../constants/action';
+import {ActionBar, ActionBarRow, ActionBarDivider} from './action-bar';
 
 const MarginalButton = styled.button`
     margin-top: 10px;
@@ -71,10 +72,64 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         dispatch(startOver());
     }
 
+    let additionalActions: ReactElement[] = [];
+    if (corporationName) {
+        additionalActions = [
+            cards.length < selectAllCards.length ? (
+                <button onClick={() => handleSelectAll()}>Select all</button>
+            ) : (
+                <button onClick={() => dispatch(setCards([], playerIndex))}>Unselect all</button>
+            )
+        ];
+
+        additionalActions.push(
+            <ConfirmButton
+                onClick={() => {
+                    const card = corporation!;
+                    context.playCard(card, state);
+                    context.processQueue(dispatch);
+                    context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
+                    context.processQueue(dispatch);
+                    dispatch(
+                        discardCards(
+                            possibleCards.filter(card => !cards.includes(card)),
+                            playerIndex
+                        )
+                    );
+                    dispatch(payForCards(cards, playerIndex));
+                    dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
+                }}
+            />
+        );
+    }
+
+    let additionalRow: ReactElement | null = null;
+    if (corporationName) {
+        additionalRow = (
+            <>
+                <ActionBarDivider />
+                <div>
+                    You start with {startingAmount}€. You have {remaining}€ remaining.
+                </div>
+            </>
+        );
+    }
+
+    let prompt = <h3>Select a corporation</h3>;
+    if (corporationName) {
+        prompt = <h3>Selected {corporationName}</h3>;
+    }
+
     return (
         <>
-            <button onClick={() => handleStartOver()}>Start over</button>
-            <h3>Select a corporation</h3>
+            <ActionBar>
+                <ActionBarRow>
+                    {prompt}
+                    <button onClick={() => handleStartOver()}>Start over</button>
+                    {additionalActions}
+                </ActionBarRow>
+                {additionalRow}
+            </ActionBar>
             <CardSelector
                 width={400}
                 max={1}
@@ -83,19 +138,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 options={possibleCorporations || []}
                 orientation="horizontal"
             />
-            <MaybeVisible left={true} visible={!!startingAmount}>
-                <h4>
-                    You start with {startingAmount}€. You have {remaining}€ remaining.
-                </h4>
-                {cards.length < selectAllCards.length ? (
-                    <button onClick={() => handleSelectAll()}>Select all</button>
-                ) : (
-                    <button onClick={() => dispatch(setCards([], playerIndex))}>
-                        Unselect all
-                    </button>
-                )}
-            </MaybeVisible>
-            <h3>Select up to 10 cards</h3>
             <CardSelector
                 max={10}
                 width={250}
@@ -105,25 +147,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 budget={remaining}
                 orientation="vertical"
             />
-            <MaybeVisible visible={!!corporationName}>
-                <ConfirmButton
-                    onClick={() => {
-                        const card = corporation!;
-                        context.playCard(card, state);
-                        context.processQueue(dispatch);
-                        context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
-                        context.processQueue(dispatch);
-                        dispatch(
-                            discardCards(
-                                possibleCards.filter(card => !cards.includes(card)),
-                                playerIndex
-                            )
-                        );
-                        dispatch(payForCards(cards, playerIndex));
-                        dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
-                    }}
-                />
-            </MaybeVisible>
         </>
     );
 };
