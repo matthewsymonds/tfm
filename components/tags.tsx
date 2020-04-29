@@ -1,10 +1,12 @@
 import styled from 'styled-components';
 import {Tag} from '../constants/tag';
+import {ReactChild} from 'react';
 
 const TagsBase = styled.div`
     display: flex;
     justify-self: flex-start;
     justify-content: flex-end;
+    align-items: center;
     height: 40px;
 `;
 
@@ -28,6 +30,7 @@ interface TagBaseProps {
 
 interface TagsComponentProps {
     tags: Tag[];
+    children: ReactChild;
 }
 
 interface TagProps {
@@ -65,8 +68,14 @@ function getTagProps(tag: Tag): TagProps {
     };
 }
 
+const FlexStart = styled.div`
+    margin-right: auto;
+    margin-left: 0;
+`;
+
 export const TagsComponent = (props: TagsComponentProps) => (
     <TagsBase>
+        <FlexStart>{props.children}</FlexStart>
         {props.tags.map((tag, index) => {
             const tagProps = getTagProps(tag);
             return (

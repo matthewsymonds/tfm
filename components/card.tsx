@@ -3,13 +3,6 @@ import styled from 'styled-components';
 import {Card} from '../models/card';
 import {TagsComponent} from './tags';
 
-const Name = styled.div`
-    margin: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
 export const CardText = styled.div`
     margin: 10px;
     display: flex;
@@ -63,8 +56,9 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     return (
         <CardBase width={width} onClick={onClick}>
             <Selection selected={selected || false}>
-                <TagsComponent tags={tags} />
-                <Name>{name}</Name>
+                <TagsComponent tags={tags}>
+                    <div>{name}</div>
+                </TagsComponent>
                 {typeof cost === 'number' && <CardText>Cost: {cost}€</CardText>}
                 {text && <CardText>{text}</CardText>}
                 {effect?.text && <CardText>{effect.text}</CardText>}
