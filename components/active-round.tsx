@@ -87,6 +87,16 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         }
     }
 
+    useEffect(() => {
+        if (player.forcedAction) {
+            context.queue.push(completeAction(playerIndex));
+        }
+    }, [player.index]);
+
+    useEffect(() => {
+        context.processQueue(dispatch);
+    }, [])
+
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         context.playCard(card, state, payment);
         context.processQueue(dispatch);
@@ -128,7 +138,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     function playAction(card: Card) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
         context.playAction(card.action!, state);
-        context.queue.push(completeAction());
+        context.queue.push(completeAction(playerIndex));
         context.processQueue(dispatch);
     }
 

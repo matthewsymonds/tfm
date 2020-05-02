@@ -17,6 +17,8 @@ export interface CardConfig extends Action {
     effect?: Effect;
     // Use very rarely, in case we need multiple effects (e.g. Tharsis Republic).
     effects?: Effect[];
+    // With corporations, ensures that we count the first forced action of the game.
+    forcedAction?: boolean;
     deck: Deck;
     storedResourceType?: Resource;
     name: string;

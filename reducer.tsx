@@ -106,6 +106,7 @@ export type PlayerState = {
     playedCards: Card[];
     resources: Resources;
     productions: Resources;
+    forcedAction?: boolean;
     exchangeRates: {
         [Resource.STEEL]: number;
         [Resource.TITANIUM]: number;
@@ -387,6 +388,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
+                if (payload.card.forcedAction) {
+                    player.forcedAction = true;
+                }
                 break;
             case ASK_USER_TO_PLACE_TILE:
                 player.pendingTilePlacement = payload.tilePlacement;
@@ -461,8 +465,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                         }
                     }
                 }
+                break;
 
             case COMPLETE_ACTION:
+                player.forcedAction = false;
                 common.action = (common.action % 2) + 1;
                 // Did the player just complete their second action?
                 if (common.action === 1) {

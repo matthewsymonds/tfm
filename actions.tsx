@@ -137,8 +137,9 @@ export const startRound = () => ({
 // If the active player is now the start player,
 // increments the turn.
 export const COMPLETE_ACTION = 'COMPLETE_ACTION';
-export const completeAction = () => ({
-    type: COMPLETE_ACTION
+export const completeAction = (playerIndex: number) => ({
+    type: COMPLETE_ACTION,
+    payload: {playerIndex}
 });
 
 // If this is the player's first round

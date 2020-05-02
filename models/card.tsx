@@ -79,6 +79,9 @@ export class Card {
     /* How many of the stored resource type are currently stored, if applicable */
     storedResourceAmount?: number;
 
+    // Ensures a force action counts against your action count.
+    forcedAction?: boolean;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -87,6 +90,7 @@ export class Card {
         this.name = config.name;
         this.text = config.text || '';
         this.cost = config.cost;
+        this.forcedAction = config.forcedAction;
         this.tags = config.tags;
         this.type = config.type;
         this.deck = config.deck;

@@ -377,7 +377,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
 
     this.playAction(card, state);
     if (card.type !== CardType.CORPORATION) {
-        this.queue.push(completeAction());
+        this.queue.push(completeAction(playerIndex));
     }
 }
 
@@ -409,7 +409,7 @@ function playStandardProject(standardProjectAction: StandardProjectAction, state
     this.triggerEffectsFromStandardProject(standardProjectAction.cost, state);
 
     this.playAction(standardProjectAction, state);
-    this.queue.push(completeAction());
+    this.queue.push(completeAction(playerIndex));
 }
 
 function processQueue(dispatch: Function) {
