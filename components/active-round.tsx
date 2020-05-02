@@ -1,7 +1,7 @@
 import {useContext, useState, MouseEvent, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
-import {discardCards, markCardActionAsPlayed} from '../actions';
+import {discardCards, markCardActionAsPlayed, completeAction} from '../actions';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {Amount} from '../constants/action';
@@ -13,6 +13,7 @@ import {RootState, useTypedSelector} from '../reducer';
 import {Board} from './board';
 import {CardComponent, CardText} from './card';
 import {PropertyCounter} from '../constants/property-counter';
+import {ActionBarRow, ActionBar} from './action-bar';
 
 const Hand = styled.div`
     display: flex;
@@ -51,6 +52,10 @@ function getResourceReductionAmountHumanName(amount: Amount) {
     }
 }
 
+const TurnContext = styled.div`
+    margin-left: 24px;
+`;
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
@@ -58,6 +63,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const productions = useTypedSelector(state => state.players[playerIndex].productions);
     const cards = useTypedSelector(state => state.players[playerIndex].cards);
     const playedCards = useTypedSelector(state => state.players[playerIndex].playedCards);
+    const turn = useTypedSelector(state => state.common.turn);
+    const action = useTypedSelector(state => state.common.action);
+    const generation = useTypedSelector(state => state.common.generation);
     const store = useStore<RootState>();
     const state = store.getState();
     const dispatch = useDispatch();
@@ -120,6 +128,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     function playAction(card: Card) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
         context.playAction(card.action!, state);
+        context.queue.push(completeAction());
         context.processQueue(dispatch);
     }
 
@@ -131,14 +140,25 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return context.canPlayAction(card.action, state)[0];
     }
 
+    const showBottomActionBar = player.pendingTilePlacement || player.pendingResourceReduction;
+
     return (
         <>
+            <ActionBar>
+                <ActionBarRow>
+                    <h1>{corporation && corporation.name}</h1>
+                    <TurnContext>
+                        <div>Turn {turn}</div>
+                        <div>Action {action} of 2</div>
+                        <div>Generation {generation}</div>
+                    </TurnContext>
+                </ActionBarRow>
+            </ActionBar>
             <Board
                 board={state.common.board}
                 playerIndex={playerIndex}
                 parameters={state.common.parameters}
             />
-            <h1>{corporation && corporation.name}</h1>
             <ResourceBoard>
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => (
@@ -161,23 +181,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     ))}
                 </ResourceBoardRow>
             </ResourceBoard>
-            {player.pendingTilePlacement && (
-                <div>
-                    Please place the {getTileHumanName(player.pendingTilePlacement.type)} tile.
-                </div>
-            )}
-            {player.pendingResourceReduction?.resource === Resource.CARD && (
-                <>
-                    <div>
-                        Please select{' '}
-                        {getResourceReductionAmountHumanName(
-                            player.pendingResourceReduction.amount
-                        )}{' '}
-                        card{player.pendingResourceReduction.amount === 1 ? '' : 's'} to discard.
-                    </div>
-                    <button onClick={confirmDiscardSelection}>Confirm discard selection</button>
-                </>
-            )}
             <h3>Hand</h3>
             <Hand>
                 {cards.map(card => {
@@ -243,6 +246,33 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     );
                 })}
             </Hand>
+            {showBottomActionBar && (
+                <ActionBar className="bottom">
+                    <ActionBarRow>
+                        {player.pendingTilePlacement && (
+                            <h3>
+                                Please place the{' '}
+                                {getTileHumanName(player.pendingTilePlacement.type)} tile.
+                            </h3>
+                        )}
+                        {player.pendingResourceReduction?.resource === Resource.CARD && (
+                            <>
+                                <div>
+                                    Please select{' '}
+                                    {getResourceReductionAmountHumanName(
+                                        player.pendingResourceReduction.amount
+                                    )}{' '}
+                                    card{player.pendingResourceReduction.amount === 1 ? '' : 's'} to
+                                    discard.
+                                </div>
+                                <button onClick={confirmDiscardSelection}>
+                                    Confirm discard selection
+                                </button>
+                            </>
+                        )}
+                    </ActionBarRow>
+                </ActionBar>
+            )}
         </>
     );
 };

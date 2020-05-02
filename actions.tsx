@@ -125,6 +125,25 @@ export const increaseParameter = (parameter: Parameter, amount: number, playerIn
     payload: {parameter, amount, playerIndex}
 });
 
+// Re-adds all players to the active player rotation.
+export const START_ROUND = 'START_ROUND';
+export const startRound = () => ({
+    type: START_ROUND
+});
+
+// Increases the action count by 1.
+// If the action count is then 3,
+// resets actions to 0 and changes the active player.
+// If the active player is now the start player,
+// increments the turn.
+export const COMPLETE_ACTION = 'COMPLETE_ACTION';
+export const completeAction = () => ({
+    type: COMPLETE_ACTION
+});
+
+// If this is the player's first round
+export const SKIP_ACTION = 'SKIP_ACTION';
+
 // For debugging
 export const START_OVER = 'START_OVER';
 export const startOver = () => ({type: START_OVER});

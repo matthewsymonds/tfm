@@ -34,7 +34,10 @@ import {
     discardCards,
     START_OVER,
     PAY_TO_PLAY_STANDARD_PROJECT,
-    MARK_CARD_ACTION_AS_PLAYED
+    MARK_CARD_ACTION_AS_PLAYED,
+    COMPLETE_ACTION,
+    START_ROUND,
+    SKIP_ACTION
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -62,13 +65,15 @@ export type GameState = {
     loggedInPlayerIndex: number;
     players: Array<PlayerState>;
     common: {
+        // List of indices of playing players.
+        playingPlayers: number[];
         deck: Card[];
         discardPile: Card[];
         revealedCard?: Card;
         gameStage: GameStage;
         generation: number;
-        round: number;
         turn: number;
+        action: number;
         firstPlayerIndex: number;
         currentPlayerIndex: number;
         parameters: {
@@ -179,11 +184,12 @@ function getInitialState(): GameState {
         queuePaused: false,
         loggedInPlayerIndex: 0,
         common: {
+            playingPlayers: [],
             discardPile: [],
             gameStage: GameStage.CORPORATION_SELECTION,
-            generation: 0,
-            round: 0,
-            turn: 0,
+            generation: 1,
+            turn: 1,
+            action: 1,
             deck,
             parameters: MIN_PARAMETERS,
             board: INITIAL_BOARD_STATE,
@@ -258,6 +264,29 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
     });
 }
 
+function handleProduction(draft: RootState) {
+    for (const player of draft.players) {
+        player.resources[Resource.MEGACREDIT] += player.terraformRating;
+        player.resources[Resource.HEAT] += player.resources[Resource.ENERGY];
+        player.resources[Resource.ENERGY] = 0;
+        for (const production in player.productions) {
+            player.resources[production] += player.productions[production];
+        }
+    }
+}
+
+function isEndOfGame(draft: RootState) {
+    for (const parameter in draft.common.parameters) {
+        if (parameter === Parameter.VENUS) continue;
+
+        if (MAX_PARAMETERS[parameter] !== draft.common.parameters[parameter]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST;
 
@@ -265,6 +294,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
+        const {common} = draft;
         function handleParameterIncrease(parameter: Parameter, amount: number) {
             if (parameter === Parameter.TERRAFORM_RATING) {
                 player.terraformRating += amount;
@@ -399,6 +429,53 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case MARK_CARD_ACTION_AS_PLAYED:
                 const playedCard = player.playedCards.find(card => card.name === payload.card.name);
                 playedCard!.usedActionThisRound = true;
+                break;
+            case START_ROUND:
+                draft.common.playingPlayers = state.players.map(player => player.index);
+                break;
+            case SKIP_ACTION:
+                common.action = 1;
+                // Did the player just skip on their first action?
+                // If so, they're out for the rest of the round.
+                if (state.common.action === 1) {
+                    common.playingPlayers = common.playingPlayers.filter(
+                        index => index !== common.currentPlayerIndex
+                    );
+                    // After removing the current player, is anyone else playing?
+                    if (common.playingPlayers.length === 0) {
+                        handleProduction(draft);
+                        const endOfGame = isEndOfGame(draft);
+                        if (endOfGame) {
+                            common.gameStage = GameStage.END_OF_GAME;
+                        } else {
+                            common.firstPlayerIndex =
+                                (common.firstPlayerIndex + 1) % draft.players.length;
+                            for (let i = common.firstPlayerIndex; i < draft.players.length; i++) {
+                                common.playingPlayers.push(i);
+                            }
+                            for (let i = 0; i < common.firstPlayerIndex; i++) {
+                                common.playingPlayers.push(i);
+                            }
+                            common.generation++;
+                            common.gameStage = GameStage.DRAFTING;
+                        }
+                    }
+                }
+
+            case COMPLETE_ACTION:
+                common.action = (common.action % 2) + 1;
+                // Did the player just complete their second action?
+                if (common.action === 1) {
+                    // It's the next player's turn
+                    const oldPlayerIndex = state.common.currentPlayerIndex;
+                    const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
+                    const newPlayerPlaceInTurnOrder =
+                        placeInTurnOrder + (1 % common.playingPlayers.length);
+                    common.currentPlayerIndex = common.playingPlayers[newPlayerPlaceInTurnOrder];
+                    if (newPlayerPlaceInTurnOrder === 0) {
+                        common.turn++;
+                    }
+                }
                 break;
             default:
                 return draft;

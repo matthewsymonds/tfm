@@ -1,8 +1,5 @@
 import styled from 'styled-components';
 
-const displacementPx =
-    typeof document !== 'undefined' ? document.body.offsetWidth - document.body.clientWidth : 30;
-
 const ActionBarBase = styled.div`
     padding: 12px;
     min-height: 48px;
@@ -11,7 +8,11 @@ const ActionBarBase = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100% - ${displacementPx}px);
+    &.bottom {
+        bottom: 0;
+        top: initial;
+    }
+    width: calc(100% - 30px);
     z-index: 30;
     box-shadow: 2px 1px 10px 0px rgba(0, 0, 0, 0.35);
     font-family: sans-serif;
@@ -35,6 +36,7 @@ const ActionBarDisplace = styled(ActionBarBase)`
     * {
         visibility: hidden;
     }
+    width: auto;
 `;
 
 export const ActionBarDivider = styled.hr`

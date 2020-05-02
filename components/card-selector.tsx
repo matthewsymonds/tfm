@@ -12,6 +12,7 @@ interface CardSelectorProps {
     selectedCards: Card[];
     budget?: number;
     width: number;
+    className?: string;
 }
 
 const CardSelectorBase = styled.div`
@@ -22,11 +23,13 @@ const CardSelectorBase = styled.div`
     flex-wrap: wrap;
     flex: 1;
     margin: 0 auto;
-    max-width: 1300px;
-    :last-child {
-        max-width: fit-content;
+    &.inline {
+        margin-left: 32px;
         margin-right: 32px;
+        display: inline-flex;
+        max-width: fit-content;
     }
+    max-width: 1300px;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
@@ -48,7 +51,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     };
 
     return (
-        <CardSelectorBase>
+        <CardSelectorBase className={props.className}>
             {options.map((option, key) => {
                 const selected = selectedCards.indexOf(option) >= 0;
                 return (

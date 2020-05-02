@@ -14,7 +14,8 @@ import {
     goToGameStage,
     discardCards,
     payForCards,
-    startOver
+    startOver,
+    startRound
 } from '../actions';
 import {useTypedSelector, RootState} from '../reducer';
 import {AppContext} from '../context/app-context';
@@ -24,6 +25,14 @@ import {ActionBar, ActionBarRow, ActionBarDivider} from './action-bar';
 const MarginalButton = styled.button`
     margin-top: 10px;
     margin-bottom: 10px;
+`;
+
+const Prompt = styled.div`
+    min-width: 350px;
+`;
+
+const AlignLeft = styled.div`
+    text-align: left;
 `;
 
 const ConfirmButton = props => (
@@ -75,7 +84,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     if (corporationName) {
         additionalRow = (
             <>
-                <ActionBarDivider />
                 <ActionBarRow>
                     <div>
                         You start with {startingAmount}€. You have {remaining}€ remaining.
@@ -101,6 +109,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                                 )
                             );
                             dispatch(payForCards(cards, playerIndex));
+                            dispatch(startRound());
                             dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
                         }}
                     />
@@ -118,9 +127,12 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         <>
             <ActionBar>
                 <ActionBarRow>
-                    {prompt}
-                    <button onClick={() => handleStartOver()}>Start over</button>
+                    <Prompt>
+                        <div>{prompt}</div>
+                        <button onClick={() => handleStartOver()}>Start over</button>
+                    </Prompt>
                     <CardSelector
+                        className="inline"
                         width={400}
                         max={1}
                         selectedCards={corporation ? [corporation] : []}
@@ -131,7 +143,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                         orientation="horizontal"
                     />
                 </ActionBarRow>
-                {additionalRow}
             </ActionBar>
             <CardSelector
                 max={10}
@@ -142,6 +153,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 budget={remaining}
                 orientation="vertical"
             />
+            {additionalRow && <ActionBar className="bottom">{additionalRow}</ActionBar>}
         </>
     );
 };

@@ -19,7 +19,8 @@ import {
     moveCardFromHandToPlayArea,
     askUserToPlaceTile,
     ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_REMOVE_RESOURCE
+    ASK_USER_TO_REMOVE_RESOURCE,
+    completeAction
 } from '../actions';
 import {Parameter, CellType, TileType, Cell} from '../constants/board';
 import {
@@ -31,6 +32,7 @@ import {Action, ActionType, VariableAmount, Amount} from '../constants/action';
 import {Effect} from '../constants/effect';
 import {EffectTrigger} from '../constants/effect-trigger';
 import {PropertyCounter} from '../constants/property-counter';
+import {CardType} from '../constants/card-types';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -374,6 +376,9 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     }
 
     this.playAction(card, state);
+    if (card.type !== CardType.CORPORATION) {
+        this.queue.push(completeAction());
+    }
 }
 
 function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
@@ -404,6 +409,7 @@ function playStandardProject(standardProjectAction: StandardProjectAction, state
     this.triggerEffectsFromStandardProject(standardProjectAction.cost, state);
 
     this.playAction(standardProjectAction, state);
+    this.queue.push(completeAction());
 }
 
 function processQueue(dispatch: Function) {
@@ -423,7 +429,7 @@ function shouldPause(action: {type: string}): boolean {
 }
 
 export const appContext = {
-    queue: [],
+    queue: [] as Array<Object>,
     canPlayCard,
     playCard,
     canPlayAction,
