@@ -10,7 +10,7 @@ import {Resource} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
 import {RootState, useTypedSelector} from '../reducer';
-import {Board} from './board';
+import {Board} from './board/board';
 import {CardComponent, CardText} from './card';
 import {PropertyCounter} from '../constants/property-counter';
 import {ActionBarRow, ActionBar} from './action-bar';

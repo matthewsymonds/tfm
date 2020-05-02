@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {TileType} from '../constants/board';
+import {TileType} from '../../constants/board';
 import {Hexagon} from './hexagon';
 
 const getColor = (type: TileType) => {
