@@ -11,6 +11,7 @@ import {Action, ActionType} from '../constants/action';
 import {Resource} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
+import {Discounts} from '../constants/discounts';
 
 export class Card {
     // ====================================================
@@ -82,6 +83,9 @@ export class Card {
     // Ensures a force action counts against your action count.
     forcedAction?: boolean;
 
+    // Describes the discounts the card gives.
+    discounts: Discounts;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -119,6 +123,29 @@ export class Card {
         this.increaseParameter = config.increaseParameter || {};
         this.increaseTerraformRating = config.increaseTerraformRating || 0;
         this.requiredTags = config.requiredTags || {};
+        const {tags = {}, cards = {}, ...rest} = config.discounts || {};
+        this.discounts = {
+            card: 0,
+            tags: {
+                [Tag.SPACE]: 0,
+                [Tag.VENUS]: 0,
+                [Tag.BUILDING]: 0,
+                [Tag.SCIENCE]: 0,
+                [Tag.EARTH]: 0,
+                [Tag.POWER]: 0,
+                ...tags
+            },
+            cards: {
+                [Tag.SPACE]: 0,
+                [Tag.EARTH]: 0,
+                ...cards
+            },
+            standardProjects: 0,
+            standardProjectPowerPlant: 0,
+            nextCardThisGeneration: 0,
+            trade: 0,
+            ...rest
+        };
 
         // card effects, actions, long-term play (ACTIVE cards)
         this.effects = [];

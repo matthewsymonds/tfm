@@ -38,7 +38,8 @@ import {
     COMPLETE_ACTION,
     START_ROUND,
     SKIP_ACTION,
-    DRAW_POSSIBLE_CARDS
+    DRAW_POSSIBLE_CARDS,
+    APPLY_DISCOUNTS
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -48,6 +49,7 @@ import {Amount, Action, VariableAmount} from './constants/action';
 import {StandardProjectType} from './constants/standard-project';
 import {BILLY_TEST} from './test-states';
 import {getDiscountedCardCost} from './context/app-context';
+import {Discounts} from './constants/discounts';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -113,26 +115,6 @@ export type PlayerState = {
         [Resource.TITANIUM]: number;
     };
     discounts: Discounts;
-};
-
-export type Discounts = {
-    card: number;
-    tags: {
-        [Tag.SPACE]: number;
-        [Tag.VENUS]: number;
-        [Tag.BUILDING]: number;
-        [Tag.SCIENCE]: number;
-        [Tag.EARTH]: number;
-        [Tag.POWER]: number;
-    };
-    cards: {
-        [Tag.SPACE]: number;
-        [Tag.EARTH]: number;
-    };
-    standardProjects: number;
-    standardProjectPowerPlant: number;
-    nextCardThisGeneration: number;
-    trade: number;
 };
 
 function sampleCards(cards: Card[], num: number) {
@@ -370,7 +352,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
                 break;
             case DRAW_POSSIBLE_CARDS:
+                const include = draft.common.deck.find(card => card.name === 'Research Outpost');
                 player.possibleCards.push(...draft.common.deck.splice(0, payload.numCards));
+                player.possibleCards.push(include!);
                 break;
             case DECREASE_PRODUCTION:
                 player.productions[payload.resource] -= payload.amount;
@@ -393,6 +377,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 } else {
                     player.resources[Resource.MEGACREDIT] -= cardCost;
                 }
+                player.discounts.nextCardThisGeneration = 0;
                 break;
             case PAY_TO_PLAY_STANDARD_PROJECT:
                 player.resources[Resource.MEGACREDIT] -= payload.standardProjectAction.cost;
@@ -438,6 +423,21 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case INCREASE_PARAMETER:
                 const {parameter, amount} = payload;
                 handleParameterIncrease(parameter, amount);
+                break;
+            case APPLY_DISCOUNTS:
+                const {discounts} = payload;
+
+                player.discounts.card += discounts.card;
+                for (const tag in discounts.tags) {
+                    player.discounts.tags[tag] += discounts.tags[tag];
+                }
+                for (const tag in discounts.cards) {
+                    player.discounts.cards[tag] += discounts.cards[tag];
+                }
+                player.discounts.standardProjects += discounts.standardProjects;
+                player.discounts.standardProjectPowerPlant += discounts.standardProjectPowerPlant;
+                player.discounts.nextCardThisGeneration = discounts.nextCardThisGeneration;
+                player.discounts.trade += discounts.trade;
                 break;
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;

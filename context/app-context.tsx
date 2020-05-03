@@ -20,7 +20,8 @@ import {
     askUserToPlaceTile,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
-    completeAction
+    completeAction,
+    applyDiscounts
 } from '../actions';
 import {Parameter, CellType, TileType, Cell} from '../constants/board';
 import {
@@ -374,6 +375,8 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
     }
+
+    this.queue.push(applyDiscounts(card.discounts, playerIndex));
 
     this.playAction(card, state);
     if (card.type !== CardType.CORPORATION) {

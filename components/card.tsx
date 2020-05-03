@@ -2,12 +2,20 @@ import {MouseEvent} from 'react';
 import styled from 'styled-components';
 import {Card} from '../models/card';
 import {TagsComponent} from './tags';
+import {getDiscountedCardCost} from '../context/app-context';
+import {useLoggedInPlayer} from '../selectors/players';
 
 export const CardText = styled.div`
     margin: 10px;
     display: flex;
+    flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+`;
+
+const CardNote = styled(CardText)`
+    margin: 4px;
+    font-size: 16px;
 `;
 
 interface CardBaseProps {
@@ -52,6 +60,8 @@ interface CardComponentProps extends CardBaseProps {
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width, selected, onClick} = props;
     const {name, text, action, effects, cost, tags} = content;
+    const player = useLoggedInPlayer();
+    const discountedCost = getDiscountedCardCost(content, player);
     const effect = effects[0];
     return (
         <CardBase width={width} onClick={onClick}>
@@ -59,7 +69,16 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                 <TagsComponent tags={tags}>
                     <div>{name}</div>
                 </TagsComponent>
-                {typeof cost === 'number' && <CardText>Cost: {cost}€</CardText>}
+                {typeof cost === 'number' && (
+                    <CardText>
+                        Cost: {discountedCost}€
+                        {discountedCost !== cost && (
+                            <CardNote>
+                                <em>Originally: {cost}€</em>
+                            </CardNote>
+                        )}
+                    </CardText>
+                )}
                 {text && <CardText>{text}</CardText>}
                 {effect?.text && <CardText>{effect.text}</CardText>}
                 {action?.text && <CardText>{action.text}</CardText>}

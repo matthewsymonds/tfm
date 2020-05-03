@@ -6,6 +6,7 @@ import {TilePlacement, Tile, Cell, Parameter} from './constants/board';
 import {StandardProjectAction} from './constants/standard-project';
 import {Amount, Action, VariableAmount} from './constants/action';
 import {PropertyCounter} from './constants/property-counter';
+import {Discounts} from './constants/discounts';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -76,6 +77,12 @@ export const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: GAIN_RESOURCE,
     payload: {resource, amount, playerIndex}
+});
+
+export const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';
+export const applyDiscounts = (discounts: Discounts, playerIndex: number) => ({
+    type: APPLY_DISCOUNTS,
+    payload: {discounts, playerIndex}
 });
 
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';

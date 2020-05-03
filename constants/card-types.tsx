@@ -5,11 +5,23 @@ import {Action, ActionType} from './action';
 import {Effect} from './effect';
 import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
+import {Discounts, CardDiscounts, TagDiscounts} from './discounts';
 
 export type RequiredTilePlacements = {
     type: TileType;
     currentPlayer?: boolean;
 };
+
+// The discounts config may include, recursively, any or none of these fields.
+interface PartialDiscounts {
+    card?: number;
+    tags?: Partial<TagDiscounts>;
+    cards?: Partial<CardDiscounts>;
+    standardProjects?: number;
+    standardProjectPowerPlant?: number;
+    nextCardThisGeneration?: number;
+    trade?: number;
+}
 
 export interface CardConfig extends Action {
     resources?: PropertyCounter<Resource>;
@@ -33,6 +45,7 @@ export interface CardConfig extends Action {
     minColonies?: number;
     maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
+    discounts?: PartialDiscounts;
 }
 
 type MinimumGlobalParameter = {

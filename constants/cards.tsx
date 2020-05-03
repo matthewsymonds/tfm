@@ -288,7 +288,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a city tile NEXT TO NO OTHER TILE.',
         tags: [Tag.BUILDING, Tag.CITY, Tag.SCIENCE],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.ISOLATED, true)]
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.ISOLATED, true)],
+        discounts: {card: 1}
     },
     {
         cost: 25,
@@ -360,7 +361,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Space Station',
         tags: [Tag.SPACE],
         type: CardType.ACTIVE,
-        victoryPoints: 1
+        victoryPoints: 1,
+        discounts: {cards: {[Tag.SPACE]: 2}}
     },
     {
         cost: 16,
@@ -969,7 +971,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Earth Catapult',
         tags: [Tag.EARTH],
         type: CardType.ACTIVE,
-        victoryPoints: 2
+        victoryPoints: 2,
+        discounts: {card: 2}
     },
     {
         effect: {
@@ -1085,8 +1088,9 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 4},
         tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
-        text: 'Increase your energy production 4 steps.',
-        increaseProduction: {[Resource.ENERGY]: 4}
+        text: 'Requires 4 science tags. Increase your energy production 4 steps.',
+        increaseProduction: {[Resource.ENERGY]: 4},
+        discounts: {cards: {[Tag.SPACE]: 2}}
     },
     {
         cost: 36,
@@ -1253,7 +1257,8 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 5},
         tags: [Tag.POWER, Tag.SCIENCE],
         type: CardType.ACTIVE,
-        increaseProduction: {[Resource.ENERGY]: 6}
+        increaseProduction: {[Resource.ENERGY]: 6},
+        discounts: {cards: {[Tag.SPACE]: 2}}
     },
     {
         action: {
@@ -1397,7 +1402,8 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.CORPORATE,
         name: 'Earth Office',
         tags: [Tag.EARTH],
-        type: CardType.ACTIVE
+        type: CardType.ACTIVE,
+        discounts: {tags: {[Tag.EARTH]: 3}}
     },
     {
         cost: 10,
@@ -1975,7 +1981,8 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 7},
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        victoryPoints: 3
+        victoryPoints: 3,
+        discounts: {card: 2}
     },
     {
         cost: 3,
@@ -2173,7 +2180,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
         victoryPoints: 1,
         decreaseProduction: {[Resource.ENERGY]: 1},
-        increaseProduction: {[Resource.MEGACREDIT]: 2}
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        discounts: {cards: {[Tag.SPACE]: 2}}
     },
     {
         cost: 9,
@@ -2552,7 +2560,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'The next card you play this generation costs 8MC less.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        victoryPoints: -1
+        victoryPoints: -1,
+        discounts: {nextCardThisGeneration: 8}
     },
     {
         cost: 9,
@@ -3349,7 +3358,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Venus Waystation',
         tags: [Tag.SPACE, Tag.VENUS],
         type: CardType.ACTIVE,
-        victoryPoints: 1
+        victoryPoints: 1,
+        discounts: {tags: {[Tag.VENUS]: 2}}
     },
     {
         effect: {
@@ -3446,7 +3456,8 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
-        victoryPoints: -1
+        victoryPoints: -1,
+        discounts: {nextCardThisGeneration: 16}
     },
     {
         cost: 10,
@@ -3464,7 +3475,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Cryo-Sleep',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        victoryPoints: 1
+        victoryPoints: 1,
+        discounts: {trade: 1}
     },
     {
         cost: 43,
@@ -3734,7 +3746,8 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Rim Freighters',
         tags: [Tag.SPACE],
-        type: CardType.ACTIVE
+        type: CardType.ACTIVE,
+        discounts: {trade: 1}
     },
     {
         effect: {text: 'Effect: When you play a card, you pay 1 MC less for it.'},
@@ -3745,7 +3758,8 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.ACTIVE,
-        victoryPoints: 2
+        victoryPoints: 2,
+        discounts: {card: 1}
     },
     {
         cost: 9,
@@ -3890,7 +3904,8 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 5},
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        victoryPoints: 2
+        victoryPoints: 2,
+        discounts: {tags: {[Tag.SPACE]: 4}}
     },
     {
         deck: Deck.PRELUDE,
@@ -4329,7 +4344,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 60 MC.',
         tags: [Tag.EARTH],
         type: CardType.CORPORATION,
-        gainResource: {[Resource.MEGACREDIT]: 60}
+        gainResource: {[Resource.MEGACREDIT]: 60},
+        discounts: {cards: {[Tag.EARTH]: 3}}
     },
     {
         effect: {
@@ -4366,7 +4382,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.POWER],
         type: CardType.CORPORATION,
         increaseProduction: {[Resource.ENERGY]: 1},
-        gainResource: {[Resource.MEGACREDIT]: 48}
+        gainResource: {[Resource.MEGACREDIT]: 48},
+        discounts: {standardProjectPowerPlant: 3, tags: {[Tag.POWER]: 3}}
     },
     {
         action: {
@@ -4443,7 +4460,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Cheung Shing Mars',
         text: 'You start with 44 MC and 3 MC production.',
         tags: [Tag.BUILDING],
-        type: CardType.CORPORATION
+        type: CardType.CORPORATION,
+        discounts: {tags: {[Tag.BUILDING]: 2}}
     },
     {
         effect: {
@@ -4472,7 +4490,8 @@ export const cardConfigs: CardConfig[] = [
         text:
             'You start with 37 MC. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two.',
         tags: [Tag.EARTH],
-        type: CardType.CORPORATION
+        type: CardType.CORPORATION,
+        discounts: {tags: {[Tag.SCIENCE]: 2}}
     },
     {
         effect: {
