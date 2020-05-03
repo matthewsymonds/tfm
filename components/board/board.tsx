@@ -4,18 +4,19 @@ import {
     Board as BoardModel,
     cellHelpers,
     GlobalParameters,
-    Cell as CellType
-} from '../constants/board';
-import GlobalParams from './global-params';
-import StandardProjects from './standard-projects';
-import {Row} from './row';
+    Cell as CellModel
+} from '../../constants/board';
+import GlobalParams from '../global-params';
+import StandardProjects from '../standard-projects';
+import {Row} from '../row';
 import {Tile} from './tile';
 import {Cell} from './cell';
-import {getValidPlacementsForRequirement} from '../selectors/board';
+import {getValidPlacementsForRequirement} from '../../selectors/board';
 import {useDispatch, useStore} from 'react-redux';
-import {useTypedSelector} from '../reducer';
-import {placeTile} from '../actions';
-import {AppContext} from '../context/app-context';
+import {useTypedSelector} from '../../reducer';
+import {placeTile} from '../../actions';
+import {AppContext} from '../../context/app-context';
+import OffMarsCities from './off-mars-cities';
 
 const BoardOuter = styled.div`
     position: relative;
@@ -67,7 +68,7 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
     const store = useStore();
     const state = store.getState();
 
-    function handleClick(cell: CellType) {
+    function handleClick(cell: CellModel) {
         if (!validPlacements.includes(cell)) return;
 
         const type = pendingTilePlacement!.type!;
@@ -80,6 +81,11 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
         <>
             <BoardOuter>
                 <GlobalParams parameters={props.parameters} />
+                <OffMarsCities
+                    board={props.board}
+                    validPlacements={validPlacements}
+                    handleClick={handleClick}
+                />
                 <Circle>
                     <BoardInner>
                         {props.board.map((row, outerIndex) => (
@@ -96,7 +102,6 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                                     selectable={validPlacements.includes(cell)}
                                                     type={cell.type}
                                                     bonus={cell.bonus ?? []}
-                                                    key={index}
                                                 >
                                                     {cell.specialName ?? ''}
                                                 </Cell>

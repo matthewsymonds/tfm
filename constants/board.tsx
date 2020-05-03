@@ -257,8 +257,8 @@ const INITIAL_BOARD_STATE: Cell[][] = [
 ];
 
 INITIAL_BOARD_STATE.push([
-    offMars([], SpecialLocation.PHOBOS),
-    offMars([], SpecialLocation.GANYMEDE)
+    offMars([], SpecialLocation.PHOBOS, 'Phobos'),
+    offMars([], SpecialLocation.GANYMEDE, 'Ganymede')
 ]);
 
 INITIAL_BOARD_STATE.forEach((row, rowIndex) => {

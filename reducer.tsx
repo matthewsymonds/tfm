@@ -144,8 +144,6 @@ function sampleCards(cards: Card[], num: number) {
         }
         result.push(card);
     }
-    const ua = cards.filter(c => c.name === 'Urbanized Area')[0];
-    ua && result.push(ua);
     return result;
 }
 
