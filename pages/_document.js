@@ -71,7 +71,9 @@ const GlobalStyles = createGlobalStyle`
       margin: 0;
     }
     button {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
       cursor: pointer;
       border-radius: 4px;
       margin-top: auto;

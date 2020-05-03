@@ -14,6 +14,7 @@ import {Board} from './board/board';
 import {CardComponent, CardText} from './card';
 import {PropertyCounter} from '../constants/property-counter';
 import {ActionBarRow, ActionBar} from './action-bar';
+import {Conversion, CONVERSIONS} from '../constants/conversion';
 
 const Hand = styled.div`
     display: flex;
@@ -40,7 +41,7 @@ function getTileHumanName(type: TileType): string {
             [TileType.NUCLEAR_ZONE]: 'Nuclear zone',
             [TileType.OCEAN]: 'Ocean',
             [TileType.OTHER]: 'Unknown',
-            [TileType.RESTRICTED_AREA]: 'Restricted Area'
+            [TileType.RESTRICTED_AREA]: 'Restricted Area',
         }[type] || 'Unknown'
     );
 }
@@ -150,6 +151,18 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return context.canPlayAction(card.action, state)[0];
     }
 
+    function doConversion(conversion?: Conversion) {
+        if (!conversion) return;
+        context.playAction(conversion, state);
+        context.queue.push(completeAction(playerIndex));
+        context.processQueue(dispatch);
+    }
+
+    function canDoConversion(conversion?: Conversion) {
+        if (!conversion) return false;
+        return context.canPlayAction(conversion, state)[0];
+    }
+
     const showBottomActionBar = player.pendingTilePlacement || player.pendingResourceReduction;
 
     return (
@@ -170,33 +183,46 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </TurnContext>
                 </ActionBarRow>
             </ActionBar>
+            <ResourceBoard>
+                <ResourceBoardRow>
+                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => {
+                        const conversion = CONVERSIONS[resourceType];
+
+                        return (
+                            <ResourceBoardCell
+                                key={resourceType}
+                                resource={resourceType}
+                                production={productions[resourceType]}
+                                amount={resources[resourceType]}
+                                conversion={conversion}
+                                doConversion={doConversion}
+                                canDoConversion={canDoConversion(conversion)}
+                            />
+                        );
+                    })}
+                </ResourceBoardRow>
+                <ResourceBoardRow>
+                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resourceType => {
+                        const conversion = CONVERSIONS[resourceType];
+                        return (
+                            <ResourceBoardCell
+                                key={resourceType}
+                                resource={resourceType}
+                                production={productions[resourceType]}
+                                amount={resources[resourceType]}
+                                conversion={conversion}
+                                doConversion={doConversion}
+                                canDoConversion={canDoConversion(conversion)}
+                            />
+                        );
+                    })}
+                </ResourceBoardRow>
+            </ResourceBoard>
             <Board
                 board={state.common.board}
                 playerIndex={playerIndex}
                 parameters={state.common.parameters}
             />
-            <ResourceBoard>
-                <ResourceBoardRow>
-                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => (
-                        <ResourceBoardCell
-                            key={resourceType}
-                            resource={resourceType}
-                            production={productions[resourceType]}
-                            amount={resources[resourceType]}
-                        />
-                    ))}
-                </ResourceBoardRow>
-                <ResourceBoardRow>
-                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resourceType => (
-                        <ResourceBoardCell
-                            key={resourceType}
-                            resource={resourceType}
-                            production={productions[resourceType]}
-                            amount={resources[resourceType]}
-                        />
-                    ))}
-                </ResourceBoardRow>
-            </ResourceBoard>
             <h3>Hand</h3>
             <Hand>
                 {cards.map(card => {

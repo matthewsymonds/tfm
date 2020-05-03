@@ -4,8 +4,10 @@ import {
     getResourceColor,
     getClassName,
     getResourceSymbol,
-    Resource
+    Resource,
 } from '../constants/resource';
+
+import {Conversion} from '../constants/conversion';
 
 interface ResourceIconBaseProps {
     readonly color: string;
@@ -49,7 +51,7 @@ const ResourceBoardCellBase = styled.div`
     margin: 16px;
     width: 140px;
     align-items: center;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
     padding: 16px;
     border: 2px solid gray;
@@ -63,10 +65,17 @@ const ResourceBoardCellBase = styled.div`
     }
 `;
 
+const WideButton = styled.button`
+    width: 100%;
+`;
+
 export interface ResourceBoardCellProps {
     amount: number;
     production: number;
     resource: Resource;
+    conversion: Conversion;
+    canDoConversion: boolean;
+    doConversion: Function;
 }
 
 const InlineResourceIcon = styled(ResourceIcon)`
@@ -79,17 +88,27 @@ function name(resource: Resource): string {
     return resource.slice('resource'.length);
 }
 
+function getCost(conversion: Conversion) {
+    for (const resource in conversion.removeResources) {
+        return conversion.removeResources[resource];
+    }
+}
+
 export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
     amount,
     production,
-    resource
+    resource,
+    conversion,
+    canDoConversion,
+    doConversion,
 }) => {
+    const resourceName = name(resource);
     return (
         <ResourceBoardCellBase>
             <table>
                 <tbody>
                     <tr>
-                        <td>{name(resource)}</td>
+                        <td>{resourceName}</td>
                         <td>
                             <InlineResourceIcon name={resource} />
                         </td>
@@ -104,6 +123,11 @@ export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> 
                     </tr>
                 </tbody>
             </table>
+            {conversion && canDoConversion && (
+                <WideButton onClick={() => doConversion(conversion)}>
+                    Convert {getCost(conversion)} <InlineResourceIcon name={resource} />
+                </WideButton>
+            )}
         </ResourceBoardCellBase>
     );
 };
