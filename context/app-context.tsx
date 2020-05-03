@@ -17,13 +17,23 @@ import {
     increaseParameter,
     gainResource,
     moveCardFromHandToPlayArea,
+    claimMilestone as claimMilestoneAction,
+    fundAward as fundAwardAction,
     askUserToPlaceTile,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
     completeAction,
     applyDiscounts
 } from '../actions';
-import {Parameter, CellType, TileType, Cell} from '../constants/board';
+import {
+    Parameter,
+    CellType,
+    TileType,
+    Cell,
+    Milestone,
+    cellHelpers,
+    Award
+} from '../constants/board';
 import {
     StandardProjectAction,
     StandardProjectType,
@@ -415,6 +425,88 @@ function playStandardProject(standardProjectAction: StandardProjectAction, state
     this.queue.push(completeAction(playerIndex));
 }
 
+function canClaimMilestone(milestone: Milestone, state: RootState) {
+    const player = getLoggedInPlayer(state);
+
+    // Is it availiable?
+    if (state.common.claimedMilestones.length === 3) {
+        return false;
+    }
+    if (state.common.claimedMilestones.find(claim => claim.milestone === milestone)) {
+        return false;
+    }
+
+    // Can they afford it?
+    if (player.resources[Resource.MEGACREDIT] < 8) {
+        return false;
+    }
+
+    // Do they meet the requirements?
+    switch (milestone) {
+        case Milestone.MAYOR:
+            return (
+                state.common.board.flat().filter(cell => {
+                    return (
+                        cellHelpers.containsCity(cell) && cellHelpers.isOwnedBy(cell, player.index)
+                    );
+                }).length >= 3
+            );
+        case Milestone.GARDENER:
+            return (
+                state.common.board.flat().filter(cell => {
+                    return (
+                        cellHelpers.containsGreenery(cell) &&
+                        cellHelpers.isOwnedBy(cell, player.index)
+                    );
+                }).length >= 3
+            );
+        case Milestone.BUILDER:
+            return (
+                state.players[player.index].playedCards.reduce((totalNumBuildingTags, card) => {
+                    return totalNumBuildingTags + card.tags.filter(t => t === Tag.BUILDING).length;
+                }, 0) >= 8
+            );
+        case Milestone.PLANNER:
+            return state.players[player.index].cards.length >= 15;
+        case Milestone.TERRAFORMER:
+            return state.players[player.index].terraformRating >= 35;
+        default:
+            throw new Error('Unrecognized milestone');
+    }
+}
+
+function claimMilestone(milestone: Milestone, state: RootState) {
+    const playerIndex = state.loggedInPlayerIndex;
+    this.queue.push(claimMilestoneAction(milestone, playerIndex));
+    this.queue.push(completeAction(playerIndex));
+}
+
+function canFundAward(award: Award, state: RootState) {
+    const player = getLoggedInPlayer(state);
+
+    // Is it availiable?
+    if (state.common.fundedAwards.length === 3) {
+        return false;
+    }
+    if (state.common.fundedAwards.find(claim => claim.award === award)) {
+        return false;
+    }
+
+    // Can they afford it?
+    const cost = [8, 14, 20][state.common.fundedAwards.length];
+    if (player.resources[Resource.MEGACREDIT] < cost) {
+        return false;
+    }
+
+    return true;
+}
+
+function fundAward(award: Award, state: RootState) {
+    const playerIndex = state.loggedInPlayerIndex;
+    this.queue.push(fundAwardAction(award, playerIndex));
+    this.queue.push(completeAction(playerIndex));
+}
+
 function processQueue(dispatch: Function) {
     while (this.queue.length > 0) {
         const item = this.queue.shift();
@@ -439,6 +531,10 @@ export const appContext = {
     playAction,
     canPlayStandardProject,
     playStandardProject,
+    canClaimMilestone,
+    claimMilestone,
+    canFundAward,
+    fundAward,
     processQueue,
     triggerEffects,
     triggerEffectsFromTilePlacement,

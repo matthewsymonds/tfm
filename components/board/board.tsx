@@ -7,7 +7,6 @@ import {
     Cell as CellModel
 } from '../../constants/board';
 import GlobalParams from '../global-params';
-import StandardProjects from '../standard-projects';
 import {Row} from '../row';
 import {Tile} from './tile';
 import {Cell} from './cell';
@@ -17,6 +16,9 @@ import {useTypedSelector} from '../../reducer';
 import {placeTile} from '../../actions';
 import {AppContext} from '../../context/app-context';
 import OffMarsCities from './off-mars-cities';
+import StandardProjects from './standard-projects';
+import Milestones from './milestones';
+import Awards from './awards';
 
 const BoardOuter = styled.div`
     position: relative;
@@ -52,6 +54,14 @@ const Circle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+`;
+
+const BoardAcionsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    > div {
+        margin: 16px;
+    }
 `;
 
 export const Board: React.FunctionComponent<BoardProps> = props => {
@@ -113,7 +123,11 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                         ))}
                     </BoardInner>
                 </Circle>
-                <StandardProjects />
+                <BoardAcionsContainer>
+                    <StandardProjects />
+                    <Milestones />
+                    <Awards />
+                </BoardAcionsContainer>
             </BoardOuter>
         </>
     );

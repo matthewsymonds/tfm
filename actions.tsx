@@ -2,7 +2,7 @@ import {GameStage} from './constants/game';
 import {Tag} from './constants/tag';
 import {Card} from './models/card';
 import {Resource} from './constants/resource';
-import {TilePlacement, Tile, Cell, Parameter} from './constants/board';
+import {TilePlacement, Tile, Cell, Parameter, Milestone, Award} from './constants/board';
 import {StandardProjectAction} from './constants/standard-project';
 import {Amount, Action, VariableAmount} from './constants/action';
 import {PropertyCounter} from './constants/property-counter';
@@ -102,6 +102,18 @@ export const payToPlayStandardProject = (
 ) => ({
     type: PAY_TO_PLAY_STANDARD_PROJECT,
     payload: {standardProjectAction, playerIndex}
+});
+
+export const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
+export const claimMilestone = (milestone: Milestone, playerIndex: number) => ({
+    type: CLAIM_MILESTONE,
+    payload: {milestone, playerIndex}
+});
+
+export const FUND_AWARD = 'FUND_AWARD';
+export const fundAward = (award: Award, playerIndex: number) => ({
+    type: FUND_AWARD,
+    payload: {award, playerIndex}
 });
 
 export const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';

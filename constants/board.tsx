@@ -36,6 +36,22 @@ export const RESERVED_LOCATIONS = [
     SpecialLocation.PHOBOS
 ];
 
+export enum Milestone {
+    TERRAFORMER = 'terraformer',
+    MAYOR = 'mayor',
+    GARDENER = 'gardener',
+    BUILDER = 'builder',
+    PLANNER = 'planner'
+}
+
+export enum Award {
+    LANDLORD = 'landlord',
+    BANKER = 'banker',
+    SCIENTIST = 'scientist',
+    THERMALIST = 'thermalist',
+    MINER = 'miner'
+}
+
 export enum PlacementRequirement {
     CITY = 'placementCity', // normal city requirement (not touching another city)
     CITY_ADJACENT = 'placementCityAdjacemt', // e.g. industrial center
@@ -119,6 +135,10 @@ export type Cell = {
 export const cellHelpers = {
     onMars(cell: Cell): boolean {
         return cell.type === CellType.LAND || cell.type === CellType.WATER;
+    },
+
+    isOwnedBy(cell: Cell, playerIndex: number) {
+        return cell.tile && cell.tile.ownerPlayerIndex === playerIndex;
     },
 
     containsCity(cell: Cell): boolean {

@@ -38,10 +38,11 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         queuePaused: false,
         loggedInPlayerIndex: 0,
         common: {
+            action: 0,
+            playingPlayers: [0],
             discardPile: [],
             gameStage: GameStage.ACTIVE_ROUND,
             generation: 0,
-            round: 0,
             turn: 0,
             deck: [],
             parameters: {
@@ -52,7 +53,9 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
             },
             board: INITIAL_BOARD_STATE,
             currentPlayerIndex: 0,
-            firstPlayerIndex: 0
+            firstPlayerIndex: 0,
+            claimedMilestones: [],
+            fundedAwards: []
         },
         players: [
             {

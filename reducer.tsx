@@ -10,7 +10,9 @@ import {
     Board,
     TilePlacement,
     Tile,
-    Cell
+    Cell,
+    Milestone,
+    Award
 } from './constants/board';
 import {
     SET_CORPORATION,
@@ -30,26 +32,26 @@ import {
     INCREASE_PARAMETER,
     SET_CARDS,
     DISCARD_CARDS,
-    drawCards,
-    discardCards,
     START_OVER,
     PAY_TO_PLAY_STANDARD_PROJECT,
+    CLAIM_MILESTONE,
     MARK_CARD_ACTION_AS_PLAYED,
     COMPLETE_ACTION,
     START_ROUND,
     SKIP_ACTION,
     DRAW_POSSIBLE_CARDS,
     APPLY_DISCOUNTS
+    FUND_AWARD
 } from './actions';
-import {CardConfig, Deck, CardType} from './constants/card-types';
+import {Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
 import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';
-import {Amount, Action, VariableAmount} from './constants/action';
+import {Amount} from './constants/action';
 import {StandardProjectType} from './constants/standard-project';
-import {BILLY_TEST} from './test-states';
 import {getDiscountedCardCost} from './context/app-context';
 import {Discounts} from './constants/discounts';
+import {BILLY_TEST} from './test-states';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -75,6 +77,8 @@ export type GameState = {
         revealedCard?: Card;
         gameStage: GameStage;
         generation: number;
+        claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
+        fundedAwards: {fundedByPlayerIndex: number; award: Award}[];
         turn: number;
         action: number;
         firstPlayerIndex: number;
@@ -175,7 +179,9 @@ function getInitialState(): GameState {
             parameters: MIN_PARAMETERS,
             board: INITIAL_BOARD_STATE,
             currentPlayerIndex: 0,
-            firstPlayerIndex: 0
+            firstPlayerIndex: 0,
+            claimedMilestones: [],
+            fundedAwards: []
         },
         players: [
             {
@@ -379,8 +385,28 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 }
                 player.discounts.nextCardThisGeneration = 0;
                 break;
-            case PAY_TO_PLAY_STANDARD_PROJECT:
-                player.resources[Resource.MEGACREDIT] -= payload.standardProjectAction.cost;
+            case PAY_TO_PLAY_STANDARD_PROJECT: {
+                let cost = payload.standardProjectAction.cost - player.discounts.standardProjects;
+                if (payload.standardProjectAction.type === StandardProjectType.POWER_PLANT) {
+                    cost -= player.discounts.standardProjectPowerPlant;
+                }
+                player.resources[Resource.MEGACREDIT] -= cost;
+                break;
+            }
+            case CLAIM_MILESTONE:
+                player.resources[Resource.MEGACREDIT] -= 8;
+                draft.common.claimedMilestones.push({
+                    claimedByPlayerIndex: player.index,
+                    milestone: payload.milestone
+                });
+                break;
+            case FUND_AWARD:
+                const cost = [8, 14, 20][draft.common.fundedAwards.length];
+                player.resources[Resource.MEGACREDIT] -= cost;
+                draft.common.fundedAwards.push({
+                    fundedByPlayerIndex: player.index,
+                    award: payload.award
+                });
                 break;
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);

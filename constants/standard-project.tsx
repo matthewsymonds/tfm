@@ -13,11 +13,20 @@ export enum StandardProjectType {
     COLONY = 'colony'
 }
 
-export interface StandardProjectAction extends Action {
+export interface NonSellPatentsStandardProjectAction extends Action {
     actionType: ActionType.STANDARD_PROJECT;
-    cost?: number;
-    type: StandardProjectType;
+    cost: number;
+    type: Exclude<StandardProjectType, StandardProjectType.SELL_PATENTS>;
 }
+
+export interface SellPatentsStandardProjectAction extends Action {
+    actionType: ActionType.STANDARD_PROJECT;
+    type: StandardProjectType.SELL_PATENTS;
+}
+
+export type StandardProjectAction =
+    | NonSellPatentsStandardProjectAction
+    | SellPatentsStandardProjectAction;
 
 export const standardProjectActions: StandardProjectAction[] = [
     {
