@@ -3,7 +3,7 @@ import {Resource} from './resource';
 export enum CellType {
     LAND,
     WATER,
-    OFF_MARS // e.g. ganymede
+    OFF_MARS, // e.g. ganymede
 }
 
 export enum TileType {
@@ -15,12 +15,13 @@ export enum TileType {
     INDUSTRIAL_CENTER,
     LAVA_FLOW,
     MOHOLE_AREA,
-    MINING,
+    MINING_RIGHTS,
     NATURAL_PRESERVE,
     NUCLEAR_ZONE,
     OCEAN,
     OTHER,
-    RESTRICTED_AREA
+    RESTRICTED_AREA,
+    MINING_AREA,
 }
 
 // only set for certain cells
@@ -28,12 +29,12 @@ export enum SpecialLocation {
     GANYMEDE = 'ganymede',
     NOCTIS = 'noctis',
     PHOBOS = 'phobos',
-    VOLCANIC = 'volcanic'
+    VOLCANIC = 'volcanic',
 }
 export const RESERVED_LOCATIONS = [
     SpecialLocation.GANYMEDE,
     SpecialLocation.NOCTIS,
-    SpecialLocation.PHOBOS
+    SpecialLocation.PHOBOS,
 ];
 
 export enum Milestone {
@@ -41,7 +42,7 @@ export enum Milestone {
     MAYOR = 'mayor',
     GARDENER = 'gardener',
     BUILDER = 'builder',
-    PLANNER = 'planner'
+    PLANNER = 'planner',
 }
 
 export enum Award {
@@ -49,7 +50,7 @@ export enum Award {
     BANKER = 'banker',
     SCIENTIST = 'scientist',
     THERMALIST = 'thermalist',
-    MINER = 'miner'
+    MINER = 'miner',
 }
 
 export enum PlacementRequirement {
@@ -67,7 +68,7 @@ export enum PlacementRequirement {
     RESERVED_FOR_OCEAN = 'placementReservedForOcean',
     STEEL_OR_TITANIUM = 'placementSteelOrTitanium',
     STEEL_OR_TITANIUM_PLAYER_ADJACENT = 'placementSteelOrTitaniumPlayerAdjacent',
-    VOLCANIC = 'placementVolcanic'
+    VOLCANIC = 'placementVolcanic',
 }
 
 export enum CellAttribute {
@@ -75,7 +76,7 @@ export enum CellAttribute {
     HAS_TITANIUM,
     RESERVED_FOR_OCEAN,
     RESERVED_FOR_CITY,
-    VOLCANIC
+    VOLCANIC,
 }
 
 export enum Parameter {
@@ -83,7 +84,7 @@ export enum Parameter {
     OCEAN = 'ocean',
     OXYGEN = 'oxygen',
     VENUS = 'venus',
-    TERRAFORM_RATING = 'terraformRating'
+    TERRAFORM_RATING = 'terraformRating',
 }
 
 export type GlobalParameters = {
@@ -104,7 +105,7 @@ export type TilePlacement = {
 const DEFAULT_PLACEMENT_REQUIREMENTS = {
     [TileType.OCEAN]: PlacementRequirement.RESERVED_FOR_OCEAN,
     [TileType.GREENERY]: PlacementRequirement.GREENERY,
-    [TileType.CITY]: PlacementRequirement.CITY
+    [TileType.CITY]: PlacementRequirement.CITY,
 };
 
 export const t = (
@@ -114,7 +115,7 @@ export const t = (
 ): TilePlacement => ({
     type,
     placementRequirement,
-    isRequired
+    isRequired,
 });
 
 export type Tile = {
@@ -174,7 +175,7 @@ export const cellHelpers = {
             default:
                 return false;
         }
-    }
+    },
 };
 
 const land = (
@@ -185,11 +186,11 @@ const land = (
     type: CellType.LAND,
     bonus,
     specialLocation,
-    specialName
+    specialName,
 });
 const water = (bonus?: Resource[]): Cell => ({
     type: CellType.WATER,
-    bonus
+    bonus,
 });
 const offMars = (
     bonus?: Resource[],
@@ -199,7 +200,7 @@ const offMars = (
     type: CellType.OFF_MARS,
     bonus,
     specialName,
-    specialLocation
+    specialLocation,
 });
 
 const INITIAL_BOARD_STATE: Cell[][] = [
@@ -208,7 +209,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         water([Resource.STEEL, Resource.STEEL]),
         land(),
         water([Resource.CARD]),
-        water()
+        water(),
     ],
     [
         land(),
@@ -216,7 +217,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land(),
         land(),
         land(),
-        water([Resource.CARD, Resource.CARD])
+        water([Resource.CARD, Resource.CARD]),
     ],
     [
         land([Resource.CARD], SpecialLocation.VOLCANIC, 'Ascraeus Mons'),
@@ -225,7 +226,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land(),
         land(),
         land(),
-        land([Resource.STEEL])
+        land([Resource.STEEL]),
     ],
     [
         land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC, 'Pavonis Mons'),
@@ -235,7 +236,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.PLANT, Resource.PLANT]),
         land([Resource.PLANT]),
         land([Resource.PLANT]),
-        water([Resource.PLANT, Resource.PLANT])
+        water([Resource.PLANT, Resource.PLANT]),
     ],
     [
         land([Resource.PLANT, Resource.PLANT], SpecialLocation.VOLCANIC, 'Arsia Mons'),
@@ -246,7 +247,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         water([Resource.PLANT, Resource.PLANT]),
         land([Resource.PLANT, Resource.PLANT]),
         land([Resource.PLANT, Resource.PLANT]),
-        land([Resource.PLANT, Resource.PLANT])
+        land([Resource.PLANT, Resource.PLANT]),
     ],
     [
         land([Resource.PLANT]),
@@ -256,7 +257,7 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.PLANT]),
         water([Resource.PLANT]),
         water([Resource.PLANT]),
-        water([Resource.PLANT])
+        water([Resource.PLANT]),
     ],
     [land(), land(), land(), land(), land(), land([Resource.PLANT]), land()],
     [
@@ -265,20 +266,20 @@ const INITIAL_BOARD_STATE: Cell[][] = [
         land([Resource.CARD]),
         land([Resource.CARD]),
         land(),
-        land([Resource.TITANIUM])
+        land([Resource.TITANIUM]),
     ],
     [
         land([Resource.STEEL]),
         land([Resource.STEEL, Resource.STEEL]),
         land(),
         land(),
-        water([Resource.TITANIUM, Resource.TITANIUM])
-    ]
+        water([Resource.TITANIUM, Resource.TITANIUM]),
+    ],
 ];
 
 INITIAL_BOARD_STATE.push([
     offMars([], SpecialLocation.PHOBOS, 'Phobos'),
-    offMars([], SpecialLocation.GANYMEDE, 'Ganymede')
+    offMars([], SpecialLocation.GANYMEDE, 'Ganymede'),
 ]);
 
 INITIAL_BOARD_STATE.forEach((row, rowIndex) => {

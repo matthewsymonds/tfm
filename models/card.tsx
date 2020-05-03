@@ -3,11 +3,11 @@ import {
     RequiredGlobalParameter,
     Deck,
     CardType,
-    ReduxAction
+    ReduxAction,
 } from '../constants/card-types';
 import {Tag} from '../constants/tag';
 import {Effect} from '../constants/effect';
-import {Action, ActionType} from '../constants/action';
+import {Action, ActionType, Amount} from '../constants/action';
 import {Resource} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
@@ -23,7 +23,7 @@ export class Card {
     tags: Tag[];
     type: CardType;
     deck: Deck;
-    victoryPoints?: number;
+    victoryPoints?: Amount;
     actionType: ActionType;
     action?: Action;
     effects: Effect[] = [];
@@ -133,18 +133,18 @@ export class Card {
                 [Tag.SCIENCE]: 0,
                 [Tag.EARTH]: 0,
                 [Tag.POWER]: 0,
-                ...tags
+                ...tags,
             },
             cards: {
                 [Tag.SPACE]: 0,
                 [Tag.EARTH]: 0,
-                ...cards
+                ...cards,
             },
             standardProjects: 0,
             standardProjectPowerPlant: 0,
             nextCardThisGeneration: 0,
             trade: 0,
-            ...rest
+            ...rest,
         };
 
         // card effects, actions, long-term play (ACTIVE cards)

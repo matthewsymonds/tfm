@@ -35,7 +35,7 @@ function getTileHumanName(type: TileType): string {
             [TileType.GREENERY]: 'Greenery',
             [TileType.INDUSTRIAL_CENTER]: 'Industrial Center',
             [TileType.LAVA_FLOW]: 'Lava Flow',
-            [TileType.MINING]: 'Mining',
+            [TileType.MINING_RIGHTS]: 'Mining',
             [TileType.MOHOLE_AREA]: 'Mohole Area',
             [TileType.NATURAL_PRESERVE]: 'Natural Preserve',
             [TileType.NUCLEAR_ZONE]: 'Nuclear zone',
@@ -138,7 +138,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     function playAction(card: Card) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
-        context.playAction(card.action!, state);
+        context.playAction(card.action!, state, card);
         context.queue.push(completeAction(playerIndex));
         context.processQueue(dispatch);
     }

@@ -1,4 +1,5 @@
-import {Action, VariableAmount, ActionType} from './action';
+import {Action, ActionType} from './action';
+import {VariableAmount} from './variable-amount';
 import {Resource} from './resource';
 import {Parameter, TileType, PlacementRequirement} from './board';
 
@@ -10,7 +11,7 @@ export enum StandardProjectType {
     GREENERY = 'greenery',
     CITY = 'city',
     VENUS = 'venus',
-    COLONY = 'colony'
+    COLONY = 'colony',
 }
 
 export interface NonSellPatentsStandardProjectAction extends Action {
@@ -33,27 +34,27 @@ export const standardProjectActions: StandardProjectAction[] = [
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.SELL_PATENTS,
         removeResources: {
-            [Resource.CARD]: VariableAmount.USER_CHOICE
+            [Resource.CARD]: VariableAmount.USER_CHOICE,
         },
         gainResource: {
-            [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE
-        }
+            [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE,
+        },
     },
     {
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.POWER_PLANT,
         cost: 11,
         increaseProduction: {
-            [Resource.ENERGY]: 1
-        }
+            [Resource.ENERGY]: 1,
+        },
     },
     {
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.ASTEROID,
         cost: 14,
         increaseParameter: {
-            [Parameter.TEMPERATURE]: 1
-        }
+            [Parameter.TEMPERATURE]: 1,
+        },
     },
     {
         actionType: ActionType.STANDARD_PROJECT,
@@ -63,9 +64,9 @@ export const standardProjectActions: StandardProjectAction[] = [
             {
                 type: TileType.OCEAN,
                 placementRequirement: PlacementRequirement.RESERVED_FOR_OCEAN,
-                isRequired: false
-            }
-        ]
+                isRequired: false,
+            },
+        ],
     },
     {
         actionType: ActionType.STANDARD_PROJECT,
@@ -75,9 +76,9 @@ export const standardProjectActions: StandardProjectAction[] = [
             {
                 type: TileType.GREENERY,
                 placementRequirement: PlacementRequirement.GREENERY,
-                isRequired: false
-            }
-        ]
+                isRequired: false,
+            },
+        ],
     },
     {
         actionType: ActionType.STANDARD_PROJECT,
@@ -88,8 +89,8 @@ export const standardProjectActions: StandardProjectAction[] = [
             {
                 type: TileType.CITY,
                 placementRequirement: PlacementRequirement.CITY,
-                isRequired: false
-            }
-        ]
-    }
+                isRequired: false,
+            },
+        ],
+    },
 ];

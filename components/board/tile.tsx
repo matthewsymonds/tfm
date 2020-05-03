@@ -34,7 +34,8 @@ const getIcon = (type: TileType) => {
             return '🏭';
         case TileType.LAVA_FLOW:
             return '🌋';
-        case TileType.MINING:
+        case TileType.MINING_RIGHTS:
+        case TileType.MINING_AREA:
             return '⛏️';
         case TileType.MOHOLE_AREA:
             return '🕳️';

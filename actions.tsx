@@ -4,85 +4,86 @@ import {Card} from './models/card';
 import {Resource} from './constants/resource';
 import {TilePlacement, Tile, Cell, Parameter, Milestone, Award} from './constants/board';
 import {StandardProjectAction} from './constants/standard-project';
-import {Amount, Action, VariableAmount} from './constants/action';
+import {Amount, Action} from './constants/action';
+import {VariableAmount} from './constants/variable-amount';
 import {PropertyCounter} from './constants/property-counter';
 import {Discounts} from './constants/discounts';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
     type: SET_CORPORATION,
-    payload: {corporation, playerIndex}
+    payload: {corporation, playerIndex},
 });
 
 export const GO_TO_GAME_STAGE = 'GO_TO_GAME_STAGE';
 export const goToGameStage = (stage: GameStage) => ({
     type: GO_TO_GAME_STAGE,
-    payload: stage
+    payload: stage,
 });
 
 export const REVEAL_AND_DISCARD_TOP_CARD = 'REVEAL_AND_DISCARD_TOP_CARD';
 export const revealAndDiscardTopCard = () => ({
-    type: REVEAL_AND_DISCARD_TOP_CARD
+    type: REVEAL_AND_DISCARD_TOP_CARD,
 });
 
 export const DISCARD_CARDS = 'DISCARD_CARDS';
 export const discardCards = (cards: Card[], playerIndex: number) => ({
     type: DISCARD_CARDS,
-    payload: {cards, playerIndex}
+    payload: {cards, playerIndex},
 });
 
 export const SET_CARDS = 'SET_CARDS';
 export const setCards = (cards: Card[], playerIndex: number) => ({
     type: SET_CARDS,
-    payload: {cards, playerIndex}
+    payload: {cards, playerIndex},
 });
 
 export const DRAW_CARDS = 'DRAW_CARDS';
 export const drawCards = (numCards: number, playerIndex: number) => ({
     type: DRAW_CARDS,
-    payload: {numCards, playerIndex}
+    payload: {numCards, playerIndex},
 });
 
 export const DRAW_POSSIBLE_CARDS = 'DRAW_POSSIBLE_CARDS';
 export const drawPossibleCards = (numCards: number, playerIndex: number) => ({
     type: DRAW_POSSIBLE_CARDS,
-    payload: {numCards, playerIndex}
+    payload: {numCards, playerIndex},
 });
 
 export const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
 export const payForCards = (cards: Card[], playerIndex: number) => ({
     type: PAY_FOR_CARDS,
-    payload: {cards, playerIndex}
+    payload: {cards, playerIndex},
 });
 
 export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
 export const decreaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
     type: DECREASE_PRODUCTION,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex},
 });
 
 export const INCREASE_PRODUCTION = 'INCREASE_PRODUCTION';
 export const increaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
     type: INCREASE_PRODUCTION,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex},
 });
 
 export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = (resource: Resource, amount: number, playerIndex: number) => ({
     type: REMOVE_RESOURCE,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex},
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: GAIN_RESOURCE,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex},
 });
 
 export const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';
 export const applyDiscounts = (discounts: Discounts, playerIndex: number) => ({
     type: APPLY_DISCOUNTS,
-    payload: {discounts, playerIndex}
+    payload: {discounts, playerIndex},
 });
 
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';
@@ -92,7 +93,7 @@ export const payToPlayCard = (
     payment: PropertyCounter<Resource> | undefined
 ) => ({
     type: PAY_TO_PLAY_CARD,
-    payload: {card, playerIndex, payment}
+    payload: {card, playerIndex, payment},
 });
 
 export const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
@@ -101,31 +102,31 @@ export const payToPlayStandardProject = (
     playerIndex: number
 ) => ({
     type: PAY_TO_PLAY_STANDARD_PROJECT,
-    payload: {standardProjectAction, playerIndex}
+    payload: {standardProjectAction, playerIndex},
 });
 
 export const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
 export const claimMilestone = (milestone: Milestone, playerIndex: number) => ({
     type: CLAIM_MILESTONE,
-    payload: {milestone, playerIndex}
+    payload: {milestone, playerIndex},
 });
 
 export const FUND_AWARD = 'FUND_AWARD';
 export const fundAward = (award: Award, playerIndex: number) => ({
     type: FUND_AWARD,
-    payload: {award, playerIndex}
+    payload: {award, playerIndex},
 });
 
 export const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';
 export const moveCardFromHandToPlayArea = (card: Card, playerIndex: number) => ({
     type: MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
-    payload: {card, playerIndex}
+    payload: {card, playerIndex},
 });
 
 export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
 export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: number) => ({
     type: ASK_USER_TO_PLACE_TILE,
-    payload: {playerIndex, tilePlacement}
+    payload: {playerIndex, tilePlacement},
 });
 
 export const ASK_USER_TO_REMOVE_RESOURCE = 'ASK_USER_TO_REMOVE_RESOURCE';
@@ -135,25 +136,35 @@ export const askUserToRemoveResource = (
     playerIndex: number
 ) => ({
     type: ASK_USER_TO_REMOVE_RESOURCE,
-    payload: {resource, amount, playerIndex}
+    payload: {resource, amount, playerIndex},
+});
+
+export const ASK_USER_TO_DECREASE_PRODUCTION = 'ASK_USER_TO_DECREASE_PRODUCTION';
+export const askUserToDecreaseProduction = (
+    resource: Resource,
+    amount: VariableAmount,
+    playerIndex: number
+) => ({
+    type: ASK_USER_TO_DECREASE_PRODUCTION,
+    payload: {resource, amount, playerIndex},
 });
 
 export const PLACE_TILE = 'PLACE_TILE';
 export const placeTile = (tile: Tile, cell: Cell, playerIndex: number) => ({
     type: PLACE_TILE,
-    payload: {tile, cell, playerIndex}
+    payload: {tile, cell, playerIndex},
 });
 
 export const INCREASE_PARAMETER = 'INCREASE_PARAMETER';
 export const increaseParameter = (parameter: Parameter, amount: number, playerIndex: number) => ({
     type: INCREASE_PARAMETER,
-    payload: {parameter, amount, playerIndex}
+    payload: {parameter, amount, playerIndex},
 });
 
 // Re-adds all players to the active player rotation.
 export const START_ROUND = 'START_ROUND';
 export const startRound = () => ({
-    type: START_ROUND
+    type: START_ROUND,
 });
 
 // Increases the action count by 1.
@@ -164,13 +175,13 @@ export const startRound = () => ({
 export const COMPLETE_ACTION = 'COMPLETE_ACTION';
 export const completeAction = (playerIndex: number) => ({
     type: COMPLETE_ACTION,
-    payload: {playerIndex}
+    payload: {playerIndex},
 });
 
 // If this is the player's first round
 export const SKIP_ACTION = 'SKIP_ACTION';
 export const skipAction = () => ({
-    type: SKIP_ACTION
+    type: SKIP_ACTION,
 });
 
 // For debugging
@@ -182,6 +193,6 @@ export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
     type: MARK_CARD_ACTION_AS_PLAYED,
     payload: {
         card,
-        playerIndex
-    }
+        playerIndex,
+    },
 });

@@ -8,10 +8,10 @@ import {
     SpecialLocation,
     cellHelpers,
     Tile,
-    RESERVED_LOCATIONS
+    RESERVED_LOCATIONS,
 } from '../constants/board';
 
-function getAdjacentCellsForCell(state: RootState, cell: Cell) {
+export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     if (!cell.coords) {
         return [];
     }
@@ -74,8 +74,30 @@ function getAvailableCells(state: RootState) {
     return state.common.board.flat().filter(cell => isAvailable(state, cell));
 }
 
+function getTakenCells(state: RootState) {
+    return state.common.board.flat().filter(cell => !isAvailable(state, cell));
+}
+
+function getTakenCellsOnMars(state: RootState) {
+    return getTakenCells(state).filter(cell => cellHelpers.onMars(cell));
+}
+
 function getAvailableCellsOnMars(state: RootState) {
     return getAvailableCells(state).filter(cell => cellHelpers.onMars(cell));
+}
+
+export function getCellsWithCitiesOnMars(state: RootState) {
+    return getTakenCellsOnMars(state).filter(cell => cell.tile?.type === TileType.CITY);
+}
+
+export function getCellsWithCities(state: RootState) {
+    const lastRow = state.common.board[state.common.board.length - 1];
+    const citiesOnLastRow = lastRow.filter(cell => cell.tile?.type === TileType.CITY);
+    return [...getCellsWithCitiesOnMars(state), ...citiesOnLastRow];
+}
+
+export function findCellWithTile(state: RootState, type: TileType) {
+    return getTakenCells(state).find(cell => cell.tile?.type === type);
 }
 
 function getAvailableLandCellsOnMars(state: RootState) {

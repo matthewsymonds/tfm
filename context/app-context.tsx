@@ -11,6 +11,7 @@ import {
     payToPlayCard,
     payToPlayStandardProject,
     askUserToRemoveResource,
+    askUserToDecreaseProduction,
     decreaseProduction,
     increaseProduction,
     removeResource,
@@ -23,7 +24,7 @@ import {
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
     completeAction,
-    applyDiscounts
+    applyDiscounts,
 } from '../actions';
 import {
     Parameter,
@@ -32,18 +33,20 @@ import {
     Cell,
     Milestone,
     cellHelpers,
-    Award
+    Award,
 } from '../constants/board';
 import {
     StandardProjectAction,
     StandardProjectType,
-    standardProjectActions
+    standardProjectActions,
 } from '../constants/standard-project';
-import {Action, ActionType, VariableAmount, Amount} from '../constants/action';
+import {Action, ActionType, Amount} from '../constants/action';
+import {VariableAmount} from '../constants/variable-amount';
 import {Effect} from '../constants/effect';
 import {EffectTrigger} from '../constants/effect-trigger';
 import {PropertyCounter} from '../constants/property-counter';
 import {CardType} from '../constants/card-types';
+import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -113,7 +116,7 @@ function doesPlayerHaveRequiredResources(action: Action, state: RootState) {
     const player = getLoggedInPlayer(state);
 
     for (const resource in action.removeResources) {
-        const requiredAmount = action.removeResources[resource];
+        const requiredAmount = convertAmountToNumber(action.removeResources[resource], state);
 
         const playerAmount = player.resources[resource];
 
@@ -129,10 +132,8 @@ function meetsProductionRequirements(action: Action, state: RootState) {
     const {decreaseProduction, decreaseAnyProduction} = action;
 
     for (const production in decreaseProduction) {
-        if (
-            player.productions[production] - decreaseProduction[production] <
-            MinimumProductions[production]
-        ) {
+        const decrease = convertAmountToNumber(decreaseProduction[production], state);
+        if (player.productions[production] - decrease < MinimumProductions[production]) {
             return false;
         }
     }
@@ -207,11 +208,35 @@ function canPlayAction(action: Action, state: RootState): [boolean, string | und
     return [true, 'Good to go'];
 }
 
-function createRemoveResourceAction(resource: Resource, amount: Amount, playerIndex: number) {
-    if (typeof amount === 'number') {
-        return removeResource(resource, amount, playerIndex);
-    } else {
+function createRemoveResourceAction(
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    state: RootState,
+    parent?: Card
+) {
+    if (amount === VariableAmount.USER_CHOICE) {
         return askUserToRemoveResource(resource, amount, playerIndex);
+    } else {
+        return removeResource(resource, convertAmountToNumber(amount, state, parent), playerIndex);
+    }
+}
+
+function createDecreaseProductionAction(
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    state: RootState,
+    parent?: Card
+) {
+    if (amount === VariableAmount.USER_CHOICE) {
+        return askUserToDecreaseProduction(resource, amount, playerIndex);
+    } else {
+        return decreaseProduction(
+            resource,
+            convertAmountToNumber(amount, state, parent),
+            playerIndex
+        );
     }
 }
 
@@ -219,7 +244,7 @@ function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state
     this.triggerEffects(
         {
             placedTile,
-            cell
+            cell,
         },
         state
     );
@@ -231,7 +256,7 @@ function triggerEffectsFromStandardProject(cost: number, state: RootState) {
     this.triggerEffects(
         {
             standardProject: true,
-            cost
+            cost,
         },
         state
     );
@@ -241,7 +266,7 @@ function triggerEffectsFromPlayedCard(cost: number, tags: Tag[], state: RootStat
     this.triggerEffects(
         {
             cost,
-            tags
+            tags,
         },
         state
     );
@@ -322,15 +347,25 @@ function getActionsFromEffect(
     return [];
 }
 
-function playAction(action: Action, state: RootState) {
+function convertAmountToNumber(amount: Amount, state: RootState, card?: Card): number {
+    if (typeof amount === 'number') return amount as number;
+
+    const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
+    if (!amountGetter) return 0;
+    return amountGetter(state, card) || 0;
+}
+
+function playAction(action: Action, state: RootState, parent?: Card) {
     const playerIndex = state.loggedInPlayerIndex;
 
     for (const production in action.decreaseProduction) {
         this.queue.push(
-            decreaseProduction(
+            createDecreaseProductionAction(
                 production as Resource,
                 action.decreaseProduction[production],
-                playerIndex
+                playerIndex,
+                state,
+                parent
             )
         );
     }
@@ -340,7 +375,9 @@ function playAction(action: Action, state: RootState) {
             createRemoveResourceAction(
                 resource as Resource,
                 action.removeResources[resource],
-                playerIndex
+                playerIndex,
+                state,
+                parent
             )
         );
     }
@@ -349,7 +386,7 @@ function playAction(action: Action, state: RootState) {
         this.queue.push(
             increaseProduction(
                 production as Resource,
-                action.increaseProduction[production],
+                convertAmountToNumber(action.increaseProduction[production], state, parent),
                 playerIndex
             )
         );
@@ -357,7 +394,11 @@ function playAction(action: Action, state: RootState) {
 
     for (const resource in action.gainResource) {
         this.queue.push(
-            gainResource(resource as Resource, action.gainResource[resource], playerIndex)
+            gainResource(
+                resource as Resource,
+                convertAmountToNumber(action.gainResource[resource], state, parent),
+                playerIndex
+            )
         );
     }
 
@@ -540,7 +581,7 @@ export const appContext = {
     triggerEffectsFromTilePlacement,
     triggerEffectsFromStandardProject,
     triggerEffectsFromPlayedCard,
-    getActionsFromEffect
+    getActionsFromEffect,
 };
 
 export const AppContext = createContext(appContext);

@@ -1,7 +1,7 @@
 import {Resource} from './resource';
 import {TileType, TilePlacement, Parameter} from './board';
 import {MoveType} from './moves';
-import {Action, ActionType} from './action';
+import {Action, ActionType, Amount} from './action';
 import {Effect} from './effect';
 import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
@@ -36,7 +36,7 @@ export interface CardConfig extends Action {
     name: string;
     tags: Tag[];
     type: CardType;
-    victoryPoints?: number;
+    victoryPoints?: Amount;
     requiredGlobalParameter?: RequiredGlobalParameter;
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
@@ -73,7 +73,7 @@ export enum Deck {
     CORPORATE,
     PRELUDE,
     PROMO,
-    VENUS
+    VENUS,
 }
 
 export enum CardType {
@@ -81,5 +81,5 @@ export enum CardType {
     AUTOMATED,
     CORPORATION,
     EVENT,
-    PRELUDE
+    PRELUDE,
 }
