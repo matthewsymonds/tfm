@@ -37,7 +37,8 @@ import {
     MARK_CARD_ACTION_AS_PLAYED,
     COMPLETE_ACTION,
     START_ROUND,
-    SKIP_ACTION
+    SKIP_ACTION,
+    DRAW_POSSIBLE_CARDS
 } from './actions';
 import {CardConfig, Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -179,7 +180,6 @@ function getInitialState(): GameState {
 
     const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
     const possibleCorporations = sampleCards(allCorporations, 2);
-    const startingCards = sampleCards(deck, 10);
 
     return {
         queuePaused: false,
@@ -203,7 +203,7 @@ function getInitialState(): GameState {
                 terraformRating: 20,
                 playerIndex: 0,
                 corporation: null,
-                possibleCards: startingCards,
+                possibleCards: [],
                 possibleCorporations,
                 cards: [],
                 playedCards: [],
@@ -288,6 +288,16 @@ function isEndOfGame(draft: RootState) {
     return true;
 }
 
+function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
+    const oldPlayerIndex = state.common.currentPlayerIndex;
+    const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
+    const newPlayerPlaceInTurnOrder = placeInTurnOrder + (1 % draft.common.playingPlayers.length);
+    draft.common.currentPlayerIndex = draft.common.playingPlayers[newPlayerPlaceInTurnOrder];
+    if (newPlayerPlaceInTurnOrder === 0) {
+        draft.common.turn++;
+    }
+}
+
 const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST;
 
@@ -340,6 +350,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case PAY_FOR_CARDS:
                 player.resources[Resource.MEGACREDIT] -= action.payload.cards.length * 3;
+                player.possibleCards = [];
                 break;
             case REVEAL_AND_DISCARD_TOP_CARD:
                 draft.common.revealedCard = draft.common.deck.pop();
@@ -359,6 +370,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case DRAW_CARDS:
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
+                break;
+            case DRAW_POSSIBLE_CARDS:
+                player.possibleCards.push(...draft.common.deck.splice(0, payload.numCards));
                 break;
             case DECREASE_PRODUCTION:
                 player.productions[payload.resource] -= payload.amount;
@@ -461,9 +475,11 @@ export const reducer = (state = INITIAL_STATE, action) => {
                                 common.playingPlayers.push(i);
                             }
                             common.generation++;
-                            common.gameStage = GameStage.DRAFTING;
+                            common.gameStage = GameStage.BUY_OR_DISCARD;
                         }
                     }
+                } else {
+                    handleChangeCurrentPlayer(state, draft);
                 }
                 break;
 
@@ -473,14 +489,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 // Did the player just complete their second action?
                 if (common.action === 1) {
                     // It's the next player's turn
-                    const oldPlayerIndex = state.common.currentPlayerIndex;
-                    const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
-                    const newPlayerPlaceInTurnOrder =
-                        placeInTurnOrder + (1 % common.playingPlayers.length);
-                    common.currentPlayerIndex = common.playingPlayers[newPlayerPlaceInTurnOrder];
-                    if (newPlayerPlaceInTurnOrder === 0) {
-                        common.turn++;
-                    }
+                    handleChangeCurrentPlayer(state, draft);
                 }
                 break;
             default:

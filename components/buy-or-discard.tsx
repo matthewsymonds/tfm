@@ -28,25 +28,9 @@ const MarginalButton = styled.button`
     margin-bottom: 10px;
 `;
 
-const Prompt = styled.div`
-    min-width: 350px;
-`;
+const ConfirmButton = props => <MarginalButton {...props}>Confirm card choice</MarginalButton>;
 
-const AlignLeft = styled.div`
-    text-align: left;
-`;
-
-const ConfirmButton = props => (
-    <MarginalButton {...props}>Confirm corporation and cards</MarginalButton>
-);
-
-function getStartingAmount(corporation: Card): number {
-    if (!corporation) return 0;
-
-    return Number(corporation.gainResource[Resource.MEGACREDIT] || 0);
-}
-
-export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
+export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
     const store = useStore<RootState>();
@@ -54,31 +38,30 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     const state = store.getState();
 
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
-    const possibleCorporations = useTypedSelector(
-        state => state.players[playerIndex].possibleCorporations
-    );
     const possibleCards = useTypedSelector(state => state.players[playerIndex].possibleCards);
     const cards = useTypedSelector(state => state.players[playerIndex].cards);
+    const startingAmount = useTypedSelector(
+        state => state.players[playerIndex].resources[Resource.MEGACREDIT]
+    );
+
+    useEffect(() => {
+        if (possibleCards.length === 0) {
+            dispatch(drawPossibleCards(4, playerIndex));
+        }
+    }, [possibleCards.length]);
 
     const corporationName = corporation && corporation.name;
-    const startingAmount = (corporation && getStartingAmount(corporation)) || 0;
     const totalCardCost = cards.length * 3;
     const remaining = (startingAmount && startingAmount - totalCardCost) || 0;
 
     // If they switch to a corporation that can't afford the currently seleted cards,
     // clear all the cards.
     useEffect(() => {
-        if (startingAmount && startingAmount < cards.length * 3) {
+        if (startingAmount && startingAmount - totalCardCost < 0) {
             dispatch(setCards([], playerIndex));
         }
     }, [corporationName, cards]);
     const selectAllCards = (possibleCards || []).slice(0, Math.floor(startingAmount / 3));
-
-    useEffect(() => {
-        if (possibleCards.length === 0) {
-            dispatch(drawPossibleCards(10, playerIndex));
-        }
-    }, [possibleCards.length]);
 
     function handleSelectAll() {
         dispatch(setCards(selectAllCards, playerIndex));
@@ -93,7 +76,8 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
             <>
                 <ActionBarRow>
                     <div>
-                        You start with {startingAmount}€. You have {remaining}€ remaining.
+                        Selected {cards.length} cards for {cards.length * 3}€. You have {remaining}€
+                        remaining.
                     </div>
                     {cards.length < selectAllCards.length ? (
                         <button onClick={() => handleSelectAll()}>Select all</button>
@@ -104,10 +88,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                     )}
                     <ConfirmButton
                         onClick={() => {
-                            const card = corporation!;
-                            context.playCard(card, state);
-                            context.processQueue(dispatch);
-                            context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
                             context.processQueue(dispatch);
                             dispatch(
                                 discardCards(
@@ -125,30 +105,16 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         );
     }
 
-    let prompt = <h3>Select a corporation</h3>;
-    if (corporationName) {
-        prompt = <h3>Selected {corporationName}</h3>;
-    }
+    const prompt = <h1>Buy cards</h1>;
 
     return (
         <>
             <ActionBar>
                 <ActionBarRow>
-                    <Prompt>
-                        <div>{prompt}</div>
-                        <button onClick={() => handleStartOver()}>Start over</button>
-                    </Prompt>
-                    <CardSelector
-                        className="inline"
-                        width={400}
-                        max={1}
-                        selectedCards={corporation ? [corporation] : []}
-                        onSelect={([corporation]) =>
-                            dispatch(setCorporation(corporation, playerIndex))
-                        }
-                        options={possibleCorporations || []}
-                        orientation="horizontal"
-                    />
+                    <div>
+                        {prompt}
+                        <div>Playing {corporation?.name}</div>
+                    </div>
                 </ActionBarRow>
             </ActionBar>
             <CardSelector

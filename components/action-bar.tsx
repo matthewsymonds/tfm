@@ -31,11 +31,15 @@ export const ActionBarRow = styled.div`
 const ActionBarDisplace = styled(ActionBarBase)`
     position: relative;
     margin-bottom: 18px;
+    &.bottom {
+        margin-bottom: 0px;
+        margin-top: auto;
+        border-top: 18px solid rgba(0, 0, 0, 0);
+        justify-self: flex-end;
+    }
     z-index: 0;
     box-shadow: none;
-    * {
-        visibility: hidden;
-    }
+    visibility: hidden;
     width: auto;
 `;
 

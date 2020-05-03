@@ -1,7 +1,7 @@
 import {useContext, useState, MouseEvent, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
-import {discardCards, markCardActionAsPlayed, completeAction} from '../actions';
+import {discardCards, markCardActionAsPlayed, completeAction, skipAction} from '../actions';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {Amount} from '../constants/action';
@@ -95,13 +95,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     useEffect(() => {
         context.processQueue(dispatch);
-    }, [])
+    }, []);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         context.playCard(card, state, payment);
         context.processQueue(dispatch);
         // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card effects itself.
+        // Must be processed separatedly in case the card affects itself.
         context.triggerEffectsFromPlayedCard(
             card.cost || 0,
             card.tags,
@@ -161,6 +161,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <div>Turn {turn}</div>
                         <div>Action {action} of 2</div>
                         <div>Generation {generation}</div>
+                        <div>TFR {player.terraformRating}</div>
+                    </TurnContext>
+                    <TurnContext>
+                        <button onClick={() => dispatch(skipAction())}>
+                            {action === 2 ? 'Skip 2nd action' : 'Pass'}
+                        </button>
                     </TurnContext>
                 </ActionBarRow>
             </ActionBar>

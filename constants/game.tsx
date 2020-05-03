@@ -5,7 +5,6 @@ export enum GameStage {
     CORPORATION_SELECTION,
     ACTIVE_ROUND,
     BUY_OR_DISCARD,
-    DISCARD_THEN_DRAW,
     DRAFTING,
     END_OF_GAME
 }

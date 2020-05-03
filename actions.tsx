@@ -42,6 +42,12 @@ export const drawCards = (numCards: number, playerIndex: number) => ({
     payload: {numCards, playerIndex}
 });
 
+export const DRAW_POSSIBLE_CARDS = 'DRAW_POSSIBLE_CARDS';
+export const drawPossibleCards = (numCards: number, playerIndex: number) => ({
+    type: DRAW_POSSIBLE_CARDS,
+    payload: {numCards, playerIndex}
+});
+
 export const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
 export const payForCards = (cards: Card[], playerIndex: number) => ({
     type: PAY_FOR_CARDS,
@@ -144,6 +150,9 @@ export const completeAction = (playerIndex: number) => ({
 
 // If this is the player's first round
 export const SKIP_ACTION = 'SKIP_ACTION';
+export const skipAction = () => ({
+    type: SKIP_ACTION
+});
 
 // For debugging
 export const START_OVER = 'START_OVER';

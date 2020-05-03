@@ -5,6 +5,13 @@ const GlobalStyles = createGlobalStyle`
     body {
         background: #fefefe;
     }
+    html, body, #__next, #__next > div {
+      min-height: 100vh;
+    }
+    #__next > div {
+      display: flex;
+      flex-direction: column;
+    }
     div.mac {
       span.tag-icon {
         position: relative;
@@ -48,6 +55,7 @@ const GlobalStyles = createGlobalStyle`
     }
     h1, h2, h3, h4 {
       text-align: center;
+      align-self: center;
       margin-top: 16px;
       margin-bottom: 16px;
       display: inherit;

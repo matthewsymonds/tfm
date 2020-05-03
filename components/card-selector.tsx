@@ -21,7 +21,6 @@ const CardSelectorBase = styled.div`
     justify-content: center;
     font-family: serif;
     flex-wrap: wrap;
-    flex: 1;
     margin: 0 auto;
     &.inline {
         margin-left: 32px;

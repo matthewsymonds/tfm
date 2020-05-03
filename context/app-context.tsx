@@ -308,7 +308,7 @@ function getActionsFromEffect(
         return Array(numTagsTriggered).fill(effectAction);
     }
 
-    return [effectAction];
+    return [];
 }
 
 function playAction(action: Action, state: RootState) {
