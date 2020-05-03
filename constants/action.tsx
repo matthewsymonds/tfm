@@ -1,6 +1,6 @@
 import {Parameter, TilePlacement} from './board';
 import {PropertyCounter} from './property-counter';
-import {Resource} from './resource';
+import {Resource, ResourceLocationType} from './resource';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
@@ -22,6 +22,8 @@ export interface Action {
     actionType?: ActionType; // should be required
     gainResource?: ResourceCounter;
     gainResourceOption?: ResourceCounter;
+    gainResourceTargetType?: ResourceLocationType;
+    removeResourceSourceType?: ResourceLocationType;
     removeResources?: ResourceCounter;
     removeResourceOption?: ResourceCounter;
     removeAnyResource?: ResourceCounter;

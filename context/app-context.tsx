@@ -25,6 +25,9 @@ import {
     ASK_USER_TO_REMOVE_RESOURCE,
     completeAction,
     applyDiscounts,
+    ASK_USER_TO_GAIN_RESOURCE,
+    askUserToGainResource,
+    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
 } from '../actions';
 import {
     Parameter,
@@ -402,6 +405,10 @@ function playAction(action: Action, state: RootState, parent?: Card) {
         );
     }
 
+    if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
+        this.queue.push(askUserToGainResource(action, playerIndex));
+    }
+
     for (const parameter in action.increaseParameter) {
         this.queue.push(
             increaseParameter(
@@ -558,7 +565,12 @@ function processQueue(dispatch: Function) {
     }
 }
 
-const PAUSE_ACTIONS = [ASK_USER_TO_PLACE_TILE, ASK_USER_TO_REMOVE_RESOURCE];
+const PAUSE_ACTIONS = [
+    ASK_USER_TO_PLACE_TILE,
+    ASK_USER_TO_REMOVE_RESOURCE,
+    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
+    ASK_USER_TO_GAIN_RESOURCE,
+];
 
 function shouldPause(action: {type: string}): boolean {
     return PAUSE_ACTIONS.includes(action.type);

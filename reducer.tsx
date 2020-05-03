@@ -42,16 +42,20 @@ import {
     DRAW_POSSIBLE_CARDS,
     APPLY_DISCOUNTS,
     FUND_AWARD,
+    ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
+    GAIN_STORABLE_RESOURCE,
 } from './actions';
 import {Deck, CardType} from './constants/card-types';
-import {Resource} from './constants/resource';
+import {Resource, ResourceLocationType, isStorableResource} from './constants/resource';
 import {cardConfigs} from './constants/cards';
 import {Card} from './models/card';
 import {Amount} from './constants/action';
 import {StandardProjectType} from './constants/standard-project';
 import {getDiscountedCardCost} from './context/app-context';
 import {Discounts} from './constants/discounts';
-import {BILLY_TEST} from './test-states';
+import {BILLY_TEST} from './test-states/billy-test';
+import {PropertyCounter} from './constants/property-counter';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -105,6 +109,21 @@ export type PlayerState = {
         resource: Resource;
         amount: Amount;
     };
+
+    // ====== pendingResourceGain ======
+    // First: ask user to select which resource type (e.g. "3 plants or 2 animals")
+    pendingResourceGain?: {
+        gainResourceOption: PropertyCounter<Resource>;
+        gainResourceTargetType?: ResourceLocationType;
+        card?: Card; // for "add a resource to this card" card actions
+    };
+    // Second (only sometimes): after user picks a storable resource, ask them to pick the target location
+    pendingResourceGainTargetConfirmation?: {
+        gainResource: PropertyCounter<Resource>;
+        gainResourceTargetType: ResourceLocationType;
+        card?: Card; // for "add a resource to this card" card actions
+    };
+
     playerIndex: number;
     corporation: null | Card;
     possibleCards: Card[];
@@ -151,7 +170,7 @@ function initialResources() {
     };
 }
 
-function getInitialState(): GameState {
+export function getInitialState(): GameState {
     const cards = cardConfigs.map(config => new Card(config));
 
     const possibleCards = cards.filter(
@@ -284,8 +303,8 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     }
 }
 
-const INITIAL_STATE: GameState = getInitialState();
-// const INITIAL_STATE: GameState = BILLY_TEST;
+// const INITIAL_STATE: GameState = getInitialState();
+const INITIAL_STATE: GameState = BILLY_TEST;
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -307,6 +326,8 @@ export const reducer = (state = INITIAL_STATE, action) => {
         }
 
         function handleGainResource(resource: Resource, amount: Amount) {
+            player.pendingResourceGain = undefined;
+
             let numberAmount: number;
             if (typeof amount === 'number') {
                 numberAmount = amount;
@@ -319,14 +340,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards.push(...draft.common.deck.splice(0, numberAmount));
                 return;
             }
-            const card = player.playedCards.find(card => card.storedResourceType === resource);
-
-            if (card) {
-                // TODO this is silly. Handle having a different target card.
-                card.storedResourceAmount = (card.storedResourceAmount || 0) + numberAmount;
-            } else {
-                player.resources[resource] += numberAmount;
+            if (isStorableResource(resource)) {
+                return;
             }
+            player.resources[resource] += numberAmount;
         }
         switch (action.type) {
             case START_OVER:
@@ -374,7 +391,17 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case GAIN_RESOURCE:
                 handleGainResource(payload.resource, payload.amount);
                 break;
-            case PAY_TO_PLAY_CARD:
+            case GAIN_STORABLE_RESOURCE: {
+                const {card, amount} = payload;
+                const draftCard = player.playedCards.find(c => c.name === card.name);
+                if (!draftCard) {
+                    throw new Error('Card should exist');
+                }
+                draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + amount;
+                player.pendingResourceGainTargetConfirmation = undefined;
+                break;
+            }
+            case PAY_TO_PLAY_CARD: {
                 const cardCost = getDiscountedCardCost(payload.card, player);
                 if (payload.payment) {
                     for (const resource in payload.payment) {
@@ -385,6 +412,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 }
                 player.discounts.nextCardThisGeneration = 0;
                 break;
+            }
             case PAY_TO_PLAY_STANDARD_PROJECT: {
                 let cost = payload.standardProjectAction.cost - player.discounts.standardProjects;
                 if (payload.standardProjectAction.type === StandardProjectType.POWER_PLANT) {
@@ -417,6 +445,20 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case ASK_USER_TO_PLACE_TILE:
                 player.pendingTilePlacement = payload.tilePlacement;
+                break;
+            case ASK_USER_TO_GAIN_RESOURCE:
+                player.pendingResourceGain = {
+                    gainResourceOption: payload.action.gainResourceOption,
+                    gainResourceTargetType: payload.action.gainResourceTargetType,
+                };
+                break;
+            case ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET:
+                player.pendingResourceGain = undefined;
+                player.pendingResourceGainTargetConfirmation = {
+                    gainResource: payload.gainResource,
+                    gainResourceTargetType: payload.gainResourceTargetType,
+                    card: payload.card,
+                };
                 break;
             case ASK_USER_TO_REMOVE_RESOURCE:
                 player.pendingResourceReduction = {

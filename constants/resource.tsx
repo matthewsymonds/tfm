@@ -12,7 +12,32 @@ export enum Resource {
     PLANT = 'resourcePlant',
     SCIENCE = 'resourceScience',
     STEEL = 'resourceSteel',
-    TITANIUM = 'resourceTitanium'
+    TITANIUM = 'resourceTitanium',
+}
+
+const storableResources = [
+    Resource.ANIMAL,
+    Resource.CAMP,
+    Resource.FIGHTER,
+    Resource.FLOATER,
+    Resource.MICROBE,
+    Resource.SCIENCE,
+] as const;
+
+export type StorableResource = typeof storableResources[number];
+
+export function isStorableResource(resource: any): resource is StorableResource {
+    return storableResources.includes(resource);
+}
+
+export enum ResourceLocationType {
+    THIS_CARD = 'thisCard',
+    ANY_CARD = 'anyCard',
+    LAST_PLAYED_CARD = 'lastPlayedCard',
+    VENUS_CARD = 'venusCard',
+    JOVIAN_CARD = 'jovianCard',
+    ANIMAL_CARD = 'animalCard',
+    MICROBE_CARD = 'microbeCard',
 }
 
 export const getClassName = (resource: Resource) => {
@@ -54,6 +79,39 @@ export const getResourceSymbol = (resource: Resource) => {
             return '🔨';
         case Resource.TITANIUM:
             return '☆';
+    }
+};
+
+export const getResourceName = (resource: Resource) => {
+    switch (resource) {
+        case Resource.ANIMAL:
+            return 'animal';
+        case Resource.CAMP:
+            return 'camp';
+        case Resource.CARD:
+            return 'card';
+        case Resource.ENERGY:
+            return 'energy';
+        case Resource.FIGHTER:
+            return 'fighter';
+        case Resource.FLOATER:
+            return 'floater';
+        case Resource.HEAT:
+            return 'heat';
+        case Resource.MEGACREDIT:
+            return 'megacredit';
+        case Resource.MICROBE:
+            return 'microbe';
+        case Resource.PLANT:
+            return 'plant';
+        case Resource.SCIENCE:
+            return 'science';
+        case Resource.STEEL:
+            return 'steel';
+        case Resource.TITANIUM:
+            return 'titanium';
+        default:
+            throw new Error('unrecognized resource');
     }
 };
 

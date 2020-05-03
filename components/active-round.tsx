@@ -1,12 +1,20 @@
 import {useContext, useState, MouseEvent, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
-import {discardCards, markCardActionAsPlayed, completeAction, skipAction} from '../actions';
+import {
+    discardCards,
+    markCardActionAsPlayed,
+    askUserToConfirmResourceTargetLocation as askUserToConfirmResourceTargetLocationAction,
+    completeAction,
+    skipAction,
+    gainResource,
+    gainStorableResource,
+} from '../actions';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {Amount} from '../constants/action';
 import {TileType} from '../constants/board';
-import {Resource} from '../constants/resource';
+import {Resource, ResourceLocationType} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
 import {RootState, useTypedSelector} from '../reducer';
@@ -15,6 +23,8 @@ import {CardComponent, CardText} from './card';
 import {PropertyCounter} from '../constants/property-counter';
 import {ActionBarRow, ActionBar} from './action-bar';
 import {Conversion, CONVERSIONS} from '../constants/conversion';
+import SelectResourceTypeToGain from './select-resource-type-to-gain';
+import SelectResourceTargetLocation from './select-resource-target-location';
 
 const Hand = styled.div`
     display: flex;
@@ -136,6 +146,32 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         setCardsToDiscard(new Set());
     }
 
+    function confirmResourceGain(resource: Resource, amount: number) {
+        dispatch(gainResource(resource, amount, playerIndex));
+        context.processQueue(dispatch);
+    }
+
+    function askUserToConfirmResourceTargetLocation(
+        gainResource: PropertyCounter<Resource>,
+        gainResourceTargetType: ResourceLocationType,
+        card: Card | undefined
+    ) {
+        dispatch(
+            askUserToConfirmResourceTargetLocationAction(
+                gainResource,
+                gainResourceTargetType,
+                card,
+                playerIndex
+            )
+        );
+        context.processQueue(dispatch);
+    }
+
+    function confirmStorableResourceGain(resource: Resource, amount: Amount, card: Card) {
+        dispatch(gainStorableResource(resource, amount, card, playerIndex));
+        context.processQueue(dispatch);
+    }
+
     function playAction(card: Card) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
         context.playAction(card.action!, state, card);
@@ -163,8 +199,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return context.canPlayAction(conversion, state)[0];
     }
 
-    const showBottomActionBar = player.pendingTilePlacement || player.pendingResourceReduction;
-
+    const showBottomActionBar =
+        player.pendingTilePlacement ||
+        player.pendingResourceReduction ||
+        player.pendingResourceGain ||
+        player.pendingResourceGainTargetConfirmation;
     return (
         <>
             <ActionBar>
@@ -293,14 +332,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     <ActionBarRow>
                         {player.pendingTilePlacement && (
                             <h3>
-                                Please place the{' '}
-                                {getTileHumanName(player.pendingTilePlacement.type)} tile.
+                                Place the {getTileHumanName(player.pendingTilePlacement.type)} tile.
                             </h3>
                         )}
                         {player.pendingResourceReduction?.resource === Resource.CARD && (
                             <>
                                 <div>
-                                    Please select{' '}
+                                    Select{' '}
                                     {getResourceReductionAmountHumanName(
                                         player.pendingResourceReduction.amount
                                     )}{' '}
@@ -311,6 +349,21 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     Confirm discard selection
                                 </button>
                             </>
+                        )}
+                        {player.pendingResourceGain && (
+                            <SelectResourceTypeToGain
+                                player={player}
+                                confirmResourceGain={confirmResourceGain}
+                                askUserToConfirmResourceTargetLocation={
+                                    askUserToConfirmResourceTargetLocation
+                                }
+                            />
+                        )}
+                        {player.pendingResourceGainTargetConfirmation && (
+                            <SelectResourceTargetLocation
+                                player={player}
+                                confirmStorableResourceGain={confirmStorableResourceGain}
+                            />
                         )}
                     </ActionBarRow>
                 </ActionBar>
