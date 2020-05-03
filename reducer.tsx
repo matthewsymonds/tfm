@@ -12,7 +12,7 @@ import {
     Tile,
     Cell,
     Milestone,
-    Award
+    Award,
 } from './constants/board';
 import {
     SET_CORPORATION,
@@ -40,8 +40,8 @@ import {
     START_ROUND,
     SKIP_ACTION,
     DRAW_POSSIBLE_CARDS,
-    APPLY_DISCOUNTS
-    FUND_AWARD
+    APPLY_DISCOUNTS,
+    FUND_AWARD,
 } from './actions';
 import {Deck, CardType} from './constants/card-types';
 import {Resource} from './constants/resource';
@@ -147,7 +147,7 @@ function initialResources() {
         [Resource.TITANIUM]: 0,
         [Resource.PLANT]: 0,
         [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0
+        [Resource.HEAT]: 0,
     };
 }
 
@@ -181,7 +181,7 @@ function getInitialState(): GameState {
             currentPlayerIndex: 0,
             firstPlayerIndex: 0,
             claimedMilestones: [],
-            fundedAwards: []
+            fundedAwards: [],
         },
         players: [
             {
@@ -197,7 +197,7 @@ function getInitialState(): GameState {
                 productions: initialResources(),
                 exchangeRates: {
                     [Resource.STEEL]: 2,
-                    [Resource.TITANIUM]: 3
+                    [Resource.TITANIUM]: 3,
                 },
                 discounts: {
                     card: 0,
@@ -207,23 +207,23 @@ function getInitialState(): GameState {
                         [Tag.BUILDING]: 0,
                         [Tag.SCIENCE]: 0,
                         [Tag.EARTH]: 0,
-                        [Tag.POWER]: 0
+                        [Tag.POWER]: 0,
                     },
                     cards: {
                         [Tag.SPACE]: 0,
-                        [Tag.EARTH]: 0
+                        [Tag.EARTH]: 0,
                     },
                     standardProjects: 0,
                     standardProjectPowerPlant: 0,
                     nextCardThisGeneration: 0,
-                    trade: 0
-                }
-            }
+                    trade: 0,
+                },
+            },
         ],
         transaction: {
             isPending: false,
-            pendingPlayers: []
-        }
+            pendingPlayers: [],
+        },
     };
 }
 
@@ -246,7 +246,7 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
     return [...uniqueBonuses].map(bonus => {
         return {
             resource: bonus,
-            amount: bonuses.filter(b => b === bonus).length
+            amount: bonuses.filter(b => b === bonus).length,
         };
     });
 }
@@ -397,7 +397,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[Resource.MEGACREDIT] -= 8;
                 draft.common.claimedMilestones.push({
                     claimedByPlayerIndex: player.index,
-                    milestone: payload.milestone
+                    milestone: payload.milestone,
                 });
                 break;
             case FUND_AWARD:
@@ -405,7 +405,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[Resource.MEGACREDIT] -= cost;
                 draft.common.fundedAwards.push({
                     fundedByPlayerIndex: player.index,
-                    award: payload.award
+                    award: payload.award,
                 });
                 break;
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
@@ -421,7 +421,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case ASK_USER_TO_REMOVE_RESOURCE:
                 player.pendingResourceReduction = {
                     resource: payload.resource,
-                    amount: payload.amount
+                    amount: payload.amount,
                 };
                 break;
             case PLACE_TILE:
