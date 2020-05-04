@@ -1,10 +1,9 @@
+import React from 'react';
+import styled from 'styled-components';
 import {CellType} from '../../constants/board';
 import {Resource} from '../../constants/resource';
 import {ResourceIcon} from '../resource';
 import {Hexagon} from './hexagon';
-import React from 'react';
-import {Tile} from './tile';
-import styled from 'styled-components';
 
 interface CellProps {
     bonus: Resource[];

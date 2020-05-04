@@ -3,5 +3,5 @@ export enum MoveType {
     CARD_ACTION = 'cardAction',
     STANDARD_PROJECT = 'standardProject',
     SKIP = 'skip',
-    PASS = 'pass'
+    PASS = 'pass',
 }

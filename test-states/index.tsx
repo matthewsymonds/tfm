@@ -16,7 +16,7 @@ export const BILLY_TEST = setupStateForPlayer({
         [Resource.TITANIUM]: 0,
         [Resource.PLANT]: 0,
         [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0
+        [Resource.HEAT]: 0,
     },
     productions: {
         [Resource.MEGACREDIT]: 0,
@@ -24,13 +24,13 @@ export const BILLY_TEST = setupStateForPlayer({
         [Resource.TITANIUM]: 0,
         [Resource.PLANT]: 0,
         [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0
+        [Resource.HEAT]: 0,
     },
     exchangeRates: {
         [Resource.STEEL]: 3,
-        [Resource.TITANIUM]: 4
+        [Resource.TITANIUM]: 4,
     },
-    discounts: null
+    discounts: null,
 });
 
 function setupStateForPlayer({cards, resources, productions, discounts, exchangeRates}): GameState {
@@ -49,13 +49,13 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
                 [Parameter.OCEAN]: 0,
                 [Parameter.OXYGEN]: 0,
                 [Parameter.TEMPERATURE]: -30,
-                [Parameter.VENUS]: 0
+                [Parameter.VENUS]: 0,
             },
             board: INITIAL_BOARD_STATE,
             currentPlayerIndex: 0,
             firstPlayerIndex: 0,
             claimedMilestones: [],
-            fundedAwards: []
+            fundedAwards: [],
         },
         players: [
             {
@@ -71,7 +71,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
                 productions: productions,
                 exchangeRates: exchangeRates ?? {
                     [Resource.STEEL]: 2,
-                    [Resource.TITANIUM]: 3
+                    [Resource.TITANIUM]: 3,
                 },
                 discounts: discounts ?? {
                     card: 0,
@@ -81,22 +81,22 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
                         [Tag.BUILDING]: 0,
                         [Tag.SCIENCE]: 0,
                         [Tag.EARTH]: 0,
-                        [Tag.POWER]: 0
+                        [Tag.POWER]: 0,
                     },
                     cards: {
                         [Tag.SPACE]: 0,
-                        [Tag.EARTH]: 0
+                        [Tag.EARTH]: 0,
                     },
                     standardProjects: 0,
                     standardProjectPowerPlant: 0,
                     nextCardThisGeneration: 0,
-                    trade: 0
-                }
-            }
+                    trade: 0,
+                },
+            },
         ],
         transaction: {
             isPending: false,
-            pendingPlayers: []
-        }
+            pendingPlayers: [],
+        },
     };
 }

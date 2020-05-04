@@ -15,6 +15,7 @@ import {CardComponent, CardText} from './card';
 import {PropertyCounter} from '../constants/property-counter';
 import {ActionBarRow, ActionBar} from './action-bar';
 import {Conversion, CONVERSIONS} from '../constants/conversion';
+import {useSyncState} from '../pages/sync-state';
 
 const Hand = styled.div`
     display: flex;
@@ -93,6 +94,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             context.queue.push(completeAction(playerIndex));
         }
     }, [player.index]);
+
+    useSyncState();
 
     useEffect(() => {
         context.processQueue(dispatch);

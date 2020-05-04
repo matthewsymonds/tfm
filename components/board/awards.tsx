@@ -1,10 +1,9 @@
-import styled from 'styled-components';
-import {Milestone, Award} from '../../constants/board';
-import {useDispatch} from 'react-redux';
 import {useContext} from 'react';
+import {useDispatch} from 'react-redux';
+import {Award} from '../../constants/board';
 import {AppContext} from '../../context/app-context';
-import {useTypedSelector, GameState} from '../../reducer';
-import {BoardActionsContainer, BoardActionRow, BoardActionHeader} from './board-actions';
+import {GameState, useTypedSelector} from '../../reducer';
+import {BoardActionHeader, BoardActionRow, BoardActionsContainer} from './board-actions';
 
 function getTextForAward(award: Award) {
     switch (award) {

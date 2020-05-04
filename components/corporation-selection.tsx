@@ -1,27 +1,25 @@
-import {useState, useEffect, useContext, ReactElement} from 'react';
-import {Resource} from '../constants/resource';
-import {Card} from '../models/card';
-import {CardSelector} from '../components/card-selector';
-import {MaybeVisible} from '../components/maybe-visible';
+import React, {ReactElement, useContext, useEffect} from 'react';
+import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
-import React from 'react';
-import {useSelector, useDispatch, useStore} from 'react-redux';
-import {GameStage} from '../constants/game';
-
 import {
-    setCorporation,
-    setCards,
-    goToGameStage,
     discardCards,
+    drawPossibleCards,
+    goToGameStage,
     payForCards,
+    setCards,
+    setCorporation,
+    setSelectedCards,
     startOver,
     startRound,
-    drawPossibleCards
 } from '../actions';
-import {useTypedSelector, RootState} from '../reducer';
+import {CardSelector} from '../components/card-selector';
+import {GameStage} from '../constants/game';
+import {Resource} from '../constants/resource';
 import {AppContext} from '../context/app-context';
-import {Amount} from '../constants/action';
-import {ActionBar, ActionBarRow, ActionBarDivider} from './action-bar';
+import {Card} from '../models/card';
+import {useSyncState} from '../pages/sync-state';
+import {RootState, useTypedSelector} from '../reducer';
+import {ActionBar, ActionBarRow} from './action-bar';
 
 const MarginalButton = styled.button`
     margin-top: 10px;
@@ -58,7 +56,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         state => state.players[playerIndex].possibleCorporations
     );
     const possibleCards = useTypedSelector(state => state.players[playerIndex].possibleCards);
-    const cards = useTypedSelector(state => state.players[playerIndex].cards);
+    const cards = useTypedSelector(state => state.players[playerIndex].selectedCards);
 
     const corporationName = corporation && corporation.name;
     const startingAmount = (corporation && getStartingAmount(corporation)) || 0;
@@ -69,7 +67,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     // clear all the cards.
     useEffect(() => {
         if (startingAmount && startingAmount < cards.length * 3) {
-            dispatch(setCards([], playerIndex));
+            dispatch(setSelectedCards([], playerIndex));
         }
     }, [corporationName, cards]);
     const selectAllCards = (possibleCards || []).slice(0, Math.floor(startingAmount / 3));
@@ -81,12 +79,14 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     }, [possibleCards.length]);
 
     function handleSelectAll() {
-        dispatch(setCards(selectAllCards, playerIndex));
+        dispatch(setSelectedCards(selectAllCards, playerIndex));
     }
 
     function handleStartOver() {
         dispatch(startOver());
     }
+    useSyncState();
+
     let additionalRow: ReactElement | null = null;
     if (corporationName) {
         additionalRow = (
@@ -98,12 +98,14 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                     {cards.length < selectAllCards.length ? (
                         <button onClick={() => handleSelectAll()}>Select all</button>
                     ) : (
-                        <button onClick={() => dispatch(setCards([], playerIndex))}>
+                        <button onClick={() => dispatch(setSelectedCards([], playerIndex))}>
                             Unselect all
                         </button>
                     )}
                     <ConfirmButton
                         onClick={() => {
+                            dispatch(setCards(cards, playerIndex));
+                            dispatch(setSelectedCards([], playerIndex));
                             const card = corporation!;
                             context.playCard(card, state);
                             context.processQueue(dispatch);
@@ -155,7 +157,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 max={10}
                 width={250}
                 selectedCards={corporationName ? cards : []}
-                onSelect={cards => dispatch(setCards(cards, playerIndex))}
+                onSelect={cards => dispatch(setSelectedCards(cards, playerIndex))}
                 options={possibleCards || []}
                 budget={remaining}
                 orientation="vertical"

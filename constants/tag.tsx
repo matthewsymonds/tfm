@@ -10,5 +10,5 @@ export enum Tag {
     POWER = 'tagPower',
     SCIENCE = 'tagScience',
     SPACE = 'tagSpace',
-    VENUS = 'tagVenus'
+    VENUS = 'tagVenus',
 }

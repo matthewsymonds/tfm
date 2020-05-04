@@ -55,7 +55,7 @@ const dict = {
     [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen'],
     [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray'],
     [Tag.SPACE]: ['✴️', 'white', 'black', '', 'space-icon'],
-    [Tag.VENUS]: ['V', 'lightblue', 'lightblue']
+    [Tag.VENUS]: ['V', 'lightblue', 'lightblue'],
 };
 
 function getTagProps(tag: Tag): TagProps {
@@ -66,7 +66,7 @@ function getTagProps(tag: Tag): TagProps {
         color,
         backgroundColor,
         outerBackgroundColor,
-        className: className || 'tag-icon'
+        className: className || 'tag-icon',
     };
 }
 

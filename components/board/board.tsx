@@ -4,7 +4,7 @@ import {
     Board as BoardModel,
     cellHelpers,
     GlobalParameters,
-    Cell as CellModel
+    Cell as CellModel,
 } from '../../constants/board';
 import GlobalParams from '../global-params';
 import {Row} from '../row';

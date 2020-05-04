@@ -3,7 +3,7 @@ import React, {useContext} from 'react';
 import {
     standardProjectActions,
     StandardProjectType,
-    StandardProjectAction
+    StandardProjectAction,
 } from '../../constants/standard-project';
 import {AppContext} from '../../context/app-context';
 import {useTypedSelector, PlayerState} from '../../reducer';

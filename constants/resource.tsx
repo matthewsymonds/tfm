@@ -12,7 +12,7 @@ export enum Resource {
     PLANT = 'resourcePlant',
     SCIENCE = 'resourceScience',
     STEEL = 'resourceSteel',
-    TITANIUM = 'resourceTitanium'
+    TITANIUM = 'resourceTitanium',
 }
 
 export const getClassName = (resource: Resource) => {

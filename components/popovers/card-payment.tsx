@@ -69,7 +69,7 @@ export default function CardPaymentPopover({
     target,
     toggle,
     card,
-    onConfirmPayment
+    onConfirmPayment,
 }: Props) {
     const player = useLoggedInPlayer();
     const {resources, exchangeRates} = player;
@@ -205,7 +205,7 @@ export default function CardPaymentPopover({
                         onConfirmPayment({
                             [Resource.MEGACREDIT]: numMC,
                             [Resource.STEEL]: numSteel,
-                            [Resource.TITANIUM]: numTitanium
+                            [Resource.TITANIUM]: numTitanium,
                         })
                     }
                 >

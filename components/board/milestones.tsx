@@ -1,10 +1,9 @@
-import styled from 'styled-components';
-import {Milestone} from '../../constants/board';
-import {useDispatch} from 'react-redux';
 import {useContext} from 'react';
+import {useDispatch} from 'react-redux';
+import {Milestone} from '../../constants/board';
 import {AppContext} from '../../context/app-context';
 import {useTypedSelector} from '../../reducer';
-import {BoardActionsContainer, BoardActionRow, BoardActionHeader} from './board-actions';
+import {BoardActionHeader, BoardActionRow, BoardActionsContainer} from './board-actions';
 
 function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {

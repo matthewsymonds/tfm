@@ -2428,6 +2428,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -1,
+        tilePlacements: [t(TileType.OCEAN)],
+        // todo punishment
     },
     {
         cost: 15,

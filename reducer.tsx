@@ -1,57 +1,56 @@
-import {useSelector, TypedUseSelectorHook} from 'react-redux';
 import produce from 'immer';
-
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS, MIN_PARAMETERS} from './constants/game';
-import {Tag} from './constants/tag';
+import {TypedUseSelectorHook, useSelector} from 'react-redux';
 import {
-    INITIAL_BOARD_STATE,
-    TileType,
-    Parameter,
-    Board,
-    TilePlacement,
-    Tile,
-    Cell,
-    Milestone,
-    Award,
-} from './constants/board';
-import {
-    SET_CORPORATION,
-    GO_TO_GAME_STAGE,
-    REVEAL_AND_DISCARD_TOP_CARD,
-    DRAW_CARDS,
-    PAY_FOR_CARDS,
-    DECREASE_PRODUCTION,
-    INCREASE_PRODUCTION,
-    REMOVE_RESOURCE,
-    GAIN_RESOURCE,
-    MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
+    APPLY_DISCOUNTS,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
-    PAY_TO_PLAY_CARD,
-    PLACE_TILE,
-    INCREASE_PARAMETER,
-    SET_CARDS,
-    DISCARD_CARDS,
-    START_OVER,
-    PAY_TO_PLAY_STANDARD_PROJECT,
     CLAIM_MILESTONE,
-    MARK_CARD_ACTION_AS_PLAYED,
     COMPLETE_ACTION,
-    START_ROUND,
-    SKIP_ACTION,
+    DECREASE_PRODUCTION,
+    DISCARD_CARDS,
+    DRAW_CARDS,
     DRAW_POSSIBLE_CARDS,
-    APPLY_DISCOUNTS,
     FUND_AWARD,
+    GAIN_RESOURCE,
+    GO_TO_GAME_STAGE,
+    INCREASE_PARAMETER,
+    INCREASE_PRODUCTION,
+    MARK_CARD_ACTION_AS_PLAYED,
+    MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
+    PAY_FOR_CARDS,
+    PAY_TO_PLAY_CARD,
+    PAY_TO_PLAY_STANDARD_PROJECT,
+    PLACE_TILE,
+    REMOVE_RESOURCE,
+    REVEAL_AND_DISCARD_TOP_CARD,
+    SET_CARDS,
+    SET_CORPORATION,
+    SET_GAME,
+    SET_SELECTED_CARDS,
+    SKIP_ACTION,
+    START_OVER,
+    START_ROUND,
 } from './actions';
-import {Deck, CardType} from './constants/card-types';
-import {Resource} from './constants/resource';
-import {cardConfigs} from './constants/cards';
-import {Card} from './models/card';
 import {Amount} from './constants/action';
-import {StandardProjectType} from './constants/standard-project';
-import {getDiscountedCardCost} from './context/app-context';
+import {
+    Award,
+    Board,
+    Cell,
+    INITIAL_BOARD_STATE,
+    Milestone,
+    Parameter,
+    Tile,
+    TilePlacement,
+    TileType,
+} from './constants/board';
+import {CardType, Deck} from './constants/card-types';
 import {Discounts} from './constants/discounts';
-import {BILLY_TEST} from './test-states';
+import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {Resource} from './constants/resource';
+import {StandardProjectType} from './constants/standard-project';
+import {Tag} from './constants/tag';
+import {getDiscountedCardCost} from './context/app-context';
+import {Card, cards} from './models/card';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -64,33 +63,35 @@ export type Resources = {
 
 type PlayerId = number;
 
+export type CommonState = {
+    // List of indices of playing players.
+    playingPlayers: number[];
+    deck: Card[];
+    discardPile: Card[];
+    revealedCard?: Card;
+    gameStage: GameStage;
+    generation: number;
+    claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
+    fundedAwards: {fundedByPlayerIndex: number; award: Award}[];
+    turn: number;
+    action: number;
+    firstPlayerIndex: number;
+    currentPlayerIndex: number;
+    parameters: {
+        [Parameter.OCEAN]: number;
+        [Parameter.OXYGEN]: number;
+        [Parameter.TEMPERATURE]: number;
+        [Parameter.VENUS]: number;
+    };
+    board: Board;
+};
+
 export type GameState = {
     queuePaused: boolean;
     pendingVariableAmount?: number;
     loggedInPlayerIndex: number;
     players: Array<PlayerState>;
-    common: {
-        // List of indices of playing players.
-        playingPlayers: number[];
-        deck: Card[];
-        discardPile: Card[];
-        revealedCard?: Card;
-        gameStage: GameStage;
-        generation: number;
-        claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
-        fundedAwards: {fundedByPlayerIndex: number; award: Award}[];
-        turn: number;
-        action: number;
-        firstPlayerIndex: number;
-        currentPlayerIndex: number;
-        parameters: {
-            [Parameter.OCEAN]: number;
-            [Parameter.OXYGEN]: number;
-            [Parameter.TEMPERATURE]: number;
-            [Parameter.VENUS]: number;
-        };
-        board: Board;
-    };
+    common: CommonState;
     transaction: {
         isPending: boolean;
         pendingPlayers: Array<PlayerId>;
@@ -108,6 +109,7 @@ export type PlayerState = {
     playerIndex: number;
     corporation: null | Card;
     possibleCards: Card[];
+    selectedCards: Card[];
     possibleCorporations: null | Card[];
     cards: Card[];
     playedCards: Card[];
@@ -152,8 +154,6 @@ function initialResources() {
 }
 
 function getInitialState(): GameState {
-    const cards = cardConfigs.map(config => new Card(config));
-
     const possibleCards = cards.filter(
         card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
     );
@@ -190,6 +190,7 @@ function getInitialState(): GameState {
                 playerIndex: 0,
                 corporation: null,
                 possibleCards: [],
+                selectedCards: [],
                 possibleCorporations,
                 cards: [],
                 playedCards: [],
@@ -331,6 +332,8 @@ export const reducer = (state = INITIAL_STATE, action) => {
         switch (action.type) {
             case START_OVER:
                 return getInitialState();
+            case SET_GAME:
+                return payload.gameState;
             case SET_CORPORATION:
                 player.corporation = payload.corporation;
                 break;
@@ -343,6 +346,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
+                break;
+            case SET_SELECTED_CARDS:
+                player.selectedCards = action.payload.cards;
                 break;
             case DISCARD_CARDS:
                 draft.common.discardPile.push(...payload.cards);
@@ -358,9 +364,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
                 break;
             case DRAW_POSSIBLE_CARDS:
-                const include = draft.common.deck.find(card => card.name === 'Research Outpost');
                 player.possibleCards.push(...draft.common.deck.splice(0, payload.numCards));
-                player.possibleCards.push(include!);
                 break;
             case DECREASE_PRODUCTION:
                 player.productions[payload.resource] -= payload.amount;
@@ -536,5 +540,4 @@ function getCitiesOnMars(state): number {
 }
 
 export type RootState = ReturnType<typeof reducer>;
-
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;

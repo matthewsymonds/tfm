@@ -1,8 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import {Board as BoardModel, Cell as CellModel, cellHelpers} from '../../constants/board';
 import {Cell} from './cell';
 import {Tile} from './tile';
-import styled from 'styled-components';
 
 const OffMarsCitiesContainer = styled.div`
     display: flex;

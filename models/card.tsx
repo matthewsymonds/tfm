@@ -12,6 +12,7 @@ import {Resource} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
 import {Discounts} from '../constants/discounts';
+import {cardConfigs} from '../constants/cards';
 
 export class Card {
     // ====================================================
@@ -166,3 +167,5 @@ export class Card {
         }
     }
 }
+
+export const cards = cardConfigs.map(config => new Card(config));

@@ -1,13 +1,13 @@
-import {GameStage} from './constants/game';
-import {Tag} from './constants/tag';
-import {Card} from './models/card';
-import {Resource} from './constants/resource';
-import {TilePlacement, Tile, Cell, Parameter, Milestone, Award} from './constants/board';
-import {StandardProjectAction} from './constants/standard-project';
-import {Amount, Action} from './constants/action';
-import {VariableAmount} from './constants/variable-amount';
-import {PropertyCounter} from './constants/property-counter';
+import {Amount} from './constants/action';
+import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
+import {GameStage} from './constants/game';
+import {PropertyCounter} from './constants/property-counter';
+import {Resource} from './constants/resource';
+import {StandardProjectAction} from './constants/standard-project';
+import {VariableAmount} from './constants/variable-amount';
+import {Card} from './models/card';
+import {RootState} from './reducer';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -35,6 +35,12 @@ export const discardCards = (cards: Card[], playerIndex: number) => ({
 export const SET_CARDS = 'SET_CARDS';
 export const setCards = (cards: Card[], playerIndex: number) => ({
     type: SET_CARDS,
+    payload: {cards, playerIndex},
+});
+
+export const SET_SELECTED_CARDS = 'SET_SELECTED_CARDS';
+export const setSelectedCards = (cards: Card[], playerIndex: number) => ({
+    type: SET_SELECTED_CARDS,
     payload: {cards, playerIndex},
 });
 
@@ -196,3 +202,6 @@ export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
         playerIndex,
     },
 });
+
+export const SET_GAME = 'SET_GAME';
+export const setGame = (gameState: RootState) => ({type: SET_GAME, payload: {gameState}});
