@@ -1,4 +1,4 @@
-import {GameState} from '../reducer';
+import {GameState, getInitialState} from '../reducer';
 import {GameStage} from '../constants/game';
 import {Parameter, INITIAL_BOARD_STATE} from '../constants/board';
 import {Resource} from '../constants/resource';
@@ -9,7 +9,11 @@ import {Card} from '../models/card';
 const cards = cardConfigs.map(config => new Card(config));
 
 export const BILLY_TEST = setupStateForPlayer({
-    cards: cards.filter(c => c.name === 'Colonizer Training Camp'),
+    cards: cards.filter(c =>
+        ['Viral enhancers', 'Large convoy', 'pets'].some(
+            name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1
+        )
+    ),
     resources: {
         [Resource.MEGACREDIT]: 1000,
         [Resource.STEEL]: 4,
@@ -59,6 +63,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         },
         players: [
             {
+                ...getInitialState(),
                 index: 0,
                 terraformRating: 20,
                 playerIndex: 0,
@@ -66,6 +71,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
                 possibleCards: [],
                 possibleCorporations: [],
                 cards: cards,
+                selectedCards: [],
                 playedCards: [],
                 resources: resources,
                 productions: productions,

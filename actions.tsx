@@ -1,9 +1,9 @@
-import {Amount} from './constants/action';
+import {Amount, Action} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {GameStage} from './constants/game';
 import {PropertyCounter} from './constants/property-counter';
-import {Resource} from './constants/resource';
+import {Resource, ResourceLocationType} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
 import {VariableAmount} from './constants/variable-amount';
 import {Card} from './models/card';
@@ -85,6 +85,16 @@ export const gainResource = (resource: Resource, amount: Amount, playerIndex: nu
     type: GAIN_RESOURCE,
     payload: {resource, amount, playerIndex},
 });
+export const GAIN_STORABLE_RESOURCE = 'GAIN_STORABLE_RESOURCE';
+export const gainStorableResource = (
+    resource: Resource,
+    amount: Amount,
+    card: Card,
+    playerIndex: number
+) => ({
+    type: GAIN_STORABLE_RESOURCE,
+    payload: {resource, amount, card, playerIndex},
+});
 
 export const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';
 export const applyDiscounts = (discounts: Discounts, playerIndex: number) => ({
@@ -134,6 +144,25 @@ export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: nu
     type: ASK_USER_TO_PLACE_TILE,
     payload: {playerIndex, tilePlacement},
 });
+
+export const ASK_USER_TO_GAIN_RESOURCE = 'ASK_USER_TO_GAIN_RESOURCE';
+export const askUserToGainResource = (action: Action, playerIndex: number) => ({
+    type: ASK_USER_TO_GAIN_RESOURCE,
+    payload: {action, playerIndex},
+});
+
+export const ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET = 'ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET';
+export const askUserToConfirmResourceTargetLocation = (
+    gainResource: PropertyCounter<Resource>,
+    gainResourceTargetType: ResourceLocationType,
+    card: Card | undefined,
+    playerIndex: number
+) => {
+    return {
+        type: ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
+        payload: {gainResource, gainResourceTargetType, card, playerIndex},
+    };
+};
 
 export const ASK_USER_TO_REMOVE_RESOURCE = 'ASK_USER_TO_REMOVE_RESOURCE';
 export const askUserToRemoveResource = (

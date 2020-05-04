@@ -8,7 +8,7 @@ import {
 import {Tag} from '../constants/tag';
 import {Effect} from '../constants/effect';
 import {Action, ActionType, Amount} from '../constants/action';
-import {Resource} from '../constants/resource';
+import {Resource, ResourceLocationType} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
 import {Discounts} from '../constants/discounts';
@@ -70,6 +70,8 @@ export class Card {
     increaseParameter: PropertyCounter<Parameter>;
     /** e.g. "Raise your TR 1 step" */
     increaseTerraformRating?: number;
+    /** e.g. "Add 1 animal to THIS CARD" */
+    gainResourceTargetType?: ResourceLocationType;
 
     // ====================================================
     // Card effects, actions, and held resources
@@ -114,6 +116,7 @@ export class Card {
         // Resource & production implications
         this.gainResource = config.gainResource || {};
         this.gainResourceOption = config.gainResourceOption || {};
+        this.gainResourceTargetType = config.gainResourceTargetType;
         this.removeResources = config.removeResources || {};
         this.removeAnyResource = config.removeAnyResource || {};
         this.removeAnyResourceOption = config.removeAnyResourceOption || {};
