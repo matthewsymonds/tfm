@@ -305,8 +305,8 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     }
 }
 
-// const INITIAL_STATE: GameState = getInitialState();
-const INITIAL_STATE: GameState = BILLY_TEST;
+const INITIAL_STATE: GameState = getInitialState();
+// const INITIAL_STATE: GameState = BILLY_TEST;
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;

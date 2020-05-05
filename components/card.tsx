@@ -18,8 +18,9 @@ export const CardText = styled.div`
 `;
 
 const VictoryPoints = styled.div`
-    margin-bottom: 0;
-    margin-top: auto;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
     padding: 8px;
     width: 18px;
     height: 18px;
@@ -112,12 +113,12 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                 {text && <CardText>{text}</CardText>}
                 {effect?.text && <CardText>{effect.text}</CardText>}
                 {action?.text && <CardText>{action.text}</CardText>}
-                {props.children}
                 {victoryPoints ? (
                     <VictoryPoints>
                         <span>{victoryPoints}</span>
                     </VictoryPoints>
                 ) : null}
+                {props.children}
             </Selection>
         </CardBase>
     );
