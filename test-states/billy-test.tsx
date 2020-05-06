@@ -10,15 +10,13 @@ const cards = cardConfigs.map(config => new Card(config));
 
 export const BILLY_TEST = setupStateForPlayer({
     cards: cards.filter(c =>
-        ['Viral enhancers', 'Large convoy', 'pets'].some(
-            name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1
-        )
+        ['Space Elevator'].some(name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1)
     ),
     resources: {
         [Resource.MEGACREDIT]: 1000,
         [Resource.STEEL]: 4,
         [Resource.TITANIUM]: 0,
-        [Resource.PLANT]: 0,
+        [Resource.PLANT]: 1000,
         [Resource.ENERGY]: 0,
         [Resource.HEAT]: 0,
     },

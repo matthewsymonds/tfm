@@ -8,6 +8,7 @@ import {Resource} from '../../constants/resource';
 import {useState} from 'react';
 import {getDiscountedCardCost} from '../../context/app-context';
 import {PropertyCounter} from '../../constants/property-counter';
+import {ResourceIcon} from '../resource';
 
 type Props = {
     isOpen: boolean;
@@ -20,11 +21,16 @@ type Props = {
 const CardPaymentBase = styled.div`
     padding: 16px;
     border-radius: 3px;
-    border: 2px solid #eee;
-    background: white;
+    box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
+    background: #f7f7f7;
+    font-family: sans-serif;
+    .card-payment-rows {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
 `;
 
-const CardPaymentRow = styled.div`
+const CardPaymentRowBase = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -32,17 +38,18 @@ const CardPaymentRow = styled.div`
         width: 40px;
         margin-left: 16px;
     }
-    .payment-row-right {
+    > div {
         display: flex;
         align-items: center;
     }
     .payment-row-input-container {
         display: flex;
         align-items: center;
-        margin: 4px 8px;
+        margin: 4px 0px 4px 24px;
         > button {
             padding: 8px;
             min-width: 0;
+            margin: 0;
         }
         > span {
             display: flex;
@@ -52,17 +59,61 @@ const CardPaymentRow = styled.div`
     }
 `;
 
-const CardConfirmationRow = styled.div<{isValidPayment: boolean}>`
+const CardPaymentSummaryRow = styled.div<{isValidPayment: boolean}>`
     display: flex;
     align-items: center;
     padding: 12px 0;
-    border-top: 1px solid black;
     font-weight: 600;
     justify-content: space-between;
     .running-total {
         color: ${props => (props.isValidPayment ? 'black' : 'red')};
     }
 `;
+
+const CardPaymentConfirmationButton = styled.button`
+    margin-top: 16px;
+`;
+
+type CardPaymentRowProps = {
+    resource: Resource;
+    currentQuantity: number;
+    availableQuantity: number;
+    handleIncrease: (resource: Resource) => void;
+    handleDecrease: (resource: Resource) => void;
+};
+
+function CardPaymentRow({
+    resource,
+    currentQuantity,
+    availableQuantity,
+    handleIncrease,
+    handleDecrease,
+}: CardPaymentRowProps) {
+    return (
+        <CardPaymentRowBase>
+            <div>
+                <ResourceIcon name={resource} />({availableQuantity})
+            </div>
+            <div className="payment-row-right">
+                <div className="payment-row-input-container">
+                    <button
+                        disabled={currentQuantity === 0}
+                        onClick={() => handleDecrease(resource)}
+                    >
+                        -
+                    </button>
+                    <span>{currentQuantity}</span>
+                    <button
+                        disabled={currentQuantity === availableQuantity}
+                        onClick={() => handleIncrease(resource)}
+                    >
+                        +
+                    </button>
+                </div>
+            </div>
+        </CardPaymentRowBase>
+    );
+}
 
 export default function CardPaymentPopover({
     isOpen,
@@ -145,61 +196,50 @@ export default function CardPaymentPopover({
         );
     }
 
-    const isValidPayment = cardCost <= calculateRunningTotal();
+    const runningTotal = calculateRunningTotal();
+    const isValidPayment = cardCost <= runningTotal;
 
     return (
         <Popover placement="right" isOpen={isOpen} target={target} toggle={toggle} fade={true}>
             <CardPaymentBase>
-                <CardPaymentRow>
-                    <div>Megacredit ({resources[Resource.MEGACREDIT]})</div>
-                    <div className="payment-row-right">
-                        <div className="payment-row-input-container">
-                            <button onClick={() => handleDecrease(Resource.MEGACREDIT)}>-</button>
-                            <span>{numMC}</span>
-                            <button onClick={() => handleIncrease(Resource.MEGACREDIT)}>+</button>
-                        </div>
-                        <span>
-                            <em>{numMC} MC</em>
+                <CardPaymentSummaryRow isValidPayment={isValidPayment}>
+                    <span>Cost: {cardCost}</span>
+                    {!isValidPayment && (
+                        <span className="running-total">
+                            <em>Current: {runningTotal}</em>
                         </span>
-                    </div>
-                </CardPaymentRow>
-                {card.tags.includes(Tag.BUILDING) && (
-                    <CardPaymentRow>
-                        <div>Steel ({resources[Resource.STEEL]})</div>
-                        <div className="payment-row-right">
-                            <div className="payment-row-input-container">
-                                <button onClick={() => handleDecrease(Resource.STEEL)}>-</button>
-                                <span>{numSteel}</span>
-                                <button onClick={() => handleIncrease(Resource.STEEL)}>+</button>
-                            </div>
-                            <span>
-                                <em>{numSteel * exchangeRates[Resource.STEEL]} MC</em>
-                            </span>
-                        </div>
-                    </CardPaymentRow>
-                )}
-                {card.tags.includes(Tag.SPACE) && (
-                    <CardPaymentRow>
-                        <div>Titainum ({resources[Resource.TITANIUM]})</div>
-                        <div className="payment-row-right">
-                            <div className="payment-row-input-container">
-                                <button onClick={() => handleDecrease(Resource.TITANIUM)}>-</button>
-                                <span>{numTitanium}</span>
-                                <button onClick={() => handleIncrease(Resource.TITANIUM)}>+</button>
-                            </div>
-                            <span>
-                                <em>{numTitanium * exchangeRates[Resource.TITANIUM]} MC</em>
-                            </span>
-                        </div>
-                    </CardPaymentRow>
-                )}
-                <CardConfirmationRow isValidPayment={isValidPayment}>
-                    <span>Total cost: {cardCost} MC</span>
-                    <span className="running-total">
-                        <em>{calculateRunningTotal()} MC</em>
-                    </span>
-                </CardConfirmationRow>
-                <button
+                    )}
+                </CardPaymentSummaryRow>
+                <div className="card-payment-rows">
+                    {resources[Resource.MEGACREDIT] > 0 && (
+                        <CardPaymentRow
+                            resource={Resource.MEGACREDIT}
+                            currentQuantity={numMC}
+                            availableQuantity={resources[Resource.MEGACREDIT]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                        />
+                    )}
+                    {card.tags.includes(Tag.BUILDING) && resources[Resource.STEEL] > 0 && (
+                        <CardPaymentRow
+                            resource={Resource.STEEL}
+                            currentQuantity={numSteel}
+                            availableQuantity={resources[Resource.STEEL]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                        />
+                    )}
+                    {card.tags.includes(Tag.SPACE) && resources[Resource.TITANIUM] > 0 && (
+                        <CardPaymentRow
+                            resource={Resource.TITANIUM}
+                            currentQuantity={numTitanium}
+                            availableQuantity={resources[Resource.TITANIUM]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                        />
+                    )}
+                </div>
+                <CardPaymentConfirmationButton
                     disabled={!isValidPayment}
                     onClick={() =>
                         onConfirmPayment({
@@ -210,7 +250,7 @@ export default function CardPaymentPopover({
                     }
                 >
                     Confirm
-                </button>
+                </CardPaymentConfirmationButton>
             </CardPaymentBase>
         </Popover>
     );

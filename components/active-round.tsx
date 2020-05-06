@@ -255,9 +255,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
                                 const conversion = CONVERSIONS[resource];
                                 return (
-                                    <div>
+                                    <div key={resource}>
                                         <ResourceBoardCell
-                                            key={resource}
                                             resource={resource}
                                             production={productions[resource]}
                                             amount={resources[resource]}

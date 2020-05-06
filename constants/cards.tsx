@@ -2,10 +2,7 @@ import {CardConfig, Deck, CardType} from './card-types';
 import {Tag} from './tag';
 import {Resource, ResourceLocationType} from './resource';
 import {TileType, PlacementRequirement, Parameter, t} from './board';
-import {MoveType} from './moves';
 import {VariableAmount} from './variable-amount';
-import {removeResource} from '../actions';
-import {StandardProjectType} from './standard-project';
 
 export const cardConfigs: CardConfig[] = [
     {
