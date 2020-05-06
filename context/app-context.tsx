@@ -48,7 +48,7 @@ import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
-    let {cost = 0} = card;
+    let cost = getDiscountedCardCost(card, player);
 
     const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
     if (isBuildingCard) {
@@ -60,9 +60,7 @@ function canAffordCard(card: Card, state: RootState) {
         cost -= player.exchangeRates[Resource.TITANIUM] * player.resources[Resource.TITANIUM];
     }
 
-    const discountedCost = getDiscountedCardCost(card, player);
-
-    return discountedCost <= player.resources[Resource.MEGACREDIT];
+    return cost <= player.resources[Resource.MEGACREDIT];
 }
 
 export function getDiscountedCardCost(card: Card, player: PlayerState) {

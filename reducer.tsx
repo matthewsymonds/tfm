@@ -55,6 +55,7 @@ import {StandardProjectType} from './constants/standard-project';
 import {Tag} from './constants/tag';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card, cards} from './models/card';
+import {BILLY_TEST} from './test-states/billy-test';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;

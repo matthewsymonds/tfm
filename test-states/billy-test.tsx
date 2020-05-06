@@ -10,12 +10,12 @@ const cards = cardConfigs.map(config => new Card(config));
 
 export const BILLY_TEST = setupStateForPlayer({
     cards: cards.filter(c =>
-        ['Space Elevator'].some(name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1)
+        ['Deimos Down'].some(name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1)
     ),
     resources: {
-        [Resource.MEGACREDIT]: 1000,
+        [Resource.MEGACREDIT]: 20,
         [Resource.STEEL]: 4,
-        [Resource.TITANIUM]: 0,
+        [Resource.TITANIUM]: 10,
         [Resource.PLANT]: 1000,
         [Resource.ENERGY]: 0,
         [Resource.HEAT]: 0,
@@ -40,7 +40,6 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         queuePaused: false,
         loggedInPlayerIndex: 0,
         common: {
-            action: 0,
             playingPlayers: [0],
             discardPile: [],
             gameStage: GameStage.ACTIVE_ROUND,
@@ -62,10 +61,11 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         players: [
             {
                 ...getInitialState(),
+                action: 0,
                 index: 0,
                 terraformRating: 20,
                 playerIndex: 0,
-                corporation: null,
+                corporation: cards.filter(card => card.name === 'PhoboLog'),
                 possibleCards: [],
                 possibleCorporations: [],
                 cards: cards,
