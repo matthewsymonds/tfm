@@ -20,7 +20,8 @@ import {
     payToPlayCard,
     payToPlayStandardProject,
     removeResource,
-    REVEAL_AND_DISCARD_TOP_CARD,
+    REVEAL_AND_DISCARD_TOP_CARDS,
+    revealAndDiscardTopCards,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -378,6 +379,10 @@ function playAction(action: Action, state: RootState, parent?: Card) {
         );
     }
 
+    if (action.revealAndDiscardTopCards) {
+        this.queue.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
+    }
+
     for (const production in action.increaseProduction) {
         this.queue.push(
             increaseProduction(
@@ -526,7 +531,7 @@ function claimMilestone(milestone: Milestone, state: RootState) {
 function canFundAward(award: Award, state: RootState) {
     const player = getLoggedInPlayer(state);
 
-    // Is it availiable?
+    // Is it available?
     if (state.common.fundedAwards.length === 3) {
         return false;
     }
@@ -564,7 +569,7 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_REMOVE_RESOURCE,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
-    REVEAL_AND_DISCARD_TOP_CARD,
+    REVEAL_AND_DISCARD_TOP_CARDS,
 ];
 
 function shouldPause(action: {type: string}): boolean {

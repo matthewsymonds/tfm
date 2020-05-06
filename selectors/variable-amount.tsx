@@ -149,6 +149,11 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
 
         return 1;
     },
+    [VariableAmount.REVEALED_CARD_MICROBE]: (state: RootState) => {
+        const {revealedCards} = state.common;
+        const [card] = revealedCards;
+        return card.tags.includes(Tag.MICROBE) ? 1 : 0;
+    },
     [VariableAmount.THIRD_ALL_CITIES]: (state: RootState) => {
         return Math.floor(getCellsWithCities(state).length / 3);
     },

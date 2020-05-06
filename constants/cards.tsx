@@ -60,15 +60,11 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.PLANT]: 2},
     },
     {
-        // action: function(dispatch) {
-        //     dispatch(revealAndDiscardTopCard());
-        //     dispatch(addResourceIfRevealedCardHasTag(this.name, Resource.SCIENCE, Tag.MICROBE));
-        // },
         action: {
             text:
                 'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
             removeResources: {[Resource.MEGACREDIT]: 1},
-            revealTopCards: 1,
+            revealAndDiscardTopCards: 1,
             gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },

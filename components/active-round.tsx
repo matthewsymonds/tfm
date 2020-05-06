@@ -10,6 +10,8 @@ import {
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     skipAction,
+    DISCARD_CARDS,
+    discardRevealedCards,
 } from '../actions';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
@@ -206,7 +208,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         context.processQueue(dispatch);
     }
 
-    function continueAfterRevealingCard() {
+    function continueAfterRevealingCards() {
+        context.queue.push(discardRevealedCards());
         context.processQueue(dispatch);
     }
 
@@ -219,6 +222,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         player.pendingTilePlacement ||
         player.pendingResourceReduction ||
         player.pendingResourceGain ||
+        state.common.revealedCards.length > 0 ||
         player.pendingResourceGainTargetConfirmation;
     return (
         <>
@@ -387,11 +391,17 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 confirmStorableResourceGain={confirmStorableResourceGain}
                             />
                         )}
-                        {state.common.revealedCard && (
-                            <CardComponent width={250} content={state.common.revealedCard}>
-                                <button onClick={continueAfterRevealingCard}>Continue</button>
-                            </CardComponent>
-                        )}
+                        {state.common.revealedCards.map((card, index) => {
+                            return (
+                                <CardComponent width={250} content={card}>
+                                    {index === state.common.revealedCards.length - 1 ? (
+                                        <button onClick={continueAfterRevealingCards}>
+                                            Continue
+                                        </button>
+                                    ) : null}
+                                </CardComponent>
+                            );
+                        })}
                     </ActionBarRow>
                 </ActionBar>
             )}

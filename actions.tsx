@@ -21,9 +21,15 @@ export const goToGameStage = (stage: GameStage) => ({
     payload: stage,
 });
 
-export const REVEAL_AND_DISCARD_TOP_CARD = 'REVEAL_AND_DISCARD_TOP_CARD';
-export const revealAndDiscardTopCard = () => ({
-    type: REVEAL_AND_DISCARD_TOP_CARD,
+export const REVEAL_AND_DISCARD_TOP_CARDS = 'REVEAL_AND_DISCARD_TOP_CARDS';
+export const revealAndDiscardTopCards = (amount: Amount) => ({
+    type: REVEAL_AND_DISCARD_TOP_CARDS,
+    payload: {amount},
+});
+
+export const DISCARD_REVEALED_CARDS = 'DISCARD_REVEALED_CARDS';
+export const discardRevealedCards = () => ({
+    type: DISCARD_REVEALED_CARDS,
 });
 
 export const DISCARD_CARDS = 'DISCARD_CARDS';

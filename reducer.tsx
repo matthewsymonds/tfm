@@ -25,7 +25,6 @@ import {
     PAY_TO_PLAY_STANDARD_PROJECT,
     PLACE_TILE,
     REMOVE_RESOURCE,
-    REVEAL_AND_DISCARD_TOP_CARD,
     SET_CARDS,
     SET_CORPORATION,
     SET_GAME,
@@ -33,6 +32,8 @@ import {
     SKIP_ACTION,
     START_OVER,
     START_ROUND,
+    REVEAL_AND_DISCARD_TOP_CARDS,
+    DISCARD_REVEALED_CARDS,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -73,7 +74,7 @@ export type CommonState = {
     playingPlayers: number[];
     deck: Card[];
     discardPile: Card[];
-    revealedCard?: Card;
+    revealedCards: Card[];
     gameStage: GameStage;
     generation: number;
     claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
@@ -190,6 +191,7 @@ export function getInitialState(): GameState {
         common: {
             playingPlayers: [],
             discardPile: [],
+            revealedCards: [],
             gameStage: GameStage.CORPORATION_SELECTION,
             generation: 1,
             turn: 1,
@@ -355,8 +357,15 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.resources[Resource.MEGACREDIT] -= action.payload.cards.length * 3;
                 player.possibleCards = [];
                 break;
-            case REVEAL_AND_DISCARD_TOP_CARD:
-                draft.common.revealedCard = draft.common.deck.pop();
+            case REVEAL_AND_DISCARD_TOP_CARDS:
+                // Step 1. Reveal the cards to the player so they can see them.
+                const numCardsToReveal = convertAmountToNumber(payload.amount, state);
+                draft.common.revealedCards = draft.common.deck.splice(0, numCardsToReveal);
+                break;
+            case DISCARD_REVEALED_CARDS:
+                // Step 2. Discard the revealed cards.
+                draft.common.discardPile.push(...draft.common.revealedCards);
+                draft.common.revealedCards = [];
                 break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
@@ -410,7 +419,8 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 if (!draftCard) {
                     throw new Error('Card should exist');
                 }
-                draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + amount;
+                draftCard.storedResourceAmount =
+                    (draftCard.storedResourceAmount || 0) + convertAmountToNumber(amount, state);
                 player.pendingResourceGainTargetConfirmation = undefined;
                 break;
             }
