@@ -70,6 +70,10 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
+            removeResources: {[Resource.MEGACREDIT]: 1},
+            revealTopCards: 1,
+            gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
+            gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
         cost: 3,
         requiredGlobalParameter: {
@@ -82,9 +86,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Oxygen must be 6% or less. 3 VPs if you have one or more science resource here.',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        get victoryPoints() {
-            return this.resources.length > 0 ? 3 : 0;
-        },
+        victoryPoints: VariableAmount.THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES,
     },
     {
         // action: dispatch => dispatch(goToGameStage(GameStage.BUY_OR_DISCARD)),
@@ -540,14 +542,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1, [Parameter.TERRAFORM_RATING]: 2},
-        // get increaseProduction() {
-        //     if (!this.state) return [Resource.PLANT];
-
-        //     if (this.state.tags.filter(tag => tag === Tag.PLANT).length < 3)
-        //         return [Resource.PLANT];
-
-        //     return [Resource.PLANT, Resource.PLANT, Resource.PLANT, Resource.PLANT];
-        // }
+        increaseProduction: {[Resource.PLANT]: VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE},
     },
     {
         effect: {
@@ -681,6 +676,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Action: Add 1 microbe to this card.',
             gainResource: {[Resource.MICROBE]: 1},
+            gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
         cost: 4,
         deck: Deck.CORPORATE,
@@ -2553,12 +2549,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.MEGACREDIT]: 5},
-        get victoryPoints() {
-            if (!this.state) return 0;
-            const cities = this.state.tile.filter(tile => tile.type === TileType.CITY);
-
-            return Math.floor(cities.length / 3);
-        },
+        victoryPoints: VariableAmount.THIRD_ALL_CITIES,
     },
     {
         action: {
@@ -2661,15 +2652,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        // get increaseProduction() {
-        //     if (!this.state) return [];
-
-        //     const buildingTags = this.state.tags(tag => tag === Tag.BUILDING);
-
-        //     const half = Math.floor(buildingTags.length / 2);
-
-        //     return Array(half).fill(Resource.MEGACREDIT);
-        // }
+        increaseProduction: {[Resource.MEGACREDIT]: VariableAmount.HALF_BUILDING_TAGS},
     },
     {
         action: {text: 'Action: Draw 2 cards.', gainResource: {[Resource.CARD]: 2}},

@@ -76,6 +76,10 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const player = getPlayer(state);
         return getTags(player).filter(tag => tag === Tag.EARTH).length;
     },
+    [VariableAmount.HALF_BUILDING_TAGS]: (state: RootState) => {
+        const player = getPlayer(state);
+        return Math.floor(getTags(player).filter(tag => tag === Tag.BUILDING).length / 2);
+    },
     [VariableAmount.VENUS_AND_EARTH_TAGS]: (state: RootState) => {
         const player = getPlayer(state);
         return getTags(player).filter(tag => tag === Tag.EARTH || tag === Tag.VENUS).length;
@@ -122,5 +126,30 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
         return Math.floor(card?.storedResourceAmount! / 4);
+    },
+    [VariableAmount.THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES]: (
+        state: RootState,
+        card?: Card
+    ) => {
+        if ((card?.storedResourceAmount || 0) > 0) {
+            return 3;
+        }
+
+        return 0;
+    },
+    [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: RootState) => {
+        const player = getPlayer(state);
+        const numPlantTags = player.cards
+            .flatMap(card => card.tags)
+            .filter(tag => tag === Tag.PLANT).length;
+
+        if (numPlantTags >= 3) {
+            return 4;
+        }
+
+        return 1;
+    },
+    [VariableAmount.THIRD_ALL_CITIES]: (state: RootState) => {
+        return Math.floor(getCellsWithCities(state).length / 3);
     },
 };

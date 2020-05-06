@@ -53,7 +53,7 @@ import {PropertyCounter} from './constants/property-counter';
 import {isStorableResource, Resource, ResourceLocationType} from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Tag} from './constants/tag';
-import {getDiscountedCardCost} from './context/app-context';
+import {getDiscountedCardCost, convertAmountToNumber} from './context/app-context';
 import {Card, cards} from './models/card';
 import {BILLY_TEST} from './test-states/billy-test';
 
@@ -327,15 +327,12 @@ export const reducer = (state = INITIAL_STATE, action) => {
             player.terraformRating += userTerraformRatingChange;
         }
 
+        const mostRecentlyPlayedCard = player?.playedCards[player.playedCards.length - 1];
+
         function handleGainResource(resource: Resource, amount: Amount) {
             player.pendingResourceGain = undefined;
+            const numberAmount = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
 
-            let numberAmount: number;
-            if (typeof amount === 'number') {
-                numberAmount = amount;
-            } else {
-                numberAmount = draft.pendingVariableAmount!;
-            }
             if (resource === Resource.CARD) {
                 // Sometimes we list cards as a resource.
                 // handle as a draw action.
@@ -385,13 +382,25 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 player.possibleCards.push(...draft.common.deck.splice(0, payload.numCards));
                 break;
             case DECREASE_PRODUCTION:
-                player.productions[payload.resource] -= payload.amount;
+                player.productions[payload.resource] -= convertAmountToNumber(
+                    payload.amount,
+                    state,
+                    mostRecentlyPlayedCard
+                );
                 break;
             case INCREASE_PRODUCTION:
-                player.productions[payload.resource] += payload.amount;
+                player.productions[payload.resource] += convertAmountToNumber(
+                    payload.amount,
+                    state,
+                    mostRecentlyPlayedCard
+                );
                 break;
             case REMOVE_RESOURCE:
-                player.resources[payload.resource] -= payload.amount;
+                player.resources[payload.resource] -= convertAmountToNumber(
+                    payload.amount,
+                    state,
+                    mostRecentlyPlayedCard
+                );
                 break;
             case GAIN_RESOURCE:
                 handleGainResource(payload.resource, payload.amount);
@@ -521,6 +530,10 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case START_ROUND:
                 draft.common.playingPlayers = state.players.map(player => player.index);
+                const cards = state.players.flatMap(player => player.playedCards);
+                for (const card of cards) {
+                    card.usedActionThisRound = false;
+                }
                 break;
             case SKIP_ACTION:
                 common.action = 1;

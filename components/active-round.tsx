@@ -9,12 +9,23 @@ import {
     skipAction,
     gainResource,
     gainStorableResource,
+    moveCardFromHandToPlayArea,
 } from '../actions';
-import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
+import {
+    ResourceBoard,
+    ResourceBoardCell,
+    ResourceBoardRow,
+    InlineResourceIcon,
+} from '../components/resource';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {Amount} from '../constants/action';
 import {TileType} from '../constants/board';
-import {Resource, ResourceLocationType} from '../constants/resource';
+import {
+    Resource,
+    ResourceLocationType,
+    getClassName,
+    getResourceSymbol,
+} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
 import {RootState, useTypedSelector} from '../reducer';
@@ -73,6 +84,16 @@ const TurnContext = styled.div`
     margin-left: 24px;
 `;
 
+const ConversionLink = styled.a`
+    color: black;
+    margin-top: 3px;
+    display: block;
+    margin-right: 8px;
+    text-decoration: underline;
+    cursor: pointer;
+    text-align: center;
+`;
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
@@ -117,8 +138,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }, []);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
-        context.playCard(card, state, payment);
-        context.processQueue(dispatch);
+        dispatch(moveCardFromHandToPlayArea(card, playerIndex));
+        context.playCard(card, store.getState(), payment);
         // Have to trigger effects from the card we just played.
         // Must be processed separatedly in case the card affects itself.
         context.triggerEffectsFromPlayedCard(
@@ -172,7 +193,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 playerIndex
             )
         );
-        context.processQueue(dispatch);
     }
 
     function confirmStorableResourceGain(resource: Resource, amount: Amount, card: Card) {
@@ -202,6 +222,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         context.processQueue(dispatch);
     }
 
+    function continueAfterRevealingCard() {
+        context.processQueue(dispatch);
+    }
+
     function canDoConversion(conversion?: Conversion) {
         if (!conversion) return false;
         return context.canPlayAction(conversion, state)[0];
@@ -228,43 +252,48 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             {action === 2 ? 'Skip 2nd action' : 'Pass'}
                         </button>
                     </TurnContext>
+                    <ResourceBoard>
+                        <ResourceBoardRow>
+                            {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(
+                                resourceType => {
+                                    return (
+                                        <ResourceBoardCell
+                                            key={resourceType}
+                                            resource={resourceType}
+                                            production={productions[resourceType]}
+                                            amount={resources[resourceType]}
+                                        />
+                                    );
+                                }
+                            )}
+                        </ResourceBoardRow>
+                        <ResourceBoardRow>
+                            {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
+                                const conversion = CONVERSIONS[resource];
+                                return (
+                                    <div>
+                                        <ResourceBoardCell
+                                            key={resource}
+                                            resource={resource}
+                                            production={productions[resource]}
+                                            amount={resources[resource]}
+                                        />
+                                        {canDoConversion(conversion) ? (
+                                            <>
+                                                <ConversionLink
+                                                    onClick={() => doConversion(conversion)}
+                                                >
+                                                    Convert 8
+                                                </ConversionLink>
+                                            </>
+                                        ) : null}
+                                    </div>
+                                );
+                            })}
+                        </ResourceBoardRow>
+                    </ResourceBoard>
                 </ActionBarRow>
             </ActionBar>
-            <ResourceBoard>
-                <ResourceBoardRow>
-                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => {
-                        const conversion = CONVERSIONS[resourceType];
-
-                        return (
-                            <ResourceBoardCell
-                                key={resourceType}
-                                resource={resourceType}
-                                production={productions[resourceType]}
-                                amount={resources[resourceType]}
-                                conversion={conversion}
-                                doConversion={doConversion}
-                                canDoConversion={canDoConversion(conversion)}
-                            />
-                        );
-                    })}
-                </ResourceBoardRow>
-                <ResourceBoardRow>
-                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resourceType => {
-                        const conversion = CONVERSIONS[resourceType];
-                        return (
-                            <ResourceBoardCell
-                                key={resourceType}
-                                resource={resourceType}
-                                production={productions[resourceType]}
-                                amount={resources[resourceType]}
-                                conversion={conversion}
-                                doConversion={doConversion}
-                                canDoConversion={canDoConversion(conversion)}
-                            />
-                        );
-                    })}
-                </ResourceBoardRow>
-            </ResourceBoard>
             <Board
                 board={state.common.board}
                 playerIndex={playerIndex}
@@ -374,6 +403,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 player={player}
                                 confirmStorableResourceGain={confirmStorableResourceGain}
                             />
+                        )}
+                        {state.common.revealedCard && (
+                            <CardComponent width={250} content={state.common.revealedCard}>
+                                <button onClick={continueAfterRevealingCard}>Continue</button>
+                            </CardComponent>
                         )}
                     </ActionBarRow>
                 </ActionBar>

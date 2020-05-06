@@ -1,6 +1,6 @@
 import {createContext} from 'react';
 import {Tag} from '../constants/tag';
-import {Resource} from '../constants/resource';
+import {Resource, isStorableResource} from '../constants/resource';
 import {Card} from '../models/card';
 import {RootState, PlayerState} from '../reducer';
 import {getLoggedInPlayer} from '../selectors/players';
@@ -28,6 +28,8 @@ import {
     ASK_USER_TO_GAIN_RESOURCE,
     askUserToGainResource,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
+    REVEAL_AND_DISCARD_TOP_CARD,
+    gainStorableResource,
 } from '../actions';
 import {
     Parameter,
@@ -45,7 +47,6 @@ import {
 } from '../constants/standard-project';
 import {Action, ActionType, Amount} from '../constants/action';
 import {VariableAmount} from '../constants/variable-amount';
-import {Effect} from '../constants/effect';
 import {EffectTrigger} from '../constants/effect-trigger';
 import {PropertyCounter} from '../constants/property-counter';
 import {CardType} from '../constants/card-types';
@@ -113,6 +114,14 @@ function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     }
 
     return true;
+}
+
+export function convertAmountToNumber(amount: Amount, state: RootState, card?: Card): number {
+    if (typeof amount === 'number') return amount as number;
+
+    const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
+    if (!amountGetter) return 0;
+    return amountGetter(state, card) || 0;
 }
 
 function doesPlayerHaveRequiredResources(action: Action, state: RootState) {
@@ -221,7 +230,7 @@ function createRemoveResourceAction(
     if (amount === VariableAmount.USER_CHOICE) {
         return askUserToRemoveResource(resource, amount, playerIndex);
     } else {
-        return removeResource(resource, convertAmountToNumber(amount, state, parent), playerIndex);
+        return removeResource(resource, amount, playerIndex);
     }
 }
 
@@ -235,11 +244,7 @@ function createDecreaseProductionAction(
     if (amount === VariableAmount.USER_CHOICE) {
         return askUserToDecreaseProduction(resource, amount, playerIndex);
     } else {
-        return decreaseProduction(
-            resource,
-            convertAmountToNumber(amount, state, parent),
-            playerIndex
-        );
+        return decreaseProduction(resource, amount, playerIndex);
     }
 }
 
@@ -350,14 +355,6 @@ function getActionsFromEffect(
     return [];
 }
 
-function convertAmountToNumber(amount: Amount, state: RootState, card?: Card): number {
-    if (typeof amount === 'number') return amount as number;
-
-    const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
-    if (!amountGetter) return 0;
-    return amountGetter(state, card) || 0;
-}
-
 function playAction(action: Action, state: RootState, parent?: Card) {
     const playerIndex = state.loggedInPlayerIndex;
 
@@ -389,20 +386,22 @@ function playAction(action: Action, state: RootState, parent?: Card) {
         this.queue.push(
             increaseProduction(
                 production as Resource,
-                convertAmountToNumber(action.increaseProduction[production], state, parent),
+                action.increaseProduction[production],
                 playerIndex
             )
         );
     }
 
     for (const resource in action.gainResource) {
-        this.queue.push(
-            gainResource(
-                resource as Resource,
-                convertAmountToNumber(action.gainResource[resource], state, parent),
-                playerIndex
-            )
-        );
+        if (isStorableResource(resource)) {
+            this.queue.push(
+                gainStorableResource(resource, action.gainResource[resource]!, parent!, playerIndex)
+            );
+        } else {
+            this.queue.push(
+                gainResource(resource as Resource, action.gainResource[resource], playerIndex)
+            );
+        }
     }
 
     if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
@@ -428,7 +427,6 @@ function playAction(action: Action, state: RootState, parent?: Card) {
 
 function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
     const playerIndex = state.loggedInPlayerIndex;
-    this.queue.push(moveCardFromHandToPlayArea(card, playerIndex));
 
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
@@ -436,7 +434,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
 
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
 
-    this.playAction(card, state);
+    this.playAction(card, state, card);
     if (card.type !== CardType.CORPORATION) {
         this.queue.push(completeAction(playerIndex));
     }
@@ -570,6 +568,7 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_REMOVE_RESOURCE,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
+    REVEAL_AND_DISCARD_TOP_CARD,
 ];
 
 function shouldPause(action: {type: string}): boolean {

@@ -36,6 +36,7 @@ export interface Action {
     tilePlacements?: TilePlacement[];
     increaseParameter?: ParameterCounter;
     increaseTerraformRating?: number;
+    revealTopCards?: number;
 
     choice?: Action[];
 

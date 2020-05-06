@@ -35,9 +35,9 @@ function SelectResourceTargetLocation({
             <h3>Select where to gain the resource.</h3>
             {possibleCards.map(card => (
                 <CardComponent content={card} width={300}>
-                    <button
-                        onClick={() => confirmStorableResourceGain(resource, amount, card)}
-                    ></button>
+                    <button onClick={() => confirmStorableResourceGain(resource, amount, card)}>
+                        Add to {card.name}
+                    </button>
                 </CardComponent>
             ))}
         </>

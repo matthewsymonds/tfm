@@ -48,38 +48,48 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, 
 
 const ResourceBoardCellBase = styled.div`
     display: flex;
-    margin: 16px;
-    width: 140px;
+    font-family: serif;
+    margin: 2px;
+    width: 120px;
     align-items: center;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 16px;
+    padding: 2px;
     border: 2px solid gray;
     border-radius: 4px;
-    table {
-        padding: 8px;
-        width: 100%;
+    .row {
+        display: flex;
     }
-    td:last-child {
-        text-align: right;
+    .amounts {
+        margin-left: auto;
+        display: inline-flex;
+        div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            min-width: 18px;
+            padding: 2px;
+            height: 21px;
+            border: 1px solid lightgray;
+            border-radius: 2px;
+        }
+        .production {
+            background: #e3975b;
+        }
     }
-`;
-
-const WideButton = styled.button`
-    width: 100%;
+    div {
+        margin-left: 4px;
+    }
 `;
 
 export interface ResourceBoardCellProps {
     amount: number;
     production: number;
     resource: Resource;
-    conversion: Conversion;
-    canDoConversion: boolean;
-    doConversion: Function;
 }
 
-const InlineResourceIcon = styled(ResourceIcon)`
+export const InlineResourceIcon = styled(ResourceIcon)`
     display: inline-flex;
+    flex-shrink: 0;
     margin: 0;
     border: 1px solid gray;
 `;
@@ -98,43 +108,24 @@ export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> 
     amount,
     production,
     resource,
-    conversion,
-    canDoConversion,
-    doConversion,
 }) => {
     const resourceName = name(resource);
     return (
-        <ResourceBoardCellBase>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>{resourceName}</td>
-                        <td>
-                            <InlineResourceIcon name={resource} />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Production</td>
-                        <td>{production}</td>
-                    </tr>
-                    <tr>
-                        <td>Amount</td>
-                        <td>{amount}</td>
-                    </tr>
-                </tbody>
-            </table>
-            {conversion && canDoConversion && (
-                <WideButton onClick={() => doConversion(conversion)}>
-                    Convert {getCost(conversion)} <InlineResourceIcon name={resource} />
-                </WideButton>
-            )}
-        </ResourceBoardCellBase>
+        <>
+            <ResourceBoardCellBase>
+                <InlineResourceIcon name={resource} />
+                <div className="amounts">
+                    <div className="production">{production}</div>
+                    <div>{amount}</div>
+                </div>
+            </ResourceBoardCellBase>
+        </>
     );
 };
 
 export const ResourceBoardRow = styled.div`
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
 `;
 
@@ -143,4 +134,5 @@ export const ResourceBoard = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
 `;

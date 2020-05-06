@@ -63,19 +63,19 @@ export const payForCards = (cards: Card[], playerIndex: number) => ({
 });
 
 export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
-export const decreaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
+export const decreaseProduction = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: DECREASE_PRODUCTION,
     payload: {resource, amount, playerIndex},
 });
 
 export const INCREASE_PRODUCTION = 'INCREASE_PRODUCTION';
-export const increaseProduction = (resource: Resource, amount: number, playerIndex: number) => ({
+export const increaseProduction = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: INCREASE_PRODUCTION,
     payload: {resource, amount, playerIndex},
 });
 
 export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
-export const removeResource = (resource: Resource, amount: number, playerIndex: number) => ({
+export const removeResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
     type: REMOVE_RESOURCE,
     payload: {resource, amount, playerIndex},
 });
