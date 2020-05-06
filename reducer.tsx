@@ -309,6 +309,9 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST;
 
+// Add Card Name here.
+const bonusName = '';
+
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
     return produce(state, draft => {
@@ -388,6 +391,11 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case DRAW_POSSIBLE_CARDS:
                 player.possibleCards.push(...draft.common.deck.splice(0, payload.numCards));
+                const bonus = draft.common.deck.find(card => card.name === bonusName);
+                if (bonus) {
+                    player.possibleCards.push(bonus);
+                    draft.common.deck = draft.common.deck.filter(card => card !== bonus);
+                }
                 break;
             case DECREASE_PRODUCTION:
                 player.productions[payload.resource] -= convertAmountToNumber(

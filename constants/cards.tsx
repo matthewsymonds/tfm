@@ -1611,7 +1611,10 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Effect: When you play an animal or a plant tag (including these 2), add an animal to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT]},
-            action: {gainResource: {[Resource.ANIMAL]: 1}},
+            action: {
+                gainResource: {[Resource.ANIMAL]: 1},
+                gainResourceTargetType: ResourceLocationType.THIS_CARD,
+            },
         },
         cost: 12,
         deck: Deck.BASIC,

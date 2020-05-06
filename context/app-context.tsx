@@ -281,27 +281,30 @@ interface Event {
     tags?: Tag[];
 }
 
+type ActionCardPair = [Action, Card];
+
 function triggerEffects(event: Event, state: RootState) {
-    const actions: Action[] = [];
+    // track the card that triggered the action so we can "add resources to this card"
+    // e.g. Ecological Zone
+    const actionCardPairs: ActionCardPair[] = [];
     for (const player of state.players) {
         for (const card of player.playedCards) {
             for (const effect of card.effects) {
                 if (effect.trigger && effect.action) {
-                    actions.push(
-                        ...this.getActionsFromEffect(
-                            event,
-                            effect.trigger,
-                            effect.action,
-                            player,
-                            state.loggedInPlayerIndex
-                        )
+                    const actions = this.getActionsFromEffect(
+                        event,
+                        effect.trigger,
+                        effect.action,
+                        player,
+                        state.loggedInPlayerIndex
                     );
+                    actionCardPairs.push(...actions.map(action => [action, card]));
                 }
             }
         }
     }
-    for (const action of actions) {
-        this.playAction(action, state);
+    for (const [action, card] of actionCardPairs) {
+        this.playAction(action, state, card);
     }
 }
 
