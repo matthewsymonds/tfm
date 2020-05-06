@@ -16,11 +16,11 @@ const ActionBarBase = styled.div`
     z-index: 30;
     box-shadow: 2px 1px 10px 0px rgba(0, 0, 0, 0.35);
     font-family: sans-serif;
+    overflow-x: auto;
 `;
 
 export const ActionBarRow = styled.div`
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     > button {
         margin: 0px;

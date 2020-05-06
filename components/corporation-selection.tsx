@@ -28,11 +28,8 @@ const MarginalButton = styled.button`
 `;
 
 const Prompt = styled.div`
-    min-width: 350px;
-`;
-
-const AlignLeft = styled.div`
-    text-align: left;
+    flex: none;
+    width: 250px;
 `;
 
 const ConfirmButton = props => (
@@ -142,8 +139,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                         <button onClick={() => handleStartOver()}>Start over</button>
                     </Prompt>
                     <CardSelector
-                        className="inline"
-                        width={400}
                         max={1}
                         selectedCards={corporation ? [corporation] : []}
                         onSelect={([corporation]) =>
@@ -156,7 +151,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
             </ActionBar>
             <CardSelector
                 max={10}
-                width={250}
+                cardWidth={250}
                 selectedCards={corporationName ? cards : []}
                 onSelect={cards => dispatch(setSelectedCards(cards, playerIndex))}
                 options={possibleCards || []}

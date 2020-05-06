@@ -10,29 +10,31 @@ interface CardSelectorProps {
     options: Card[];
     orientation: string;
     selectedCards: Card[];
+    cardWidth?: number;
     budget?: number;
-    width: number;
     className?: string;
 }
 
-const CardSelectorBase = styled.div`
+const CardSelectorBase = styled.div<{orientation: string}>`
     display: flex;
     align-items: stretch;
     justify-content: center;
     font-family: serif;
-    flex-wrap: wrap;
+    flex-wrap: ${props => (props.orientation === 'vertical' ? 'wrap' : '')};
     margin: 0 auto;
-    &.inline {
-        margin-left: 32px;
-        margin-right: 32px;
-        display: inline-flex;
-        max-width: fit-content;
-    }
-    max-width: 1300px;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
-    const {max, onSelect, budget, options, width, selectedCards} = props;
+    const {
+        max,
+        onSelect,
+        options,
+        orientation,
+        selectedCards,
+        cardWidth,
+        budget,
+        className,
+    } = props;
     const canSelect = budget === undefined || budget >= 3;
 
     const handleSelect = (card: Card) => {
@@ -50,11 +52,11 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     };
 
     return (
-        <CardSelectorBase className={props.className}>
+        <CardSelectorBase className={className} orientation={orientation}>
             {options.map((option, key) => {
                 const selected = selectedCards.indexOf(option) >= 0;
                 return (
-                    <CardComponent width={width} key={key} content={option} selected={selected}>
+                    <CardComponent width={cardWidth} key={key} content={option} selected={selected}>
                         <button
                             disabled={!selected && !canSelect}
                             onClick={() => handleSelect(option)}

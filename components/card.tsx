@@ -8,6 +8,7 @@ import {Amount} from '../constants/action';
 import {RootState} from '../reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 import {useStore} from 'react-redux';
+import {CardType} from '../constants/card-types';
 
 export const CardText = styled.div`
     margin: 10px;
@@ -38,7 +39,7 @@ const CardNote = styled(CardText)`
 `;
 
 interface CardBaseProps {
-    width: number;
+    width?: number;
     onClick?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -64,16 +65,23 @@ const CardBase = styled.div<CardBaseProps>`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    width: ${props => props.width}px;
+    ${({width}) => (width ? `width: ${width}px;` : '')}
     button {
         justify-self: flex-end;
     }
 `;
 
+const CorporationCardBase = styled(CardBase)`
+    flex-basis: 250px;
+    flex-grow: 1;
+    min-width: 200px;
+    max-width: 350px;
+`;
+
 interface CardComponentProps extends CardBaseProps {
     content: Card;
     selected?: boolean;
-    width: number;
+    width?: number;
 }
 
 function getVictoryPoints(amount: Amount | undefined, state: RootState, card: Card) {
@@ -94,8 +102,9 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const effect = effects[0];
     const store = useStore();
     const victoryPoints = getVictoryPoints(content.victoryPoints, store.getState(), content);
+    const Base = content.type === CardType.CORPORATION ? CorporationCardBase : CardBase;
     return (
-        <CardBase width={width} onClick={onClick}>
+        <Base width={width} onClick={onClick}>
             <Selection selected={selected || false}>
                 <TagsComponent tags={tags}>
                     <div>{name}</div>
@@ -120,6 +129,6 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                 ) : null}
                 {props.children}
             </Selection>
-        </CardBase>
+        </Base>
     );
 };
