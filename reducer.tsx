@@ -53,9 +53,8 @@ import {PropertyCounter} from './constants/property-counter';
 import {isStorableResource, Resource, ResourceLocationType} from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Tag} from './constants/tag';
-import {getDiscountedCardCost, convertAmountToNumber} from './context/app-context';
+import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card, cards} from './models/card';
-import {BILLY_TEST} from './test-states/billy-test';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -79,7 +78,6 @@ export type CommonState = {
     claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
     fundedAwards: {fundedByPlayerIndex: number; award: Award}[];
     turn: number;
-    action: number;
     firstPlayerIndex: number;
     currentPlayerIndex: number;
     parameters: {
@@ -105,6 +103,7 @@ export type GameState = {
 
 export type PlayerState = {
     index: number;
+    action: number; // 1 or 2.
     terraformRating: number;
     pendingTilePlacement?: TilePlacement;
     pendingResourceReduction?: {
@@ -135,7 +134,6 @@ export type PlayerState = {
     playedCards: Card[];
     resources: Resources;
     productions: Resources;
-    forcedAction?: boolean;
     exchangeRates: {
         [Resource.STEEL]: number;
         [Resource.TITANIUM]: number;
@@ -194,7 +192,6 @@ export function getInitialState(): GameState {
             gameStage: GameStage.CORPORATION_SELECTION,
             generation: 1,
             turn: 1,
-            action: 1,
             deck,
             parameters: MIN_PARAMETERS,
             board: INITIAL_BOARD_STATE,
@@ -205,6 +202,7 @@ export function getInitialState(): GameState {
         },
         players: [
             {
+                action: 1,
                 index: 0,
                 terraformRating: 20,
                 playerIndex: 0,
@@ -453,9 +451,6 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
-                if (payload.card.forcedAction) {
-                    player.forcedAction = true;
-                }
                 break;
             case ASK_USER_TO_PLACE_TILE:
                 player.pendingTilePlacement = payload.tilePlacement;
@@ -530,16 +525,17 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
             case START_ROUND:
                 draft.common.playingPlayers = state.players.map(player => player.index);
-                const cards = state.players.flatMap(player => player.playedCards);
+                const cards = draft.players.flatMap(player => player.playedCards);
                 for (const card of cards) {
                     card.usedActionThisRound = false;
                 }
                 break;
             case SKIP_ACTION:
-                common.action = 1;
+                const previous = player.action;
+                player.action = 1;
                 // Did the player just skip on their first action?
                 // If so, they're out for the rest of the round.
-                if (state.common.action === 1) {
+                if (previous === 1) {
                     common.playingPlayers = common.playingPlayers.filter(
                         index => index !== common.currentPlayerIndex
                     );
@@ -568,10 +564,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 break;
 
             case COMPLETE_ACTION:
-                player.forcedAction = false;
-                common.action = (common.action % 2) + 1;
+                player.action = (player.action % 2) + 1;
                 // Did the player just complete their second action?
-                if (common.action === 1) {
+                if (player.action === 1) {
                     // It's the next player's turn
                     handleChangeCurrentPlayer(state, draft);
                 }

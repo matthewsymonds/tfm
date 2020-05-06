@@ -26,7 +26,7 @@ export const MIN_PARAMETERS = {
 export const PARAMETER_STEPS = {
     [Parameter.TEMPERATURE]: 2,
     [Parameter.OCEAN]: 1,
-    [Parameter.OXYGEN]: 2,
+    [Parameter.OXYGEN]: 1,
     [Parameter.VENUS]: 2,
 };
 

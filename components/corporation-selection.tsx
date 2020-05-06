@@ -5,6 +5,7 @@ import {
     discardCards,
     drawPossibleCards,
     goToGameStage,
+    moveCardFromHandToPlayArea,
     payForCards,
     setCards,
     setCorporation,
@@ -107,10 +108,10 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                             dispatch(setCards(cards, playerIndex));
                             dispatch(setSelectedCards([], playerIndex));
                             const card = corporation!;
+                            dispatch(moveCardFromHandToPlayArea(card, playerIndex));
+
                             context.playCard(card, state);
-                            context.processQueue(dispatch);
                             context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
-                            context.processQueue(dispatch);
                             dispatch(
                                 discardCards(
                                     possibleCards.filter(card => !cards.includes(card)),

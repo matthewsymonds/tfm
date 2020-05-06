@@ -1,55 +1,49 @@
 import {createContext} from 'react';
-import {Tag} from '../constants/tag';
-import {Resource, isStorableResource} from '../constants/resource';
-import {Card} from '../models/card';
-import {RootState, PlayerState} from '../reducer';
-import {getLoggedInPlayer} from '../selectors/players';
-import {getValidPlacementsForRequirement} from '../selectors/board';
-import {MinimumProductions} from '../constants/game';
-
 import {
-    payToPlayCard,
-    payToPlayStandardProject,
-    askUserToRemoveResource,
+    applyDiscounts,
     askUserToDecreaseProduction,
-    decreaseProduction,
-    increaseProduction,
-    removeResource,
-    increaseParameter,
-    gainResource,
-    moveCardFromHandToPlayArea,
-    claimMilestone as claimMilestoneAction,
-    fundAward as fundAwardAction,
+    askUserToGainResource,
     askUserToPlaceTile,
+    askUserToRemoveResource,
+    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
+    ASK_USER_TO_GAIN_RESOURCE,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
+    claimMilestone as claimMilestoneAction,
     completeAction,
-    applyDiscounts,
-    ASK_USER_TO_GAIN_RESOURCE,
-    askUserToGainResource,
-    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-    REVEAL_AND_DISCARD_TOP_CARD,
+    decreaseProduction,
+    fundAward as fundAwardAction,
+    gainResource,
     gainStorableResource,
+    increaseParameter,
+    increaseProduction,
+    payToPlayCard,
+    payToPlayStandardProject,
+    removeResource,
+    REVEAL_AND_DISCARD_TOP_CARD,
 } from '../actions';
+import {Action, Amount} from '../constants/action';
 import {
-    Parameter,
-    CellType,
-    TileType,
-    Cell,
-    Milestone,
-    cellHelpers,
     Award,
+    Cell,
+    cellHelpers,
+    CellType,
+    Milestone,
+    Parameter,
+    TileType,
 } from '../constants/board';
-import {
-    StandardProjectAction,
-    StandardProjectType,
-    standardProjectActions,
-} from '../constants/standard-project';
-import {Action, ActionType, Amount} from '../constants/action';
-import {VariableAmount} from '../constants/variable-amount';
-import {EffectTrigger} from '../constants/effect-trigger';
-import {PropertyCounter} from '../constants/property-counter';
 import {CardType} from '../constants/card-types';
+import {EffectTrigger} from '../constants/effect-trigger';
+import {MinimumProductions} from '../constants/game';
+import {PropertyCounter} from '../constants/property-counter';
+import {isStorableResource, Resource} from '../constants/resource';
+import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
+import {Tag} from '../constants/tag';
+import {VariableAmount} from '../constants/variable-amount';
+import {Card} from '../models/card';
+import {PlayerState, RootState} from '../reducer';
+import {getValidPlacementsForRequirement} from '../selectors/board';
+import {getLoggedInPlayer} from '../selectors/players';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 
 function canAffordCard(card: Card, state: RootState) {
@@ -324,35 +318,39 @@ function getActionsFromEffect(
     if (trigger.placedTile) {
         if (event.placedTile !== trigger.placedTile) return [];
         if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
+
+        return [effectAction];
     }
 
     if (trigger.steelOrTitaniumPlacementBonus) {
         const bonus = event.cell?.bonus || [];
         if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
+        return [effectAction];
     }
 
-    if (trigger.standardProject && !event.standardProject) {
-        return [];
+    if (trigger.standardProject) {
+        if (!event.standardProject) return [];
+
+        return [effectAction];
     }
 
     if (trigger.cost) {
         if ((event.cost || 0) < trigger.cost) return [];
+        return [effectAction];
     }
 
     const eventTags = event.tags || [];
 
-    for (const tag of trigger.cardTags || []) {
-        if (!eventTags.includes(tag)) return [];
+    if (trigger.cardTags) {
+        for (const tag of trigger.cardTags || []) {
+            if (!eventTags.includes(tag)) return [];
+        }
+        return [effectAction];
     }
 
     const triggerTags = trigger.tags || [];
     const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
-
-    if (numTagsTriggered > 0) {
-        return Array(numTagsTriggered).fill(effectAction);
-    }
-
-    return [];
+    return Array(numTagsTriggered).fill(effectAction);
 }
 
 function playAction(action: Action, state: RootState, parent?: Card) {
@@ -435,7 +433,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
 
     this.playAction(card, state, card);
-    if (card.type !== CardType.CORPORATION) {
+    if (card.type !== CardType.CORPORATION || card.forcedAction) {
         this.queue.push(completeAction(playerIndex));
     }
 }

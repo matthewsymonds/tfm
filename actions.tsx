@@ -1,4 +1,4 @@
-import {Amount, Action} from './constants/action';
+import {Action, Amount} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {GameStage} from './constants/game';
@@ -215,8 +215,9 @@ export const completeAction = (playerIndex: number) => ({
 
 // If this is the player's first round
 export const SKIP_ACTION = 'SKIP_ACTION';
-export const skipAction = () => ({
+export const skipAction = (playerIndex: number) => ({
     type: SKIP_ACTION,
+    payload: {playerIndex},
 });
 
 // For debugging

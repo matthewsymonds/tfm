@@ -1,42 +1,32 @@
-import {useContext, useState, MouseEvent, useEffect} from 'react';
+import {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
 import {
-    discardCards,
-    markCardActionAsPlayed,
     askUserToConfirmResourceTargetLocation as askUserToConfirmResourceTargetLocationAction,
     completeAction,
-    skipAction,
+    discardCards,
     gainResource,
     gainStorableResource,
+    markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
+    skipAction,
 } from '../actions';
-import {
-    ResourceBoard,
-    ResourceBoardCell,
-    ResourceBoardRow,
-    InlineResourceIcon,
-} from '../components/resource';
 import CardPaymentPopover from '../components/popovers/card-payment';
+import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
 import {Amount} from '../constants/action';
 import {TileType} from '../constants/board';
-import {
-    Resource,
-    ResourceLocationType,
-    getClassName,
-    getResourceSymbol,
-} from '../constants/resource';
+import {Conversion, CONVERSIONS} from '../constants/conversion';
+import {PropertyCounter} from '../constants/property-counter';
+import {Resource, ResourceLocationType} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
+import {useSyncState} from '../pages/sync-state';
 import {RootState, useTypedSelector} from '../reducer';
+import {ActionBar, ActionBarRow} from './action-bar';
 import {Board} from './board/board';
 import {CardComponent, CardText} from './card';
-import {PropertyCounter} from '../constants/property-counter';
-import {ActionBarRow, ActionBar} from './action-bar';
-import {Conversion, CONVERSIONS} from '../constants/conversion';
-import {useSyncState} from '../pages/sync-state';
-import SelectResourceTypeToGain from './select-resource-type-to-gain';
 import SelectResourceTargetLocation from './select-resource-target-location';
+import SelectResourceTypeToGain from './select-resource-type-to-gain';
 
 const Hand = styled.div`
     display: flex;
@@ -102,7 +92,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const cards = useTypedSelector(state => state.players[playerIndex].cards);
     const playedCards = useTypedSelector(state => state.players[playerIndex].playedCards);
     const turn = useTypedSelector(state => state.common.turn);
-    const action = useTypedSelector(state => state.common.action);
+    const action = player.action;
     const generation = useTypedSelector(state => state.common.generation);
     const store = useStore<RootState>();
     const state = store.getState();
@@ -124,12 +114,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             setCardsToDiscard(newCardsToDiscard);
         }
     }
-
-    useEffect(() => {
-        if (player.forcedAction) {
-            context.queue.push(completeAction(playerIndex));
-        }
-    }, [player.index]);
 
     useSyncState();
 
@@ -248,7 +232,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <div>TFR {player.terraformRating}</div>
                     </TurnContext>
                     <TurnContext>
-                        <button onClick={() => dispatch(skipAction())}>
+                        <button onClick={() => dispatch(skipAction(playerIndex))}>
                             {action === 2 ? 'Skip 2nd action' : 'Pass'}
                         </button>
                     </TurnContext>
