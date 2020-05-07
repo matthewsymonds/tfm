@@ -1,4 +1,5 @@
 // Can appear on the board, on a card, or in a colony.
+// Can appear on the board, on a card, or in a colony.
 export enum Resource {
     ANIMAL = 'resourceAnimal',
     CAMP = 'resourceCamp',
@@ -13,6 +14,7 @@ export enum Resource {
     SCIENCE = 'resourceScience',
     STEEL = 'resourceSteel',
     TITANIUM = 'resourceTitanium',
+    ASTEROID = 'asteroid',
 }
 
 const storableResources = [
@@ -55,6 +57,8 @@ export const getResourceSymbol = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:
             return '🐶';
+        case Resource.ASTEROID:
+            return '☄️';
         case Resource.CAMP:
             return '🏠';
         case Resource.CARD:
@@ -86,6 +90,8 @@ export const getResourceName = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:
             return 'animal';
+        case Resource.ASTEROID:
+            return 'asteroid';
         case Resource.CAMP:
             return 'camp';
         case Resource.CARD:
@@ -119,6 +125,8 @@ export const getResourceColor = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:
             return 'brown';
+        case Resource.ASTEROID:
+            return 'gray';
         case Resource.CAMP:
             return 'brown';
         case Resource.CARD:
@@ -150,6 +158,8 @@ export const getResourceBackgroundColor = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:
             return 'brown';
+        case Resource.ASTEROID:
+            return 'black';
         case Resource.CAMP:
             return 'lightbrown';
         case Resource.CARD:
