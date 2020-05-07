@@ -82,9 +82,12 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: VariableAmount.THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES,
     },
     {
-        // action: dispatch => dispatch(goToGameStage(GameStage.BUY_OR_DISCARD)),
         action: {
             text: 'Action: Look at the top card and either buy it or discard it',
+            lookAtCards: {
+                numCards: 1,
+                buyCards: true,
+            },
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -1424,7 +1427,13 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
     },
     {
-        action: {text: 'Action: Look at the top card and either buy it or discard it'},
+        action: {
+            text: 'Action: Look at the top card and either buy it or discard it',
+            lookAtCards: {
+                numCards: 1,
+                buyCards: true,
+            },
+        },
         cost: 4,
         deck: Deck.CORPORATE,
         name: 'Business Network',
@@ -1441,6 +1450,10 @@ export const cardConfigs: CardConfig[] = [
             'Look at the top 4 cards from the deck. Take 2 of them into hand and discard the other 2',
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
+        lookAtCards: {
+            numCards: 4,
+            numCardsToTake: 2,
+        },
     },
     {
         increaseTerraformRating: 2,
@@ -2521,6 +2534,10 @@ export const cardConfigs: CardConfig[] = [
             'Look at the top 3 cards from the deck. Take 1 of them into hand and discard the other 2',
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
+        lookAtCards: {
+            numCards: 3,
+            numCardsToTake: 1,
+        },
     },
     {
         cost: 15,

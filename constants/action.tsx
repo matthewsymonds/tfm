@@ -16,6 +16,12 @@ export enum ActionType {
     CARD_ACTION = 'cardAction',
 }
 
+export type LookAtCardsConfig = {
+    numCards: number;
+    numCardsToTake?: number;
+    buyCards?: boolean;
+};
+
 export interface Action {
     text?: string;
     cost?: number;
@@ -32,7 +38,7 @@ export interface Action {
     increaseProductionOption?: ResourceCounter;
     decreaseProduction?: ResourceCounter;
     decreaseAnyProduction?: ResourceCounter;
-
+    lookAtCards?: LookAtCardsConfig;
     tilePlacements?: TilePlacement[];
     increaseParameter?: ParameterCounter;
     increaseTerraformRating?: number;

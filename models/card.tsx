@@ -7,7 +7,7 @@ import {
 } from '../constants/card-types';
 import {Tag} from '../constants/tag';
 import {Effect} from '../constants/effect';
-import {Action, ActionType, Amount} from '../constants/action';
+import {Action, ActionType, Amount, LookAtCardsConfig} from '../constants/action';
 import {Resource, ResourceLocationType} from '../constants/resource';
 import {Parameter, TilePlacement} from '../constants/board';
 import {PropertyCounter} from '../constants/property-counter';
@@ -72,6 +72,8 @@ export class Card {
     increaseTerraformRating?: number;
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
+    /** e.g. "Look at the otp c" */
+    lookAtCards?: LookAtCardsConfig;
 
     // ====================================================
     // Card effects, actions, and held resources
@@ -117,6 +119,7 @@ export class Card {
         this.gainResource = config.gainResource || {};
         this.gainResourceOption = config.gainResourceOption || {};
         this.gainResourceTargetType = config.gainResourceTargetType;
+        this.lookAtCards = config.lookAtCards;
         this.removeResources = config.removeResources || {};
         this.removeAnyResource = config.removeAnyResource || {};
         this.removeAnyResourceOption = config.removeAnyResourceOption || {};

@@ -12,6 +12,7 @@ import {
     skipAction,
     DISCARD_CARDS,
     discardRevealedCards,
+    setSelectedCards,
 } from '../actions';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
@@ -29,6 +30,7 @@ import {Board} from './board/board';
 import {CardComponent, CardText} from './card';
 import SelectResourceTargetLocation from './select-resource-target-location';
 import SelectResourceTypeToGain from './select-resource-type-to-gain';
+import {CardSelector} from './card-selector';
 
 const Hand = styled.div`
     display: flex;
@@ -37,6 +39,12 @@ const Hand = styled.div`
     width: 100%;
     overflow-y: auto;
     flex-wrap: wrap;
+`;
+
+const FlexColumn = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 `;
 
 function getResourceHumanName(resource: Resource): string {
@@ -218,11 +226,23 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return context.canPlayAction(conversion, state)[0];
     }
 
+    const totalCardCost = player.selectedCards.length * 3;
+    const playerMoney = player.resources[Resource.MEGACREDIT];
+    const remaining = player.buyCards ? playerMoney - totalCardCost : playerMoney;
+    const numCardsToTake = player.buyCards ? player.possibleCards.length : player.numCardsToTake;
+    const lookAtCardsPrompt = `Select ${player.buyCards ? 'up to ' : ''}${numCardsToTake} card${
+        numCardsToTake !== 1 ? 's' : ''
+    } to ${player.buyCards ? 'buy' : 'take'}`;
+    const cannotContinueAfterLookingAtCards =
+        totalCardCost > playerMoney ||
+        (player.numCardsToTake !== null && player.selectedCards.length < player.numCardsToTake);
+
     const showBottomActionBar =
         player.pendingTilePlacement ||
         player.pendingResourceReduction ||
         player.pendingResourceGain ||
         state.common.revealedCards.length > 0 ||
+        player.possibleCards.length > 0 ||
         player.pendingResourceGainTargetConfirmation;
     return (
         <>
@@ -356,6 +376,28 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             {showBottomActionBar && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
+                        {player.possibleCards.length > 0 && (
+                            <FlexColumn>
+                                <h3>{lookAtCardsPrompt}</h3>
+                                <CardSelector
+                                    max={player.numCardsToTake || Infinity}
+                                    cardWidth={250}
+                                    selectedCards={player.selectedCards}
+                                    onSelect={cards =>
+                                        dispatch(setSelectedCards(cards, playerIndex))
+                                    }
+                                    options={player.possibleCards}
+                                    budget={remaining}
+                                    orientation="vertical"
+                                />
+                                <button
+                                    disabled={cannotContinueAfterLookingAtCards}
+                                    onClick={() => context.processQueue(dispatch)}
+                                >
+                                    {player.buyCards ? 'Confirm' : 'Take cards'}
+                                </button>
+                            </FlexColumn>
+                        )}
                         {player.pendingTilePlacement && (
                             <h3>
                                 Place the {getTileHumanName(player.pendingTilePlacement.type)} tile.

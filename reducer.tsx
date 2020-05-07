@@ -34,6 +34,9 @@ import {
     START_ROUND,
     REVEAL_AND_DISCARD_TOP_CARDS,
     DISCARD_REVEALED_CARDS,
+    BUY_SELECTED_CARDS,
+    GAIN_SELECTED_CARDS,
+    ASK_USER_TO_LOOK_AT_CARDS,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -127,6 +130,10 @@ export type PlayerState = {
         card?: Card; // for "add a resource to this card" card actions
     };
 
+    // In an action that makes you look at cards, specifies how many you can take or buy.
+    numCardsToTake: number | null;
+    // Is the player considering buying the cards they're looking at?
+    buyCards?: boolean | null;
     playerIndex: number;
     corporation: null | Card;
     possibleCards: Card[];
@@ -212,6 +219,7 @@ export function getInitialState(): GameState {
                 corporation: null,
                 possibleCards: [],
                 selectedCards: [],
+                numCardsToTake: null,
                 possibleCorporations,
                 cards: [],
                 playedCards: [],
@@ -310,7 +318,7 @@ const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST;
 
 // Add Card Name here.
-const bonusName = '';
+const bonusName = 'Business Contacts';
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -370,8 +378,28 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 draft.common.discardPile.push(...draft.common.revealedCards);
                 draft.common.revealedCards = [];
                 break;
+            case ASK_USER_TO_LOOK_AT_CARDS:
+                player.possibleCards = draft.common.deck.splice(0, payload.amount);
+                player.numCardsToTake = payload.numCardsToTake || null;
+                player.buyCards = payload.buyCards;
+                break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
+                break;
+            case BUY_SELECTED_CARDS:
+                player.cards = [...player.cards, ...player.selectedCards];
+                player.resources[Resource.MEGACREDIT] -= player.selectedCards.length * 3;
+                player.selectedCards = [];
+                player.possibleCards = [];
+                player.numCardsToTake = null;
+                payload.buyCards = null;
+                break;
+            case GAIN_SELECTED_CARDS:
+                player.cards = [...player.cards, ...player.selectedCards];
+                player.selectedCards = [];
+                player.possibleCards = [];
+                player.numCardsToTake = null;
+                payload.buyCards = null;
                 break;
             case SET_SELECTED_CARDS:
                 player.selectedCards = action.payload.cards;

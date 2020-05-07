@@ -22,6 +22,10 @@ import {
     removeResource,
     REVEAL_AND_DISCARD_TOP_CARDS,
     revealAndDiscardTopCards,
+    ASK_USER_TO_LOOK_AT_CARDS,
+    buySelectedCards,
+    gainSelectedCards,
+    askUserToLookAtCards,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -386,6 +390,22 @@ function playAction(action: Action, state: RootState, parent?: Card) {
         this.queue.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
     }
 
+    if (action.lookAtCards) {
+        this.queue.push(
+            askUserToLookAtCards(
+                playerIndex,
+                action.lookAtCards.numCards,
+                action.lookAtCards.numCardsToTake,
+                action.lookAtCards.buyCards
+            )
+        );
+        if (action.lookAtCards.buyCards) {
+            this.queue.push(buySelectedCards(playerIndex));
+        } else {
+            this.queue.push(gainSelectedCards(playerIndex));
+        }
+    }
+
     for (const production in action.increaseProduction) {
         this.queue.push(
             increaseProduction(
@@ -572,6 +592,7 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_REMOVE_RESOURCE,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_LOOK_AT_CARDS,
     REVEAL_AND_DISCARD_TOP_CARDS,
 ];
 
