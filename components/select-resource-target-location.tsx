@@ -1,6 +1,6 @@
 import {PlayerState} from '../reducer';
 import {isStorableResource, Resource} from '../constants/resource';
-import {getAllowedCardsToGainResourceTo} from '../selectors/card';
+import {getAllowedCardsForResourceAction} from '../selectors/card';
 import {CardComponent} from './card';
 import {Card} from '../models/card';
 import {PropertyCounter} from '../constants/property-counter';
@@ -23,10 +23,10 @@ function SelectResourceTargetLocation({
     if (!isStorableResource(resource)) {
         throw new Error('Cannot store a non-storable resource on a card');
     }
-    const possibleCards = getAllowedCardsToGainResourceTo({
+    const possibleCards = getAllowedCardsForResourceAction({
         player,
         resource,
-        gainResourceTargetType,
+        resourceLocationType: gainResourceTargetType,
         thisCard: card,
     });
 

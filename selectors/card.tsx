@@ -36,21 +36,19 @@ export function getAllPlayedCardsWithTagThatHoldResource(
     });
 }
 
-export function getAllowedCardsToGainResourceTo({
+export function getAllowedCardsForResourceAction({
     player,
     resource,
-    gainResourceTargetType,
+    resourceLocationType,
     thisCard,
 }: {
     player: PlayerState;
     resource: StorableResource;
-    gainResourceTargetType: ResourceLocationType;
+    resourceLocationType: ResourceLocationType;
     thisCard: Card | undefined;
 }): Card[] {
-    switch (gainResourceTargetType) {
+    switch (resourceLocationType) {
         case ResourceLocationType.ANY_CARD:
-        case ResourceLocationType.ANIMAL_CARD:
-        case ResourceLocationType.MICROBE_CARD:
             return getAllPlayedCardsThatHoldResource(player, resource);
         case ResourceLocationType.THIS_CARD:
             return thisCard ? [thisCard] : [];
@@ -69,6 +67,6 @@ export function getAllowedCardsToGainResourceTo({
         case ResourceLocationType.VENUS_CARD:
             return getAllPlayedCardsWithTagThatHoldResource(player, Tag.VENUS, resource);
         default:
-            throw spawnExhaustiveSwitchError(gainResourceTargetType);
+            throw spawnExhaustiveSwitchError(resourceLocationType);
     }
 }

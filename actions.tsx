@@ -85,6 +85,16 @@ export const removeResource = (resource: Resource, amount: Amount, playerIndex: 
     type: REMOVE_RESOURCE,
     payload: {resource, amount, playerIndex},
 });
+export const REMOVE_STORABLE_RESOURCE = 'REMOVE_STORABLE_RESOURCE';
+export const removeStorableResource = (
+    resource: Resource,
+    amount: Amount,
+    card: Card,
+    playerIndex: number
+) => ({
+    type: REMOVE_STORABLE_RESOURCE,
+    payload: {resource, amount, card, playerIndex},
+});
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = (resource: Resource, amount: Amount, playerIndex: number) => ({

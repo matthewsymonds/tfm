@@ -38,8 +38,6 @@ export enum ResourceLocationType {
     LAST_PLAYED_CARD = 'lastPlayedCard',
     VENUS_CARD = 'venusCard',
     JOVIAN_CARD = 'jovianCard',
-    ANIMAL_CARD = 'animalCard',
-    MICROBE_CARD = 'microbeCard',
 }
 
 export const getClassName = (resource: Resource) => {

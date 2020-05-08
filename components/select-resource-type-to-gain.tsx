@@ -5,7 +5,7 @@ import {
     getResourceName,
     ResourceLocationType,
 } from '../constants/resource';
-import {getAllowedCardsToGainResourceTo} from '../selectors/card';
+import {getAllowedCardsForResourceAction} from '../selectors/card';
 import {Card} from '../models/card';
 import {PropertyCounter} from '../constants/property-counter';
 
@@ -60,10 +60,10 @@ function SelectResourceTypeToGain({
 
                 if (isStorableResource(resource) && gainResourceTargetType) {
                     // verify that there is a home for this
-                    const cards = getAllowedCardsToGainResourceTo({
+                    const cards = getAllowedCardsForResourceAction({
                         player,
                         resource,
-                        gainResourceTargetType,
+                        resourceLocationType: gainResourceTargetType,
                         thisCard: card,
                     });
                     if (cards.length === 0) {

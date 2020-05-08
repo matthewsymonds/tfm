@@ -16,7 +16,7 @@ import {
 } from '../actions';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
-import {Amount} from '../constants/action';
+import {Amount, Action} from '../constants/action';
 import {TileType} from '../constants/board';
 import {Conversion, CONVERSIONS} from '../constants/conversion';
 import {PropertyCounter} from '../constants/property-counter';
@@ -194,19 +194,41 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         context.processQueue(dispatch);
     }
 
-    function playAction(card: Card) {
+    function playAction(card: Card, action: Action) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
-        context.playAction(card.action!, state, card);
+        context.playAction(action, state, card);
         context.queue.push(completeAction(playerIndex));
         context.processQueue(dispatch);
     }
 
-    function canPlayAction(card: Card) {
-        if (card.usedActionThisRound) return false;
+    function cardActionElements(card: Card) {
+        if (!card.action) return null;
 
-        if (!card.action) return false;
+        const options = card.action.choice || [card.action];
 
-        return context.canPlayAction(card.action, state)[0];
+        if (card.usedActionThisRound) {
+            return (
+                <CardText>
+                    <em>Used action this round</em>
+                </CardText>
+            );
+        }
+
+        return options.map((option, index) => {
+            const [canPlay, reason] = context.canPlayAction(option, state, card);
+            return (
+                <>
+                    <button disabled={!canPlay} onClick={() => playAction(card, option)}>
+                        Play action {index + 1}
+                    </button>
+                    {!canPlay && reason ? (
+                        <CardText>
+                            <em>{reason}</em>
+                        </CardText>
+                    ) : null}
+                </>
+            );
+        });
     }
 
     function doConversion(conversion?: Conversion) {
@@ -361,14 +383,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <CardComponent content={card} width={250} key={card.name}>
                             {resources && <CardText>{resources}</CardText>}
 
-                            {card.action && (
-                                <button
-                                    disabled={!canPlayAction(card)}
-                                    onClick={() => playAction(card)}
-                                >
-                                    Play action
-                                </button>
-                            )}
+                            {cardActionElements(card)}
                         </CardComponent>
                     );
                 })}

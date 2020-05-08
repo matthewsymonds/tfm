@@ -3,29 +3,29 @@ import {
     applyDiscounts,
     askUserToDecreaseProduction,
     askUserToGainResource,
+    askUserToLookAtCards,
     askUserToPlaceTile,
     askUserToRemoveResource,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_REMOVE_RESOURCE,
+    buySelectedCards,
     claimMilestone as claimMilestoneAction,
     completeAction,
     decreaseProduction,
     fundAward as fundAwardAction,
     gainResource,
+    gainSelectedCards,
     gainStorableResource,
     increaseParameter,
     increaseProduction,
     payToPlayCard,
     payToPlayStandardProject,
     removeResource,
-    REVEAL_AND_DISCARD_TOP_CARDS,
     revealAndDiscardTopCards,
-    ASK_USER_TO_LOOK_AT_CARDS,
-    buySelectedCards,
-    gainSelectedCards,
-    askUserToLookAtCards,
+    REVEAL_AND_DISCARD_TOP_CARDS,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -48,6 +48,7 @@ import {VariableAmount} from '../constants/variable-amount';
 import {Card} from '../models/card';
 import {PlayerState, RootState} from '../reducer';
 import {getValidPlacementsForRequirement} from '../selectors/board';
+import {getAllowedCardsForResourceAction} from '../selectors/card';
 import {getLoggedInPlayer} from '../selectors/players';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 
@@ -121,11 +122,25 @@ export function convertAmountToNumber(amount: Amount, state: RootState, card?: C
     return amountGetter(state, card) || 0;
 }
 
-function doesPlayerHaveRequiredResources(action: Action, state: RootState) {
+function doesPlayerHaveRequiredResources(action: Action, state: RootState, parent?: Card) {
     const player = getLoggedInPlayer(state);
 
     for (const resource in action.removeResources) {
         const requiredAmount = convertAmountToNumber(action.removeResources[resource], state);
+        if (isStorableResource(resource)) {
+            const cards = getAllowedCardsForResourceAction({
+                thisCard: parent!,
+                resource,
+                player,
+                resourceLocationType: action.removeResourceSourceType!,
+            });
+
+            if (cards.every(card => (card.storedResourceAmount || 0) < requiredAmount)) {
+                return false;
+            }
+
+            return true;
+        }
 
         const playerAmount = player.resources[resource];
 
@@ -196,12 +211,16 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
         return [false, 'Required production not met.'];
     }
 
-    return canPlayAction(card, state);
+    return canPlayAction(card, state, card);
 }
 
-function canPlayAction(action: Action, state: RootState): [boolean, string | undefined] {
+function canPlayAction(
+    action: Action,
+    state: RootState,
+    parent?: Card
+): [boolean, string | undefined] {
     // Also accounts for opponent resources if applicable
-    if (!doesPlayerHaveRequiredResources(action, state)) {
+    if (!doesPlayerHaveRequiredResources(action, state, parent)) {
         return [false, 'Not enough of required resource'];
     }
 
@@ -224,6 +243,11 @@ function createRemoveResourceAction(
     state: RootState,
     parent?: Card
 ) {
+    // TODO: support 4 scenarios.
+    // 1. remove resource
+    // 2. remove storable resource
+    // 3. ask user to remove resource (e.g. trade energy for money)
+    // 4. ask user to remove storable resource (e.g. spend microbes for 3x money)
     if (amount === VariableAmount.USER_CHOICE) {
         return askUserToRemoveResource(resource, amount, playerIndex);
     } else {

@@ -37,6 +37,7 @@ import {
     BUY_SELECTED_CARDS,
     GAIN_SELECTED_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
+    REMOVE_STORABLE_RESOURCE,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -318,7 +319,7 @@ const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST;
 
 // Add Card Name here.
-const bonusName = 'Business Contacts';
+const bonusName = 'Nitrite Reducing Bacteria';
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -445,6 +446,9 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     state,
                     mostRecentlyPlayedCard
                 );
+                break;
+            case REMOVE_STORABLE_RESOURCE:
+                // TODO
                 break;
             case GAIN_RESOURCE:
                 handleGainResource(payload.resource, payload.amount);

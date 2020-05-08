@@ -361,7 +361,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Eos Chasma National Park',
         text:
             'Requires -12°C  or warmer. Add 1 animal TO ANY animal CARD. Gain 3 plants. Increase your MC production 2 steps.',
-        gainResourceTargetType: ResourceLocationType.ANIMAL_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD,
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: -12,
@@ -1010,7 +1010,6 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             trigger: {tags: [Tag.PLANT, Tag.MICROBE, Tag.ANIMAL]},
-            // TODO handle special card target logic here.
             action: {
                 gainResourceOption: {
                     [Resource.PLANT]: 1,
@@ -1567,7 +1566,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Remove up to 3 titanium from any player, or 4 steel, or 7 MC.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        removeAnyResource: {[Resource.TITANIUM]: 3},
+        removeAnyResourceOption: {
+            [Resource.TITANIUM]: 3,
+            [Resource.STEEL]: 4,
+            [Resource.MEGACREDIT]: 7,
+        },
     },
     {
         cost: 4,
@@ -1604,7 +1607,16 @@ export const cardConfigs: CardConfig[] = [
         text: 'Steal up to 2 steel, or 3MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        removeAnyResourceOption: {[Resource.STEEL]: 2, [Resource.MEGACREDIT]: 3},
+        choice: [
+            {
+                removeAnyResource: {[Resource.MEGACREDIT]: VariableAmount.USER_CHOICE_UP_TO_3},
+                gainResource: {[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE},
+            },
+            {
+                removeAnyResource: {[Resource.STEEL]: VariableAmount.USER_CHOICE_UP_TO_2},
+                gainResource: {[Resource.STEEL]: VariableAmount.BASED_ON_USER_CHOICE},
+            },
+        ],
     },
     {
         cost: 3,
@@ -1728,7 +1740,6 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Add a microbe to ANOTHER card.',
-            // TODO Designate that it's not for this card.
             gainResource: {[Resource.MICROBE]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD,
         },
@@ -2002,6 +2013,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 1,
+        // TODO
     },
     {
         action: {
@@ -2065,6 +2077,8 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.BASIC,
         storedResourceType: Resource.MICROBE,
+        gainResource: {[Resource.MICROBE]: 3},
+        gainResourceTargetType: ResourceLocationType.THIS_CARD,
         name: 'Nitrite Reducing Bacteria',
         text: 'Add 3 microbes to this card.',
         tags: [Tag.MICROBE],
