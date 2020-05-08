@@ -212,7 +212,7 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
         return [false, 'Required production not met.'];
     }
 
-    return canPlayAction(card, state, card);
+    return this.canPlayAction(card, state, card);
 }
 
 function canPlayAction(
@@ -220,8 +220,14 @@ function canPlayAction(
     state: RootState,
     parent?: Card
 ): [boolean, string | undefined] {
-    // Also accounts for opponent resources if applicable
+    const player = getLoggedInPlayer(state);
+
+    if (this.shouldDisableUI(state)) {
+        return [false, ''];
+    }
+
     if (!doesPlayerHaveRequiredResources(action, state, parent)) {
+        // Also accounts for opponent resources if applicable
         return [false, 'Not enough of required resource'];
     }
 
@@ -494,6 +500,10 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
 function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
     const player = getLoggedInPlayer(state);
 
+    if (this.shouldDisableUI(state)) {
+        return false;
+    }
+
     // Selling patents is the only standard project whose cost is cards, not megacredits
     if (standardProjectAction.type === StandardProjectType.SELL_PATENTS) {
         return player.cards.length > 0;
@@ -578,8 +588,23 @@ function claimMilestone(milestone: Milestone, state: RootState) {
     this.queue.push(completeAction(playerIndex));
 }
 
+function shouldDisableUI(state: RootState) {
+    const player = getLoggedInPlayer(state);
+
+    if (player.index !== state.common.currentPlayerIndex) {
+        return true;
+    }
+    if (this.queue.length > 0) {
+        return true;
+    }
+
+    return false;
+}
+
 function canFundAward(award: Award, state: RootState) {
     const player = getLoggedInPlayer(state);
+
+    if (this.shouldDisableUI(state)) return false;
 
     // Is it available?
     if (state.common.fundedAwards.length === 3) {
@@ -638,6 +663,7 @@ export const appContext = {
     canClaimMilestone,
     claimMilestone,
     canFundAward,
+    shouldDisableUI,
     fundAward,
     processQueue,
     triggerEffects,

@@ -135,7 +135,6 @@ export type PlayerState = {
     numCardsToTake: number | null;
     // Is the player considering buying the cards they're looking at?
     buyCards?: boolean | null;
-    playerIndex: number;
     corporation: null | Card;
     possibleCards: Card[];
     selectedCards: Card[];
@@ -216,7 +215,6 @@ export function getInitialState(): GameState {
                 action: 1,
                 index: 0,
                 terraformRating: 20,
-                playerIndex: 0,
                 corporation: null,
                 possibleCards: [],
                 selectedCards: [],

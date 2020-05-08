@@ -213,7 +213,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             );
         }
 
-        return options.map(option => {
+        return options.map((option, index) => {
             const [canPlay, reason] = context.canPlayAction(option, state, card);
             return (
                 <React.Fragment key={index}>
@@ -277,7 +277,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <div>TFR {player.terraformRating}</div>
                     </TurnContext>
                     <TurnContext>
-                        <button onClick={() => dispatch(skipAction(playerIndex))}>
+                        <button
+                            disabled={context.shouldDisableUI(state)}
+                            onClick={() => dispatch(skipAction(playerIndex))}
+                        >
                             {action === 2 ? 'Skip 2nd action' : 'Pass'}
                         </button>
                     </TurnContext>
