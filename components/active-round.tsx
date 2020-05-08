@@ -1,4 +1,4 @@
-import {MouseEvent, useContext, useEffect, useState} from 'react';
+import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
 import {
@@ -10,7 +10,6 @@ import {
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     skipAction,
-    DISCARD_CARDS,
     discardRevealedCards,
     setSelectedCards,
 } from '../actions';
@@ -217,7 +216,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return options.map(option => {
             const [canPlay, reason] = context.canPlayAction(option, state, card);
             return (
-                <>
+                <React.Fragment key={index}>
                     <button disabled={!canPlay} onClick={() => playAction(card, option)}>
                         {options.length === 1 ? 'Play Action' : option.text}
                     </button>
@@ -226,7 +225,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             <em>{reason}</em>
                         </CardText>
                     ) : null}
-                </>
+                </React.Fragment>
             );
         });
     }
@@ -450,7 +449,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         )}
                         {state.common.revealedCards.map((card, index) => {
                             return (
-                                <CardComponent width={250} content={card}>
+                                <CardComponent key={index} width={250} content={card}>
                                     {index === state.common.revealedCards.length - 1 ? (
                                         <button onClick={continueAfterRevealingCards}>
                                             Continue
