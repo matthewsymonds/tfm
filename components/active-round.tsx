@@ -49,7 +49,7 @@ const FlexColumn = styled.div`
 
 function getResourceHumanName(resource: Resource): string {
     let result = String(resource);
-    return result.slice('resource'.length);
+    return result.slice('resource'.length).toLowerCase();
 }
 
 function getTileHumanName(type: TileType): string {
@@ -214,12 +214,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             );
         }
 
-        return options.map((option, index) => {
+        return options.map(option => {
             const [canPlay, reason] = context.canPlayAction(option, state, card);
             return (
                 <>
                     <button disabled={!canPlay} onClick={() => playAction(card, option)}>
-                        Play action {index + 1}
+                        {options.length === 1 ? 'Play Action' : option.text}
                     </button>
                     {!canPlay && reason ? (
                         <CardText>
