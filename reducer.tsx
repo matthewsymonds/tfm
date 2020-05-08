@@ -62,6 +62,7 @@ import {Tag} from './constants/tag';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card, cards} from './models/card';
 import {BILLY_TEST} from './test-states/billy-test';
+import { zeroParameterRequirementAdjustments } from './constants/parameter-requirement-adjustments';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -228,18 +229,8 @@ export function getInitialState(): GameState {
                 playedCards: [],
                 resources: initialResources(),
                 productions: initialResources(),
-                parameterRequirementAdjustments: {
-                    [Parameter.OCEAN]: 0,
-                    [Parameter.OXYGEN]: 0,
-                    [Parameter.TEMPERATURE]: 0,
-                    [Parameter.VENUS]: 0,
-                },
-                temporaryParameterRequirementAdjustments: {
-                    [Parameter.OCEAN]: 0,
-                    [Parameter.OXYGEN]: 0,
-                    [Parameter.TEMPERATURE]: 0,
-                    [Parameter.VENUS]: 0,
-                },
+                parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
+                temporaryParameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
                 exchangeRates: {
                     [Resource.STEEL]: 2,
                     [Resource.TITANIUM]: 3,
@@ -529,12 +520,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
-                player.temporaryParameterRequirementAdjustments = {
-                    [Parameter.OCEAN]: 0,
-                    [Parameter.OXYGEN]: 0,
-                    [Parameter.TEMPERATURE]: 0,
-                    [Parameter.VENUS]: 0,
-                };
+                player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
                 break;
             case ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS:
                 for (const parameter in payload.parameterRequirementAdjustments) {
@@ -635,12 +621,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     );
                     // After removing the current player, is anyone else playing?
                     if (common.playingPlayers.length === 0) {
-                        player.temporaryParameterRequirementAdjustments = {
-                            [Parameter.OCEAN]: 0,
-                            [Parameter.OXYGEN]: 0,
-                            [Parameter.TEMPERATURE]: 0,
-                            [Parameter.VENUS]: 0,
-                        };
+                        player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
                         handleProduction(draft);
                         const endOfGame = isEndOfGame(draft);
                         if (endOfGame) {
