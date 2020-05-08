@@ -316,7 +316,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 const INITIAL_STATE: GameState = getInitialState();
-// const INITIAL_STATE: GameState = BILLY_TEST;
+// const INITIAL_STATE: GameState = BILLY_TEST; // qwerty
 
 // Add Card Name here.
 const bonusName = 'Nitrite Reducing Bacteria';
@@ -447,9 +447,22 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     mostRecentlyPlayedCard
                 );
                 break;
-            case REMOVE_STORABLE_RESOURCE:
-                // TODO
+            case REMOVE_STORABLE_RESOURCE: {
+                const {card, resource, amount} = payload;
+                const draftCard = player.playedCards.find(c => c.name === card.name);
+                if (!draftCard) {
+                    throw new Error('Card should exist to remove storable resources from');
+                } else if (draftCard.storedResourceType !== resource) {
+                    throw new Error('Card does not store that type of resource');
+                } else if (
+                    draftCard.storedResourceAmount === undefined ||
+                    draftCard.storedResourceAmount < amount
+                ) {
+                    throw new Error('Card does not contain enough of that resource to remove');
+                }
+                draftCard.storedResourceAmount -= convertAmountToNumber(amount, state);
                 break;
+            }
             case GAIN_RESOURCE:
                 handleGainResource(payload.resource, payload.amount);
                 break;
@@ -457,7 +470,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 const {card, amount} = payload;
                 const draftCard = player.playedCards.find(c => c.name === card.name);
                 if (!draftCard) {
-                    throw new Error('Card should exist');
+                    throw new Error('Card should exist to gain storable resources to');
                 }
                 draftCard.storedResourceAmount =
                     (draftCard.storedResourceAmount || 0) + convertAmountToNumber(amount, state);

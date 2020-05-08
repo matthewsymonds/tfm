@@ -10,7 +10,9 @@ const cards = cardConfigs.map(config => new Card(config));
 
 export const BILLY_TEST = setupStateForPlayer({
     cards: cards.filter(c =>
-        ['Deimos Down'].some(name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1)
+        ['Nitrite reducing bacteria'].some(
+            name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1
+        )
     ),
     resources: {
         [Resource.MEGACREDIT]: 20,
@@ -40,6 +42,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         queuePaused: false,
         loggedInPlayerIndex: 0,
         common: {
+            revealedCards: [],
             playingPlayers: [0],
             discardPile: [],
             gameStage: GameStage.ACTIVE_ROUND,
@@ -61,6 +64,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         players: [
             {
                 ...getInitialState(),
+                numCardsToTake: null,
                 action: 0,
                 index: 0,
                 terraformRating: 20,

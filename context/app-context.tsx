@@ -26,6 +26,7 @@ import {
     removeResource,
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
+    removeStorableResource,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -250,6 +251,8 @@ function createRemoveResourceAction(
     // 4. ask user to remove storable resource (e.g. spend microbes for 3x money)
     if (amount === VariableAmount.USER_CHOICE) {
         return askUserToRemoveResource(resource, amount, playerIndex);
+    } else if (isStorableResource(resource)) {
+        return removeStorableResource(resource, amount, parent!, playerIndex);
     } else {
         return removeResource(resource, amount, playerIndex);
     }
