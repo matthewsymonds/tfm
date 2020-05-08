@@ -38,6 +38,7 @@ import {
     GAIN_SELECTED_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
     REMOVE_STORABLE_RESOURCE,
+    ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -148,6 +149,9 @@ export type PlayerState = {
         [Resource.TITANIUM]: number;
     };
     discounts: Discounts;
+
+    parameterRequirementAdjustments: PropertyCounter<Parameter>;
+    temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
 };
 
 function sampleCards(cards: Card[], num: number) {
@@ -224,6 +228,18 @@ export function getInitialState(): GameState {
                 playedCards: [],
                 resources: initialResources(),
                 productions: initialResources(),
+                parameterRequirementAdjustments: {
+                    [Parameter.OCEAN]: 0,
+                    [Parameter.OXYGEN]: 0,
+                    [Parameter.TEMPERATURE]: 0,
+                    [Parameter.VENUS]: 0,
+                },
+                temporaryParameterRequirementAdjustments: {
+                    [Parameter.OCEAN]: 0,
+                    [Parameter.OXYGEN]: 0,
+                    [Parameter.TEMPERATURE]: 0,
+                    [Parameter.VENUS]: 0,
+                },
                 exchangeRates: {
                     [Resource.STEEL]: 2,
                     [Resource.TITANIUM]: 3,
@@ -317,7 +333,7 @@ const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST; // qwerty
 
 // Add Card Name here.
-const bonusName = 'Nitrite Reducing Bacteria';
+const bonusName = 'Special Design';
 
 export const reducer = (state = INITIAL_STATE, action) => {
     const {payload} = action;
@@ -513,6 +529,22 @@ export const reducer = (state = INITIAL_STATE, action) => {
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
+                player.temporaryParameterRequirementAdjustments = {
+                    [Parameter.OCEAN]: 0,
+                    [Parameter.OXYGEN]: 0,
+                    [Parameter.TEMPERATURE]: 0,
+                    [Parameter.VENUS]: 0,
+                };
+                break;
+            case ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS:
+                for (const parameter in payload.parameterRequirementAdjustments) {
+                    player.parameterRequirementAdjustments[parameter] +=
+                        payload.parameterRequirementAdjustments[parameter];
+                }
+                for (const parameter in payload.temporaryParameterRequirementAdjustments) {
+                    player.temporaryParameterRequirementAdjustments[parameter] =
+                        payload.temporaryParameterRequirementAdjustments[parameter];
+                }
                 break;
             case ASK_USER_TO_PLACE_TILE:
                 player.pendingTilePlacement = payload.tilePlacement;
@@ -603,6 +635,12 @@ export const reducer = (state = INITIAL_STATE, action) => {
                     );
                     // After removing the current player, is anyone else playing?
                     if (common.playingPlayers.length === 0) {
+                        player.temporaryParameterRequirementAdjustments = {
+                            [Parameter.OCEAN]: 0,
+                            [Parameter.OXYGEN]: 0,
+                            [Parameter.TEMPERATURE]: 0,
+                            [Parameter.VENUS]: 0,
+                        };
                         handleProduction(draft);
                         const endOfGame = isEndOfGame(draft);
                         if (endOfGame) {

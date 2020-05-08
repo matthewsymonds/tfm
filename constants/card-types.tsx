@@ -46,6 +46,10 @@ export interface CardConfig extends Action {
     maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
     discounts?: PartialDiscounts;
+    // e.g. Inventrix
+    parameterRequirementAdjustments?: PropertyCounter<Parameter>;
+    // e.g. Special Design
+    temporaryParameterRequirementAdjustments?: PropertyCounter<Parameter>;
 }
 
 type MinimumGlobalParameter = {

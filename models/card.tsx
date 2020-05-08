@@ -91,6 +91,9 @@ export class Card {
     // Describes the discounts the card gives.
     discounts: Discounts;
 
+    parameterRequirementAdjustments: PropertyCounter<Parameter>;
+    temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -153,6 +156,10 @@ export class Card {
             trade: 0,
             ...rest,
         };
+
+        this.parameterRequirementAdjustments = config.parameterRequirementAdjustments || {};
+        this.temporaryParameterRequirementAdjustments =
+            config.temporaryParameterRequirementAdjustments || {};
 
         // card effects, actions, long-term play (ACTIVE cards)
         this.effects = [];

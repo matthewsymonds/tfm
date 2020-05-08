@@ -27,6 +27,7 @@ import {
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     removeStorableResource,
+    addParameterRequirementAdjustments,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -40,7 +41,7 @@ import {
 } from '../constants/board';
 import {CardType} from '../constants/card-types';
 import {EffectTrigger} from '../constants/effect-trigger';
-import {MinimumProductions} from '../constants/game';
+import {MinimumProductions, PARAMETER_STEPS} from '../constants/game';
 import {PropertyCounter} from '../constants/property-counter';
 import {isStorableResource, Resource} from '../constants/resource';
 import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
@@ -93,12 +94,23 @@ export function doesCardPaymentRequiresPlayerInput(card: Card) {
 function canPlayWithGlobalParameters(card: Card, state: RootState) {
     const {requiredGlobalParameter} = card;
     if (!requiredGlobalParameter) return true;
+    const player = getLoggedInPlayer(state);
 
     const {type, min = -Infinity, max = Infinity} = requiredGlobalParameter;
 
     const value = state.common.parameters[type];
 
-    return value >= min && value <= max;
+    // This section takes into account Inventrix/Special Design/...
+    let adjustedMin = min;
+    let adjustedMax = max;
+
+    adjustedMin -= player.parameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
+    adjustedMin -= player.temporaryParameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
+
+    adjustedMax += player.parameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
+    adjustedMax += player.temporaryParameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
+
+    return value >= adjustedMin && value <= adjustedMax;
 }
 
 function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
@@ -488,6 +500,14 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
     }
+
+    this.queue.push(
+        addParameterRequirementAdjustments(
+            card.parameterRequirementAdjustments,
+            card.temporaryParameterRequirementAdjustments,
+            playerIndex
+        )
+    );
 
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
 

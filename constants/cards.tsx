@@ -2015,7 +2015,12 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 1,
-        // TODO
+        parameterRequirementAdjustments: {
+            [Parameter.OCEAN]: 2,
+            [Parameter.OXYGEN]: 2,
+            [Parameter.TEMPERATURE]: 2,
+            [Parameter.VENUS]: 2,
+        },
     },
     {
         action: {
@@ -2714,6 +2719,12 @@ export const cardConfigs: CardConfig[] = [
             'The next card you play this generation is +2 or -2 in global requirements, your choice.',
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
+        temporaryParameterRequirementAdjustments: {
+            [Parameter.OCEAN]: 2,
+            [Parameter.OXYGEN]: 2,
+            [Parameter.TEMPERATURE]: 2,
+            [Parameter.VENUS]: 2,
+        },
     },
     {
         cost: 13,
@@ -4548,6 +4559,11 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
         gainResource: {[Resource.MEGACREDIT]: 45, [Resource.CARD]: 3},
         forcedAction: true,
+        parameterRequirementAdjustments: {
+            [Parameter.OCEAN]: 2,
+            [Parameter.OXYGEN]: 2,
+            [Parameter.TEMPERATURE]: 2,
+        },
     },
     {
         effect: {
@@ -4700,6 +4716,9 @@ export const cardConfigs: CardConfig[] = [
             'You start with 50 MC. As your first action, reveal cards from the deck until you have revealed 3 Venus-tag cards. Take those into hand and discard the rest.',
         tags: [Tag.VENUS],
         type: CardType.CORPORATION,
+        parameterRequirementAdjustments: {
+            [Parameter.VENUS]: 2,
+        },
     },
     {
         action: {

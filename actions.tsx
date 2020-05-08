@@ -155,6 +155,20 @@ export const moveCardFromHandToPlayArea = (card: Card, playerIndex: number) => (
     payload: {card, playerIndex},
 });
 
+export const ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS = 'ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS';
+export const addParameterRequirementAdjustments = (
+    parameterRequirementAdjustments: PropertyCounter<Parameter>,
+    temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>,
+    playerIndex: number
+) => ({
+    type: ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
+    payload: {
+        parameterRequirementAdjustments,
+        temporaryParameterRequirementAdjustments,
+        playerIndex,
+    },
+});
+
 export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
 export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: number) => ({
     type: ASK_USER_TO_PLACE_TILE,
