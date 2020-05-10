@@ -1,4 +1,17 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import isEmail from 'validator/lib/isEmail';
+import cookie from 'cookie';
+import crypto from 'crypto';
+
+const uniqueNameSchema = {
+    type: String,
+    unique: true,
+    required: true,
+    dropDups: true,
+    // alphanumeric, plus underscore and hyphen
+    validate: /^[a-zA-Z0-9_-]*$/,
+};
 
 const schema = mongoose.Schema;
 
@@ -8,8 +21,14 @@ const {serverRuntimeConfig} = getConfig();
 export const db = mongoose.connect(serverRuntimeConfig.MONGODB_URI);
 
 const gamesSchema = new schema({
+    name: uniqueNameSchema,
     state: {type: Object},
     players: {type: Array, default: []},
+    public: {type: Boolean, default: false},
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 export let gamesModel;
@@ -18,4 +37,121 @@ try {
     gamesModel = mongoose.model('games');
 } catch (error) {
     gamesModel = mongoose.model('games', gamesSchema);
+}
+
+const usersSchema = new schema({
+    username: uniqueNameSchema,
+    email: {
+        type: String,
+        unique: true,
+        required: true,
+        dropDups: true,
+        validate: {validator: isEmail, message: 'Invalid email.'},
+    },
+    password: {type: String, required: true},
+});
+
+// Increase the cost factor and passwords are harder to brute force,
+// but take longer to hash.
+const COST_FACTOR = 5;
+
+usersSchema.pre('save', function(next) {
+    var user = this;
+
+    // only hash the password if it has been modified (or is new)
+    if (!user.isModified('password')) return next();
+
+    // generate a salt
+    bcrypt.genSalt(COST_FACTOR, function(err, salt) {
+        if (err) return next(err);
+
+        // hash the password along with our new salt
+        bcrypt.hash(user.password, salt, function(err, hash) {
+            if (err) return next(err);
+
+            // override the cleartext password with the hashed one
+            user.password = hash;
+            next();
+        });
+    });
+});
+
+usersSchema.methods.comparePassword = function(candidate: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(candidate, this.password, function(error, isMatch) {
+            if (error) reject(error);
+
+            resolve(isMatch);
+        });
+    });
+};
+
+export let usersModel;
+
+try {
+    usersModel = mongoose.model('users');
+} catch (error) {
+    usersModel = mongoose.model('users', usersSchema);
+}
+
+export const sessionsSchema = new schema({
+    username: {type: String, required: true},
+    token: {type: String, required: true, default: getToken},
+    expiresAt: {
+        type: Date,
+        default: Date.now,
+        index: {expires: '10d'},
+    },
+});
+
+export let sessionsModel;
+
+try {
+    sessionsModel = mongoose.model('sessions');
+} catch (error) {
+    sessionsModel = mongoose.model('sessions', sessionsSchema);
+}
+
+export async function retrieveSession(req, res) {
+    const cookies = req.headers.cookie || '';
+
+    const cookiesObject = cookie.parse(cookies);
+
+    const token = cookiesObject.session;
+
+    if (!token) {
+        handleRedirect(req, res);
+        return;
+    }
+
+    const session = await sessionsModel.findOne({
+        token,
+    });
+
+    if (!session) {
+        handleRedirect(req, res);
+        return;
+    }
+
+    return session;
+}
+
+export function appendSecurityCookieModifiers(secure: boolean, originalCookie: string): string {
+    originalCookie += '; HttpOnly';
+    if (secure) {
+        originalCookie += '; Secure';
+    }
+    return originalCookie;
+}
+
+export function handleRedirect(req, res) {
+    const theCookie = appendSecurityCookieModifiers(req.secure, `session=; Max-Age=-1`);
+    res.writeHead(404, {
+        'Set-Cookie': theCookie,
+        Location: '/login',
+    });
+}
+
+function getToken(): string {
+    return crypto.randomBytes(16).toString('base64');
 }

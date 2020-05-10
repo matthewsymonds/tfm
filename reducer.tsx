@@ -62,7 +62,7 @@ import {Tag} from './constants/tag';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card, cards} from './models/card';
 import {BILLY_TEST} from './test-states/billy-test';
-import { zeroParameterRequirementAdjustments } from './constants/parameter-requirement-adjustments';
+import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
