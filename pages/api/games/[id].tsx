@@ -10,24 +10,32 @@ export default async (req, res) => {
     } = req;
 
     try {
-        game = await gamesModel.findById(id);
+        game = await gamesModel.findOne({name: id});
+        if (!game) throw new Error('Not found');
     } catch (error) {
         res.status(404);
-        res.json({error: 'Not found'});
+        res.json({error: error.message});
+        return;
     }
 
-    switch (req.method) {
+    switch (req.method.toUpperCase()) {
         case 'GET':
-            res.json({game});
+            res.json({
+                state: game.state,
+                players: game.players,
+            });
             return;
-        case 'PUT':
+        case 'POST':
             game.state = req.body.state || game.state;
             game.users = req.body.users || game.users;
             await game.save();
-            res.json(game);
+            res.json({
+                state: game.state,
+                players: game.players,
+            });
             return;
         default:
             res.status(400);
-            res.json({error: 'Misformatted request.'});
+            res.json({error: 'Misformatted request!!'});
     }
 };

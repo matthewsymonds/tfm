@@ -10,6 +10,7 @@ import {
     Tile,
     RESERVED_LOCATIONS,
 } from '../constants/board';
+import {getLoggedInPlayerIndex} from '../context/app-context';
 
 export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     if (!cell.coords) {
@@ -63,11 +64,11 @@ export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
 
 function isAvailable(state: RootState, cell: Cell) {
     if (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) return false;
-    return !cell.tile || cell.landClaimedBy === state.loggedInPlayerIndex;
+    return !cell.tile || cell.landClaimedBy === getLoggedInPlayerIndex();
 }
 
 function isOwnedByCurrentPlayer(state: RootState, cell: Cell) {
-    return cell.tile && cell.tile.ownerPlayerIndex === state.common.currentPlayerIndex;
+    return cell.tile && cell.tile.ownerPlayerIndex === getLoggedInPlayerIndex();
 }
 
 function getAvailableCells(state: RootState) {
@@ -184,7 +185,7 @@ export function getPossibleValidPlacementsForRequirement(
             );
             return steelOrTitaniumCells.filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(
-                    adjCell => adjCell.tile?.ownerPlayerIndex === state.loggedInPlayerIndex
+                    adjCell => adjCell.tile?.ownerPlayerIndex === getLoggedInPlayerIndex()
                 )
             );
         case PlacementRequirement.VOLCANIC:

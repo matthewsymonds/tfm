@@ -8,13 +8,16 @@ function titleCase(str: string): string {
 type InputProps = {
     type: string;
     name: string;
-    value: string;
+    value: number | string;
     required: boolean;
     pattern: string;
     onChange(event: FormEvent<HTMLInputElement>): void;
     onBlur(event: FormEvent<HTMLInputElement>): void;
     autoComplete: string;
     autoFocus: boolean;
+    min?: number;
+    max?: number;
+    disabled: boolean;
 };
 
 const Label = styled.label`
@@ -43,6 +46,9 @@ export const Input = ({
     value,
     required,
     pattern,
+    min,
+    max,
+    disabled,
 }: InputProps) => {
     const labelText = titleCase(name);
 
@@ -50,6 +56,7 @@ export const Input = ({
         <Label>
             {labelText}
             <InputBase
+                disabled={disabled}
                 type={type}
                 name={name}
                 value={value}
@@ -59,6 +66,8 @@ export const Input = ({
                 required={required}
                 pattern={pattern}
                 autoFocus={autoFocus}
+                min={min}
+                max={max}
             />
         </Label>
     );
@@ -74,6 +83,7 @@ Input.defaultProps = {
     required: true,
     autoComplete: '',
     autoFocus: false,
+    disabled: false,
 } as Partial<InputProps>;
 
 type SubmitInputProps = {

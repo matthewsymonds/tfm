@@ -34,7 +34,7 @@ export const useSession = () => {
                 setLoading(false);
             }
         } else {
-            if (router.pathname !== '/') {
+            if (['/signup', '/login'].includes(router.pathname)) {
                 router.push('/');
             } else {
                 setSession(session);

@@ -1,8 +1,8 @@
 import {useState, useCallback, FormEvent} from 'react';
 
-export const useInput = (
-    initialValue: string
-): [string, (event: FormEvent<HTMLInputElement>) => void] => {
+export const useInput = <K extends string | number>(
+    initialValue: K
+): [K, (event: FormEvent<HTMLInputElement>) => void] => {
     const [state, setState] = useState(initialValue);
 
     const handleInput = useCallback(event => {

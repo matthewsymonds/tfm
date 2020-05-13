@@ -4,6 +4,7 @@ import {
     retrieveSession,
     appendSecurityCookieModifiers,
 } from '../../database';
+import absoluteUrl from 'next-absolute-url';
 
 export default async (req, res) => {
     let session: typeof sessionsModel;
@@ -40,7 +41,11 @@ export default async (req, res) => {
 
             await session.save();
 
-            const theCookie = appendSecurityCookieModifiers(req.secure, `session=${session.token}`);
+            const theCookie = appendSecurityCookieModifiers(
+                req.secure,
+                absoluteUrl(req).host,
+                `session=${session.token}`
+            );
 
             res.writeHead(200, {
                 'Set-Cookie': theCookie,

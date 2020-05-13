@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import isEmail from 'validator/lib/isEmail';
 import cookie from 'cookie';
 import crypto from 'crypto';
+import absoluteUrl from 'next-absolute-url';
 
 const uniqueNameSchema = {
     type: String,
@@ -15,10 +16,7 @@ const uniqueNameSchema = {
 
 const schema = mongoose.Schema;
 
-import getConfig from 'next/config';
-const {serverRuntimeConfig} = getConfig();
-
-export const db = mongoose.connect(serverRuntimeConfig.MONGODB_URI);
+export const db = mongoose.connect(process.env.MONGODB_URI);
 
 const gamesSchema = new schema({
     name: uniqueNameSchema,
@@ -136,7 +134,11 @@ export async function retrieveSession(req, res) {
     return session;
 }
 
-export function appendSecurityCookieModifiers(secure: boolean, originalCookie: string): string {
+export function appendSecurityCookieModifiers(
+    secure: boolean,
+    domain: string,
+    originalCookie: string
+): string {
     originalCookie += '; HttpOnly';
     if (secure) {
         originalCookie += '; Secure';
@@ -145,7 +147,11 @@ export function appendSecurityCookieModifiers(secure: boolean, originalCookie: s
 }
 
 export function handleRedirect(req, res) {
-    const theCookie = appendSecurityCookieModifiers(req.secure, `session=; Max-Age=-1`);
+    const theCookie = appendSecurityCookieModifiers(
+        req.secure,
+        absoluteUrl(req).origin,
+        `session=; Max-Age=-1`
+    );
     res.writeHead(404, {
         'Set-Cookie': theCookie,
         Location: '/login',

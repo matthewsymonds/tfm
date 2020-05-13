@@ -247,6 +247,16 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         return context.canPlayAction(conversion, state)[0];
     }
 
+    let waitingForPlayer: string | null = null;
+
+    const playerWhoseTurnItIs = useTypedSelector(
+        state => state.players[state.common.currentPlayerIndex]
+    );
+
+    if (playerWhoseTurnItIs.index !== player.index) {
+        waitingForPlayer = `Waiting for ${playerWhoseTurnItIs.username}`;
+    }
+
     const totalCardCost = player.selectedCards.length * 3;
     const playerMoney = player.resources[Resource.MEGACREDIT];
     const remaining = player.buyCards ? playerMoney - totalCardCost : playerMoney;
@@ -269,7 +279,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         <>
             <ActionBar>
                 <ActionBarRow>
-                    <h1>{corporation && corporation.name}</h1>
+                    <h1>
+                        {corporation && corporation.name} ({player.username})
+                    </h1>
                     <TurnContext>
                         <div>Turn {turn}</div>
                         <div>Action {action} of 2</div>
@@ -324,6 +336,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         </ResourceBoardRow>
                     </ResourceBoard>
                 </ActionBarRow>
+                {waitingForPlayer ? <ActionBarRow>{waitingForPlayer}</ActionBarRow> : null}
             </ActionBar>
             <Board
                 board={state.common.board}

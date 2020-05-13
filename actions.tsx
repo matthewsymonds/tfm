@@ -254,10 +254,11 @@ export const increaseParameter = (parameter: Parameter, amount: number, playerIn
     payload: {parameter, amount, playerIndex},
 });
 
-// Re-adds all players to the active player rotation.
-export const START_ROUND = 'START_ROUND';
-export const startRound = () => ({
-    type: START_ROUND,
+// Player announces she is ready to start round.
+export const ANNOUNCE_READY_TO_START_ROUND = 'ANNOUNCE_READY_TO_START_ROUND';
+export const announceReadyToStartRound = (playerIndex: number) => ({
+    type: ANNOUNCE_READY_TO_START_ROUND,
+    payload: {playerIndex},
 });
 
 // Increases the action count by 1.

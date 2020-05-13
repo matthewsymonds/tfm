@@ -51,7 +51,6 @@ import {Card} from '../models/card';
 import {PlayerState, RootState} from '../reducer';
 import {getValidPlacementsForRequirement} from '../selectors/board';
 import {getAllowedCardsForResourceAction} from '../selectors/card';
-import {getLoggedInPlayer} from '../selectors/players';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 
 function canAffordCard(card: Card, state: RootState) {
@@ -202,6 +201,7 @@ function meetsTilePlacementRequirements(action: Action, state: RootState): boole
 }
 
 function canPlayCard(card: Card, state: RootState): [boolean, string | undefined] {
+    const player = getLoggedInPlayer(state);
     if (!canAffordCard(card, state)) {
         return [false, 'Cannot afford to play'];
     }
@@ -216,11 +216,7 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
 
     const {requiredProduction} = card;
 
-    if (
-        requiredProduction &&
-        state.players[state.loggedInPlayerIndex].productions[requiredProduction] <
-            requiredProduction
-    ) {
+    if (requiredProduction && player.productions[requiredProduction] < requiredProduction) {
         return [false, 'Required production not met.'];
     }
 
@@ -232,8 +228,6 @@ function canPlayAction(
     state: RootState,
     parent?: Card
 ): [boolean, string | undefined] {
-    const player = getLoggedInPlayer(state);
-
     if (this.shouldDisableUI(state)) {
         return [false, ''];
     }
@@ -333,6 +327,7 @@ interface Event {
 type ActionCardPair = [Action, Card];
 
 function triggerEffects(event: Event, state: RootState) {
+    const player = getLoggedInPlayer(state);
     // track the card that triggered the action so we can "add resources to this card"
     // e.g. Ecological Zone
     const actionCardPairs: ActionCardPair[] = [];
@@ -345,7 +340,7 @@ function triggerEffects(event: Event, state: RootState) {
                         effect.trigger,
                         effect.action,
                         player,
-                        state.loggedInPlayerIndex
+                        player.index
                     );
                     actionCardPairs.push(...actions.map(action => [action, card]));
                 }
@@ -405,7 +400,7 @@ function getActionsFromEffect(
 }
 
 function playAction(action: Action, state: RootState, parent?: Card) {
-    const playerIndex = state.loggedInPlayerIndex;
+    const playerIndex = getLoggedInPlayerIndex();
 
     for (const production in action.decreaseProduction) {
         this.queue.push(
@@ -495,7 +490,7 @@ function playAction(action: Action, state: RootState, parent?: Card) {
 }
 
 function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
-    const playerIndex = state.loggedInPlayerIndex;
+    const playerIndex = getLoggedInPlayerIndex();
 
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
@@ -541,7 +536,7 @@ function canPlayStandardProject(standardProjectAction: StandardProjectAction, st
 }
 
 function playStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
-    const playerIndex = state.loggedInPlayerIndex;
+    const playerIndex = getLoggedInPlayerIndex();
     if (standardProjectAction.cost) {
         this.queue.push(payToPlayStandardProject(standardProjectAction, playerIndex));
     }
@@ -603,7 +598,7 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
 }
 
 function claimMilestone(milestone: Milestone, state: RootState) {
-    const playerIndex = state.loggedInPlayerIndex;
+    const playerIndex = getLoggedInPlayerIndex();
     this.queue.push(claimMilestoneAction(milestone, playerIndex));
     this.queue.push(completeAction(playerIndex));
 }
@@ -644,7 +639,7 @@ function canFundAward(award: Award, state: RootState) {
 }
 
 function fundAward(award: Award, state: RootState) {
-    const playerIndex = state.loggedInPlayerIndex;
+    const playerIndex = getLoggedInPlayerIndex();
     this.queue.push(fundAwardAction(award, playerIndex));
     this.queue.push(completeAction(playerIndex));
 }
@@ -672,6 +667,20 @@ function shouldPause(action: {type: string}): boolean {
     return PAUSE_ACTIONS.includes(action.type);
 }
 
+let loggedInPlayerIndex = -1;
+
+export function getLoggedInPlayerIndex() {
+    return loggedInPlayerIndex;
+}
+
+export function getLoggedInPlayer(state) {
+    return state.players[loggedInPlayerIndex];
+}
+
+function setLoggedInPlayerIndex(index: number) {
+    loggedInPlayerIndex = index;
+}
+
 export const appContext = {
     queue: [] as Array<Object>,
     canPlayCard,
@@ -691,6 +700,8 @@ export const appContext = {
     triggerEffectsFromStandardProject,
     triggerEffectsFromPlayedCard,
     getActionsFromEffect,
+    setLoggedInPlayerIndex,
+    getLoggedInPlayer,
 };
 
 export const AppContext = createContext(appContext);

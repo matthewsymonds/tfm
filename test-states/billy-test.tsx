@@ -1,4 +1,5 @@
-import {GameState, getInitialState} from '../reducer';
+import {GameState} from '../reducer';
+import {getInitialState} from '../initial-state';
 import {GameStage} from '../constants/game';
 import {Parameter, INITIAL_BOARD_STATE} from '../constants/board';
 import {Resource} from '../constants/resource';
@@ -63,12 +64,12 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         },
         players: [
             {
-                ...getInitialState(),
+                parameterRequirementAdjustments: {},
+                temporaryParameterRequirementAdjustments: {},
                 numCardsToTake: null,
                 action: 0,
                 index: 0,
                 terraformRating: 20,
-                playerIndex: 0,
                 corporation: cards.filter(card => card.name === 'PhoboLog'),
                 possibleCards: [],
                 possibleCorporations: [],

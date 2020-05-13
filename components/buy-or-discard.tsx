@@ -9,7 +9,7 @@ import {
     setCards,
     setSelectedCards,
     startOver,
-    startRound,
+    announceReadyToStartRound,
 } from '../actions';
 import {CardSelector} from '../components/card-selector';
 import {GameStage} from '../constants/game';
@@ -64,9 +64,6 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
         dispatch(setSelectedCards(selectAllCards, playerIndex));
     }
 
-    function handleStartOver() {
-        dispatch(startOver());
-    }
     const additionalRow: ReactElement = (
         <>
             <ActionBarRow>
@@ -92,8 +89,7 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
                             )
                         );
                         dispatch(payForCards(cards, playerIndex));
-                        dispatch(startRound());
-                        dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
+                        dispatch(announceReadyToStartRound(playerIndex));
                     }}
                 />
             </ActionBarRow>
@@ -101,6 +97,13 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
     );
 
     const prompt = <h1>Buy cards</h1>;
+
+    const playersStillMakingDecisions = useTypedSelector<string[]>(state =>
+        state.players.filter(player => player.action === 0).map(player => player.username)
+    );
+    const playersWhoAreReady = useTypedSelector<string[]>(state =>
+        state.players.filter(player => player.action === 1).map(player => player.username)
+    );
 
     useSyncState();
 
@@ -112,6 +115,14 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
                         {prompt}
                         <div>Playing {corporation?.name}</div>
                     </div>
+                </ActionBarRow>
+                <ActionBarRow>
+                    <ul>
+                        <li>
+                            Players still making decisions: {playersStillMakingDecisions.join(', ')}
+                        </li>
+                        <li>Players who are ready: {playersWhoAreReady.join(', ')}</li>
+                    </ul>
                 </ActionBarRow>
             </ActionBar>
             <CardSelector

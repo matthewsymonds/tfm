@@ -9,7 +9,6 @@ import {AppContext} from '../../context/app-context';
 import {useTypedSelector, PlayerState} from '../../reducer';
 import {useDispatch} from 'react-redux';
 import {BoardActionsContainer, BoardActionRow, BoardActionHeader} from './board-actions';
-import {useLoggedInPlayer} from '../../selectors/players';
 
 function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
@@ -46,7 +45,7 @@ export default function StandardProjects() {
     const state = useTypedSelector(state => state);
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    const player = useLoggedInPlayer();
+    const player = context.getLoggedInPlayer(state);
 
     return (
         <BoardActionsContainer>

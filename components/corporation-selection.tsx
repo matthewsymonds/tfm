@@ -3,18 +3,15 @@ import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
 import {
     discardCards,
-    drawPossibleCards,
-    goToGameStage,
     moveCardFromHandToPlayArea,
     payForCards,
     setCards,
     setCorporation,
     setSelectedCards,
     startOver,
-    startRound,
+    announceReadyToStartRound,
 } from '../actions';
 import {CardSelector} from '../components/card-selector';
-import {GameStage} from '../constants/game';
 import {Resource} from '../constants/resource';
 import {AppContext} from '../context/app-context';
 import {Card} from '../models/card';
@@ -61,6 +58,13 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     const totalCardCost = cards.length * 3;
     const remaining = (startingAmount && startingAmount - totalCardCost) || 0;
 
+    const playersStillMakingDecisions = useTypedSelector<string[]>(state =>
+        state.players.filter(player => player.action === 0).map(player => player.username)
+    );
+    const playersWhoAreReady = useTypedSelector<string[]>(state =>
+        state.players.filter(player => player.action === 1).map(player => player.username)
+    );
+
     // If they switch to a corporation that can't afford the currently seleted cards,
     // clear all the cards.
     useEffect(() => {
@@ -69,12 +73,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
         }
     }, [corporationName, cards]);
     const selectAllCards = (possibleCards || []).slice(0, Math.floor(startingAmount / 3));
-
-    useEffect(() => {
-        if (possibleCards.length === 0) {
-            dispatch(drawPossibleCards(10, playerIndex));
-        }
-    }, [possibleCards.length]);
 
     function handleSelectAll() {
         dispatch(setSelectedCards(selectAllCards, playerIndex));
@@ -85,8 +83,10 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     }
     useSyncState();
 
+    const player = context.getLoggedInPlayer(state);
+
     let additionalRow: ReactElement | null = null;
-    if (corporationName) {
+    if (corporationName && player.action === 0) {
         additionalRow = (
             <>
                 <ActionBarRow>
@@ -106,7 +106,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                             dispatch(setSelectedCards([], playerIndex));
                             const card = corporation!;
                             dispatch(moveCardFromHandToPlayArea(card, playerIndex));
-
                             context.playCard(card, state);
                             context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
                             dispatch(
@@ -116,12 +115,18 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                                 )
                             );
                             dispatch(payForCards(cards, playerIndex));
-                            dispatch(startRound());
-                            dispatch(goToGameStage(GameStage.ACTIVE_ROUND));
+                            dispatch(announceReadyToStartRound(playerIndex));
+                            context.processQueue(dispatch);
                         }}
                     />
                 </ActionBarRow>
             </>
+        );
+    } else if (corporationName && player.action === 1) {
+        additionalRow = (
+            <ActionBarRow>
+                <div>Waiting for other players.</div>
+            </ActionBarRow>
         );
     }
 
@@ -147,6 +152,14 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                         options={possibleCorporations || []}
                         orientation="horizontal"
                     />
+                </ActionBarRow>
+                <ActionBarRow>
+                    <ul>
+                        <li>
+                            Players still making decisions: {playersStillMakingDecisions.join(', ')}
+                        </li>
+                        <li>Players who are ready: {playersWhoAreReady.join(', ')}</li>
+                    </ul>
                 </ActionBarRow>
             </ActionBar>
             <CardSelector

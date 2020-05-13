@@ -1,14 +1,14 @@
-import {ChangeEvent} from 'react';
+import {ChangeEvent, useContext} from 'react';
 import {Popover} from 'reactstrap';
 import styled from 'styled-components';
 import {Card} from '../../models/card';
-import {useLoggedInPlayer} from '../../selectors/players';
 import {Tag} from '../../constants/tag';
 import {Resource} from '../../constants/resource';
 import {useState} from 'react';
-import {getDiscountedCardCost} from '../../context/app-context';
+import {getDiscountedCardCost, AppContext} from '../../context/app-context';
 import {PropertyCounter} from '../../constants/property-counter';
 import {ResourceIcon} from '../resource';
+import {useTypedSelector} from '../../reducer';
 
 type Props = {
     isOpen: boolean;
@@ -122,7 +122,9 @@ export default function CardPaymentPopover({
     card,
     onConfirmPayment,
 }: Props) {
-    const player = useLoggedInPlayer();
+    const context = useContext(AppContext);
+    const state = useTypedSelector(state => state);
+    const player = context.getLoggedInPlayer(state);
     const {resources, exchangeRates} = player;
     const cardCost = getDiscountedCardCost(card, player);
     const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], cardCost || 0));

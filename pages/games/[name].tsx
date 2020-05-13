@@ -1,5 +1,3 @@
-import {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {setGame} from '../../actions';
 import {ActiveRound} from '../../components/active-round';
 import {BuyOrDiscard} from '../../components/buy-or-discard';
@@ -7,61 +5,59 @@ import {CorporationSelection} from '../../components/corporation-selection';
 import {GameStage} from '../../constants/game';
 import {useTypedSelector} from '../../reducer';
 import {deserializeState} from '../../state-serialization';
+import {makeGetCall} from '../../api-calls';
+import {useSession} from '../../hooks/use-session';
+import {useDispatch} from 'react-redux';
+import {useEffect, useState, useContext} from 'react';
 import {useRouter} from 'next/router';
+import {AppContext} from '../../context/app-context';
 
 export default function Game() {
-    const router = useRouter();
-    const {name} = router.query;
+    const {loading, session} = useSession();
 
-    const gameStage = useTypedSelector(state => state.common.gameStage);
+    const [players, setPlayers] = useState<string[]>([]);
+
+    const router = useRouter();
+
+    const playerIndex = players.indexOf(session.username);
+
+    const context = useContext(AppContext);
+    context.setLoggedInPlayerIndex(playerIndex);
 
     const dispatch = useDispatch();
 
-    const [gameState, setGameState] = useState(null);
-    const [isLoading, setLoading] = useState(true);
+    useEffect(() => {
+        if (session.username) {
+            retrieveGame();
+        }
+    }, [session.username]);
 
-    async function retrieveState() {
-        if (typeof window === 'undefined') return;
-        if (gameState) {
+    const retrieveGame = async () => {
+        const apiPath = '/api' + window.location.pathname;
+
+        const result = await makeGetCall(apiPath);
+        if (result.error) {
+            router.push('/new-game');
             return;
         }
+        setPlayers(result.players);
+        dispatch(setGame(deserializeState(result.state)));
+    };
 
-        const {origin} = window.location;
-        const apiURL = `${origin}/api/games/` + name;
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
-        const result = await fetch(apiURL);
-        try {
-            const json = await result.json();
-            setGameState(deserializeState(JSON.parse(json.state)));
-        } catch (error) {
-            setLoading(false);
-            // Todo: handle deserialization error cases.
-            // Todo, move this retrieveState to getServerSideProps
-        }
-    }
-
-    function initializeGameState() {
-        if (gameState) {
-            dispatch(setGame(gameState));
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        retrieveState();
-        initializeGameState();
-    }, [gameState]);
-
-    if (isLoading) return 'loading';
+    if (loading) return null;
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
-            return <CorporationSelection playerIndex={0} />;
+            return <CorporationSelection playerIndex={playerIndex} />;
         case GameStage.ACTIVE_ROUND:
-            return <ActiveRound playerIndex={0} />;
+            return <ActiveRound playerIndex={playerIndex} />;
         case GameStage.BUY_OR_DISCARD:
-            return <BuyOrDiscard playerIndex={0} />;
+            return <BuyOrDiscard playerIndex={playerIndex} />;
+        case GameStage.END_OF_GAME:
+            return 'End of game reached';
         default:
-            return <div>Unkown game state</div>;
+            return null;
     }
 }

@@ -1,11 +1,10 @@
-import {MouseEvent} from 'react';
+import {MouseEvent, useContext} from 'react';
 import styled from 'styled-components';
 import {Card} from '../models/card';
 import {TagsComponent} from './tags';
-import {getDiscountedCardCost} from '../context/app-context';
-import {useLoggedInPlayer} from '../selectors/players';
+import {getDiscountedCardCost, AppContext} from '../context/app-context';
 import {Amount} from '../constants/action';
-import {RootState} from '../reducer';
+import {RootState, useTypedSelector} from '../reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
 import {useStore} from 'react-redux';
 import {CardType} from '../constants/card-types';
@@ -97,7 +96,9 @@ function getVictoryPoints(amount: Amount | undefined, state: RootState, card: Ca
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width, selected, onClick} = props;
     const {name, text, action, effects, cost, tags} = content;
-    const player = useLoggedInPlayer();
+    const context = useContext(AppContext);
+    const state = useTypedSelector(state => state);
+    const player = context.getLoggedInPlayer(state);
     const discountedCost = getDiscountedCardCost(content, player);
     const effect = effects[0];
     const store = useStore();

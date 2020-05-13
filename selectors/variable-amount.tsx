@@ -6,18 +6,15 @@ import {
     getCellsWithCities,
     findCellWithTile,
 } from './board';
-import {cellHelpers, TileType} from '../constants/board';
+import {TileType} from '../constants/board';
 import {Tag} from '../constants/tag';
 import {Card} from '../models/card';
 import {Resource} from '../constants/resource';
+import {getLoggedInPlayer} from '../context/app-context';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (state: RootState, card?: Card) => number;
 };
-
-function getPlayer(state: RootState): PlayerState {
-    return state.players[state.loggedInPlayerIndex];
-}
 
 function getTags(player: PlayerState): Tag[] {
     return player.playedCards.flatMap(card => card.tags);
@@ -33,7 +30,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         }).length;
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return player.cards.filter(card => card.tags.length === 0).length;
     },
     [VariableAmount.CITIES_ON_MARS]: (state: RootState) => {
@@ -73,27 +70,27 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
     [VariableAmount.EARTH_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.EARTH).length;
     },
     [VariableAmount.HALF_BUILDING_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return Math.floor(getTags(player).filter(tag => tag === Tag.BUILDING).length / 2);
     },
     [VariableAmount.VENUS_AND_EARTH_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.EARTH || tag === Tag.VENUS).length;
     },
     [VariableAmount.POWER_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.POWER).length;
     },
     [VariableAmount.PLANT_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.PLANT).length;
     },
     [VariableAmount.OPPONENTS_SPACE_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return state.players
             .filter(p => p !== player)
             .flatMap(player => player.playedCards)
@@ -101,15 +98,15 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             .filter(tag => tag === Tag.SPACE).length;
     },
     [VariableAmount.VENUS_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.VENUS).length;
     },
     [VariableAmount.SPACE_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.SPACE).length;
     },
     [VariableAmount.JOVIAN_TAGS]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.JOVIAN).length;
     },
     [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
@@ -138,7 +135,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return 0;
     },
     [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: RootState) => {
-        const player = getPlayer(state);
+        const player = getLoggedInPlayer(state);
         const numPlantTags = player.cards
             .flatMap(card => card.tags)
             .filter(tag => tag === Tag.PLANT).length;

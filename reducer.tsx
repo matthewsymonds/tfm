@@ -30,8 +30,7 @@ import {
     SET_GAME,
     SET_SELECTED_CARDS,
     SKIP_ACTION,
-    START_OVER,
-    START_ROUND,
+    ANNOUNCE_READY_TO_START_ROUND,
     REVEAL_AND_DISCARD_TOP_CARDS,
     DISCARD_REVEALED_CARDS,
     BUY_SELECTED_CARDS,
@@ -100,7 +99,6 @@ export type CommonState = {
 export type GameState = {
     queuePaused: boolean;
     pendingVariableAmount?: number;
-    loggedInPlayerIndex: number;
     players: Array<PlayerState>;
     common: CommonState;
     transaction: {
@@ -111,6 +109,7 @@ export type GameState = {
 
 export type PlayerState = {
     index: number;
+    username: string;
     action: number; // 1 or 2.
     terraformRating: number;
     pendingTilePlacement?: TilePlacement;
@@ -154,114 +153,6 @@ export type PlayerState = {
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
 };
-
-function sampleCards(cards: Card[], num: number) {
-    const result: Card[] = [];
-    for (let i = 0; i < num; i++) {
-        const card = cards.shift();
-        if (!card) {
-            throw new Error('Out of cards to sample');
-        }
-        result.push(card);
-    }
-    return result;
-}
-
-function shuffle(array: Card[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-function initialResources() {
-    return {
-        [Resource.MEGACREDIT]: 0,
-        [Resource.STEEL]: 0,
-        [Resource.TITANIUM]: 0,
-        [Resource.PLANT]: 0,
-        [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0,
-    };
-}
-
-export function getInitialState(): GameState {
-    const possibleCards = cards.filter(
-        card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
-    );
-
-    shuffle(possibleCards);
-
-    const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
-
-    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
-    const possibleCorporations = sampleCards(allCorporations, 2);
-
-    return {
-        queuePaused: false,
-        loggedInPlayerIndex: 0,
-        common: {
-            playingPlayers: [],
-            discardPile: [],
-            revealedCards: [],
-            gameStage: GameStage.CORPORATION_SELECTION,
-            generation: 1,
-            turn: 1,
-            deck,
-            parameters: MIN_PARAMETERS,
-            board: INITIAL_BOARD_STATE,
-            currentPlayerIndex: 0,
-            firstPlayerIndex: 0,
-            claimedMilestones: [],
-            fundedAwards: [],
-        },
-        players: [
-            {
-                action: 1,
-                index: 0,
-                terraformRating: 20,
-                corporation: null,
-                possibleCards: [],
-                selectedCards: [],
-                numCardsToTake: null,
-                possibleCorporations,
-                cards: [],
-                playedCards: [],
-                resources: initialResources(),
-                productions: initialResources(),
-                parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
-                temporaryParameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
-                exchangeRates: {
-                    [Resource.STEEL]: 2,
-                    [Resource.TITANIUM]: 3,
-                },
-                discounts: {
-                    card: 0,
-                    tags: {
-                        [Tag.SPACE]: 0,
-                        [Tag.VENUS]: 0,
-                        [Tag.BUILDING]: 0,
-                        [Tag.SCIENCE]: 0,
-                        [Tag.EARTH]: 0,
-                        [Tag.POWER]: 0,
-                    },
-                    cards: {
-                        [Tag.SPACE]: 0,
-                        [Tag.EARTH]: 0,
-                    },
-                    standardProjects: 0,
-                    standardProjectPowerPlant: 0,
-                    nextCardThisGeneration: 0,
-                    trade: 0,
-                },
-            },
-        ],
-        transaction: {
-            isPending: false,
-            pendingPlayers: [],
-        },
-    };
-}
 
 function getParameterForTile(tile: Tile): Parameter | undefined {
     if (tile.type === TileType.OCEAN) {
@@ -320,13 +211,19 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     }
 }
 
-const INITIAL_STATE: GameState = getInitialState();
+// const INITIAL_STATE: GameState = getInitialState();
 // const INITIAL_STATE: GameState = BILLY_TEST; // qwerty
 
 // Add Card Name here.
 const bonusName = 'Special Design';
 
-export const reducer = (state = INITIAL_STATE, action) => {
+export const reducer = (state: GameState | null = null, action) => {
+    if (action.type === SET_GAME) {
+        return action.payload.gameState;
+    }
+    // We want to initially set the state async, from the server.
+    // Until SET_GAME is called, every other action is a noop.
+    if (state === null) return null;
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
@@ -363,10 +260,6 @@ export const reducer = (state = INITIAL_STATE, action) => {
             player.resources[resource] += numberAmount;
         }
         switch (action.type) {
-            case START_OVER:
-                return getInitialState();
-            case SET_GAME:
-                return payload.gameState;
             case SET_CORPORATION:
                 player.corporation = payload.corporation;
                 break;
@@ -603,11 +496,16 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 const playedCard = player.playedCards.find(card => card.name === payload.card.name);
                 playedCard!.usedActionThisRound = true;
                 break;
-            case START_ROUND:
-                draft.common.playingPlayers = state.players.map(player => player.index);
-                const cards = draft.players.flatMap(player => player.playedCards);
-                for (const card of cards) {
-                    card.usedActionThisRound = false;
+            case ANNOUNCE_READY_TO_START_ROUND:
+                player.action = 1;
+                if (draft.players.every(player => player.action === 1)) {
+                    // Everyone's ready!
+                    const cards = draft.players.flatMap(player => player.playedCards);
+                    for (const card of cards) {
+                        card.usedActionThisRound = false;
+                    }
+
+                    draft.common.gameStage = GameStage.ACTIVE_ROUND;
                 }
                 break;
             case SKIP_ACTION:
@@ -616,6 +514,7 @@ export const reducer = (state = INITIAL_STATE, action) => {
                 // Did the player just skip on their first action?
                 // If so, they're out for the rest of the round.
                 if (previous === 1) {
+                    player.action = 0;
                     common.playingPlayers = common.playingPlayers.filter(
                         index => index !== common.currentPlayerIndex
                     );
