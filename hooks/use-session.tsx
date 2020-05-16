@@ -1,5 +1,4 @@
 import {useState, useEffect, useCallback} from 'react';
-import fetch from 'isomorphic-unfetch';
 import {useRouter} from 'next/dist/client/router';
 import {makeGetCall} from '../api-calls';
 
@@ -7,17 +6,35 @@ const emptySession = {
     username: '',
 };
 
-async function loadSession() {
+let defaultSession = getDefaultSessionFromSessionStorage();
+
+function getDefaultSessionFromSessionStorage() {
     if (typeof window === 'undefined') {
         return emptySession;
     }
 
+    try {
+        const sessionStorageSession = sessionStorage.getItem('session');
+        if (sessionStorageSession) {
+            return JSON.parse(sessionStorageSession);
+        } else {
+            return emptySession;
+        }
+    } catch (error) {
+        return emptySession;
+    }
+}
+
+async function loadSession() {
+    if (typeof window === 'undefined') {
+        return emptySession;
+    }
     return await makeGetCall('/api/sessions');
 }
 
 export const useSession = () => {
-    const [session, setSession] = useState(emptySession);
-    const [loading, setLoading] = useState(true);
+    const [session, setSession] = useState(defaultSession);
+    const [loading, setLoading] = useState(!defaultSession.username);
     const router = useRouter();
 
     const loadSessionCallback = useCallback(async () => {
@@ -44,8 +61,14 @@ export const useSession = () => {
     }, []);
 
     useEffect(() => {
-        loadSessionCallback();
-    }, []);
+        if (!session?.username) {
+            loadSessionCallback();
+        } else {
+            try {
+                sessionStorage.setItem('session', JSON.stringify(session));
+            } catch (error) {}
+        }
+    }, [session?.username]);
 
     return {
         session,
