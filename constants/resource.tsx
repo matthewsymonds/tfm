@@ -1,4 +1,7 @@
 // Can appear on the board, on a card, or in a colony.
+
+import {Amount} from './action';
+
 // Can appear on the board, on a card, or in a colony.
 export enum Resource {
     ANIMAL = 'resourceAnimal',
@@ -32,13 +35,30 @@ export function isStorableResource(resource: any): resource is StorableResource 
     return storableResources.includes(resource);
 }
 
+export type ResourceAndAmount = {
+    resource: Resource;
+    amount: Amount;
+};
+
 export enum ResourceLocationType {
     THIS_CARD = 'thisCard',
+    ANY_CARD_OWNED_BY_YOU = 'anyCardOwnedByYou',
     ANY_CARD = 'anyCard',
+    ANY_PLAYER = 'anyPlayer',
+    ANY_PLAYER_WITH_VENUS_TAG = 'anyPlayerWithVenusTag',
     LAST_PLAYED_CARD = 'lastPlayedCard',
     VENUS_CARD = 'venusCard',
     JOVIAN_CARD = 'jovianCard',
 }
+
+export const USER_CHOICE_LOCATION_TYPES = [
+    ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+    ResourceLocationType.ANY_CARD,
+    ResourceLocationType.VENUS_CARD,
+    ResourceLocationType.JOVIAN_CARD,
+    ResourceLocationType.ANY_PLAYER,
+    ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
+];
 
 export const getClassName = (resource: Resource) => {
     switch (resource) {

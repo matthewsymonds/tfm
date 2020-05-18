@@ -11,12 +11,12 @@ const cards = cardConfigs.map(config => new Card(config));
 
 export const BILLY_TEST = setupStateForPlayer({
     cards: cards.filter(c =>
-        ['Nitrite reducing bacteria'].some(
+        ['Predators', 'pets', 'Nitrite Reducing Bacteria', 'Large convoy'].some(
             name => name.toLowerCase().indexOf(c.name.toLowerCase()) !== -1
         )
     ),
     resources: {
-        [Resource.MEGACREDIT]: 20,
+        [Resource.MEGACREDIT]: 10000,
         [Resource.STEEL]: 4,
         [Resource.TITANIUM]: 10,
         [Resource.PLANT]: 1000,
@@ -52,7 +52,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
             deck: [],
             parameters: {
                 [Parameter.OCEAN]: 0,
-                [Parameter.OXYGEN]: 0,
+                [Parameter.OXYGEN]: 11,
                 [Parameter.TEMPERATURE]: -30,
                 [Parameter.VENUS]: 0,
             },

@@ -1,3 +1,5 @@
+import {Amount} from './action';
+
 export enum VariableAmount {
     USER_CHOICE = 'userChoice',
     BASED_ON_USER_CHOICE = 'basedOnUserChoice',
@@ -34,6 +36,4 @@ export enum VariableAmount {
     FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE = 'fourIfThreePlantTagsElseOne',
     THIRD_ALL_CITIES = 'thirdAllCities',
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
-    USER_CHOICE_UP_TO_3 = 'USER_CHOICE_UP_TO_3',
-    USER_CHOICE_UP_TO_2 = 'USER_CHOICE_UP_TO_2',
 }

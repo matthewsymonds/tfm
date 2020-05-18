@@ -10,11 +10,11 @@ export interface Conversion extends Action {
 
 export const CONVERSIONS = {
     [Resource.PLANT]: {
-        removeResources: {[Resource.PLANT]: 8},
+        removeResource: {[Resource.PLANT]: 8},
         tilePlacements: [t(TileType.GREENERY)],
     },
     [Resource.HEAT]: {
-        removeResources: {[Resource.HEAT]: 8},
+        removeResource: {[Resource.HEAT]: 8},
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
     },
 };

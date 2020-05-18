@@ -30,10 +30,10 @@ export interface Action {
     gainResourceOption?: ResourceCounter;
     gainResourceTargetType?: ResourceLocationType;
     removeResourceSourceType?: ResourceLocationType;
-    removeResources?: ResourceCounter;
+    removeResource?: ResourceCounter;
     removeResourceOption?: ResourceCounter;
-    removeAnyResource?: ResourceCounter;
-    removeAnyResourceOption?: ResourceCounter;
+    stealResource?: ResourceCounter;
+    stealResourceOption?: ResourceCounter;
     increaseProduction?: ResourceCounter;
     increaseProductionOption?: ResourceCounter;
     decreaseProduction?: ResourceCounter;

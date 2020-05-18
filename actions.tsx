@@ -3,7 +3,7 @@ import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constant
 import {Discounts} from './constants/discounts';
 import {GameStage} from './constants/game';
 import {PropertyCounter} from './constants/property-counter';
-import {Resource, ResourceLocationType} from './constants/resource';
+import {Resource, ResourceLocationType, ResourceAndAmount} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
 import {VariableAmount} from './constants/variable-amount';
 import {Card} from './models/card';
@@ -81,19 +81,25 @@ export const increaseProduction = (resource: Resource, amount: Amount, playerInd
 });
 
 export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
-export const removeResource = (resource: Resource, amount: Amount, playerIndex: number) => ({
+export const removeResource = (
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    location?: ResourceLocationType
+) => ({
     type: REMOVE_RESOURCE,
-    payload: {resource, amount, playerIndex},
+    payload: {resource, amount, location, playerIndex},
 });
 export const REMOVE_STORABLE_RESOURCE = 'REMOVE_STORABLE_RESOURCE';
 export const removeStorableResource = (
     resource: Resource,
     amount: Amount,
+    playerIndex: number,
     card: Card,
-    playerIndex: number
+    location?: ResourceLocationType
 ) => ({
     type: REMOVE_STORABLE_RESOURCE,
-    payload: {resource, amount, card, playerIndex},
+    payload: {resource, amount, card, playerIndex, location},
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
@@ -176,32 +182,46 @@ export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: nu
 });
 
 export const ASK_USER_TO_GAIN_RESOURCE = 'ASK_USER_TO_GAIN_RESOURCE';
-export const askUserToGainResource = (action: Action, playerIndex: number) => ({
+export const askUserToGainResource = (
+    action: Action,
+    card: Card | undefined,
+    playerIndex: number
+) => ({
     type: ASK_USER_TO_GAIN_RESOURCE,
-    payload: {action, playerIndex},
+    payload: {action, card, playerIndex},
 });
 
 export const ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET = 'ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET';
 export const askUserToConfirmResourceTargetLocation = (
-    gainResource: PropertyCounter<Resource>,
-    gainResourceTargetType: ResourceLocationType,
+    resource: Resource,
+    targetType: ResourceLocationType | undefined,
+    amount: Amount,
     card: Card | undefined,
     playerIndex: number
 ) => {
     return {
         type: ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-        payload: {gainResource, gainResourceTargetType, card, playerIndex},
+        payload: {resource, targetType, amount, card, playerIndex},
     };
 };
 
-export const ASK_USER_TO_REMOVE_RESOURCE = 'ASK_USER_TO_REMOVE_RESOURCE';
-export const askUserToRemoveResource = (
-    resource: Resource,
-    amount: VariableAmount,
-    playerIndex: number
-) => ({
-    type: ASK_USER_TO_REMOVE_RESOURCE,
-    payload: {resource, amount, playerIndex},
+export const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS =
+    'ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS';
+export const askUserToChooseResourceActionDetails = ({
+    actionType,
+    resourceAndAmounts,
+    card,
+    playerIndex,
+    locationType,
+}: {
+    actionType: 'removeResource';
+    resourceAndAmounts: Array<ResourceAndAmount>;
+    card: Card;
+    playerIndex: number;
+    locationType?: ResourceLocationType;
+}) => ({
+    type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
+    payload: {actionType, resourceAndAmounts, card, playerIndex, locationType},
 });
 
 export const ASK_USER_TO_DECREASE_PRODUCTION = 'ASK_USER_TO_DECREASE_PRODUCTION';

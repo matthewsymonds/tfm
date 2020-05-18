@@ -63,7 +63,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
-            removeResources: {[Resource.MEGACREDIT]: 1},
+            removeResource: {[Resource.MEGACREDIT]: 1},
             revealAndDiscardTopCards: 1,
             gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
@@ -98,7 +98,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 1 energy to gain 1 MC for each city tile ON MARS.',
-            removeResources: {[Resource.ENERGY]: 1},
+            removeResource: {[Resource.ENERGY]: 1},
             gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITIES_ON_MARS},
         },
         cost: 13,
@@ -134,7 +134,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
         gainResource: {[Resource.TITANIUM]: 2},
-        removeAnyResource: {[Resource.PLANT]: 3},
+        removeResource: {[Resource.PLANT]: 3},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 21,
@@ -146,7 +147,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
         tilePlacements: [t(TileType.OCEAN)],
-        removeAnyResource: {[Resource.PLANT]: 1},
+        removeResource: {[Resource.PLANT]: 3},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 27,
@@ -158,7 +160,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
         gainResource: {[Resource.TITANIUM]: 4},
-        removeAnyResource: {[Resource.PLANT]: 4},
+        removeResource: {[Resource.PLANT]: 4},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         action: {
@@ -179,7 +182,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 1 steel to gain 5 MC',
-            removeResources: {[Resource.STEEL]: 1},
+            removeResource: {[Resource.STEEL]: 1},
             gainResource: {[Resource.MEGACREDIT]: 5},
         },
         cost: 27,
@@ -194,7 +197,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 1 energy to draw a card.',
-            removeResources: {[Resource.ENERGY]: 1},
+            removeResource: {[Resource.ENERGY]: 1},
             gainResource: {[Resource.CARD]: 1},
         },
         cost: 11,
@@ -269,7 +272,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         gainResourceOption: {[Resource.PLANT]: 3, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 3},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         effect: {text: 'Effect: When you play a card, you pay 1 MC less for it.'},
@@ -327,9 +330,8 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Remove 1 animal from any card and add it to this card.',
-            removeAnyResource: {[Resource.ANIMAL]: 1},
+            stealResource: {[Resource.ANIMAL]: 1},
             removeResourceSourceType: ResourceLocationType.ANY_CARD,
-            gainResource: {[Resource.ANIMAL]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
         cost: 14,
@@ -361,7 +363,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Eos Chasma National Park',
         text:
             'Requires -12°C  or warmer. Add 1 animal TO ANY animal CARD. Gain 3 plants. Increase your MC production 2 steps.',
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: -12,
@@ -385,7 +387,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 1 titanium to add 1 fighter resource to this card.',
-            removeResources: {[Resource.TITANIUM]: 1},
+            removeResource: {[Resource.TITANIUM]: 1},
             gainResource: {[Resource.FIGHTER]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
@@ -461,7 +463,7 @@ export const cardConfigs: CardConfig[] = [
                 },
                 {
                     text: '-2 microbes, +1 oxygen',
-                    removeResources: {[Resource.MICROBE]: 2},
+                    removeResource: {[Resource.MICROBE]: 2},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.OXYGEN]: 1},
                 },
@@ -486,7 +488,7 @@ export const cardConfigs: CardConfig[] = [
                 },
                 {
                     text: '-2 microbes, +1 temperature',
-                    removeResources: {[Resource.MICROBE]: 2},
+                    removeResource: {[Resource.MICROBE]: 2},
                     increaseParameter: {[Parameter.TEMPERATURE]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                 },
@@ -507,9 +509,8 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Remove 1 microbe from any card to add 1 to this card.',
-            removeAnyResource: {[Resource.MICROBE]: 1},
+            stealResource: {[Resource.MICROBE]: 1},
             removeResourceSourceType: ResourceLocationType.ANY_CARD,
-            gainResource: {[Resource.MICROBE]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
         cost: 9,
@@ -567,7 +568,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 3},
-        removeAnyResource: {[Resource.PLANT]: 8},
+        removeResource: {[Resource.PLANT]: 8},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 30,
@@ -696,7 +698,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Remove up to 2 animals or 5 plants from any player.',
         tags: [Tag.EVENT, Tag.MICROBE],
         type: CardType.EVENT,
-        removeAnyResourceOption: {[Resource.ANIMAL]: 2, [Resource.PLANT]: 5},
+        removeResourceOption: {[Resource.ANIMAL]: 2, [Resource.PLANT]: 5},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 12,
@@ -872,7 +875,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.OXYGEN]: 1},
-        removeAnyResource: {[Resource.PLANT]: 2},
+        removeResource: {[Resource.PLANT]: 2},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
         gainResource: {[Resource.STEEL]: 2},
     },
     {
@@ -996,7 +1000,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             trigger: {tags: [Tag.SCIENCE]},
-            action: {removeResources: {[Resource.CARD]: 1}, gainResource: {[Resource.CARD]: 1}},
+            action: {removeResource: {[Resource.CARD]: 1}, gainResource: {[Resource.CARD]: 1}},
             text:
                 'Effect: When you play a science tag, including this, you may discard a card from hand to draw a card.',
         },
@@ -1041,7 +1045,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 7MC to increase your energy production 1 step.',
-            removeResources: {[Resource.MEGACREDIT]: 7},
+            removeResource: {[Resource.MEGACREDIT]: 7},
             increaseProduction: {[Resource.ENERGY]: 1},
         },
         cost: 3,
@@ -1091,7 +1095,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
-        removeAnyResource: {[Resource.PLANT]: 6},
+        removeResource: {[Resource.PLANT]: 6},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 20,
@@ -1251,7 +1256,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 6 energy to add a science resource to this card.',
-            removeResources: {[Resource.ENERGY]: 6},
+            removeResource: {[Resource.ENERGY]: 6},
             gainResource: {[Resource.SCIENCE]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
@@ -1321,7 +1326,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 4 energy to gain 1 steel and increase oxygen 1 step.',
-            removeResources: {[Resource.ENERGY]: 4},
+            removeResource: {[Resource.ENERGY]: 4},
             gainResource: {[Resource.STEEL]: 1},
             increaseParameter: {[Parameter.OXYGEN]: 1},
         },
@@ -1346,7 +1351,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 4 energy to gain 2 steel and increase oxygen 1 step.',
-            removeResources: {[Resource.ENERGY]: 4},
+            removeResource: {[Resource.ENERGY]: 4},
             gainResource: {[Resource.STEEL]: 2},
             increaseParameter: {[Parameter.OXYGEN]: 1},
         },
@@ -1359,7 +1364,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 4 energy to gain 1 titanium and increase oxygen 1 step.',
-            removeResources: {[Resource.ENERGY]: 4},
+            removeResource: {[Resource.ENERGY]: 4},
             gainResource: {[Resource.TITANIUM]: 1},
             increaseParameter: {[Parameter.OXYGEN]: 1},
         },
@@ -1566,11 +1571,12 @@ export const cardConfigs: CardConfig[] = [
         text: 'Remove up to 3 titanium from any player, or 4 steel, or 7 MC.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        removeAnyResourceOption: {
+        removeResourceOption: {
             [Resource.TITANIUM]: 3,
             [Resource.STEEL]: 4,
             [Resource.MEGACREDIT]: 7,
         },
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 4,
@@ -1584,12 +1590,12 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        removeResources: {[Resource.PLANT]: 1},
+        removeResource: {[Resource.PLANT]: 1},
     },
     {
         action: {
             text: 'Action: Spend 7 MC to increase your steel production 1 step.',
-            removeResources: {[Resource.MEGACREDIT]: 7},
+            removeResource: {[Resource.MEGACREDIT]: 7},
             increaseProduction: {[Resource.STEEL]: 1},
         },
         cost: 4,
@@ -1607,18 +1613,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Steal up to 2 steel, or 3MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        choice: [
-            {
-                removeAnyResource: {[Resource.MEGACREDIT]: VariableAmount.USER_CHOICE_UP_TO_3},
-                gainResource: {[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE},
-                text: '3 Megacredits',
-            },
-            {
-                removeAnyResource: {[Resource.STEEL]: VariableAmount.USER_CHOICE_UP_TO_2},
-                gainResource: {[Resource.STEEL]: VariableAmount.BASED_ON_USER_CHOICE},
-                text: '2 steel',
-            },
-        ],
+        stealResourceOption: {
+            [Resource.MEGACREDIT]: 3,
+            [Resource.STEEL]: 2,
+        },
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 3,
@@ -1743,7 +1742,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Action: Add a microbe to ANOTHER card.',
             gainResource: {[Resource.MICROBE]: 1},
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
 
         cost: 4,
@@ -1764,7 +1763,7 @@ export const cardConfigs: CardConfig[] = [
                 [Resource.PLANT]: 1,
                 [Resource.MICROBE]: 2,
             },
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         cost: 13,
         deck: Deck.BASIC,
@@ -1880,7 +1879,7 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.OCEAN)],
         gainResource: {[Resource.CARD]: 2},
         gainResourceOption: {[Resource.PLANT]: 5, [Resource.ANIMAL]: 4},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 7,
@@ -1914,7 +1913,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
-        removeResources: {[Resource.PLANT]: 2},
+        removeResource: {[Resource.PLANT]: 2},
         increaseProduction: {[Resource.PLANT]: 2},
     },
     {
@@ -2025,7 +2024,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 8 heat to increase your terraforming rating 1 step.',
-            removeResources: {[Resource.HEAT]: 8},
+            removeResource: {[Resource.HEAT]: 8},
             increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
         },
         cost: 3,
@@ -2076,7 +2075,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 microbe',
                 },
                 {
-                    removeResources: {[Resource.MICROBE]: 3},
+                    removeResource: {[Resource.MICROBE]: 3},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
                     text: '-3 microbes, +1 TR',
@@ -2158,7 +2157,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
         gainResource: {[Resource.PLANT]: 4, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 3,
@@ -2249,7 +2248,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         gainResource: {[Resource.MICROBE]: 2},
         increaseProduction: {[Resource.HEAT]: 3, [Resource.PLANT]: 1},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         increaseTerraformRating: 1,
@@ -2333,7 +2332,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 3 energy to raise oxygen 1 step.',
-            removeResources: {[Resource.ENERGY]: 1},
+            removeResource: {[Resource.ENERGY]: 1},
             increaseParameter: {[Parameter.OXYGEN]: 1},
         },
         cost: 12,
@@ -2457,7 +2456,7 @@ export const cardConfigs: CardConfig[] = [
                         text: '+1 science',
                     },
                     {
-                        removeResources: {[Resource.SCIENCE]: 1},
+                        removeResource: {[Resource.SCIENCE]: 1},
                         removeResourceSourceType: ResourceLocationType.THIS_CARD,
                         gainResource: {[Resource.CARD]: 1},
                         text: '-1 science, +1 card',
@@ -2495,7 +2494,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.',
-            removeResources: {[Resource.MEGACREDIT]: 8},
+            removeResource: {[Resource.MEGACREDIT]: 8},
             tilePlacements: [t(TileType.OCEAN)],
         },
         cost: 18,
@@ -2534,9 +2533,9 @@ export const cardConfigs: CardConfig[] = [
         text: 'Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        removeResources: {[Resource.HEAT]: 5},
+        removeResource: {[Resource.HEAT]: 5},
         gainResourceOption: {[Resource.PLANT]: 4, [Resource.ANIMAL]: 2},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 8,
@@ -2577,7 +2576,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend any amount of energy to gain that amount of MC.',
-            removeResources: {[Resource.ENERGY]: VariableAmount.USER_CHOICE},
+            removeResource: {[Resource.ENERGY]: VariableAmount.USER_CHOICE},
             gainResource: {[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE},
         },
         cost: 4,
@@ -2631,7 +2630,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 2MC to draw a card.',
-            removeResources: {[Resource.MEGACREDIT]: 2},
+            removeResource: {[Resource.MEGACREDIT]: 2},
             gainResource: {[Resource.CARD]: 1},
         },
         cost: 11,
@@ -2672,7 +2671,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            removeResources: {[Resource.MEGACREDIT]: 10},
+            removeResource: {[Resource.MEGACREDIT]: 10},
             increaseProduction: {[Resource.HEAT]: 2},
             text: 'Action: Spend 10 MC to increase your heat production 2 steps.',
         },
@@ -2809,11 +2808,11 @@ export const cardConfigs: CardConfig[] = [
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 1},
-                    gainResourceTargetType: ResourceLocationType.ANY_CARD,
                     text: '+1 floater',
+                    gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 1},
+                    removeResource: {[Resource.FLOATER]: 1},
                     gainResource: {[Resource.CARD]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     text: '-1 floater, +1 card',
@@ -2876,7 +2875,7 @@ export const cardConfigs: CardConfig[] = [
             {increaseParameter: {[Parameter.VENUS]: 2}, text: '+2 Venus'},
         ],
         gainResource: {[Resource.FLOATER]: 3},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -2888,7 +2887,8 @@ export const cardConfigs: CardConfig[] = [
         name: 'Comet for Venus',
         text: 'Raise Venus 1 step. Remove up to 4 MC from a player WITH A VENUS TAG IN PLAY.',
         increaseParameter: {[Parameter.VENUS]: 1},
-        removeAnyResource: {[Resource.MEGACREDIT]: 4},
+        removeResource: {[Resource.MEGACREDIT]: 4},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
     },
@@ -2928,7 +2928,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 1},
+                    removeResource: {[Resource.FLOATER]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseProduction: {[Resource.ENERGY]: 1},
                     text: '-1 floater, +1 energy production',
@@ -2947,8 +2947,8 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Action: Add 1 floater to ANY card. Effect: When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
             gainResource: {[Resource.FLOATER]: 1},
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
-            removeResourceSourceType: ResourceLocationType.THIS_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+            // removeResourceSourceType: ResourceLocationType.THIS_CARD,
             // TODO effect
         },
         cost: 11,
@@ -2969,7 +2969,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 2},
+                    removeResource: {[Resource.FLOATER]: 2},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.VENUS]: 1},
                     text: '-2 floaters, +1 Venus',
@@ -2990,7 +2990,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Action: Add 1 microbe to ANY card.',
             gainResource: {[Resource.FLOATER]: 1},
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         cost: 3,
         deck: Deck.VENUS,
@@ -3005,10 +3005,10 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 2 MC to add 1 floater to ANY card.',
-            removeResources: {[Resource.MEGACREDIT]: 2},
+            removeResource: {[Resource.MEGACREDIT]: 2},
             // TODO any card
             gainResource: {[Resource.FLOATER]: 1},
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         cost: 5,
         deck: Deck.VENUS,
@@ -3025,13 +3025,13 @@ export const cardConfigs: CardConfig[] = [
                 'Action: Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
             choice: [
                 {
-                    removeResources: {[Resource.MEGACREDIT]: 2},
+                    removeResource: {[Resource.MEGACREDIT]: 2},
                     gainResource: {[Resource.FLOATER]: 2},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-2 Megacredits, +1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 2},
+                    removeResource: {[Resource.FLOATER]: 2},
                     increaseParameter: {[Parameter.VENUS]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     text: '-2 floaters, +1 Venus',
@@ -3138,13 +3138,13 @@ export const cardConfigs: CardConfig[] = [
                 'Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters here to raise Venus 1 step.',
             choice: [
                 {
-                    removeResources: {[Resource.TITANIUM]: 1},
+                    removeResource: {[Resource.TITANIUM]: 1},
                     gainResource: {[Resource.FLOATER]: 1},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-1 Titanium, +2 floaters',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 2},
+                    removeResource: {[Resource.FLOATER]: 2},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.VENUS]: 1},
                     text: '-2 floaters, +1 Venus',
@@ -3169,7 +3169,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 1},
+                    removeResource: {[Resource.FLOATER]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseProduction: {[Resource.MEGACREDIT]: 1},
                     text: '-1 floater, +1 Megacredit production',
@@ -3270,13 +3270,13 @@ export const cardConfigs: CardConfig[] = [
         action: {
             choice: [
                 {
-                    removeResources: {[Resource.MEGACREDIT]: 6},
+                    removeResource: {[Resource.MEGACREDIT]: 6},
                     gainResource: {[Resource.ASTEROID]: 1},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '+1 asteroid',
                 },
                 {
-                    removeResources: {[Resource.ASTEROID]: 1},
+                    removeResource: {[Resource.ASTEROID]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.VENUS]: 1},
                     text: '-1 asteroid, +1 Venus',
@@ -3370,10 +3370,10 @@ export const cardConfigs: CardConfig[] = [
             type: Parameter.VENUS,
             min: 12,
         },
-        removeResources: {
+        removeResource: {
             [Resource.FLOATER]: 1,
         },
-        removeResourceSourceType: ResourceLocationType.ANY_CARD,
+        removeResourceSourceType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tags: [Tag.ANIMAL, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.RESOURCES_ON_CARD,
@@ -3404,7 +3404,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 microbe',
                 },
                 {
-                    removeResources: {
+                    removeResource: {
                         [Resource.MICROBE]: VariableAmount.USER_CHOICE,
                     },
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
@@ -3497,7 +3497,7 @@ export const cardConfigs: CardConfig[] = [
             'Raise Venus 1 step. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.',
         tags: [Tag.PLANT, Tag.VENUS],
         type: CardType.AUTOMATED,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         effect: {text: 'Effect: When you play a Venus tag, you pay 2 MC less for it.'},
@@ -3576,13 +3576,14 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 0,
         deck: Deck.COLONIES,
         name: 'Air Raid',
-        removeResources: {[Resource.FLOATER]: 1},
+        removeResource: {[Resource.FLOATER]: 1},
+        stealResource: {[Resource.MEGACREDIT]: 5},
         text: 'Requires that you lose 1 floater. Steal 5 MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
@@ -3598,7 +3599,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 1},
+                    removeResource: {[Resource.FLOATER]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     gainResourceOption: {
                         [Resource.TITANIUM]: 2,
@@ -3680,7 +3681,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {
             [Resource.PLANT]: VariableAmount.COLONIES,
         },
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 3,
@@ -3700,7 +3701,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Add 2 floaters to ANOTHER card',
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 7,
@@ -3708,7 +3709,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Floater Technology',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         cost: 15,
@@ -3770,7 +3771,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         action: {
@@ -3921,7 +3922,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '+1 floater',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 1},
+                    removeResource: {[Resource.FLOATER]: 1},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     gainResource: {[Resource.CARD]: 1},
                     text: '-1 floater, +1 card',
@@ -4060,13 +4061,13 @@ export const cardConfigs: CardConfig[] = [
                 'Action: Spend 1 titanium to add 2 floaters to this card, or spend 2 floaters here to increase your TR 1 step.',
             choice: [
                 {
-                    removeResources: {[Resource.TITANIUM]: 1},
+                    removeResource: {[Resource.TITANIUM]: 1},
                     gainResource: {[Resource.FLOATER]: 2},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-1 titanium, +2 floaters',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: 2},
+                    removeResource: {[Resource.FLOATER]: 2},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
                     text: '-2 floaters, +1 TR',
@@ -4085,8 +4086,9 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Add 1 floater to ANY JOVIAN CARD, or spend 1 floater here to trade for free',
-            gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
-            removeResourceSourceType: ResourceLocationType.THIS_CARD,
+            // TODO implement as choice
+            // gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+            // removeResourceSourceType: ResourceLocationType.THIS_CARD,
         },
         cost: 18,
         deck: Deck.COLONIES,
@@ -4109,10 +4111,10 @@ export const cardConfigs: CardConfig[] = [
                     text: '+2 floaters',
                 },
                 {
-                    removeResources: {[Resource.FLOATER]: VariableAmount.BASED_ON_USER_CHOICE},
-                    gainResource: {[Resource.TITANIUM]: VariableAmount.BASED_ON_USER_CHOICE},
+                    removeResource: {[Resource.FLOATER]: VariableAmount.USER_CHOICE},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     text: '-X floaters, +X titanium',
+                    gainResource: {[Resource.TITANIUM]: VariableAmount.BASED_ON_USER_CHOICE},
                 },
             ],
         },
@@ -4154,7 +4156,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SPACE]: 1},
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
-        gainResourceTargetType: ResourceLocationType.ANY_CARD,
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
         effect: {text: 'Effect: When you play a space tag, you pay 4 MC less for it.'},
@@ -4659,7 +4661,7 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Action: If your Terraform Rating was raised this generation, you may pay 3 MC to raise it 1 step more.',
             requiresTerraformRatingIncrease: true,
-            removeResources: {[Resource.MEGACREDIT]: 3},
+            removeResource: {[Resource.MEGACREDIT]: 3},
             increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
         },
         deck: Deck.BASIC,
@@ -4684,7 +4686,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Add a floater to ANY card.',
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
@@ -4837,7 +4839,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Add 1 floater to ANY card. Effect: Floaters on this card may be used as 2 heat each',
-            gainResourceTargetType: ResourceLocationType.ANY_CARD,
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
             removeResourceSourceType: ResourceLocationType.THIS_CARD,
         },
         deck: Deck.COLONIES,

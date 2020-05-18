@@ -1,69 +1,68 @@
 import {PlayerState} from '../reducer';
-import {
-    isStorableResource,
-    Resource,
-    getResourceName,
-    ResourceLocationType,
-} from '../constants/resource';
+import {isStorableResource, Resource, getResourceName} from '../constants/resource';
 import {getAllowedCardsForResourceAction} from '../selectors/card';
-import {Card} from '../models/card';
-import {PropertyCounter} from '../constants/property-counter';
+import {useContext} from 'react';
+import {AppContext} from '../context/app-context';
+import {askUserToConfirmResourceTargetLocation, gainResource} from '../actions';
+import {useDispatch} from 'react-redux';
 
 function getResourceGainHumanName(resource: Resource, amount: number) {
     return `${amount} ${getResourceName(resource)}${amount > 1 ? 's' : ''}`;
 }
 
-type SelectResourceTypeToGain = {
+type SelectResourceTypeToGainProps = {
     player: PlayerState;
-    confirmResourceGain: (resource: Resource, amount: number) => void;
-    askUserToConfirmResourceTargetLocation: (
-        gainResource: PropertyCounter<Resource>,
-        gainResourceTargetType: ResourceLocationType,
-        card: Card | undefined
-    ) => void;
 };
 
-function SelectResourceTypeToGain({
-    player,
-    confirmResourceGain,
-    askUserToConfirmResourceTargetLocation,
-}: SelectResourceTypeToGain) {
-    if (!player.pendingResourceGain) {
+function SelectResourceTypeToGain({player}: SelectResourceTypeToGainProps) {
+    if (!player.pendingResourceOption) {
         return null;
     }
-    let {gainResourceOption, gainResourceTargetType, card} = player.pendingResourceGain;
+    const appContext = useContext(AppContext);
+    const dispatch = useDispatch();
+    let {resourceOption, targetType, card} = player.pendingResourceOption;
+
     function handleSelectResourceToGain(resource: Resource) {
         if (isStorableResource(resource)) {
-            if (!player.pendingResourceGain?.gainResourceTargetType) {
+            if (!player.pendingResourceOption?.targetType) {
                 throw new Error('Storable resources must list a target type');
             }
-            askUserToConfirmResourceTargetLocation(
-                {[resource]: player.pendingResourceGain.gainResourceOption[resource]},
-                player.pendingResourceGain?.gainResourceTargetType,
-                card
+            appContext.queue.unshift(
+                askUserToConfirmResourceTargetLocation(
+                    resource,
+                    player.pendingResourceOption.targetType,
+                    player.pendingResourceOption.resourceOption[resource]!,
+                    card,
+                    player.index
+                )
             );
         } else {
-            confirmResourceGain(
-                resource,
-                player.pendingResourceGain?.gainResourceOption[resource] as number // hack but this should always be a number
+            appContext.queue.push(
+                gainResource(
+                    resource,
+                    player.pendingResourceOption?.resourceOption[resource]!,
+                    player.index
+                )
             );
         }
+        appContext.processQueue(dispatch);
     }
+
     return (
         <>
             <h3>Select which resource to gain.</h3>
-            {Object.keys(gainResourceOption).map(resource => {
-                if (!player.pendingResourceGain) return null; // appease TS
-                if (typeof player.pendingResourceGain.gainResourceOption[resource] !== 'number') {
+            {Object.keys(resourceOption).map(resource => {
+                if (!player.pendingResourceOption) return null; // appease TS
+                if (typeof player.pendingResourceOption.resourceOption[resource] !== 'number') {
                     throw new Error('No support for variable user-based resource gain');
                 }
 
-                if (isStorableResource(resource) && gainResourceTargetType) {
+                if (isStorableResource(resource) && targetType) {
                     // verify that there is a home for this
                     const cards = getAllowedCardsForResourceAction({
                         player,
                         resource,
-                        resourceLocationType: gainResourceTargetType,
+                        resourceLocationType: targetType,
                         thisCard: card,
                     });
                     if (cards.length === 0) {
@@ -78,7 +77,7 @@ function SelectResourceTypeToGain({
                     >
                         {getResourceGainHumanName(
                             resource as Resource,
-                            player.pendingResourceGain.gainResourceOption[resource]
+                            player.pendingResourceOption.resourceOption[resource]
                         )}
                     </button>
                 );

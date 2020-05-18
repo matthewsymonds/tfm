@@ -48,7 +48,7 @@ export function getAllowedCardsForResourceAction({
     thisCard: Card | undefined;
 }): Card[] {
     switch (resourceLocationType) {
-        case ResourceLocationType.ANY_CARD:
+        case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
             return getAllPlayedCardsThatHoldResource(player, resource);
         case ResourceLocationType.THIS_CARD:
             return thisCard ? [thisCard] : [];
@@ -66,6 +66,12 @@ export function getAllowedCardsForResourceAction({
             return getAllPlayedCardsWithTagThatHoldResource(player, Tag.JOVIAN, resource);
         case ResourceLocationType.VENUS_CARD:
             return getAllPlayedCardsWithTagThatHoldResource(player, Tag.VENUS, resource);
+        case ResourceLocationType.ANY_CARD:
+            // TODO
+            return [];
+        case ResourceLocationType.ANY_PLAYER:
+        case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
+            throw new Error('Unsupported resource location type for card selection');
         default:
             throw spawnExhaustiveSwitchError(resourceLocationType);
     }

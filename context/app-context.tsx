@@ -5,12 +5,11 @@ import {
     askUserToGainResource,
     askUserToLookAtCards,
     askUserToPlaceTile,
-    askUserToRemoveResource,
+    askUserToConfirmResourceTargetLocation,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_REMOVE_RESOURCE,
     buySelectedCards,
     claimMilestone as claimMilestoneAction,
     completeAction,
@@ -28,6 +27,7 @@ import {
     REVEAL_AND_DISCARD_TOP_CARDS,
     removeStorableResource,
     addParameterRequirementAdjustments,
+    askUserToChooseResourceActionDetails,
 } from '../actions';
 import {Action, Amount} from '../constants/action';
 import {
@@ -43,7 +43,12 @@ import {CardType} from '../constants/card-types';
 import {EffectTrigger} from '../constants/effect-trigger';
 import {MinimumProductions, PARAMETER_STEPS} from '../constants/game';
 import {PropertyCounter} from '../constants/property-counter';
-import {isStorableResource, Resource} from '../constants/resource';
+import {
+    isStorableResource,
+    Resource,
+    ResourceLocationType,
+    USER_CHOICE_LOCATION_TYPES,
+} from '../constants/resource';
 import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
 import {Tag} from '../constants/tag';
 import {VariableAmount} from '../constants/variable-amount';
@@ -137,8 +142,8 @@ export function convertAmountToNumber(amount: Amount, state: RootState, card?: C
 function doesPlayerHaveRequiredResources(action: Action, state: RootState, parent?: Card) {
     const player = getLoggedInPlayer(state);
 
-    for (const resource in action.removeResources) {
-        const requiredAmount = convertAmountToNumber(action.removeResources[resource], state);
+    for (const resource in action.removeResource) {
+        const requiredAmount = convertAmountToNumber(action.removeResource[resource], state);
         if (isStorableResource(resource)) {
             const cards = getAllowedCardsForResourceAction({
                 thisCard: parent!,
@@ -249,25 +254,81 @@ function canPlayAction(
     return [true, 'Good to go'];
 }
 
-function createRemoveResourceAction(
+function createInitialRemoveResourceAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
-    state: RootState,
-    parent?: Card
+    parent?: Card,
+    locationType?: ResourceLocationType
 ) {
-    // TODO: support 4 scenarios.
-    // 1. remove resource
-    // 2. remove storable resource
-    // 3. ask user to remove resource (e.g. trade energy for money)
-    // 4. ask user to remove storable resource (e.g. spend microbes for 3x money)
-    if (amount === VariableAmount.USER_CHOICE) {
-        return askUserToRemoveResource(resource, amount, playerIndex);
-    } else if (isStorableResource(resource)) {
-        return removeStorableResource(resource, amount, parent!, playerIndex);
-    } else {
-        return removeResource(resource, amount, playerIndex);
+    const requiresLocationChoice =
+        locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
+    const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
+    const actions: Array<{type; payload}> = [];
+
+    if (requiresAmountChoice || requiresLocationChoice) {
+        return askUserToChooseResourceActionDetails({
+            actionType: 'removeResource',
+            resourceAndAmounts: [{resource, amount}],
+            card: parent!,
+            locationType,
+            playerIndex,
+        });
     }
+
+    if (isStorableResource(resource)) {
+        // Assumes you're removing from "This card" (parent)
+        return removeStorableResource(resource, amount, playerIndex, parent!, locationType);
+    } else {
+        // Assumes you're removing from your own resources
+        return removeResource(resource, amount, playerIndex, locationType);
+    }
+
+    return actions;
+}
+
+function createRemoveResourceOptionActions(
+    options: PropertyCounter<Resource>,
+    playerIndex: number,
+    parent?: Card,
+    locationType?: ResourceLocationType
+) {
+    // HACK: all instances of `removeResourceOption` use a number amount, so we don't account for variable amounts here
+    const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+        resource,
+        amount: options[resource] as number,
+    }));
+    return askUserToChooseResourceActionDetails({
+        actionType: 'removeResource',
+        resourceAndAmounts,
+        card: parent!,
+        locationType,
+        playerIndex,
+    });
+}
+
+function createGainResourceAction(
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    parent?: Card,
+    locationType?: ResourceLocationType
+) {
+    // if (locationType && locationType !== ResourceLocationType.THIS_CARD) {
+    //     askUserToConfirmResourceTargetLocation(
+    //         resource,
+    //         locationType,
+    //         typeof amount === 'number' ? amount * -1 : amount,
+    //         parent,
+    //         playerIndex
+    //     );
+    // } else if (USER_CHOICE_VARIABLE_AMOUNTS.includes(amount)) {
+    //     return askUserToConfirmVariableAmount(resource, amount as VariableAmount, playerIndex);
+    // } else if (isStorableResource(resource)) {
+    //     return gainStorableResource(resource, amount, parent!, playerIndex);
+    // } else {
+    //     return gainResource(resource, amount, playerIndex);
+    // }
 }
 
 function createDecreaseProductionAction(
@@ -414,17 +475,50 @@ function playAction(action: Action, state: RootState, parent?: Card) {
         );
     }
 
-    for (const resource in action.removeResources) {
+    for (const resource in action.removeResource) {
         this.queue.push(
-            createRemoveResourceAction(
+            createInitialRemoveResourceAction(
                 resource as Resource,
-                action.removeResources[resource],
+                action.removeResource[resource],
                 playerIndex,
-                state,
-                parent
+                parent,
+                action.removeResourceSourceType
             )
         );
     }
+
+    if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
+        // this.queue.push(...createRemoveResourceOptionActions(action.removeResourceOption!, playerIndex, parent, action.removeResourceSourceType);
+    }
+
+    // TODO: STEAL RESOURCE
+    // for (const resource in action.stealResource) {
+    //     // remove it
+    //     this.queue.push(
+    //         createInitialRemoveResourceAction(
+    //             resource as Resource,
+    //             action.stealResource[resource],
+    //             playerIndex,
+    //             parent,
+    //             action.removeResourceSourceType
+    //         )
+    //     );
+    //     // gain it
+    //     if (isStorableResource(resource)) {
+    //         this.queue.push(
+    //             gainStorableResource(
+    //                 resource,
+    //                 action.stealResource[resource]!,
+    //                 parent!,
+    //                 playerIndex
+    //             )
+    //         );
+    //     } else {
+    //         this.queue.push(
+    //             gainResource(resource as Resource, action.stealResource[resource], playerIndex)
+    //         );
+    //     }
+    // }
 
     if (action.revealAndDiscardTopCards) {
         this.queue.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
@@ -457,19 +551,17 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     }
 
     for (const resource in action.gainResource) {
-        if (isStorableResource(resource)) {
-            this.queue.push(
-                gainStorableResource(resource, action.gainResource[resource]!, parent!, playerIndex)
-            );
-        } else {
-            this.queue.push(
-                gainResource(resource as Resource, action.gainResource[resource], playerIndex)
-            );
-        }
+        createGainResourceAction(
+            resource as Resource,
+            action.gainResource[resource],
+            playerIndex,
+            parent,
+            action.gainResourceTargetType
+        );
     }
 
     if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
-        this.queue.push(askUserToGainResource(action, playerIndex));
+        this.queue.push(askUserToGainResource(action, parent, playerIndex));
     }
 
     for (const parameter in action.increaseParameter) {
@@ -656,7 +748,6 @@ function processQueue(dispatch: Function) {
 
 const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_REMOVE_RESOURCE,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
     ASK_USER_TO_LOOK_AT_CARDS,
