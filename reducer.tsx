@@ -1,19 +1,25 @@
 import produce from 'immer';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
 import {
+    ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
+    ANNOUNCE_READY_TO_START_ROUND,
     APPLY_DISCOUNTS,
+    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_REMOVE_RESOURCE,
+    BUY_SELECTED_CARDS,
     CLAIM_MILESTONE,
     COMPLETE_ACTION,
     DECREASE_PRODUCTION,
     DISCARD_CARDS,
+    DISCARD_REVEALED_CARDS,
     DRAW_CARDS,
     DRAW_POSSIBLE_CARDS,
     FUND_AWARD,
     GAIN_RESOURCE,
+    GAIN_SELECTED_CARDS,
     GAIN_STORABLE_RESOURCE,
     GO_TO_GAME_STAGE,
     INCREASE_PARAMETER,
@@ -25,45 +31,42 @@ import {
     PAY_TO_PLAY_STANDARD_PROJECT,
     PLACE_TILE,
     REMOVE_RESOURCE,
+    REMOVE_STORABLE_RESOURCE,
+    REVEAL_AND_DISCARD_TOP_CARDS,
     SET_CARDS,
     SET_CORPORATION,
     SET_GAME,
     SET_SELECTED_CARDS,
     SKIP_ACTION,
-    ANNOUNCE_READY_TO_START_ROUND,
-    REVEAL_AND_DISCARD_TOP_CARDS,
-    DISCARD_REVEALED_CARDS,
-    BUY_SELECTED_CARDS,
-    GAIN_SELECTED_CARDS,
-    ASK_USER_TO_LOOK_AT_CARDS,
-    REMOVE_STORABLE_RESOURCE,
-    ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
 } from './actions';
 import {Amount} from './constants/action';
 import {
     Award,
     Board,
     Cell,
-    INITIAL_BOARD_STATE,
     Milestone,
     Parameter,
     Tile,
     TilePlacement,
     TileType,
 } from './constants/board';
-import {CardType, Deck} from './constants/card-types';
-import {Discounts} from './constants/discounts';
-import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from './constants/game';
-import {PropertyCounter} from './constants/property-counter';
-import {isStorableResource, Resource, ResourceLocationType} from './constants/resource';
-import {StandardProjectType} from './constants/standard-project';
-import {Tag} from './constants/tag';
-import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
-import {Card, cards} from './models/card';
-import {BILLY_TEST} from './test-states/billy-test';
-import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
-import {getAdjacentCellsForCell, findCellWithTile} from './selectors/board';
 import {CONVERSIONS} from './constants/conversion';
+import {Discounts} from './constants/discounts';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
+import {PropertyCounter} from './constants/property-counter';
+import {
+    isStorableResource,
+    Resource,
+    ResourceAndAmount,
+    ResourceLocationType,
+    USER_CHOICE_LOCATION_TYPES,
+} from './constants/resource';
+import {StandardProjectType} from './constants/standard-project';
+import {VariableAmount} from './constants/variable-amount';
+import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
+import {Card} from './models/card';
+import {getAdjacentCellsForCell} from './selectors/board';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -115,22 +118,27 @@ export type PlayerState = {
     action: number; // 1 or 2.
     terraformRating: number;
     pendingTilePlacement?: TilePlacement;
-    pendingResourceReduction?: {
-        resource: Resource;
-        amount: Amount;
+    pendingVariableAmount?: number;
+    pendingResourceSource?: string | number; // either card name or player index
+    pendingResourceActionDetails?: {
+        actionType: 'removeResource' | 'gainResource' | 'stealResource';
+        resourceAndAmounts: Array<ResourceAndAmount>;
+        card: Card;
+        locationType?: ResourceLocationType;
     };
 
-    // ====== pendingResourceGain ======
+    // ====== pendingResourceOption ======
     // First: ask user to select which resource type (e.g. "3 plants or 2 animals")
-    pendingResourceGain?: {
-        gainResourceOption: PropertyCounter<Resource>;
-        gainResourceTargetType?: ResourceLocationType;
+    pendingResourceOption?: {
+        resourceOption: PropertyCounter<Resource>;
+        targetType?: ResourceLocationType;
         card?: Card; // for "add a resource to this card" card actions
     };
     // Second (only sometimes): after user picks a storable resource, ask them to pick the target location
-    pendingResourceGainTargetConfirmation?: {
-        gainResource: PropertyCounter<Resource>;
-        gainResourceTargetType: ResourceLocationType;
+    pendingResourceTargetConfirmation?: {
+        resource: Resource;
+        amount: number;
+        targetType: ResourceLocationType;
         card?: Card; // for "add a resource to this card" card actions
     };
 
@@ -206,15 +214,12 @@ function greeneryPlacementTriggered(draft: RootState) {
 function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     const oldPlayerIndex = state.common.currentPlayerIndex;
     const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
-    const newPlayerPlaceInTurnOrder = placeInTurnOrder + (1 % draft.common.playingPlayers.length);
+    const newPlayerPlaceInTurnOrder = (placeInTurnOrder + 1) % draft.common.playingPlayers.length;
     draft.common.currentPlayerIndex = draft.common.playingPlayers[newPlayerPlaceInTurnOrder];
     if (newPlayerPlaceInTurnOrder === 0) {
         draft.common.turn++;
     }
 }
-
-// const INITIAL_STATE: GameState = getInitialState();
-// const INITIAL_STATE: GameState = BILLY_TEST; // qwerty
 
 // Add Card Name here.
 const bonusName = 'Special Design';
@@ -247,7 +252,7 @@ export const reducer = (state: GameState | null = null, action) => {
         const mostRecentlyPlayedCard = player?.playedCards[player.playedCards.length - 1];
 
         function handleGainResource(resource: Resource, amount: Amount) {
-            player.pendingResourceGain = undefined;
+            player.pendingResourceOption = undefined;
             const numberAmount = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
 
             if (resource === Resource.CARD) {
@@ -310,10 +315,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
-                if (player.pendingResourceReduction) {
-                    player.pendingResourceReduction = undefined;
-                    draft.pendingVariableAmount = payload.cards.length;
-                }
+                // if (player.pendingResourceReduction) {
+                //     player.pendingResourceReduction = undefined;
+                //     draft.pendingVariableAmount = payload.cards.length;
+                // }
                 break;
             case DRAW_CARDS:
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
@@ -340,27 +345,38 @@ export const reducer = (state: GameState | null = null, action) => {
                     mostRecentlyPlayedCard
                 );
                 break;
-            case REMOVE_RESOURCE:
-                player.resources[payload.resource] -= convertAmountToNumber(
-                    payload.amount,
-                    state,
-                    mostRecentlyPlayedCard
-                );
+            case REMOVE_RESOURCE: {
+                player.pendingResourceActionDetails = undefined;
+                const {resource, amount, sourcePlayerIndex} = payload;
+                const sourcePlayer = draft.players[sourcePlayerIndex];
+                if (amount > sourcePlayer.resources[resource]) {
+                    throw new Error('Trying to take too many resources');
+                }
+                sourcePlayer.resources[resource] -= amount;
                 break;
+            }
             case REMOVE_STORABLE_RESOURCE: {
+                player.pendingResourceActionDetails = undefined;
+
                 const {card, resource, amount} = payload;
-                const draftCard = player.playedCards.find(c => c.name === card.name);
-                if (!draftCard) {
-                    throw new Error('Card should exist to remove storable resources from');
-                } else if (draftCard.storedResourceType !== resource) {
+
+                const targetCard = draft.players
+                    .flatMap(player => player.playedCards)
+                    .find(playedCard => playedCard.name === card.name);
+
+                if (!targetCard) {
+                    throw new Error(`Target card ${card.name} not found in played cards`);
+                }
+                if (targetCard.storedResourceType !== resource) {
                     throw new Error('Card does not store that type of resource');
-                } else if (
-                    draftCard.storedResourceAmount === undefined ||
-                    draftCard.storedResourceAmount < amount
+                }
+                if (
+                    targetCard.storedResourceAmount === undefined ||
+                    targetCard.storedResourceAmount < amount
                 ) {
                     throw new Error('Card does not contain enough of that resource to remove');
                 }
-                draftCard.storedResourceAmount -= convertAmountToNumber(amount, state);
+                targetCard.storedResourceAmount -= amount;
                 break;
             }
             case GAIN_RESOURCE:
@@ -374,7 +390,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 draftCard.storedResourceAmount =
                     (draftCard.storedResourceAmount || 0) + convertAmountToNumber(amount, state);
-                player.pendingResourceGainTargetConfirmation = undefined;
+                player.pendingResourceTargetConfirmation = undefined;
                 break;
             }
             case PAY_TO_PLAY_CARD: {
@@ -432,25 +448,32 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_GAIN_RESOURCE:
-                player.pendingResourceGain = {
-                    gainResourceOption: payload.action.gainResourceOption,
-                    gainResourceTargetType: payload.action.gainResourceTargetType,
-                };
-                break;
-            case ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET:
-                player.pendingResourceGain = undefined;
-                player.pendingResourceGainTargetConfirmation = {
-                    gainResource: payload.gainResource,
-                    gainResourceTargetType: payload.gainResourceTargetType,
+                player.pendingResourceOption = {
+                    resourceOption: payload.action.gainResourceOption,
+                    targetType: payload.action.gainResourceTargetType,
                     card: payload.card,
                 };
                 break;
-            case ASK_USER_TO_REMOVE_RESOURCE:
-                player.pendingResourceReduction = {
+            case ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET:
+                player.pendingResourceOption = undefined;
+                player.pendingResourceTargetConfirmation = {
                     resource: payload.resource,
+                    targetType: payload.targetType,
                     amount: payload.amount,
+                    card: payload.card,
                 };
                 break;
+            case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {
+                const {actionType, resourceAndAmounts, card, locationType} = payload;
+                player.pendingResourceActionDetails = {
+                    actionType,
+                    resourceAndAmounts,
+                    card,
+                    locationType,
+                };
+
+                break;
+            }
             case PLACE_TILE:
                 player.pendingTilePlacement = undefined;
                 if (payload.tile?.type !== TileType.OCEAN) {
@@ -560,6 +583,8 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.generation++;
                             common.gameStage = GameStage.BUY_OR_DISCARD;
                         }
+                    } else {
+                        handleChangeCurrentPlayer(state, draft);
                     }
                 } else {
                     handleChangeCurrentPlayer(state, draft);

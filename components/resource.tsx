@@ -99,8 +99,8 @@ function name(resource: Resource): string {
 }
 
 function getCost(conversion: Conversion) {
-    for (const resource in conversion.removeResources) {
-        return conversion.removeResources[resource];
+    for (const resource in conversion.removeResource) {
+        return conversion.removeResource[resource];
     }
 }
 

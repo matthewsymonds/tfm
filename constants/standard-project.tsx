@@ -33,7 +33,7 @@ export const standardProjectActions: StandardProjectAction[] = [
     {
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.SELL_PATENTS,
-        removeResources: {
+        removeResource: {
             [Resource.CARD]: VariableAmount.USER_CHOICE,
         },
         gainResource: {

@@ -2,38 +2,33 @@ import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import styled from 'styled-components';
 import {
-    askUserToConfirmResourceTargetLocation as askUserToConfirmResourceTargetLocationAction,
     completeAction,
     discardCards,
-    gainResource,
-    gainStorableResource,
+    discardRevealedCards,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
-    skipAction,
-    discardRevealedCards,
     setSelectedCards,
+    skipAction,
 } from '../actions';
+import AskUserToConfirmResourceActionDetails from '../components/ask-user-to-confirm-resource-action-details';
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from '../components/resource';
-import {Amount, Action} from '../constants/action';
-import {TileType} from '../constants/board';
-import {Conversion, CONVERSIONS} from '../constants/conversion';
+import {Action} from '../constants/action';
+import {CONVERSIONS} from '../constants/conversion';
 import {PropertyCounter} from '../constants/property-counter';
-import {Resource, ResourceLocationType} from '../constants/resource';
+import {Resource} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
 import {Card} from '../models/card';
 import {useSyncState} from '../pages/sync-state';
 import {RootState, useTypedSelector} from '../reducer';
+import {getHumanReadableTileName} from '../selectors/get-human-readable-tile-name';
+import {getWaitingMessage} from '../selectors/get-waiting-message';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {Board} from './board/board';
 import {CardComponent, CardText} from './card';
-import SelectResourceTargetLocation from './select-resource-target-location';
-import SelectResourceTypeToGain from './select-resource-type-to-gain';
 import {CardSelector} from './card-selector';
-import {TurnContext} from './turn-context';
 import {ConversionLink} from './conversion-link';
-import {getWaitingMessage} from '../selectors/get-waiting-message';
-import {getHumanReadableTileName} from '../selectors/get-human-readable-tile-name';
+import {TurnContext} from './turn-context';
 
 const Hand = styled.div`
     display: flex;
@@ -53,14 +48,6 @@ const FlexColumn = styled.div`
 function getResourceHumanName(resource: Resource): string {
     let result = String(resource);
     return result.slice('resource'.length).toLowerCase();
-}
-
-function getResourceReductionAmountHumanName(amount: Amount) {
-    if (typeof amount !== 'number') {
-        return 'any number of';
-    } else {
-        return amount;
-    }
 }
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
@@ -83,7 +70,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
 
     function handleCardClick(card) {
-        if (player.pendingResourceReduction?.resource === Resource.CARD) {
+        if (player.pendingVariableAmount?.resource === Resource.CARD) {
             const newCardsToDiscard = new Set(cardsToDiscard);
             if (cardsToDiscard.has(card)) {
                 newCardsToDiscard.delete(card);
@@ -136,31 +123,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         dispatch(discardCards(Array.from(cardsToDiscard), playerIndex));
         context.processQueue(dispatch);
         setCardsToDiscard(new Set());
-    }
-
-    function confirmResourceGain(resource: Resource, amount: number) {
-        dispatch(gainResource(resource, amount, playerIndex));
-        context.processQueue(dispatch);
-    }
-
-    function askUserToConfirmResourceTargetLocation(
-        gainResource: PropertyCounter<Resource>,
-        gainResourceTargetType: ResourceLocationType,
-        card: Card | undefined
-    ) {
-        dispatch(
-            askUserToConfirmResourceTargetLocationAction(
-                gainResource,
-                gainResourceTargetType,
-                card,
-                playerIndex
-            )
-        );
-    }
-
-    function confirmStorableResourceGain(resource: Resource, amount: Amount, card: Card) {
-        dispatch(gainStorableResource(resource, amount, card, playerIndex));
-        context.processQueue(dispatch);
     }
 
     function playAction(card: Card, action: Action) {
@@ -220,11 +182,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const showBottomActionBar =
         player.pendingTilePlacement ||
-        player.pendingResourceReduction ||
-        player.pendingResourceGain ||
+        player.pendingVariableAmount ||
+        player.pendingResourceOption ||
         state.common.revealedCards.length > 0 ||
         player.possibleCards.length > 0 ||
-        player.pendingResourceGainTargetConfirmation;
+        player.pendingResourceTargetConfirmation ||
+        player.pendingResourceActionDetails;
     return (
         <>
             <ActionBar>
@@ -234,13 +197,14 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </h1>
                     <TurnContext>
                         <div>Turn {turn}</div>
-                        <div>Action {action} of 2</div>
+                        <div>{!action && 'You have passed.'}</div>
+                        <div>{waitingMessage || `Action ${action} of 2`}</div>
                         <div>Generation {generation}</div>
                         <div>TFR {player.terraformRating}</div>
                     </TurnContext>
                     <TurnContext>
                         <button
-                            disabled={context.shouldDisableUI(state)}
+                            disabled={context.shouldDisableUI(state) || showBottomActionBar}
                             onClick={() => dispatch(skipAction(playerIndex))}
                         >
                             {action === 2 ? 'Skip 2nd action' : 'Pass'}
@@ -293,7 +257,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         </ResourceBoardRow>
                     </ResourceBoard>
                 </ActionBarRow>
-                {waitingMessage ? <ActionBarRow>{waitingMessage}</ActionBarRow> : null}
             </ActionBar>
             <Board
                 board={state.common.board}
@@ -320,7 +283,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             <button
                                 disabled={
                                     !context.canPlayCard(card, state)[0] ||
-                                    player.pendingResourceReduction?.resource === Resource.CARD
+                                    player.pendingVariableAmount?.resource === Resource.CARD
                                 }
                                 onClick={() => handlePlayCard(card)}
                                 id={card.name.replace(/\s+/g, '-')}
@@ -391,36 +354,25 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 {getHumanReadableTileName(player.pendingTilePlacement.type)} tile.
                             </h3>
                         )}
-                        {player.pendingResourceReduction?.resource === Resource.CARD && (
-                            <>
-                                <div>
-                                    Select{' '}
-                                    {getResourceReductionAmountHumanName(
-                                        player.pendingResourceReduction.amount
-                                    )}{' '}
-                                    card{player.pendingResourceReduction.amount === 1 ? '' : 's'} to
-                                    discard.
-                                </div>
-                                <button onClick={confirmDiscardSelection}>
-                                    Confirm discard selection
-                                </button>
-                            </>
-                        )}
-                        {player.pendingResourceGain && (
-                            <SelectResourceTypeToGain
+                        {player.pendingResourceActionDetails && (
+                            <AskUserToConfirmResourceActionDetails
                                 player={player}
-                                confirmResourceGain={confirmResourceGain}
-                                askUserToConfirmResourceTargetLocation={
-                                    askUserToConfirmResourceTargetLocation
-                                }
+                                resourceActionDetails={player.pendingResourceActionDetails}
                             />
                         )}
-                        {player.pendingResourceGainTargetConfirmation && (
-                            <SelectResourceTargetLocation
+
+                        {/* {player.pendingVariableAmount && (
+                            <AskUserToConfirmVariableAmount
                                 player={player}
-                                confirmStorableResourceGain={confirmStorableResourceGain}
+                                confirmDiscardSelection={confirmDiscardSelection}
                             />
                         )}
+                        {player.pendingResourceOption && (
+                            <SelectResourceTypeToGain player={player} />
+                        )}
+                        {player.pendingResourceTargetConfirmation && (
+                            <SelectResourceTargetLocation player={player} />
+                        )} */}
                         {state.common.revealedCards.map((card, index) => {
                             return (
                                 <CardComponent key={index} width={250} content={card}>

@@ -34,7 +34,7 @@ export class Card {
     // ====================================================
     minTerraformRating?: number;
     requiredTags: PropertyCounter<Tag>;
-    /** If unset, defaults to `removeResources`. e.g. "Requires that you have 5 floaters". Basically only required for Aerosport Tournament */
+    /** If unset, defaults to `removeResource`. e.g. "Requires that you have 5 floaters". Basically only required for Aerosport Tournament */
     requiredResources: PropertyCounter<Resource>;
     /** e.g. "Requires that you have titanium production" (Asteroid Mining Consortium, Great Escarpment Consortium */
     requiredProduction?: Resource; // e.g. Asteroid Mining Consortium
@@ -53,7 +53,7 @@ export class Card {
     /** e.g. "Gain 5 plants, or add 4 animals to ANOTHER card" */
     gainResourceOption: PropertyCounter<Resource>;
     /** e.g. "Remove 5 MC" */
-    removeResources: PropertyCounter<Resource>;
+    removeResource: PropertyCounter<Resource>;
     /** e.g. "Remove up to 5 plants from any player" */
     removeAnyResource: PropertyCounter<Resource>;
     /** e.g. "Remove up to 2 animals or 5 plants from any player" */
@@ -72,6 +72,8 @@ export class Card {
     increaseTerraformRating?: number;
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
+    stealResource: PropertyCounter<Resource>;
+    stealResourceOption: PropertyCounter<Resource>;
     /** e.g. "Look at the otp c" */
     lookAtCards?: LookAtCardsConfig;
 
@@ -111,7 +113,7 @@ export class Card {
 
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;
-        this.requiredResources = config.requiredResources || config.removeResources || {};
+        this.requiredResources = config.requiredResources || config.removeResource || {};
         this.minColonies = config.minColonies;
         this.maxColonies = config.maxColonies;
         this.minTerraformRating = config.minTerraformRating;
@@ -123,9 +125,9 @@ export class Card {
         this.gainResourceOption = config.gainResourceOption || {};
         this.gainResourceTargetType = config.gainResourceTargetType;
         this.lookAtCards = config.lookAtCards;
-        this.removeResources = config.removeResources || {};
-        this.removeAnyResource = config.removeAnyResource || {};
-        this.removeAnyResourceOption = config.removeAnyResourceOption || {};
+        this.removeResource = config.removeResource || {};
+        this.stealResource = config.stealResource || {};
+        this.stealResourceOption = config.stealResourceOption || {};
         this.increaseProduction = config.increaseProduction || {};
         this.increaseProductionOption = config.increaseProductionOption || {};
         this.decreaseProduction = config.decreaseProduction || {};

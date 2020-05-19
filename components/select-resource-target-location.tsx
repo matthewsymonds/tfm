@@ -1,47 +1,71 @@
 import {PlayerState} from '../reducer';
-import {isStorableResource, Resource} from '../constants/resource';
+import {isStorableResource, Resource, ResourceLocationType} from '../constants/resource';
 import {getAllowedCardsForResourceAction} from '../selectors/card';
 import {CardComponent} from './card';
 import {Card} from '../models/card';
-import {PropertyCounter} from '../constants/property-counter';
+import {useContext} from 'react';
+import {AppContext} from '../context/app-context';
+import {useDispatch} from 'react-redux';
+import {Amount} from '../constants/action';
+import {gainStorableResource} from '../actions';
 
 type SelectResourceTargetLocationProps = {
     player: PlayerState;
-    confirmStorableResourceGain: (resource: Resource, amount: number, card: Card) => void;
 };
 
-function SelectResourceTargetLocation({
-    player,
-    confirmStorableResourceGain,
-}: SelectResourceTargetLocationProps) {
-    if (!player.pendingResourceGainTargetConfirmation) {
+function isNonCardResourceLocationType(locationType: ResourceLocationType) {
+    return (
+        locationType !== ResourceLocationType.ANY_PLAYER &&
+        locationType !== ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG
+    );
+}
+
+function SelectResourceTargetLocation({player}: SelectResourceTargetLocationProps) {
+    const appContext = useContext(AppContext);
+    const dispatch = useDispatch();
+
+    if (!player.pendingResourceTargetConfirmation) {
         return null;
     }
-    let {gainResource, gainResourceTargetType, card} = player.pendingResourceGainTargetConfirmation;
-    const resource = Object.keys(gainResource)[0];
-    const amount = gainResource[resource];
+    let {resource, amount, targetType, card} = player.pendingResourceTargetConfirmation;
     if (!isStorableResource(resource)) {
         throw new Error('Cannot store a non-storable resource on a card');
     }
-    const possibleCards = getAllowedCardsForResourceAction({
-        player,
-        resource,
-        resourceLocationType: gainResourceTargetType,
-        thisCard: card,
-    });
 
-    return (
-        <>
-            <h3>Select where to gain the resource.</h3>
-            {possibleCards.map(card => (
-                <CardComponent content={card} width={300}>
-                    <button onClick={() => confirmStorableResourceGain(resource, amount, card)}>
-                        Add to {card.name}
-                    </button>
-                </CardComponent>
-            ))}
-        </>
-    );
+    function confirmStorableResourceGain(resource: Resource, amount: Amount, card: Card) {
+        if (amount > 0) {
+            appContext.queue.unshift(gainStorableResource(resource, amount, card, player.index));
+        } else {
+            appContext.queue.unshift(removeStorableResource(resource, amount, card, player.index));
+        }
+        appContext.processQueue(dispatch);
+    }
+
+    if (isNonCardResourceLocationType(targetType)) {
+        // if removing from a player
+        // const possiblePlayers =
+    } else {
+        // if removing from a card
+        const possibleCards = getAllowedCardsForResourceAction({
+            player,
+            resource,
+            resourceLocationType: targetType,
+            thisCard: card,
+        });
+
+        return (
+            <>
+                <h3>Select where to gain the resource.</h3>
+                {possibleCards.map(card => (
+                    <CardComponent content={card} width={300}>
+                        <button onClick={() => confirmStorableResourceGain(resource, amount, card)}>
+                            Add to {card.name}
+                        </button>
+                    </CardComponent>
+                ))}
+            </>
+        );
+    }
 }
 
 export default SelectResourceTargetLocation;
