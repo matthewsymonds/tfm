@@ -7,6 +7,7 @@ export default () => {
 
     async function logout() {
         await makeDeleteCall('/api/sessions');
+        sessionStorage.clear();
         router.push('/login');
     }
 

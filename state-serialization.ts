@@ -76,7 +76,6 @@ type SerializedCard = {
 function deserializeCard(serializedCard: SerializedCard): Card {
     const card = cards.find(card => card.name === serializedCard.name)!;
     card.storedResourceAmount = serializedCard.storedResourceAmount || 0;
-    card.storedResourceType = serializedCard.storedResourceType;
     card.usedActionThisRound = serializedCard.usedActionThisRound;
     return card;
 }
@@ -85,9 +84,6 @@ function serializeCard(card: Card): SerializedCard {
     const result: SerializedCard = {
         name: card.name,
     };
-    if (card.storedResourceType) {
-        result.storedResourceType = card.storedResourceType;
-    }
     if (card.storedResourceAmount) {
         result.storedResourceAmount = card.storedResourceAmount;
     }

@@ -83,23 +83,22 @@ export const increaseProduction = (resource: Resource, amount: Amount, playerInd
 export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = (
     resource: Resource,
-    amount: Amount,
-    playerIndex: number,
-    location?: ResourceLocationType
+    amount: number,
+    sourcePlayerIndex: number,
+    playerIndex: number
 ) => ({
     type: REMOVE_RESOURCE,
-    payload: {resource, amount, location, playerIndex},
+    payload: {resource, amount, sourcePlayerIndex, playerIndex},
 });
 export const REMOVE_STORABLE_RESOURCE = 'REMOVE_STORABLE_RESOURCE';
 export const removeStorableResource = (
     resource: Resource,
-    amount: Amount,
+    amount: number,
     playerIndex: number,
-    card: Card,
-    location?: ResourceLocationType
+    card: Card
 ) => ({
     type: REMOVE_STORABLE_RESOURCE,
-    payload: {resource, amount, card, playerIndex, location},
+    payload: {resource, amount, card, playerIndex},
 });
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
@@ -107,6 +106,7 @@ export const gainResource = (resource: Resource, amount: Amount, playerIndex: nu
     type: GAIN_RESOURCE,
     payload: {resource, amount, playerIndex},
 });
+
 export const GAIN_STORABLE_RESOURCE = 'GAIN_STORABLE_RESOURCE';
 export const gainStorableResource = (
     resource: Resource,
@@ -116,6 +116,29 @@ export const gainStorableResource = (
 ) => ({
     type: GAIN_STORABLE_RESOURCE,
     payload: {resource, amount, card, playerIndex},
+});
+
+export const STEAL_RESOURCE = 'STEAL_RESOURCE';
+export const stealResource = (
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    victimPlayerIndex: number
+) => ({
+    type: STEAL_RESOURCE,
+    payload: {resource, amount, victimPlayerIndex, playerIndex},
+});
+
+export const STEAL_STORABLE_RESOURCE = 'STEAL_STORABLE_RESOURCE';
+export const stealStorableResource = (
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    source: Card,
+    target: Card
+) => ({
+    type: STEAL_STORABLE_RESOURCE,
+    payload: {resource, amount, source, target, playerIndex, location},
 });
 
 export const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';

@@ -18,10 +18,9 @@ export default function Game() {
     const {loading, session} = useSession();
 
     const [players, setPlayers] = useState<string[]>([]);
+    const [playerIndex, setPlayerIndex] = useState<number>(-1);
 
     const router = useRouter();
-
-    const playerIndex = players.indexOf(session.username);
 
     const context = useContext(AppContext);
     context.setLoggedInPlayerIndex(playerIndex);
@@ -43,12 +42,14 @@ export default function Game() {
             return;
         }
         setPlayers(result.players);
+        setPlayerIndex(result.players.indexOf(session.username));
         dispatch(setGame(deserializeState(result.state)));
     };
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
     if (loading) return null;
+    if (playerIndex < 0) return null;
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:

@@ -297,16 +297,14 @@ function createInitialRemoveResourceAction(
 
     if (isStorableResource(resource)) {
         // Assumes you're removing from "This card" (parent)
-        return removeStorableResource(resource, amount, playerIndex, parent!, locationType);
+        return removeStorableResource(resource, amount as number, playerIndex, parent!);
     } else {
         // Assumes you're removing from your own resources
-        return removeResource(resource, amount, playerIndex, locationType);
+        return removeResource(resource, amount as number, playerIndex, playerIndex);
     }
-
-    return actions;
 }
 
-function createRemoveResourceOptionActions(
+function createRemoveResourceOptionAction(
     options: PropertyCounter<Resource>,
     playerIndex: number,
     parent?: Card,
@@ -480,6 +478,7 @@ function getActionsFromEffect(
 }
 
 function playAction(action: Action, state: RootState, parent?: Card) {
+    let actionTerminated = true;
     const playerIndex = getLoggedInPlayerIndex();
 
     for (const production in action.decreaseProduction) {
@@ -504,9 +503,19 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 action.removeResourceSourceType
             )
         );
+        actionTerminated = false;
     }
 
     if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
+        this.queue.push(
+            createRemoveResourceOptionAction(
+                action.removeResourceOption!,
+                playerIndex,
+                parent,
+                action.removeResourceSourceType
+            )
+        );
+        actionTerminated = false;
         // this.queue.push(...createRemoveResourceOptionActions(action.removeResourceOption!, playerIndex, parent, action.removeResourceSourceType);
     }
 
@@ -552,6 +561,7 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 action.lookAtCards.buyCards
             )
         );
+        actionTerminated = false;
         if (action.lookAtCards.buyCards) {
             this.queue.push(buySelectedCards(playerIndex));
         } else {
@@ -581,6 +591,7 @@ function playAction(action: Action, state: RootState, parent?: Card) {
 
     if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
         this.queue.push(askUserToGainResource(action, parent, playerIndex));
+        actionTerminated = false;
     }
 
     for (const parameter in action.increaseParameter) {
@@ -599,6 +610,8 @@ function playAction(action: Action, state: RootState, parent?: Card) {
             this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
     }
+
+    return actionTerminated;
 }
 
 function filterOceanPlacementsOverMax(
@@ -642,8 +655,8 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
 
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
 
-    this.playAction(card, state, card);
-    if (card.type !== CardType.CORPORATION || card.forcedAction) {
+    const actionTerminated = this.playAction(card, state, card);
+    if (actionTerminated && (card.type !== CardType.CORPORATION || card.forcedAction)) {
         this.queue.push(completeAction(playerIndex));
     }
 }

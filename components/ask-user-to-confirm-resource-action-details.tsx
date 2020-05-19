@@ -1,15 +1,29 @@
+import {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import styled from 'styled-components';
 import {
-    ResourceLocationType,
-    ResourceAndAmount,
+    completeAction,
+    gainResource,
+    gainStorableResource,
+    removeResource,
+    removeStorableResource,
+    stealResource,
+    stealStorableResource,
+} from '../actions';
+import {
     getResourceName,
     isStorableResource,
+    Resource,
+    ResourceAndAmount,
+    ResourceLocationType,
 } from '../constants/resource';
-import {Card} from '../models/card';
-import {VariableAmount} from '../constants/variable-amount';
-import {useStore} from 'react-redux';
-import {PlayerState} from '../reducer';
 import {Tag} from '../constants/tag';
+import {VariableAmount} from '../constants/variable-amount';
+import {AppContext} from '../context/app-context';
+import {Card} from '../models/card';
+import {PlayerState} from '../reducer';
 import spawnExhaustiveSwitchError from '../utils';
+import {CardComponent} from './card';
 
 type Props = {
     player: PlayerState;
@@ -19,6 +33,11 @@ type Props = {
         card: Card;
         locationType?: ResourceLocationType;
     };
+};
+
+type ListItem = {
+    title: string;
+    options: Option[];
 };
 
 function getPlayersToConsider(
@@ -54,13 +73,23 @@ function getPlayersToConsider(
     }
 }
 
+type Option = {
+    location: PlayerState | Card;
+    quantity: number;
+    resource: Resource;
+    isVariable: boolean;
+    actionType: 'removeResource' | 'gainResource' | 'stealResource';
+    card?: Card;
+    text: string;
+};
+
 function getOptions(
     actionType: 'removeResource',
     resourceAndAmount: ResourceAndAmount,
     card: Card,
     player: PlayerState,
     locationType?: ResourceLocationType
-) {
+): Option[] {
     if (locationType && isStorableResource(resourceAndAmount.resource)) {
         return getOptionsForStorableResource(
             actionType,
@@ -77,11 +106,13 @@ function getOptions(
 function getOptionsForStorableResource(
     actionType: 'removeResource' | 'gainResource' | 'stealResource',
     resourceAndAmount: ResourceAndAmount,
-    card: Card,
+    originalCard: Card,
     player: PlayerState,
     locationType: ResourceLocationType
-) {
-    let {cards} = player;
+): Option[] {
+    let {playedCards: cards} = player;
+    const {resource, amount} = resourceAndAmount;
+    const isVariable = amount === VariableAmount.USER_CHOICE;
 
     if (actionType === 'removeResource' || actionType === 'stealResource') {
         cards = cards.filter(card => (card.storedResourceAmount || 0) > 0);
@@ -91,7 +122,7 @@ function getOptionsForStorableResource(
 
     switch (locationType) {
         case ResourceLocationType.THIS_CARD:
-            cards = [card];
+            cards = [originalCard];
             break;
         case ResourceLocationType.LAST_PLAYED_CARD:
             cards = [cards[cards.length - 1]];
@@ -109,54 +140,89 @@ function getOptionsForStorableResource(
     return cards.map(card => {
         let maxAmount: number;
         if (actionType === 'gainResource') {
-            maxAmount = resourceAndAmount.amount as number;
+            maxAmount = amount as number;
         } else {
-            if (resourceAndAmount.amount === VariableAmount.USER_CHOICE) {
+            if (isVariable) {
                 maxAmount = card.storedResourceAmount || 0;
             } else {
-                maxAmount = Math.min(
-                    card.storedResourceAmount || 0,
-                    resourceAndAmount.amount as number
-                );
+                maxAmount = Math.min(card.storedResourceAmount || 0, amount as number);
             }
         }
 
-        let modifier = actionType === 'gainResource' ? 'to' : 'from';
+        const text = formatText(maxAmount, resource, isVariable, actionType, card.name);
 
-        if (resourceAndAmount.amount === VariableAmount.USER_CHOICE) {
-            return `Up to ${maxAmount} ${getResourceName(resourceAndAmount.resource)} ${modifier} ${
-                card.name
-            }`;
-        }
-
-        return `${maxAmount} ${modifier} ${getResourceName(resourceAndAmount.resource)}`;
+        return {
+            location: card,
+            resource,
+            quantity: maxAmount,
+            isVariable,
+            actionType,
+            card: originalCard,
+            text,
+        };
     });
+}
+
+function formatText(
+    quantity: number,
+    resource: Resource,
+    userChoice: boolean,
+    actionType: 'removeResource' | 'gainResource' | 'stealResource',
+    locationName: string
+) {
+    const modifier = actionType === 'gainResource' ? 'to' : 'from';
+
+    const prefix = userChoice ? 'up to ' : '';
+
+    const verb = {
+        gainResource: 'Add',
+        removeResource: 'Remove',
+        stealResource: 'Steal',
+    }[actionType];
+
+    return `${verb} ${prefix} ${amountAndResource(quantity, resource)} ${modifier} ${locationName}`;
 }
 
 function getOptionsForRegularResource(
     actionType: 'removeResource' | 'gainResource' | 'stealResource',
     resourceAndAmount: ResourceAndAmount,
     player: PlayerState
-) {
+): Option[] {
+    const {amount, resource} = resourceAndAmount;
     let maxAmount: number;
     if (actionType === 'gainResource') {
-        maxAmount = resourceAndAmount.amount as number;
+        maxAmount = amount as number;
     } else {
-        if (resourceAndAmount.amount === VariableAmount.USER_CHOICE) {
-            maxAmount = player.resources[resourceAndAmount.resource];
+        if (amount === VariableAmount.USER_CHOICE) {
+            maxAmount = player.resources[resource];
         } else {
-            maxAmount = Math.min(
-                player.resources[resourceAndAmount.resource],
-                resourceAndAmount.amount as number
-            );
+            maxAmount = Math.min(player.resources[resource], amount as number);
         }
     }
 
-    if (resourceAndAmount.amount === VariableAmount.USER_CHOICE) {
-        return [`Up to ${maxAmount} ${getResourceName(resourceAndAmount.resource)}`];
-    }
+    const isVariable = amount === VariableAmount.USER_CHOICE;
 
-    return [`${maxAmount} ${getResourceName(resourceAndAmount.resource)}`];
+    const text = formatText(maxAmount, resource, isVariable, actionType, player.username);
+
+    return [
+        {
+            location: player,
+            quantity: maxAmount,
+            resource,
+            isVariable,
+            actionType,
+            text,
+        },
+    ];
+}
+
+function amountAndResource(quantity: number, resource: Resource) {
+    const isPluralizable =
+        resource !== Resource.HEAT &&
+        resource !== Resource.ENERGY &&
+        resource !== Resource.STEEL &&
+        resource !== Resource.TITANIUM;
+    return `${quantity} ${getResourceName(resource)}${isPluralizable && quantity !== 1 ? 's' : ''}`;
 }
 
 function AskUserToConfirmResourceActionDetails({
@@ -169,45 +235,156 @@ function AskUserToConfirmResourceActionDetails({
 
     const playersToConsider = getPlayersToConsider(player, players, locationType);
 
-    const topLevelListItems = [] as Array<{
-        title: string;
-        items: Array<unknown>;
-    }>;
+    const listItems: ListItem[] = [];
 
     for (const playerToConsider of playersToConsider) {
-        const topLevelItem = {
+        const listItem: ListItem = {
             title: `${playerToConsider.corporation?.name} (${playerToConsider.username})`,
-            items: [] as Array<string>,
+            options: [],
         };
         for (const resourceAndAmount of resourceAndAmounts) {
-            topLevelItem.items.push(
+            listItem.options.push(
                 ...getOptions(actionType, resourceAndAmount, card, playerToConsider, locationType)
             );
         }
 
-        if (topLevelItem.items.length > 0) {
-            topLevelListItems.push(topLevelItem);
+        listItem.options = listItem.options.filter(option => option.quantity > 0);
+
+        if (listItem.options.length > 0) {
+            listItems.push(listItem);
         }
     }
-
     return (
-        <div>
-            <ul>
-                {topLevelListItems.map(topLevelListItem => {
+        <Flex>
+            <LeftDiv>
+                <h3>You played</h3>
+                <CardComponent content={card} />
+            </LeftDiv>
+
+            <OptionsParent>
+                <h3>Please choose from the following:</h3>
+
+                {listItems.map(listItem => {
                     return (
                         <li>
-                            <div>{topLevelListItem.title}</div>
-                            <ul>
-                                {topLevelListItem.items.map(childItem => {
-                                    return {childItem};
+                            <h4>{listItem.title}</h4>
+                            <OptionsParent>
+                                {listItem.options.map(childItem => {
+                                    return (
+                                        <OptionComponent
+                                            {...childItem}
+                                            key={childItem.text}
+                                        ></OptionComponent>
+                                    );
                                 })}
-                            </ul>
+                            </OptionsParent>
                         </li>
                     );
                 })}
-            </ul>
-        </div>
+            </OptionsParent>
+        </Flex>
     );
 }
+
+function OptionComponent(props: Option) {
+    const dispatch = useDispatch();
+
+    const context = useContext(AppContext);
+    const store = useStore();
+    const state = store.getState();
+    const player = context.getLoggedInPlayer(state);
+
+    function handleClick() {
+        context.queue.push(getAction(props, player));
+        context.queue.push(completeAction(player.index));
+        context.processQueue(dispatch);
+    }
+
+    return <OptionsComponentBase onClick={handleClick}>{props.text}</OptionsComponentBase>;
+}
+
+function getAction(option: Option, player: PlayerState) {
+    switch (option.actionType) {
+        case 'removeResource':
+            if (option.location instanceof Card) {
+                // we know we're removing a stored resource.
+                return removeStorableResource(
+                    option.resource,
+                    option.quantity,
+                    player.index,
+                    option.location
+                );
+            } else {
+                return removeResource(
+                    option.resource,
+                    option.quantity,
+                    option.location.index,
+                    player.index
+                );
+            }
+        case 'gainResource':
+            if (option.location instanceof Card) {
+                return gainStorableResource(
+                    option.resource,
+                    option.quantity,
+                    option.location,
+                    player.index
+                );
+            } else {
+                return gainResource(option.resource, option.quantity, player.index);
+            }
+        case 'stealResource':
+            if (option.location instanceof Card) {
+                return stealStorableResource(
+                    option.resource,
+                    option.quantity,
+                    player.index,
+                    option.location,
+                    option.card!
+                );
+            } else {
+                return stealResource(
+                    option.resource,
+                    option.quantity,
+                    player.index,
+                    option.location.index
+                );
+            }
+        default:
+            throw spawnExhaustiveSwitchError(option.actionType);
+    }
+}
+
+const OptionsParent = styled.ul`
+    padding-left: 2px;
+    margin-top: 0px;
+
+    li {
+        list-style-type: none;
+    }
+`;
+
+const OptionsComponentBase = styled.li`
+    margin: 8px;
+    padding: 8px;
+    background: #eee;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+
+    &:hover {
+        box-shadow: 2px 2px 10px 0px #ddd;
+    }
+`;
+
+const LeftDiv = styled.div`
+    margin-right: 32px;
+`;
+
+const Flex = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: center;
+`;
 
 export default AskUserToConfirmResourceActionDetails;

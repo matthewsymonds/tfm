@@ -2,11 +2,7 @@ import {Resource} from './resource';
 import {Action} from './action';
 import {t, TileType, Parameter} from './board';
 
-export interface Conversion extends Action {
-    cost: number;
-    resource: Resource;
-    name: string;
-}
+export interface Conversion extends Action {}
 
 export const CONVERSIONS = {
     [Resource.PLANT]: {

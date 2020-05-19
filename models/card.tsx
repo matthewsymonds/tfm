@@ -53,11 +53,12 @@ export class Card {
     /** e.g. "Gain 5 plants, or add 4 animals to ANOTHER card" */
     gainResourceOption: PropertyCounter<Resource>;
     /** e.g. "Remove 5 MC" */
-    removeResource: PropertyCounter<Resource>;
     /** e.g. "Remove up to 5 plants from any player" */
-    removeAnyResource: PropertyCounter<Resource>;
+    removeResource: PropertyCounter<Resource>;
     /** e.g. "Remove up to 2 animals or 5 plants from any player" */
-    removeAnyResourceOption: PropertyCounter<Resource>;
+    removeResourceOption: PropertyCounter<Resource>;
+    /** e.g. "Remove up to 4 MC FROM A PLAYER WITH A JOVIAN TAG" */
+    removeResourceSourceType?: ResourceLocationType;
     /** e.g. "Increase your MC production 2 steps" */
     increaseProduction: PropertyCounter<Resource>;
     /** e.g. "Increase your plant production 1 step or your energy production 2 steps" */
@@ -126,6 +127,8 @@ export class Card {
         this.gainResourceTargetType = config.gainResourceTargetType;
         this.lookAtCards = config.lookAtCards;
         this.removeResource = config.removeResource || {};
+        this.removeResourceOption = config.removeResourceOption || {};
+        this.removeResourceSourceType = config.removeResourceSourceType;
         this.stealResource = config.stealResource || {};
         this.stealResourceOption = config.stealResourceOption || {};
         this.increaseProduction = config.increaseProduction || {};
