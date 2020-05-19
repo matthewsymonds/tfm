@@ -38,10 +38,11 @@ import {
     Milestone,
     Parameter,
     TileType,
+    TilePlacement,
 } from '../constants/board';
 import {CardType} from '../constants/card-types';
 import {EffectTrigger} from '../constants/effect-trigger';
-import {MinimumProductions, PARAMETER_STEPS} from '../constants/game';
+import {MinimumProductions, PARAMETER_STEPS, MAX_PARAMETERS, GameStage} from '../constants/game';
 import {PropertyCounter} from '../constants/property-counter';
 import {isStorableResource, Resource} from '../constants/resource';
 import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
@@ -49,9 +50,10 @@ import {Tag} from '../constants/tag';
 import {VariableAmount} from '../constants/variable-amount';
 import {Card} from '../models/card';
 import {PlayerState, RootState} from '../reducer';
-import {getValidPlacementsForRequirement} from '../selectors/board';
+import {getValidPlacementsForRequirement, findCellsWithTile} from '../selectors/board';
 import {getAllowedCardsForResourceAction} from '../selectors/card';
 import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
+import {Conversion} from '../constants/conversion';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -221,6 +223,23 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
     }
 
     return this.canPlayAction(card, state, card);
+}
+
+function canDoConversion(state: RootState, conversion?: Conversion) {
+    if (!conversion) return false;
+    return this.canPlayAction(conversion, state)[0];
+}
+
+function doConversion(
+    state: RootState,
+    playerIndex: number,
+    dispatch: Function,
+    conversion?: Conversion
+) {
+    if (!conversion) return;
+    this.playAction(conversion, state);
+    this.queue.push(completeAction(playerIndex));
+    this.processQueue(dispatch);
 }
 
 function canPlayAction(
@@ -483,10 +502,35 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     }
 
     if (action.tilePlacements) {
-        for (const tilePlacement of action.tilePlacements) {
+        const filteredTilePlacements = filterOceanPlacementsOverMax(action.tilePlacements, state);
+        for (const tilePlacement of filteredTilePlacements) {
             this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
     }
+}
+
+function filterOceanPlacementsOverMax(
+    tilePlacements: TilePlacement[],
+    state: RootState
+): TilePlacement[] {
+    const numOceans = findCellsWithTile(state, TileType.OCEAN).length;
+
+    let filteredPlacements: TilePlacement[] = [];
+    let numOceanTilePlacements = 0;
+
+    for (const placement of tilePlacements) {
+        if (placement.type !== TileType.OCEAN) {
+            filteredPlacements.push(placement);
+            continue;
+        }
+
+        if (numOceanTilePlacements + numOceans < MAX_PARAMETERS[Parameter.OCEAN]) {
+            filteredPlacements.push(placement);
+            numOceanTilePlacements++;
+        }
+    }
+
+    return filteredPlacements;
 }
 
 function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
@@ -512,10 +556,18 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     }
 }
 
+function isActiveRound(state: RootState): boolean {
+    return state.common.gameStage === GameStage.ACTIVE_ROUND;
+}
+
 function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
     const player = getLoggedInPlayer(state);
 
     if (this.shouldDisableUI(state)) {
+        return false;
+    }
+
+    if (!isActiveRound(state)) {
         return false;
     }
 
@@ -549,6 +601,10 @@ function playStandardProject(standardProjectAction: StandardProjectAction, state
 
 function canClaimMilestone(milestone: Milestone, state: RootState) {
     const player = getLoggedInPlayer(state);
+
+    if (!isActiveRound(state)) {
+        return false;
+    }
 
     // Is it availiable?
     if (state.common.claimedMilestones.length === 3) {
@@ -621,6 +677,10 @@ function canFundAward(award: Award, state: RootState) {
 
     if (this.shouldDisableUI(state)) return false;
 
+    if (!isActiveRound(state)) {
+        return false;
+    }
+
     // Is it available?
     if (state.common.fundedAwards.length === 3) {
         return false;
@@ -686,6 +746,8 @@ export const appContext = {
     canPlayCard,
     playCard,
     canPlayAction,
+    canDoConversion,
+    doConversion,
     playAction,
     canPlayStandardProject,
     playStandardProject,

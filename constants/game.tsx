@@ -7,6 +7,7 @@ export enum GameStage {
     BUY_OR_DISCARD = 'buyOrDiscard',
     DRAFTING = 'drafting',
     END_OF_GAME = 'endOfGame',
+    GREENERY_PLACEMENT = 'greeneryPlacement',
 }
 
 export const MAX_PARAMETERS = {

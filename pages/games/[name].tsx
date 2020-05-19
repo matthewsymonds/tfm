@@ -1,7 +1,9 @@
 import {setGame} from '../../actions';
 import {ActiveRound} from '../../components/active-round';
 import {BuyOrDiscard} from '../../components/buy-or-discard';
+import {GreeneryPlacement} from '../../components/greenery-placement';
 import {CorporationSelection} from '../../components/corporation-selection';
+import {EndOfGame} from '../../components/end-of-game';
 import {GameStage} from '../../constants/game';
 import {useTypedSelector} from '../../reducer';
 import {deserializeState} from '../../state-serialization';
@@ -55,8 +57,10 @@ export default function Game() {
             return <ActiveRound playerIndex={playerIndex} />;
         case GameStage.BUY_OR_DISCARD:
             return <BuyOrDiscard playerIndex={playerIndex} />;
+        case GameStage.GREENERY_PLACEMENT:
+            return <GreeneryPlacement playerIndex={playerIndex} />;
         case GameStage.END_OF_GAME:
-            return 'End of game reached';
+            return <EndOfGame />;
         default:
             return null;
     }

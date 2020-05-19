@@ -90,7 +90,7 @@ export default function NewGame() {
                     <Input
                         type="number"
                         name="Players"
-                        min={2}
+                        min={1}
                         max={5}
                         value={numPlayers}
                         onChange={updateNumPlayers}

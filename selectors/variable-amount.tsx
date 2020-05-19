@@ -47,7 +47,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return getCellsWithCities(state).length;
     },
     [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: RootState) => {
-        const capital = findCellWithTile(state, TileType.OCEAN);
+        const capital = findCellWithTile(state, TileType.CAPITAL);
         if (!capital) return 0;
         return getAdjacentCellsForCell(state, capital!).filter(cell => {
             return cell.tile?.type === TileType.OCEAN;

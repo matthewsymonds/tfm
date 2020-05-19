@@ -62,6 +62,8 @@ import {convertAmountToNumber, getDiscountedCardCost} from './context/app-contex
 import {Card, cards} from './models/card';
 import {BILLY_TEST} from './test-states/billy-test';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
+import {getAdjacentCellsForCell, findCellWithTile} from './selectors/board';
+import {CONVERSIONS} from './constants/conversion';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -189,7 +191,7 @@ function handleProduction(draft: RootState) {
     }
 }
 
-function isEndOfGame(draft: RootState) {
+function greeneryPlacementTriggered(draft: RootState) {
     for (const parameter in draft.common.parameters) {
         if (parameter === Parameter.VENUS) continue;
 
@@ -426,6 +428,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             case ASK_USER_TO_PLACE_TILE:
+                // Oceans can run out. If they do, skip tile placement.
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_GAIN_RESOURCE:
@@ -469,6 +472,11 @@ export const reducer = (state: GameState | null = null, action) => {
                 for (const b of tilePlacementBonus) {
                     handleGainResource(b.resource, b.amount);
                 }
+                const megacreditIncreaseFromOceans =
+                    getAdjacentCellsForCell(draft, payload.cell).filter(cell => {
+                        return cell.tile?.type === TileType.OCEAN;
+                    }).length * 2;
+                player.resources[Resource.MEGACREDIT] += megacreditIncreaseFromOceans;
                 break;
             case INCREASE_PARAMETER:
                 const {parameter, amount} = payload;
@@ -520,11 +528,26 @@ export const reducer = (state: GameState | null = null, action) => {
                     );
                     // After removing the current player, is anyone else playing?
                     if (common.playingPlayers.length === 0) {
+                        if (common.gameStage === GameStage.GREENERY_PLACEMENT) {
+                            common.gameStage = GameStage.END_OF_GAME;
+                            return;
+                        }
                         player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
                         handleProduction(draft);
-                        const endOfGame = isEndOfGame(draft);
-                        if (endOfGame) {
-                            common.gameStage = GameStage.END_OF_GAME;
+                        const greeneryPlacement = greeneryPlacementTriggered(draft);
+                        if (greeneryPlacement) {
+                            common.playingPlayers = draft.players
+                                .filter(
+                                    p =>
+                                        p.resources[Resource.PLANT] >=
+                                        CONVERSIONS[Resource.PLANT].removeResources[Resource.PLANT]
+                                )
+                                .map(player => player.index);
+                            if (common.playingPlayers.length > 0) {
+                                common.gameStage = GameStage.GREENERY_PLACEMENT;
+                            } else {
+                                common.gameStage = GameStage.END_OF_GAME;
+                            }
                         } else {
                             common.firstPlayerIndex =
                                 (common.firstPlayerIndex + 1) % draft.players.length;

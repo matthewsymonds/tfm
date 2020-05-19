@@ -101,6 +101,10 @@ export function findCellWithTile(state: RootState, type: TileType) {
     return getTakenCells(state).find(cell => cell.tile?.type === type);
 }
 
+export function findCellsWithTile(state: RootState, type: TileType) {
+    return getTakenCells(state).filter(cell => cell.tile?.type === type);
+}
+
 function getAvailableLandCellsOnMars(state: RootState) {
     return getAvailableCellsOnMars(state).filter(cell => cell.type === CellType.LAND);
 }

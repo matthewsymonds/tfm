@@ -30,6 +30,10 @@ import {CardComponent, CardText} from './card';
 import SelectResourceTargetLocation from './select-resource-target-location';
 import SelectResourceTypeToGain from './select-resource-type-to-gain';
 import {CardSelector} from './card-selector';
+import {TurnContext} from './turn-context';
+import {ConversionLink} from './conversion-link';
+import {getWaitingMessage} from '../selectors/get-waiting-message';
+import {getHumanReadableTileName} from '../selectors/get-human-readable-tile-name';
 
 const Hand = styled.div`
     display: flex;
@@ -51,26 +55,6 @@ function getResourceHumanName(resource: Resource): string {
     return result.slice('resource'.length).toLowerCase();
 }
 
-function getTileHumanName(type: TileType): string {
-    return (
-        {
-            [TileType.CAPITAL]: 'Capital',
-            [TileType.CITY]: 'City',
-            [TileType.COMMERCIAL_DISTRICT]: 'Commercial District',
-            [TileType.ECOLOGICAL_ZONE]: 'Ecological Zone',
-            [TileType.GREENERY]: 'Greenery',
-            [TileType.INDUSTRIAL_CENTER]: 'Industrial Center',
-            [TileType.LAVA_FLOW]: 'Lava Flow',
-            [TileType.MINING_RIGHTS]: 'Mining',
-            [TileType.MOHOLE_AREA]: 'Mohole Area',
-            [TileType.NATURAL_PRESERVE]: 'Natural Preserve',
-            [TileType.NUCLEAR_ZONE]: 'Nuclear zone',
-            [TileType.OCEAN]: 'Ocean',
-            [TileType.OTHER]: 'Unknown',
-            [TileType.RESTRICTED_AREA]: 'Restricted Area',
-        }[type] || 'Unknown'
-    );
-}
 function getResourceReductionAmountHumanName(amount: Amount) {
     if (typeof amount !== 'number') {
         return 'any number of';
@@ -78,20 +62,6 @@ function getResourceReductionAmountHumanName(amount: Amount) {
         return amount;
     }
 }
-
-const TurnContext = styled.div`
-    margin-left: 24px;
-`;
-
-const ConversionLink = styled.a`
-    color: black;
-    margin-top: 3px;
-    display: block;
-    margin-right: 8px;
-    text-decoration: underline;
-    cursor: pointer;
-    text-align: center;
-`;
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
@@ -230,32 +200,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         });
     }
 
-    function doConversion(conversion?: Conversion) {
-        if (!conversion) return;
-        context.playAction(conversion, state);
-        context.queue.push(completeAction(playerIndex));
-        context.processQueue(dispatch);
-    }
-
     function continueAfterRevealingCards() {
         context.queue.push(discardRevealedCards());
         context.processQueue(dispatch);
     }
 
-    function canDoConversion(conversion?: Conversion) {
-        if (!conversion) return false;
-        return context.canPlayAction(conversion, state)[0];
-    }
-
-    let waitingForPlayer: string | null = null;
-
-    const playerWhoseTurnItIs = useTypedSelector(
-        state => state.players[state.common.currentPlayerIndex]
-    );
-
-    if (playerWhoseTurnItIs.index !== player.index) {
-        waitingForPlayer = `Waiting for ${playerWhoseTurnItIs.username}`;
-    }
+    const waitingMessage = getWaitingMessage(playerIndex, state);
 
     const totalCardCost = player.selectedCards.length * 3;
     const playerMoney = player.resources[Resource.MEGACREDIT];
@@ -321,10 +271,17 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                             production={productions[resource]}
                                             amount={resources[resource]}
                                         />
-                                        {canDoConversion(conversion) ? (
+                                        {context.canDoConversion(state, conversion) ? (
                                             <>
                                                 <ConversionLink
-                                                    onClick={() => doConversion(conversion)}
+                                                    onClick={() =>
+                                                        context.doConversion(
+                                                            state,
+                                                            playerIndex,
+                                                            dispatch,
+                                                            conversion
+                                                        )
+                                                    }
                                                 >
                                                     Convert 8
                                                 </ConversionLink>
@@ -336,7 +293,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         </ResourceBoardRow>
                     </ResourceBoard>
                 </ActionBarRow>
-                {waitingForPlayer ? <ActionBarRow>{waitingForPlayer}</ActionBarRow> : null}
+                {waitingMessage ? <ActionBarRow>{waitingMessage}</ActionBarRow> : null}
             </ActionBar>
             <Board
                 board={state.common.board}
@@ -430,7 +387,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         )}
                         {player.pendingTilePlacement && (
                             <h3>
-                                Place the {getTileHumanName(player.pendingTilePlacement.type)} tile.
+                                Place the{' '}
+                                {getHumanReadableTileName(player.pendingTilePlacement.type)} tile.
                             </h3>
                         )}
                         {player.pendingResourceReduction?.resource === Resource.CARD && (
