@@ -5,7 +5,6 @@ import {
     askUserToGainResource,
     askUserToLookAtCards,
     askUserToPlaceTile,
-    askUserToConfirmResourceTargetLocation,
     ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
     ASK_USER_TO_GAIN_RESOURCE,
     ASK_USER_TO_LOOK_AT_CARDS,
@@ -51,6 +50,7 @@ import {
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
     PROTECTED_HABITAT_RESOURCE,
+    ResourceAndAmount,
 } from '../constants/resource';
 import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
 import {Tag} from '../constants/tag';
@@ -333,7 +333,6 @@ function createInitialRemoveResourceAction(
     const requiresLocationChoice =
         locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
     const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
-    const actions: Array<{type; payload}> = [];
 
     if (requiresAmountChoice || requiresLocationChoice) {
         return askUserToChooseResourceActionDetails({
@@ -566,37 +565,24 @@ function playAction(action: Action, state: RootState, parent?: Card) {
             )
         );
         actionTerminated = false;
-        // this.queue.push(...createRemoveResourceOptionActions(action.removeResourceOption!, playerIndex, parent, action.removeResourceSourceType);
     }
 
-    // TODO: STEAL RESOURCE
-    // for (const resource in action.stealResource) {
-    //     // remove it
-    //     this.queue.push(
-    //         createInitialRemoveResourceAction(
-    //             resource as Resource,
-    //             action.stealResource[resource],
-    //             playerIndex,
-    //             parent,
-    //             action.removeResourceSourceType
-    //         )
-    //     );
-    //     // gain it
-    //     if (isStorableResource(resource)) {
-    //         this.queue.push(
-    //             gainStorableResource(
-    //                 resource,
-    //                 action.stealResource[resource]!,
-    //                 parent!,
-    //                 playerIndex
-    //             )
-    //         );
-    //     } else {
-    //         this.queue.push(
-    //             gainResource(resource as Resource, action.stealResource[resource], playerIndex)
-    //         );
-    //     }
-    // }
+    for (const resource in action.stealResource) {
+        const resourceAndAmounts: Array<ResourceAndAmount> = [
+            {
+                resource: resource as Resource,
+                amount: action.stealResource[resource] as number,
+            },
+        ];
+        this.queue.push(
+            askUserToChooseResourceActionDetails({
+                actionType: 'stealResource',
+                resourceAndAmounts,
+                card: parent!,
+                playerIndex,
+            })
+        );
+    }
 
     if (action.revealAndDiscardTopCards) {
         this.queue.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));

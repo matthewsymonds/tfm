@@ -360,19 +360,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 resourceActionDetails={player.pendingResourceActionDetails}
                             />
                         )}
-
-                        {/* {player.pendingVariableAmount && (
-                            <AskUserToConfirmVariableAmount
-                                player={player}
-                                confirmDiscardSelection={confirmDiscardSelection}
-                            />
-                        )}
-                        {player.pendingResourceOption && (
-                            <SelectResourceTypeToGain player={player} />
-                        )}
-                        {player.pendingResourceTargetConfirmation && (
-                            <SelectResourceTargetLocation player={player} />
-                        )} */}
                         {state.common.revealedCards.map((card, index) => {
                             return (
                                 <CardComponent key={index} width={250} content={card}>

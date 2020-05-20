@@ -26,27 +26,31 @@ import {PlayerState} from '../reducer';
 import spawnExhaustiveSwitchError from '../utils';
 import {CardComponent} from './card';
 
+type ActionType = 'removeResource' | 'gainResource' | 'stealResource';
+type ListItem = {
+    title: string;
+    options: Option[];
+    player: PlayerState;
+};
 type Props = {
     player: PlayerState;
     resourceActionDetails: {
-        actionType: 'removeResource' | 'gainResource' | 'stealResource';
+        actionType: ActionType;
         resourceAndAmounts: ResourceAndAmount[];
         card: Card;
         locationType?: ResourceLocationType;
     };
 };
 
-type ListItem = {
-    title: string;
-    options: Option[];
-    player: PlayerState;
-};
-
 function getPlayersToConsider(
     player: PlayerState,
     players: PlayerState[],
-    locationType?: ResourceLocationType
+    locationType: ResourceLocationType | undefined,
+    actionType: ActionType
 ): PlayerState[] {
+    if (actionType === 'stealResource') {
+        return players;
+    }
     if (!locationType) {
         return [player];
     }
@@ -80,19 +84,22 @@ type Option = {
     quantity: number;
     resource: Resource;
     isVariable: boolean;
-    actionType: 'removeResource' | 'gainResource' | 'stealResource';
+    actionType: ActionType;
     card?: Card;
     text: string;
 };
 
 function getOptions(
-    actionType: 'removeResource' | 'gainResource' | 'stealResource',
+    actionType: ActionType,
     resourceAndAmount: ResourceAndAmount,
     card: Card,
     player: PlayerState,
-    locationType?: ResourceLocationType
+    locationType: ResourceLocationType | undefined
 ): Option[] {
-    if (locationType && isStorableResource(resourceAndAmount.resource)) {
+    if (
+        (locationType || actionType === 'stealResource') &&
+        isStorableResource(resourceAndAmount.resource)
+    ) {
         return getOptionsForStorableResource(
             actionType,
             resourceAndAmount,
@@ -106,11 +113,11 @@ function getOptions(
 }
 
 function getOptionsForStorableResource(
-    actionType: 'removeResource' | 'gainResource' | 'stealResource',
+    actionType: ActionType,
     resourceAndAmount: ResourceAndAmount,
     originalCard: Card,
     player: PlayerState,
-    locationType: ResourceLocationType
+    locationType: ResourceLocationType | undefined
 ): Option[] {
     let {playedCards: cards} = player;
     const {resource, amount} = resourceAndAmount;
@@ -169,7 +176,7 @@ function formatText(
     quantity: number,
     resource: Resource,
     userChoice: boolean,
-    actionType: 'removeResource' | 'gainResource' | 'stealResource',
+    actionType: ActionType,
     locationName?: string
 ) {
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
@@ -188,7 +195,7 @@ function formatText(
 }
 
 function getOptionsForRegularResource(
-    actionType: 'removeResource' | 'gainResource' | 'stealResource',
+    actionType: ActionType,
     resourceAndAmount: ResourceAndAmount,
     player: PlayerState
 ): Option[] {
@@ -237,7 +244,7 @@ function AskUserToConfirmResourceActionDetails({
     const state = store.getState();
     const players = state.players;
 
-    let playersToConsider = getPlayersToConsider(player, players, locationType);
+    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType);
 
     playersToConsider = [...playersToConsider].sort((alpha, beta) => {
         if (actionType !== 'gainResource') {
@@ -299,6 +306,7 @@ function AskUserToConfirmResourceActionDetails({
             listItems.push(listItem);
         }
     }
+    debugger;
     return (
         <Flex>
             <LeftDiv>

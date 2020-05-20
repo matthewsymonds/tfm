@@ -134,11 +134,11 @@ export const stealStorableResource = (
     resource: Resource,
     amount: Amount,
     playerIndex: number,
-    source: Card,
-    target: Card
+    sourceCard: Card,
+    targetCard: Card
 ) => ({
     type: STEAL_STORABLE_RESOURCE,
-    payload: {resource, amount, source, target, playerIndex, location},
+    payload: {resource, amount, sourceCard, targetCard, playerIndex},
 });
 
 export const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';
@@ -237,7 +237,7 @@ export const askUserToChooseResourceActionDetails = ({
     playerIndex,
     locationType,
 }: {
-    actionType: 'removeResource';
+    actionType: 'removeResource' | 'stealResource';
     resourceAndAmounts: Array<ResourceAndAmount>;
     card: Card;
     playerIndex: number;

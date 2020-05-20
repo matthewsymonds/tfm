@@ -32,6 +32,8 @@ import {
     PLACE_TILE,
     REMOVE_RESOURCE,
     REMOVE_STORABLE_RESOURCE,
+    STEAL_RESOURCE,
+    STEAL_STORABLE_RESOURCE,
     REVEAL_AND_DISCARD_TOP_CARDS,
     SET_CARDS,
     SET_CORPORATION,
@@ -60,10 +62,8 @@ import {
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
-    USER_CHOICE_LOCATION_TYPES,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
-import {VariableAmount} from './constants/variable-amount';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
@@ -379,6 +379,48 @@ export const reducer = (state: GameState | null = null, action) => {
                 targetCard.storedResourceAmount -= amount;
                 break;
             }
+            case STEAL_RESOURCE: {
+                player.pendingResourceActionDetails = undefined;
+
+                const {resource, amount, victimPlayerIndex} = payload;
+                const victimPlayer = draft.players[victimPlayerIndex];
+
+                if (amount > victimPlayer.resources[resource]) {
+                    throw new Error('Trying to take too many resources');
+                }
+                victimPlayer.resources[resource] -= amount;
+                player[resource] += amount;
+                break;
+            }
+            case STEAL_STORABLE_RESOURCE: {
+                player.pendingResourceActionDetails = undefined;
+
+                const {resource, amount, sourceCard, targetCard} = payload;
+
+                const draftSourceCard = draft.players
+                    .flatMap(p => p.playedCards)
+                    .find(c => c.name === sourceCard.name);
+                const draftTargetCard = draft.players
+                    .flatMap(p => p.playedCards)
+                    .find(c => c.name === targetCard.name);
+                if (!draftSourceCard || !draftTargetCard) {
+                    throw new Error('Could not find target or source card for stealing');
+                } else if (!draftSourceCard.storedResourceAmount) {
+                    throw new Error('Target card does not contain any resources');
+                } else if (amount > draftSourceCard.storedResourceAmount) {
+                    throw new Error('Trying to take too many resources');
+                } else if (
+                    resource !== draftSourceCard.storedResourceType ||
+                    draftSourceCard.storedResourceType !== draftTargetCard.storedResourceType
+                ) {
+                    throw new Error("Resource type doesn't match");
+                }
+
+                draftSourceCard.storedResourceAmount -= amount;
+                draftTargetCard.storedResourceAmount =
+                    (draftTargetCard.storedResourceAmount || 0) + amount;
+                break;
+            }
             case GAIN_RESOURCE:
                 handleGainResource(payload.resource, payload.amount);
                 break;
@@ -501,11 +543,12 @@ export const reducer = (state: GameState | null = null, action) => {
                     }).length * 2;
                 player.resources[Resource.MEGACREDIT] += megacreditIncreaseFromOceans;
                 break;
-            case INCREASE_PARAMETER:
+            case INCREASE_PARAMETER: {
                 const {parameter, amount} = payload;
                 handleParameterIncrease(parameter, amount);
                 break;
-            case APPLY_DISCOUNTS:
+            }
+            case APPLY_DISCOUNTS: {
                 const {discounts} = payload;
 
                 player.discounts.card += discounts.card;
@@ -520,6 +563,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.discounts.nextCardThisGeneration = discounts.nextCardThisGeneration;
                 player.discounts.trade += discounts.trade;
                 break;
+            }
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
                 break;
@@ -527,7 +571,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 const playedCard = player.playedCards.find(card => card.name === payload.card.name);
                 playedCard!.usedActionThisRound = true;
                 break;
-            case ANNOUNCE_READY_TO_START_ROUND:
+            case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
                 if (draft.players.every(player => player.action === 1)) {
                     // Everyone's ready!
@@ -539,7 +583,8 @@ export const reducer = (state: GameState | null = null, action) => {
                     draft.common.gameStage = GameStage.ACTIVE_ROUND;
                 }
                 break;
-            case SKIP_ACTION:
+            }
+            case SKIP_ACTION: {
                 const previous = player.action;
                 player.action = 1;
                 // Did the player just skip on their first action?
@@ -590,6 +635,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     handleChangeCurrentPlayer(state, draft);
                 }
                 break;
+            }
 
             case COMPLETE_ACTION:
                 player.action = (player.action % 2) + 1;
@@ -604,19 +650,6 @@ export const reducer = (state: GameState | null = null, action) => {
         }
     });
 };
-
-function getCitiesOnMars(state): number {
-    return state.board.reduce((acc, row) => {
-        const citiesInRow = row.reduce((rowAcc, cell) => {
-            if (!cell.onMars) return rowAcc;
-            if (!cell.tile) return rowAcc;
-
-            return cell.tile.type == TileType.CITY ? rowAcc + 1 : rowAcc;
-        }, 0);
-
-        return citiesInRow + acc;
-    }, 0);
-}
 
 export type RootState = ReturnType<typeof reducer>;
 export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
