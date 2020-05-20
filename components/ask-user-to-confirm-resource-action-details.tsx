@@ -317,7 +317,7 @@ function AskUserToConfirmResourceActionDetails({
             <OptionsParent>
                 <h3>Please choose from the following:</h3>
                 {listItems.map(listItem => {
-                    const warning = listItem.player === player && actionType !== 'gainResource';
+                    const warning = listItem.player === player && actionType === 'removeResource';
                     return (
                         <PlayerOption warning={warning} key={listItem.player.username}>
                             <h4>{listItem.title}</h4>

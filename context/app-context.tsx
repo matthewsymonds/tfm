@@ -191,6 +191,7 @@ function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card: 
         // You can play a card without completing the theft.
         return true;
     }
+    // Otherwise, every other "stealResource" is a storedResource. So we only support that.
     for (const resource in action.stealResource) {
         for (const player of state.players) {
             if (player.playedCards.find(card => card.name === 'Protected Habitats')) {
