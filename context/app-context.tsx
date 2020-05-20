@@ -39,6 +39,7 @@ import {
     Parameter,
     TileType,
     TilePlacement,
+    t,
 } from '../constants/board';
 import {CardType} from '../constants/card-types';
 import {EffectTrigger} from '../constants/effect-trigger';
@@ -49,6 +50,7 @@ import {
     Resource,
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
+    PROTECTED_HABITAT_RESOURCE,
 } from '../constants/resource';
 import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
 import {Tag} from '../constants/tag';
@@ -141,8 +143,22 @@ export function convertAmountToNumber(amount: Amount, state: RootState, card?: C
     return amountGetter(state, card) || 0;
 }
 
-function doesPlayerHaveRequiredResources(action: Action, state: RootState, parent?: Card) {
+/* Locations where we must remove the resource, or the action isn't playable */
+const requiredRemoveResourceLocations = [
+    ResourceLocationType.THIS_CARD,
+    ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+];
+
+function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootState, parent?: Card) {
     const player = getLoggedInPlayer(state);
+
+    if (
+        action.removeResourceSourceType &&
+        !requiredRemoveResourceLocations.includes(action.removeResourceSourceType)
+    ) {
+        // If we're removing a resource and it's not required, then the action is playable
+        return true;
+    }
 
     for (const resource in action.removeResource) {
         const requiredAmount = convertAmountToNumber(action.removeResource[resource], state);
@@ -164,6 +180,37 @@ function doesPlayerHaveRequiredResources(action: Action, state: RootState, paren
         const playerAmount = player.resources[resource];
 
         return playerAmount >= requiredAmount;
+    }
+
+    return true;
+}
+
+function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card: Card) {
+    const loggedInPlayer = getLoggedInPlayer(state);
+    if (action instanceof Card) {
+        // You can play a card without completing the theft.
+        return true;
+    }
+    for (const resource in action.stealResource) {
+        for (const player of state.players) {
+            if (player.playedCards.find(card => card.name === 'Protected Habitats')) {
+                if (PROTECTED_HABITAT_RESOURCE.includes(resource as Resource)) {
+                    if (player.username !== loggedInPlayer.username) {
+                        continue;
+                    }
+                }
+            }
+            for (const playedCard of player.playedCards) {
+                if (playedCard.name === 'Pets') {
+                    continue;
+                }
+                if (playedCard.storedResourceType === resource && playedCard.storedResourceAmount) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     return true;
@@ -256,9 +303,12 @@ function canPlayAction(
         return [false, ''];
     }
 
-    if (!doesPlayerHaveRequiredResources(action, state, parent)) {
-        // Also accounts for opponent resources if applicable
+    if (!doesPlayerHaveRequiredResourcesToRemove(action, state, parent)) {
         return [false, 'Not enough of required resource'];
+    }
+
+    if (!doesAnyoneHaveResourcesToSteal(action, state, parent)) {
+        return [false, `There's no source to steal from`];
     }
 
     // Also accounts for opponent productions if applicable

@@ -20,6 +20,8 @@ export enum Resource {
     ASTEROID = 'asteroid',
 }
 
+export const PROTECTED_HABITAT_RESOURCE = [Resource.PLANT, Resource.ANIMAL, Resource.MICROBE];
+
 const storableResources = [
     Resource.ANIMAL,
     Resource.CAMP,

@@ -3583,6 +3583,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Air Raid',
         removeResource: {[Resource.FLOATER]: 1},
+        removeResourceSourceType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         stealResource: {[Resource.MEGACREDIT]: 5},
         text: 'Requires that you lose 1 floater. Steal 5 MC from any player.',
         tags: [Tag.EVENT],

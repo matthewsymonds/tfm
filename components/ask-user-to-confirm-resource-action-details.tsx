@@ -16,6 +16,7 @@ import {
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
+    PROTECTED_HABITAT_RESOURCE,
 } from '../constants/resource';
 import {Tag} from '../constants/tag';
 import {VariableAmount} from '../constants/variable-amount';
@@ -236,9 +237,9 @@ function AskUserToConfirmResourceActionDetails({
     const state = store.getState();
     const players = state.players;
 
-    const playersToConsider = getPlayersToConsider(player, players, locationType);
+    let playersToConsider = getPlayersToConsider(player, players, locationType);
 
-    playersToConsider.sort((alpha, beta) => {
+    playersToConsider = [...playersToConsider].sort((alpha, beta) => {
         if (actionType !== 'gainResource') {
             if (alpha.username === player.username) {
                 return 1;
@@ -261,9 +262,35 @@ function AskUserToConfirmResourceActionDetails({
             player: playerToConsider,
         };
         for (const resourceAndAmount of resourceAndAmounts) {
-            listItem.options.push(
-                ...getOptions(actionType, resourceAndAmount, card, playerToConsider, locationType)
+            if (actionType !== 'gainResource') {
+                if (playerToConsider.playedCards.find(card => card.name === 'Protected Habitats')) {
+                    if (PROTECTED_HABITAT_RESOURCE.includes(resourceAndAmount.resource)) {
+                        if (playerToConsider.username !== player.username) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            let options = getOptions(
+                actionType,
+                resourceAndAmount,
+                card,
+                playerToConsider,
+                locationType
             );
+
+            if (actionType !== 'gainResource') {
+                options = options.filter(option => {
+                    if (!(option.location instanceof Card)) {
+                        return true;
+                    }
+
+                    return option.location.name !== 'Pets';
+                });
+            }
+
+            listItem.options.push(...options);
         }
 
         listItem.options = listItem.options.filter(option => option.quantity > 0);
