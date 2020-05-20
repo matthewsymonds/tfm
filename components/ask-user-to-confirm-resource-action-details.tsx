@@ -28,7 +28,7 @@ import {CardComponent} from './card';
 type Props = {
     player: PlayerState;
     resourceActionDetails: {
-        actionType: 'removeResource';
+        actionType: 'removeResource' | 'gainResource' | 'stealResource';
         resourceAndAmounts: ResourceAndAmount[];
         card: Card;
         locationType?: ResourceLocationType;
@@ -38,6 +38,7 @@ type Props = {
 type ListItem = {
     title: string;
     options: Option[];
+    player: PlayerState;
 };
 
 function getPlayersToConsider(
@@ -84,7 +85,7 @@ type Option = {
 };
 
 function getOptions(
-    actionType: 'removeResource',
+    actionType: 'removeResource' | 'gainResource' | 'stealResource',
     resourceAndAmount: ResourceAndAmount,
     card: Card,
     player: PlayerState,
@@ -168,9 +169,11 @@ function formatText(
     resource: Resource,
     userChoice: boolean,
     actionType: 'removeResource' | 'gainResource' | 'stealResource',
-    locationName: string
+    locationName?: string
 ) {
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
+
+    const locationAppendix = locationName ? `${modifier} ${locationName}` : '';
 
     const prefix = userChoice ? 'up to ' : '';
 
@@ -180,7 +183,7 @@ function formatText(
         stealResource: 'Steal',
     }[actionType];
 
-    return `${verb} ${prefix} ${amountAndResource(quantity, resource)} ${modifier} ${locationName}`;
+    return `${verb} ${prefix} ${amountAndResource(quantity, resource)} ${locationAppendix}`;
 }
 
 function getOptionsForRegularResource(
@@ -202,7 +205,7 @@ function getOptionsForRegularResource(
 
     const isVariable = amount === VariableAmount.USER_CHOICE;
 
-    const text = formatText(maxAmount, resource, isVariable, actionType, player.username);
+    const text = formatText(maxAmount, resource, isVariable, actionType);
 
     return [
         {
@@ -235,12 +238,27 @@ function AskUserToConfirmResourceActionDetails({
 
     const playersToConsider = getPlayersToConsider(player, players, locationType);
 
+    playersToConsider.sort((alpha, beta) => {
+        if (actionType !== 'gainResource') {
+            if (alpha.username === player.username) {
+                return 1;
+            }
+
+            if (beta.username === player.username) {
+                return -1;
+            }
+        }
+
+        return alpha.username.toLowerCase() < beta.username.toLowerCase() ? -1 : 1;
+    });
+
     const listItems: ListItem[] = [];
 
     for (const playerToConsider of playersToConsider) {
         const listItem: ListItem = {
             title: `${playerToConsider.corporation?.name} (${playerToConsider.username})`,
             options: [],
+            player: playerToConsider,
         };
         for (const resourceAndAmount of resourceAndAmounts) {
             listItem.options.push(
@@ -263,11 +281,12 @@ function AskUserToConfirmResourceActionDetails({
 
             <OptionsParent>
                 <h3>Please choose from the following:</h3>
-
                 {listItems.map(listItem => {
+                    const warning = listItem.player === player && actionType !== 'gainResource';
                     return (
-                        <li>
+                        <PlayerOption warning={warning} key={listItem.player.username}>
                             <h4>{listItem.title}</h4>
+                            {warning ? <Red>Warning: This is you!</Red> : null}
                             <OptionsParent>
                                 {listItem.options.map(childItem => {
                                     return (
@@ -278,7 +297,7 @@ function AskUserToConfirmResourceActionDetails({
                                     );
                                 })}
                             </OptionsParent>
-                        </li>
+                        </PlayerOption>
                     );
                 })}
             </OptionsParent>
@@ -358,7 +377,6 @@ function getAction(option: Option, player: PlayerState) {
 const OptionsParent = styled.ul`
     padding-left: 2px;
     margin-top: 0px;
-
     li {
         list-style-type: none;
     }
@@ -381,10 +399,28 @@ const LeftDiv = styled.div`
     margin-right: 32px;
 `;
 
+const Red = styled.div`
+    font-weight: bold;
+    color: maroon;
+    text-align: center;
+    padding: 4px;
+    border: 2px solid black;
+`;
+
 const Flex = styled.div`
     display: flex;
     width: 100%;
     justify-content: center;
+`;
+
+type WarningProp = {warning?: boolean};
+
+const PlayerOption = styled.li<WarningProp>`
+    display: block;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 3px;
+    border: ${props => (props.warning ? '2px solid maroon' : '1px solid #ccc')};
 `;
 
 export default AskUserToConfirmResourceActionDetails;
