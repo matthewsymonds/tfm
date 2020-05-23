@@ -1,30 +1,26 @@
 import React, {ReactElement, useContext, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import styled from 'styled-components';
 import {
+    announceReadyToStartRound,
     discardCards,
     drawPossibleCards,
-    goToGameStage,
     payForCards,
     setCards,
     setSelectedCards,
-    startOver,
-    announceReadyToStartRound,
 } from '../actions';
 import {CardSelector} from '../components/card-selector';
-import {GameStage} from '../constants/game';
 import {Resource} from '../constants/resource';
 import {AppContext} from '../context/app-context';
 import {useSyncState} from '../pages/sync-state';
 import {RootState, useTypedSelector} from '../reducer';
 import {ActionBar, ActionBarRow} from './action-bar';
+import {Button} from './button';
 
-const MarginalButton = styled.button`
-    margin-top: 10px;
-    margin-bottom: 10px;
-`;
-
-const ConfirmButton = props => <MarginalButton {...props}>Confirm card choice</MarginalButton>;
+const ConfirmButton = props => (
+    <Button marginTop="10px" marginBottom="10px" {...props}>
+        Confirm card choice
+    </Button>
+);
 
 export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
     const dispatch = useDispatch();

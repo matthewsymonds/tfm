@@ -56,10 +56,10 @@ const Selection = styled.div<SelectionProps>`
 
 const CardBase = styled.div<CardBaseProps>`
     margin: 10px;
-    box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
     background: #f7f7f7;
     border-radius: 5px;
-    border: 3px solid white;
+    border: 2px solid #dedede;
     position: relative;
     display: flex;
     flex-direction: column;

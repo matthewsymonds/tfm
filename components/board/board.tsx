@@ -6,7 +6,6 @@ import {
     GlobalParameters,
     Cell as CellModel,
 } from '../../constants/board';
-import GlobalParams from '../global-params';
 import {Row} from '../row';
 import {Tile} from './tile';
 import {Cell} from './cell';
@@ -16,22 +15,17 @@ import {useTypedSelector} from '../../reducer';
 import {placeTile} from '../../actions';
 import {AppContext} from '../../context/app-context';
 import OffMarsCities from './off-mars-cities';
-import StandardProjects from './standard-projects';
-import Milestones from './milestones';
-import Awards from './awards';
+import {Box} from '../box';
 
 const BoardOuter = styled.div`
     position: relative;
     padding: 24px;
-    margin: 0 auto;
-    width: 100%;
-    height: 800px;
-    width: 1200px;
-    background: #212121;
+    margin: 16px;
+    width: fit-content;
     display: flex;
     justify-content: center;
+    align-self: flex-start
     align-items: center;
-    transform: scale(0.9);
 `;
 
 interface BoardProps {
@@ -48,8 +42,8 @@ const BoardInner = styled.div`
 
 const Circle = styled.div`
     border-radius: 50%;
-    width: 800px;
-    height: 800px;
+    width: 600px;
+    height: 600px;
     background: #ce7e47;
     display: flex;
     justify-content: center;
@@ -90,44 +84,40 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
     return (
         <>
             <BoardOuter>
-                <GlobalParams parameters={props.parameters} />
-                <OffMarsCities
-                    board={props.board}
-                    validPlacements={validPlacements}
-                    handleClick={handleClick}
-                />
-                <Circle>
-                    <BoardInner>
-                        {props.board.map((row, outerIndex) => (
-                            <Row key={outerIndex}>
-                                {row.map(
-                                    (cell, index) =>
-                                        cellHelpers.onMars(cell) && (
-                                            <div
-                                                key={`${outerIndex}-${index}`}
-                                                style={{position: 'relative'}}
-                                                onClick={() => handleClick(cell)}
-                                            >
-                                                <Cell
-                                                    selectable={validPlacements.includes(cell)}
-                                                    type={cell.type}
-                                                    bonus={cell.bonus ?? []}
+                <Box position="relative" height="fit-content">
+                    <OffMarsCities
+                        board={props.board}
+                        validPlacements={validPlacements}
+                        handleClick={handleClick}
+                    />
+                    <Circle>
+                        <BoardInner>
+                            {props.board.map((row, outerIndex) => (
+                                <Row key={outerIndex}>
+                                    {row.map(
+                                        (cell, index) =>
+                                            cellHelpers.onMars(cell) && (
+                                                <div
+                                                    key={`${outerIndex}-${index}`}
+                                                    style={{position: 'relative'}}
+                                                    onClick={() => handleClick(cell)}
                                                 >
-                                                    {cell.specialName ?? ''}
-                                                </Cell>
-                                                {cell.tile && <Tile type={cell.tile.type} />}
-                                            </div>
-                                        )
-                                )}
-                            </Row>
-                        ))}
-                    </BoardInner>
-                </Circle>
-                <BoardAcionsContainer>
-                    <StandardProjects />
-                    <Milestones />
-                    <Awards />
-                </BoardAcionsContainer>
+                                                    <Cell
+                                                        selectable={validPlacements.includes(cell)}
+                                                        type={cell.type}
+                                                        bonus={cell.bonus ?? []}
+                                                    >
+                                                        {cell.specialName ?? ''}
+                                                    </Cell>
+                                                    {cell.tile && <Tile type={cell.tile.type} />}
+                                                </div>
+                                            )
+                                    )}
+                                </Row>
+                            ))}
+                        </BoardInner>
+                    </Circle>
+                </Box>
             </BoardOuter>
         </>
     );

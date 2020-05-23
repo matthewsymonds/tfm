@@ -17,11 +17,11 @@ interface ResourceIconBaseProps {
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
   display: inline-block;
-  height: ${props => (props.tall ? '38px' : '25px')};
-  width 25px;
+  height: ${props => (props.tall ? '30px' : '20px')};
+  width 20px;
   text-align: center;
-  margin: 4px;
-  font-size: 17px;
+  margin: 3px;
+  font-size: 14px;
   font-weight: bold;
   color: ${props => props.color};
   background: ${props => props.background};
@@ -92,6 +92,10 @@ export const InlineResourceIcon = styled(ResourceIcon)`
     flex-shrink: 0;
     margin: 0;
     border: 1px solid gray;
+    height: 25px;
+    width 25px;
+    margin: 4px;
+    font-size: 16px;
 `;
 
 function name(resource: Resource): string {

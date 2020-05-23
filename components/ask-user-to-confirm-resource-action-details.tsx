@@ -25,6 +25,7 @@ import {Card} from '../models/card';
 import {PlayerState} from '../reducer';
 import spawnExhaustiveSwitchError from '../utils';
 import {CardComponent} from './card';
+import {Box, Flex} from './box';
 
 type ActionType = 'removeResource' | 'gainResource' | 'stealResource';
 type ListItem = {
@@ -308,11 +309,11 @@ function AskUserToConfirmResourceActionDetails({
     }
     debugger;
     return (
-        <Flex>
-            <LeftDiv>
+        <Flex width="100%" justifyContent="center">
+            <Box marginRight="32px">
                 <h3>You played</h3>
                 <CardComponent content={card} />
-            </LeftDiv>
+            </Box>
 
             <OptionsParent>
                 <h3>Please choose from the following:</h3>
@@ -430,22 +431,12 @@ const OptionsComponentBase = styled.li`
     }
 `;
 
-const LeftDiv = styled.div`
-    margin-right: 32px;
-`;
-
 const Red = styled.div`
     font-weight: bold;
     color: maroon;
     text-align: center;
     padding: 4px;
     border: 2px solid black;
-`;
-
-const Flex = styled.div`
-    display: flex;
-    width: 100%;
-    justify-content: center;
 `;
 
 type WarningProp = {warning?: boolean};

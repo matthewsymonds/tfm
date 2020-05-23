@@ -1,17 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import {Board as BoardModel, Cell as CellModel, cellHelpers} from '../../constants/board';
+import {Board as BoardModel, Cell as CellModel, SpecialLocation} from '../../constants/board';
 import {Cell} from './cell';
 import {Tile} from './tile';
 
-const OffMarsCitiesContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
 const OffMarsCityContainer = styled.div`
-    position: relative;
-    margin: 8px 0;
+    position: absolute;
 `;
 
 type OffMarsCitiesProps = {
@@ -20,29 +14,45 @@ type OffMarsCitiesProps = {
     handleClick: (cell: CellModel) => void;
 };
 
-function OffMarsCities({board, validPlacements, handleClick}: OffMarsCitiesProps) {
-    const offMarsCells = board.flat().filter(cell => !cellHelpers.onMars(cell));
+type OffMarsCityProps = {
+    cell: CellModel;
+    offMarsCitiesProps: OffMarsCitiesProps;
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+};
+
+const px = (num?: number) => {
+    return num ? `${num}px` : 'auto';
+};
+
+const OffMarsCity = ({cell, offMarsCitiesProps, top, left, right, bottom}: OffMarsCityProps) => (
+    <OffMarsCityContainer
+        style={{top: px(top), left: px(left), bottom: px(bottom), right: px(right)}}
+        onClick={() => offMarsCitiesProps.handleClick(cell)}
+    >
+        <Cell
+            selectable={offMarsCitiesProps.validPlacements.includes(cell)}
+            type={cell.type}
+            bonus={cell.bonus ?? []}
+        >
+            {cell.specialName ?? ''}
+        </Cell>
+        {cell.tile && <Tile type={cell.tile.type} />}
+    </OffMarsCityContainer>
+);
+
+function OffMarsCities(props: OffMarsCitiesProps) {
+    const cells = props.board.flat();
+    const ganymede = cells.find(cell => cell.specialLocation === SpecialLocation.GANYMEDE)!;
+    const phobos = cells.find(cell => cell.specialLocation === SpecialLocation.PHOBOS)!;
 
     return (
-        <OffMarsCitiesContainer>
-            {offMarsCells.map(offMarsCell => {
-                return (
-                    <OffMarsCityContainer
-                        key={offMarsCell.specialLocation}
-                        onClick={() => handleClick(offMarsCell)}
-                    >
-                        <Cell
-                            selectable={validPlacements.includes(offMarsCell)}
-                            type={offMarsCell.type}
-                            bonus={offMarsCell.bonus ?? []}
-                        >
-                            {offMarsCell.specialName ?? ''}
-                        </Cell>
-                        {offMarsCell.tile && <Tile type={offMarsCell.tile.type} />}
-                    </OffMarsCityContainer>
-                );
-            })}
-        </OffMarsCitiesContainer>
+        <>
+            <OffMarsCity cell={ganymede} offMarsCitiesProps={props} right={15} top={15} />
+            <OffMarsCity cell={phobos} offMarsCitiesProps={props} left={15} bottom={15} />
+        </>
     );
 }
 

@@ -3,7 +3,7 @@ import {useDispatch} from 'react-redux';
 import {Milestone} from '../../constants/board';
 import {AppContext} from '../../context/app-context';
 import {useTypedSelector} from '../../reducer';
-import {BoardActionHeader, BoardActionRow, BoardActionsContainer} from './board-actions';
+import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {
@@ -28,15 +28,14 @@ function Milestones() {
     const dispatch = useDispatch();
 
     return (
-        <BoardActionsContainer>
-            <BoardActionHeader>Milestones</BoardActionHeader>
+        <SharedActionsContainer>
             {Object.values(Milestone).map(milestone => {
                 const hasBeenClaimed = !!state.common.claimedMilestones.find(
                     m => m.milestone === milestone
                 );
                 const text = getTextForMilestone(milestone);
                 return (
-                    <BoardActionRow
+                    <SharedActionRow
                         key={milestone}
                         selectable={context.canClaimMilestone(milestone, state)}
                         onClick={() => {
@@ -48,10 +47,10 @@ function Milestones() {
                     >
                         <span>{hasBeenClaimed ? <s>{text}</s> : text}</span>
                         <span>8</span>
-                    </BoardActionRow>
+                    </SharedActionRow>
                 );
             })}
-        </BoardActionsContainer>
+        </SharedActionsContainer>
     );
 }
 

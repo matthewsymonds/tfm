@@ -3,7 +3,7 @@ import {ServerStyleSheet, createGlobalStyle} from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
     body {
-        background: #fefefe;
+        background: #f5f5f5;
     }
     html, body, #__next, #__next > div {
       min-height: 100vh;
@@ -86,19 +86,25 @@ const GlobalStyles = createGlobalStyle`
       justify-self: flex-end;
       border-radius: 5px;
       border: 2px solid white;
+      &:disabled, &:hover:disabled {
+        border: 2px solid #dedede;
+      }
+      color: #444;
+
       &:hover {
-        background: #bcbcbc;
         border: 2px solid #fefefe;
+        background: #ccc;
+        color: #222;
       }
       &:disabled {
         cursor: auto;
+        color: auto;
         background: #dedede;
         box-shadow: none;
       }
       padding: 12px;
       min-width: 100px;
       font-size: 14px;
-      background: #cdcdcd;
     }
 `;
 

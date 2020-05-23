@@ -3,7 +3,7 @@ import {useDispatch} from 'react-redux';
 import {Award} from '../../constants/board';
 import {AppContext} from '../../context/app-context';
 import {GameState, useTypedSelector} from '../../reducer';
-import {BoardActionHeader, BoardActionRow, BoardActionsContainer} from './board-actions';
+import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 function getTextForAward(award: Award) {
     switch (award) {
@@ -37,14 +37,13 @@ function Awards() {
     const dispatch = useDispatch();
 
     return (
-        <BoardActionsContainer>
-            <BoardActionHeader>Awards</BoardActionHeader>
+        <SharedActionsContainer>
             {Object.values(Award).map(award => {
                 const hasBeenFunded = !!state.common.fundedAwards.find(a => a.award === award);
                 const text = getTextForAward(award);
                 const price = getPriceForAward(award, state);
                 return (
-                    <BoardActionRow
+                    <SharedActionRow
                         key={award}
                         selectable={context.canFundAward(award, state)}
                         onClick={() => {
@@ -56,10 +55,10 @@ function Awards() {
                     >
                         <span>{hasBeenFunded ? <s>{text}</s> : text}</span>
                         <span>{price}</span>
-                    </BoardActionRow>
+                    </SharedActionRow>
                 );
             })}
-        </BoardActionsContainer>
+        </SharedActionsContainer>
     );
 }
 

@@ -14,9 +14,9 @@ export const Hexagon = styled.div<HexagonProps>`
     color: black;
     position: ${props => (props.overlap ? 'absolute' : 'relative')};
     top: 0px;
-    width: 78px;
-    height: 78px;
-    margin: -4px 4px;
+    width: 64px;
+    height: 64px;
+    margin: -6px 2px;
     display: flex;
     justify-content: center;
     align-items: center;

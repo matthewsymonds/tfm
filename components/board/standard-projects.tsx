@@ -8,7 +8,7 @@ import {
 import {AppContext} from '../../context/app-context';
 import {useTypedSelector, PlayerState} from '../../reducer';
 import {useDispatch} from 'react-redux';
-import {BoardActionsContainer, BoardActionRow, BoardActionHeader} from './board-actions';
+import {SharedActionsContainer, SharedActionRow} from './shared-actions';
 
 function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
@@ -48,11 +48,10 @@ export default function StandardProjects() {
     const player = context.getLoggedInPlayer(state);
 
     return (
-        <BoardActionsContainer>
-            <BoardActionHeader>Standard&nbsp;Projects</BoardActionHeader>
+        <SharedActionsContainer>
             {standardProjectActions.map((standardProjectAction, index) => {
                 return (
-                    <BoardActionRow
+                    <SharedActionRow
                         key={index}
                         selectable={context.canPlayStandardProject(standardProjectAction, state)}
                         onClick={() => {
@@ -64,9 +63,9 @@ export default function StandardProjects() {
                     >
                         <span>{getTextForStandardProject(standardProjectAction.type)}</span>
                         <span>{getPriceForStandardProject(standardProjectAction, player)}</span>
-                    </BoardActionRow>
+                    </SharedActionRow>
                 );
             })}
-        </BoardActionsContainer>
+        </SharedActionsContainer>
     );
 }

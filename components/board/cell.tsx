@@ -35,10 +35,10 @@ const ChildrenWrapper = styled.div<{selectable?: boolean}>`
     z-index: 2;
     top: 4px;
     font-weight: bold;
-    font-size: 10px;
-    transform: scale(1.3);
+    font-size: 6px;
+    transform: scale(1.7);
     &:hover {
-        transform: scale(1.5);
+        transform: scale(1.9);
         background: rgba(255, 255, 255, 0.9);
     }
 `;

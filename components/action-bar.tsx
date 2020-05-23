@@ -2,9 +2,8 @@ import styled from 'styled-components';
 
 const ActionBarBase = styled.div`
     padding: 12px;
-    min-height: 48px;
     padding-left: 18px;
-    background: #f4f4f4;
+    background: #fdfdfd;
     position: fixed;
     top: 0;
     left: 0;
@@ -14,7 +13,7 @@ const ActionBarBase = styled.div`
     }
     width: calc(100% - 30px);
     z-index: 30;
-    box-shadow: 2px 1px 10px 0px rgba(0, 0, 0, 0.35);
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.35);
     font-family: sans-serif;
     overflow-x: auto;
 `;
@@ -22,6 +21,7 @@ const ActionBarBase = styled.div`
 export const ActionBarRow = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center;
     > button {
         margin: 0px;
         margin-left: 16px;
@@ -30,11 +30,10 @@ export const ActionBarRow = styled.div`
 
 const ActionBarDisplace = styled(ActionBarBase)`
     position: relative;
-    margin-bottom: 18px;
     &.bottom {
         margin-bottom: 0px;
         margin-top: auto;
-        border-top: 18px solid rgba(0, 0, 0, 0);
+        border-top: 8px solid rgba(0, 0, 0, 0);
         justify-self: flex-end;
     }
     z-index: 0;

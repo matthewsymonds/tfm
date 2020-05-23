@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import {Tag} from '../constants/tag';
 import {ReactChild} from 'react';
+import {Box} from './box';
 
 const TagsBase = styled.div`
     display: flex;
@@ -70,14 +71,11 @@ function getTagProps(tag: Tag): TagProps {
     };
 }
 
-const FlexStart = styled.div`
-    margin-right: auto;
-    margin-left: 0;
-`;
-
 export const TagsComponent = (props: TagsComponentProps) => (
     <TagsBase>
-        <FlexStart>{props.children}</FlexStart>
+        <Box marginLeft={0} marginRight="auto">
+            {props.children}
+        </Box>
         {props.tags.map((tag, index) => {
             const tagProps = getTagProps(tag);
             return (
