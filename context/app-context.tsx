@@ -266,10 +266,10 @@ function meetsTilePlacementRequirements(action: Action, state: RootState): boole
     return true;
 }
 
-function meetsTerraformRequirements(action, state: RootState, parent: Card): boolean {
+function meetsTerraformRequirements(action, state: RootState, parent?: Card): boolean {
     if (!action.requiresTerraformRatingIncrease) return true;
 
-    return state.players.find(player => player.corporation.name === parent.name)!
+    return state.players.find(player => player.corporation.name === parent?.name)!
         .terraformedThisGeneration;
 }
 
