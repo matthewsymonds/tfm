@@ -167,6 +167,7 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
                 resource,
                 player,
                 resourceLocationType: action.removeResourceSourceType!,
+                players: state.players,
             });
 
             if (cards.every(card => (card.storedResourceAmount || 0) < requiredAmount)) {
@@ -434,8 +435,13 @@ function createDecreaseProductionAction(
     state: RootState,
     parent?: Card
 ) {
-    if (amount === VariableAmount.USER_CHOICE) {
-        return askUserToDecreaseProduction(resource, amount, playerIndex);
+    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+        return askUserToChooseResourceActionDetails({
+            actionType: 'decreaseProduction',
+            resourceAndAmounts: [{resource, amount}],
+            card: parent!,
+            playerIndex,
+        });
     } else {
         return decreaseProduction(resource, amount, playerIndex);
     }
@@ -569,6 +575,23 @@ function playAction(action: Action, state: RootState, parent?: Card, thePlayerIn
                 state,
                 parent
             )
+        );
+    }
+
+    for (const production in action.decreaseAnyProduction) {
+        items.push(
+            askUserToChooseResourceActionDetails({
+                actionType: 'decreaseProduction',
+                card: parent!,
+                playerIndex,
+                locationType: ResourceLocationType.ANY_PLAYER,
+                resourceAndAmounts: [
+                    {
+                        resource: production as Resource,
+                        amount: action.decreaseAnyProduction[production],
+                    },
+                ],
+            })
         );
     }
 

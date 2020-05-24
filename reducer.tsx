@@ -119,7 +119,7 @@ export type PlayerState = {
     pendingTilePlacement?: TilePlacement;
     pendingResourceSource?: string | number; // either card name or player index
     pendingResourceActionDetails?: {
-        actionType: 'removeResource' | 'gainResource' | 'stealResource';
+        actionType: 'removeResource' | 'gainResource' | 'stealResource'|'decreaseProduction';
         resourceAndAmounts: Array<ResourceAndAmount>;
         card: Card;
         locationType?: ResourceLocationType;

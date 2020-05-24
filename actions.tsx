@@ -219,7 +219,7 @@ export const askUserToChooseResourceActionDetails = ({
     playerIndex,
     locationType,
 }: {
-    actionType: 'gainResource' | 'removeResource' | 'stealResource';
+    actionType: 'gainResource' | 'removeResource' | 'stealResource' | 'decreaseProduction';
     resourceAndAmounts: Array<ResourceAndAmount>;
     card: Card;
     playerIndex: number;

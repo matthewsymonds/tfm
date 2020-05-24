@@ -5,6 +5,7 @@ import {
     removeStorableResource,
     stealResource,
     stealStorableResource,
+    decreaseProduction,
 } from 'actions';
 import {
     getResourceName,
@@ -26,7 +27,7 @@ import spawnExhaustiveSwitchError from 'utils';
 import {Box, Flex} from './box';
 import {CardComponent} from './card';
 
-type ActionType = 'removeResource' | 'gainResource' | 'stealResource';
+type ActionType = 'removeResource' | 'gainResource' | 'stealResource' | 'decreaseProduction';
 type ListItem = {
     title: string;
     options: Option[];
@@ -107,9 +108,40 @@ function getOptions(
             player,
             locationType
         );
+    } else if (actionType === 'decreaseProduction') {
+        return getOptionsForDecreaseProduction(resourceAndAmount, player);
     } else {
         return getOptionsForRegularResource(actionType, resourceAndAmount, player);
     }
+}
+
+function getOptionsForDecreaseProduction(
+    productionAndAmount: ResourceAndAmount,
+    player: PlayerState
+): Option[] {
+    const {amount, resource} = productionAndAmount;
+    let maxAmount: number;
+
+    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+        maxAmount = player.productions[resource];
+    } else {
+        maxAmount = Math.min(player.productions[resource], amount as number);
+    }
+
+    const isVariable = amount === VariableAmount.USER_CHOICE_MIN_ZERO;
+
+    const text = formatText(maxAmount, resource, 'decreaseProduction');
+
+    return [
+        {
+            location: player,
+            quantity: maxAmount,
+            resource,
+            isVariable,
+            actionType: 'decreaseProduction',
+            text,
+        },
+    ];
 }
 
 function getOptionsForStorableResource(
@@ -158,7 +190,7 @@ function getOptionsForStorableResource(
             }
         }
 
-        const text = formatText(maxAmount, resource, isVariable, actionType, card.name);
+        const text = formatText(maxAmount, resource, actionType, card.name);
 
         return {
             location: card,
@@ -175,15 +207,15 @@ function getOptionsForStorableResource(
 function formatText(
     quantity: number,
     resource: Resource,
-    userChoice: boolean,
     actionType: ActionType,
     locationName?: string
 ) {
+    if (actionType === 'decreaseProduction') {
+        return formatDecreaseProductionText(quantity, resource);
+    }
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
 
     const locationAppendix = locationName ? `${modifier} ${locationName}` : '';
-
-    const prefix = userChoice ? 'up to ' : '';
 
     const verb = {
         gainResource: 'Add',
@@ -191,7 +223,13 @@ function formatText(
         stealResource: 'Steal',
     }[actionType];
 
-    return `${verb} ${prefix} ${amountAndResource(quantity, resource)} ${locationAppendix}`;
+    return `${verb} ${amountAndResource(quantity, resource)} ${locationAppendix}`;
+}
+
+function formatDecreaseProductionText(quantity: number, resource: Resource) {
+    return `Decrease ${getResourceName(resource)} production ${quantity} step${
+        quantity === 1 ? '' : 's'
+    }`;
 }
 
 function getOptionsForRegularResource(
@@ -213,7 +251,7 @@ function getOptionsForRegularResource(
 
     const isVariable = amount === VariableAmount.USER_CHOICE;
 
-    const text = formatText(maxAmount, resource, isVariable, actionType);
+    const text = formatText(maxAmount, resource, actionType);
 
     return [
         {
@@ -367,7 +405,22 @@ function OptionComponent(props: Option) {
     const [variableAmount, setVariableAmount] = useState(1);
     let inner: Array<JSX.Element | string> = [props.text];
 
-    if (props.isVariable) {
+    if (props.isVariable && props.actionType === 'decreaseProduction') {
+        inner = [
+            'Decrease ',
+            getResourceName(props.resource),
+            ' production ',
+            <input
+                onClick={event => event.stopPropagation()}
+                type="number"
+                min={0}
+                value={variableAmount}
+                max={player.productions[props.resource]}
+                onChange={e => setVariableAmount(Number(e.target.value))}
+            />,
+            ' steps',
+        ];
+    } else if (props.isVariable) {
         inner = [
             'Remove ',
             <input
@@ -433,6 +486,12 @@ function getAction(option: Option, player: PlayerState) {
                     option.location.index
                 );
             }
+        case 'decreaseProduction':
+            return decreaseProduction(
+                option.resource,
+                option.quantity,
+                (option.location as PlayerState).index
+            );
         default:
             throw spawnExhaustiveSwitchError(option.actionType);
     }

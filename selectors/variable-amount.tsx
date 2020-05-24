@@ -28,6 +28,8 @@ function getNonEventCards(player: PlayerState): Card[] {
 export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     // Must have at least one of a resource to exchange it with something else!
     [VariableAmount.USER_CHOICE]: () => 1,
+    // You can play insulation just to get the card out, but not change any production.
+    [VariableAmount.USER_CHOICE_MIN_ZERO]: () => 0,
     [VariableAmount.BASED_ON_USER_CHOICE]: (state: RootState) => state.pendingVariableAmount!,
     [VariableAmount.TRIPLE_BASED_ON_USER_CHOICE]: (state: RootState) =>
         state.pendingVariableAmount! * 3,

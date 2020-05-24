@@ -727,7 +727,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
-        decreaseAnyProduction: {[Resource.ANIMAL]: 1},
+        decreaseAnyProduction: {[Resource.PLANT]: 1},
         victoryPoints: VariableAmount.RESOURCES_ON_CARD,
     },
     {
@@ -1996,7 +1996,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         decreaseProduction: {
-            [Resource.HEAT]: VariableAmount.USER_CHOICE,
+            [Resource.HEAT]: VariableAmount.USER_CHOICE_MIN_ZERO,
         },
         increaseProduction: {
             [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE,

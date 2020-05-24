@@ -1,5 +1,6 @@
 export enum VariableAmount {
     USER_CHOICE = 'userChoice',
+    USER_CHOICE_MIN_ZERO = 'userChoiceMinZero',
     USER_CHOICE_UP_TO_ONE = 'userChoiceUpToOne',
     BASED_ON_USER_CHOICE = 'basedOnUserChoice',
     CITIES_ON_MARS = 'citiesOnMars',

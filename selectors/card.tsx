@@ -1,7 +1,12 @@
 import {PlayerState} from 'reducer';
-import {StorableResource, Resource, ResourceLocationType} from 'constants/resource';
+import {
+    StorableResource,
+    Resource,
+    ResourceLocationType,
+    PROTECTED_HABITAT_RESOURCE,
+} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {Card} from 'models/card';
+import {Card, cards} from 'models/card';
 import spawnExhaustiveSwitchError from 'utils';
 
 export function getAllPlayedCards(player: PlayerState) {
@@ -10,12 +15,6 @@ export function getAllPlayedCards(player: PlayerState) {
 
 export function getAllPlayedCardsExcludingLast(player: PlayerState) {
     return player.playedCards.slice(0, player.playedCards.length - 1);
-}
-
-export function getAllPlayedCardsThatHoldResource(player: PlayerState, resource: StorableResource) {
-    return player.playedCards.filter(card => {
-        return card.storedResourceType && card.storedResourceType === resource;
-    });
 }
 
 export function getLastPlayedCard(player: PlayerState) {
@@ -36,20 +35,48 @@ export function getAllPlayedCardsWithTagThatHoldResource(
     });
 }
 
+export function getAllPlayedCardsThatHoldResource(
+    currentPlayer: PlayerState,
+    player: PlayerState,
+    resource: Resource
+) {
+    let cards: Card[] = [];
+    for (const card of player.playedCards) {
+        if (
+            currentPlayer.index !== player.index &&
+            card.name === 'Protected Habitats' &&
+            PROTECTED_HABITAT_RESOURCE.includes(resource)
+        ) {
+            return [];
+        }
+
+        if (card.name === 'Pets') {
+            continue;
+        }
+
+        if (card.storedResourceType === resource && card.storedResourceAmount) {
+            cards.push(card);
+        }
+    }
+    return cards;
+}
+
 export function getAllowedCardsForResourceAction({
     player,
     resource,
     resourceLocationType,
     thisCard,
+    players,
 }: {
     player: PlayerState;
     resource: StorableResource;
     resourceLocationType: ResourceLocationType;
     thisCard: Card | undefined;
+    players: PlayerState[];
 }): Card[] {
     switch (resourceLocationType) {
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
-            return getAllPlayedCardsThatHoldResource(player, resource);
+            return getAllPlayedCardsThatHoldResource(player, player, resource);
         case ResourceLocationType.THIS_CARD:
             return thisCard ? [thisCard] : [];
         case ResourceLocationType.LAST_PLAYED_CARD: {
@@ -67,8 +94,11 @@ export function getAllowedCardsForResourceAction({
         case ResourceLocationType.VENUS_CARD:
             return getAllPlayedCardsWithTagThatHoldResource(player, Tag.VENUS, resource);
         case ResourceLocationType.ANY_CARD:
-            // TODO
-            return [];
+            const result: Card[] = [];
+            for (const thisPlayer of players) {
+                result.push(...getAllPlayedCardsThatHoldResource(player, thisPlayer, resource));
+            }
+            return result;
         case ResourceLocationType.ANY_PLAYER:
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
             throw new Error('Unsupported resource location type for card selection');

@@ -81,6 +81,10 @@ function getCardDiscardAmountHumanName(amount: Amount) {
         return 'at least one';
     }
 
+    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+        return 'any number of';
+    }
+
     if (amount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
         return '1 or 0';
     }
@@ -254,6 +258,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         totalCardCost > playerMoney ||
         (player.numCardsToTake !== null && player.selectedCards.length < player.numCardsToTake);
 
+    const sortedPlayers = [...players].sort(
+        (a, b) =>
+            state.common.playingPlayers.indexOf(a.index) -
+            state.common.playingPlayers.indexOf(b.index)
+    );
+
     const showBottomActionBar =
         player.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
@@ -306,18 +316,12 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 <Box marginLeft="16px" flexGrow="1">
                     <Box>
                         <Switcher
-                            defaultTabIndex={playerIndex}
-                            tabs={[...players]
-                                .sort(
-                                    (a, b) =>
-                                        state.common.playingPlayers.indexOf(a.index) -
-                                        state.common.playingPlayers.indexOf(b.index)
-                                )
-                                .map(player => player.corporation?.name)}
+                            defaultTabIndex={sortedPlayers.indexOf(player)}
+                            tabs={sortedPlayers.map(player => player.corporation?.name)}
                         >
-                            {players.map((thisPlayer, thisPlayerIndex) => {
+                            {sortedPlayers.map(thisPlayer => {
                                 const cards = (
-                                    <Hand key="cardsInHand">
+                                    <Hand key={thisPlayer.index + 'hand'}>
                                         {thisPlayer.cards.map(card => {
                                             const [canPlay, reason] = context.canPlayCard(
                                                 card,
@@ -330,7 +334,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     isHidden={thisPlayer.index !== playerIndex}
                                                     width={250}
                                                     onClick={(e: MouseEvent<HTMLDivElement>) => {
-                                                        if (playerIndex !== thisPlayerIndex) return;
+                                                        if (playerIndex !== thisPlayer.index)
+                                                            return;
                                                         handleCardClick(card);
                                                     }}
                                                     selected={cardsToDiscard.includes(card)}
@@ -340,7 +345,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                             <em>{reason}</em>
                                                         </CardText>
                                                     )}
-                                                    {playerIndex === thisPlayerIndex ? (
+                                                    {playerIndex === thisPlayer.index ? (
                                                         <button
                                                             disabled={
                                                                 !context.canPlayCard(
@@ -378,7 +383,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     </Hand>
                                 );
                                 const playedCards = (
-                                    <Hand key="playedCards">
+                                    <Hand key={thisPlayer.index + 'playedCards'}>
                                         {thisPlayer.playedCards.map(card => {
                                             let resources = '';
                                             const {
@@ -410,11 +415,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 );
 
                                 return (
-                                    <React.Fragment key={thisPlayerIndex}>
+                                    <React.Fragment key={thisPlayer.index}>
                                         <Panel>
                                             <PlayerOverview
                                                 player={thisPlayer}
-                                                isLoggedInPlayer={playerIndex === thisPlayerIndex}
+                                                isLoggedInPlayer={playerIndex === thisPlayer.index}
                                             />
                                         </Panel>
                                         <Panel>
