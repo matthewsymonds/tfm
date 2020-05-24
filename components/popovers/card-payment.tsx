@@ -140,19 +140,19 @@ export default function CardPaymentPopover({
                 return;
             case Resource.TITANIUM:
                 if (numTitanium > 0) {
+                    const titaniumValue = exchangeRates[Resource.TITANIUM];
                     setNumTitanium(numTitanium - 1);
-                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.TITANIUM]);
                     setNumMC(
-                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                        Math.max(0, Math.min(numMC + titaniumValue, resources[Resource.MEGACREDIT]))
                     );
                 }
                 return;
             case Resource.STEEL:
                 if (numSteel > 0) {
+                    const steelValue = exchangeRates[Resource.STEEL];
                     setNumSteel(numSteel - 1);
-                    const newDelta = cardCost - (runningTotal - exchangeRates[Resource.STEEL]);
                     setNumMC(
-                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                        Math.max(0, Math.min(numMC + steelValue, resources[Resource.MEGACREDIT]))
                     );
                 }
                 return;
@@ -170,20 +170,20 @@ export default function CardPaymentPopover({
             case Resource.TITANIUM:
                 if (runningTotal >= cardCost && numMC === 0) return;
                 if (numTitanium < resources[Resource.TITANIUM]) {
+                    const titaniumValue = exchangeRates[Resource.TITANIUM];
                     setNumTitanium(numTitanium + 1);
-                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.TITANIUM]);
                     setNumMC(
-                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                        Math.max(0, Math.min(numMC - titaniumValue, resources[Resource.MEGACREDIT]))
                     );
                 }
                 return;
             case Resource.STEEL:
                 if (runningTotal >= cardCost && numMC === 0) return;
                 if (numSteel < resources[Resource.STEEL]) {
+                    const steelValue = exchangeRates[Resource.STEEL];
                     setNumSteel(numSteel + 1);
-                    const newDelta = cardCost - (runningTotal + exchangeRates[Resource.STEEL]);
                     setNumMC(
-                        Math.max(0, Math.min(numMC + newDelta, resources[Resource.MEGACREDIT]))
+                        Math.max(0, Math.min(numMC + steelValue, resources[Resource.MEGACREDIT]))
                     );
                 }
                 return;
