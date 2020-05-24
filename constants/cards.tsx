@@ -27,7 +27,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        // TODO(multi): Add check to verify opponent has production to lose
         decreaseAnyProduction: {[Resource.TITANIUM]: 1},
         increaseProduction: {[Resource.TITANIUM]: 1},
         requiredProduction: Resource.TITANIUM,
@@ -39,7 +38,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your energy production 1 step. Increase temperature 1 step.',
         tags: [Tag.BUILDING, Tag.POWER],
         type: CardType.AUTOMATED,
-        increaseProduction: {[Resource.TITANIUM]: 1},
+        increaseProduction: {[Resource.ENERGY]: 1},
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
     },
     {
@@ -48,7 +47,6 @@ export const cardConfigs: CardConfig[] = [
         name: 'Cloud Seeding',
         text:
             'Requires 3 ocean tiles. Decrease your MC production 1 step and any heat production 1 step.  Increase your plant production 2 steps.',
-        // TODO(multi): validate opponent production reduction
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 3,
@@ -2898,7 +2896,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production 2 steps. Add 1 resource to ANY VENUS CARD.',
         gainResourceTargetType: ResourceLocationType.VENUS_CARD,
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        // TODO Add support for variable resource
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED,
     },
@@ -3005,7 +3002,6 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Action: Spend 2 MC to add 1 floater to ANY card.',
             removeResource: {[Resource.MEGACREDIT]: 2},
-            // TODO any card
             gainResource: {[Resource.FLOATER]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
@@ -3060,7 +3056,6 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 2,
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        // TODO venus card target type
         gainResourceOption: {[Resource.ANIMAL]: 2, [Resource.MICROBE]: 2},
     },
     {
@@ -3096,8 +3091,6 @@ export const cardConfigs: CardConfig[] = [
         },
     },
     {
-        // venus: 1,
-        // addsResourceToCards: Resource.FLOATER,
         cost: 11,
         deck: Deck.VENUS,
         name: 'Hydrogen to Venus',
@@ -3108,7 +3101,6 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {
             [Resource.FLOATER]: VariableAmount.JOVIAN_TAGS,
         },
-        // TODO...
     },
     {
         cost: 17,
