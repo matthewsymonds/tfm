@@ -59,6 +59,7 @@ import {PlayerState, RootState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import {PlayerResourceBoard} from 'components/resource';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -265,6 +266,13 @@ function meetsTilePlacementRequirements(action: Action, state: RootState): boole
     return true;
 }
 
+function meetsTerraformRequirements(action, state: RootState, parent: Card): boolean {
+    if (!action.requiresTerraformRatingIncrease) return true;
+
+    return state.players.find(player => player.corporation.name === parent.name)!
+        .terraformedThisGeneration;
+}
+
 function canPlayCard(card: Card, state: RootState): [boolean, string | undefined] {
     const player = getLoggedInPlayer(state);
     if (!canAffordCard(card, state)) {
@@ -329,6 +337,10 @@ function canPlayAction(
 
     if (!meetsTilePlacementRequirements(action, state)) {
         return [false, 'Cannot place tile'];
+    }
+
+    if (!meetsTerraformRequirements(action, state, parent)) {
+        return [false, 'You have not yet terraformed this generation'];
     }
 
     return [true, 'Good to go'];

@@ -115,6 +115,8 @@ export type GameState = {
 
 export type PlayerState = {
     index: number;
+    // For UNMI
+    terraformedThisGeneration?: boolean;
     username: string;
     action: number; // 1 or 2.
     terraformRating: number;
@@ -236,6 +238,9 @@ export const reducer = (state: GameState | null = null, action) => {
             const userTerraformRatingChange = (newAmount - startingAmount) / scale;
             draft.common.parameters[parameter] = newAmount;
             player.terraformRating += userTerraformRatingChange;
+            if (userTerraformRatingChange) {
+                player.terraformedThisGeneration = true;
+            }
         }
 
         const mostRecentlyPlayedCard = player?.playedCards[player.playedCards.length - 1];
@@ -573,6 +578,8 @@ export const reducer = (state: GameState | null = null, action) => {
                 // If so, they're out for the rest of the round.
                 if (previous === 1) {
                     player.action = 0;
+                    player.terraformedThisGeneration = false;
+
                     common.playingPlayers = common.playingPlayers.filter(
                         index => index !== common.currentPlayerIndex
                     );
