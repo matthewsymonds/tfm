@@ -46,4 +46,7 @@ export interface Action {
 
     // For UNMI
     requiresTerraformRatingIncrease?: boolean;
+
+    // Lets you convert plants to greeneries for x less than usual (Ecoline)
+    plantDiscount?: number;
 }

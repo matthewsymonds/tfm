@@ -39,6 +39,7 @@ import {
     SKIP_ACTION,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
+    SET_PLANT_DISCOUNT,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -150,6 +151,7 @@ export type PlayerState = {
         [Resource.TITANIUM]: number;
     };
     discounts: Discounts;
+    plantDiscount?: number;
 
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
@@ -551,6 +553,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.discounts.trade += discounts.trade;
                 break;
             }
+            case SET_PLANT_DISCOUNT:
+                player.plantDiscount = action.payload.plantDiscount;
+                break;
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
                 break;

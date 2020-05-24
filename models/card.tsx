@@ -88,6 +88,8 @@ export class Card {
     // Describes the discounts the card gives.
     discounts: Discounts;
 
+    plantDiscount?: number;
+
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
 
@@ -155,6 +157,7 @@ export class Card {
             trade: 0,
             ...rest,
         };
+        this.plantDiscount = config.plantDiscount || 0;
 
         this.parameterRequirementAdjustments = config.parameterRequirementAdjustments || {};
         this.temporaryParameterRequirementAdjustments =

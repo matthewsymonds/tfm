@@ -151,6 +151,12 @@ export const applyDiscounts = (discounts: Discounts, playerIndex: number) => ({
     payload: {discounts, playerIndex},
 });
 
+export const SET_PLANT_DISCOUNT = 'SET_PLANT_DISCOUNT';
+export const setPlantDiscount = (plantDiscount: number, playerIndex: number) => ({
+    type: SET_PLANT_DISCOUNT,
+    payload: {plantDiscount, playerIndex},
+});
+
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';
 export const payToPlayCard = (
     card: Card,

@@ -25,6 +25,7 @@ import {
     removeStorableResource,
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
+    setPlantDiscount,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -296,9 +297,14 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
     return this.canPlayAction(card, state, card);
 }
 
-function canDoConversion(state: RootState, conversion?: Conversion) {
+function canDoConversion(
+    conversion: Conversion | undefined,
+    player: PlayerState,
+    resource: Resource,
+    quantity: number
+) {
     if (!conversion) return false;
-    return this.canPlayAction(conversion, state)[0];
+    return player.resources[resource] >= quantity;
 }
 
 function doConversion(
@@ -308,7 +314,18 @@ function doConversion(
     conversion?: Conversion
 ) {
     if (!conversion) return;
-    this.playAction(conversion, state);
+    const conversionAction = {
+        ...conversion,
+        removeResource: {
+            ...(conversion.removeResource || {}),
+        },
+    };
+    const plantDiscount = state.players[playerIndex].plantDiscount || 0;
+    const removeResource = conversionAction.removeResource;
+    removeResource[Resource.PLANT] =
+        ((removeResource[Resource.PLANT] as number) || 0) - plantDiscount;
+
+    this.playAction(conversionAction, state);
     this.queue.push(completeAction(playerIndex));
     this.processQueue(dispatch);
 }
@@ -725,6 +742,10 @@ function playAction(action: Action, state: RootState, parent?: Card, thePlayerIn
                 playerIndex
             )
         );
+    }
+
+    if (action.plantDiscount) {
+        items.push(setPlantDiscount(action.plantDiscount, playerIndex));
     }
 
     this.queue.push(...items);

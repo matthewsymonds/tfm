@@ -1,6 +1,6 @@
 import {ActionBar, ActionBarRow} from './action-bar';
 import {skipAction} from 'actions';
-import {ResourceBoard, ResourceBoardRow, ResourceBoardCell} from './resource';
+import {ResourceBoard, ResourceBoardRow, ResourceBoardCell, PlayerResourceBoard} from './resource';
 import {Resource} from 'constants/resource';
 import {CONVERSIONS} from 'constants/conversion';
 import {Board} from './board/board';
@@ -50,52 +50,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                             Done placing greeneries
                         </button>
                     </TurnContext>
-                    <ResourceBoard>
-                        <ResourceBoardRow>
-                            {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(
-                                resourceType => {
-                                    return (
-                                        <ResourceBoardCell
-                                            key={resourceType}
-                                            resource={resourceType}
-                                            production={productions[resourceType]}
-                                            amount={resources[resourceType]}
-                                        />
-                                    );
-                                }
-                            )}
-                        </ResourceBoardRow>
-                        <ResourceBoardRow>
-                            {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
-                                const conversion = CONVERSIONS[resource];
-                                return (
-                                    <div key={resource}>
-                                        <ResourceBoardCell
-                                            resource={resource}
-                                            production={productions[resource]}
-                                            amount={resources[resource]}
-                                        />
-                                        {context.canDoConversion(state, conversion) ? (
-                                            <>
-                                                <ConversionLink
-                                                    onClick={() =>
-                                                        context.doConversion(
-                                                            state,
-                                                            playerIndex,
-                                                            dispatch,
-                                                            conversion
-                                                        )
-                                                    }
-                                                >
-                                                    Convert 8
-                                                </ConversionLink>
-                                            </>
-                                        ) : null}
-                                    </div>
-                                );
-                            })}
-                        </ResourceBoardRow>
-                    </ResourceBoard>
+                    <PlayerResourceBoard player={player} isLoggedInPlayer={true} />
                 </ActionBarRow>
                 {waitingMessage ? <ActionBarRow>{waitingMessage}</ActionBarRow> : null}
             </ActionBar>

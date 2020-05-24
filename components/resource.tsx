@@ -151,6 +151,18 @@ type PlayerResourceBoardProps = {
     isLoggedInPlayer: boolean;
 };
 
+function getConversionAmount(player: PlayerState, conversion: Conversion) {
+    for (const resource in conversion?.removeResource ?? {}) {
+        const amountToRemove = conversion.removeResource[resource];
+        if (resource === Resource.PLANT) {
+            return amountToRemove - (player.plantDiscount || 0);
+        }
+
+        return amountToRemove;
+    }
+    return Infinity;
+}
+
 export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBoardProps) => {
     const context = useContext(AppContext);
     const store = useStore();
@@ -181,7 +193,13 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                 production={player.productions[resource]}
                                 amount={player.resources[resource]}
                             />
-                            {isLoggedInPlayer && context.canDoConversion(state, conversion) ? (
+                            {isLoggedInPlayer &&
+                            context.canDoConversion(
+                                conversion,
+                                player,
+                                resource,
+                                getConversionAmount(player, conversion)
+                            ) ? (
                                 <>
                                     <ConversionLink
                                         onClick={() =>
@@ -193,7 +211,7 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                             )
                                         }
                                     >
-                                        Convert 8
+                                        Convert {getConversionAmount(player, conversion)}
                                     </ConversionLink>
                                 </>
                             ) : null}

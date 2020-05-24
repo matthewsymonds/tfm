@@ -4522,6 +4522,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
         gainResource: {[Resource.MEGACREDIT]: 36, [Resource.PLANT]: 3},
         increaseProduction: {[Resource.PLANT]: 2},
+        plantDiscount: 1,
     },
     {
         effect: {text: 'Effect: You may use heat as MC. You may not use MC as heat.'},
