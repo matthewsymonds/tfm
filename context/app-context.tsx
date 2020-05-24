@@ -93,8 +93,17 @@ export function getDiscountedCardCost(card: Card, player: PlayerState) {
     return Math.max(0, cost);
 }
 
-export function doesCardPaymentRequiresPlayerInput(card: Card) {
-    return card.tags.includes(Tag.BUILDING) || card.tags.includes(Tag.SPACE);
+export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Card) {
+    const paymentOptions: Array<[Tag, number]> = [
+        [Tag.BUILDING, player.resources[Resource.STEEL]],
+        [Tag.SPACE, player.resources[Resource.TITANIUM]],
+    ];
+
+    return paymentOptions.some(option => {
+        const [tag, resourceAmount] = option;
+
+        return card.tags.includes(tag) && resourceAmount > 0;
+    });
 }
 
 function canPlayWithGlobalParameters(card: Card, state: RootState) {

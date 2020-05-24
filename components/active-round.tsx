@@ -15,7 +15,7 @@ import {CardType} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext, doesCardPaymentRequiresPlayerInput} from 'context/app-context';
+import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card} from 'models/card';
 import {useRouter} from 'next/router';
 import {useSyncState} from 'pages/sync-state';
@@ -161,7 +161,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }
 
     function handlePlayCard(card: Card) {
-        if (doesCardPaymentRequiresPlayerInput(card)) {
+        if (doesCardPaymentRequirePlayerInput(player, card)) {
             setCardPendingPayment(card);
             setIsCardPaymentPopoverOpen(true);
         } else {
