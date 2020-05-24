@@ -1,4 +1,4 @@
-import {GameState, useTypedSelector} from '../reducer';
+import {GameState, useTypedSelector} from 'reducer';
 
 export function getWaitingMessage(playerIndex: number, state: GameState) {
     const playerWhoseTurnItIs = useTypedSelector(

@@ -1,13 +1,13 @@
 import {MouseEvent, useContext} from 'react';
 import styled from 'styled-components';
-import {Card} from '../models/card';
+import {Card} from 'models/card';
 import {TagsComponent} from './tags';
-import {getDiscountedCardCost, AppContext} from '../context/app-context';
-import {Amount} from '../constants/action';
-import {RootState, useTypedSelector} from '../reducer';
-import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
+import {getDiscountedCardCost, AppContext} from 'context/app-context';
+import {Amount} from 'constants/action';
+import {RootState, useTypedSelector} from 'reducer';
+import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import {useStore} from 'react-redux';
-import {CardType} from '../constants/card-types';
+import {CardType} from 'constants/card-types';
 
 export const CardText = styled.div`
     margin: 10px;

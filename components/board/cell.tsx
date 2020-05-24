@@ -1,8 +1,8 @@
+import {ResourceIcon} from 'components/resource';
+import {CellType} from 'constants/board';
+import {Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
-import {CellType} from '../../constants/board';
-import {Resource} from '../../constants/resource';
-import {ResourceIcon} from '../resource';
 import {Hexagon} from './hexagon';
 
 interface CellProps {

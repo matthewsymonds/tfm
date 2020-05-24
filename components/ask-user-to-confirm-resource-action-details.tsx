@@ -9,7 +9,7 @@ import {
     removeStorableResource,
     stealResource,
     stealStorableResource,
-} from '../actions';
+} from 'actions';
 import {
     getResourceName,
     isStorableResource,
@@ -17,13 +17,13 @@ import {
     ResourceAndAmount,
     ResourceLocationType,
     PROTECTED_HABITAT_RESOURCE,
-} from '../constants/resource';
-import {Tag} from '../constants/tag';
-import {VariableAmount} from '../constants/variable-amount';
-import {AppContext} from '../context/app-context';
-import {Card} from '../models/card';
-import {PlayerState} from '../reducer';
-import spawnExhaustiveSwitchError from '../utils';
+} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
+import {AppContext} from 'context/app-context';
+import {Card} from 'models/card';
+import {PlayerState} from 'reducer';
+import spawnExhaustiveSwitchError from 'utils';
 import {CardComponent} from './card';
 import {Box, Flex} from './box';
 

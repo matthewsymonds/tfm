@@ -4,9 +4,9 @@ import {
     standardProjectActions,
     StandardProjectType,
     StandardProjectAction,
-} from '../../constants/standard-project';
-import {AppContext} from '../../context/app-context';
-import {useTypedSelector, PlayerState} from '../../reducer';
+} from 'constants/standard-project';
+import {AppContext} from 'context/app-context';
+import {useTypedSelector, PlayerState} from 'reducer';
 import {useDispatch} from 'react-redux';
 import {SharedActionsContainer, SharedActionRow} from './shared-actions';
 

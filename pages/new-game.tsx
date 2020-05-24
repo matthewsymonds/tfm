@@ -1,10 +1,10 @@
-import {Input, SubmitInput} from '../components/input';
-import {useInput} from '../hooks/use-input';
-import {Centered} from '../components/centered';
+import {Input, SubmitInput} from 'components/input';
+import {useInput} from 'hooks/use-input';
+import {Centered} from 'components/centered';
 import Link from 'next/link';
-import {useSession} from '../hooks/use-session';
+import {useSession} from 'hooks/use-session';
 import {useState, ReactElement, FormEvent, useEffect} from 'react';
-import {makePostCall} from '../api-calls';
+import {makePostCall} from 'api-calls';
 import {useRouter} from 'next/router';
 
 export default function NewGame() {

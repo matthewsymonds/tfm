@@ -1,16 +1,16 @@
-import {VariableAmount} from '../constants/variable-amount';
-import {RootState, PlayerState} from '../reducer';
+import {VariableAmount} from 'constants/variable-amount';
+import {RootState, PlayerState} from 'reducer';
 import {
     getCellsWithCitiesOnMars,
     getAdjacentCellsForCell,
     getCellsWithCities,
     findCellWithTile,
 } from './board';
-import {TileType} from '../constants/board';
-import {Tag} from '../constants/tag';
-import {Card} from '../models/card';
-import {Resource} from '../constants/resource';
-import {getLoggedInPlayer} from '../context/app-context';
+import {TileType} from 'constants/board';
+import {Tag} from 'constants/tag';
+import {Card} from 'models/card';
+import {Resource} from 'constants/resource';
+import {getLoggedInPlayer} from 'context/app-context';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (state: RootState, card?: Card) => number;

@@ -1,6 +1,6 @@
-import {useSyncState} from '../pages/sync-state';
+import {useSyncState} from 'pages/sync-state';
 import {useContext, useEffect} from 'react';
-import {AppContext} from '../context/app-context';
+import {AppContext} from 'context/app-context';
 import {useDispatch} from 'react-redux';
 
 export const EndOfGame = () => {

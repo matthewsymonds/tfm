@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {Parameter, GlobalParameters} from '../constants/board';
+import {Parameter, GlobalParameters} from 'constants/board';
 import {Panel, Box} from './box';
 
 const GlobalParamName = styled.span`

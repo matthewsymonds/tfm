@@ -1,4 +1,4 @@
-import {TileType} from '../constants/board';
+import {TileType} from 'constants/board';
 
 export function getHumanReadableTileName(type: TileType): string {
     return (

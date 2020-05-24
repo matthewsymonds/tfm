@@ -5,17 +5,17 @@ import {
     cellHelpers,
     GlobalParameters,
     Cell as CellModel,
-} from '../../constants/board';
-import {Row} from '../row';
+} from 'constants/board';
+import {Row} from 'components/row';
 import {Tile} from './tile';
 import {Cell} from './cell';
-import {getValidPlacementsForRequirement} from '../../selectors/board';
+import {getValidPlacementsForRequirement} from 'selectors/board';
 import {useDispatch, useStore} from 'react-redux';
-import {useTypedSelector} from '../../reducer';
-import {placeTile} from '../../actions';
-import {AppContext} from '../../context/app-context';
+import {useTypedSelector} from 'reducer';
+import {placeTile} from 'actions';
+import {AppContext} from 'context/app-context';
 import OffMarsCities from './off-mars-cities';
-import {Box} from '../box';
+import {Box} from 'components/box';
 
 const BoardOuter = styled.div`
     position: relative;

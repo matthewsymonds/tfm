@@ -1,9 +1,9 @@
 import {Provider} from 'react-redux';
 import App from 'next/app';
 import withRedux from 'next-redux-wrapper';
-import {makeStore} from '../store';
-import {AppContext, appContext} from '../context/app-context';
-import '../styles/index.css';
+import {makeStore} from 'store';
+import {AppContext, appContext} from 'context/app-context';
+import 'styles/index.css';
 import platform from 'platform-detect';
 
 class MyApp extends App {

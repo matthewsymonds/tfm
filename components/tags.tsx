@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {Tag} from '../constants/tag';
+import {Tag} from 'constants/tag';
 import {ReactChild} from 'react';
 import {Box} from './box';
 

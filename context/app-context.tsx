@@ -27,8 +27,8 @@ import {
     removeStorableResource,
     addParameterRequirementAdjustments,
     askUserToChooseResourceActionDetails,
-} from '../actions';
-import {Action, Amount} from '../constants/action';
+} from 'actions';
+import {Action, Amount} from 'constants/action';
 import {
     Award,
     Cell,
@@ -39,11 +39,11 @@ import {
     TileType,
     TilePlacement,
     t,
-} from '../constants/board';
-import {CardType} from '../constants/card-types';
-import {EffectTrigger} from '../constants/effect-trigger';
-import {MinimumProductions, PARAMETER_STEPS, MAX_PARAMETERS, GameStage} from '../constants/game';
-import {PropertyCounter} from '../constants/property-counter';
+} from 'constants/board';
+import {CardType} from 'constants/card-types';
+import {EffectTrigger} from 'constants/effect-trigger';
+import {MinimumProductions, PARAMETER_STEPS, MAX_PARAMETERS, GameStage} from 'constants/game';
+import {PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
     Resource,
@@ -51,16 +51,16 @@ import {
     USER_CHOICE_LOCATION_TYPES,
     PROTECTED_HABITAT_RESOURCE,
     ResourceAndAmount,
-} from '../constants/resource';
-import {StandardProjectAction, StandardProjectType} from '../constants/standard-project';
-import {Tag} from '../constants/tag';
-import {VariableAmount} from '../constants/variable-amount';
-import {Card} from '../models/card';
-import {PlayerState, RootState} from '../reducer';
-import {getValidPlacementsForRequirement, findCellsWithTile} from '../selectors/board';
-import {getAllowedCardsForResourceAction} from '../selectors/card';
-import {VARIABLE_AMOUNT_SELECTORS} from '../selectors/variable-amount';
-import {Conversion} from '../constants/conversion';
+} from 'constants/resource';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
+import {Card} from 'models/card';
+import {PlayerState, RootState} from 'reducer';
+import {getValidPlacementsForRequirement, findCellsWithTile} from 'selectors/board';
+import {getAllowedCardsForResourceAction} from 'selectors/card';
+import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import {Conversion} from 'constants/conversion';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);

@@ -1,4 +1,4 @@
-import {usersModel} from '../../database';
+import {usersModel} from 'database';
 
 export default async (req, res) => {
     let user;

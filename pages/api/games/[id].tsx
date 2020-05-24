@@ -1,4 +1,4 @@
-import {gamesModel, retrieveSession} from '../../../database';
+import {gamesModel, retrieveSession} from 'database';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);

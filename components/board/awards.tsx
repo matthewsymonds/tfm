@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {useDispatch} from 'react-redux';
-import {Award} from '../../constants/board';
-import {AppContext} from '../../context/app-context';
-import {GameState, useTypedSelector} from '../../reducer';
+import {Award} from 'constants/board';
+import {AppContext} from 'context/app-context';
+import {GameState, useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 function getTextForAward(award: Award) {

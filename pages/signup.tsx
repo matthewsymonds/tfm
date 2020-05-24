@@ -1,12 +1,12 @@
 import {useCallback, useState} from 'react';
 import Link from 'next/link';
-import {useInput} from '../hooks/use-input';
-import {Input, SubmitInput} from '../components/input';
-import {Centered, CenteredLink} from '../components/centered';
-import {MaybeVisible} from '../components/maybe-visible';
-import {Box} from '../components/box';
-import {makePostCall} from '../api-calls';
-import {useSession} from '../hooks/use-session';
+import {useInput} from 'hooks/use-input';
+import {Input, SubmitInput} from 'components/input';
+import {Centered, CenteredLink} from 'components/centered';
+import {MaybeVisible} from 'components/maybe-visible';
+import {Box} from 'components/box';
+import {makePostCall} from 'api-calls';
+import {useSession} from 'hooks/use-session';
 
 export default function Signup() {
     const [username, updateUsername] = useInput('');

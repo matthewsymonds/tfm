@@ -4,15 +4,15 @@ import {
     Deck,
     CardType,
     ReduxAction,
-} from '../constants/card-types';
-import {Tag} from '../constants/tag';
-import {Effect} from '../constants/effect';
-import {Action, ActionType, Amount, LookAtCardsConfig} from '../constants/action';
-import {Resource, ResourceLocationType} from '../constants/resource';
-import {Parameter, TilePlacement} from '../constants/board';
-import {PropertyCounter} from '../constants/property-counter';
-import {Discounts} from '../constants/discounts';
-import {cardConfigs} from '../constants/cards';
+} from 'constants/card-types';
+import {Tag} from 'constants/tag';
+import {Effect} from 'constants/effect';
+import {Action, ActionType, Amount, LookAtCardsConfig} from 'constants/action';
+import {Resource, ResourceLocationType} from 'constants/resource';
+import {Parameter, TilePlacement} from 'constants/board';
+import {PropertyCounter} from 'constants/property-counter';
+import {Discounts} from 'constants/discounts';
+import {cardConfigs} from 'constants/cards';
 
 export class Card {
     // ====================================================

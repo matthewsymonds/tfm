@@ -1,6 +1,6 @@
 import {useState, MouseEvent, useEffect} from 'react';
 import {useSession} from './use-session';
-import {makeGetCall} from '../api-calls';
+import {makeGetCall} from 'api-calls';
 
 type Game = {
     name: string;

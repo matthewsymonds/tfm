@@ -1,4 +1,4 @@
-import {makeDeleteCall} from '../api-calls';
+import {makeDeleteCall} from 'api-calls';
 import {useEffect} from 'react';
 import {useRouter} from 'next/router';
 

@@ -1,8 +1,8 @@
-import {PlayerState} from '../reducer';
-import {StorableResource, Resource, ResourceLocationType} from '../constants/resource';
-import {Tag} from '../constants/tag';
-import {Card} from '../models/card';
-import spawnExhaustiveSwitchError from '../utils';
+import {PlayerState} from 'reducer';
+import {StorableResource, Resource, ResourceLocationType} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {Card} from 'models/card';
+import spawnExhaustiveSwitchError from 'utils';
 
 export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;

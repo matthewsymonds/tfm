@@ -10,19 +10,19 @@ import {
     moveCardFromHandToPlayArea,
     setSelectedCards,
     skipAction,
-} from '../actions';
-import AskUserToConfirmResourceActionDetails from '../components/ask-user-to-confirm-resource-action-details';
-import CardPaymentPopover from '../components/popovers/card-payment';
-import {Switcher} from '../components/switcher';
-import {Action} from '../constants/action';
-import {PropertyCounter} from '../constants/property-counter';
-import {Resource} from '../constants/resource';
-import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
-import {Card} from '../models/card';
-import {useSyncState} from '../pages/sync-state';
-import {RootState, useTypedSelector} from '../reducer';
-import {getHumanReadableTileName} from '../selectors/get-human-readable-tile-name';
-import {getWaitingMessage} from '../selectors/get-waiting-message';
+} from 'actions';
+import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
+import CardPaymentPopover from 'components/popovers/card-payment';
+import {Switcher} from 'components/switcher';
+import {Action} from 'constants/action';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import {AppContext, doesCardPaymentRequiresPlayerInput} from 'context/app-context';
+import {Card} from 'models/card';
+import {useSyncState} from 'pages/sync-state';
+import {RootState, useTypedSelector} from 'reducer';
+import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {ActionBar, ActionBarRow} from './action-bar';
 import Awards from './board/awards';
 import {Board} from './board/board';

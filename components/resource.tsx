@@ -5,12 +5,12 @@ import {
     getClassName,
     getResourceSymbol,
     Resource,
-} from '../constants/resource';
+} from 'constants/resource';
 
-import {Conversion, CONVERSIONS} from '../constants/conversion';
-import {PlayerState} from '../reducer';
+import {Conversion, CONVERSIONS} from 'constants/conversion';
+import {PlayerState} from 'reducer';
 import {useContext} from 'react';
-import {AppContext} from '../context/app-context';
+import {AppContext} from 'context/app-context';
 import {ConversionLink} from './conversion-link';
 import {useStore, useDispatch} from 'react-redux';
 

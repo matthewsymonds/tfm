@@ -1,4 +1,4 @@
-import {RootState} from '../reducer';
+import {RootState} from 'reducer';
 import {
     PlacementRequirement,
     CellAttribute,
@@ -9,8 +9,8 @@ import {
     cellHelpers,
     Tile,
     RESERVED_LOCATIONS,
-} from '../constants/board';
-import {getLoggedInPlayerIndex} from '../context/app-context';
+} from 'constants/board';
+import {getLoggedInPlayerIndex} from 'context/app-context';
 
 export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     if (!cell.coords) {

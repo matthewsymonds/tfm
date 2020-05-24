@@ -1,11 +1,11 @@
-import {GameState} from '../reducer';
-import {getInitialState} from '../initial-state';
-import {GameStage} from '../constants/game';
-import {Parameter, INITIAL_BOARD_STATE} from '../constants/board';
-import {Resource} from '../constants/resource';
-import {Tag} from '../constants/tag';
-import {cardConfigs} from '../constants/cards';
-import {Card} from '../models/card';
+import {GameState} from 'reducer';
+import {getInitialState} from 'initial-state';
+import {GameStage} from 'constants/game';
+import {Parameter, INITIAL_BOARD_STATE} from 'constants/board';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {cardConfigs} from 'constants/cards';
+import {Card} from 'models/card';
 
 const cards = cardConfigs.map(config => new Card(config));
 

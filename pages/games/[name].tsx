@@ -1,18 +1,18 @@
-import {setGame} from '../../actions';
-import {ActiveRound} from '../../components/active-round';
-import {BuyOrDiscard} from '../../components/buy-or-discard';
-import {GreeneryPlacement} from '../../components/greenery-placement';
-import {CorporationSelection} from '../../components/corporation-selection';
-import {EndOfGame} from '../../components/end-of-game';
-import {GameStage} from '../../constants/game';
-import {useTypedSelector} from '../../reducer';
-import {deserializeState} from '../../state-serialization';
-import {makeGetCall} from '../../api-calls';
-import {useSession} from '../../hooks/use-session';
+import {setGame} from 'actions';
+import {ActiveRound} from 'components/active-round';
+import {BuyOrDiscard} from 'components/buy-or-discard';
+import {GreeneryPlacement} from 'components/greenery-placement';
+import {CorporationSelection} from 'components/corporation-selection';
+import {EndOfGame} from 'components/end-of-game';
+import {GameStage} from 'constants/game';
+import {useTypedSelector} from 'reducer';
+import {deserializeState} from 'state-serialization';
+import {makeGetCall} from 'api-calls';
+import {useSession} from 'hooks/use-session';
 import {useDispatch} from 'react-redux';
 import {useEffect, useState, useContext} from 'react';
 import {useRouter} from 'next/router';
-import {AppContext} from '../../context/app-context';
+import {AppContext} from 'context/app-context';
 import Head from 'next/head';
 
 function GameComponent() {

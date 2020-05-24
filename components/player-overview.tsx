@@ -1,4 +1,4 @@
-import {PlayerState} from '../reducer';
+import {PlayerState} from 'reducer';
 import {PlayerResourceBoard} from './resource';
 
 type PlayerOverviewProps = {

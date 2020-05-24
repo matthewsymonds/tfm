@@ -1,5 +1,5 @@
-import {useSession} from '../hooks/use-session';
-import {useUserGames} from '../hooks/use-user-games';
+import {useSession} from 'hooks/use-session';
+import {useUserGames} from 'hooks/use-user-games';
 import Link from 'next/link';
 import {useState} from 'react';
 import {useRouter} from 'next/dist/client/router';

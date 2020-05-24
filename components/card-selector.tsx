@@ -1,4 +1,4 @@
-import {Card} from '../models/card';
+import {Card} from 'models/card';
 import {CardComponent} from './card';
 import styled from 'styled-components';
 

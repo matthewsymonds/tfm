@@ -1,8 +1,8 @@
 import {useEffect, useRef} from 'react';
 import {useStore} from 'react-redux';
-import {RootState} from '../reducer';
-import {serializeState} from '../state-serialization';
-import {makePostCall} from '../api-calls';
+import {RootState} from 'reducer';
+import {serializeState} from 'state-serialization';
+import {makePostCall} from 'api-calls';
 import {useRouter} from 'next/router';
 
 async function syncState(newState: RootState, router) {

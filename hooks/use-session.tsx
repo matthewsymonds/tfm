@@ -1,6 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
 import {useRouter} from 'next/dist/client/router';
-import {makeGetCall} from '../api-calls';
+import {makeGetCall} from 'api-calls';
 
 const emptySession = {
     username: '',

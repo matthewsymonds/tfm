@@ -1,13 +1,13 @@
 import {useCallback, useState} from 'react';
-import {useInput} from '../hooks/use-input';
-import {Input, SubmitInput} from '../components/input';
-import {Centered, CenteredLink} from '../components/centered';
+import {useInput} from 'hooks/use-input';
+import {Input, SubmitInput} from 'components/input';
+import {Centered, CenteredLink} from 'components/centered';
 import Link from 'next/link';
-import {Box} from '../components/box';
-import {makePostCall} from '../api-calls';
+import {Box} from 'components/box';
+import {makePostCall} from 'api-calls';
 import {useRouter} from 'next/dist/client/router';
-import {MaybeVisible} from '../components/maybe-visible';
-import {useSession} from '../hooks/use-session';
+import {MaybeVisible} from 'components/maybe-visible';
+import {useSession} from 'hooks/use-session';
 
 export default function Login() {
     const [username, updateUsername] = useInput('');

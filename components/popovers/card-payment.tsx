@@ -1,14 +1,14 @@
 import {ChangeEvent, useContext} from 'react';
 import {Popover} from 'reactstrap';
 import styled from 'styled-components';
-import {Card} from '../../models/card';
-import {Tag} from '../../constants/tag';
-import {Resource} from '../../constants/resource';
+import {Card} from 'models/card';
+import {Tag} from 'constants/tag';
+import {Resource} from 'constants/resource';
 import {useState} from 'react';
-import {getDiscountedCardCost, AppContext} from '../../context/app-context';
-import {PropertyCounter} from '../../constants/property-counter';
-import {ResourceIcon} from '../resource';
-import {useTypedSelector} from '../../reducer';
+import {getDiscountedCardCost, AppContext} from 'context/app-context';
+import {PropertyCounter} from 'constants/property-counter';
+import {ResourceIcon} from 'components/resource';
+import {useTypedSelector} from 'reducer';
 
 type Props = {
     isOpen: boolean;

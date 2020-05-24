@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {useDispatch} from 'react-redux';
-import {Milestone} from '../../constants/board';
-import {AppContext} from '../../context/app-context';
-import {useTypedSelector} from '../../reducer';
+import {Milestone} from 'constants/board';
+import {AppContext} from 'context/app-context';
+import {useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 function getTextForMilestone(milestone: Milestone) {
