@@ -15,7 +15,6 @@ import AskUserToConfirmResourceActionDetails from '../components/ask-user-to-con
 import CardPaymentPopover from '../components/popovers/card-payment';
 import {Switcher} from '../components/switcher';
 import {Action} from '../constants/action';
-import {CONVERSIONS} from '../constants/conversion';
 import {PropertyCounter} from '../constants/property-counter';
 import {Resource} from '../constants/resource';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from '../context/app-context';
@@ -29,11 +28,12 @@ import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
-import {Box, Flex, TypicalBox} from './box';
+import {Box, Flex, Panel} from './box';
 import {CardComponent, CardText} from './card';
 import {CardSelector} from './card-selector';
-import {ConversionLink} from './conversion-link';
-import {ResourceBoard, ResourceBoardCell, ResourceBoardRow} from './resource';
+import {PlayerResourceBoard} from './resource';
+import {PlayerOverview} from './player-overview';
+import GlobalParams from './global-params';
 
 const Hand = styled.div`
     display: flex;
@@ -76,11 +76,6 @@ function getResourceHumanName(resource: Resource): string {
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
-    const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
-    const resources = useTypedSelector(state => state.players[playerIndex].resources);
-    const productions = useTypedSelector(state => state.players[playerIndex].productions);
-    const cards = useTypedSelector(state => state.players[playerIndex].cards);
-    const playedCards = useTypedSelector(state => state.players[playerIndex].playedCards);
     const turn = useTypedSelector(state => state.common.turn);
     const action = player.action;
     const generation = useTypedSelector(state => state.common.generation);
@@ -240,227 +235,147 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         </Info>
                     </Flex>
                 </ActionBarRow>
-
-                {/* <ActionBarRow>
-                    <Infos>
-                        <Info>
-                            Playing {corporation?.name} (TFR {player.terraformRating})
-                        </Info>
-                        
-                    </Infos>
-                    <button
-                        disabled={context.shouldDisableUI(state) || showBottomActionBar}
-                        onClick={() => dispatch(skipAction(playerIndex))}
-                    >
-                        {action === 2 ? 'Skip 2nd action' : 'Pass'}
-                    </button>
-                </ActionBarRow> */}
             </ActionBar>
-            {/* <ActionBar>
-                <ActionBarRow>
-                    <h1>
-                        {corporation && corporation.name} ({player.username})
-                    </h1>
-                    <TurnContext>
-                        <div>Turn {turn}</div>
-                        <div>{!action && 'You have passed.'}</div>
-                        <div>{waitingMessage || `Action ${action} of 2`}</div>
-                        <div>Generation {generation}</div>
-                        <div>TFR {player.terraformRating}</div>
-                    </TurnContext>
-                    <TurnContext>
-                        <button
-                            disabled={context.shouldDisableUI(state) || showBottomActionBar}
-                            onClick={() => dispatch(skipAction(playerIndex))}
-                        >
-                            {action === 2 ? 'Skip 2nd action' : 'Pass'}
-                        </button>
-                    </TurnContext>
-                    
-                </ActionBarRow>
-            </ActionBar> */}
-            <Flex>
-                <Board
-                    board={state.common.board}
-                    playerIndex={playerIndex}
-                    parameters={state.common.parameters}
-                />
-                <Box width="50%">
-                    <Switcher tabs={players.map(player => player.username)}>
-                        {players.map((thisPlayer, thisPlayerIndex) => {
-                            const cards = (
-                                <Hand>
-                                    {thisPlayer.cards.map(card => {
-                                        const [canPlay, reason] = context.canPlayCard(card, state);
-                                        return (
-                                            <CardComponent
-                                                content={card}
-                                                width={250}
-                                                key={card.name}
-                                                onClick={(e: MouseEvent<HTMLDivElement>) =>
-                                                    handleCardClick(card)
-                                                }
-                                                selected={cardsToDiscard.has(card)}
-                                            >
-                                                {!canPlay && (
-                                                    <CardText>
-                                                        <em>{reason}</em>
-                                                    </CardText>
+            <Flex width="calc(100% - 32px)" margin="16px">
+                <Box>
+                    <Board
+                        board={state.common.board}
+                        playerIndex={playerIndex}
+                        parameters={state.common.parameters}
+                    />
+                    <Box>
+                        <GlobalParams parameters={state.common.parameters} />
+                    </Box>
+                    <Box>
+                        <Panel>
+                            <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
+                                <StandardProjects />
+                                <Milestones />
+                                <Awards />
+                            </Switcher>
+                        </Panel>
+                    </Box>
+                </Box>
+
+                <Box marginLeft="16px" flexGrow="1">
+                    <Box>
+                        <Switcher tabs={players.map(player => player.corporation?.name)}>
+                            {players.map((thisPlayer, thisPlayerIndex) => {
+                                const cards = (
+                                    <Hand>
+                                        {thisPlayer.cards.map(card => {
+                                            const [canPlay, reason] = context.canPlayCard(
+                                                card,
+                                                state
+                                            );
+                                            return (
+                                                <CardComponent
+                                                    content={card}
+                                                    width={250}
+                                                    key={card.name}
+                                                    onClick={(e: MouseEvent<HTMLDivElement>) =>
+                                                        handleCardClick(card)
+                                                    }
+                                                    selected={cardsToDiscard.has(card)}
+                                                >
+                                                    {!canPlay && (
+                                                        <CardText>
+                                                            <em>{reason}</em>
+                                                        </CardText>
+                                                    )}
+                                                    {playerIndex === thisPlayerIndex ? (
+                                                        <button
+                                                            disabled={
+                                                                !context.canPlayCard(
+                                                                    card,
+                                                                    state
+                                                                )[0] ||
+                                                                player.pendingVariableAmount
+                                                                    ?.resource === Resource.CARD
+                                                            }
+                                                            onClick={() => handlePlayCard(card)}
+                                                            id={card.name.replace(/\s+/g, '-')}
+                                                        >
+                                                            Play
+                                                        </button>
+                                                    ) : null}
+                                                </CardComponent>
+                                            );
+                                        })}
+                                        {cardPendingPayment && (
+                                            <CardPaymentPopover
+                                                isOpen={isCardPaymentPopoverOpen}
+                                                target={cardPendingPayment.name.replace(
+                                                    /\s+/g,
+                                                    '-'
                                                 )}
-                                                {playerIndex === thisPlayerIndex ? (
-                                                    <button
-                                                        disabled={
-                                                            !context.canPlayCard(card, state)[0] ||
-                                                            player.pendingVariableAmount
-                                                                ?.resource === Resource.CARD
-                                                        }
-                                                        onClick={() => handlePlayCard(card)}
-                                                        id={card.name.replace(/\s+/g, '-')}
-                                                    >
-                                                        Play
-                                                    </button>
-                                                ) : null}
-                                            </CardComponent>
-                                        );
-                                    })}
-                                    {cardPendingPayment && (
-                                        <CardPaymentPopover
-                                            isOpen={isCardPaymentPopoverOpen}
-                                            target={cardPendingPayment.name.replace(/\s+/g, '-')}
-                                            card={cardPendingPayment}
-                                            toggle={() =>
-                                                setIsCardPaymentPopoverOpen(
-                                                    !isCardPaymentPopoverOpen
-                                                )
+                                                card={cardPendingPayment}
+                                                toggle={() =>
+                                                    setIsCardPaymentPopoverOpen(
+                                                        !isCardPaymentPopoverOpen
+                                                    )
+                                                }
+                                                onConfirmPayment={(...args) =>
+                                                    handleConfirmCardPayment(...args)
+                                                }
+                                            />
+                                        )}
+                                    </Hand>
+                                );
+                                const playedCards = (
+                                    <Hand>
+                                        {thisPlayer.playedCards.map(card => {
+                                            let resources = '';
+                                            const {
+                                                storedResourceType: type,
+                                                storedResourceAmount: amount,
+                                            } = card;
+                                            if (type) {
+                                                resources = `Holds ${amount} ${getResourceHumanName(
+                                                    type
+                                                )}${amount === 1 ? '' : 's'}`;
                                             }
-                                            onConfirmPayment={(...args) =>
-                                                handleConfirmCardPayment(...args)
-                                            }
-                                        />
-                                    )}
-                                </Hand>
-                            );
-                            const playedCards = (
-                                <Hand>
-                                    {thisPlayer.playedCards.map(card => {
-                                        let resources = '';
-                                        const {
-                                            storedResourceType: type,
-                                            storedResourceAmount: amount,
-                                        } = card;
-                                        if (type) {
-                                            resources = `Holds ${amount} ${getResourceHumanName(
-                                                type
-                                            )}${amount === 1 ? '' : 's'}`;
-                                        }
-                                        return (
-                                            <CardComponent
-                                                content={card}
-                                                width={250}
-                                                key={card.name}
+                                            return (
+                                                <CardComponent
+                                                    content={card}
+                                                    width={250}
+                                                    key={card.name}
+                                                >
+                                                    {resources && <CardText>{resources}</CardText>}
+
+                                                    {cardActionElements(card)}
+                                                </CardComponent>
+                                            );
+                                        })}
+                                    </Hand>
+                                );
+
+                                return (
+                                    <React.Fragment key={thisPlayerIndex}>
+                                        <Panel>
+                                            <PlayerOverview
+                                                player={thisPlayer}
+                                                isLoggedInPlayer={playerIndex === thisPlayerIndex}
+                                            />
+                                        </Panel>
+                                        <Panel>
+                                            <Switcher
+                                                tabs={
+                                                    playerIndex === thisPlayerIndex
+                                                        ? ['Hand', 'Played Cards']
+                                                        : ['Played Cards']
+                                                }
                                             >
-                                                {resources && <CardText>{resources}</CardText>}
-
-                                                {cardActionElements(card)}
-                                            </CardComponent>
-                                        );
-                                    })}
-                                </Hand>
-                            );
-
-                            return (
-                                <React.Fragment key={thisPlayerIndex}>
-                                    <TypicalBox>
-                                        <h2>{thisPlayer.corporation?.name}</h2>
-                                        <ResourceBoard>
-                                            <ResourceBoardRow>
-                                                {[
-                                                    Resource.MEGACREDIT,
-                                                    Resource.STEEL,
-                                                    Resource.TITANIUM,
-                                                ].map(resourceType => {
-                                                    return (
-                                                        <ResourceBoardCell
-                                                            key={resourceType}
-                                                            resource={resourceType}
-                                                            production={
-                                                                thisPlayer.productions[resourceType]
-                                                            }
-                                                            amount={
-                                                                thisPlayer.resources[resourceType]
-                                                            }
-                                                        />
-                                                    );
-                                                })}
-                                            </ResourceBoardRow>
-                                            <ResourceBoardRow>
-                                                {[
-                                                    Resource.PLANT,
-                                                    Resource.ENERGY,
-                                                    Resource.HEAT,
-                                                ].map(resource => {
-                                                    const conversion = CONVERSIONS[resource];
-                                                    return (
-                                                        <div key={resource}>
-                                                            <ResourceBoardCell
-                                                                resource={resource}
-                                                                production={
-                                                                    thisPlayer.productions[resource]
-                                                                }
-                                                                amount={
-                                                                    thisPlayer.resources[resource]
-                                                                }
-                                                            />
-                                                            {playerIndex === thisPlayerIndex &&
-                                                            context.canDoConversion(
-                                                                state,
-                                                                conversion
-                                                            ) ? (
-                                                                <>
-                                                                    <ConversionLink
-                                                                        onClick={() =>
-                                                                            context.doConversion(
-                                                                                state,
-                                                                                playerIndex,
-                                                                                dispatch,
-                                                                                conversion
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        Convert 8
-                                                                    </ConversionLink>
-                                                                </>
-                                                            ) : null}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </ResourceBoardRow>
-                                        </ResourceBoard>
-                                    </TypicalBox>
-                                    <TypicalBox>
-                                        <Switcher
-                                            tabs={
-                                                playerIndex === thisPlayerIndex
-                                                    ? ['Hand', 'Played Cards']
-                                                    : ['Played Cards']
-                                            }
-                                        >
-                                            {playerIndex === thisPlayerIndex
-                                                ? [cards, playedCards]
-                                                : [playedCards]}
-                                        </Switcher>
-                                    </TypicalBox>
-                                </React.Fragment>
-                            );
-                        })}
-                    </Switcher>
-                    <TypicalBox>
-                        <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
-                            <StandardProjects />
-                            <Milestones />
-                            <Awards />
+                                                {playerIndex === thisPlayerIndex
+                                                    ? [cards, playedCards]
+                                                    : [playedCards]}
+                                            </Switcher>
+                                        </Panel>
+                                    </React.Fragment>
+                                );
+                            })}
                         </Switcher>
-                    </TypicalBox>
+                    </Box>
                 </Box>
             </Flex>
             {showBottomActionBar && (

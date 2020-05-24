@@ -7,7 +7,12 @@ import {
     Resource,
 } from '../constants/resource';
 
-import {Conversion} from '../constants/conversion';
+import {Conversion, CONVERSIONS} from '../constants/conversion';
+import {PlayerState} from '../reducer';
+import {useContext} from 'react';
+import {AppContext} from '../context/app-context';
+import {ConversionLink} from './conversion-link';
+import {useStore, useDispatch} from 'react-redux';
 
 interface ResourceIconBaseProps {
     readonly color: string;
@@ -140,3 +145,62 @@ export const ResourceBoard = styled.div`
     justify-content: center;
     margin-left: auto;
 `;
+
+type PlayerResourceBoardProps = {
+    player: PlayerState;
+    isLoggedInPlayer: boolean;
+};
+
+export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBoardProps) => {
+    const context = useContext(AppContext);
+    const store = useStore();
+    const state = store.getState();
+    const dispatch = useDispatch();
+
+    return (
+        <ResourceBoard>
+            <ResourceBoardRow>
+                {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => {
+                    return (
+                        <ResourceBoardCell
+                            key={resourceType}
+                            resource={resourceType}
+                            production={player.productions[resourceType]}
+                            amount={player.resources[resourceType]}
+                        />
+                    );
+                })}
+            </ResourceBoardRow>
+            <ResourceBoardRow>
+                {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
+                    const conversion = CONVERSIONS[resource];
+                    return (
+                        <div key={resource}>
+                            <ResourceBoardCell
+                                resource={resource}
+                                production={player.productions[resource]}
+                                amount={player.resources[resource]}
+                            />
+                            {isLoggedInPlayer && context.canDoConversion(state, conversion) ? (
+                                <>
+                                    <ConversionLink
+                                        onClick={() =>
+                                            context.doConversion(
+                                                state,
+                                                player.index,
+                                                dispatch,
+                                                conversion
+                                            )
+                                        }
+                                    >
+                                        Convert 8
+                                    </ConversionLink>
+                                </>
+                            ) : null}
+                        </div>
+                    );
+                })}
+            </ResourceBoardRow>
+        </ResourceBoard>
+    );
+};

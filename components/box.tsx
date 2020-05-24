@@ -15,7 +15,7 @@ export function Flex(props) {
     return <Box {...flexProps} />;
 }
 
-export const TypicalBox = styled.div`
+export const Panel = styled.div`
     font-family: sans-serif;
     width: 100%;
     margin-bottom: 16px;

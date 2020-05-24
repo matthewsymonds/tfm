@@ -13,8 +13,9 @@ import {useDispatch} from 'react-redux';
 import {useEffect, useState, useContext} from 'react';
 import {useRouter} from 'next/router';
 import {AppContext} from '../../context/app-context';
+import Head from 'next/head';
 
-export default function Game() {
+function GameComponent() {
     const {loading, session} = useSession();
 
     const [players, setPlayers] = useState<string[]>([]);
@@ -65,4 +66,15 @@ export default function Game() {
         default:
             return null;
     }
+}
+
+export default function Game() {
+    return (
+        <>
+            <Head>
+                <title>TFM</title>
+            </Head>
+            <GameComponent />
+        </>
+    );
 }

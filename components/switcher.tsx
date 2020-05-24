@@ -1,5 +1,6 @@
 import React, {Children, ReactElement, useState} from 'react';
 import styled from 'styled-components';
+import {Box} from './box';
 
 const Tabs = styled.div`
     display: flex;
@@ -33,9 +34,6 @@ export function Switcher({children, tabs = defaultTabs}) {
     if (Children.count(children) !== tabs.length) {
         throw new Error('Tabs must match React children in Switcher.');
     }
-
-    const child = children![selectedTabIndex];
-
     return (
         <>
             <Tabs>
@@ -48,7 +46,15 @@ export function Switcher({children, tabs = defaultTabs}) {
                     </Tab>
                 ))}
             </Tabs>
-            <SwitcherChildContainer>{child}</SwitcherChildContainer>
+            <SwitcherChildContainer>
+                {Children.toArray(children).map((child, childIndex) => {
+                    return (
+                        <Box display={childIndex === selectedTabIndex ? 'block' : 'none'}>
+                            {child}
+                        </Box>
+                    );
+                })}
+            </SwitcherChildContainer>
         </>
     );
 }

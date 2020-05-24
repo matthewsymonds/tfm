@@ -1,17 +1,14 @@
 import styled from 'styled-components';
 import {Parameter, GlobalParameters} from '../constants/board';
+import {Panel, Box} from './box';
 
-const GlobalParamsBase = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-    background-color: hsla(28, 0%, 85%, 1);
-    border-radius: 3px;
-    color: black;
+const GlobalParamName = styled.span`
+    font-style: italic;
 `;
 
-const GlobalParamValue = styled.span`
+const GlobalParamValue = styled.span<{color: string}>`
     margin-left: 4px;
+    color: ${props => props.color};
 `;
 
 type GlobalParamsProps = {
@@ -22,23 +19,25 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const {parameters} = props;
 
     return (
-        <GlobalParamsBase>
-            <div>
-                <span>Temperature</span>
-                <GlobalParamValue>{parameters[Parameter.TEMPERATURE]}</GlobalParamValue>
-            </div>
-            <div>
-                <span>Oxygen</span>
-                <GlobalParamValue>{parameters[Parameter.OXYGEN]}</GlobalParamValue>
-            </div>
-            <div>
-                <span>Ocean</span>
-                <GlobalParamValue>{parameters[Parameter.OCEAN]}</GlobalParamValue>
-            </div>
-            <div>
-                <span>Venus</span>
-                <GlobalParamValue>{parameters[Parameter.VENUS]}</GlobalParamValue>
-            </div>
-        </GlobalParamsBase>
+        <Panel>
+            <Box margin="8px">
+                <Box marginBottom="4px">
+                    <GlobalParamName>Temperature</GlobalParamName>
+                    <GlobalParamValue color="orangered">
+                        {parameters[Parameter.TEMPERATURE]}
+                    </GlobalParamValue>
+                </Box>
+                <Box marginBottom="4px">
+                    <GlobalParamName>Oxygen</GlobalParamName>
+                    <GlobalParamValue color="green">
+                        {parameters[Parameter.OXYGEN]}
+                    </GlobalParamValue>
+                </Box>
+                <Box marginBottom="4px">
+                    <GlobalParamName>Ocean</GlobalParamName>
+                    <GlobalParamValue color="blue">{parameters[Parameter.OCEAN]}</GlobalParamValue>
+                </Box>
+            </Box>
+        </Panel>
     );
 }
