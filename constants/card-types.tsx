@@ -23,6 +23,11 @@ interface PartialDiscounts {
     trade?: number;
 }
 
+export type ExchangeRates = {
+    [Resource.TITANIUM]?: number;
+    [Resource.STEEL]?: number;
+};
+
 export interface CardConfig extends Action {
     resources?: PropertyCounter<Resource>;
     action?: Action;
@@ -46,6 +51,7 @@ export interface CardConfig extends Action {
     maxColonies?: number; // only for colonies expansion
     minTerraformRating?: number;
     discounts?: PartialDiscounts;
+    exchangeRates?: ExchangeRates;
     // e.g. Inventrix
     parameterRequirementAdjustments?: PropertyCounter<Parameter>;
     // e.g. Special Design

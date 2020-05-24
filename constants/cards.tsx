@@ -969,6 +969,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Advanced Alloys',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
+        exchangeRates: {
+            [Resource.STEEL]: 1,
+            [Resource.TITANIUM]: 1,
+        },
     },
     {
         action: {
@@ -4604,6 +4608,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.CORPORATION,
         gainResource: {[Resource.TITANIUM]: 10, [Resource.MEGACREDIT]: 23},
+        exchangeRates: {
+            [Resource.TITANIUM]: 1,
+        },
     },
     {
         effect: {text: 'Effect: When playing an Earth card, you pay 3 MC less for it.'},

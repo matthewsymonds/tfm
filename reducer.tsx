@@ -39,6 +39,7 @@ import {
     SKIP_ACTION,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
+    APPLY_EXCHANGE_RATE_CHANGES,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -549,6 +550,14 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.discounts.standardProjectPowerPlant += discounts.standardProjectPowerPlant;
                 player.discounts.nextCardThisGeneration = discounts.nextCardThisGeneration;
                 player.discounts.trade += discounts.trade;
+                break;
+            }
+            case APPLY_EXCHANGE_RATE_CHANGES: {
+                const {exchangeRates: exchangeRateDeltas} = payload;
+
+                for (const resource in exchangeRateDeltas) {
+                    player.exchangeRates[resource] += exchangeRateDeltas[resource];
+                }
                 break;
             }
             case GO_TO_GAME_STAGE:

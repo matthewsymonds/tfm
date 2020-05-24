@@ -1,6 +1,12 @@
 import {Action, ActionType, Amount, LookAtCardsConfig} from 'constants/action';
 import {Parameter, TilePlacement} from 'constants/board';
-import {CardConfig, CardType, Deck, RequiredGlobalParameter} from 'constants/card-types';
+import {
+    CardConfig,
+    CardType,
+    Deck,
+    RequiredGlobalParameter,
+    ExchangeRates,
+} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
@@ -88,6 +94,10 @@ export class Card {
     // Describes the discounts the card gives.
     discounts: Discounts;
 
+    // Describes the exchange rates changes that this card results in.
+    // Currently only relevant for: Phobolog, Advanced Alloys
+    exchangeRates: ExchangeRates;
+
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
 
@@ -154,6 +164,12 @@ export class Card {
             nextCardThisGeneration: 0,
             trade: 0,
             ...rest,
+        };
+        const {exchangeRates = {}} = config;
+        this.exchangeRates = {
+            [Resource.TITANIUM]: 0,
+            [Resource.STEEL]: 0,
+            ...exchangeRates,
         };
 
         this.parameterRequirementAdjustments = config.parameterRequirementAdjustments || {};

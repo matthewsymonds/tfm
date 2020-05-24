@@ -25,6 +25,7 @@ import {
     removeStorableResource,
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
+    applyExchangeRateChanges,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -770,6 +771,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     );
 
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
+    this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
 
     this.playAction(card, state, card);
     if (card.type !== CardType.CORPORATION || card.forcedAction) {
