@@ -1,26 +1,33 @@
+import {TileType} from 'constants/board';
+import {CardType} from 'constants/card-types';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {RootState, PlayerState} from 'reducer';
+import {getLoggedInPlayer} from 'context/app-context';
+import {Card} from 'models/card';
+import {PlayerState, RootState} from 'reducer';
 import {
-    getCellsWithCitiesOnMars,
+    findCellWithTile,
     getAdjacentCellsForCell,
     getCellsWithCities,
-    findCellWithTile,
+    getCellsWithCitiesOnMars,
 } from './board';
-import {TileType} from 'constants/board';
-import {Tag} from 'constants/tag';
-import {Card} from 'models/card';
-import {Resource} from 'constants/resource';
-import {getLoggedInPlayer} from 'context/app-context';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (state: RootState, card?: Card) => number;
 };
 
 function getTags(player: PlayerState): Tag[] {
-    return player.playedCards.flatMap(card => card.tags);
+    return getNonEventCards(player).flatMap(card => card.tags);
+}
+
+function getNonEventCards(player: PlayerState): Card[] {
+    return player.playedCards.filter(card => card.type !== CardType.EVENT);
 }
 
 export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
+    // Must have at least one of a resource to exchange it with something else!
+    [VariableAmount.USER_CHOICE]: () => 1,
     [VariableAmount.BASED_ON_USER_CHOICE]: (state: RootState) => state.pendingVariableAmount!,
     [VariableAmount.TRIPLE_BASED_ON_USER_CHOICE]: (state: RootState) =>
         state.pendingVariableAmount! * 3,
@@ -31,7 +38,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState) => {
         const player = getLoggedInPlayer(state);
-        return player.cards.filter(card => card.tags.length === 0).length;
+        return player.cards.filter(card => card.type !== CardType.EVENT && card.tags.length === 0)
+            .length;
     },
     [VariableAmount.CITIES_ON_MARS]: (state: RootState) => {
         return getCellsWithCitiesOnMars(state).length;
@@ -93,8 +101,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const player = getLoggedInPlayer(state);
         return state.players
             .filter(p => p !== player)
-            .flatMap(player => player.playedCards)
-            .flatMap(card => card.tags)
+            .flatMap(player => getTags(player))
             .filter(tag => tag === Tag.SPACE).length;
     },
     [VariableAmount.VENUS_TAGS]: (state: RootState) => {

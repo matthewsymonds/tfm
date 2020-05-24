@@ -1,13 +1,13 @@
-import {MouseEvent, useContext} from 'react';
-import styled from 'styled-components';
-import {Card} from 'models/card';
-import {TagsComponent} from './tags';
-import {getDiscountedCardCost, AppContext} from 'context/app-context';
 import {Amount} from 'constants/action';
+import {CardType} from 'constants/card-types';
+import {AppContext, getDiscountedCardCost} from 'context/app-context';
+import {Card} from 'models/card';
+import {MouseEvent, useContext} from 'react';
+import {useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-import {useStore} from 'react-redux';
-import {CardType} from 'constants/card-types';
+import styled from 'styled-components';
+import {TagsComponent} from './tags';
 
 export const CardText = styled.div`
     margin: 10px;
@@ -81,6 +81,7 @@ interface CardComponentProps extends CardBaseProps {
     content: Card;
     selected?: boolean;
     width?: number;
+    isHidden?: boolean;
 }
 
 function getVictoryPoints(amount: Amount | undefined, state: RootState, card: Card) {
@@ -93,8 +94,31 @@ function getVictoryPoints(amount: Amount | undefined, state: RootState, card: Ca
     return selector(state, card) || 0;
 }
 
+const Back = styled.div`
+    display: flex;
+    background: #212121;
+    align-items: center;
+    justify-content: center;
+    height: 350px;
+    border-radius: 5px;
+    border: 2px solid #dedede;
+`;
+
+const BackOfCard = () => (
+    <Back>
+        <Circle />
+    </Back>
+);
+
+const Circle = styled.div`
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    background: #ce7e47;
+`;
+
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
-    const {content, width, selected, onClick} = props;
+    const {content, width, selected, onClick, isHidden} = props;
     const {name, text, action, effects, cost, tags} = content;
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
@@ -104,32 +128,36 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const store = useStore();
     const victoryPoints = getVictoryPoints(content.victoryPoints, store.getState(), content);
     const Base = content.type === CardType.CORPORATION ? CorporationCardBase : CardBase;
+    const innerContents = (
+        <Selection selected={selected || false}>
+            <TagsComponent tags={tags}>
+                <div>{name}</div>
+            </TagsComponent>
+            {typeof cost === 'number' && (
+                <CardText>
+                    Cost: {discountedCost}€
+                    {discountedCost !== cost && (
+                        <CardNote>
+                            <em>Originally: {cost}€</em>
+                        </CardNote>
+                    )}
+                </CardText>
+            )}
+            {text && <CardText>{text}</CardText>}
+            {effect?.text && <CardText>{effect.text}</CardText>}
+            {action?.text && <CardText>{action.text}</CardText>}
+            {victoryPoints ? (
+                <VictoryPoints>
+                    <span>{victoryPoints}</span>
+                </VictoryPoints>
+            ) : null}
+            {props.children}
+        </Selection>
+    );
+
     return (
         <Base width={width} onClick={onClick}>
-            <Selection selected={selected || false}>
-                <TagsComponent tags={tags}>
-                    <div>{name}</div>
-                </TagsComponent>
-                {typeof cost === 'number' && (
-                    <CardText>
-                        Cost: {discountedCost}€
-                        {discountedCost !== cost && (
-                            <CardNote>
-                                <em>Originally: {cost}€</em>
-                            </CardNote>
-                        )}
-                    </CardText>
-                )}
-                {text && <CardText>{text}</CardText>}
-                {effect?.text && <CardText>{effect.text}</CardText>}
-                {action?.text && <CardText>{action.text}</CardText>}
-                {victoryPoints ? (
-                    <VictoryPoints>
-                        <span>{victoryPoints}</span>
-                    </VictoryPoints>
-                ) : null}
-                {props.children}
-            </Selection>
+            {isHidden ? <BackOfCard /> : innerContents}
         </Base>
     );
 };

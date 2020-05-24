@@ -5,8 +5,7 @@ import {
     ANNOUNCE_READY_TO_START_ROUND,
     APPLY_DISCOUNTS,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
-    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-    ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_PLACE_TILE,
     BUY_SELECTED_CARDS,
@@ -32,14 +31,14 @@ import {
     PLACE_TILE,
     REMOVE_RESOURCE,
     REMOVE_STORABLE_RESOURCE,
-    STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE,
     REVEAL_AND_DISCARD_TOP_CARDS,
     SET_CARDS,
     SET_CORPORATION,
     SET_GAME,
     SET_SELECTED_CARDS,
     SKIP_ACTION,
+    STEAL_RESOURCE,
+    STEAL_STORABLE_RESOURCE,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -118,7 +117,6 @@ export type PlayerState = {
     action: number; // 1 or 2.
     terraformRating: number;
     pendingTilePlacement?: TilePlacement;
-    pendingVariableAmount?: number;
     pendingResourceSource?: string | number; // either card name or player index
     pendingResourceActionDetails?: {
         actionType: 'removeResource' | 'gainResource' | 'stealResource';
@@ -126,21 +124,10 @@ export type PlayerState = {
         card: Card;
         locationType?: ResourceLocationType;
     };
-
-    // ====== pendingResourceOption ======
-    // First: ask user to select which resource type (e.g. "3 plants or 2 animals")
-    pendingResourceOption?: {
-        resourceOption: PropertyCounter<Resource>;
-        targetType?: ResourceLocationType;
-        card?: Card; // for "add a resource to this card" card actions
-    };
-    // Second (only sometimes): after user picks a storable resource, ask them to pick the target location
-    pendingResourceTargetConfirmation?: {
-        resource: Resource;
-        amount: number;
-        targetType: ResourceLocationType;
-        card?: Card; // for "add a resource to this card" card actions
-    };
+    // e.g. Sell patents
+    pendingDiscard?: Amount;
+    // e.g. Insulation
+    pendingProductionDecrease?: Resource;
 
     // In an action that makes you look at cards, specifies how many you can take or buy.
     numCardsToTake: number | null;
@@ -214,15 +201,15 @@ function greeneryPlacementTriggered(draft: RootState) {
 function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     const oldPlayerIndex = state.common.currentPlayerIndex;
     const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
-    const newPlayerPlaceInTurnOrder = (placeInTurnOrder + 1) % draft.common.playingPlayers.length;
-    draft.common.currentPlayerIndex = draft.common.playingPlayers[newPlayerPlaceInTurnOrder];
+    const newPlayerPlaceInTurnOrder = (placeInTurnOrder + 1) % state.common.playingPlayers.length;
+    draft.common.currentPlayerIndex = state.common.playingPlayers[newPlayerPlaceInTurnOrder];
     if (newPlayerPlaceInTurnOrder === 0) {
         draft.common.turn++;
     }
 }
 
 // Add Card Name here.
-const bonusName = 'Special Design';
+const bonusName = 'Toll Station';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -252,7 +239,6 @@ export const reducer = (state: GameState | null = null, action) => {
         const mostRecentlyPlayedCard = player?.playedCards[player.playedCards.length - 1];
 
         function handleGainResource(resource: Resource, amount: Amount) {
-            player.pendingResourceOption = undefined;
             const numberAmount = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
 
             if (resource === Resource.CARD) {
@@ -284,6 +270,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.common.discardPile.push(...draft.common.revealedCards);
                 draft.common.revealedCards = [];
                 break;
+            case ASK_USER_TO_DISCARD_CARDS:
+                player.pendingDiscard = payload.amount;
+                break;
             case ASK_USER_TO_LOOK_AT_CARDS:
                 player.possibleCards = draft.common.deck.splice(0, payload.amount);
                 player.numCardsToTake = payload.numCardsToTake || null;
@@ -311,14 +300,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.selectedCards = action.payload.cards;
                 break;
             case DISCARD_CARDS:
+                draft.pendingVariableAmount = payload.cards.length;
+                player.pendingDiscard = undefined;
                 draft.common.discardPile.push(...payload.cards);
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
-                // if (player.pendingResourceReduction) {
-                //     player.pendingResourceReduction = undefined;
-                //     draft.pendingVariableAmount = payload.cards.length;
-                // }
                 break;
             case DRAW_CARDS:
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
@@ -332,6 +319,8 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             case DECREASE_PRODUCTION:
+                draft.pendingVariableAmount = payload.amount;
+
                 player.productions[payload.resource] -= convertAmountToNumber(
                     payload.amount,
                     state,
@@ -348,10 +337,13 @@ export const reducer = (state: GameState | null = null, action) => {
             case REMOVE_RESOURCE: {
                 player.pendingResourceActionDetails = undefined;
                 const {resource, amount, sourcePlayerIndex} = payload;
+
                 const sourcePlayer = draft.players[sourcePlayerIndex];
                 if (amount > sourcePlayer.resources[resource]) {
                     throw new Error('Trying to take too many resources');
                 }
+                draft.pendingVariableAmount = amount;
+
                 sourcePlayer.resources[resource] -= amount;
                 break;
             }
@@ -376,6 +368,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 ) {
                     throw new Error('Card does not contain enough of that resource to remove');
                 }
+                draft.pendingVariableAmount = amount;
                 targetCard.storedResourceAmount -= amount;
                 break;
             }
@@ -425,6 +418,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 handleGainResource(payload.resource, payload.amount);
                 break;
             case GAIN_STORABLE_RESOURCE: {
+                player.pendingResourceActionDetails = undefined;
                 const {card, amount} = payload;
                 const draftCard = player.playedCards.find(c => c.name === card.name);
                 if (!draftCard) {
@@ -432,7 +426,6 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 draftCard.storedResourceAmount =
                     (draftCard.storedResourceAmount || 0) + convertAmountToNumber(amount, state);
-                player.pendingResourceTargetConfirmation = undefined;
                 break;
             }
             case PAY_TO_PLAY_CARD: {
@@ -488,22 +481,6 @@ export const reducer = (state: GameState | null = null, action) => {
             case ASK_USER_TO_PLACE_TILE:
                 // Oceans can run out. If they do, skip tile placement.
                 player.pendingTilePlacement = payload.tilePlacement;
-                break;
-            case ASK_USER_TO_GAIN_RESOURCE:
-                player.pendingResourceOption = {
-                    resourceOption: payload.action.gainResourceOption,
-                    targetType: payload.action.gainResourceTargetType,
-                    card: payload.card,
-                };
-                break;
-            case ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET:
-                player.pendingResourceOption = undefined;
-                player.pendingResourceTargetConfirmation = {
-                    resource: payload.resource,
-                    targetType: payload.targetType,
-                    amount: payload.amount,
-                    card: payload.card,
-                };
                 break;
             case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {
                 const {actionType, resourceAndAmounts, card, locationType} = payload;
@@ -608,7 +585,7 @@ export const reducer = (state: GameState | null = null, action) => {
                                 .filter(
                                     p =>
                                         p.resources[Resource.PLANT] >=
-                                        CONVERSIONS[Resource.PLANT].removeResources[Resource.PLANT]
+                                        CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT]
                                 )
                                 .map(player => player.index);
                             if (common.playingPlayers.length > 0) {
@@ -625,6 +602,7 @@ export const reducer = (state: GameState | null = null, action) => {
                             for (let i = 0; i < common.firstPlayerIndex; i++) {
                                 common.playingPlayers.push(i);
                             }
+                            common.turn = 1;
                             common.generation++;
                             common.gameStage = GameStage.BUY_OR_DISCARD;
                         }
@@ -638,6 +616,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
 
             case COMPLETE_ACTION:
+                player.pendingResourceActionDetails = undefined;
                 player.action = (player.action % 2) + 1;
                 // Did the player just complete their second action?
                 if (player.action === 1) {

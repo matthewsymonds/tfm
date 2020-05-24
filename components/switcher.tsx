@@ -1,4 +1,4 @@
-import React, {Children, ReactElement, useState} from 'react';
+import React, {Children, useState} from 'react';
 import styled from 'styled-components';
 import {Box} from './box';
 
@@ -28,8 +28,8 @@ const SwitcherChildContainer = styled.div`
 
 const defaultTabs: string[] = [];
 
-export function Switcher({children, tabs = defaultTabs}) {
-    const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+export function Switcher({children, tabs = defaultTabs, defaultTabIndex = 0}) {
+    const [selectedTabIndex, setSelectedTabIndex] = useState(defaultTabIndex);
 
     if (Children.count(children) !== tabs.length) {
         throw new Error('Tabs must match React children in Switcher.');
@@ -39,6 +39,7 @@ export function Switcher({children, tabs = defaultTabs}) {
             <Tabs>
                 {tabs.map((tab, index) => (
                     <Tab
+                        key={index}
                         selected={index === selectedTabIndex}
                         onClick={() => setSelectedTabIndex(index)}
                     >
@@ -49,7 +50,10 @@ export function Switcher({children, tabs = defaultTabs}) {
             <SwitcherChildContainer>
                 {Children.toArray(children).map((child, childIndex) => {
                     return (
-                        <Box display={childIndex === selectedTabIndex ? 'block' : 'none'}>
+                        <Box
+                            key={childIndex}
+                            display={childIndex === selectedTabIndex ? 'block' : 'none'}
+                        >
                             {child}
                         </Box>
                     );

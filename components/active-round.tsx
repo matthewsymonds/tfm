@@ -1,7 +1,3 @@
-import {useRouter} from 'next/router';
-import React, {MouseEvent, useContext, useEffect, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import styled, {createGlobalStyle} from 'styled-components';
 import {
     completeAction,
     discardCards,
@@ -14,26 +10,32 @@ import {
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import CardPaymentPopover from 'components/popovers/card-payment';
 import {Switcher} from 'components/switcher';
-import {Action} from 'constants/action';
+import {Action, Amount} from 'constants/action';
+import {CardType} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequiresPlayerInput} from 'context/app-context';
 import {Card} from 'models/card';
+import {useRouter} from 'next/router';
 import {useSyncState} from 'pages/sync-state';
-import {RootState, useTypedSelector} from 'reducer';
+import React, {MouseEvent, useContext, useEffect, useState} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState, RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
+import styled, {createGlobalStyle} from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
+import {Button} from './button';
 import {CardComponent, CardText} from './card';
 import {CardSelector} from './card-selector';
-import {PlayerResourceBoard} from './resource';
-import {PlayerOverview} from './player-overview';
 import GlobalParams from './global-params';
+import {PlayerOverview} from './player-overview';
 
 const Hand = styled.div`
     display: flex;
@@ -74,6 +76,18 @@ function getResourceHumanName(resource: Resource): string {
     return result.slice('resource'.length).toLowerCase();
 }
 
+function getCardDiscardAmountHumanName(amount: Amount) {
+    if (amount === VariableAmount.USER_CHOICE) {
+        return 'at least one';
+    }
+
+    if (amount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
+        return '1 or 0';
+    }
+
+    return amount;
+}
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const turn = useTypedSelector(state => state.common.turn);
@@ -83,18 +97,40 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    const [cardsToDiscard, setCardsToDiscard] = useState<Set<Card>>(new Set());
+    const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
 
     const [isCardPaymentPopoverOpen, setIsCardPaymentPopoverOpen] = useState(false);
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
 
+    let maxCardsToDiscard: number;
+
+    if (player.pendingDiscard === VariableAmount.USER_CHOICE) {
+        maxCardsToDiscard = player.cards.length;
+    } else if (player.pendingDiscard === VariableAmount.USER_CHOICE_UP_TO_ONE) {
+        maxCardsToDiscard = 1;
+    } else {
+        maxCardsToDiscard = player.pendingDiscard as number;
+    }
+
+    let minCardsToDiscard = 0;
+    if (typeof player.pendingDiscard === 'number') {
+        minCardsToDiscard = player.pendingDiscard;
+    }
+    if (player.pendingDiscard === VariableAmount.USER_CHOICE) {
+        // Can't cycle a turn with sell patents by selling 0 cards!
+        minCardsToDiscard = 1;
+    }
+
     function handleCardClick(card) {
-        if (player.pendingVariableAmount?.resource === Resource.CARD) {
-            const newCardsToDiscard = new Set(cardsToDiscard);
-            if (cardsToDiscard.has(card)) {
-                newCardsToDiscard.delete(card);
+        if (player.pendingDiscard) {
+            let newCardsToDiscard = [...cardsToDiscard];
+            if (newCardsToDiscard.includes(card)) {
+                newCardsToDiscard = newCardsToDiscard.filter(c => c !== card);
             } else {
-                newCardsToDiscard.add(card);
+                newCardsToDiscard.push(card);
+                while (newCardsToDiscard.length > maxCardsToDiscard) {
+                    newCardsToDiscard.shift();
+                }
             }
             setCardsToDiscard(newCardsToDiscard);
         }
@@ -139,9 +175,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }
 
     function confirmDiscardSelection() {
-        dispatch(discardCards(Array.from(cardsToDiscard), playerIndex));
+        dispatch(discardCards(cardsToDiscard, playerIndex));
         context.processQueue(dispatch);
-        setCardsToDiscard(new Set());
+        setCardsToDiscard([]);
     }
 
     function playAction(card: Card, action: Action) {
@@ -153,7 +189,21 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const players = useTypedSelector(state => state.players);
 
-    function cardActionElements(card: Card) {
+    function getDefaultTabIndex(thisPlayer: PlayerState) {
+        if (thisPlayer.index !== playerIndex) {
+            // Always show "Played cards" by default since you can't see any cards in hand!
+            return 1;
+        }
+
+        // Simple heuristic.
+        // If num cards in hand > num played cards with unused actions, show hand.
+        return thisPlayer.cards.length >
+            thisPlayer.playedCards.filter(card => card.action && !card.usedActionThisRound).length
+            ? 0
+            : 1;
+    }
+
+    function cardActionElements(thisPlayer: PlayerState, card: Card) {
         if (!card.action) return null;
 
         const options = card.action.choice || [card.action];
@@ -168,9 +218,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
         return options.map((option, index) => {
             const [canPlay, reason] = context.canPlayAction(option, state, card);
+            const canReallyPlay = canPlay && thisPlayer.index === player.index;
             return (
                 <React.Fragment key={index}>
-                    <button disabled={!canPlay} onClick={() => playAction(card, option)}>
+                    <button disabled={!canReallyPlay} onClick={() => playAction(card, option)}>
                         {options.length === 1 ? 'Play Action' : option.text}
                     </button>
                     {!canPlay && reason ? (
@@ -205,12 +256,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const showBottomActionBar =
         player.pendingTilePlacement ||
-        player.pendingVariableAmount ||
-        player.pendingResourceOption ||
         state.common.revealedCards.length > 0 ||
         player.possibleCards.length > 0 ||
-        player.pendingResourceTargetConfirmation ||
-        player.pendingResourceActionDetails;
+        player.pendingResourceActionDetails ||
+        player.pendingDiscard;
     return (
         <>
             <GlobalStyle />
@@ -218,16 +267,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 <ActionBarRow>
                     <Flex width="100%" justifyContent="space-between">
                         <Info>
-                            {!action && 'You have passed'}
-                            {action && (waitingMessage || `Action ${action} of 2`)}
-                            {action && (
-                                <ActionBarButton
-                                    disabled={context.shouldDisableUI(state) || showBottomActionBar}
-                                    onClick={() => dispatch(skipAction(playerIndex))}
-                                >
+                            Playing as {player.corporation?.name}. {!action && 'You have passed'}
+                            {action ? waitingMessage || `Action ${action} of 2` : null}
+                            {action && !(context.shouldDisableUI(state) || showBottomActionBar) ? (
+                                <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
                                     {action === 2 ? 'Skip 2nd action' : 'Pass'}
                                 </ActionBarButton>
-                            )}
+                            ) : null}
                         </Info>
                         <Info>
                             Gen {generation}, Turn {turn}
@@ -259,10 +305,19 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
                 <Box marginLeft="16px" flexGrow="1">
                     <Box>
-                        <Switcher tabs={players.map(player => player.corporation?.name)}>
+                        <Switcher
+                            defaultTabIndex={playerIndex}
+                            tabs={[...players]
+                                .sort(
+                                    (a, b) =>
+                                        state.common.playingPlayers.indexOf(a.index) -
+                                        state.common.playingPlayers.indexOf(b.index)
+                                )
+                                .map(player => player.corporation?.name)}
+                        >
                             {players.map((thisPlayer, thisPlayerIndex) => {
                                 const cards = (
-                                    <Hand>
+                                    <Hand key="cardsInHand">
                                         {thisPlayer.cards.map(card => {
                                             const [canPlay, reason] = context.canPlayCard(
                                                 card,
@@ -270,13 +325,15 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                             );
                                             return (
                                                 <CardComponent
-                                                    content={card}
-                                                    width={250}
                                                     key={card.name}
-                                                    onClick={(e: MouseEvent<HTMLDivElement>) =>
-                                                        handleCardClick(card)
-                                                    }
-                                                    selected={cardsToDiscard.has(card)}
+                                                    content={card}
+                                                    isHidden={thisPlayer.index !== playerIndex}
+                                                    width={250}
+                                                    onClick={(e: MouseEvent<HTMLDivElement>) => {
+                                                        if (playerIndex !== thisPlayerIndex) return;
+                                                        handleCardClick(card);
+                                                    }}
+                                                    selected={cardsToDiscard.includes(card)}
                                                 >
                                                     {!canPlay && (
                                                         <CardText>
@@ -289,9 +346,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                                 !context.canPlayCard(
                                                                     card,
                                                                     state
-                                                                )[0] ||
-                                                                player.pendingVariableAmount
-                                                                    ?.resource === Resource.CARD
+                                                                )[0] || player.pendingDiscard
                                                             }
                                                             onClick={() => handlePlayCard(card)}
                                                             id={card.name.replace(/\s+/g, '-')}
@@ -323,7 +378,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     </Hand>
                                 );
                                 const playedCards = (
-                                    <Hand>
+                                    <Hand key="playedCards">
                                         {thisPlayer.playedCards.map(card => {
                                             let resources = '';
                                             const {
@@ -340,10 +395,14 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     content={card}
                                                     width={250}
                                                     key={card.name}
+                                                    isHidden={
+                                                        thisPlayer.index !== playerIndex &&
+                                                        card.type === CardType.EVENT
+                                                    }
                                                 >
                                                     {resources && <CardText>{resources}</CardText>}
 
-                                                    {cardActionElements(card)}
+                                                    {cardActionElements(thisPlayer, card)}
                                                 </CardComponent>
                                             );
                                         })}
@@ -360,15 +419,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                         </Panel>
                                         <Panel>
                                             <Switcher
-                                                tabs={
-                                                    playerIndex === thisPlayerIndex
-                                                        ? ['Hand', 'Played Cards']
-                                                        : ['Played Cards']
-                                                }
+                                                tabs={['Hand', 'Played Cards']}
+                                                defaultTabIndex={getDefaultTabIndex(thisPlayer)}
                                             >
-                                                {playerIndex === thisPlayerIndex
-                                                    ? [cards, playedCards]
-                                                    : [playedCards]}
+                                                {[cards, playedCards]}
                                             </Switcher>
                                         </Panel>
                                     </React.Fragment>
@@ -381,6 +435,21 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             {showBottomActionBar && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
+                        {player.pendingDiscard && (
+                            <>
+                                <div>
+                                    Please select{' '}
+                                    {getCardDiscardAmountHumanName(player.pendingDiscard)} card
+                                    {player.pendingDiscard === 1 ? '' : 's'} to discard.
+                                </div>
+                                <Button
+                                    disabled={cardsToDiscard.length < minCardsToDiscard}
+                                    onClick={confirmDiscardSelection}
+                                >
+                                    Confirm discard selection
+                                </Button>
+                            </>
+                        )}
                         {player.possibleCards.length > 0 && (
                             <Flex flexDirection="column">
                                 <h3>{lookAtCardsPrompt}</h3>

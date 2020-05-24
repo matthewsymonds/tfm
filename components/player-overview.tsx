@@ -8,7 +8,9 @@ type PlayerOverviewProps = {
 
 export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) => (
     <>
-        <h2>{player.corporation?.name}</h2>
+        <h2>
+            {player.corporation?.name} ({player.terraformRating})
+        </h2>
         <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
     </>
 );

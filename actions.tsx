@@ -1,9 +1,9 @@
-import {Action, Amount} from './constants/action';
+import {Amount} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {GameStage} from './constants/game';
 import {PropertyCounter} from './constants/property-counter';
-import {Resource, ResourceLocationType, ResourceAndAmount} from './constants/resource';
+import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
 import {VariableAmount} from './constants/variable-amount';
 import {Card} from './models/card';
@@ -204,29 +204,11 @@ export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: nu
     payload: {playerIndex, tilePlacement},
 });
 
-export const ASK_USER_TO_GAIN_RESOURCE = 'ASK_USER_TO_GAIN_RESOURCE';
-export const askUserToGainResource = (
-    action: Action,
-    card: Card | undefined,
-    playerIndex: number
-) => ({
-    type: ASK_USER_TO_GAIN_RESOURCE,
-    payload: {action, card, playerIndex},
+export const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
+export const askUserToDiscardCards = (playerIndex: number, amount: Amount) => ({
+    type: ASK_USER_TO_DISCARD_CARDS,
+    payload: {playerIndex, amount},
 });
-
-export const ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET = 'ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET';
-export const askUserToConfirmResourceTargetLocation = (
-    resource: Resource,
-    targetType: ResourceLocationType | undefined,
-    amount: Amount,
-    card: Card | undefined,
-    playerIndex: number
-) => {
-    return {
-        type: ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-        payload: {resource, targetType, amount, card, playerIndex},
-    };
-};
 
 export const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS =
     'ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS';
@@ -237,7 +219,7 @@ export const askUserToChooseResourceActionDetails = ({
     playerIndex,
     locationType,
 }: {
-    actionType: 'removeResource' | 'stealResource';
+    actionType: 'gainResource' | 'removeResource' | 'stealResource';
     resourceAndAmounts: Array<ResourceAndAmount>;
     card: Card;
     playerIndex: number;

@@ -1,4 +1,4 @@
-import {gamesModel, retrieveSession} from '../database';
+import {gamesModel, retrieveSession} from 'database';
 
 /* The User Games route. */
 

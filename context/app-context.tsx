@@ -1,12 +1,13 @@
-import {createContext} from 'react';
 import {
+    addParameterRequirementAdjustments,
     applyDiscounts,
+    askUserToChooseResourceActionDetails,
     askUserToDecreaseProduction,
-    askUserToGainResource,
+    askUserToDiscardCards,
     askUserToLookAtCards,
     askUserToPlaceTile,
-    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-    ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
+    ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_PLACE_TILE,
     buySelectedCards,
@@ -22,11 +23,9 @@ import {
     payToPlayCard,
     payToPlayStandardProject,
     removeResource,
+    removeStorableResource,
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
-    removeStorableResource,
-    addParameterRequirementAdjustments,
-    askUserToChooseResourceActionDetails,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -36,31 +35,31 @@ import {
     CellType,
     Milestone,
     Parameter,
-    TileType,
     TilePlacement,
-    t,
+    TileType,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
+import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {MinimumProductions, PARAMETER_STEPS, MAX_PARAMETERS, GameStage} from 'constants/game';
+import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
+    PROTECTED_HABITAT_RESOURCE,
     Resource,
+    ResourceAndAmount,
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
-    PROTECTED_HABITAT_RESOURCE,
-    ResourceAndAmount,
 } from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
+import {createContext} from 'react';
 import {PlayerState, RootState} from 'reducer';
-import {getValidPlacementsForRequirement, findCellsWithTile} from 'selectors/board';
+import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-import {Conversion} from 'constants/conversion';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -185,9 +184,9 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
     return true;
 }
 
-function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card: Card) {
+function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?: Card) {
     const loggedInPlayer = getLoggedInPlayer(state);
-    if (action instanceof Card) {
+    if (action && action instanceof Card) {
         // You can play a card without completing the theft.
         return true;
     }
@@ -335,6 +334,12 @@ function createInitialRemoveResourceAction(
         locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
     const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
 
+    const requiresDiscard = resource === Resource.CARD;
+
+    if (requiresDiscard) {
+        return askUserToDiscardCards(playerIndex, amount);
+    }
+
     if (requiresAmountChoice || requiresLocationChoice) {
         return askUserToChooseResourceActionDetails({
             actionType: 'removeResource',
@@ -374,28 +379,52 @@ function createRemoveResourceOptionAction(
     });
 }
 
-function createGainResourceAction(
+function createInitialGainResourceAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
     parent?: Card,
     locationType?: ResourceLocationType
 ) {
-    // if (locationType && locationType !== ResourceLocationType.THIS_CARD) {
-    //     askUserToConfirmResourceTargetLocation(
-    //         resource,
-    //         locationType,
-    //         typeof amount === 'number' ? amount * -1 : amount,
-    //         parent,
-    //         playerIndex
-    //     );
-    // } else if (USER_CHOICE_VARIABLE_AMOUNTS.includes(amount)) {
-    //     return askUserToConfirmVariableAmount(resource, amount as VariableAmount, playerIndex);
-    // } else if (isStorableResource(resource)) {
-    //     return gainStorableResource(resource, amount, parent!, playerIndex);
-    // } else {
-    //     return gainResource(resource, amount, playerIndex);
-    // }
+    const requiresLocationChoice =
+        locationType &&
+        USER_CHOICE_LOCATION_TYPES.includes(locationType) &&
+        resource !== Resource.CARD;
+    if (requiresLocationChoice) {
+        return askUserToChooseResourceActionDetails({
+            actionType: 'gainResource',
+            resourceAndAmounts: [{resource, amount}],
+            card: parent!,
+            locationType,
+            playerIndex,
+        });
+    }
+
+    if (isStorableResource(resource)) {
+        return gainStorableResource(resource, amount, parent!, playerIndex);
+    } else {
+        return gainResource(resource, amount, playerIndex);
+    }
+}
+
+function createGainResourceOptionAction(
+    options: PropertyCounter<Resource>,
+    playerIndex: number,
+    parent?: Card,
+    locationType?: ResourceLocationType
+) {
+    // HACK: all instances of `gainResourceOption` use a number amount, so we don't account for variable amounts here
+    const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+        resource,
+        amount: options[resource] as number,
+    }));
+    return askUserToChooseResourceActionDetails({
+        actionType: 'gainResource',
+        resourceAndAmounts,
+        card: parent!,
+        locationType,
+        playerIndex,
+    });
 }
 
 function createDecreaseProductionAction(
@@ -458,25 +487,26 @@ function triggerEffects(event: Event, state: RootState) {
     const player = getLoggedInPlayer(state);
     // track the card that triggered the action so we can "add resources to this card"
     // e.g. Ecological Zone
-    const actionCardPairs: ActionCardPair[] = [];
-    for (const player of state.players) {
-        for (const card of player.playedCards) {
+    for (const thisPlayer of state.players) {
+        const actionCardPairs: ActionCardPair[] = [];
+
+        for (const card of thisPlayer.playedCards) {
             for (const effect of card.effects) {
                 if (effect.trigger && effect.action) {
                     const actions = this.getActionsFromEffect(
                         event,
                         effect.trigger,
                         effect.action,
-                        player,
+                        thisPlayer,
                         player.index
                     );
                     actionCardPairs.push(...actions.map(action => [action, card]));
                 }
             }
         }
-    }
-    for (const [action, card] of actionCardPairs) {
-        this.playAction(action, state, card);
+        for (const [action, card] of actionCardPairs) {
+            this.playAction(action, state, card, thisPlayer.index);
+        }
     }
 }
 
@@ -527,12 +557,11 @@ function getActionsFromEffect(
     return Array(numTagsTriggered).fill(effectAction);
 }
 
-function playAction(action: Action, state: RootState, parent?: Card) {
-    let actionTerminated = true;
-    const playerIndex = getLoggedInPlayerIndex();
-
+function playAction(action: Action, state: RootState, parent?: Card, thePlayerIndex?: number) {
+    const playerIndex = thePlayerIndex ?? getLoggedInPlayerIndex();
+    const items: Array<{type: string}> = [];
     for (const production in action.decreaseProduction) {
-        this.queue.push(
+        items.push(
             createDecreaseProductionAction(
                 production as Resource,
                 action.decreaseProduction[production],
@@ -544,7 +573,7 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     }
 
     for (const resource in action.removeResource) {
-        this.queue.push(
+        items.push(
             createInitialRemoveResourceAction(
                 resource as Resource,
                 action.removeResource[resource],
@@ -553,11 +582,10 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 action.removeResourceSourceType
             )
         );
-        actionTerminated = false;
     }
 
     if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
-        this.queue.push(
+        items.push(
             createRemoveResourceOptionAction(
                 action.removeResourceOption!,
                 playerIndex,
@@ -565,7 +593,6 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 action.removeResourceSourceType
             )
         );
-        actionTerminated = false;
     }
 
     for (const resource in action.stealResource) {
@@ -575,7 +602,7 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 amount: action.stealResource[resource] as number,
             },
         ];
-        this.queue.push(
+        items.push(
             askUserToChooseResourceActionDetails({
                 actionType: 'stealResource',
                 resourceAndAmounts,
@@ -586,11 +613,11 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     }
 
     if (action.revealAndDiscardTopCards) {
-        this.queue.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
+        items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
     }
 
     if (action.lookAtCards) {
-        this.queue.push(
+        items.push(
             askUserToLookAtCards(
                 playerIndex,
                 action.lookAtCards.numCards,
@@ -598,16 +625,15 @@ function playAction(action: Action, state: RootState, parent?: Card) {
                 action.lookAtCards.buyCards
             )
         );
-        actionTerminated = false;
         if (action.lookAtCards.buyCards) {
-            this.queue.push(buySelectedCards(playerIndex));
+            items.push(buySelectedCards(playerIndex));
         } else {
-            this.queue.push(gainSelectedCards(playerIndex));
+            items.push(gainSelectedCards(playerIndex));
         }
     }
 
     for (const production in action.increaseProduction) {
-        this.queue.push(
+        items.push(
             increaseProduction(
                 production as Resource,
                 action.increaseProduction[production],
@@ -617,22 +643,30 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     }
 
     for (const resource in action.gainResource) {
-        createGainResourceAction(
-            resource as Resource,
-            action.gainResource[resource],
-            playerIndex,
-            parent,
-            action.gainResourceTargetType
+        items.push(
+            createInitialGainResourceAction(
+                resource as Resource,
+                action.gainResource[resource],
+                playerIndex,
+                parent,
+                action.gainResourceTargetType
+            )
         );
     }
 
     if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
-        this.queue.push(askUserToGainResource(action, parent, playerIndex));
-        actionTerminated = false;
+        items.push(
+            createGainResourceOptionAction(
+                action.gainResourceOption!,
+                playerIndex,
+                parent,
+                action.gainResourceTargetType
+            )
+        );
     }
 
     for (const parameter in action.increaseParameter) {
-        this.queue.push(
+        items.push(
             increaseParameter(
                 parameter as Parameter,
                 action.increaseParameter[parameter],
@@ -644,11 +678,13 @@ function playAction(action: Action, state: RootState, parent?: Card) {
     if (action.tilePlacements) {
         const filteredTilePlacements = filterOceanPlacementsOverMax(action.tilePlacements, state);
         for (const tilePlacement of filteredTilePlacements) {
-            this.queue.push(askUserToPlaceTile(tilePlacement, playerIndex));
+            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
     }
 
-    return actionTerminated;
+    this.queue.push(...items);
+    const queuePaused = items.some(item => shouldPause(item));
+    return !queuePaused;
 }
 
 function filterOceanPlacementsOverMax(
@@ -858,10 +894,10 @@ function processQueue(dispatch: Function) {
 
 const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_CONFIRM_RESOURCE_GAIN_TARGET,
-    ASK_USER_TO_GAIN_RESOURCE,
+    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_LOOK_AT_CARDS,
     REVEAL_AND_DISCARD_TOP_CARDS,
+    ASK_USER_TO_DISCARD_CARDS,
 ];
 
 function shouldPause(action: {type: string}): boolean {

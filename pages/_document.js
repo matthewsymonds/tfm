@@ -1,5 +1,5 @@
 import Document, {Head, Main, NextScript} from 'next/document';
-import {ServerStyleSheet, createGlobalStyle} from 'styled-components';
+import {createGlobalStyle, ServerStyleSheet} from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
     body {
@@ -89,7 +89,7 @@ const GlobalStyles = createGlobalStyle`
       &:disabled, &:hover:disabled {
         border: 2px solid #dedede;
       }
-      color: #444;
+      color: #111;
 
       &:hover {
         border: 2px solid #fefefe;

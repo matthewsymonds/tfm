@@ -1,5 +1,3 @@
-import React, {ReactElement, useContext, useEffect} from 'react';
-import {useDispatch, useStore} from 'react-redux';
 import {
     announceReadyToStartRound,
     discardCards,
@@ -12,6 +10,8 @@ import {CardSelector} from 'components/card-selector';
 import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
 import {useSyncState} from 'pages/sync-state';
+import React, {ReactElement, useContext, useEffect} from 'react';
+import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {Button} from './button';
@@ -33,15 +33,16 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
     const possibleCards = useTypedSelector(state => state.players[playerIndex].possibleCards);
     const cards = useTypedSelector(state => state.players[playerIndex].selectedCards);
     const cardsAlreadyInHand = useTypedSelector(state => state.players[playerIndex].cards);
+    const player = useTypedSelector(state => state.players[playerIndex]);
     const startingAmount = useTypedSelector(
         state => state.players[playerIndex].resources[Resource.MEGACREDIT]
     );
 
     useEffect(() => {
-        if (possibleCards.length === 0) {
+        if (possibleCards.length === 0 && player.action === 0) {
             dispatch(drawPossibleCards(4, playerIndex));
         }
-    }, [possibleCards.length]);
+    }, [possibleCards.length, player.action]);
 
     const corporationName = corporation && corporation.name;
     const totalCardCost = cards.length * 3;
@@ -130,7 +131,7 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
                 budget={remaining}
                 orientation="vertical"
             />
-            <ActionBar className="bottom">{additionalRow}</ActionBar>
+            {player.action === 0 && <ActionBar className="bottom">{additionalRow}</ActionBar>}
         </>
     );
 };

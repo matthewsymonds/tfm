@@ -1,9 +1,9 @@
+import {makePostCall} from 'api-calls';
+import {useRouter} from 'next/router';
 import {useEffect, useRef} from 'react';
 import {useStore} from 'react-redux';
 import {RootState} from 'reducer';
 import {serializeState} from 'state-serialization';
-import {makePostCall} from 'api-calls';
-import {useRouter} from 'next/router';
 
 async function syncState(newState: RootState, router) {
     const {origin} = window.location;
@@ -25,7 +25,7 @@ function usePrevious(value) {
     const ref = useRef();
     useEffect(() => {
         ref.current = value;
-    });
+    }, [value]);
     return ref.current;
 }
 

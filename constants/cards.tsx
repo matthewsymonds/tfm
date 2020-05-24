@@ -1,7 +1,7 @@
-import {CardConfig, Deck, CardType} from './card-types';
-import {Tag} from './tag';
+import {Parameter, PlacementRequirement, t, TileType} from './board';
+import {CardConfig, CardType, Deck} from './card-types';
 import {Resource, ResourceLocationType} from './resource';
-import {TileType, PlacementRequirement, Parameter, t} from './board';
+import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
 export const cardConfigs: CardConfig[] = [
@@ -996,7 +996,10 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             trigger: {tags: [Tag.SCIENCE]},
-            action: {removeResource: {[Resource.CARD]: 1}, gainResource: {[Resource.CARD]: 1}},
+            action: {
+                removeResource: {[Resource.CARD]: VariableAmount.USER_CHOICE_UP_TO_ONE},
+                gainResource: {[Resource.CARD]: VariableAmount.BASED_ON_USER_CHOICE},
+            },
             text:
                 'Effect: When you play a science tag, including this, you may discard a card from hand to draw a card.',
         },
@@ -2865,6 +2868,7 @@ export const cardConfigs: CardConfig[] = [
         text:
             'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
         requiredTags: {[Tag.SCIENCE]: 3},
+        // TODO implement support for top level choices.
         choice: [
             {increaseParameter: {[Parameter.TEMPERATURE]: 2}, text: '+2 temperature'},
             {increaseParameter: {[Parameter.VENUS]: 2}, text: '+2 Venus'},

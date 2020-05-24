@@ -1,8 +1,4 @@
-import {useContext} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import styled from 'styled-components';
 import {
-    completeAction,
     gainResource,
     gainStorableResource,
     removeResource,
@@ -13,19 +9,22 @@ import {
 import {
     getResourceName,
     isStorableResource,
+    PROTECTED_HABITAT_RESOURCE,
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
-    PROTECTED_HABITAT_RESOURCE,
 } from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
+import {useContext, useState} from 'react';
+import {useDispatch, useStore} from 'react-redux';
 import {PlayerState} from 'reducer';
+import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {CardComponent} from './card';
 import {Box, Flex} from './box';
+import {CardComponent} from './card';
 
 type ActionType = 'removeResource' | 'gainResource' | 'stealResource';
 type ListItem = {
@@ -307,7 +306,14 @@ function AskUserToConfirmResourceActionDetails({
             listItems.push(listItem);
         }
     }
-    debugger;
+
+    const context = useContext(AppContext);
+    const dispatch = useDispatch();
+
+    const handleSkip = () => {
+        context.processQueue(dispatch);
+    };
+
     return (
         <Flex width="100%" justifyContent="center">
             <Box marginRight="32px">
@@ -316,9 +322,12 @@ function AskUserToConfirmResourceActionDetails({
             </Box>
 
             <OptionsParent>
-                <h3>Please choose from the following:</h3>
+                <h3>Please confirm your choice:</h3>
                 {listItems.map(listItem => {
-                    const warning = listItem.player === player && actionType === 'removeResource';
+                    const warning =
+                        !listItem.options.some(option => option.isVariable) &&
+                        listItem.player === player &&
+                        actionType === 'removeResource';
                     return (
                         <PlayerOption warning={warning} key={listItem.player.username}>
                             <h4>{listItem.title}</h4>
@@ -336,6 +345,7 @@ function AskUserToConfirmResourceActionDetails({
                         </PlayerOption>
                     );
                 })}
+                {actionType !== 'stealResource' && <button onClick={handleSkip}>Skip</button>}
             </OptionsParent>
         </Flex>
     );
@@ -350,12 +360,30 @@ function OptionComponent(props: Option) {
     const player = context.getLoggedInPlayer(state);
 
     function handleClick() {
-        context.queue.push(getAction(props, player));
-        context.queue.push(completeAction(player.index));
+        dispatch(getAction(props, player));
         context.processQueue(dispatch);
     }
 
-    return <OptionsComponentBase onClick={handleClick}>{props.text}</OptionsComponentBase>;
+    const [variableAmount, setVariableAmount] = useState(1);
+    let inner: Array<JSX.Element | string> = [props.text];
+
+    if (props.isVariable) {
+        inner = [
+            'Remove ',
+            <input
+                onClick={event => event.stopPropagation()}
+                type="number"
+                min={1}
+                value={variableAmount}
+                max={player.resources[props.resource]}
+                onChange={e => setVariableAmount(Number(e.target.value))}
+            />,
+            ' ',
+            getResourceName(props.resource),
+        ];
+    }
+
+    return <OptionsComponentBase onClick={handleClick}>{inner}</OptionsComponentBase>;
 }
 
 function getAction(option: Option, player: PlayerState) {
