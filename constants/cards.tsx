@@ -2509,7 +2509,11 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         victoryPoints: -1,
         tilePlacements: [t(TileType.OCEAN)],
-        // todo punishment
+        removeResource: {
+            [Resource.MEGACREDIT]: 4,
+        },
+        removeResourceSourceType:
+            ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
     },
     {
         cost: 15,

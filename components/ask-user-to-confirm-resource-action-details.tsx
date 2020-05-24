@@ -21,11 +21,12 @@ import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
 import {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState} from 'reducer';
+import {PlayerState, GameState} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {Box, Flex} from './box';
 import {CardComponent} from './card';
+import {getAdjacentCellsForCell} from 'selectors/board';
 
 type ActionType = 'removeResource' | 'gainResource' | 'stealResource' | 'decreaseProduction';
 type ListItem = {
@@ -47,7 +48,8 @@ function getPlayersToConsider(
     player: PlayerState,
     players: PlayerState[],
     locationType: ResourceLocationType | undefined,
-    actionType: ActionType
+    actionType: ActionType,
+    state: GameState
 ): PlayerState[] {
     if (actionType === 'stealResource') {
         return players;
@@ -64,6 +66,13 @@ function getPlayersToConsider(
             return players;
         case ResourceLocationType.ANY_PLAYER:
             return players;
+        case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
+            const neighbors = getAdjacentCellsForCell(
+                state,
+                state.common.mostRecentTilePlacementCell!
+            );
+            const playerIndices = neighbors.map(cell => cell?.tile?.ownerPlayerIndex);
+            return players.filter(player => playerIndices.includes(player.index));
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
             return players.filter(
                 player =>
@@ -282,7 +291,7 @@ function AskUserToConfirmResourceActionDetails({
     const state = store.getState();
     const players = state.players;
 
-    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType);
+    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);
 
     playersToConsider = [...playersToConsider].sort((alpha, beta) => {
         if (actionType !== 'gainResource') {

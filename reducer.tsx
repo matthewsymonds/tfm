@@ -97,6 +97,8 @@ export type CommonState = {
         [Parameter.TEMPERATURE]: number;
         [Parameter.VENUS]: number;
     };
+    // Used for Flooding.
+    mostRecentTilePlacementCell?: Cell;
     board: Board;
 };
 
@@ -507,6 +509,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     );
                 });
                 matchingCell!.tile = payload.tile;
+                draft.common.mostRecentTilePlacementCell = matchingCell;
                 const parameterFromTile = getParameterForTile(payload.tile);
                 if (parameterFromTile) {
                     handleParameterIncrease(parameterFromTile, 1);

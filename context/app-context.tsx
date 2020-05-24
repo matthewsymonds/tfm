@@ -596,6 +596,13 @@ function playAction(action: Action, state: RootState, parent?: Card, thePlayerIn
         );
     }
 
+    if (action.tilePlacements) {
+        const filteredTilePlacements = filterOceanPlacementsOverMax(action.tilePlacements, state);
+        for (const tilePlacement of filteredTilePlacements) {
+            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+        }
+    }
+
     for (const resource in action.removeResource) {
         items.push(
             createInitialRemoveResourceAction(
@@ -697,13 +704,6 @@ function playAction(action: Action, state: RootState, parent?: Card, thePlayerIn
                 playerIndex
             )
         );
-    }
-
-    if (action.tilePlacements) {
-        const filteredTilePlacements = filterOceanPlacementsOverMax(action.tilePlacements, state);
-        for (const tilePlacement of filteredTilePlacements) {
-            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
-        }
     }
 
     this.queue.push(...items);

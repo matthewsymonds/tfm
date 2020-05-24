@@ -51,11 +51,13 @@ export enum ResourceLocationType {
     LAST_PLAYED_CARD = 'lastPlayedCard',
     VENUS_CARD = 'venusCard',
     JOVIAN_CARD = 'jovianCard',
+    ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE = 'anyPlayerWithTileAdjacentToMostRecentlyPlacedTile',
 }
 
 export const USER_CHOICE_LOCATION_TYPES = [
     ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     ResourceLocationType.ANY_CARD,
+    ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
     ResourceLocationType.VENUS_CARD,
     ResourceLocationType.JOVIAN_CARD,
     ResourceLocationType.ANY_PLAYER,
