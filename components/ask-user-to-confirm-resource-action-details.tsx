@@ -352,11 +352,19 @@ function AskUserToConfirmResourceActionDetails({
         context.processQueue(dispatch);
     };
 
+    const showSkip =
+        actionType !== 'stealResource' &&
+        actionType !== 'decreaseProduction' &&
+        (actionType === 'removeResource' ||
+            resourceAndAmounts.every(resourceAndAmount =>
+                isStorableResource(resourceAndAmount.resource)
+            ));
+
     return (
-        <Flex width="100%" justifyContent="center">
+        <Flex width="100%" justifyContent="space-around" maxWidth="800px">
             <Box marginRight="32px">
                 <h3>You played</h3>
-                <CardComponent content={card} />
+                <CardComponent width={250} content={card} />
             </Box>
 
             <OptionsParent>
@@ -383,7 +391,7 @@ function AskUserToConfirmResourceActionDetails({
                         </PlayerOption>
                     );
                 })}
-                {actionType !== 'stealResource' && <button onClick={handleSkip}>Skip</button>}
+                {showSkip && <button onClick={handleSkip}>Skip</button>}
             </OptionsParent>
         </Flex>
     );
@@ -398,7 +406,7 @@ function OptionComponent(props: Option) {
     const player = context.getLoggedInPlayer(state);
 
     function handleClick() {
-        dispatch(getAction(props, player));
+        dispatch(getAction(props, player, variableAmount));
         context.processQueue(dispatch);
     }
 
@@ -418,7 +426,9 @@ function OptionComponent(props: Option) {
                 max={player.productions[props.resource]}
                 onChange={e => setVariableAmount(Number(e.target.value))}
             />,
-            ' steps',
+            <Box display="inline-block" width="40px" marginLeft="6px">
+                {variableAmount === 1 ? ' step' : ' steps'}
+            </Box>,
         ];
     } else if (props.isVariable) {
         inner = [
@@ -439,21 +449,22 @@ function OptionComponent(props: Option) {
     return <OptionsComponentBase onClick={handleClick}>{inner}</OptionsComponentBase>;
 }
 
-function getAction(option: Option, player: PlayerState) {
+function getAction(option: Option, player: PlayerState, variableAmount: number) {
+    const quantity = option.isVariable ? variableAmount : option.quantity;
     switch (option.actionType) {
         case 'removeResource':
             if (option.location instanceof Card) {
                 // we know we're removing a stored resource.
                 return removeStorableResource(
                     option.resource,
-                    option.quantity,
+                    quantity,
                     player.index,
                     option.location
                 );
             } else {
                 return removeResource(
                     option.resource,
-                    option.quantity,
+                    quantity,
                     option.location.index,
                     player.index
                 );
@@ -462,18 +473,18 @@ function getAction(option: Option, player: PlayerState) {
             if (option.location instanceof Card) {
                 return gainStorableResource(
                     option.resource,
-                    option.quantity,
+                    quantity,
                     option.location,
                     player.index
                 );
             } else {
-                return gainResource(option.resource, option.quantity, player.index);
+                return gainResource(option.resource, quantity, player.index);
             }
         case 'stealResource':
             if (option.location instanceof Card) {
                 return stealStorableResource(
                     option.resource,
-                    option.quantity,
+                    quantity,
                     player.index,
                     option.location,
                     option.card!
@@ -481,7 +492,7 @@ function getAction(option: Option, player: PlayerState) {
             } else {
                 return stealResource(
                     option.resource,
-                    option.quantity,
+                    quantity,
                     player.index,
                     option.location.index
                 );
@@ -489,7 +500,8 @@ function getAction(option: Option, player: PlayerState) {
         case 'decreaseProduction':
             return decreaseProduction(
                 option.resource,
-                option.quantity,
+                quantity,
+                player.index,
                 (option.location as PlayerState).index
             );
         default:

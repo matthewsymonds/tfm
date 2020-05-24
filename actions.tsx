@@ -5,7 +5,6 @@ import {GameStage} from './constants/game';
 import {PropertyCounter} from './constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
-import {VariableAmount} from './constants/variable-amount';
 import {Card} from './models/card';
 import {RootState} from './reducer';
 
@@ -69,9 +68,14 @@ export const payForCards = (cards: Card[], playerIndex: number) => ({
 });
 
 export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
-export const decreaseProduction = (resource: Resource, amount: Amount, playerIndex: number) => ({
+export const decreaseProduction = (
+    resource: Resource,
+    amount: Amount,
+    playerIndex: number,
+    targetPlayerIndex: number = playerIndex
+) => ({
     type: DECREASE_PRODUCTION,
-    payload: {resource, amount, playerIndex},
+    payload: {resource, amount, playerIndex, targetPlayerIndex},
 });
 
 export const INCREASE_PRODUCTION = 'INCREASE_PRODUCTION';
@@ -227,16 +231,6 @@ export const askUserToChooseResourceActionDetails = ({
 }) => ({
     type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     payload: {actionType, resourceAndAmounts, card, playerIndex, locationType},
-});
-
-export const ASK_USER_TO_DECREASE_PRODUCTION = 'ASK_USER_TO_DECREASE_PRODUCTION';
-export const askUserToDecreaseProduction = (
-    resource: Resource,
-    amount: VariableAmount,
-    playerIndex: number
-) => ({
-    type: ASK_USER_TO_DECREASE_PRODUCTION,
-    payload: {resource, amount, playerIndex},
 });
 
 export const ASK_USER_TO_LOOK_AT_CARDS = 'ASK_USER_TO_LOOK_AT_CARDS';

@@ -119,7 +119,7 @@ export type PlayerState = {
     pendingTilePlacement?: TilePlacement;
     pendingResourceSource?: string | number; // either card name or player index
     pendingResourceActionDetails?: {
-        actionType: 'removeResource' | 'gainResource' | 'stealResource'|'decreaseProduction';
+        actionType: 'removeResource' | 'gainResource' | 'stealResource' | 'decreaseProduction';
         resourceAndAmounts: Array<ResourceAndAmount>;
         card: Card;
         locationType?: ResourceLocationType;
@@ -320,8 +320,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             case DECREASE_PRODUCTION:
                 draft.pendingVariableAmount = payload.amount;
+                player.pendingResourceActionDetails = undefined;
+                let targetPlayer = draft.players[payload.targetPlayerIndex];
 
-                player.productions[payload.resource] -= convertAmountToNumber(
+                targetPlayer.productions[payload.resource] -= convertAmountToNumber(
                     payload.amount,
                     state,
                     mostRecentlyPlayedCard

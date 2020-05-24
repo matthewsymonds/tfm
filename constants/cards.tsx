@@ -990,7 +990,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
-        decreaseAnyProduction: {[Resource.PLANT]: 1},
+        decreaseAnyProduction: {[Resource.PLANT]: 2},
         victoryPoints: VariableAmount.RESOURCES_ON_CARD,
     },
     {

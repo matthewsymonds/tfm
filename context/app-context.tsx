@@ -2,7 +2,6 @@ import {
     addParameterRequirementAdjustments,
     applyDiscounts,
     askUserToChooseResourceActionDetails,
-    askUserToDecreaseProduction,
     askUserToDiscardCards,
     askUserToLookAtCards,
     askUserToPlaceTile,
@@ -232,12 +231,14 @@ function meetsProductionRequirements(action: Action, state: RootState) {
     for (const production in decreaseAnyProduction) {
         for (const p of state.players) {
             if (
-                p.productions[production] - decreaseAnyProduction[production] <
+                p.productions[production] - decreaseAnyProduction[production] >=
                 MinimumProductions[production]
             ) {
-                return false;
+                return true;
             }
         }
+
+        return false;
     }
 
     return true;
@@ -271,7 +272,7 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
 
     const {requiredProduction} = card;
 
-    if (requiredProduction && player.productions[requiredProduction] < requiredProduction) {
+    if (requiredProduction && player.productions[requiredProduction] < 1) {
         return [false, 'Required production not met.'];
     }
 
@@ -706,8 +707,6 @@ function playAction(action: Action, state: RootState, parent?: Card, thePlayerIn
     }
 
     this.queue.push(...items);
-    const queuePaused = items.some(item => shouldPause(item));
-    return !queuePaused;
 }
 
 function filterOceanPlacementsOverMax(
@@ -751,8 +750,8 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
 
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
 
-    const actionTerminated = this.playAction(card, state, card);
-    if (actionTerminated && (card.type !== CardType.CORPORATION || card.forcedAction)) {
+    this.playAction(card, state, card);
+    if (card.type !== CardType.CORPORATION || card.forcedAction) {
         this.queue.push(completeAction(playerIndex));
     }
 }
