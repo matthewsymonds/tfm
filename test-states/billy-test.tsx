@@ -40,8 +40,7 @@ export const BILLY_TEST = setupStateForPlayer({
 
 function setupStateForPlayer({cards, resources, productions, discounts, exchangeRates}): GameState {
     return {
-        queuePaused: false,
-        loggedInPlayerIndex: 0,
+        log: [],
         common: {
             revealedCards: [],
             playingPlayers: [0],
@@ -64,6 +63,7 @@ function setupStateForPlayer({cards, resources, productions, discounts, exchange
         },
         players: [
             {
+                username: 'billylitt',
                 parameterRequirementAdjustments: {},
                 temporaryParameterRequirementAdjustments: {},
                 numCardsToTake: null,

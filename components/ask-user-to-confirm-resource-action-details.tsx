@@ -274,7 +274,7 @@ function getOptionsForRegularResource(
     ];
 }
 
-function amountAndResource(quantity: number, resource: Resource) {
+export function amountAndResource(quantity: number, resource: Resource) {
     const isPluralizable =
         resource !== Resource.HEAT &&
         resource !== Resource.ENERGY &&

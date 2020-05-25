@@ -5,7 +5,7 @@ import {AppContext} from 'context/app-context';
 import {useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
-function getTextForMilestone(milestone: Milestone) {
+export function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {
         case Milestone.BUILDER:
             return 'Builder';

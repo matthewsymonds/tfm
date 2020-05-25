@@ -87,6 +87,21 @@ export enum Parameter {
     TERRAFORM_RATING = 'terraformRating',
 }
 
+export function getParameterName(parameter: Parameter) {
+    switch (parameter) {
+        case Parameter.TEMPERATURE:
+            return 'temperature';
+        case Parameter.OCEAN:
+            return 'ocean';
+        case Parameter.OXYGEN:
+            return 'oxygen';
+        case Parameter.VENUS:
+            return 'Venus';
+        case Parameter.TERRAFORM_RATING:
+            return 'terraform rating';
+    }
+}
+
 export type GlobalParameters = {
     [Parameter.TEMPERATURE]: number;
     [Parameter.OCEAN]: number;

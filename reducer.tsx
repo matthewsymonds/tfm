@@ -52,6 +52,7 @@ import {
     Tile,
     TilePlacement,
     TileType,
+    getParameterName,
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -63,11 +64,16 @@ import {
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
+    getResourceName,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
+import {amountAndResource} from 'components/ask-user-to-confirm-resource-action-details';
+import {getTextForStandardProject} from 'components/board/standard-projects';
+import {getTextForMilestone} from 'components/board/milestones';
+import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -77,6 +83,9 @@ export type Resources = {
     [Resource.ENERGY]: number;
     [Resource.HEAT]: number;
 };
+
+const cardsPlural = num => (num === 1 ? 'card' : 'cards');
+const stepsPlural = num => (num === 1 ? 'step' : 'steps');
 
 type PlayerId = number;
 
@@ -105,7 +114,6 @@ export type CommonState = {
 };
 
 export type GameState = {
-    queuePaused: boolean;
     pendingVariableAmount?: number;
     players: Array<PlayerState>;
     common: CommonState;
@@ -113,6 +121,7 @@ export type GameState = {
         isPending: boolean;
         pendingPlayers: Array<PlayerId>;
     };
+    log: string[];
 };
 
 export type PlayerState = {
@@ -212,6 +221,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     draft.common.currentPlayerIndex = state.common.playingPlayers[newPlayerPlaceInTurnOrder];
     if (newPlayerPlaceInTurnOrder === 0) {
         draft.common.turn++;
+        draft.log.push(`Turn ${draft.common.turn}`);
     }
 }
 
@@ -228,21 +238,34 @@ export const reducer = (state: GameState | null = null, action) => {
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
+        const corporationName = player.corporation?.name;
         const {common} = draft;
         function handleParameterIncrease(parameter: Parameter, amount: number) {
             if (parameter === Parameter.TERRAFORM_RATING) {
-                player.terraformRating += amount;
+                const newRating = player.terraformRating + amount;
+                draft.log.push(
+                    `${corporationName} increased their terraform rating by ${amount} to ${newRating}`
+                );
+                player.terraformRating = newRating;
                 return;
             }
             const scale = PARAMETER_STEPS[parameter];
             const increase = amount * scale;
             const startingAmount = draft.common.parameters[parameter];
             const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
-            const userTerraformRatingChange = (newAmount - startingAmount) / scale;
+            const change = newAmount - startingAmount;
+            const userTerraformRatingChange = change / scale;
             draft.common.parameters[parameter] = newAmount;
             player.terraformRating += userTerraformRatingChange;
             if (userTerraformRatingChange) {
                 player.terraformedThisGeneration = true;
+            }
+            if (change) {
+                draft.log.push(
+                    `${corporationName} increased the ${getParameterName(
+                        parameter
+                    )} ${change} ${stepsPlural(userTerraformRatingChange)}`
+                );
             }
         }
 
@@ -255,29 +278,42 @@ export const reducer = (state: GameState | null = null, action) => {
                 // Sometimes we list cards as a resource.
                 // handle as a draw action.
                 player.cards.push(...draft.common.deck.splice(0, numberAmount));
+                draft.log.push(`${corporationName} drew ${numberAmount} cards`);
                 return;
             }
             if (isStorableResource(resource)) {
                 return;
             }
             player.resources[resource] += numberAmount;
+            draft.log.push(
+                `${corporationName} gained ${amountAndResource(numberAmount, resource)}`
+            );
         }
+
         switch (action.type) {
             case SET_CORPORATION:
                 player.corporation = payload.corporation;
+                draft.log.push(`${player.username} chose ${corporationName}`);
                 break;
             case PAY_FOR_CARDS:
-                player.resources[Resource.MEGACREDIT] -= action.payload.cards.length * 3;
+                const numCards = action.payload.cards.length;
+                player.resources[Resource.MEGACREDIT] -= numCards * 3;
                 player.possibleCards = [];
+                draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
                 break;
             case REVEAL_AND_DISCARD_TOP_CARDS:
                 // Step 1. Reveal the cards to the player so they can see them.
                 const numCardsToReveal = convertAmountToNumber(payload.amount, state);
                 draft.common.revealedCards = draft.common.deck.splice(0, numCardsToReveal);
+                draft.log.push('Revealed ', draft.common.revealedCards.map(c => c.name).join(', '));
                 break;
             case DISCARD_REVEALED_CARDS:
                 // Step 2. Discard the revealed cards.
                 draft.common.discardPile.push(...draft.common.revealedCards);
+                draft.log.push(
+                    'Discarded ',
+                    draft.common.revealedCards.map(c => c.name).join(', ')
+                );
                 draft.common.revealedCards = [];
                 break;
             case ASK_USER_TO_DISCARD_CARDS:
@@ -291,7 +327,10 @@ export const reducer = (state: GameState | null = null, action) => {
             case SET_CARDS:
                 player.cards = action.payload.cards;
                 break;
-            case BUY_SELECTED_CARDS:
+            case BUY_SELECTED_CARDS: {
+                const numCards = player.selectedCards.length;
+                draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
+
                 player.cards = [...player.cards, ...player.selectedCards];
                 player.resources[Resource.MEGACREDIT] -= player.selectedCards.length * 3;
                 player.selectedCards = [];
@@ -299,18 +338,29 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.numCardsToTake = null;
                 payload.buyCards = null;
                 break;
-            case GAIN_SELECTED_CARDS:
+            }
+            case GAIN_SELECTED_CARDS: {
+                const numCards = player.selectedCards.length;
+                draft.log.push(
+                    `${corporationName} took ${numCards} ${cardsPlural(numCards)} into hand`
+                );
                 player.cards = [...player.cards, ...player.selectedCards];
                 player.selectedCards = [];
                 player.possibleCards = [];
                 player.numCardsToTake = null;
                 payload.buyCards = null;
                 break;
+            }
             case SET_SELECTED_CARDS:
                 player.selectedCards = action.payload.cards;
                 break;
             case DISCARD_CARDS:
                 draft.pendingVariableAmount = payload.cards.length;
+                draft.log.push(
+                    `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
+                        payload.cards.length
+                    )}`
+                );
                 player.pendingDiscard = undefined;
                 draft.common.discardPile.push(...payload.cards);
                 player.cards = player.cards.filter(
@@ -318,6 +368,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 );
                 break;
             case DRAW_CARDS:
+                draft.log.push(
+                    `${corporationName} drew ${payload.numCards} ${cardsPlural(payload.numCards)}`
+                );
+
                 player.cards.push(...draft.common.deck.splice(0, payload.numCards));
                 break;
             case DRAW_POSSIBLE_CARDS:
@@ -338,12 +392,32 @@ export const reducer = (state: GameState | null = null, action) => {
                     state,
                     mostRecentlyPlayedCard
                 );
+                if (targetPlayer === player) {
+                    draft.log.push(
+                        `${corporationName} decreased their ${getResourceName(
+                            payload.resource
+                        )} production ${payload.amount} ${stepsPlural(payload.amount)}`
+                    );
+                } else {
+                    draft.log.push(
+                        `${corporationName} decreased the ${getResourceName(
+                            payload.resource
+                        )} production of ${targetPlayer.corporation?.name} ${
+                            payload.amount
+                        } ${stepsPlural(payload.amount)}`
+                    );
+                }
                 break;
             case INCREASE_PRODUCTION:
                 player.productions[payload.resource] += convertAmountToNumber(
                     payload.amount,
                     state,
                     mostRecentlyPlayedCard
+                );
+                draft.log.push(
+                    `${corporationName} increased their ${getResourceName(
+                        payload.resource
+                    )} production ${payload.amount} ${stepsPlural(payload.amount)}`
                 );
                 break;
             case REMOVE_RESOURCE: {
@@ -357,6 +431,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.pendingVariableAmount = amount;
 
                 sourcePlayer.resources[resource] -= amount;
+                draft.log.push(
+                    `${corporationName} lost ${payload.amount} ${amountAndResource(
+                        resource,
+                        payload.amount
+                    )}`
+                );
                 break;
             }
             case REMOVE_STORABLE_RESOURCE: {
@@ -382,6 +462,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 draft.pendingVariableAmount = amount;
                 targetCard.storedResourceAmount -= amount;
+                draft.log.push(
+                    `${corporationName} lost ${payload.amount} ${amountAndResource(
+                        resource,
+                        payload.amount
+                    )} from ${targetCard.name}`
+                );
                 break;
             }
             case STEAL_RESOURCE: {
@@ -395,6 +481,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 victimPlayer.resources[resource] -= amount;
                 player[resource] += amount;
+                draft.log.push(
+                    `${corporationName} stole ${payload.amount} ${amountAndResource(
+                        resource,
+                        payload.amount
+                    )} from ${victimPlayer.corporation?.name}`
+                );
                 break;
             }
             case STEAL_STORABLE_RESOURCE: {
@@ -424,6 +516,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 draftSourceCard.storedResourceAmount -= amount;
                 draftTargetCard.storedResourceAmount =
                     (draftTargetCard.storedResourceAmount || 0) + amount;
+                draft.log.push(
+                    `${corporationName} moved ${payload.amount} ${amountAndResource(
+                        resource,
+                        payload.amount
+                    )} from ${draftSourceCard.name} onto ${draftTargetCard.name}`
+                );
                 break;
             }
             case GAIN_RESOURCE:
@@ -436,8 +534,13 @@ export const reducer = (state: GameState | null = null, action) => {
                 if (!draftCard) {
                     throw new Error('Card should exist to gain storable resources to');
                 }
-                draftCard.storedResourceAmount =
-                    (draftCard.storedResourceAmount || 0) + convertAmountToNumber(amount, state);
+                const quantity = convertAmountToNumber(amount, state);
+                draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
+                draft.log.push(
+                    `${corporationName} added ${amountAndResource(quantity, resource)} to ${
+                        draftCard.name
+                    }`
+                );
                 break;
             }
             case PAY_TO_PLAY_CARD: {
@@ -450,6 +553,18 @@ export const reducer = (state: GameState | null = null, action) => {
                     player.resources[Resource.MEGACREDIT] -= cardCost;
                 }
                 player.discounts.nextCardThisGeneration = 0;
+                let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
+                let details: string[] = [];
+                for (const resource in payload.payment) {
+                    details.push(
+                        amountAndResource(payload.payment[resource], resource as Resource)
+                    );
+                }
+
+                if (details.length > 0) {
+                    logMessage += `(With ${details.join(', ')})`;
+                }
+                draft.log.push(logMessage);
                 break;
             }
             case PAY_TO_PLAY_STANDARD_PROJECT: {
@@ -458,6 +573,11 @@ export const reducer = (state: GameState | null = null, action) => {
                     cost -= player.discounts.standardProjectPowerPlant;
                 }
                 player.resources[Resource.MEGACREDIT] -= cost;
+                draft.log.push(
+                    `${corporationName} paid ${cost} to play standard project ${getTextForStandardProject(
+                        payload.standardProjectAction.type
+                    )}`
+                );
                 break;
             }
             case CLAIM_MILESTONE:
@@ -466,6 +586,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     claimedByPlayerIndex: player.index,
                     milestone: payload.milestone,
                 });
+                draft.log.push(
+                    `${corporationName} claimed ${getTextForMilestone(payload.milestone)} milestone`
+                );
                 break;
             case FUND_AWARD:
                 const cost = [8, 14, 20][draft.common.fundedAwards.length];
@@ -474,6 +597,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     fundedByPlayerIndex: player.index,
                     award: payload.award,
                 });
+                draft.log.push(
+                    `${corporationName} funded ${getTextForMilestone(payload.award)} award`
+                );
                 break;
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
@@ -517,6 +643,11 @@ export const reducer = (state: GameState | null = null, action) => {
                     );
                 });
                 matchingCell!.tile = payload.tile;
+                draft.log.push(
+                    `${corporationName} placed the ${getHumanReadableTileName(
+                        payload.tile.type
+                    )} tile`
+                );
                 draft.common.mostRecentTilePlacementCell = matchingCell;
                 const parameterFromTile = getParameterForTile(payload.tile);
                 if (parameterFromTile) {
@@ -569,8 +700,11 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.common.gameStage = action.payload;
                 break;
             case MARK_CARD_ACTION_AS_PLAYED:
-                const playedCard = player.playedCards.find(card => card.name === payload.card.name);
-                playedCard!.usedActionThisRound = true;
+                const playedCard = player.playedCards.find(
+                    card => card.name === payload.card.name
+                )!;
+                playedCard.usedActionThisRound = true;
+                draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
                 break;
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
@@ -582,6 +716,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     }
 
                     draft.common.gameStage = GameStage.ACTIVE_ROUND;
+                    draft.log.push(`Turn ${draft.common.turn}`);
                 }
                 break;
             }
@@ -591,6 +726,8 @@ export const reducer = (state: GameState | null = null, action) => {
                 // Did the player just skip on their first action?
                 // If so, they're out for the rest of the round.
                 if (previous === 1) {
+                    draft.log.push(`${corporationName} passed`);
+
                     player.action = 0;
                     player.terraformedThisGeneration = false;
 
@@ -636,6 +773,7 @@ export const reducer = (state: GameState | null = null, action) => {
                         handleChangeCurrentPlayer(state, draft);
                     }
                 } else {
+                    draft.log.push(`${corporationName} skipped their 2nd action`);
                     handleChangeCurrentPlayer(state, draft);
                 }
                 break;

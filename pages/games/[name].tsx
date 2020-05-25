@@ -44,6 +44,7 @@ function GameComponent() {
         }
         setPlayers(result.players);
         setPlayerIndex(result.players.indexOf(session.username));
+        result.state.log = result.state.log || [];
         dispatch(setGame(deserializeState(result.state)));
     };
 

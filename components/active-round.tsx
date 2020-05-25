@@ -92,6 +92,14 @@ function getCardDiscardAmountHumanName(amount: Amount) {
     return amount;
 }
 
+const SwitchColors = styled.div`
+    > * {
+        &:nth-child(2n) {
+            background: #eee;
+        }
+    }
+`;
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const turn = useTypedSelector(state => state.common.turn);
@@ -102,7 +110,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
     const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
-
+    const log = useTypedSelector(state => state.log);
     const [isCardPaymentPopoverOpen, setIsCardPaymentPopoverOpen] = useState(false);
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
 
@@ -311,6 +319,28 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             </Switcher>
                         </Panel>
                     </Box>
+                    <Panel>
+                        <Flex
+                            maxHeight="400px"
+                            margin="12px"
+                            overflowY="auto"
+                            flexDirection="column-reverse"
+                        >
+                            <SwitchColors>
+                                {log.map((entry, entryIndex) => {
+                                    return (
+                                        <Box
+                                            marginTop="4px"
+                                            padding="8px"
+                                            key={'Log-entry-' + entryIndex}
+                                        >
+                                            {entry}
+                                        </Box>
+                                    );
+                                })}
+                            </SwitchColors>
+                        </Flex>
+                    </Panel>
                 </Box>
 
                 <Box marginLeft="16px" flexGrow="1">

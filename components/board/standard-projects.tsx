@@ -10,12 +10,12 @@ import {useTypedSelector, PlayerState} from 'reducer';
 import {useDispatch} from 'react-redux';
 import {SharedActionsContainer, SharedActionRow} from './shared-actions';
 
-function getTextForStandardProject(standardProject: StandardProjectType) {
+export function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
         case StandardProjectType.SELL_PATENTS:
             return 'Sell patents';
         case StandardProjectType.POWER_PLANT:
-            return 'Power plant';
+            return 'Power Plant';
         case StandardProjectType.ASTEROID:
             return 'Asteroid';
         case StandardProjectType.AQUIFER:

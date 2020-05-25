@@ -38,7 +38,7 @@ export function getInitialState(players: string[]): GameState {
     const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
 
     const base = {
-        queuePaused: false,
+        log: [] as string[],
         common: {
             playingPlayers: [] as number[],
             discardPile: [],
