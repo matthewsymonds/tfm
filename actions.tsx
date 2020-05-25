@@ -7,6 +7,7 @@ import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/res
 import {StandardProjectAction} from './constants/standard-project';
 import {Card} from './models/card';
 import {RootState} from './reducer';
+import {ExchangeRates} from 'constants/card-types';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -155,6 +156,12 @@ export const SET_PLANT_DISCOUNT = 'SET_PLANT_DISCOUNT';
 export const setPlantDiscount = (plantDiscount: number, playerIndex: number) => ({
     type: SET_PLANT_DISCOUNT,
     payload: {plantDiscount, playerIndex},
+});
+
+export const APPLY_EXCHANGE_RATE_CHANGES = 'APPLY_EXCHANGE_RATE_CHANGES';
+export const applyExchangeRateChanges = (exchangeRates: ExchangeRates, playerIndex: number) => ({
+    type: APPLY_EXCHANGE_RATE_CHANGES,
+    payload: {exchangeRates, playerIndex},
 });
 
 export const PAY_TO_PLAY_CARD = 'PAY_TO_PLAY_CARD';

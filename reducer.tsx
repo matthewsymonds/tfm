@@ -40,6 +40,7 @@ import {
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
     SET_PLANT_DISCOUNT,
+    APPLY_EXCHANGE_RATE_CHANGES,
 } from './actions';
 import {Amount} from './constants/action';
 import {
@@ -556,6 +557,14 @@ export const reducer = (state: GameState | null = null, action) => {
             case SET_PLANT_DISCOUNT:
                 player.plantDiscount = action.payload.plantDiscount;
                 break;
+            case APPLY_EXCHANGE_RATE_CHANGES: {
+                const {exchangeRates: exchangeRateDeltas} = payload;
+
+                for (const resource in exchangeRateDeltas) {
+                    player.exchangeRates[resource] += exchangeRateDeltas[resource];
+                }
+                break;
+            }
             case GO_TO_GAME_STAGE:
                 draft.common.gameStage = action.payload;
                 break;
