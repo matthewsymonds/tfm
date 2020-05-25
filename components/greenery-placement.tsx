@@ -1,6 +1,12 @@
 import {ActionBar, ActionBarRow} from './action-bar';
 import {skipAction} from 'actions';
-import {ResourceBoard, ResourceBoardRow, ResourceBoardCell, PlayerResourceBoard} from './resource';
+import {
+    ResourceBoard,
+    ResourceBoardRow,
+    ResourceBoardCell,
+    PlayerResourceBoard,
+    getConversionAmount,
+} from './resource';
 import {Resource} from 'constants/resource';
 import {CONVERSIONS} from 'constants/conversion';
 import {Board} from './board/board';
@@ -25,6 +31,16 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const waitingMessage = getWaitingMessage(playerIndex, state);
 
     const context = useContext(AppContext);
+
+    const conversion = CONVERSIONS[Resource.PLANT];
+
+    const conversionQuantity = getConversionAmount(player, conversion);
+    const canDoConversion = context.canDoConversion(
+        conversion,
+        player,
+        Resource.PLANT,
+        conversionQuantity
+    );
 
     useSyncState();
 
@@ -70,7 +86,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                             </h3>
                         ) : (
                             <h3>
-                                {context.canDoConversion(state, CONVERSIONS[Resource.PLANT])
+                                {canDoConversion
                                     ? 'You may convert plants into a greenery.'
                                     : 'Cannot place any more greeneries.'}
                             </h3>

@@ -151,9 +151,9 @@ type PlayerResourceBoardProps = {
     isLoggedInPlayer: boolean;
 };
 
-function getConversionAmount(player: PlayerState, conversion: Conversion) {
+export function getConversionAmount(player: PlayerState, conversion: Conversion) {
     for (const resource in conversion?.removeResource ?? {}) {
-        const amountToRemove = conversion.removeResource[resource];
+        const amountToRemove = conversion?.removeResource![resource]!;
         if (resource === Resource.PLANT) {
             return amountToRemove - (player.plantDiscount || 0);
         }
