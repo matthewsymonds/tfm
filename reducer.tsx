@@ -536,6 +536,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             }
             case GAIN_RESOURCE:
+                player.pendingResourceActionDetails = undefined;
                 handleGainResource(payload.resource, payload.amount);
                 break;
             case GAIN_STORABLE_RESOURCE: {

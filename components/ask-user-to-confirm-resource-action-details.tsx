@@ -59,11 +59,14 @@ function getPlayersToConsider(
     }
     switch (locationType) {
         case ResourceLocationType.THIS_CARD:
-            return [player];
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
+        case ResourceLocationType.LAST_PLAYED_CARD:
+            return [player];
+        case ResourceLocationType.VENUS_CARD:
+        case ResourceLocationType.JOVIAN_CARD:
+            // Turns out both of these only add resources.
             return [player];
         case ResourceLocationType.ANY_CARD:
-            return players;
         case ResourceLocationType.ANY_PLAYER:
             return players;
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
@@ -78,12 +81,6 @@ function getPlayersToConsider(
                 player =>
                     !!player.playedCards.flatMap(card => card.tags).find(tag => tag === Tag.VENUS)
             );
-        case ResourceLocationType.LAST_PLAYED_CARD:
-            return [player];
-        case ResourceLocationType.VENUS_CARD:
-        case ResourceLocationType.JOVIAN_CARD:
-            // Turns out both of these only add resources.
-            return [player];
         default:
             throw spawnExhaustiveSwitchError(locationType);
     }
@@ -174,9 +171,15 @@ function getOptionsForStorableResource(
         case ResourceLocationType.THIS_CARD:
             cards = [originalCard];
             break;
-        case ResourceLocationType.LAST_PLAYED_CARD:
-            cards = [cards[cards.length - 1]];
+        case ResourceLocationType.LAST_PLAYED_CARD: {
+            // don't use the filtered list, because it's explicitly the last card played
+            const lastPlayedCard = player.playedCards[player.playedCards.length - 1];
+            cards = [];
+            if (lastPlayedCard.storedResourceType === resourceAndAmount.resource) {
+                cards = [lastPlayedCard];
+            }
             break;
+        }
         case ResourceLocationType.VENUS_CARD:
             cards = cards.filter(card => card.tags.includes(Tag.VENUS));
             break;
