@@ -61,7 +61,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
-            removeResource: {[Resource.MEGACREDIT]: 1},
+            cost: 1,
             revealAndDiscardTopCards: 1,
             gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
@@ -165,8 +165,8 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Pay 12 MC to place an ocean tile. TITANIUM MAY BE USED as if playing a space card.',
-            // TODO: Add titanium exchange rate
             cost: 12,
+            acceptedPayment: [Resource.TITANIUM],
             tilePlacements: [t(TileType.OCEAN)],
         },
         cost: 25,
@@ -1046,7 +1046,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 7MC to increase your energy production 1 step.',
-            removeResource: {[Resource.MEGACREDIT]: 7},
+            cost: 7,
             increaseProduction: {[Resource.ENERGY]: 1},
         },
         cost: 3,
@@ -1596,7 +1596,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 7 MC to increase your steel production 1 step.',
-            removeResource: {[Resource.MEGACREDIT]: 7},
+            cost: 7,
             increaseProduction: {[Resource.STEEL]: 1},
         },
         cost: 4,
@@ -2494,7 +2494,8 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text:
                 'Action: Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.',
-            removeResource: {[Resource.MEGACREDIT]: 8},
+            cost: 8,
+            acceptedPayment: [Resource.STEEL],
             tilePlacements: [t(TileType.OCEAN)],
         },
         cost: 18,
@@ -2634,7 +2635,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 2MC to draw a card.',
-            removeResource: {[Resource.MEGACREDIT]: 2},
+            cost: 2,
             gainResource: {[Resource.CARD]: 1},
         },
         cost: 11,
@@ -2675,9 +2676,9 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            removeResource: {[Resource.MEGACREDIT]: 10},
-            increaseProduction: {[Resource.HEAT]: 2},
             text: 'Action: Spend 10 MC to increase your heat production 2 steps.',
+            cost: 10,
+            increaseProduction: {[Resource.HEAT]: 2},
         },
         cost: 6,
         deck: Deck.BASIC,
@@ -3009,7 +3010,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 2 MC to add 1 floater to ANY card.',
-            removeResource: {[Resource.MEGACREDIT]: 2},
+            cost: 2,
             gainResource: {[Resource.FLOATER]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
@@ -3028,7 +3029,7 @@ export const cardConfigs: CardConfig[] = [
                 'Action: Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
             choice: [
                 {
-                    removeResource: {[Resource.MEGACREDIT]: 2},
+                    cost: 2,
                     gainResource: {[Resource.FLOATER]: 2},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-2 Megacredits, +1 floater',
@@ -3269,7 +3270,8 @@ export const cardConfigs: CardConfig[] = [
         action: {
             choice: [
                 {
-                    removeResource: {[Resource.MEGACREDIT]: 6},
+                    cost: 6,
+                    acceptedPayment: [Resource.TITANIUM],
                     gainResource: {[Resource.ASTEROID]: 1},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '+1 asteroid',
@@ -4537,6 +4539,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
         increaseProduction: {[Resource.HEAT]: 3},
         gainResource: {[Resource.MEGACREDIT]: 42},
+        exchangeRates: {[Resource.HEAT]: 1},
     },
     {
         effect: {
@@ -4759,7 +4762,11 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
     },
     {
-        action: {text: 'Action: Spend 4 MC to increase (one of) your LOWEST PRODUCTION 1 step.'},
+        action: {
+            text: 'Action: Spend 4 MC to increase (one of) your LOWEST PRODUCTION 1 step.',
+            cost: 4,
+            // TODO - implement this logic
+        },
         deck: Deck.PRELUDE,
         name: 'Robinson Industries',
         text: 'You start with 47 MC.',

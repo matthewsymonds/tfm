@@ -13,24 +13,25 @@ import {useTypedSelector} from 'reducer';
 type Props = {
     isOpen: boolean;
     target: string | null;
-    card: Card;
+    card?: Card;
+    cost?: number;
     toggle: () => void;
     onConfirmPayment: (payment: PropertyCounter<Resource>) => void;
 };
 
-const CardPaymentBase = styled.div`
+const PaymentPopoverBase = styled.div`
     padding: 16px;
     border-radius: 3px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
     background: #f7f7f7;
     font-family: sans-serif;
-    .card-payment-rows {
+    .payment-rows {
         border-top: 1px solid black;
         border-bottom: 1px solid black;
     }
 `;
 
-const CardPaymentRowBase = styled.div`
+const PaymentPopoverRowBase = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -59,7 +60,7 @@ const CardPaymentRowBase = styled.div`
     }
 `;
 
-const CardPaymentSummaryRow = styled.div<{isValidPayment: boolean}>`
+const PaymentPopoverSummaryRow = styled.div<{isValidPayment: boolean}>`
     display: flex;
     align-items: center;
     padding: 12px 0;
@@ -70,11 +71,11 @@ const CardPaymentSummaryRow = styled.div<{isValidPayment: boolean}>`
     }
 `;
 
-const CardPaymentConfirmationButton = styled.button`
+const PaymentPopoverConfirmationButton = styled.button`
     margin-top: 16px;
 `;
 
-type CardPaymentRowProps = {
+type PaymentPopoverRowProps = {
     resource: Resource;
     currentQuantity: number;
     availableQuantity: number;
@@ -82,15 +83,15 @@ type CardPaymentRowProps = {
     handleDecrease: (resource: Resource) => void;
 };
 
-function CardPaymentRow({
+function PaymentPopoverRow({
     resource,
     currentQuantity,
     availableQuantity,
     handleIncrease,
     handleDecrease,
-}: CardPaymentRowProps) {
+}: PaymentPopoverRowProps) {
     return (
-        <CardPaymentRowBase>
+        <PaymentPopoverRowBase>
             <div>
                 <ResourceIcon name={resource} />({availableQuantity})
             </div>
@@ -111,28 +112,37 @@ function CardPaymentRow({
                     </button>
                 </div>
             </div>
-        </CardPaymentRowBase>
+        </PaymentPopoverRowBase>
     );
 }
 
-export default function CardPaymentPopover({
+export default function PaymentPopover({
     isOpen,
     target,
     toggle,
-    card,
     onConfirmPayment,
+    card,
+    cost,
 }: Props) {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
     const {resources, exchangeRates} = player;
-    const cardCost = getDiscountedCardCost(card, player);
-    const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], cardCost || 0));
+    let actionCost;
+    if (card) {
+        actionCost = getDiscountedCardCost(card, player);
+    } else if (typeof cost === 'number') {
+        actionCost = cost;
+    } else {
+        throw new Error('Unrecognized cost for card payment popover');
+    }
+    const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], actionCost || 0));
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
+    const [numHeat, setNumHeat] = useState(0);
 
     function handleDecrease(resource: Resource) {
-        const runningTotal = calculateRunningTotal();
+        const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
         switch (resource) {
             case Resource.MEGACREDIT:
                 const proposedValue = Math.max(0, numMC - 1);
@@ -141,19 +151,25 @@ export default function CardPaymentPopover({
             case Resource.TITANIUM:
                 if (numTitanium > 0) {
                     const titaniumValue = exchangeRates[Resource.TITANIUM];
+                    const remainingValue =
+                        actionCost - runningTotalWithoutMegacredits + titaniumValue;
                     setNumTitanium(numTitanium - 1);
-                    setNumMC(
-                        Math.max(0, Math.min(numMC + titaniumValue, resources[Resource.MEGACREDIT]))
-                    );
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
                 }
                 return;
             case Resource.STEEL:
                 if (numSteel > 0) {
                     const steelValue = exchangeRates[Resource.STEEL];
+                    const remainingValue = actionCost - runningTotalWithoutMegacredits + steelValue;
                     setNumSteel(numSteel - 1);
-                    setNumMC(
-                        Math.max(0, Math.min(numMC + steelValue, resources[Resource.MEGACREDIT]))
-                    );
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                }
+                return;
+            case Resource.HEAT:
+                if (numHeat > 0) {
+                    const remainingValue = actionCost - runningTotalWithoutMegacredits + 1;
+                    setNumHeat(numHeat - 1);
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
                 }
                 return;
         }
@@ -161,30 +177,39 @@ export default function CardPaymentPopover({
 
     function handleIncrease(resource: Resource) {
         const runningTotal = calculateRunningTotal();
+        const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
+
         switch (resource) {
             case Resource.MEGACREDIT:
-                if (runningTotal >= cardCost) return;
+                if (runningTotal >= actionCost) return;
                 const proposedValue = Math.min(numMC + 1, resources[Resource.MEGACREDIT]);
                 setNumMC(proposedValue);
                 return;
             case Resource.TITANIUM:
-                if (runningTotal >= cardCost && numMC === 0) return;
+                if (runningTotal >= actionCost && numMC === 0) return;
                 if (numTitanium < resources[Resource.TITANIUM]) {
                     const titaniumValue = exchangeRates[Resource.TITANIUM];
+                    const remainingValue =
+                        actionCost - runningTotalWithoutMegacredits - titaniumValue;
                     setNumTitanium(numTitanium + 1);
-                    setNumMC(
-                        Math.max(0, Math.min(numMC - titaniumValue, resources[Resource.MEGACREDIT]))
-                    );
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
                 }
                 return;
             case Resource.STEEL:
-                if (runningTotal >= cardCost && numMC === 0) return;
+                if (runningTotal >= actionCost && numMC === 0) return;
                 if (numSteel < resources[Resource.STEEL]) {
                     const steelValue = exchangeRates[Resource.STEEL];
+                    const remainingValue = actionCost - runningTotalWithoutMegacredits - steelValue;
                     setNumSteel(numSteel + 1);
-                    setNumMC(
-                        Math.max(0, Math.min(numMC + steelValue, resources[Resource.MEGACREDIT]))
-                    );
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                }
+                return;
+            case Resource.HEAT:
+                if (runningTotal >= actionCost && numMC === 0) return;
+                if (numHeat < resources[Resource.HEAT]) {
+                    const remainingValue = actionCost - runningTotalWithoutMegacredits - 1;
+                    setNumHeat(numHeat + 1);
+                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
                 }
                 return;
         }
@@ -194,27 +219,36 @@ export default function CardPaymentPopover({
         return (
             numMC +
             numSteel * exchangeRates[Resource.STEEL] +
-            numTitanium * exchangeRates[Resource.TITANIUM]
+            numTitanium * exchangeRates[Resource.TITANIUM] +
+            numHeat * 1
+        );
+    }
+
+    function calculateRunningTotalWithoutMegacredits() {
+        return (
+            numSteel * exchangeRates[Resource.STEEL] +
+            numTitanium * exchangeRates[Resource.TITANIUM] +
+            numHeat * 1
         );
     }
 
     const runningTotal = calculateRunningTotal();
-    const isValidPayment = cardCost <= runningTotal;
+    const isValidPayment = actionCost <= runningTotal;
 
     return (
         <Popover placement="right" isOpen={isOpen} target={target} toggle={toggle} fade={true}>
-            <CardPaymentBase>
-                <CardPaymentSummaryRow isValidPayment={isValidPayment}>
-                    <span>Cost: {cardCost}</span>
+            <PaymentPopoverBase>
+                <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
+                    <span>Cost: {actionCost}</span>
                     {!isValidPayment && (
                         <span className="running-total">
                             <em>Current: {runningTotal}</em>
                         </span>
                     )}
-                </CardPaymentSummaryRow>
-                <div className="card-payment-rows">
+                </PaymentPopoverSummaryRow>
+                <div className="payment-rows">
                     {resources[Resource.MEGACREDIT] > 0 && (
-                        <CardPaymentRow
+                        <PaymentPopoverRow
                             resource={Resource.MEGACREDIT}
                             currentQuantity={numMC}
                             availableQuantity={resources[Resource.MEGACREDIT]}
@@ -222,8 +256,8 @@ export default function CardPaymentPopover({
                             handleDecrease={handleDecrease}
                         />
                     )}
-                    {card.tags.includes(Tag.BUILDING) && resources[Resource.STEEL] > 0 && (
-                        <CardPaymentRow
+                    {card && card.tags.includes(Tag.BUILDING) && resources[Resource.STEEL] > 0 && (
+                        <PaymentPopoverRow
                             resource={Resource.STEEL}
                             currentQuantity={numSteel}
                             availableQuantity={resources[Resource.STEEL]}
@@ -231,8 +265,8 @@ export default function CardPaymentPopover({
                             handleDecrease={handleDecrease}
                         />
                     )}
-                    {card.tags.includes(Tag.SPACE) && resources[Resource.TITANIUM] > 0 && (
-                        <CardPaymentRow
+                    {card && card.tags.includes(Tag.SPACE) && resources[Resource.TITANIUM] > 0 && (
+                        <PaymentPopoverRow
                             resource={Resource.TITANIUM}
                             currentQuantity={numTitanium}
                             availableQuantity={resources[Resource.TITANIUM]}
@@ -240,20 +274,30 @@ export default function CardPaymentPopover({
                             handleDecrease={handleDecrease}
                         />
                     )}
+                    {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
+                        <PaymentPopoverRow
+                            resource={Resource.HEAT}
+                            currentQuantity={numHeat}
+                            availableQuantity={resources[Resource.HEAT]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                        />
+                    )}
                 </div>
-                <CardPaymentConfirmationButton
+                <PaymentPopoverConfirmationButton
                     disabled={!isValidPayment}
                     onClick={() =>
                         onConfirmPayment({
                             [Resource.MEGACREDIT]: numMC,
                             [Resource.STEEL]: numSteel,
                             [Resource.TITANIUM]: numTitanium,
+                            [Resource.HEAT]: numHeat,
                         })
                     }
                 >
                     Confirm
-                </CardPaymentConfirmationButton>
-            </CardPaymentBase>
+                </PaymentPopoverConfirmationButton>
+            </PaymentPopoverBase>
         </Popover>
     );
 }

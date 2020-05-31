@@ -8,7 +8,7 @@ import {
     skipAction,
 } from 'actions';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
-import CardPaymentPopover from 'components/popovers/card-payment';
+import PaymentPopover from 'components/popovers/payment-popover';
 import {Switcher} from 'components/switcher';
 import {Action, Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
@@ -111,8 +111,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const context = useContext(AppContext);
     const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
     const log = useTypedSelector(state => state.log);
-    const [isCardPaymentPopoverOpen, setIsCardPaymentPopoverOpen] = useState(false);
+
+    const [isPaymentPopoverOpen, setIsPaymentPopoverOpen] = useState(false);
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
+    const [actionPendingPayment, setActionPendingPayment] = useState<Action | null>(null);
 
     let maxCardsToDiscard: number;
 
@@ -171,7 +173,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     function handlePlayCard(card: Card) {
         if (doesCardPaymentRequirePlayerInput(player, card)) {
             setCardPendingPayment(card);
-            setIsCardPaymentPopoverOpen(true);
+            setIsPaymentPopoverOpen(true);
         } else {
             playCard(card);
         }
@@ -182,7 +184,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             throw new Error('No card pending payment');
         }
         playCard(cardPendingPayment, payment);
-        setIsCardPaymentPopoverOpen(false);
+        setIsPaymentPopoverOpen(false);
         setCardPendingPayment(null);
     }
 
@@ -192,9 +194,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         setCardsToDiscard([]);
     }
 
-    function playAction(card: Card, action: Action) {
+    function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
         dispatch(markCardActionAsPlayed(card, playerIndex));
-        context.playAction(action, state, card);
+        context.playAction({action, state, parent: card, payment});
         context.queue.push(completeAction(playerIndex));
         context.processQueue(dispatch);
     }
@@ -215,6 +217,25 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             : 1;
     }
 
+    function handlePlayCardAction(cardAction: Action, parentCard: Card) {
+        if (
+            cardAction.acceptedPayment ||
+            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0)
+        ) {
+            setActionPendingPayment(cardAction);
+        } else {
+            playAction(parentCard, cardAction);
+        }
+    }
+
+    function handleConfirmActionPayment(payment: PropertyCounter<Resource>, parentCard: Card) {
+        if (!actionPendingPayment) {
+            throw new Error('No action pending payment');
+        }
+        setActionPendingPayment(null);
+        playAction(parentCard, actionPendingPayment, payment);
+    }
+
     function cardActionElements(thisPlayer: PlayerState, card: Card) {
         if (!card.action) return null;
 
@@ -233,7 +254,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             const canReallyPlay = canPlay && thisPlayer.index === player.index;
             return (
                 <React.Fragment key={index}>
-                    <button disabled={!canReallyPlay} onClick={() => playAction(card, option)}>
+                    <button
+                        disabled={!canReallyPlay}
+                        id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
+                        onClick={() => handlePlayCardAction(option, card)}
+                    >
                         {options.length === 1 ? 'Play Action' : option.text}
                     </button>
                     {!canPlay && reason ? (
@@ -241,6 +266,17 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             <em>{reason}</em>
                         </CardText>
                     ) : null}
+                    {option.cost && actionPendingPayment && (
+                        <PaymentPopover
+                            isOpen={!!actionPendingPayment}
+                            target={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
+                            cost={option.cost}
+                            toggle={() => setActionPendingPayment(null)}
+                            onConfirmPayment={(payment: PropertyCounter<Resource>) =>
+                                handleConfirmActionPayment(payment, card)
+                            }
+                        />
+                    )}
                 </React.Fragment>
             );
         });
@@ -393,17 +429,15 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                             );
                                         })}
                                         {cardPendingPayment && (
-                                            <CardPaymentPopover
-                                                isOpen={isCardPaymentPopoverOpen}
+                                            <PaymentPopover
+                                                isOpen={isPaymentPopoverOpen}
                                                 target={cardPendingPayment.name.replace(
                                                     /\s+/g,
                                                     '-'
                                                 )}
                                                 card={cardPendingPayment}
                                                 toggle={() =>
-                                                    setIsCardPaymentPopoverOpen(
-                                                        !isCardPaymentPopoverOpen
-                                                    )
+                                                    setIsPaymentPopoverOpen(!isPaymentPopoverOpen)
                                                 }
                                                 onConfirmPayment={(...args) =>
                                                     handleConfirmCardPayment(...args)

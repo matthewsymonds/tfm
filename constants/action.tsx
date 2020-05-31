@@ -42,6 +42,9 @@ export interface Action {
     increaseTerraformRating?: number;
     revealAndDiscardTopCards?: number;
 
+    // For aquifier pumping, water import from europa, rotator impacts
+    acceptedPayment?: Resource[];
+
     choice?: Action[];
 
     // For UNMI

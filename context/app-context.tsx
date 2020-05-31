@@ -77,6 +77,11 @@ function canAffordCard(card: Card, state: RootState) {
         cost -= player.exchangeRates[Resource.TITANIUM] * player.resources[Resource.TITANIUM];
     }
 
+    const playerIsHelion = player.corporation.name === 'Helion';
+    if (playerIsHelion) {
+        cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+    }
+
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
@@ -102,11 +107,14 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
         [Tag.SPACE, player.resources[Resource.TITANIUM]],
     ];
 
-    return paymentOptions.some(option => {
-        const [tag, resourceAmount] = option;
+    return (
+        paymentOptions.some(option => {
+            const [tag, resourceAmount] = option;
 
-        return card.tags.includes(tag) && resourceAmount > 0;
-    });
+            return card.tags.includes(tag) && resourceAmount > 0;
+        }) ||
+        (player.corporation?.name === 'Helion' && player.resources[Resource.HEAT] > 0)
+    );
 }
 
 function canPlayWithGlobalParameters(card: Card, state: RootState) {
@@ -158,6 +166,24 @@ const requiredRemoveResourceLocations = [
     ResourceLocationType.THIS_CARD,
     ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
 ];
+
+function canAffordActionCost(action: Action, state: RootState) {
+    const player = getLoggedInPlayer(state);
+    let {cost, acceptedPayment = []} = action;
+    if (!cost) {
+        return true;
+    }
+
+    for (const acceptedPaymentType in acceptedPayment) {
+        cost -= player.exchangeRates[acceptedPaymentType] * player.resources[acceptedPaymentType];
+    }
+
+    if (player.corporation.name === 'Helion') {
+        cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+    }
+
+    return cost <= player.resources[Resource.MEGACREDIT];
+}
 
 function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootState, parent?: Card) {
     const player = getLoggedInPlayer(state);
@@ -326,7 +352,7 @@ function doConversion(
     removeResource[Resource.PLANT] =
         ((removeResource[Resource.PLANT] as number) || 0) - plantDiscount;
 
-    this.playAction(conversionAction, state);
+    this.playAction({action: conversionAction, state});
     this.queue.push(completeAction(playerIndex));
     this.processQueue(dispatch);
 }
@@ -338,6 +364,10 @@ function canPlayAction(
 ): [boolean, string | undefined] {
     if (this.shouldDisableUI(state)) {
         return [false, ''];
+    }
+
+    if (!canAffordActionCost(action, state)) {
+        return [false, 'Cannot afford action cost'];
     }
 
     if (!doesPlayerHaveRequiredResourcesToRemove(action, state, parent)) {
@@ -551,7 +581,7 @@ function triggerEffects(event: Event, state: RootState) {
             }
         }
         for (const [action, card] of actionCardPairs) {
-            this.playAction(action, state, card, thisPlayer.index);
+            this.playAction({action, state, parent: card, thisPlayerIndex: thisPlayer.index});
         }
     }
 }
@@ -603,9 +633,33 @@ function getActionsFromEffect(
     return Array(numTagsTriggered).fill(effectAction);
 }
 
-function playAction(action: Action, state: RootState, parent?: Card, thePlayerIndex?: number) {
-    const playerIndex = thePlayerIndex ?? getLoggedInPlayerIndex();
+function playAction({
+    action,
+    state,
+    parent,
+    thisPlayerIndex,
+    payment,
+}: {
+    action: Action;
+    state: RootState;
+    parent?: Card;
+    thisPlayerIndex?: number;
+    payment?: PropertyCounter<Resource>;
+}) {
+    const playerIndex = thisPlayerIndex ?? getLoggedInPlayerIndex();
     const items: Array<{type: string}> = [];
+
+    // Only accept payment for actions with a parent (ie, card actions).
+    // Other actions should already be accounting for payment in their internals.
+    // TODO: Consolidate payment logic into here
+    if (payment && action.cost && parent) {
+        for (const resource in payment) {
+            items.push(
+                removeResource(resource as Resource, payment[resource], playerIndex, playerIndex)
+            );
+        }
+    }
+
     for (const production in action.decreaseProduction) {
         items.push(
             createDecreaseProductionAction(
@@ -794,7 +848,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
     this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
 
-    this.playAction(card, state, card);
+    this.playAction({action: card, state, parent: card});
     if (card.type !== CardType.CORPORATION || card.forcedAction) {
         this.queue.push(completeAction(playerIndex));
     }
@@ -828,18 +882,28 @@ function canPlayStandardProject(standardProjectAction: StandardProjectAction, st
         cost -= discounts.standardProjectPowerPlant;
     }
 
-    return cost <= player.resources[Resource.MEGACREDIT];
+    const megacredits = player.resources[Resource.MEGACREDIT];
+    if (player.corporation.name === 'Helion') {
+        const heat = player.resources[Resource.HEAT];
+        return cost <= megacredits + heat;
+    } else {
+        return cost <= megacredits;
+    }
 }
 
-function playStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
+function playStandardProject(
+    standardProjectAction: StandardProjectAction,
+    payment: PropertyCounter<Resource> | undefined,
+    state: RootState
+) {
     const playerIndex = getLoggedInPlayerIndex();
     if (standardProjectAction.cost) {
-        this.queue.push(payToPlayStandardProject(standardProjectAction, playerIndex));
+        this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
     }
 
     this.triggerEffectsFromStandardProject(standardProjectAction.cost, state);
 
-    this.playAction(standardProjectAction, state);
+    this.playAction({action: standardProjectAction, state});
     this.queue.push(completeAction(playerIndex));
 }
 
@@ -859,7 +923,12 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
     }
 
     // Can they afford it?
-    if (player.resources[Resource.MEGACREDIT] < 8) {
+    let availableMoney = player.resources[Resource.MEGACREDIT];
+    if (player.corporation.name === 'Helion') {
+        availableMoney += player.resources[Resource.HEAT];
+    }
+
+    if (availableMoney < 8) {
         return false;
     }
 
@@ -897,9 +966,13 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
     }
 }
 
-function claimMilestone(milestone: Milestone, state: RootState) {
+function claimMilestone(
+    milestone: Milestone,
+    payment: PropertyCounter<Resource>,
+    state: RootState
+) {
     const playerIndex = getLoggedInPlayerIndex();
-    this.queue.push(claimMilestoneAction(milestone, playerIndex));
+    this.queue.push(claimMilestoneAction(milestone, payment, playerIndex));
     this.queue.push(completeAction(playerIndex));
 }
 
@@ -935,16 +1008,22 @@ function canFundAward(award: Award, state: RootState) {
 
     // Can they afford it?
     const cost = [8, 14, 20][state.common.fundedAwards.length];
-    if (player.resources[Resource.MEGACREDIT] < cost) {
+
+    let availableMoney = player.resources[Resource.MEGACREDIT];
+    if (player.corporation.name === 'Helion') {
+        availableMoney += player.resources[Resource.HEAT];
+    }
+
+    if (availableMoney < cost) {
         return false;
     }
 
     return true;
 }
 
-function fundAward(award: Award, state: RootState) {
+function fundAward(award: Award, payment: PropertyCounter<Resource>, state: RootState) {
     const playerIndex = getLoggedInPlayerIndex();
-    this.queue.push(fundAwardAction(award, playerIndex));
+    this.queue.push(fundAwardAction(award, payment, playerIndex));
     this.queue.push(completeAction(playerIndex));
 }
 
