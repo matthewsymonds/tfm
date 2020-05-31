@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import {TileType} from 'constants/board';
 import {Hexagon} from './hexagon';
+import {Cube} from 'components/square';
 
 const getColor = (type: TileType) => {
     switch (type) {
@@ -56,6 +57,7 @@ const getIcon = (type: TileType) => {
 
 type TileProps = {
     type: TileType;
+    ownerPlayerIndex?: number;
 };
 
 const Icon = styled.div`
@@ -64,6 +66,9 @@ const Icon = styled.div`
 
 export const Tile = (props: TileProps) => (
     <Hexagon overlap={true} color={getColor(props.type)}>
+        {props.ownerPlayerIndex !== undefined ? (
+            <Cube playerIndex={props.ownerPlayerIndex} />
+        ) : null}
         <Icon>{getIcon(props.type)}</Icon>
     </Hexagon>
 );

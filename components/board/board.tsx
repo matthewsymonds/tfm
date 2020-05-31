@@ -109,7 +109,14 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
                                                     >
                                                         {cell.specialName ?? ''}
                                                     </Cell>
-                                                    {cell.tile && <Tile type={cell.tile.type} />}
+                                                    {cell.tile && (
+                                                        <Tile
+                                                            ownerPlayerIndex={
+                                                                cell.tile.ownerPlayerIndex
+                                                            }
+                                                            type={cell.tile.type}
+                                                        />
+                                                    )}
                                                 </div>
                                             )
                                     )}

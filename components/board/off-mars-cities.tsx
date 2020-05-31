@@ -39,7 +39,7 @@ const OffMarsCity = ({cell, offMarsCitiesProps, top, left, right, bottom}: OffMa
         >
             {cell.specialName ?? ''}
         </Cell>
-        {cell.tile && <Tile type={cell.tile.type} />}
+        {cell.tile && <Tile ownerPlayerIndex={cell.tile.ownerPlayerIndex} type={cell.tile.type} />}
     </OffMarsCityContainer>
 );
 
