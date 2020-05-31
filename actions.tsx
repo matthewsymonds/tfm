@@ -226,11 +226,11 @@ export const addParameterRequirementAdjustments = (
 
 export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
 export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: number) => {
-    console.log('tile placement', tilePlacement);
-    return ({
-    type: ASK_USER_TO_PLACE_TILE,
-    payload: {playerIndex, tilePlacement},
-})};
+    return {
+        type: ASK_USER_TO_PLACE_TILE,
+        payload: {playerIndex, tilePlacement},
+    };
+};
 
 export const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
 export const askUserToDiscardCards = (playerIndex: number, amount: Amount) => ({

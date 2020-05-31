@@ -292,7 +292,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 // Sometimes we list cards as a resource.
                 // handle as a draw action.
                 player.cards.push(...handleDrawCards(numberAmount));
-                draft.log.push(`${corporationName} drew ${numberAmount} cards`);
+                draft.log.push(
+                    `${corporationName} drew ${numberAmount} ${cardsPlural(numberAmount)}`
+                );
                 return;
             }
             if (isStorableResource(resource)) {
