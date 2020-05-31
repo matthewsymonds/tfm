@@ -84,6 +84,7 @@ export function getInitialState(players: string[]): GameState {
             exchangeRates: {
                 [Resource.STEEL]: 2,
                 [Resource.TITANIUM]: 3,
+                [Resource.HEAT]: 0,
             },
             discounts: {
                 card: 0,

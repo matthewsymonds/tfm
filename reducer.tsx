@@ -74,6 +74,7 @@ import {amountAndResource} from 'components/ask-user-to-confirm-resource-action-
 import {getTextForStandardProject} from 'components/board/standard-projects';
 import {getTextForMilestone} from 'components/board/milestones';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getTextForAward} from 'components/board/awards';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -159,6 +160,7 @@ export type PlayerState = {
     exchangeRates: {
         [Resource.STEEL]: number;
         [Resource.TITANIUM]: number;
+        [Resource.HEAT]: number;
     };
     discounts: Discounts;
     plantDiscount?: number;
@@ -432,10 +434,7 @@ export const reducer = (state: GameState | null = null, action) => {
 
                 sourcePlayer.resources[resource] -= amount;
                 draft.log.push(
-                    `${corporationName} lost ${payload.amount} ${amountAndResource(
-                        resource,
-                        payload.amount
-                    )}`
+                    `${corporationName} lost ${amountAndResource(payload.amount, resource)}`
                 );
                 break;
             }
@@ -463,10 +462,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.pendingVariableAmount = amount;
                 targetCard.storedResourceAmount -= amount;
                 draft.log.push(
-                    `${corporationName} lost ${payload.amount} ${amountAndResource(
-                        resource,
-                        payload.amount
-                    )} from ${targetCard.name}`
+                    `${corporationName} lost ${amountAndResource(payload.amount, resource)} from ${
+                        targetCard.name
+                    }`
                 );
                 break;
             }
@@ -482,10 +480,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 victimPlayer.resources[resource] -= amount;
                 player[resource] += amount;
                 draft.log.push(
-                    `${corporationName} stole ${payload.amount} ${amountAndResource(
-                        resource,
-                        payload.amount
-                    )} from ${victimPlayer.corporation?.name}`
+                    `${corporationName} stole ${amountAndResource(payload.amount, resource)} from ${
+                        victimPlayer.corporation?.name
+                    }`
                 );
                 break;
             }
@@ -517,10 +514,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 draftTargetCard.storedResourceAmount =
                     (draftTargetCard.storedResourceAmount || 0) + amount;
                 draft.log.push(
-                    `${corporationName} moved ${payload.amount} ${amountAndResource(
-                        resource,
-                        payload.amount
-                    )} from ${draftSourceCard.name} onto ${draftTargetCard.name}`
+                    `${corporationName} moved ${amountAndResource(payload.amount, resource)} from ${
+                        draftSourceCard.name
+                    } onto ${draftTargetCard.name}`
                 );
                 break;
             }
@@ -568,11 +564,15 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             }
             case PAY_TO_PLAY_STANDARD_PROJECT: {
+                const {payment} = payload;
                 let cost = payload.standardProjectAction.cost - player.discounts.standardProjects;
                 if (payload.standardProjectAction.type === StandardProjectType.POWER_PLANT) {
                     cost -= player.discounts.standardProjectPowerPlant;
                 }
-                player.resources[Resource.MEGACREDIT] -= cost;
+
+                for (const resource in payment) {
+                    player.resources[resource] -= payment[resource];
+                }
                 draft.log.push(
                     `${corporationName} paid ${cost} to play standard project ${getTextForStandardProject(
                         payload.standardProjectAction.type
@@ -580,27 +580,32 @@ export const reducer = (state: GameState | null = null, action) => {
                 );
                 break;
             }
-            case CLAIM_MILESTONE:
-                player.resources[Resource.MEGACREDIT] -= 8;
+            case CLAIM_MILESTONE: {
+                const {payment, milestone} = payload;
+                for (const resource in payment) {
+                    player.resources[resource] -= payment[resource];
+                }
                 draft.common.claimedMilestones.push({
                     claimedByPlayerIndex: player.index,
-                    milestone: payload.milestone,
+                    milestone: milestone,
                 });
                 draft.log.push(
                     `${corporationName} claimed ${getTextForMilestone(payload.milestone)} milestone`
                 );
                 break;
-            case FUND_AWARD:
-                const cost = [8, 14, 20][draft.common.fundedAwards.length];
-                player.resources[Resource.MEGACREDIT] -= cost;
+            }
+            case FUND_AWARD: {
+                const {payment, award} = payload;
+                for (const resource in payment) {
+                    player.resources[resource] -= payment[resource];
+                }
                 draft.common.fundedAwards.push({
                     fundedByPlayerIndex: player.index,
-                    award: payload.award,
+                    award: award,
                 });
-                draft.log.push(
-                    `${corporationName} funded ${getTextForMilestone(payload.award)} award`
-                );
+                draft.log.push(`${corporationName} funded ${getTextForAward(payload.award)} award`);
                 break;
+            }
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);

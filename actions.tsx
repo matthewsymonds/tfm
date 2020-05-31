@@ -177,22 +177,31 @@ export const payToPlayCard = (
 export const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
 export const payToPlayStandardProject = (
     standardProjectAction: StandardProjectAction,
+    payment: PropertyCounter<Resource>,
     playerIndex: number
 ) => ({
     type: PAY_TO_PLAY_STANDARD_PROJECT,
-    payload: {standardProjectAction, playerIndex},
+    payload: {standardProjectAction, payment, playerIndex},
 });
 
 export const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
-export const claimMilestone = (milestone: Milestone, playerIndex: number) => ({
+export const claimMilestone = (
+    milestone: Milestone,
+    payment: PropertyCounter<Resource>,
+    playerIndex: number
+) => ({
     type: CLAIM_MILESTONE,
-    payload: {milestone, playerIndex},
+    payload: {milestone, payment, playerIndex},
 });
 
 export const FUND_AWARD = 'FUND_AWARD';
-export const fundAward = (award: Award, playerIndex: number) => ({
+export const fundAward = (
+    award: Award,
+    payment: PropertyCounter<Resource>,
+    playerIndex: number
+) => ({
     type: FUND_AWARD,
-    payload: {award, playerIndex},
+    payload: {award, payment, playerIndex},
 });
 
 export const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';

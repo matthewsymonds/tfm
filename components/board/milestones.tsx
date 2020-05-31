@@ -1,9 +1,12 @@
-import {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {Milestone} from 'constants/board';
 import {AppContext} from 'context/app-context';
 import {useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import PaymentPopover from 'components/popovers/payment-popover';
 
 export function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {
@@ -25,7 +28,33 @@ export function getTextForMilestone(milestone: Milestone) {
 function Milestones() {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
+    const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
+    const [milestonePendingPayment, setMilestonePendingPayment] = useState<Milestone | null>(null);
+
+    function handleFundMilestone(milestone: Milestone) {
+        if (!context.canClaimMilestone(milestone, state)) {
+            return;
+        }
+
+        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
+            // Helion can pay with heat and money
+            setMilestonePendingPayment(milestone);
+        } else {
+            // Everyone else can only pay with money
+            context.claimMilestone(milestone, {[Resource.MEGACREDIT]: 8}, state);
+            context.processQueue(dispatch);
+        }
+    }
+
+    function handleConfirmPayment(payment: PropertyCounter<Resource>) {
+        if (!milestonePendingPayment) {
+            throw new Error('No action pending payment');
+        }
+        context.claimMilestone(milestonePendingPayment, payment, state);
+        context.processQueue(dispatch);
+        setMilestonePendingPayment(null);
+    }
 
     return (
         <SharedActionsContainer>
@@ -35,19 +64,25 @@ function Milestones() {
                 );
                 const text = getTextForMilestone(milestone);
                 return (
-                    <SharedActionRow
-                        key={milestone}
-                        selectable={context.canClaimMilestone(milestone, state)}
-                        onClick={() => {
-                            if (context.canClaimMilestone(milestone, state)) {
-                                context.claimMilestone(milestone, state);
-                                context.processQueue(dispatch);
-                            }
-                        }}
-                    >
-                        <span>{hasBeenClaimed ? <s>{text}</s> : text}</span>
-                        <span>8</span>
-                    </SharedActionRow>
+                    <React.Fragment key={milestone}>
+                        <SharedActionRow
+                            id={milestone}
+                            selectable={context.canClaimMilestone(milestone, state)}
+                            onClick={() => handleFundMilestone(milestone)}
+                        >
+                            <span>{hasBeenClaimed ? <s>{text}</s> : text}</span>
+                            <span>8</span>
+                        </SharedActionRow>
+                        {milestonePendingPayment && (
+                            <PaymentPopover
+                                isOpen={!!milestonePendingPayment}
+                                target={milestonePendingPayment}
+                                cost={8}
+                                toggle={() => setMilestonePendingPayment(null)}
+                                onConfirmPayment={(...args) => handleConfirmPayment(...args)}
+                            />
+                        )}
+                    </React.Fragment>
                 );
             })}
         </SharedActionsContainer>

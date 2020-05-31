@@ -26,6 +26,7 @@ interface PartialDiscounts {
 export type ExchangeRates = {
     [Resource.TITANIUM]?: number;
     [Resource.STEEL]?: number;
+    [Resource.HEAT]?: number;
 };
 
 export interface CardConfig extends Action {
