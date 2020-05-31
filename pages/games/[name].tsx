@@ -20,6 +20,7 @@ function GameComponent() {
 
     const [players, setPlayers] = useState<string[]>([]);
     const [playerIndex, setPlayerIndex] = useState<number>(-1);
+    const [queueRetrievedFromBackend, setQueueRetrievedFromBackend] = useState(false);
 
     const router = useRouter();
 
@@ -43,6 +44,8 @@ function GameComponent() {
             return;
         }
         setPlayers(result.players);
+        setQueueRetrievedFromBackend(result.queue.length > 0);
+        context.queue = result.queue;
         setPlayerIndex(result.players.indexOf(session.username));
         result.state.log = result.state.log || [];
         dispatch(setGame(deserializeState(result.state)));
@@ -55,13 +58,33 @@ function GameComponent() {
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
-            return <CorporationSelection playerIndex={playerIndex} />;
+            return (
+                <CorporationSelection
+                    playerIndex={playerIndex}
+                    queueRetrievedFromBackend={queueRetrievedFromBackend}
+                />
+            );
         case GameStage.ACTIVE_ROUND:
-            return <ActiveRound playerIndex={playerIndex} />;
+            return (
+                <ActiveRound
+                    playerIndex={playerIndex}
+                    queueRetrievedFromBackend={queueRetrievedFromBackend}
+                />
+            );
         case GameStage.BUY_OR_DISCARD:
-            return <BuyOrDiscard playerIndex={playerIndex} />;
+            return (
+                <BuyOrDiscard
+                    playerIndex={playerIndex}
+                    queueRetrievedFromBackend={queueRetrievedFromBackend}
+                />
+            );
         case GameStage.GREENERY_PLACEMENT:
-            return <GreeneryPlacement playerIndex={playerIndex} />;
+            return (
+                <GreeneryPlacement
+                    playerIndex={playerIndex}
+                    queueRetrievedFromBackend={queueRetrievedFromBackend}
+                />
+            );
         case GameStage.END_OF_GAME:
             return <EndOfGame />;
         default:

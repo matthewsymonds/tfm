@@ -63,7 +63,7 @@ export const Board: React.FunctionComponent<BoardProps> = props => {
         state => state.players[props.playerIndex].pendingTilePlacement
     );
     const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, pendingTilePlacement?.placementRequirement)
+        getValidPlacementsForRequirement(state, pendingTilePlacement)
     );
 
     const context = useContext(AppContext);

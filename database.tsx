@@ -22,6 +22,7 @@ const gamesSchema = new schema({
     name: uniqueNameSchema,
     state: {type: Object},
     players: {type: Array, default: []},
+    queue: {type: Array, default: []},
     public: {type: Boolean, default: false},
     createdAt: {
         type: Date,

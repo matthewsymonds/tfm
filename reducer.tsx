@@ -229,7 +229,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Toll Station';
+const bonusName = 'Nuclear Zone';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -241,7 +241,7 @@ export const reducer = (state: GameState | null = null, action) => {
     const {payload} = action;
     return produce(state, draft => {
         const player = draft.players[payload?.playerIndex];
-        const corporationName = player.corporation?.name;
+        const corporationName = player?.corporation?.name;
         const {common} = draft;
         function handleParameterIncrease(parameter: Parameter, amount: number) {
             if (parameter === Parameter.TERRAFORM_RATING) {
@@ -267,7 +267,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.log.push(
                     `${corporationName} increased the ${getParameterName(
                         parameter
-                    )} ${change} ${stepsPlural(userTerraformRatingChange)}`
+                    )} ${userTerraformRatingChange} ${stepsPlural(userTerraformRatingChange)}`
                 );
             }
         }
@@ -401,37 +401,40 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingResourceActionDetails = undefined;
                 let targetPlayer = draft.players[payload.targetPlayerIndex];
 
-                targetPlayer.productions[payload.resource] -= convertAmountToNumber(
+                const decrease = convertAmountToNumber(
                     payload.amount,
                     state,
                     mostRecentlyPlayedCard
                 );
+
+                targetPlayer.productions[payload.resource] -= decrease;
                 if (targetPlayer === player) {
                     draft.log.push(
                         `${corporationName} decreased their ${getResourceName(
                             payload.resource
-                        )} production ${payload.amount} ${stepsPlural(payload.amount)}`
+                        )} production ${decrease} ${stepsPlural(decrease)}`
                     );
                 } else {
                     draft.log.push(
                         `${corporationName} decreased the ${getResourceName(
                             payload.resource
-                        )} production of ${targetPlayer.corporation?.name} ${
-                            payload.amount
-                        } ${stepsPlural(payload.amount)}`
+                        )} production of ${
+                            targetPlayer.corporation?.name
+                        } ${decrease} ${stepsPlural(decrease)}`
                     );
                 }
                 break;
             case INCREASE_PRODUCTION:
-                player.productions[payload.resource] += convertAmountToNumber(
+                const increase = convertAmountToNumber(
                     payload.amount,
                     state,
                     mostRecentlyPlayedCard
                 );
+                player.productions[payload.resource] += increase;
                 draft.log.push(
                     `${corporationName} increased their ${getResourceName(
                         payload.resource
-                    )} production ${payload.amount} ${stepsPlural(payload.amount)}`
+                    )} production ${increase} ${stepsPlural(increase)}`
                 );
                 break;
             case REMOVE_RESOURCE: {
@@ -635,7 +638,6 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             case ASK_USER_TO_PLACE_TILE:
-                // Oceans can run out. If they do, skip tile placement.
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {

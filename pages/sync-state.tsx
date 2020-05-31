@@ -1,11 +1,12 @@
 import {makePostCall} from 'api-calls';
 import {useRouter} from 'next/router';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useContext} from 'react';
 import {useStore} from 'react-redux';
 import {RootState} from 'reducer';
 import {serializeState} from 'state-serialization';
+import {AppContext} from 'context/app-context';
 
-async function syncState(newState: RootState, router) {
+async function syncState(newState: RootState, queue: Object[], router) {
     const {origin} = window.location;
     const urlParts = window.location.href.split('/');
     const gameName = urlParts[urlParts.length - 1];
@@ -13,6 +14,7 @@ async function syncState(newState: RootState, router) {
 
     const body = {
         state: serializeState(newState),
+        queue,
     };
 
     const result = await makePostCall(apiPath, body);
@@ -35,10 +37,13 @@ export function useSyncState() {
     const previousState = usePrevious(state);
     const router = useRouter();
 
+    const context = useContext(AppContext);
+    const {queue} = context;
+
     useEffect(() => {
         if (state !== previousState) {
             // Update the state on the server.
-            syncState(state, router);
+            syncState(state, queue, router);
         }
     }, [state]);
 }

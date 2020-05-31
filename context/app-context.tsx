@@ -285,9 +285,10 @@ function meetsProductionRequirements(action: Action, state: RootState) {
 function meetsTilePlacementRequirements(action: Action, state: RootState): boolean {
     if (!action.tilePlacements) return true;
 
-    for (const {isRequired, placementRequirement} of action.tilePlacements) {
+    for (const tilePlacement of action.tilePlacements) {
+        const {isRequired, placementRequirement} = tilePlacement;
         if (!isRequired || !placementRequirement) continue;
-        const possiblePlacements = getValidPlacementsForRequirement(state, placementRequirement);
+        const possiblePlacements = getValidPlacementsForRequirement(state, tilePlacement);
         if (possiblePlacements.length === 0) return false;
     }
 

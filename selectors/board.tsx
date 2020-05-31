@@ -9,6 +9,7 @@ import {
     cellHelpers,
     Tile,
     RESERVED_LOCATIONS,
+    TilePlacement,
 } from 'constants/board';
 import {getLoggedInPlayerIndex} from 'context/app-context';
 
@@ -115,9 +116,13 @@ function getGreeneries(state: RootState) {
 
 export function getValidPlacementsForRequirement(
     state: RootState,
-    requirement: PlacementRequirement | undefined
+    tilePlacement: TilePlacement | undefined
 ) {
-    const candidates = getPossibleValidPlacementsForRequirement(state, requirement);
+    if (!tilePlacement) return [];
+    const candidates = getPossibleValidPlacementsForRequirement(
+        state,
+        tilePlacement?.placementRequirement
+    );
     // Check the candidate is empty!
     return candidates.filter(cell => !cell.tile);
 }
@@ -126,7 +131,7 @@ export function getPossibleValidPlacementsForRequirement(
     state: RootState,
     requirement: PlacementRequirement | undefined
 ): Cell[] {
-    if (!requirement) return [];
+    if (!requirement) return getAvailableLandCellsOnMars(state);
 
     switch (requirement) {
         case PlacementRequirement.CITY:

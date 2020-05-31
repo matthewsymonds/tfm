@@ -152,10 +152,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     useSyncState();
 
-    useEffect(() => {
-        context.processQueue(dispatch);
-    }, []);
-
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         dispatch(moveCardFromHandToPlayArea(card, playerIndex));
         context.playCard(card, store.getState(), payment);
@@ -308,12 +304,18 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             state.common.playingPlayers.indexOf(b.index)
     );
 
-    const showBottomActionBar =
+    const playerMakingDecision =
         player.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
         player.possibleCards.length > 0 ||
         player.pendingResourceActionDetails ||
         player.pendingDiscard;
+
+    useEffect(() => {
+        if (!playerMakingDecision) {
+            context.processQueue(dispatch);
+        }
+    }, []);
     return (
         <>
             <GlobalStyle />
@@ -323,7 +325,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <Info>
                             Playing as {player.corporation?.name}. {!action && 'You have passed'}
                             {action ? waitingMessage || `Action ${action} of 2` : null}
-                            {action && !(context.shouldDisableUI(state) || showBottomActionBar) ? (
+                            {action && !(context.shouldDisableUI(state) || playerMakingDecision) ? (
                                 <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
                                     {action === 2 ? 'Skip 2nd action' : 'Pass'}
                                 </ActionBarButton>
@@ -501,7 +503,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </Box>
                 </Box>
             </Flex>
-            {showBottomActionBar && (
+            {playerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
                         {player.pendingDiscard && (
@@ -537,7 +539,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     disabled={cannotContinueAfterLookingAtCards}
                                     onClick={() => context.processQueue(dispatch)}
                                 >
-                                    {player.buyCards ? 'Confirm' : 'Take cards'}
+                                    {player.buyCards
+                                        ? 'Confirm'
+                                        : `Take ${player.numCardsToTake === 1 ? 'card' : 'cards'}`}
                                 </button>
                             </Flex>
                         )}

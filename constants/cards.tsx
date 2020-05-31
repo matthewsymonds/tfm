@@ -271,6 +271,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         gainResourceOption: {[Resource.PLANT]: 3, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 3},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        tilePlacements: [t(TileType.OCEAN)],
     },
     {
         effect: {text: 'Effect: When you play a card, you pay 1 MC less for it.'},
