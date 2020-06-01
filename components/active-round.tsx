@@ -36,6 +36,7 @@ import {CardComponent, CardText} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
+import {Square} from './square';
 
 const Hand = styled.div`
     display: flex;
@@ -385,7 +386,14 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     <Box>
                         <Switcher
                             defaultTabIndex={sortedPlayers.indexOf(player)}
-                            tabs={sortedPlayers.map(player => player.corporation?.name)}
+                            tabs={sortedPlayers.map(player => (
+                                <Flex flexDirection="row" alignItems="center">
+                                    <Box display="inline-block" marginRight="8px">
+                                        {player.corporation?.name}
+                                    </Box>
+                                    <Square playerIndex={player.index} />
+                                </Flex>
+                            ))}
                         >
                             {sortedPlayers.map(thisPlayer => {
                                 const cards = (

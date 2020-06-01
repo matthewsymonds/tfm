@@ -1,20 +1,16 @@
 import styled from 'styled-components';
+import {colors} from 'constants/game';
 
-const colors = ['#ff2222', '#3987c9', '#008000', 'gray', 'gold'];
-
-const CubeBase = styled.div<{color: string}>`
+const SquareBase = styled.div<{color: string}>`
     width: 9px;
     height: 9px;
-    position: absolute;
-    z-index: 4;
-    align-self: flex-start;
-    transform: translate(0, 75%);
+    display: inline-block;
     border: 2px solid rgba(200, 200, 200, 0.9);
     background: ${props => props.color};
 `;
 
-export const Cube = ({playerIndex}: {playerIndex: number}) => {
+export const Square = ({playerIndex}: {playerIndex: number}) => {
     const color = colors[playerIndex];
 
-    return <CubeBase color={color} />;
+    return <SquareBase color={color} />;
 };

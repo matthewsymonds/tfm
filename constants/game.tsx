@@ -39,3 +39,5 @@ export const MinimumProductions = {
     [Resource.ENERGY]: 0,
     [Resource.HEAT]: 0,
 };
+
+export const colors = ['#d9330e', '#008000', '#3987c9', 'gray', 'gold'];

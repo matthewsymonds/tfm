@@ -1,6 +1,7 @@
 import React, {Children, useState} from 'react';
 import styled from 'styled-components';
 import {Box} from './box';
+import {colors} from 'constants/game';
 
 const Tabs = styled.div`
     display: flex;
@@ -8,10 +9,11 @@ const Tabs = styled.div`
     font-family: sans-serif;
 `;
 
-const Tab = styled.div<{selected: boolean}>`
+const Tab = styled.div<{selected: boolean; index: number}>`
     margin: 8px;
     padding: 8px;
-    border: 2px solid ${props => (props.selected ? 'green' : 'rgba(0, 0, 0, 0)')};
+    border: 2px solid
+        ${props => (props.selected ? colors[props.index] || 'green' : 'rgba(0, 0, 0, 0)')};
     border-radius: 3px;
     background: ${props => (props.selected ? '#eee' : '#e2e2e2')};
     color: ${props => (props.selected ? 'black' : '#444')};
@@ -26,7 +28,7 @@ const SwitcherChildContainer = styled.div`
     width: 100%;
 `;
 
-const defaultTabs: string[] = [];
+const defaultTabs: JSX.Element[] = [];
 
 export function Switcher({children, tabs = defaultTabs, defaultTabIndex = 0}) {
     const [selectedTabIndex, setSelectedTabIndex] = useState(defaultTabIndex);
@@ -39,6 +41,7 @@ export function Switcher({children, tabs = defaultTabs, defaultTabIndex = 0}) {
             <Tabs>
                 {tabs.map((tab, index) => (
                     <Tab
+                        index={index}
                         key={index}
                         selected={index === selectedTabIndex}
                         onClick={() => setSelectedTabIndex(index)}

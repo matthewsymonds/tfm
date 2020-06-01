@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {TileType} from 'constants/board';
 import {Hexagon} from './hexagon';
-import {Cube} from 'components/square';
+import {Square} from 'components/square';
 
 const getColor = (type: TileType) => {
     switch (type) {
@@ -64,10 +64,19 @@ const Icon = styled.div`
     font-size: 40px;
 `;
 
+const SquareContainer = styled.div`
+    position: absolute;
+    align-self: flex-start;
+    transform: translate(0, 50%);
+    z-index: 4;
+`;
+
 export const Tile = (props: TileProps) => (
     <Hexagon overlap={true} color={getColor(props.type)}>
         {props.ownerPlayerIndex !== undefined ? (
-            <Cube playerIndex={props.ownerPlayerIndex} />
+            <SquareContainer>
+                <Square playerIndex={props.ownerPlayerIndex} />
+            </SquareContainer>
         ) : null}
         <Icon>{getIcon(props.type)}</Icon>
     </Hexagon>
