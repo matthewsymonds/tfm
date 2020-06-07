@@ -3,6 +3,7 @@ import {useUserGames} from 'hooks/use-user-games';
 import Link from 'next/link';
 import {useState} from 'react';
 import {useRouter} from 'next/dist/client/router';
+import {Box} from 'components/box';
 
 export default function Index() {
     const router = useRouter();
@@ -20,19 +21,22 @@ export default function Index() {
             <Link href="/logout">
                 <a>Log out</a>
             </Link>
-            <ul>
-                User games:
+            <div>
+                <p>User games:</p>
                 {userGames.map(game => {
                     return (
-                        <li>
-                            <Link href={getGameLink(game.name)}>
-                                <a>{game.name}</a>
-                            </Link>
-                            <div>{game.players.length} players</div>
-                        </li>
+                        <>
+                            <Box margin="8px">
+                                <Link href={getGameLink(game.name)}>
+                                    <a>{game.name}</a>
+                                </Link>
+                                <div>{game.players.length} players</div>
+                            </Box>
+                            <hr />
+                        </>
                     );
                 })}
-            </ul>
+            </div>
             <button onClick={() => goToNewGame()}>New game</button>
         </div>
     );

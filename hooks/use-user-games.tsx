@@ -4,6 +4,7 @@ import {makeGetCall} from 'api-calls';
 
 type Game = {
     name: string;
+    players: string[];
 };
 
 export const useUserGames = (username: string): Game[] => {
