@@ -32,7 +32,7 @@ import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
 import {Button} from './button';
-import {CardComponent, CardText} from './card';
+import {CardComponent, CardText, CardActionElements} from './card';
 import {CardSelector} from './card-selector';
 import GlobaclParams from './global-params';
 import {PlayerOverview} from './player-overview';
@@ -112,7 +112,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const [isPaymentPopoverOpen, setIsPaymentPopoverOpen] = useState(false);
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
-    const [actionPendingPayment, setActionPendingPayment] = useState<Action | null>(null);
 
     let maxCardsToDiscard: number;
 
@@ -188,13 +187,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         setCardsToDiscard([]);
     }
 
-    function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
-        dispatch(markCardActionAsPlayed(card, playerIndex));
-        context.playAction({action, state, parent: card, payment});
-        context.queue.push(completeAction(playerIndex));
-        context.processQueue(dispatch);
-    }
-
     const players = useTypedSelector(state => state.players);
 
     function getDefaultTabIndex(thisPlayer: PlayerState) {
@@ -209,71 +201,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             thisPlayer.playedCards.filter(card => card.action && !card.usedActionThisRound).length
             ? 0
             : 1;
-    }
-
-    function handlePlayCardAction(cardAction: Action, parentCard: Card) {
-        if (
-            cardAction.acceptedPayment ||
-            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0)
-        ) {
-            setActionPendingPayment(cardAction);
-        } else {
-            playAction(parentCard, cardAction);
-        }
-    }
-
-    function handleConfirmActionPayment(payment: PropertyCounter<Resource>, parentCard: Card) {
-        if (!actionPendingPayment) {
-            throw new Error('No action pending payment');
-        }
-        setActionPendingPayment(null);
-        playAction(parentCard, actionPendingPayment, payment);
-    }
-
-    function cardActionElements(thisPlayer: PlayerState, card: Card) {
-        if (!card.action) return null;
-
-        const options = card.action.choice || [card.action];
-
-        if (card.usedActionThisRound) {
-            return (
-                <CardText>
-                    <em>Used action this round</em>
-                </CardText>
-            );
-        }
-
-        return options.map((option, index) => {
-            const [canPlay, reason] = context.canPlayCardAction(option, state, card);
-            const canReallyPlay = canPlay && thisPlayer.index === player.index;
-            return (
-                <React.Fragment key={index}>
-                    <button
-                        disabled={!canReallyPlay}
-                        id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
-                        onClick={() => handlePlayCardAction(option, card)}
-                    >
-                        {options.length === 1 ? 'Play Action' : option.text}
-                    </button>
-                    {!canPlay && reason ? (
-                        <CardText>
-                            <em>{reason}</em>
-                        </CardText>
-                    ) : null}
-                    {option.cost && actionPendingPayment && (
-                        <PaymentPopover
-                            isOpen={!!actionPendingPayment}
-                            target={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
-                            cost={option.cost}
-                            toggle={() => setActionPendingPayment(null)}
-                            onConfirmPayment={(payment: PropertyCounter<Resource>) =>
-                                handleConfirmActionPayment(payment, card)
-                            }
-                        />
-                    )}
-                </React.Fragment>
-            );
-        });
     }
 
     function continueAfterRevealingCards() {
@@ -337,7 +264,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 </ActionBarRow>
             </ActionBar>
             <Flex width="calc(100% - 32px)" margin="16px">
-                <Box>
+                <Box width={'648px'}>
                     <Board
                         board={state.common.board}
                         playerIndex={playerIndex}
@@ -455,33 +382,44 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 );
                                 const playedCards = (
                                     <Hand key={thisPlayer.index + 'playedCards'}>
-                                        {thisPlayer.playedCards.map(card => {
-                                            let resources = '';
-                                            const {
-                                                storedResourceType: type,
-                                                storedResourceAmount: amount,
-                                            } = card;
-                                            if (type) {
-                                                resources = `Holds ${amount} ${getResourceName(
-                                                    type
-                                                )}${amount === 1 ? '' : 's'}`;
-                                            }
-                                            return (
-                                                <CardComponent
-                                                    content={card}
-                                                    width={250}
-                                                    key={card.name}
-                                                    isHidden={
-                                                        thisPlayer.index !== playerIndex &&
-                                                        card.type === CardType.EVENT
-                                                    }
-                                                >
-                                                    {resources && <CardText>{resources}</CardText>}
+                                        {thisPlayer.playedCards
+                                            .filter(card => card.type !== CardType.CORPORATION)
+                                            .map(card => {
+                                                let resources = '';
+                                                const {
+                                                    storedResourceType: type,
+                                                    storedResourceAmount: amount,
+                                                } = card;
+                                                if (type) {
+                                                    resources = `Holds ${amount} ${getResourceName(
+                                                        type
+                                                    )}${amount === 1 ? '' : 's'}`;
+                                                }
 
-                                                    {cardActionElements(thisPlayer, card)}
-                                                </CardComponent>
-                                            );
-                                        })}
+                                                const isLoggedInPlayer =
+                                                    thisPlayer.index === playerIndex;
+                                                return (
+                                                    <CardComponent
+                                                        content={card}
+                                                        width={250}
+                                                        key={card.name}
+                                                        isHidden={
+                                                            !isLoggedInPlayer &&
+                                                            card.type === CardType.EVENT
+                                                        }
+                                                    >
+                                                        {resources && (
+                                                            <CardText>{resources}</CardText>
+                                                        )}
+
+                                                        <CardActionElements
+                                                            player={thisPlayer}
+                                                            isLoggedInPlayer={isLoggedInPlayer}
+                                                            card={card}
+                                                        />
+                                                    </CardComponent>
+                                                );
+                                            })}
                                     </Hand>
                                 );
 

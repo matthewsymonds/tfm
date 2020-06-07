@@ -1,16 +1,23 @@
-import {Amount} from 'constants/action';
+import {Amount, Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {AppContext, getDiscountedCardCost} from 'context/app-context';
 import {Card} from 'models/card';
-import {MouseEvent, useContext} from 'react';
-import {useStore} from 'react-redux';
-import {RootState, useTypedSelector} from 'reducer';
+import {MouseEvent, useContext, useState} from 'react';
+import {useStore, useDispatch} from 'react-redux';
+import {RootState, useTypedSelector, PlayerState} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import styled from 'styled-components';
 import {TagsComponent} from './tags';
+import React from 'react';
+import PaymentPopover from './popovers/payment-popover';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import {markCardActionAsPlayed, completeAction} from 'actions';
+import {Box} from './box';
 
 export const CardText = styled.div`
     margin: 10px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -63,6 +70,7 @@ const CardBase = styled.div<CardBaseProps>`
     position: relative;
     display: flex;
     flex-direction: column;
+    max-height: 350px;
     justify-content: flex-start;
     ${({width}) => (width ? `width: ${width}px;` : '')}
     button {
@@ -117,6 +125,94 @@ const Circle = styled.div`
     background: #ce7e47;
 `;
 
+export function CardActionElements(props: {
+    player: PlayerState;
+    isLoggedInPlayer: boolean;
+    card: Card;
+}) {
+    const {player, isLoggedInPlayer, card} = props;
+    const [actionPendingPayment, setActionPendingPayment] = useState<Action | null>(null);
+
+    const context = useContext(AppContext);
+    const dispatch = useDispatch();
+    const store = useStore();
+    const state = store.getState();
+    if (!card.action) return null;
+
+    const options = card.action.choice || [card.action];
+
+    if (card.usedActionThisRound) {
+        return (
+            <CardText>
+                <em>Used action this round</em>
+            </CardText>
+        );
+    }
+
+    function handlePlayCardAction(cardAction: Action, parentCard: Card) {
+        if (
+            cardAction.acceptedPayment ||
+            (player.corporation?.name === 'Helion' && player.resources[Resource.HEAT] > 0)
+        ) {
+            setActionPendingPayment(cardAction);
+        } else {
+            playAction(parentCard, cardAction);
+        }
+    }
+
+    function handleConfirmActionPayment(payment: PropertyCounter<Resource>, parentCard: Card) {
+        if (!actionPendingPayment) {
+            throw new Error('No action pending payment');
+        }
+        setActionPendingPayment(null);
+        playAction(parentCard, actionPendingPayment, payment);
+    }
+
+    function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
+        dispatch(markCardActionAsPlayed(card, player.index));
+        context.playAction({action, state, parent: card, payment});
+        context.queue.push(completeAction(player.index));
+        context.processQueue(dispatch);
+    }
+
+    return (
+        <>
+            {options.map((option, index) => {
+                const [canPlay, reason] = context.canPlayCardAction(option, state, card);
+                const canReallyPlay = canPlay && isLoggedInPlayer;
+
+                return (
+                    <React.Fragment key={index}>
+                        <button
+                            disabled={!canReallyPlay}
+                            id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
+                            onClick={() => handlePlayCardAction(option, card)}
+                        >
+                            {options.length === 1 ? 'Play Action' : option.text}
+                        </button>
+                        {!canPlay && reason ? (
+                            <CardText>
+                                <em>{reason}</em>
+                            </CardText>
+                        ) : null}
+                        {option.cost && actionPendingPayment && (
+                            <PaymentPopover
+                                isOpen={!!actionPendingPayment}
+                                target={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
+                                cost={option.cost}
+                                toggle={() => setActionPendingPayment(null)}
+                                onConfirmPayment={(payment: PropertyCounter<Resource>) =>
+                                    handleConfirmActionPayment(payment, card)
+                                }
+                            />
+                        )}
+                    </React.Fragment>
+                );
+            })}
+        </>
+    );
+}
+
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width, selected, onClick, isHidden} = props;
     const {name, text, action, effects, cost, tags} = content;
@@ -143,9 +239,11 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                     )}
                 </CardText>
             )}
-            {text && <CardText>{text}</CardText>}
-            {effect?.text && <CardText>{effect.text}</CardText>}
-            {action?.text && <CardText>{action.text}</CardText>}
+            <Box overflowY="auto">
+                {text && <CardText>{text}</CardText>}
+                {effect?.text && <CardText>{effect.text}</CardText>}
+                {action?.text && <CardText>{action.text}</CardText>}
+            </Box>
             {victoryPoints ? (
                 <VictoryPoints>
                     <span>{victoryPoints}</span>

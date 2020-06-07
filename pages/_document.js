@@ -77,6 +77,7 @@ const GlobalStyles = createGlobalStyle`
       cursor: pointer;
       border-radius: 4px;
       margin-top: auto;
+      line-height: 8px;
       :not(:last-child) {
           margin-top: 16px;
           margin-bottom: 16px;
