@@ -72,6 +72,10 @@ function isOwnedByCurrentPlayer(state: RootState, cell: Cell) {
     return cell.tile && cell.tile.ownerPlayerIndex === getLoggedInPlayerIndex();
 }
 
+export function getAllCellsOwnedByCurrentPlayer(state: RootState) {
+    return state.common.board.flat().filter(cell => isOwnedByCurrentPlayer(state, cell));
+}
+
 function getAvailableCells(state: RootState) {
     return state.common.board.flat().filter(cell => isAvailable(state, cell));
 }
@@ -112,6 +116,10 @@ function getAvailableLandCellsOnMars(state: RootState) {
 
 function getGreeneries(state: RootState) {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.GREENERY);
+}
+
+export function getGreeneriesForPlayer(state: RootState, playerIndex: number) {
+    return getGreeneries(state).filter(cell => cell.tile.ownerPlayerIndex === playerIndex);
 }
 
 export function getValidPlacementsForRequirement(

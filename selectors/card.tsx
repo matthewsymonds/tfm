@@ -6,11 +6,24 @@ import {
     PROTECTED_HABITAT_RESOURCE,
 } from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {Card, cards} from 'models/card';
+import {Card} from 'models/card';
 import spawnExhaustiveSwitchError from 'utils';
+import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import {Amount} from 'constants/action';
+import {RootState} from 'reducer';
 
 export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;
+}
+
+export function getCardVictoryPoints(amount: Amount | undefined, state: RootState, card: Card) {
+    if (!amount) return 0;
+    if (typeof amount === 'number') return amount;
+
+    const selector = VARIABLE_AMOUNT_SELECTORS[amount];
+    if (!selector) return 0;
+
+    return selector(state, card) || 0;
 }
 
 export function getAllPlayedCardsExcludingLast(player: PlayerState) {

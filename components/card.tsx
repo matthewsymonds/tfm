@@ -14,6 +14,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {markCardActionAsPlayed, completeAction} from 'actions';
 import {Box} from './box';
+import {getCardVictoryPoints} from 'selectors/card';
 
 export const CardText = styled.div`
     margin: 10px;
@@ -90,16 +91,6 @@ interface CardComponentProps extends CardBaseProps {
     selected?: boolean;
     width?: number;
     isHidden?: boolean;
-}
-
-function getVictoryPoints(amount: Amount | undefined, state: RootState, card: Card) {
-    if (!amount) return 0;
-    if (typeof amount === 'number') return amount;
-
-    const selector = VARIABLE_AMOUNT_SELECTORS[amount];
-    if (!selector) return 0;
-
-    return selector(state, card) || 0;
 }
 
 const Back = styled.div`
@@ -222,7 +213,7 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const discountedCost = getDiscountedCardCost(content, player);
     const effect = effects[0];
     const store = useStore();
-    const victoryPoints = getVictoryPoints(content.victoryPoints, store.getState(), content);
+    const victoryPoints = getCardVictoryPoints(content.victoryPoints, store.getState(), content);
     const Base = content.type === CardType.CORPORATION ? CorporationCardBase : CardBase;
     const innerContents = (
         <Selection selected={selected || false}>
