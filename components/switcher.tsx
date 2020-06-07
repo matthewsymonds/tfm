@@ -1,7 +1,7 @@
-import React, {Children, useState} from 'react';
+import {colors} from 'constants/game';
+import React, {Children, ReactNode, useState} from 'react';
 import styled from 'styled-components';
 import {Box} from './box';
-import {colors} from 'constants/game';
 
 const Tabs = styled.div`
     display: flex;
@@ -9,11 +9,10 @@ const Tabs = styled.div`
     font-family: sans-serif;
 `;
 
-const Tab = styled.div<{selected: boolean; index: number}>`
+const Tab = styled.div<{selected: boolean; color: string; index: number}>`
     margin: 8px;
     padding: 8px;
-    border: 2px solid
-        ${props => (props.selected ? colors[props.index] || 'green' : 'rgba(0, 0, 0, 0)')};
+    border: 2px solid ${props => (props.selected ? props.color : 'rgba(0, 0, 0, 0)')};
     border-radius: 3px;
     background: ${props => (props.selected ? '#eee' : '#e2e2e2')};
     color: ${props => (props.selected ? 'black' : '#444')};
@@ -28,9 +27,21 @@ const SwitcherChildContainer = styled.div`
     width: 100%;
 `;
 
-const defaultTabs: JSX.Element[] = [];
+const defaultTabs: ReactNode[] = [];
 
-export function Switcher({children, tabs = defaultTabs, defaultTabIndex = 0}) {
+type SwitcherProps = {
+    children: ReactNode;
+    tabs: ReactNode[];
+    defaultTabIndex?: number;
+    color?: string;
+};
+
+export function Switcher({
+    children,
+    tabs = defaultTabs,
+    defaultTabIndex = 0,
+    color,
+}: SwitcherProps) {
     const [selectedTabIndex, setSelectedTabIndex] = useState(defaultTabIndex);
 
     if (Children.count(children) !== tabs.length) {
@@ -41,8 +52,9 @@ export function Switcher({children, tabs = defaultTabs, defaultTabIndex = 0}) {
             <Tabs>
                 {tabs.map((tab, index) => (
                     <Tab
-                        index={index}
+                        color={color || colors[index]}
                         key={index}
+                        index={index}
                         selected={index === selectedTabIndex}
                         onClick={() => setSelectedTabIndex(index)}
                     >

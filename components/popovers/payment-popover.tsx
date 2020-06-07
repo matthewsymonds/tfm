@@ -9,6 +9,7 @@ import {getDiscountedCardCost, AppContext} from 'context/app-context';
 import {PropertyCounter} from 'constants/property-counter';
 import {ResourceIcon} from 'components/resource';
 import {useTypedSelector} from 'reducer';
+import {colors} from 'constants/game';
 
 type Props = {
     isOpen: boolean;
@@ -240,11 +241,11 @@ export default function PaymentPopover({
             <PaymentPopoverBase>
                 <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
                     <span>Cost: {actionCost}</span>
-                    {!isValidPayment && (
-                        <span className="running-total">
-                            <em>Current: {runningTotal}</em>
-                        </span>
-                    )}
+                    <span className="running-total">
+                        <em style={{color: isValidPayment ? colors[1] : colors[0]}}>
+                            Current: {runningTotal}
+                        </em>
+                    </span>
                 </PaymentPopoverSummaryRow>
                 <div className="payment-rows">
                     {resources[Resource.MEGACREDIT] > 0 && (

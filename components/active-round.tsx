@@ -13,7 +13,7 @@ import {Switcher} from 'components/switcher';
 import {Action, Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource, getResourceName} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card} from 'models/card';
@@ -34,9 +34,11 @@ import {Box, Flex, Panel} from './box';
 import {Button} from './button';
 import {CardComponent, CardText} from './card';
 import {CardSelector} from './card-selector';
-import GlobalParams from './global-params';
+import GlobaclParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
+import GlobalParams from './global-params';
+import {colors} from 'constants/game';
 
 const Hand = styled.div`
     display: flex;
@@ -71,11 +73,6 @@ const ActionBarButton = styled.button`
     padding-top: 6px;
     padding-bottom: 6px;
 `;
-
-function getResourceHumanName(resource: Resource): string {
-    let result = String(resource);
-    return result.slice('resource'.length).toLowerCase();
-}
 
 function getCardDiscardAmountHumanName(amount: Amount) {
     if (amount === VariableAmount.USER_CHOICE) {
@@ -247,7 +244,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         }
 
         return options.map((option, index) => {
-            const [canPlay, reason] = context.canPlayAction(option, state, card);
+            const [canPlay, reason] = context.canPlayCardAction(option, state, card);
             const canReallyPlay = canPlay && thisPlayer.index === player.index;
             return (
                 <React.Fragment key={index}>
@@ -359,6 +356,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         </Panel>
                     </Box>
                     <Panel>
+                        <Box margin="8px" fontWeight="bold">
+                            <em>Log</em>
+                        </Box>
                         <Flex
                             maxHeight="400px"
                             margin="12px"
@@ -424,10 +424,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     {playerIndex === thisPlayer.index ? (
                                                         <button
                                                             disabled={
-                                                                !context.canPlayCard(
-                                                                    card,
-                                                                    state
-                                                                )[0] || player.pendingDiscard
+                                                                !canPlay || player.pendingDiscard
                                                             }
                                                             onClick={() => handlePlayCard(card)}
                                                             id={card.name.replace(/\s+/g, '-')}
@@ -465,7 +462,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 storedResourceAmount: amount,
                                             } = card;
                                             if (type) {
-                                                resources = `Holds ${amount} ${getResourceHumanName(
+                                                resources = `Holds ${amount} ${getResourceName(
                                                     type
                                                 )}${amount === 1 ? '' : 's'}`;
                                             }
@@ -498,6 +495,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                         </Panel>
                                         <Panel>
                                             <Switcher
+                                                color={colors[thisPlayer.index]}
                                                 tabs={['Hand', 'Played Cards']}
                                                 defaultTabIndex={getDefaultTabIndex(thisPlayer)}
                                             >

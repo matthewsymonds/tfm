@@ -28,6 +28,7 @@ export default function Index() {
                             <Link href={getGameLink(game.name)}>
                                 <a>{game.name}</a>
                             </Link>
+                            <div>{game.players.length} players</div>
                         </li>
                     );
                 })}

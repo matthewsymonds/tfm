@@ -2454,13 +2454,13 @@ export const cardConfigs: CardConfig[] = [
                     {
                         gainResource: {[Resource.SCIENCE]: 1},
                         gainResourceTargetType: ResourceLocationType.THIS_CARD,
-                        text: '+1 science',
+                        text: '+1 science resource',
                     },
                     {
                         removeResource: {[Resource.SCIENCE]: 1},
                         removeResourceSourceType: ResourceLocationType.THIS_CARD,
                         gainResource: {[Resource.CARD]: 1},
-                        text: '-1 science, +1 card',
+                        text: '-1 science resource, +1 card',
                     },
                 ],
             },

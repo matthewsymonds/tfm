@@ -18,27 +18,26 @@ type GlobalParamsProps = {
 
 export default function GlobalParams(props: GlobalParamsProps) {
     const {parameters} = props;
+    const [red, green, blue] = colors;
 
     return (
         <Panel>
             <Box margin="8px">
                 <Box marginBottom="4px">
                     <GlobalParamName>Temperature</GlobalParamName>
-                    <GlobalParamValue color={colors[0]}>
+                    <GlobalParamValue color={red}>
                         {parameters[Parameter.TEMPERATURE]}
                     </GlobalParamValue>
                 </Box>
                 <Box marginBottom="4px">
                     <GlobalParamName>Oxygen</GlobalParamName>
-                    <GlobalParamValue color={colors[1]}>
+                    <GlobalParamValue color={green}>
                         {parameters[Parameter.OXYGEN]}
                     </GlobalParamValue>
                 </Box>
                 <Box marginBottom="4px">
                     <GlobalParamName>Ocean</GlobalParamName>
-                    <GlobalParamValue color={colors[2]}>
-                        {parameters[Parameter.OCEAN]}
-                    </GlobalParamValue>
+                    <GlobalParamValue color={blue}>{parameters[Parameter.OCEAN]}</GlobalParamValue>
                 </Box>
             </Box>
         </Panel>

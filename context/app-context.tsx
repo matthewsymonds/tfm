@@ -358,6 +358,18 @@ function doConversion(
     this.processQueue(dispatch);
 }
 
+function canPlayCardAction(
+    action: Action,
+    state: RootState,
+    parent?: Card
+): [boolean, string | undefined] {
+    if (!canAffordActionCost(action, state)) {
+        return [false, 'Cannot afford action cost'];
+    }
+
+    return this.canPlayAction(action, state, parent);
+}
+
 function canPlayAction(
     action: Action,
     state: RootState,
@@ -365,10 +377,6 @@ function canPlayAction(
 ): [boolean, string | undefined] {
     if (this.shouldDisableUI(state)) {
         return [false, ''];
-    }
-
-    if (!canAffordActionCost(action, state)) {
-        return [false, 'Cannot afford action cost'];
     }
 
     if (!doesPlayerHaveRequiredResourcesToRemove(action, state, parent)) {
@@ -1069,6 +1077,7 @@ export const appContext = {
     canPlayCard,
     playCard,
     canPlayAction,
+    canPlayCardAction,
     canDoConversion,
     doConversion,
     playAction,

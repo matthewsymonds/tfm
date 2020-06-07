@@ -113,7 +113,7 @@ export const getResourceName = (resource: Resource) => {
         case Resource.ANIMAL:
             return 'animal';
         case Resource.ASTEROID:
-            return 'asteroid';
+            return 'asteroid resource';
         case Resource.CAMP:
             return 'camp';
         case Resource.CARD:
@@ -121,7 +121,7 @@ export const getResourceName = (resource: Resource) => {
         case Resource.ENERGY:
             return 'energy';
         case Resource.FIGHTER:
-            return 'fighter';
+            return 'fighter resource';
         case Resource.FLOATER:
             return 'floater';
         case Resource.HEAT:
@@ -133,7 +133,7 @@ export const getResourceName = (resource: Resource) => {
         case Resource.PLANT:
             return 'plant';
         case Resource.SCIENCE:
-            return 'science';
+            return 'science resource';
         case Resource.STEEL:
             return 'steel';
         case Resource.TITANIUM:
