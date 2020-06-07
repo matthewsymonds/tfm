@@ -6,6 +6,7 @@ import {
     stealResource,
     stealStorableResource,
     decreaseProduction,
+    increaseProduction,
 } from 'actions';
 import {
     getResourceName,
@@ -28,7 +29,12 @@ import {Box, Flex} from './box';
 import {CardComponent} from './card';
 import {getAdjacentCellsForCell} from 'selectors/board';
 
-type ActionType = 'removeResource' | 'gainResource' | 'stealResource' | 'decreaseProduction';
+export type ResourceActionType =
+    | 'removeResource'
+    | 'gainResource'
+    | 'stealResource'
+    | 'increaseProduction'
+    | 'decreaseProduction';
 type ListItem = {
     title: string;
     options: Option[];
@@ -37,7 +43,7 @@ type ListItem = {
 type Props = {
     player: PlayerState;
     resourceActionDetails: {
-        actionType: ActionType;
+        actionType: ResourceActionType;
         resourceAndAmounts: ResourceAndAmount[];
         card: Card;
         locationType?: ResourceLocationType;
@@ -48,9 +54,12 @@ function getPlayersToConsider(
     player: PlayerState,
     players: PlayerState[],
     locationType: ResourceLocationType | undefined,
-    actionType: ActionType,
+    actionType: ResourceActionType,
     state: GameState
 ): PlayerState[] {
+    if (actionType === 'increaseProduction') {
+        return [player];
+    }
     if (actionType === 'stealResource') {
         return players;
     }
@@ -91,13 +100,13 @@ type Option = {
     quantity: number;
     resource: Resource;
     isVariable: boolean;
-    actionType: ActionType;
+    actionType: ResourceActionType;
     card?: Card;
     text: string;
 };
 
 function getOptions(
-    actionType: ActionType,
+    actionType: ResourceActionType,
     resourceAndAmount: ResourceAndAmount,
     card: Card,
     player: PlayerState,
@@ -116,9 +125,31 @@ function getOptions(
         );
     } else if (actionType === 'decreaseProduction') {
         return getOptionsForDecreaseProduction(resourceAndAmount, player);
+    } else if (actionType === 'increaseProduction') {
+        return getOptionsForIncreaseProduction(resourceAndAmount, player);
     } else {
         return getOptionsForRegularResource(actionType, resourceAndAmount, player);
     }
+}
+
+function getOptionsForIncreaseProduction(
+    productionAndAmount: ResourceAndAmount,
+    player: PlayerState
+): Option[] {
+    const {amount, resource} = productionAndAmount;
+    const quantity = amount as number;
+    const text = formatText(quantity, resource, 'increaseProduction');
+
+    return [
+        {
+            location: player,
+            quantity,
+            resource,
+            isVariable: false,
+            actionType: 'increaseProduction',
+            text,
+        },
+    ];
 }
 
 function getOptionsForDecreaseProduction(
@@ -151,7 +182,7 @@ function getOptionsForDecreaseProduction(
 }
 
 function getOptionsForStorableResource(
-    actionType: ActionType,
+    actionType: ResourceActionType,
     resourceAndAmount: ResourceAndAmount,
     originalCard: Card,
     player: PlayerState,
@@ -219,11 +250,11 @@ function getOptionsForStorableResource(
 function formatText(
     quantity: number,
     resource: Resource,
-    actionType: ActionType,
+    actionType: ResourceActionType,
     locationName?: string
 ) {
-    if (actionType === 'decreaseProduction') {
-        return formatDecreaseProductionText(quantity, resource);
+    if (actionType === 'decreaseProduction' || actionType === 'increaseProduction') {
+        return formatProductionText(actionType, quantity, resource);
     }
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
 
@@ -238,14 +269,19 @@ function formatText(
     return `${verb} ${amountAndResource(quantity, resource)} ${locationAppendix}`;
 }
 
-function formatDecreaseProductionText(quantity: number, resource: Resource) {
-    return `Decrease ${getResourceName(resource)} production ${quantity} step${
+function formatProductionText(
+    actionType: ResourceActionType,
+    quantity: number,
+    resource: Resource
+) {
+    const verb = actionType === 'decreaseProduction' ? 'Decrease' : 'Increase';
+    return `${verb} ${getResourceName(resource)} production ${quantity} step${
         quantity === 1 ? '' : 's'
     }`;
 }
 
 function getOptionsForRegularResource(
-    actionType: ActionType,
+    actionType: ResourceActionType,
     resourceAndAmount: ResourceAndAmount,
     player: PlayerState
 ): Option[] {
@@ -367,6 +403,7 @@ function AskUserToConfirmResourceActionDetails({
     const showSkip =
         actionType !== 'stealResource' &&
         actionType !== 'decreaseProduction' &&
+        actionType !== 'increaseProduction' &&
         (actionType === 'removeResource' ||
             resourceAndAmounts.every(resourceAndAmount =>
                 isStorableResource(resourceAndAmount.resource)
@@ -516,6 +553,8 @@ function getAction(option: Option, player: PlayerState, variableAmount: number) 
                 player.index,
                 (option.location as PlayerState).index
             );
+        case 'increaseProduction':
+            return increaseProduction(option.resource, quantity, player.index);
         default:
             throw spawnExhaustiveSwitchError(option.actionType);
     }

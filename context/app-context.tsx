@@ -858,6 +858,25 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
 
     this.playAction({action: card, state, parent: card});
+    const increaseProductionOptions = Object.keys(card.increaseProductionOption ?? {});
+
+    if (increaseProductionOptions.length > 0) {
+        const resourceAndAmounts = increaseProductionOptions.map(key => {
+            return {
+                resource: key as Resource,
+                amount: card.increaseProductionOption![key],
+            };
+        });
+        this.queue.push(
+            askUserToChooseResourceActionDetails({
+                actionType: 'increaseProduction',
+                resourceAndAmounts,
+                card,
+                playerIndex,
+            })
+        );
+    }
+
     if (card.type !== CardType.CORPORATION || card.forcedAction) {
         this.queue.push(completeAction(playerIndex));
     }

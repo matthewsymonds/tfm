@@ -37,6 +37,7 @@ export interface CardConfig extends Action {
     effects?: Effect[];
     // With corporations, ensures that we count the first forced action of the game.
     forcedAction?: boolean;
+    increaseProductionOption?: PropertyCounter<Resource>;
     deck: Deck;
     storedResourceType?: Resource;
     name: string;

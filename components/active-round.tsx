@@ -1,8 +1,6 @@
 import {
-    completeAction,
     discardCards,
     discardRevealedCards,
-    markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     setSelectedCards,
     skipAction,
@@ -10,10 +8,11 @@ import {
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Switcher} from 'components/switcher';
-import {Action, Amount} from 'constants/action';
+import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
+import {colors} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource, getResourceName} from 'constants/resource';
+import {getResourceName, Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card} from 'models/card';
@@ -24,7 +23,7 @@ import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
-import styled, {createGlobalStyle} from 'styled-components';
+import styled, {createGlobalStyle, css} from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import Awards from './board/awards';
 import {Board} from './board/board';
@@ -32,13 +31,11 @@ import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
 import {Button} from './button';
-import {CardComponent, CardText, CardActionElements} from './card';
+import {CardActionElements, CardComponent, CardText} from './card';
 import {CardSelector} from './card-selector';
-import GlobaclParams from './global-params';
+import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
-import GlobalParams from './global-params';
-import {colors} from 'constants/game';
 
 const Hand = styled.div`
     display: flex;
@@ -96,6 +93,17 @@ const SwitchColors = styled.div`
             background: #eee;
         }
     }
+`;
+
+const ActiveRoundOuter = styled.div`
+    width: calc(100% - 32px);
+    margin: 16px;
+    display: flex;
+`;
+
+const RightBox = styled.div`
+    width: 100%;
+    flex-grow: 1;
 `;
 
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
@@ -263,7 +271,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </Flex>
                 </ActionBarRow>
             </ActionBar>
-            <Flex width="calc(100% - 32px)" margin="16px">
+            <ActiveRoundOuter className="active-round-outer">
                 <Box width={'648px'}>
                     <Board
                         board={state.common.board}
@@ -309,8 +317,8 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </Panel>
                 </Box>
 
-                <Box marginLeft="16px" flexGrow="1">
-                    <Box>
+                <RightBox className="right-box">
+                    <Box width="100%">
                         <Switcher
                             defaultTabIndex={sortedPlayers.indexOf(player)}
                             tabs={sortedPlayers.map(player => (
@@ -425,28 +433,32 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
                                 return (
                                     <React.Fragment key={thisPlayer.index}>
-                                        <Panel>
-                                            <PlayerOverview
-                                                player={thisPlayer}
-                                                isLoggedInPlayer={playerIndex === thisPlayer.index}
-                                            />
-                                        </Panel>
-                                        <Panel>
-                                            <Switcher
-                                                color={colors[thisPlayer.index]}
-                                                tabs={['Hand', 'Played Cards']}
-                                                defaultTabIndex={getDefaultTabIndex(thisPlayer)}
-                                            >
-                                                {[cards, playedCards]}
-                                            </Switcher>
-                                        </Panel>
+                                        <Flex flexDirection="column" justifyContent="stretch">
+                                            <Panel>
+                                                <PlayerOverview
+                                                    player={thisPlayer}
+                                                    isLoggedInPlayer={
+                                                        playerIndex === thisPlayer.index
+                                                    }
+                                                />
+                                            </Panel>
+                                            <Panel>
+                                                <Switcher
+                                                    color={colors[thisPlayer.index]}
+                                                    tabs={['Hand', 'Played Cards']}
+                                                    defaultTabIndex={getDefaultTabIndex(thisPlayer)}
+                                                >
+                                                    {[cards, playedCards]}
+                                                </Switcher>
+                                            </Panel>
+                                        </Flex>
                                     </React.Fragment>
                                 );
                             })}
                         </Switcher>
                     </Box>
-                </Box>
-            </Flex>
+                </RightBox>
+            </ActiveRoundOuter>
             {playerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>

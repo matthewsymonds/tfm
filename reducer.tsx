@@ -70,7 +70,7 @@ import {StandardProjectType} from './constants/standard-project';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card, cards} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
-import {amountAndResource} from 'components/ask-user-to-confirm-resource-action-details';
+import {amountAndResource, ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForStandardProject} from 'components/board/standard-projects';
 import {getTextForMilestone} from 'components/board/milestones';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -136,7 +136,7 @@ export type PlayerState = {
     pendingTilePlacement?: TilePlacement;
     pendingResourceSource?: string | number; // either card name or player index
     pendingResourceActionDetails?: {
-        actionType: 'removeResource' | 'gainResource' | 'stealResource' | 'decreaseProduction';
+        actionType: ResourceActionType;
         resourceAndAmounts: Array<ResourceAndAmount>;
         card: Card;
         locationType?: ResourceLocationType;

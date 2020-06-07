@@ -66,6 +66,7 @@ export function Switcher({
                 {Children.toArray(children).map((child, childIndex) => {
                     return (
                         <Box
+                            width="100%"
                             key={childIndex}
                             display={childIndex === selectedTabIndex ? 'block' : 'none'}
                         >

@@ -8,6 +8,7 @@ import {StandardProjectAction} from './constants/standard-project';
 import {Card} from './models/card';
 import {RootState} from './reducer';
 import {ExchangeRates} from 'constants/card-types';
+import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -247,7 +248,7 @@ export const askUserToChooseResourceActionDetails = ({
     playerIndex,
     locationType,
 }: {
-    actionType: 'gainResource' | 'removeResource' | 'stealResource' | 'decreaseProduction';
+    actionType: ResourceActionType;
     resourceAndAmounts: Array<ResourceAndAmount>;
     card: Card;
     playerIndex: number;

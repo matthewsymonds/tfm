@@ -70,6 +70,18 @@ const GlobalStyles = createGlobalStyle`
       background: #cecece;
       margin: 0;
     }
+    .active-round-outer {
+      .right-box {
+        margin-left: 16px;
+      }
+        @media (max-width: 1210px) {
+          flex-direction: column-reverse;
+          align-items: center;
+          .right-box {
+            margin-left: 0px;
+          }
+      }
+    }
     button {
       display: flex;
       align-items: center;

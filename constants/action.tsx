@@ -33,7 +33,6 @@ export interface Action {
     stealResource?: ResourceCounter;
     stealResourceOption?: ResourceCounter;
     increaseProduction?: ResourceCounter;
-    increaseProductionOption?: ResourceCounter;
     decreaseProduction?: ResourceCounter;
     decreaseAnyProduction?: ResourceCounter;
     lookAtCards?: LookAtCardsConfig;
