@@ -1,20 +1,18 @@
-import {Amount, Action} from 'constants/action';
+import {completeAction, markCardActionAsPlayed} from 'actions';
+import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
-import {AppContext, getDiscountedCardCost} from 'context/app-context';
-import {Card} from 'models/card';
-import {MouseEvent, useContext, useState} from 'react';
-import {useStore, useDispatch} from 'react-redux';
-import {RootState, useTypedSelector, PlayerState} from 'reducer';
-import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-import styled from 'styled-components';
-import {TagsComponent} from './tags';
-import React from 'react';
-import PaymentPopover from './popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {markCardActionAsPlayed, completeAction} from 'actions';
-import {Box} from './box';
+import {AppContext, getDiscountedCardCost} from 'context/app-context';
+import {Card} from 'models/card';
+import React, {MouseEvent, useContext, useState} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState, useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
+import styled from 'styled-components';
+import {Box} from './box';
+import PaymentPopover from './popovers/payment-popover';
+import {TagsComponent} from './tags';
 
 export const CardText = styled.div`
     margin: 10px;

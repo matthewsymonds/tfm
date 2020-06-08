@@ -1,4 +1,4 @@
-import {Amount} from './constants/action';
+import {Amount, Action} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {GameStage} from './constants/game';
@@ -250,6 +250,25 @@ export const askUserToChooseResourceActionDetails = ({
 }) => ({
     type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     payload: {actionType, resourceAndAmounts, card, playerIndex, locationType},
+});
+
+export const ASK_USER_TO_MAKE_ACTION_CHOICE = 'ASK_USER_TO_MAKE_ACTION_CHOICE';
+
+export const askUserToMakeActionChoice = (choice: Action[], card: Card, playerIndex: number) => ({
+    type: ASK_USER_TO_MAKE_ACTION_CHOICE,
+    payload: {
+        choice,
+        card,
+        playerIndex,
+    },
+});
+
+export const MAKE_ACTION_CHOICE = 'MAKE_ACTION_CHOICE';
+export const makeActionChoice = (playerIndex: number) => ({
+    type: MAKE_ACTION_CHOICE,
+    payload: {
+        playerIndex,
+    },
 });
 
 export const ASK_USER_TO_LOOK_AT_CARDS = 'ASK_USER_TO_LOOK_AT_CARDS';

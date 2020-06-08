@@ -28,6 +28,7 @@ import spawnExhaustiveSwitchError from 'utils';
 import {Box, Flex} from './box';
 import {CardComponent} from './card';
 import {getAdjacentCellsForCell} from 'selectors/board';
+import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
 
 export type ResourceActionType =
     | 'removeResource'
@@ -410,39 +411,31 @@ function AskUserToConfirmResourceActionDetails({
             ));
 
     return (
-        <Flex width="100%" justifyContent="space-around" maxWidth="800px">
-            <Box marginRight="32px">
-                <h3>You played</h3>
-                <CardComponent width={250} content={card} />
-            </Box>
-
-            <OptionsParent>
-                <h3>Please confirm your choice:</h3>
-                {listItems.map(listItem => {
-                    const warning =
-                        !listItem.options.some(option => option.isVariable) &&
-                        listItem.player === player &&
-                        actionType === 'removeResource';
-                    return (
-                        <PlayerOption warning={warning} key={listItem.player.username}>
-                            <h4>{listItem.title}</h4>
-                            {warning ? <Red>Warning: This is you!</Red> : null}
-                            <OptionsParent>
-                                {listItem.options.map(childItem => {
-                                    return (
-                                        <OptionComponent
-                                            {...childItem}
-                                            key={childItem.text}
-                                        ></OptionComponent>
-                                    );
-                                })}
-                            </OptionsParent>
-                        </PlayerOption>
-                    );
-                })}
-                {showSkip && <button onClick={handleSkip}>Skip</button>}
-            </OptionsParent>
-        </Flex>
+        <AskUserToMakeChoice card={card}>
+            {listItems.map(listItem => {
+                const warning =
+                    !listItem.options.some(option => option.isVariable) &&
+                    listItem.player === player &&
+                    actionType === 'removeResource';
+                return (
+                    <PlayerOption warning={warning} key={listItem.player.username}>
+                        <h4>{listItem.title}</h4>
+                        {warning ? <Red>Warning: This is you!</Red> : null}
+                        <OptionsParent>
+                            {listItem.options.map(childItem => {
+                                return (
+                                    <OptionComponent
+                                        {...childItem}
+                                        key={childItem.text}
+                                    ></OptionComponent>
+                                );
+                            })}
+                        </OptionsParent>
+                    </PlayerOption>
+                );
+            })}
+            {showSkip && <button onClick={handleSkip}>Skip</button>}
+        </AskUserToMakeChoice>
     );
 }
 
@@ -559,14 +552,6 @@ function getAction(option: Option, player: PlayerState, variableAmount: number) 
             throw spawnExhaustiveSwitchError(option.actionType);
     }
 }
-
-const OptionsParent = styled.ul`
-    padding-left: 2px;
-    margin-top: 0px;
-    li {
-        list-style-type: none;
-    }
-`;
 
 const OptionsComponentBase = styled.li`
     margin: 8px;

@@ -36,6 +36,7 @@ import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
+import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 
 const Hand = styled.div`
     display: flex;
@@ -242,6 +243,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         state.common.revealedCards.length > 0 ||
         player.possibleCards.length > 0 ||
         player.pendingResourceActionDetails ||
+        player.pendingChoice ||
         player.pendingDiscard;
 
     useEffect(() => {
@@ -462,6 +464,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             {playerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
+                        {player.pendingChoice && <AskUserToMakeActionChoice player={player} />}
                         {player.pendingDiscard && (
                             <>
                                 <div>

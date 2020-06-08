@@ -27,6 +27,7 @@ import {
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
+    askUserToMakeActionChoice,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -695,6 +696,10 @@ function playAction({
                 ],
             })
         );
+    }
+
+    if (action.choice) {
+        items.push(askUserToMakeActionChoice(action.choice, parent!, playerIndex));
     }
 
     if (action.tilePlacements) {

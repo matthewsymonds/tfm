@@ -49,8 +49,10 @@ import {
     SKIP_ACTION,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
+    MAKE_ACTION_CHOICE,
 } from './actions';
-import {Amount} from './constants/action';
+import {Amount, Action} from './constants/action';
 import {
     Award,
     Board,
@@ -167,9 +169,15 @@ export type PlayerState = {
     };
     discounts: Discounts;
     plantDiscount?: number;
+    pendingChoice?: PendingChoice;
 
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
+};
+
+type PendingChoice = {
+    choice: Action[];
+    card: Card;
 };
 
 function getParameterForTile(tile: Tile): Parameter | undefined {
@@ -656,6 +664,13 @@ export const reducer = (state: GameState | null = null, action) => {
 
                 break;
             }
+            case ASK_USER_TO_MAKE_ACTION_CHOICE:
+                const {choice, card} = payload;
+                player.pendingChoice = {choice, card};
+                break;
+            case MAKE_ACTION_CHOICE:
+                player.pendingChoice = undefined;
+                break;
             case PLACE_TILE:
                 player.pendingTilePlacement = undefined;
                 if (payload.tile?.type !== TileType.OCEAN) {
