@@ -16,12 +16,6 @@ export const setCorporation = (corporation: Card, playerIndex: number) => ({
     payload: {corporation, playerIndex},
 });
 
-export const GO_TO_GAME_STAGE = 'GO_TO_GAME_STAGE';
-export const goToGameStage = (stage: GameStage) => ({
-    type: GO_TO_GAME_STAGE,
-    payload: stage,
-});
-
 export const REVEAL_AND_DISCARD_TOP_CARDS = 'REVEAL_AND_DISCARD_TOP_CARDS';
 export const revealAndDiscardTopCards = (amount: Amount) => ({
     type: REVEAL_AND_DISCARD_TOP_CARDS,

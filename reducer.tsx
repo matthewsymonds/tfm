@@ -30,7 +30,6 @@ import {
     GAIN_RESOURCE,
     GAIN_SELECTED_CARDS,
     GAIN_STORABLE_RESOURCE,
-    GO_TO_GAME_STAGE,
     INCREASE_PARAMETER,
     INCREASE_PRODUCTION,
     MARK_CARD_ACTION_AS_PLAYED,
@@ -208,11 +207,11 @@ function handleProduction(draft: RootState) {
     }
 }
 
-function greeneryPlacementTriggered(draft: RootState) {
+function isGameEndTriggered(draft: RootState) {
     for (const parameter in draft.common.parameters) {
         if (parameter === Parameter.VENUS) continue;
 
-        if (MAX_PARAMETERS[parameter] !== draft.common.parameters[parameter]) {
+        if (MAX_PARAMETERS[parameter] > draft.common.parameters[parameter]) {
             return false;
         }
     }
@@ -722,9 +721,6 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             }
-            case GO_TO_GAME_STAGE:
-                draft.common.gameStage = action.payload;
-                break;
             case MARK_CARD_ACTION_AS_PLAYED:
                 const playedCard = player.playedCards.find(
                     card => card.name === payload.card.name
@@ -756,6 +752,7 @@ export const reducer = (state: GameState | null = null, action) => {
 
                     player.action = 0;
                     player.terraformedThisGeneration = false;
+                    player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
 
                     common.playingPlayers = common.playingPlayers.filter(
                         index => index !== common.currentPlayerIndex
@@ -766,10 +763,10 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.gameStage = GameStage.END_OF_GAME;
                             return;
                         }
-                        player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
+
                         handleProduction(draft);
-                        const greeneryPlacement = greeneryPlacementTriggered(draft);
-                        if (greeneryPlacement) {
+
+                        if (isGameEndTriggered(draft)) {
                             common.playingPlayers = draft.players
                                 .filter(
                                     p =>

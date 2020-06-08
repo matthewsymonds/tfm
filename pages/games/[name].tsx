@@ -17,13 +17,8 @@ import Head from 'next/head';
 
 function GameComponent() {
     const {loading, session} = useSession();
-
-    const [players, setPlayers] = useState<string[]>([]);
     const [playerIndex, setPlayerIndex] = useState<number>(-1);
-    const [queueRetrievedFromBackend, setQueueRetrievedFromBackend] = useState(false);
-
     const router = useRouter();
-
     const context = useContext(AppContext);
     context.setLoggedInPlayerIndex(playerIndex);
 
@@ -43,8 +38,6 @@ function GameComponent() {
             router.push('/new-game');
             return;
         }
-        setPlayers(result.players);
-        setQueueRetrievedFromBackend(result.queue.length > 0);
         context.queue = result.queue;
         setPlayerIndex(result.players.indexOf(session.username));
         result.state.log = result.state.log || [];
@@ -58,33 +51,13 @@ function GameComponent() {
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
-            return (
-                <CorporationSelection
-                    playerIndex={playerIndex}
-                    queueRetrievedFromBackend={queueRetrievedFromBackend}
-                />
-            );
+            return <CorporationSelection playerIndex={playerIndex} />;
         case GameStage.ACTIVE_ROUND:
-            return (
-                <ActiveRound
-                    playerIndex={playerIndex}
-                    queueRetrievedFromBackend={queueRetrievedFromBackend}
-                />
-            );
+            return <ActiveRound playerIndex={playerIndex} />;
         case GameStage.BUY_OR_DISCARD:
-            return (
-                <BuyOrDiscard
-                    playerIndex={playerIndex}
-                    queueRetrievedFromBackend={queueRetrievedFromBackend}
-                />
-            );
+            return <BuyOrDiscard playerIndex={playerIndex} />;
         case GameStage.GREENERY_PLACEMENT:
-            return (
-                <GreeneryPlacement
-                    playerIndex={playerIndex}
-                    queueRetrievedFromBackend={queueRetrievedFromBackend}
-                />
-            );
+            return <GreeneryPlacement playerIndex={playerIndex} />;
         case GameStage.END_OF_GAME:
             return <EndOfGame />;
         default:
