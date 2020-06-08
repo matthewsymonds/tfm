@@ -774,7 +774,8 @@ export const reducer = (state: GameState | null = null, action) => {
                                 .filter(
                                     p =>
                                         p.resources[Resource.PLANT] >=
-                                        CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT]
+                                        CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT] -
+                                            (p.plantDiscount || 0)
                                 )
                                 .map(player => player.index);
                             if (common.playingPlayers.length > 0) {
