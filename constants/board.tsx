@@ -294,8 +294,8 @@ const INITIAL_BOARD_STATE: Cell[][] = [
 ];
 
 INITIAL_BOARD_STATE.push([
-    offMars([], SpecialLocation.PHOBOS, 'Phobos Space Haven'),
-    offMars([], SpecialLocation.GANYMEDE, 'Ganymede Colony'),
+    offMars([], SpecialLocation.PHOBOS, 'Phobos'),
+    offMars([], SpecialLocation.GANYMEDE, 'Ganymede'),
 ]);
 
 INITIAL_BOARD_STATE.forEach((row, rowIndex) => {
