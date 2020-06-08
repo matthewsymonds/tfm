@@ -2472,11 +2472,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.EARTH, Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 1,
-        // condition: condition => condition.tag === Tag.SCIENCE,
-        // effect: effect =>
-        //     effect.addOrRemoveOneResource(Resource.SCIENCE, () => {
-        //         effect.drawCard();
-        //     })
     },
     {
         cost: 6,
@@ -2486,9 +2481,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        // canBePlayed: requirement =>
-        //     requirement.tiles.filter(tile => tile.type === TileType.CITY).length > 2,
-        // requirementFailedMessage: 'There must be two cities in play',
+        requiredTilePlacements: [{type: TileType.CITY}, {type: TileType.CITY}],
         increaseProduction: {[Resource.MEGACREDIT]: 1},
     },
     {
@@ -4600,8 +4593,6 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 1 titanium production and 42 MC.',
         tags: [Tag.JOVIAN],
         type: CardType.CORPORATION,
-        // condition: condition => condition.tag === Tag.JOVIAN,
-        // effect: effect => effect.increaseProduction(Resource.MEGACREDIT, 1),
         increaseProduction: {[Resource.TITANIUM]: 1},
         gainResource: {[Resource.MEGACREDIT]: 42},
     },

@@ -107,7 +107,7 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                             const card = corporation!;
                             dispatch(moveCardFromHandToPlayArea(card, playerIndex));
                             context.playCard(card, state);
-                            context.triggerEffectsFromPlayedCard(0, card.tags, store.getState());
+                            context.triggerEffectsFromPlayedCard(card, store.getState());
                             dispatch(
                                 discardCards(
                                     possibleCards.filter(card => !cards.includes(card)),

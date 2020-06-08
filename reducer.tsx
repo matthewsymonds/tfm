@@ -143,10 +143,14 @@ export type PlayerState = {
         actionType: ResourceActionType;
         resourceAndAmounts: Array<ResourceAndAmount>;
         card: Card;
+        playedCard?: Card; // The card that was played and triggered the decision.
         locationType?: ResourceLocationType;
     };
     // e.g. Sell patents
-    pendingDiscard?: Amount;
+    pendingDiscard?: {
+        amount: Amount;
+        card?: Card;
+    };
     // e.g. Insulation
     pendingProductionDecrease?: Resource;
 
@@ -178,6 +182,7 @@ export type PlayerState = {
 type PendingChoice = {
     choice: Action[];
     card: Card;
+    playedCard?: Card;
 };
 
 function getParameterForTile(tile: Tile): Parameter | undefined {
@@ -239,7 +244,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Nuclear Zone';
+const bonusName = 'Mars University';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -343,7 +348,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.common.revealedCards = [];
                 break;
             case ASK_USER_TO_DISCARD_CARDS:
-                player.pendingDiscard = payload.amount;
+                player.pendingDiscard = {
+                    amount: payload.amount,
+                    card: payload.card,
+                };
                 break;
             case ASK_USER_TO_LOOK_AT_CARDS:
                 player.possibleCards = handleDrawCards(payload.amount);
@@ -587,7 +595,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
 
                 if (details.length > 0) {
-                    logMessage += `(With ${details.join(', ')})`;
+                    logMessage += ` (with ${details.join(', ')})`;
                 }
                 draft.log.push(logMessage);
                 break;
@@ -654,19 +662,20 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {
-                const {actionType, resourceAndAmounts, card, locationType} = payload;
+                const {actionType, resourceAndAmounts, card, playedCard, locationType} = payload;
                 player.pendingResourceActionDetails = {
                     actionType,
                     resourceAndAmounts,
                     card,
+                    playedCard,
                     locationType,
                 };
 
                 break;
             }
             case ASK_USER_TO_MAKE_ACTION_CHOICE:
-                const {choice, card} = payload;
-                player.pendingChoice = {choice, card};
+                const {choice, card, playedCard} = payload;
+                player.pendingChoice = {choice, card, playedCard};
                 break;
             case MAKE_ACTION_CHOICE:
                 player.pendingChoice = undefined;
@@ -736,13 +745,14 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             }
-            case MARK_CARD_ACTION_AS_PLAYED:
+            case MARK_CARD_ACTION_AS_PLAYED: {
                 const playedCard = player.playedCards.find(
                     card => card.name === payload.card.name
                 )!;
                 playedCard.usedActionThisRound = true;
                 draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
                 break;
+            }
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
                 if (draft.players.every(player => player.action === 1)) {

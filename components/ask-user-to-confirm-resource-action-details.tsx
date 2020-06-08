@@ -47,6 +47,7 @@ type Props = {
         actionType: ResourceActionType;
         resourceAndAmounts: ResourceAndAmount[];
         card: Card;
+        playedCard?: Card;
         locationType?: ResourceLocationType;
     };
 };
@@ -325,7 +326,7 @@ export function amountAndResource(quantity: number, resource: Resource) {
 
 function AskUserToConfirmResourceActionDetails({
     player,
-    resourceActionDetails: {actionType, resourceAndAmounts, card, locationType},
+    resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard, locationType},
 }: Props) {
     const store = useStore();
     const state = store.getState();
@@ -411,7 +412,7 @@ function AskUserToConfirmResourceActionDetails({
             ));
 
     return (
-        <AskUserToMakeChoice card={card}>
+        <AskUserToMakeChoice card={card} playedCard={playedCard}>
             {listItems.map(listItem => {
                 const warning =
                     !listItem.options.some(option => option.isVariable) &&

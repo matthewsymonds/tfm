@@ -28,6 +28,7 @@ import {
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
     askUserToMakeActionChoice,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -379,6 +380,10 @@ function canPlayAction(
         return [false, ''];
     }
 
+    return this.canPlayActionInSpiteOfUI(action, state, parent);
+}
+
+function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Card) {
     if (!doesPlayerHaveRequiredResourcesToRemove(action, state, parent)) {
         return [false, 'Not enough of required resource'];
     }
@@ -408,6 +413,7 @@ function createInitialRemoveResourceAction(
     amount: Amount,
     playerIndex: number,
     parent?: Card,
+    playedCard?: Card,
     locationType?: ResourceLocationType
 ) {
     const requiresLocationChoice =
@@ -417,7 +423,7 @@ function createInitialRemoveResourceAction(
     const requiresDiscard = resource === Resource.CARD;
 
     if (requiresDiscard) {
-        return askUserToDiscardCards(playerIndex, amount);
+        return askUserToDiscardCards(playerIndex, amount, parent);
     }
 
     if (requiresAmountChoice || requiresLocationChoice) {
@@ -425,6 +431,7 @@ function createInitialRemoveResourceAction(
             actionType: 'removeResource',
             resourceAndAmounts: [{resource, amount}],
             card: parent!,
+            playedCard,
             locationType,
             playerIndex,
         });
@@ -464,6 +471,7 @@ function createInitialGainResourceAction(
     amount: Amount,
     playerIndex: number,
     parent?: Card,
+    playedCard?: Card,
     locationType?: ResourceLocationType
 ) {
     const requiresLocationChoice =
@@ -475,6 +483,7 @@ function createInitialGainResourceAction(
             actionType: 'gainResource',
             resourceAndAmounts: [{resource, amount}],
             card: parent!,
+            playedCard,
             locationType,
             playerIndex,
         });
@@ -491,6 +500,7 @@ function createGainResourceOptionAction(
     options: PropertyCounter<Resource>,
     playerIndex: number,
     parent?: Card,
+    playedCard?: Card,
     locationType?: ResourceLocationType
 ) {
     // HACK: all instances of `gainResourceOption` use a number amount, so we don't account for variable amounts here
@@ -502,6 +512,7 @@ function createGainResourceOptionAction(
         actionType: 'gainResource',
         resourceAndAmounts,
         card: parent!,
+        playedCard,
         locationType,
         playerIndex,
     });
@@ -548,13 +559,15 @@ function triggerEffectsFromStandardProject(cost: number, state: RootState) {
     );
 }
 
-function triggerEffectsFromPlayedCard(cost: number, tags: Tag[], state: RootState) {
+function triggerEffectsFromPlayedCard(card: Card, state: RootState) {
+    const {cost, tags} = card;
     this.triggerEffects(
         {
-            cost,
+            cost: cost || 0,
             tags,
         },
-        state
+        state,
+        card
     );
 }
 
@@ -568,7 +581,7 @@ interface Event {
 
 type ActionCardPair = [Action, Card];
 
-function triggerEffects(event: Event, state: RootState) {
+function triggerEffects(event: Event, state: RootState, playedCard?: Card) {
     const player = getLoggedInPlayer(state);
     // track the card that triggered the action so we can "add resources to this card"
     // e.g. Ecological Zone
@@ -590,7 +603,13 @@ function triggerEffects(event: Event, state: RootState) {
             }
         }
         for (const [action, card] of actionCardPairs) {
-            this.playAction({action, state, parent: card, thisPlayerIndex: thisPlayer.index});
+            this.playAction({
+                action,
+                state,
+                parent: card,
+                playedCard,
+                thisPlayerIndex: thisPlayer.index,
+            });
         }
     }
 }
@@ -646,14 +665,18 @@ function playAction({
     action,
     state,
     parent,
+    playedCard,
     thisPlayerIndex,
     payment,
+    withPriority,
 }: {
     action: Action;
     state: RootState;
-    parent?: Card;
+    parent?: Card; // origin of action
+    playedCard?: Card; // card that triggered action
     thisPlayerIndex?: number;
     payment?: PropertyCounter<Resource>;
+    withPriority?: boolean;
 }) {
     const playerIndex = thisPlayerIndex ?? getLoggedInPlayerIndex();
     const items: Array<{type: string}> = [];
@@ -699,7 +722,7 @@ function playAction({
     }
 
     if (action.choice) {
-        items.push(askUserToMakeActionChoice(action.choice, parent!, playerIndex));
+        items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
     }
 
     if (action.tilePlacements) {
@@ -716,6 +739,7 @@ function playAction({
                 action.removeResource[resource],
                 playerIndex,
                 parent,
+                playedCard,
                 action.removeResourceSourceType
             )
         );
@@ -786,6 +810,7 @@ function playAction({
                 action.gainResource[resource],
                 playerIndex,
                 parent,
+                playedCard,
                 action.gainResourceTargetType
             )
         );
@@ -797,6 +822,7 @@ function playAction({
                 action.gainResourceOption!,
                 playerIndex,
                 parent,
+                playedCard,
                 action.gainResourceTargetType
             )
         );
@@ -815,8 +841,11 @@ function playAction({
     if (action.plantDiscount) {
         items.push(setPlantDiscount(action.plantDiscount, playerIndex));
     }
-
-    this.queue.push(...items);
+    if (withPriority) {
+        this.queue.unshift(...items);
+    } else {
+        this.queue.push(...items);
+    }
 }
 
 function filterOceanPlacementsOverMax(
@@ -1085,6 +1114,7 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_LOOK_AT_CARDS,
     REVEAL_AND_DISCARD_TOP_CARDS,
     ASK_USER_TO_DISCARD_CARDS,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
 ];
 
 function shouldPause(action: {type: string}): boolean {
@@ -1110,6 +1140,7 @@ export const appContext = {
     canPlayCard,
     playCard,
     canPlayAction,
+    canPlayActionInSpiteOfUI,
     canPlayCardAction,
     canDoConversion,
     doConversion,

@@ -149,6 +149,7 @@ export const ResourceBoard = styled.div`
 type PlayerResourceBoardProps = {
     player: PlayerState;
     isLoggedInPlayer: boolean;
+    plantConversionOnly?: boolean;
 };
 
 export function getConversionAmount(player: PlayerState, conversion: Conversion) {
@@ -163,7 +164,11 @@ export function getConversionAmount(player: PlayerState, conversion: Conversion)
     return Infinity;
 }
 
-export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBoardProps) => {
+export const PlayerResourceBoard = ({
+    player,
+    isLoggedInPlayer,
+    plantConversionOnly,
+}: PlayerResourceBoardProps) => {
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
@@ -199,7 +204,8 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                 player,
                                 resource,
                                 getConversionAmount(player, conversion)
-                            ) ? (
+                            ) &&
+                            (!plantConversionOnly || resource === Resource.PLANT) ? (
                                 <>
                                     <ConversionLink
                                         onClick={() =>

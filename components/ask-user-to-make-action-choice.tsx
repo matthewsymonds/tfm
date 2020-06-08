@@ -7,13 +7,13 @@ import React from 'react';
 import {makeActionChoice} from 'actions';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
-    const {card, choice} = player.pendingChoice!;
+    const {card, playedCard, choice} = player.pendingChoice!;
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
     const dispatch = useDispatch();
     const choiceButtons = choice.map((action, index) => {
-        const [canPlay, reason] = context.canPlayAction(action, state, card);
+        const [canPlay, reason] = context.canPlayActionInSpiteOfUI(action, state, card);
         return (
             <React.Fragment key={index}>
                 <button
@@ -24,8 +24,9 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
                             action,
                             state,
                             parent: card,
+                            withPriority: true,
                         });
-                        context.queue.push(makeActionChoice(player.index));
+                        context.queue.unshift(makeActionChoice(player.index));
                         context.processQueue(dispatch);
                     }}
                 >
@@ -35,5 +36,9 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
             </React.Fragment>
         );
     });
-    return <AskUserToMakeChoice card={card}>{choiceButtons}</AskUserToMakeChoice>;
+    return (
+        <AskUserToMakeChoice card={card} playedCard={playedCard}>
+            {choiceButtons}
+        </AskUserToMakeChoice>
+    );
 }

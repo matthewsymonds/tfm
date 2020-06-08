@@ -66,7 +66,11 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                             Done placing greeneries
                         </button>
                     </TurnContext>
-                    <PlayerResourceBoard player={player} isLoggedInPlayer={true} />
+                    <PlayerResourceBoard
+                        plantConversionOnly
+                        player={player}
+                        isLoggedInPlayer={true}
+                    />
                 </ActionBarRow>
                 {waitingMessage ? <ActionBarRow>{waitingMessage}</ActionBarRow> : null}
             </ActionBar>

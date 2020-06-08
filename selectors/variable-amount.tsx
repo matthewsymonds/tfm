@@ -40,8 +40,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState) => {
         const player = getLoggedInPlayer(state);
-        return player.cards.filter(card => card.type !== CardType.EVENT && card.tags.length === 0)
-            .length;
+        return player.playedCards.filter(
+            card => card.type !== CardType.EVENT && card.tags.length === 0
+        ).length;
     },
     [VariableAmount.CITIES_ON_MARS]: (state: RootState) => {
         return getCellsWithCitiesOnMars(state).length;
@@ -145,9 +146,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: RootState) => {
         const player = getLoggedInPlayer(state);
-        const numPlantTags = player.cards
-            .flatMap(card => card.tags)
-            .filter(tag => tag === Tag.PLANT).length;
+        const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT).length;
 
         if (numPlantTags >= 3) {
             return 4;

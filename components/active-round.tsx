@@ -15,7 +15,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {getResourceName, Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
-import {Card} from 'models/card';
+import {Card, cards} from 'models/card';
 import {useRouter} from 'next/router';
 import {useSyncState} from 'pages/sync-state';
 import React, {MouseEvent, useContext, useEffect, useState} from 'react';
@@ -37,6 +37,7 @@ import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
+import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
 
 const Hand = styled.div`
     display: flex;
@@ -71,22 +72,6 @@ const ActionBarButton = styled.button`
     padding-top: 6px;
     padding-bottom: 6px;
 `;
-
-function getCardDiscardAmountHumanName(amount: Amount) {
-    if (amount === VariableAmount.USER_CHOICE) {
-        return 'at least one';
-    }
-
-    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
-        return 'any number of';
-    }
-
-    if (amount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
-        return '1 or 0';
-    }
-
-    return amount;
-}
 
 const SwitchColors = styled.div`
     > * {
@@ -123,20 +108,21 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
 
     let maxCardsToDiscard: number;
+    const discardAmount = player?.pendingDiscard?.amount;
 
-    if (player.pendingDiscard === VariableAmount.USER_CHOICE) {
-        maxCardsToDiscard = player.cards.length;
-    } else if (player.pendingDiscard === VariableAmount.USER_CHOICE_UP_TO_ONE) {
+    if (discardAmount === VariableAmount.USER_CHOICE) {
+        maxCardsToDiscard = cards.length;
+    } else if (discardAmount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
         maxCardsToDiscard = 1;
     } else {
-        maxCardsToDiscard = player.pendingDiscard as number;
+        maxCardsToDiscard = discardAmount as number;
     }
 
     let minCardsToDiscard = 0;
-    if (typeof player.pendingDiscard === 'number') {
-        minCardsToDiscard = player.pendingDiscard;
+    if (typeof discardAmount === 'number') {
+        minCardsToDiscard = discardAmount;
     }
-    if (player.pendingDiscard === VariableAmount.USER_CHOICE) {
+    if (discardAmount === VariableAmount.USER_CHOICE) {
         // Can't cycle a turn with sell patents by selling 0 cards!
         minCardsToDiscard = 1;
     }
@@ -164,8 +150,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         // Have to trigger effects from the card we just played.
         // Must be processed separatedly in case the card affects itself.
         context.triggerEffectsFromPlayedCard(
-            card.cost || 0,
-            card.tags,
+            card,
             // refreshed state so that the card we just played is present.
             store.getState()
         );
@@ -466,19 +451,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     <ActionBarRow>
                         {player.pendingChoice && <AskUserToMakeActionChoice player={player} />}
                         {player.pendingDiscard && (
-                            <>
-                                <div>
-                                    Please select{' '}
-                                    {getCardDiscardAmountHumanName(player.pendingDiscard)} card
-                                    {player.pendingDiscard === 1 ? '' : 's'} to discard.
-                                </div>
-                                <Button
-                                    disabled={cardsToDiscard.length < minCardsToDiscard}
-                                    onClick={confirmDiscardSelection}
-                                >
-                                    Confirm discard selection
-                                </Button>
-                            </>
+                            <AskUserToConfirmDiscardSelection
+                                minCardsToDiscard={minCardsToDiscard}
+                                maxCardsToDiscard={maxCardsToDiscard}
+                                cardsToDiscard={cardsToDiscard}
+                                confirmDiscardSelection={confirmDiscardSelection}
+                                player={player}
+                            />
                         )}
                         {player.possibleCards.length > 0 && (
                             <Flex flexDirection="column">

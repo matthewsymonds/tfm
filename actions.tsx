@@ -228,9 +228,9 @@ export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: nu
 };
 
 export const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
-export const askUserToDiscardCards = (playerIndex: number, amount: Amount) => ({
+export const askUserToDiscardCards = (playerIndex: number, amount: Amount, card?: Card) => ({
     type: ASK_USER_TO_DISCARD_CARDS,
-    payload: {playerIndex, amount},
+    payload: {playerIndex, amount, card},
 });
 
 export const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS =
@@ -239,26 +239,34 @@ export const askUserToChooseResourceActionDetails = ({
     actionType,
     resourceAndAmounts,
     card,
+    playedCard,
     playerIndex,
     locationType,
 }: {
     actionType: ResourceActionType;
     resourceAndAmounts: Array<ResourceAndAmount>;
     card: Card;
+    playedCard?: Card;
     playerIndex: number;
     locationType?: ResourceLocationType;
 }) => ({
     type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
-    payload: {actionType, resourceAndAmounts, card, playerIndex, locationType},
+    payload: {actionType, resourceAndAmounts, card, playedCard, playerIndex, locationType},
 });
 
 export const ASK_USER_TO_MAKE_ACTION_CHOICE = 'ASK_USER_TO_MAKE_ACTION_CHOICE';
 
-export const askUserToMakeActionChoice = (choice: Action[], card: Card, playerIndex: number) => ({
+export const askUserToMakeActionChoice = (
+    choice: Action[],
+    card: Card,
+    playedCard: Card,
+    playerIndex: number
+) => ({
     type: ASK_USER_TO_MAKE_ACTION_CHOICE,
     payload: {
         choice,
         card,
+        playedCard,
         playerIndex,
     },
 });
