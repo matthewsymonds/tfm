@@ -1,6 +1,7 @@
 import {
     addParameterRequirementAdjustments,
     applyDiscounts,
+    applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToLookAtCards,
@@ -26,7 +27,6 @@ import {
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
-    applyExchangeRateChanges,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -60,8 +60,7 @@ import {createContext} from 'react';
 import {PlayerState, RootState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
-import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-import {PlayerResourceBoard} from 'components/resource';
+import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 
 function canAffordCard(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
@@ -935,6 +934,46 @@ function playStandardProject(
     this.queue.push(completeAction(playerIndex));
 }
 
+function getPlayerCities(player: PlayerState, state: RootState) {
+    return state.common.board.flat().filter(cell => {
+        return cellHelpers.containsCity(cell) && cellHelpers.isOwnedBy(cell, player.index);
+    }).length;
+}
+
+function getPlayerGreeneries(player: PlayerState, state: RootState) {
+    return state.common.board.flat().filter(cell => {
+        return cellHelpers.containsGreenery(cell) && cellHelpers.isOwnedBy(cell, player.index);
+    }).length;
+}
+
+function getPlayerBuildingTags(player: PlayerState) {
+    return getTags(player).filter(tag => tag === Tag.BUILDING).length;
+}
+
+function getPlayerCards(player: PlayerState) {
+    return player.cards.length;
+}
+
+function getPlayerTerraformRating(player: PlayerState) {
+    return player.terraformRating;
+}
+
+export const milestoneQuantitySelectors = {
+    [Milestone.MAYOR]: getPlayerCities,
+    [Milestone.GARDENER]: getPlayerGreeneries,
+    [Milestone.BUILDER]: getPlayerBuildingTags,
+    [Milestone.PLANNER]: getPlayerCards,
+    [Milestone.TERRAFORMER]: getPlayerTerraformRating,
+};
+
+export const minMilestoneQuantity = {
+    [Milestone.MAYOR]: 3,
+    [Milestone.GARDENER]: 3,
+    [Milestone.BUILDER]: 8,
+    [Milestone.PLANNER]: 16,
+    [Milestone.TERRAFORMER]: 35,
+};
+
 function canClaimMilestone(milestone: Milestone, state: RootState) {
     const player = getLoggedInPlayer(state);
 
@@ -946,6 +985,7 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
     if (state.common.claimedMilestones.length === 3) {
         return false;
     }
+
     if (state.common.claimedMilestones.find(claim => claim.milestone === milestone)) {
         return false;
     }
@@ -960,38 +1000,7 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
         return false;
     }
 
-    // Do they meet the requirements?
-    switch (milestone) {
-        case Milestone.MAYOR:
-            return (
-                state.common.board.flat().filter(cell => {
-                    return (
-                        cellHelpers.containsCity(cell) && cellHelpers.isOwnedBy(cell, player.index)
-                    );
-                }).length >= 3
-            );
-        case Milestone.GARDENER:
-            return (
-                state.common.board.flat().filter(cell => {
-                    return (
-                        cellHelpers.containsGreenery(cell) &&
-                        cellHelpers.isOwnedBy(cell, player.index)
-                    );
-                }).length >= 3
-            );
-        case Milestone.BUILDER:
-            return (
-                state.players[player.index].playedCards.reduce((totalNumBuildingTags, card) => {
-                    return totalNumBuildingTags + card.tags.filter(t => t === Tag.BUILDING).length;
-                }, 0) >= 8
-            );
-        case Milestone.PLANNER:
-            return state.players[player.index].cards.length >= 15;
-        case Milestone.TERRAFORMER:
-            return state.players[player.index].terraformRating >= 35;
-        default:
-            throw new Error('Unrecognized milestone');
-    }
+    return milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone];
 }
 
 function claimMilestone(

@@ -1,12 +1,24 @@
-import React, {useContext, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {Box} from 'components/box';
+import PaymentPopover from 'components/popovers/payment-popover';
 import {Milestone} from 'constants/board';
-import {AppContext} from 'context/app-context';
-import {useTypedSelector} from 'reducer';
-import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import PaymentPopover from 'components/popovers/payment-popover';
+import {AppContext, milestoneQuantitySelectors, minMilestoneQuantity} from 'context/app-context';
+import React, {useContext, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {useTypedSelector} from 'reducer';
+import {SharedActionRow, SharedActionsContainer} from './shared-actions';
+
+export function getTextForMilestoneWithQuantity(milestone: Milestone) {
+    const text = getTextForMilestone(milestone);
+
+    return [
+        <em>{text}</em>,
+        <Box display="inline-block" marginLeft="4px">
+            ({minMilestoneQuantity[milestone]})
+        </Box>,
+    ];
+}
 
 export function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {
@@ -59,20 +71,51 @@ function Milestones() {
     return (
         <SharedActionsContainer>
             {Object.values(Milestone).map(milestone => {
-                const hasBeenClaimed = !!state.common.claimedMilestones.find(
+                const claimedMilestone = state.common.claimedMilestones.find(
                     m => m.milestone === milestone
                 );
-                const text = getTextForMilestone(milestone);
+                const text = getTextForMilestoneWithQuantity(milestone);
                 return (
                     <React.Fragment key={milestone}>
-                        <SharedActionRow
-                            id={milestone}
-                            selectable={context.canClaimMilestone(milestone, state)}
-                            onClick={() => handleFundMilestone(milestone)}
-                        >
-                            <span>{hasBeenClaimed ? <s>{text}</s> : text}</span>
-                            <span>8</span>
-                        </SharedActionRow>
+                        <div>
+                            <SharedActionRow
+                                id={milestone}
+                                selectable={context.canClaimMilestone(milestone, state)}
+                                onClick={() => handleFundMilestone(milestone)}
+                            >
+                                <span>{claimedMilestone ? <s>{text}</s> : text}</span>
+                                <span>8€</span>
+                            </SharedActionRow>
+                            <Box marginLeft="10px">
+                                {state.players.map(player => {
+                                    const amount = milestoneQuantitySelectors[milestone](
+                                        player,
+                                        state
+                                    );
+                                    if (!amount) return null;
+                                    return (
+                                        <Box key={player.index} textAlign="left" marginBottom="6px">
+                                            <em>{player.corporation?.name}:</em>
+                                            <Box display="inline-block" marginLeft="6px">
+                                                {amount}
+                                            </Box>
+                                        </Box>
+                                    );
+                                })}
+                                {claimedMilestone && (
+                                    <Box>
+                                        <em>
+                                            Claimed by{' '}
+                                            {
+                                                state.players[claimedMilestone.claimedByPlayerIndex]
+                                                    .corporation?.name
+                                            }
+                                        </em>
+                                    </Box>
+                                )}
+                            </Box>
+                        </div>
+
                         {milestonePendingPayment && (
                             <PaymentPopover
                                 isOpen={!!milestonePendingPayment}

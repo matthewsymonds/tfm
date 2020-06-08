@@ -1,12 +1,14 @@
-import React, {useState, useContext} from 'react';
-import {useDispatch} from 'react-redux';
-import {Award} from 'constants/board';
-import {AppContext} from 'context/app-context';
-import {GameState, useTypedSelector} from 'reducer';
-import {SharedActionRow, SharedActionsContainer} from './shared-actions';
-import {Resource} from 'constants/resource';
+import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
+import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import {AppContext} from 'context/app-context';
+import React, {useContext, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {GameState, useTypedSelector} from 'reducer';
+import {awardToQuantity} from 'selectors/score';
+import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 export function getTextForAward(award: Award) {
     switch (award) {
@@ -69,19 +71,46 @@ function Awards() {
     return (
         <SharedActionsContainer>
             {Object.values(Award).map(award => {
-                const hasBeenFunded = !!state.common.fundedAwards.find(a => a.award === award);
+                const fundedAward = state.common.fundedAwards.find(a => a.award === award);
                 const text = getTextForAward(award);
                 const price = getPriceForAward(award, state);
                 return (
                     <React.Fragment key={award}>
-                        <SharedActionRow
-                            id={award}
-                            selectable={context.canFundAward(award, state)}
-                            onClick={() => handleFundAward(award)}
-                        >
-                            <span>{hasBeenFunded ? <s>{text}</s> : text}</span>
-                            <span>{price}</span>
-                        </SharedActionRow>
+                        <div>
+                            <SharedActionRow
+                                id={award}
+                                selectable={context.canFundAward(award, state)}
+                                onClick={() => handleFundAward(award)}
+                            >
+                                <em>{fundedAward ? <s>{text}</s> : text}</em>
+                                <span>{price}€</span>
+                            </SharedActionRow>
+                            <Box marginLeft="10px">
+                                {state.players.map(player => {
+                                    const amount = awardToQuantity[award](player, state);
+                                    if (!amount) return null;
+                                    return (
+                                        <Box key={player.index} textAlign="left" marginBottom="6px">
+                                            <em>{player.corporation?.name}:</em>
+                                            <Box display="inline-block" marginLeft="6px">
+                                                {amount}
+                                            </Box>
+                                        </Box>
+                                    );
+                                })}
+                                {fundedAward && (
+                                    <Box>
+                                        <em>
+                                            Funded by{' '}
+                                            {
+                                                state.players[fundedAward.fundedByPlayerIndex]
+                                                    .corporation?.name
+                                            }
+                                        </em>
+                                    </Box>
+                                )}
+                            </Box>
+                        </div>
                         {awardPendingPayment && (
                             <PaymentPopover
                                 isOpen={!!awardPendingPayment}

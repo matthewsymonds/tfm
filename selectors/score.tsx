@@ -1,14 +1,14 @@
+import {Award, TileType} from 'constants/board';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {GameState, PlayerState, RootState} from 'reducer';
 import {
-    getGreeneriesForPlayer,
-    getCellsWithCitiesOnMars,
     getAdjacentCellsForCell,
     getAllCellsOwnedByCurrentPlayer,
+    getCellsWithCitiesOnMars,
+    getGreeneriesForPlayer,
 } from 'selectors/board';
-import {RootState, GameState, PlayerState} from 'reducer';
-import {TileType, Award} from 'constants/board';
-import {Resource} from 'constants/resource';
-import {CardType} from 'constants/card-types';
-import {Tag} from 'constants/tag';
+import {getTags} from './variable-amount';
 
 export function getGreeneryScore(state: RootState, playerIndex: number) {
     return getGreeneriesForPlayer(state, playerIndex).length;
@@ -34,55 +34,47 @@ export function getMilestoneScore(state: GameState, playerIndex: number) {
     );
 }
 
+export function getPlayerMegacreditProduction(player: PlayerState) {
+    return player.productions[Resource.MEGACREDIT];
+}
+
+export function getPlayerHeat(player: PlayerState) {
+    return player.resources[Resource.HEAT];
+}
+
+export function getPlayerScienceTags(player: PlayerState) {
+    return getTags(player).filter(tag => tag === Tag.SCIENCE).length;
+}
+
+export function getPlayerSteelAndTitanium(player: PlayerState) {
+    return player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM];
+}
+
+export const awardToQuantity = {
+    [Award.BANKER]: getPlayerMegacreditProduction,
+    [Award.THERMALIST]: getPlayerHeat,
+    [Award.SCIENTIST]: getPlayerScienceTags,
+    [Award.LANDLORD]: (player: PlayerState, state: GameState) =>
+        getAllCellsOwnedByCurrentPlayer(state).length,
+    [Award.MINER]: getPlayerSteelAndTitanium,
+};
+
 export function getAwardScore(state: GameState, playerIndex: number) {
     let awardScoreTotal = 0;
     state.common.fundedAwards.forEach(fundedAward => {
-        let mappingFn: (
+        const getQuantity = awardToQuantity[fundedAward.award];
+
+        const mappingFn: (
             player: PlayerState
-        ) => {playerIndex: number; quantity: number; score: number};
-        switch (fundedAward.award) {
-            case Award.BANKER:
-                mappingFn = player => ({
-                    playerIndex: player.index,
-                    quantity: player.productions[Resource.MEGACREDIT],
-                    score: 0,
-                });
-                break;
-            case Award.THERMALIST:
-                mappingFn = player => ({
-                    playerIndex: player.index,
-                    quantity: player.resources[Resource.HEAT],
-                    score: 0,
-                });
-                break;
-            case Award.SCIENTIST:
-                mappingFn = player => ({
-                    playerIndex: player.index,
-                    quantity: player.playedCards
-                        .filter(card => card.type !== CardType.EVENT)
-                        .map(card => card.tags)
-                        .flat()
-                        .filter(tag => tag === Tag.SCIENCE).length,
-                    score: 0,
-                });
-                break;
-            case Award.LANDLORD:
-                mappingFn = player => ({
-                    playerIndex: player.index,
-                    quantity: getAllCellsOwnedByCurrentPlayer(state).length,
-                    score: 0,
-                });
-                break;
-            case Award.MINER:
-                mappingFn = player => ({
-                    playerIndex: player.index,
-                    quantity:
-                        player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM],
-                    score: 0,
-                });
-                break;
-        }
-        const awardScores = state.players.map(mappingFn).sort((a, b) => a.quantity - b.quantity);
+        ) => {playerIndex: number; quantity: number; score: number} = player => ({
+            playerIndex: player.index,
+            quantity: getQuantity(player, state),
+            score: 0,
+        });
+
+        const awardScores = state.players
+            .map(player => mappingFn(player))
+            .sort((a, b) => a.quantity - b.quantity);
 
         // assign points
         let currentQuantity = awardScores[0].quantity;

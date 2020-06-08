@@ -17,7 +17,7 @@ type VariableAmountSelectors = {
     [k in VariableAmount]?: (state: RootState, card?: Card) => number;
 };
 
-function getTags(player: PlayerState): Tag[] {
+export function getTags(player: PlayerState): Tag[] {
     return getNonEventCards(player).flatMap(card => card.tags);
 }
 

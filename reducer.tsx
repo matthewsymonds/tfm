@@ -1,5 +1,14 @@
+import {
+    amountAndResource,
+    ResourceActionType,
+} from 'components/ask-user-to-confirm-resource-action-details';
+import {getTextForAward} from 'components/board/awards';
+import {getTextForMilestone} from 'components/board/milestones';
+import {getTextForStandardProject} from 'components/board/standard-projects';
 import produce from 'immer';
+import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
+import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
     ANNOUNCE_READY_TO_START_ROUND,
@@ -47,12 +56,12 @@ import {
     Award,
     Board,
     Cell,
+    getParameterName,
     Milestone,
     Parameter,
     Tile,
     TilePlacement,
     TileType,
-    getParameterName,
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -60,22 +69,16 @@ import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {PropertyCounter} from './constants/property-counter';
 import {
+    getResourceName,
     isStorableResource,
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
-    getResourceName,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
-import {Card, cards} from './models/card';
+import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
-import {amountAndResource, ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
-import {getTextForStandardProject} from 'components/board/standard-projects';
-import {getTextForMilestone} from 'components/board/milestones';
-import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
-import {shuffle} from 'initial-state';
-import {getTextForAward} from 'components/board/awards';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;

@@ -1,10 +1,9 @@
-import {PlayerState} from 'reducer';
-import {PlayerResourceBoard} from './resource';
-import {CardComponent, CardActionElements} from './card';
-import {Box, Flex} from './box';
-import {useStore} from 'react-redux';
-import {useState} from 'react';
 import {ScorePopover} from 'components/popovers/score-popover';
+import {useState} from 'react';
+import {PlayerState} from 'reducer';
+import {Flex} from './box';
+import {CardActionElements, CardComponent} from './card';
+import {PlayerResourceBoard} from './resource';
 
 type PlayerOverviewProps = {
     player: PlayerState;
@@ -29,6 +28,7 @@ export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) 
                     toggle={() => setIsScorePopoverOpen(!isScorePopoverOpen)}
                 />
             </h2>
+            <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
             <Flex justifyContent="center">
                 <CardComponent content={corporation}>
                     <CardActionElements

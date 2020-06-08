@@ -54,7 +54,7 @@ export default function NewGame() {
 
         const result = await makePostCall('/api/games', {
             name: gameName,
-            players,
+            players: players.slice(0, numPlayers),
         });
         if (result.error) {
             setError(result.error);
