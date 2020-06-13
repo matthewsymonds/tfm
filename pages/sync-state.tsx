@@ -3,7 +3,7 @@ import {useRouter} from 'next/router';
 import {useEffect, useRef, useContext} from 'react';
 import {useStore, useDispatch} from 'react-redux';
 import {RootState} from 'reducer';
-import {serializeState} from 'state-serialization';
+import {serializeState, deserializeState} from 'state-serialization';
 import {AppContext} from 'context/app-context';
 import {setGame} from 'actions';
 
@@ -25,7 +25,7 @@ async function syncState(newState: RootState, queue: Object[], router, dispatch)
         router.push('/new-game');
     } else if (result.state) {
         if (JSON.stringify(result.state) !== JSON.stringify(serializedState)) {
-            dispatch(setGame(result.state));
+            dispatch(setGame(deserializeState(result.state)));
         }
     }
 }
