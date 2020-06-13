@@ -1,4 +1,6 @@
 import {gamesModel, retrieveSession} from 'database';
+import {RootState} from 'reducer';
+import {produce} from 'immer';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -27,7 +29,7 @@ export default async (req, res) => {
             });
             return;
         case 'POST':
-            game.state = req.body.state || game.state;
+            game.state = mergeExistingGameStateWithNew(req.body.state, game.state, sessionResult);
             game.users = req.body.users || game.users;
             game.queue = req.body.queue;
             await game.save();
@@ -42,3 +44,34 @@ export default async (req, res) => {
             res.json({error: 'Misformatted request!!'});
     }
 };
+/* Assists with situation like card selection where multiple players are syncing state. */
+function mergeExistingGameStateWithNew(
+    newState: RootState | undefined,
+    oldState: RootState,
+    session: {username: string}
+) {
+    if (!newState) return oldState;
+
+    return produce(newState, draft => {
+        for (const player of draft.players) {
+            if (player.username === session.username) {
+                // Player can modify their own state.
+                continue;
+            }
+
+            const oldStatePlayer = oldState.players.find(
+                oldPlayer => oldPlayer.index === player.index
+            );
+
+            // For safety, if for some reason the player doesn't exist, continue.
+            if (!oldStatePlayer) continue;
+
+            // Don't modify an opponent's cards in hand.
+            player.cards = oldStatePlayer.cards;
+            // Don't modify an opponent's corporation.
+            player.corporation = oldStatePlayer.corporation;
+            // Don't modify an opponent's card selections.
+            player.selectedCards = oldStatePlayer.selectedCards;
+        }
+    });
+}

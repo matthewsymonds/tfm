@@ -18,6 +18,7 @@ import {Card} from 'models/card';
 import {useSyncState} from 'pages/sync-state';
 import {RootState, useTypedSelector} from 'reducer';
 import {ActionBar, ActionBarRow} from './action-bar';
+import {CardComponent} from './card';
 
 const MarginalButton = styled.button`
     margin-top: 10px;
@@ -143,15 +144,19 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                         <div>{prompt}</div>
                         <button onClick={() => handleStartOver()}>Start over</button>
                     </Prompt>
-                    <CardSelector
-                        max={1}
-                        selectedCards={corporation ? [corporation] : []}
-                        onSelect={([corporation]) =>
-                            dispatch(setCorporation(corporation, playerIndex))
-                        }
-                        options={possibleCorporations || []}
-                        orientation="horizontal"
-                    />
+                    {player.action !== 1 ? (
+                        <CardSelector
+                            max={1}
+                            selectedCards={corporation ? [corporation] : []}
+                            onSelect={([corporation]) =>
+                                dispatch(setCorporation(corporation, playerIndex))
+                            }
+                            options={possibleCorporations || []}
+                            orientation="horizontal"
+                        />
+                    ) : (
+                        <CardComponent content={corporation!} />
+                    )}
                 </ActionBarRow>
                 <ActionBarRow>
                     <ul>

@@ -93,6 +93,22 @@ export type Resources = {
 const cardsPlural = num => (num === 1 ? 'card' : 'cards');
 const stepsPlural = num => (num === 1 ? 'step' : 'steps');
 
+function handleEnterActiveRound(state: RootState) {
+    if (
+        state.gameStage !== GameStage.ACTIVE_ROUND &&
+        state.players.every(player => player.action === 1)
+    ) {
+        // Everyone's ready!
+        const cards = state.players.flatMap(player => player.playedCards);
+        for (const card of cards) {
+            card.usedActionThisRound = false;
+        }
+
+        state.common.gameStage = GameStage.ACTIVE_ROUND;
+        state.log.push(`Turn ${state.common.turn}`);
+    }
+}
+
 type PlayerId = number;
 
 export type CommonState = {
@@ -248,7 +264,9 @@ const bonusName = 'Ecological Zone';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
-        return action.payload.gameState;
+        const state = action.payload.gameState;
+        handleEnterActiveRound(state);
+        return state;
     }
     // We want to initially set the state async, from the server.
     // Until SET_GAME is called, every other action is a noop.
@@ -755,16 +773,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
-                if (draft.players.every(player => player.action === 1)) {
-                    // Everyone's ready!
-                    const cards = draft.players.flatMap(player => player.playedCards);
-                    for (const card of cards) {
-                        card.usedActionThisRound = false;
-                    }
-
-                    draft.common.gameStage = GameStage.ACTIVE_ROUND;
-                    draft.log.push(`Turn ${draft.common.turn}`);
-                }
+                handleEnterActiveRound(draft);
                 break;
             }
             case SKIP_ACTION: {
