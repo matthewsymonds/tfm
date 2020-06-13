@@ -906,6 +906,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Land Claim',
         text: 'Place your marker on a non-reserved area. Only you may place a tile here',
         tags: [Tag.EVENT],
+        tilePlacements: [t(TileType.LAND_CLAIM, PlacementRequirement.NON_RESERVED)],
         type: CardType.EVENT,
     },
     {

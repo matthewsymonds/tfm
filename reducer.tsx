@@ -262,7 +262,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Ecological Zone';
+const bonusName = 'Land Claim';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -712,6 +712,10 @@ export const reducer = (state: GameState | null = null, action) => {
                     );
                 });
                 matchingCell!.tile = payload.tile;
+                if (payload.tile.type === TileType.LAND_CLAIM) {
+                    draft.log.push(`${corporationName} reserved an area.`);
+                    return;
+                }
                 draft.log.push(
                     `${corporationName} placed the ${getHumanReadableTileName(
                         payload.tile.type

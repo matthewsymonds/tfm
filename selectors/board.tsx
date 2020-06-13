@@ -65,7 +65,11 @@ export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
 
 function isAvailable(state: RootState, cell: Cell) {
     if (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) return false;
-    return !cell.tile || cell.landClaimedBy === getLoggedInPlayerIndex();
+    return (
+        !cell.tile ||
+        (cell.tile.type === TileType.LAND_CLAIM &&
+            cell.tile.ownerPlayerIndex === getLoggedInPlayerIndex())
+    );
 }
 
 function isOwnedByCurrentPlayer(state: RootState, cell: Cell) {
@@ -127,12 +131,7 @@ export function getValidPlacementsForRequirement(
     tilePlacement: TilePlacement | undefined
 ) {
     if (!tilePlacement) return [];
-    const candidates = getPossibleValidPlacementsForRequirement(
-        state,
-        tilePlacement?.placementRequirement
-    );
-    // Check the candidate is empty!
-    return candidates.filter(cell => !cell.tile);
+    return getPossibleValidPlacementsForRequirement(state, tilePlacement.placementRequirement);
 }
 
 export function getPossibleValidPlacementsForRequirement(

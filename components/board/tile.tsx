@@ -71,13 +71,31 @@ const SquareContainer = styled.div`
     z-index: 4;
 `;
 
-export const Tile = (props: TileProps) => (
-    <Hexagon overlap={true} color={getColor(props.type)}>
-        {props.ownerPlayerIndex !== undefined ? (
-            <SquareContainer>
-                <Square playerIndex={props.ownerPlayerIndex} />
-            </SquareContainer>
-        ) : null}
-        <Icon>{getIcon(props.type)}</Icon>
-    </Hexagon>
-);
+const NoTileSquareContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    top: 6px;
+`;
+
+export const Tile = (props: TileProps) => {
+    if (props.type === TileType.LAND_CLAIM) {
+        return (
+            <NoTileSquareContainer>
+                <Square playerIndex={props.ownerPlayerIndex!} />
+            </NoTileSquareContainer>
+        );
+    }
+    return (
+        <Hexagon overlap={true} color={getColor(props.type)}>
+            {props.ownerPlayerIndex !== undefined ? (
+                <SquareContainer>
+                    <Square playerIndex={props.ownerPlayerIndex} />
+                </SquareContainer>
+            ) : null}
+            <Icon>{getIcon(props.type)}</Icon>
+        </Hexagon>
+    );
+};

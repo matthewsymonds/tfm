@@ -38,6 +38,7 @@ import {Square} from './square';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
 import {Switcher} from 'components/switcher';
+import {TileType} from 'constants/board';
 
 const Hand = styled.div`
     display: flex;
@@ -483,12 +484,16 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 </button>
                             </Flex>
                         )}
-                        {player.pendingTilePlacement && (
-                            <h3>
-                                Place the{' '}
-                                {getHumanReadableTileName(player.pendingTilePlacement.type)} tile.
-                            </h3>
-                        )}
+                        {player.pendingTilePlacement &&
+                            (player.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
+                                <h3>Claim an unreserved area.</h3>
+                            ) : (
+                                <h3>
+                                    Place the{' '}
+                                    {getHumanReadableTileName(player.pendingTilePlacement.type)}{' '}
+                                    tile.
+                                </h3>
+                            ))}
                         {player.pendingResourceActionDetails && (
                             <AskUserToConfirmResourceActionDetails
                                 player={player}
