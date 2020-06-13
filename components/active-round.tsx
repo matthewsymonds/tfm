@@ -7,7 +7,6 @@ import {
 } from 'actions';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import PaymentPopover from 'components/popovers/payment-popover';
-import {Switcher} from 'components/switcher';
 import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {colors} from 'constants/game';
@@ -38,6 +37,7 @@ import {PlayerOverview} from './player-overview';
 import {Square} from './square';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
+import {Switcher} from 'components/switcher';
 
 const Hand = styled.div`
     display: flex;
