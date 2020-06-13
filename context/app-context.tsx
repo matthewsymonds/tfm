@@ -40,6 +40,7 @@ import {
     Parameter,
     TilePlacement,
     TileType,
+    PlacementRequirement,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
@@ -357,9 +358,19 @@ function canDoConversion(
     conversion: Conversion | undefined,
     player: PlayerState,
     resource: Resource,
-    quantity: number
+    quantity: number,
+    state: RootState
 ) {
     if (!conversion) return false;
+    if (resource === Resource.PLANT) {
+        // Ensure a valid placement for the greenery.
+        const validGreeneryPlacements = getValidPlacementsForRequirement(state, {
+            type: TileType.GREENERY,
+            placementRequirement: PlacementRequirement.GREENERY,
+            isRequired: true,
+        });
+        if (validGreeneryPlacements.length === 0) return false;
+    }
     return player.resources[resource] >= quantity;
 }
 

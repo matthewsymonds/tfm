@@ -39,7 +39,8 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
         conversion,
         player,
         Resource.PLANT,
-        conversionQuantity
+        conversionQuantity,
+        state
     );
 
     useSyncState();

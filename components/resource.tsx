@@ -203,7 +203,8 @@ export const PlayerResourceBoard = ({
                                 conversion,
                                 player,
                                 resource,
-                                getConversionAmount(player, conversion)
+                                getConversionAmount(player, conversion),
+                                state
                             ) &&
                             (!plantConversionOnly || resource === Resource.PLANT) ? (
                                 <>
