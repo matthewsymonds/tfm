@@ -99,9 +99,11 @@ function handleEnterActiveRound(state: RootState) {
         state.players.every(player => player.action === 1)
     ) {
         // Everyone's ready!
-        const cards = state.players.flatMap(player => player.playedCards);
-        for (const card of cards) {
-            card.usedActionThisRound = false;
+        for (const player of state.players) {
+            player.possibleCards = [];
+            for (const cards of player.playedCards) {
+                cards.usedActionThisRound = false;
+            }
         }
 
         state.common.gameStage = GameStage.ACTIVE_ROUND;

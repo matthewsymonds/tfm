@@ -1,6 +1,7 @@
 import {gamesModel, retrieveSession} from 'database';
 import {RootState} from 'reducer';
 import {produce} from 'immer';
+import {GameStage} from 'constants/game';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -72,6 +73,16 @@ function mergeExistingGameStateWithNew(
             player.corporation = oldStatePlayer.corporation;
             // Don't modify an opponent's card selections.
             player.selectedCards = oldStatePlayer.selectedCards;
+
+            // If a player is "Ready" don't override their readiness to play.
+            player.action = oldStatePlayer.action;
+            player.turn = oldStatePlayer.turn;
+
+            if (oldState.common.gameStage !== GameStage.ACTIVE_ROUND) {
+                player.resources = oldStatePlayer.resources;
+                player.productions = oldStatePlayer.productions;
+                player.playedCards = oldStatePlayer.playedCards;
+            }
         }
     });
 }
