@@ -949,7 +949,8 @@ function isActiveRound(state: RootState): boolean {
 function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
     const player = getLoggedInPlayer(state);
 
-    if (this.shouldDisableUI(state)) {
+    const [canPlay] = this.canPlayAction(standardProjectAction, state);
+    if (!canPlay) {
         return false;
     }
 

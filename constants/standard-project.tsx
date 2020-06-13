@@ -76,7 +76,7 @@ export const standardProjectActions: StandardProjectAction[] = [
             {
                 type: TileType.GREENERY,
                 placementRequirement: PlacementRequirement.GREENERY,
-                isRequired: false,
+                isRequired: true,
             },
         ],
     },
@@ -89,7 +89,7 @@ export const standardProjectActions: StandardProjectAction[] = [
             {
                 type: TileType.CITY,
                 placementRequirement: PlacementRequirement.CITY,
-                isRequired: false,
+                isRequired: true,
             },
         ],
     },

@@ -127,7 +127,7 @@ const DEFAULT_PLACEMENT_REQUIREMENTS = {
 export const t = (
     type: TileType,
     placementRequirement: PlacementRequirement = DEFAULT_PLACEMENT_REQUIREMENTS[type],
-    isRequired: boolean = false
+    isRequired: boolean = true
 ): TilePlacement => ({
     type,
     placementRequirement,
