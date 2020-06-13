@@ -6,6 +6,7 @@ import {
     Deck,
     RequiredGlobalParameter,
     ExchangeRates,
+    RequiredTilePlacement,
 } from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
@@ -28,6 +29,7 @@ export class Card {
     actionType: ActionType;
     action?: Action;
     effects: Effect[] = [];
+    requiredTilePlacements: RequiredTilePlacement[] = [];
 
     // ====================================================
     // Requirements
@@ -185,6 +187,10 @@ export class Card {
         }
         if (config.effects) {
             this.effects.push(...config.effects);
+        }
+
+        if (config.requiredTilePlacements) {
+            this.requiredTilePlacements.push(...config.requiredTilePlacements);
         }
 
         this.action = config.action;

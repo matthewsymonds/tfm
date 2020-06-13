@@ -7,7 +7,7 @@ import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
 import {Discounts, CardDiscounts, TagDiscounts} from './discounts';
 
-export type RequiredTilePlacements = {
+export type RequiredTilePlacement = {
     type: TileType;
     currentPlayer?: boolean;
 };
@@ -47,7 +47,7 @@ export interface CardConfig extends Action {
     requiredGlobalParameter?: RequiredGlobalParameter;
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
-    requiredTilePlacements?: RequiredTilePlacements[];
+    requiredTilePlacements?: RequiredTilePlacement[];
     requiredResources?: PropertyCounter<Resource>;
     minColonies?: number;
     maxColonies?: number; // only for colonies expansion

@@ -77,7 +77,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Oxygen must be 6% or less. 3 VPs if you have one or more science resource here.',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        victoryPoints: VariableAmount.THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES,
+        victoryPoints: VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES,
     },
     {
         action: {

@@ -140,6 +140,29 @@ function canPlayWithGlobalParameters(card: Card, state: RootState) {
     return value >= adjustedMin && value <= adjustedMax;
 }
 
+function canPlayWithTilePlacements(card: Card, state: RootState, player: PlayerState) {
+    let tiles = state.common.board
+        .flat()
+        .filter(cell => cell.tile)
+        .map(cell => cell.tile);
+
+    for (const placement of card.requiredTilePlacements) {
+        const match = tiles.find(tile => {
+            if (placement.currentPlayer && tile.ownerPlayerIndex !== player.index) {
+                return false;
+            }
+
+            return tile.type === placement.type;
+        });
+
+        if (!match) return false;
+
+        tiles = tiles.filter(tile => tile !== match);
+    }
+
+    return true;
+}
+
 function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
 
@@ -315,6 +338,10 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
 
     if (!canPlayWithGlobalParameters(card, state)) {
         return [false, 'Global parameters not met'];
+    }
+
+    if (!canPlayWithTilePlacements(card, state, player)) {
+        return [false, 'Tile placements not met'];
     }
 
     const {requiredProduction} = card;

@@ -244,7 +244,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Mars University';
+const bonusName = 'Ecological Zone';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {

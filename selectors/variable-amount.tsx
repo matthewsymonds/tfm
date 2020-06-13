@@ -134,10 +134,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
         return Math.floor(card?.storedResourceAmount! / 4);
     },
-    [VariableAmount.THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES]: (
-        state: RootState,
-        card?: Card
-    ) => {
+    [VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES]: (state: RootState, card?: Card) => {
         if ((card?.storedResourceAmount || 0) > 0) {
             return 3;
         }

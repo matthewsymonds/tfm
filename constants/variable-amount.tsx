@@ -32,7 +32,7 @@ export enum VariableAmount {
     MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS = 'miningRightsCellHasTitaniumBonus',
     TRIPLE_BASED_ON_USER_CHOICE = 'tripleBasedOnUserChoice',
     HALF_BUILDING_TAGS = 'halfBuildingTags',
-    THREE_IF_SEARCH_FOR_LIFE_HAS_ONE_OR_MORE_RESOURCES = 'threeIfSearchForLifeHasOneOrMoreResources',
+    THREE_IF_ONE_OR_MORE_RESOURCES = 'threeIfOneOrMoreResources',
     FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE = 'fourIfThreePlantTagsElseOne',
     THIRD_ALL_CITIES = 'thirdAllCities',
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
