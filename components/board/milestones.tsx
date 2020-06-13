@@ -12,12 +12,14 @@ import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 export function getTextForMilestoneWithQuantity(milestone: Milestone) {
     const text = getTextForMilestone(milestone);
 
-    return [
-        <em key={text}>{text}</em>,
-        <Box display="inline-block" key={text + '-quantity'} marginLeft="4px">
-            ({minMilestoneQuantity[milestone]})
-        </Box>,
-    ];
+    return (
+        <React.Fragment>
+            <em>{text}</em>
+            <Box display="inline-block" marginLeft="4px">
+                ({minMilestoneQuantity[milestone]})
+            </Box>
+        </React.Fragment>
+    );
 }
 
 export function getTextForMilestone(milestone: Milestone) {

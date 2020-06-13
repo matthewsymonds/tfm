@@ -1,32 +1,54 @@
 import {ScorePopover} from 'components/popovers/score-popover';
-import {useState} from 'react';
 import {PlayerState} from 'reducer';
 import {Flex} from './box';
+import {Pane} from 'evergreen-ui';
 import {CardActionElements, CardComponent} from './card';
 import {PlayerResourceBoard} from './resource';
+import styled from 'styled-components';
 
 type PlayerOverviewProps = {
     player: PlayerState;
     isLoggedInPlayer: boolean;
 };
 
+const TextButton = styled.button`
+    display: inline-flex;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    line-height: initial;
+    background: none;
+    font-size: inherit;
+    font-weight: 600;
+    min-width: unset;
+    color: blue;
+    &:hover {
+        opacity: 0.75;
+        color: blue;
+        border: none;
+        background: none;
+    }
+    &:active {
+        opacity: 1;
+    }
+`;
+
 export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) => {
     const corporation = player.corporation!;
     const terraformRating = player.terraformRating;
 
-    const [isScorePopoverOpen, setIsScorePopoverOpen] = useState(false);
     return (
         <>
-            <h2 id={player.username} onClick={() => setIsScorePopoverOpen(!isScorePopoverOpen)}>
+            <h2>
                 <span>
-                    {player.corporation?.name} ({terraformRating})
+                    {player.corporation?.name} (
+                    <ScorePopover playerIndex={player.index}>
+                        <Pane display="inline-flex">
+                            <TextButton>{terraformRating} TR</TextButton>
+                        </Pane>
+                    </ScorePopover>
+                    )
                 </span>
-                <ScorePopover
-                    isOpen={isScorePopoverOpen}
-                    target={player.username}
-                    playerIndex={player.index}
-                    toggle={() => setIsScorePopoverOpen(!isScorePopoverOpen)}
-                />
             </h2>
             <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
             <Flex justifyContent="center">
