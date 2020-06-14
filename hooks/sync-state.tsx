@@ -1,13 +1,14 @@
 import {makePostCall} from 'api-calls';
 import {useRouter} from 'next/router';
-import {useEffect, useRef, useContext} from 'react';
+import {useEffect, useRef, useContext, useState} from 'react';
 import {useStore, useDispatch} from 'react-redux';
 import {RootState} from 'reducer';
 import {serializeState, deserializeState} from 'state-serialization';
 import {AppContext} from 'context/app-context';
 import {setGame} from 'actions';
 
-async function syncState(newState: RootState, queue: Object[], router, dispatch) {
+async function syncState(newState: RootState | null, queue: Object[], router, dispatch) {
+    if (!newState) return;
     const {origin} = window.location;
     const urlParts = window.location.href.split('/');
     const gameName = urlParts[urlParts.length - 1];
@@ -38,6 +39,8 @@ function usePrevious(value) {
     return ref.current;
 }
 
+export let isSyncing: boolean = false;
+
 export function useSyncState() {
     const store = useStore();
     const state = store.getState();
@@ -48,11 +51,18 @@ export function useSyncState() {
     const {queue} = context;
     const dispatch = useDispatch();
 
+    async function trackSyncState() {
+        isSyncing = true;
+        await syncState(state, queue, router, dispatch);
+        isSyncing = false;
+    }
+
     useEffect(() => {
-        if (state !== previousState) {
+        if (JSON.stringify(state) !== JSON.stringify(previousState) && !state.set) {
             // Update the state on the server.
-            syncState(state, queue, router, dispatch);
+            trackSyncState();
         }
     }, [state]);
+
+    return isSyncing;
 }
-syncState;

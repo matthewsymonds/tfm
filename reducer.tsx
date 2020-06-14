@@ -137,6 +137,8 @@ export type CommonState = {
 };
 
 export type GameState = {
+    // if true, this game state is from server.
+    set?: boolean;
     pendingVariableAmount?: number;
     players: Array<PlayerState>;
     common: CommonState;
@@ -267,13 +269,14 @@ export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
         const state = action.payload.gameState;
         handleEnterActiveRound(state);
-        return state;
+        return {...state, set: true};
     }
     // We want to initially set the state async, from the server.
     // Until SET_GAME is called, every other action is a noop.
     if (state === null) return null;
     const {payload} = action;
     return produce(state, draft => {
+        draft.set = false;
         const player = draft.players[payload?.playerIndex];
         const corporationName = player?.corporation?.name;
         const {common} = draft;

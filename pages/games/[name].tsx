@@ -7,6 +7,7 @@ import {EndOfGame} from 'components/end-of-game';
 import {GreeneryPlacement} from 'components/greenery-placement';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
+import {isSyncing} from 'hooks/sync-state';
 import {useSession} from 'hooks/use-session';
 import {useRouter} from 'next/router';
 import {useContext, useEffect, useState} from 'react';
@@ -31,7 +32,9 @@ function GameComponent() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            retrieveGame();
+            if (!isSyncing) {
+                retrieveGame();
+            }
         }, 5000);
 
         return () => {
@@ -43,6 +46,9 @@ function GameComponent() {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
+        if (isSyncing) {
+            return;
+        }
         if (result.error) {
             router.push('/new-game');
             return;
