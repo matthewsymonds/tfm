@@ -4556,8 +4556,10 @@ export const cardConfigs: CardConfig[] = [
         text: 'As your first action in the game, draw 3 cards. You start with 45 MC.',
         tags: [Tag.SCIENCE],
         type: CardType.CORPORATION,
-        gainResource: {[Resource.MEGACREDIT]: 45, [Resource.CARD]: 3},
-        forcedAction: true,
+        gainResource: {[Resource.MEGACREDIT]: 45},
+        forcedAction: {
+            gainResource: {[Resource.CARD]: 3},
+        },
         parameterRequirementAdjustments: {
             [Parameter.OCEAN]: 2,
             [Parameter.OXYGEN]: 2,
@@ -4637,8 +4639,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
         gainResource: {[Resource.MEGACREDIT]: 40},
-        tilePlacements: [t(TileType.CITY)],
-        forcedAction: true,
+        forcedAction: {
+            tilePlacements: [t(TileType.CITY)],
+        }
     },
     {
         effect: {

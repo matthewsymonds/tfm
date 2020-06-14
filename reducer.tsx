@@ -11,6 +11,7 @@ import {TypedUseSelectorHook, useSelector} from 'react-redux';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
+    ADD_FORCED_ACTION_TO_PLAYER,
     ANNOUNCE_READY_TO_START_ROUND,
     APPLY_DISCOUNTS,
     APPLY_EXCHANGE_RATE_CHANGES,
@@ -42,6 +43,7 @@ import {
     PLACE_TILE,
     REMOVE_RESOURCE,
     REMOVE_STORABLE_RESOURCE,
+    REMOVE_FORCED_ACTION_FROM_PLAYER,
     REVEAL_AND_DISCARD_TOP_CARDS,
     SET_CARDS,
     SET_CORPORATION,
@@ -105,7 +107,6 @@ function handleEnterActiveRound(state: RootState) {
                 cards.usedActionThisRound = false;
             }
         }
-
         state.common.gameStage = GameStage.ACTIVE_ROUND;
     }
 }
@@ -177,6 +178,7 @@ export type PlayerState = {
     numCardsToTake: number | null;
     // Is the player considering buying the cards they're looking at?
     buyCards?: boolean | null;
+    forcedActions: Array<Action>;
     corporation: null | Card;
     possibleCards: Card[];
     selectedCards: Card[];
@@ -438,7 +440,17 @@ export const reducer = (state: GameState | null = null, action) => {
                     draft.common.deck = draft.common.deck.filter(card => card !== bonus);
                 }
                 break;
-            case DECREASE_PRODUCTION:
+            case ADD_FORCED_ACTION_TO_PLAYER: {
+                const {forcedAction} = payload;
+                player.forcedActions.push(forcedAction);
+                break;
+            }
+            case REMOVE_FORCED_ACTION_FROM_PLAYER: {
+                player.forcedActions = player.forcedActions.slice(1);
+                break;
+            }
+
+            case DECREASE_PRODUCTION: {
                 draft.pendingVariableAmount = payload.amount;
                 player.pendingResourceActionDetails = undefined;
                 let targetPlayer = draft.players[payload.targetPlayerIndex];
@@ -466,7 +478,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     );
                 }
                 break;
-            case INCREASE_PRODUCTION:
+            }
+
+            case INCREASE_PRODUCTION: {
                 const increase = convertAmountToNumber(
                     payload.amount,
                     state,
@@ -479,6 +493,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     )} production ${increase} ${stepsPlural(increase)}`
                 );
                 break;
+            }
             case REMOVE_RESOURCE: {
                 player.pendingResourceActionDetails = undefined;
                 const {resource, amount, sourcePlayerIndex} = payload;
@@ -849,6 +864,7 @@ export const reducer = (state: GameState | null = null, action) => {
             case COMPLETE_ACTION:
                 player.pendingResourceActionDetails = undefined;
                 player.action = (player.action % 2) + 1;
+
                 // Did the player just complete their second action?
                 if (player.action === 1) {
                     // It's the next player's turn

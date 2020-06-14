@@ -35,8 +35,11 @@ export interface CardConfig extends Action {
     effect?: Effect;
     // Use very rarely, in case we need multiple effects (e.g. Tharsis Republic).
     effects?: Effect[];
-    // With corporations, ensures that we count the first forced action of the game.
-    forcedAction?: boolean;
+    // Corporations may required "first actions" (e.g. Tharsis).
+    // In this scenario, the action is encoded into the corporation here, but unlike normal actions
+    // (which are played immediately, or in this case "when the corporation gets played"),
+    // this gets delayed until the first round.
+    forcedAction?: Action;
     increaseProductionOption?: PropertyCounter<Resource>;
     deck: Deck;
     storedResourceType?: Resource;

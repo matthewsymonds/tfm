@@ -1,5 +1,6 @@
 import {
     addParameterRequirementAdjustments,
+    addForcedActionToPlayer,
     applyDiscounts,
     applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
@@ -876,6 +877,7 @@ function playAction({
         );
     }
 
+    // TODO: Move this to `applyDiscounts`, change `plantDiscount` to a new discount type
     if (action.plantDiscount) {
         items.push(setPlantDiscount(action.plantDiscount, playerIndex));
     }
@@ -913,10 +915,18 @@ function filterOceanPlacementsOverMax(
 function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
     const playerIndex = getLoggedInPlayerIndex();
 
+    // 1. Pay for the card.
+    //    - This should account for discounts
+    //    - This should account for non-MC payment, which is prompted by the UI
+    //      and included in `payment`
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
     }
 
+    // 2. Apply effects that will affect future turns:
+    //     - parameter requirement adjustments (next turn or permanent)
+    //     - discounts (card discounts, standard project discounts, etc)
+    //     - exchange rates (e.g. advanced alloys)
     this.queue.push(
         addParameterRequirementAdjustments(
             card.parameterRequirementAdjustments,
@@ -924,13 +934,20 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
             playerIndex
         )
     );
-
     this.queue.push(applyDiscounts(card.discounts, playerIndex));
     this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
 
+    // 3. Play the action
+    //     - action choices (done with priority)
+    //     - gaining/losing/stealing resources & production
+    //     - tile pacements
+    //     - discarding/drawing cards
     this.playAction({action: card, state, parent: card});
     const increaseProductionOptions = Object.keys(card.increaseProductionOption ?? {});
 
+    // 4. Perform increase production choice
+    //     - (this currently only affects Artificial Photosynthesis)
+    //     - TODO: move this to `playAction` to colocate with other production deltas
     if (increaseProductionOptions.length > 0) {
         const resourceAndAmounts = increaseProductionOptions.map(key => {
             return {
@@ -948,7 +965,13 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
         );
     }
 
-    if (card.type !== CardType.CORPORATION || card.forcedAction) {
+    if (card.forcedAction) {
+        this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
+    }
+
+    // Don't call `completeAction` for corporations, because we use `player.action` as a proxy
+    // for players being ready to start round 1, and don't want to increment it.
+    if (card.type !== CardType.CORPORATION) {
         this.queue.push(completeAction(playerIndex));
     }
 }

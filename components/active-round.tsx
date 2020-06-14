@@ -2,6 +2,8 @@ import {
     discardCards,
     discardRevealedCards,
     moveCardFromHandToPlayArea,
+    removeForcedActionFromPlayer,
+    completeAction,
     setSelectedCards,
     skipAction,
 } from 'actions';
@@ -22,6 +24,7 @@ import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getForcedActionsForPlayer} from 'selectors/player';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
@@ -112,6 +115,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         minCardsToDiscard = 1;
     }
 
+    // For selecting cards to discard
     function handleCardClick(card) {
         if (player.pendingDiscard) {
             let newCardsToDiscard = [...cardsToDiscard];
@@ -128,6 +132,21 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }
 
     useSyncState();
+
+    useEffect(() => {
+        if (state.common.currentPlayerIndex === player.index) {
+            const forcedActions = getForcedActionsForPlayer(state, player.index);
+
+            for (let i = 0; i < 2; i++) {
+                if (forcedActions[i]) {
+                    context.playAction({state, action: forcedActions[i]});
+                    context.queue.push(completeAction(player.index));
+                    context.queue.push(removeForcedActionFromPlayer(playerIndex, forcedActions[i]));
+                }
+            }
+            context.processQueue(dispatch);
+        }
+    }, []);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         dispatch(moveCardFromHandToPlayArea(card, playerIndex));
@@ -214,6 +233,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         player.possibleCards.length > 0 ||
         player.pendingResourceActionDetails ||
         player.pendingChoice ||
+        player.forcedActions.length ||
         player.pendingDiscard;
 
     useEffect(() => {

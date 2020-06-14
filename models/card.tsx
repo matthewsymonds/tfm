@@ -90,8 +90,9 @@ export class Card {
     /* How many of the stored resource type are currently stored, if applicable */
     storedResourceAmount?: number;
 
-    // Ensures a force action counts against your action count.
-    forcedAction?: boolean;
+    // Action that will be deferred until the first round (corporations are played
+    // before round 1 has begun).
+    forcedAction?: Action;
 
     // Describes the discounts the card gives.
     discounts: Discounts;

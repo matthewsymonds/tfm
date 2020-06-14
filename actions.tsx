@@ -355,3 +355,21 @@ export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
 
 export const SET_GAME = 'SET_GAME';
 export const setGame = (gameState: RootState) => ({type: SET_GAME, payload: {gameState}});
+
+export const ADD_FORCED_ACTION_TO_PLAYER = 'ADD_FORCED_ACTION_TO_PLAYER';
+export const addForcedActionToPlayer = (playerIndex: number, forcedAction: Action) => ({
+    type: ADD_FORCED_ACTION_TO_PLAYER,
+    payload: {
+        playerIndex,
+        forcedAction,
+    },
+});
+
+export const REMOVE_FORCED_ACTION_FROM_PLAYER = 'REMOVE_FORCED_ACTION_FROM_PLAYER';
+export const removeForcedActionFromPlayer = (playerIndex: number, forcedAction: Action) => ({
+    type: REMOVE_FORCED_ACTION_FROM_PLAYER,
+    payload: {
+        playerIndex,
+        forcedAction,
+    },
+});

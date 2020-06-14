@@ -128,7 +128,7 @@ export const PlayerTagCounter = ({player}: PlayerTagCounterProps) => {
                 </Pane>
             )}
             {Object.keys(tagCountsByTagName).map(tag => (
-                <Pane marginRight={8}>
+                <Pane key={tag} marginRight={8}>
                     <ResourceBoardCell
                         key={tag}
                         amount={tagCountsByTagName[tag]}

@@ -98,12 +98,13 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                     )}
                     <ConfirmButton
                         onClick={() => {
+                            const corporationCard = corporation as Card;
+
                             dispatch(setCards(cards, playerIndex));
                             dispatch(setSelectedCards([], playerIndex));
-                            const card = corporation!;
-                            dispatch(moveCardFromHandToPlayArea(card, playerIndex));
-                            context.playCard(card, state);
-                            context.triggerEffectsFromPlayedCard(card, store.getState());
+                            dispatch(moveCardFromHandToPlayArea(corporationCard, playerIndex));
+                            context.playCard(corporationCard, state);
+                            context.triggerEffectsFromPlayedCard(corporationCard, store.getState());
                             dispatch(
                                 discardCards(
                                     possibleCards.filter(card => !cards.includes(card)),
