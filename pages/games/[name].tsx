@@ -29,6 +29,16 @@ function GameComponent() {
         }
     }, [session.username]);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            retrieveGame();
+        }, 5000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;
 
