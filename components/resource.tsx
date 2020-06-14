@@ -9,10 +9,13 @@ import {
 
 import {Conversion, CONVERSIONS} from 'constants/conversion';
 import {PlayerState} from 'reducer';
-import {useContext} from 'react';
+import {useContext, useState} from 'react';
 import {AppContext} from 'context/app-context';
 import {ConversionLink} from './conversion-link';
 import {useStore, useDispatch} from 'react-redux';
+import {Checkbox, Pane} from 'evergreen-ui';
+import {Tag} from 'constants/tag';
+import {TagIcon} from 'components/tags';
 
 interface ResourceIconBaseProps {
     readonly color: string;
@@ -51,82 +54,65 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, 
     </ResourceIconBase>
 );
 
-const ResourceBoardCellBase = styled.div`
+const ResourceBoardCellBase = styled.div<{isTagCounter: boolean}>`
     display: flex;
-    font-family: serif;
-    margin: 2px;
-    width: 120px;
+    width: 60px;
+    border-radius: 3px;
+    border-top-left-radius: ${props => (props.isTagCounter ? '28px' : '')};
+    border-bottom-left-radius: ${props => (props.isTagCounter ? '28px' : '')};
+    margin-right: 10px;
     align-items: center;
-    padding: 2px;
-    border: 2px solid gray;
-    border-radius: 4px;
+    padding: 4px;
+    background-color: #f1f1f1;
+    box-shadow: 1px 1px 2px 0px #4d4d4d;
+    border: 1px solid rgba(197, 197, 197, 0.38);
+
     .row {
         display: flex;
     }
-    .amounts {
-        margin-left: auto;
+    .amount {
         display: inline-flex;
-        div {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: sans-serif;
-            min-width: 18px;
-            padding: 2px;
-            height: 21px;
-            border: 1px solid lightgray;
-            border-radius: 2px;
-        }
-        .production {
-            background: #e3975b;
-        }
-    }
-    div {
-        margin-left: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: auto;
+        padding: 2px;
     }
 `;
 
-export interface ResourceBoardCellProps {
-    amount: number;
-    production: number;
-    resource: Resource;
-}
+export type ResourceBoardCellProps =
+    | {
+          amount: number;
+          resource: Resource;
+          tag?: undefined;
+      }
+    | {
+          amount: number;
+          tag: Tag;
+          resource?: undefined;
+      };
 
 export const InlineResourceIcon = styled(ResourceIcon)`
     display: inline-flex;
     flex-shrink: 0;
     margin: 0;
-    border: 1px solid gray;
-    height: 25px;
-    width 25px;
-    margin: 4px;
+    height: 20px;
+    width 20px;
     font-size: 16px;
+    border: 1px solid #222;
 `;
-
-function name(resource: Resource): string {
-    return resource.slice('resource'.length);
-}
-
-function getCost(conversion: Conversion) {
-    for (const resource in conversion.removeResource) {
-        return conversion.removeResource[resource];
-    }
-}
 
 export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
     amount,
-    production,
     resource,
+    tag,
 }) => {
-    const resourceName = name(resource);
     return (
         <>
-            <ResourceBoardCellBase>
-                <InlineResourceIcon name={resource} />
-                <div className="amounts">
-                    <div className="production">{production}</div>
-                    <div>{amount}</div>
-                </div>
+            <ResourceBoardCellBase isTagCounter={!!tag}>
+                {resource && <InlineResourceIcon name={resource} />}
+                {tag && <TagIcon name={tag} />}
+                <div className="amount">{amount}</div>
             </ResourceBoardCellBase>
         </>
     );
@@ -135,15 +121,14 @@ export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> 
 export const ResourceBoardRow = styled.div`
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    &:first-child {
+        margin-bottom: 10px;
+    }
 `;
 
 export const ResourceBoard = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-left: auto;
 `;
 
 type PlayerResourceBoardProps = {
@@ -172,60 +157,75 @@ export const PlayerResourceBoard = ({
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
+    const [isShowingProduction, setIsShowingProduction] = useState(false);
     const dispatch = useDispatch();
 
     return (
-        <ResourceBoard>
-            <ResourceBoardRow>
-                {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resourceType => {
-                    return (
-                        <ResourceBoardCell
-                            key={resourceType}
-                            resource={resourceType}
-                            production={player.productions[resourceType]}
-                            amount={player.resources[resourceType]}
-                        />
-                    );
-                })}
-            </ResourceBoardRow>
-            <ResourceBoardRow>
-                {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
-                    const conversion = CONVERSIONS[resource];
-                    return (
-                        <div key={resource}>
+        <Pane display="flex" flexDirection="column">
+            <ResourceBoard>
+                <ResourceBoardRow>
+                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resource => {
+                        return (
                             <ResourceBoardCell
+                                key={resource}
                                 resource={resource}
-                                production={player.productions[resource]}
-                                amount={player.resources[resource]}
+                                amount={
+                                    isShowingProduction
+                                        ? player.productions[resource]
+                                        : player.resources[resource]
+                                }
                             />
-                            {isLoggedInPlayer &&
-                            context.canDoConversion(
-                                conversion,
-                                player,
-                                resource,
-                                getConversionAmount(player, conversion),
-                                state
-                            ) &&
-                            (!plantConversionOnly || resource === Resource.PLANT) ? (
-                                <>
-                                    <ConversionLink
-                                        onClick={() =>
-                                            context.doConversion(
-                                                state,
-                                                player.index,
-                                                dispatch,
-                                                conversion
-                                            )
-                                        }
-                                    >
-                                        Convert {getConversionAmount(player, conversion)}
-                                    </ConversionLink>
-                                </>
-                            ) : null}
-                        </div>
-                    );
-                })}
-            </ResourceBoardRow>
-        </ResourceBoard>
+                        );
+                    })}
+                </ResourceBoardRow>
+                <ResourceBoardRow>
+                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
+                        const conversion = CONVERSIONS[resource];
+                        return (
+                            <div key={resource}>
+                                <ResourceBoardCell
+                                    resource={resource}
+                                    amount={
+                                        isShowingProduction
+                                            ? player.productions[resource]
+                                            : player.resources[resource]
+                                    }
+                                />
+                                {isLoggedInPlayer &&
+                                context.canDoConversion(
+                                    conversion,
+                                    player,
+                                    resource,
+                                    getConversionAmount(player, conversion),
+                                    state
+                                ) &&
+                                (!plantConversionOnly || resource === Resource.PLANT) ? (
+                                    <>
+                                        <ConversionLink
+                                            onClick={() =>
+                                                context.doConversion(
+                                                    state,
+                                                    player.index,
+                                                    dispatch,
+                                                    conversion
+                                                )
+                                            }
+                                        >
+                                            Convert {getConversionAmount(player, conversion)}
+                                        </ConversionLink>
+                                    </>
+                                ) : null}
+                            </div>
+                        );
+                    })}
+                </ResourceBoardRow>
+            </ResourceBoard>
+            <Checkbox
+                checked={isShowingProduction}
+                onChange={() => setIsShowingProduction(!isShowingProduction)}
+                marginTop={16}
+                label="Show productions"
+            />
+        </Pane>
     );
 };

@@ -16,7 +16,6 @@ export function Flex(props) {
 }
 
 export const Panel = styled.div`
-    font-family: sans-serif;
     width: 100%;
     margin-bottom: 16px;
     border: 1px solid #dedede;

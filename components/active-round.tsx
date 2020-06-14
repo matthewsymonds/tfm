@@ -30,7 +30,7 @@ import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
 import {Button} from './button';
-import {CardActionElements, CardComponent, CardText} from './card';
+import {CardActionElements, CardComponent, CardText, CardDisabledText} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
@@ -50,7 +50,6 @@ const Hand = styled.div`
 `;
 
 const Info = styled.div`
-    font-family: sans-serif;
     font-size: 12px;
     margin-right: 4px;
     display: flex;
@@ -331,7 +330,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     key={card.name}
                                                     content={card}
                                                     isHidden={thisPlayer.index !== playerIndex}
-                                                    width={250}
+                                                    width={220}
                                                     onClick={(e: MouseEvent<HTMLDivElement>) => {
                                                         if (playerIndex !== thisPlayer.index)
                                                             return;
@@ -340,9 +339,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     selected={cardsToDiscard.includes(card)}
                                                 >
                                                     {!canPlay && (
-                                                        <CardText>
+                                                        <CardDisabledText>
                                                             <em>{reason}</em>
-                                                        </CardText>
+                                                        </CardDisabledText>
                                                     )}
                                                     {playerIndex === thisPlayer.index ? (
                                                         <button
@@ -397,7 +396,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 return (
                                                     <CardComponent
                                                         content={card}
-                                                        width={250}
+                                                        width={220}
                                                         key={card.name}
                                                         isHidden={
                                                             !isLoggedInPlayer &&
@@ -465,7 +464,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 <h3>{lookAtCardsPrompt}</h3>
                                 <CardSelector
                                     max={player.numCardsToTake || Infinity}
-                                    cardWidth={250}
+                                    cardWidth={220}
                                     selectedCards={player.selectedCards}
                                     onSelect={cards =>
                                         dispatch(setSelectedCards(cards, playerIndex))

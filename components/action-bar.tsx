@@ -14,7 +14,6 @@ const ActionBarBase = styled.div`
     width: calc(100% - 30px);
     z-index: 30;
     box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.35);
-    font-family: sans-serif;
     overflow-x: auto;
 `;
 

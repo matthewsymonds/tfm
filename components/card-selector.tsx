@@ -19,7 +19,6 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     display: flex;
     align-items: stretch;
     justify-content: center;
-    font-family: serif;
     flex-wrap: ${props => (props.orientation === 'vertical' ? 'wrap' : '')};
     margin: 0 auto;
 `;

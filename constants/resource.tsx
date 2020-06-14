@@ -162,7 +162,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.HEAT:
             return 'gold';
         case Resource.MEGACREDIT:
-            return 'gold';
+            return 'black';
         case Resource.MICROBE:
             return 'green';
         case Resource.PLANT:
@@ -193,9 +193,9 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.FIGHTER:
             return 'black';
         case Resource.HEAT:
-            return 'orange';
+            return '#ef2b2b';
         case Resource.MEGACREDIT:
-            return 'lightgoldenrodyellow';
+            return '#fbe21e';
         case Resource.MICROBE:
             return 'white';
         case Resource.PLANT:
@@ -203,7 +203,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.SCIENCE:
             return 'darkgray';
         case Resource.STEEL:
-            return '#EBA980';
+            return '#795548';
         case Resource.TITANIUM:
             return 'black';
     }

@@ -124,7 +124,7 @@ export const BuyOrDiscard = ({playerIndex}: {playerIndex: number}) => {
             </ActionBar>
             <CardSelector
                 max={10}
-                cardWidth={250}
+                cardWidth={220}
                 selectedCards={corporationName ? cards : []}
                 onSelect={cards => dispatch(setSelectedCards(cards, playerIndex))}
                 options={possibleCards || []}

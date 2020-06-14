@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const SharedActionsContainer = styled.div`
     display: flex;
-    font-family: sans-serif;
     color: #333;
     flex: none;
     flex-wrap: wrap;

@@ -10,7 +10,6 @@ const EndOfGameBase = styled.div`
     flex-direction: column;
     margin: 50px auto;
     justify-content: center;
-    font-family: sans-serif;
 `;
 
 const AllScoresContainer = styled.div`

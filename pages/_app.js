@@ -4,7 +4,13 @@ import withRedux from 'next-redux-wrapper';
 import {makeStore} from 'store';
 import {AppContext, appContext} from 'context/app-context';
 import 'styles/index.css';
+import {ThemeProvider, defaultTheme} from 'evergreen-ui';
 import platform from 'platform-detect';
+
+const customTheme = {
+    ...defaultTheme,
+    spinnerColor: 'hotpink',
+};
 
 class MyApp extends App {
     static async getInitialProps({Component, ctx}) {
@@ -26,9 +32,11 @@ class MyApp extends App {
         return (
             <Provider store={store}>
                 <AppContext.Provider value={appContext}>
-                    <div className={className}>
-                        <Component {...pageProps} />
-                    </div>
+                    <ThemeProvider value={customTheme}>
+                        <div className={className}>
+                            <Component {...pageProps} />
+                        </div>
+                    </ThemeProvider>
                 </AppContext.Provider>
             </Provider>
         );

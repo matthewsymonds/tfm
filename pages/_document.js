@@ -15,7 +15,7 @@ const GlobalStyles = createGlobalStyle`
     div.mac {
       span.tag-icon {
         position: relative;
-        left: 3px;
+        left: 2px;
         bottom: 0.5px;
       }
       span.resource-icon {
@@ -87,37 +87,25 @@ const GlobalStyles = createGlobalStyle`
       align-items: center;
       justify-content: space-around;
       cursor: pointer;
-      border-radius: 4px;
-      margin-top: auto;
+      padding: 10px 20px;
+      border-radius: 3px;
       line-height: 8px;
-      :not(:last-child) {
-          margin-top: 16px;
-          margin-bottom: 16px;
-      }
-      margin-left: auto;
-      margin-right: auto;
       justify-self: flex-end;
-      border-radius: 5px;
-      border: 2px solid white;
-      &:disabled, &:hover:disabled {
-        border: 2px solid #dedede;
-      }
-      color: #111;
+      border: 1px solid #757575;
+      background-color: #eae9e9
+      color: #222222;
+      font-size: 14px;
 
-      &:hover {
-        border: 2px solid #fefefe;
-        background: #ccc;
-        color: #222;
+      &:hover:not([disabled]) {
+        background: #cccccc;
       }
       &:disabled {
         cursor: auto;
-        color: auto;
-        background: #dedede;
-        box-shadow: none;
+        opacity: 0.6;
       }
-      padding: 12px;
-      min-width: 100px;
-      font-size: 14px;
+      &:active {
+          opacity: 0.8;
+      }
     }
 `;
 

@@ -20,11 +20,11 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
             <>
                 <Box marginRight="32px">
                     <h3>You played</h3>
-                    <CardComponent width={250} content={playedCard} />
+                    <CardComponent width={220} content={playedCard} />
                 </Box>
                 <Box marginRight="32px">
                     <h3>which triggered</h3>
-                    <CardComponent width={250} content={card} />
+                    <CardComponent width={220} content={card} />
                 </Box>
             </>
         );
@@ -32,7 +32,7 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
         cardDetails = (
             <Box marginRight="32px">
                 <h3>You played</h3>
-                <CardComponent width={250} content={card} />
+                <CardComponent width={220} content={card} />
             </Box>
         );
     } else {

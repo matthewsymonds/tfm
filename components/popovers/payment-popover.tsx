@@ -25,7 +25,6 @@ const PaymentPopoverBase = styled.div`
     border-radius: 3px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
     background: #f7f7f7;
-    font-family: sans-serif;
     .payment-rows {
         border-top: 1px solid black;
         border-bottom: 1px solid black;

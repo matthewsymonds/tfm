@@ -6,7 +6,6 @@ import {Box} from './box';
 const Tabs = styled.div`
     display: flex;
     width: 100%;
-    font-family: sans-serif;
 `;
 
 const Tab = styled.div<{selected: boolean; color: string; index: number}>`

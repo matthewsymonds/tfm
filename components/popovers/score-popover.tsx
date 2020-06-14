@@ -15,7 +15,6 @@ const ScorePopoverBase = styled.div`
     padding: 16px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
     background: #f7f7f7;
-    font-family: sans-serif;
     display: flex;
     flex-direction: column;
 `;

@@ -28,7 +28,6 @@ const ChildrenWrapper = styled.div<{selectable?: boolean}>`
     padding: 3px;
     border-radius: 2px;
 
-    font-family: sans-serif;
     user-select: none;
     background: rgba(255, 255, 255, 0.8);
     overflow: auto;

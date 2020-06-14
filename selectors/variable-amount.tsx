@@ -25,6 +25,10 @@ function getNonEventCards(player: PlayerState): Card[] {
     return player.playedCards.filter(card => card.type !== CardType.EVENT);
 }
 
+export function getEventCards(player: PlayerState): Card[] {
+    return player.playedCards.filter(card => card.type === CardType.EVENT);
+}
+
 export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     // Must have at least one of a resource to exchange it with something else!
     [VariableAmount.USER_CHOICE]: () => 1,

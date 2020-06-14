@@ -10,17 +10,25 @@ import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import styled from 'styled-components';
-import {Box} from './box';
+import {Box, Flex} from './box';
 import PaymentPopover from './popovers/payment-popover';
 import {TagsComponent} from './tags';
 
+export const CardName = styled.span`
+    font-size: 16px;
+    font-weight: 600;
+`;
+
 export const CardText = styled.div`
-    margin: 10px;
     margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+`;
+
+export const CardDisabledText = styled(CardText)`
+    color: red;
 `;
 
 const VictoryPoints = styled.div`
@@ -33,44 +41,36 @@ const VictoryPoints = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: sans-serif;
     border-radius: 50%;
-    border: 1px solid darkred;
+    border: 2px solid darkred;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #f7f7f7;
 `;
 
 const CardNote = styled(CardText)`
-    margin: 4px;
-    font-size: 16px;
+    margin-left: 4px;
 `;
 
 interface CardBaseProps {
     width?: number;
     onClick?: (e: MouseEvent<HTMLDivElement>) => void;
+    selected?: boolean;
 }
-
-interface SelectionProps {
-    selected: boolean;
-}
-
-const Selection = styled.div<SelectionProps>`
-    padding: 10px;
-    background: ${props => (props.selected ? '#eeeeee' : 'none')};
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-`;
 
 const CardBase = styled.div<CardBaseProps>`
+    padding: 10px;
     margin: 10px;
-    box-shadow: none;
-    background: #f7f7f7;
-    border-radius: 5px;
-    border: 2px solid #dedede;
-    position: relative;
     display: flex;
+    position: relative;
+    flex-direction: column;
+    box-shadow: none;
+    background-color: ${props => (props.selected ? '#e9ffe7' : '#f7f7f7')};
+    border: ${props => (props.selected ? '1px solid black' : '1px solid #dedede')};
     flex-direction: column;
     max-height: 350px;
     justify-content: flex-start;
+    font-size: 13px;
     ${({width}) => (width ? `width: ${width}px;` : '')}
     button {
         justify-self: flex-end;
@@ -78,6 +78,7 @@ const CardBase = styled.div<CardBaseProps>`
 `;
 
 const CorporationCardBase = styled(CardBase)`
+    margin: 0;
     flex-basis: 250px;
     flex-grow: 1;
     min-width: 200px;
@@ -214,9 +215,9 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const victoryPoints = getCardVictoryPoints(content.victoryPoints, store.getState(), content);
     const Base = content.type === CardType.CORPORATION ? CorporationCardBase : CardBase;
     const innerContents = (
-        <Selection selected={selected || false}>
+        <React.Fragment>
             <TagsComponent tags={tags}>
-                <div>{name}</div>
+                <CardName>{name}</CardName>
             </TagsComponent>
             {typeof cost === 'number' && (
                 <CardText>
@@ -238,12 +239,14 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
                     <span>{victoryPoints}</span>
                 </VictoryPoints>
             ) : null}
-            {props.children}
-        </Selection>
+            <Flex flex="auto" flexDirection="column" alignItems="center" justifyContent="flex-end">
+                {props.children}
+            </Flex>
+        </React.Fragment>
     );
 
     return (
-        <Base width={width} onClick={onClick}>
+        <Base width={width} onClick={onClick} selected={selected}>
             {isHidden ? <BackOfCard /> : innerContents}
         </Base>
     );
