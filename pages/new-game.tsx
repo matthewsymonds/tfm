@@ -5,6 +5,7 @@ import {useSession} from 'hooks/use-session';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {FormEvent, ReactElement, useEffect, useState} from 'react';
+import {shuffle} from 'initial-state';
 
 export default function NewGame() {
     const {session, loading} = useSession();
@@ -53,7 +54,7 @@ export default function NewGame() {
 
         const result = await makePostCall('/api/games', {
             name: gameName,
-            players: players.slice(0, numPlayers),
+            players: shuffle(players.slice(0, numPlayers)),
         });
         if (result.error) {
             setError(result.error);

@@ -7,7 +7,7 @@ import {zeroParameterRequirementAdjustments} from './constants/parameter-require
 import {Resource} from './constants/resource';
 import {Tag} from './constants/tag';
 
-export function shuffle(array: Card[]) {
+export function shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];

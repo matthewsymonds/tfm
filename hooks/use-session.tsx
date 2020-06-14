@@ -20,7 +20,6 @@ function getDefaultSessionFromSessionStorage() {
         } else {
             return emptySession;
         }
-        _;
     } catch (error) {
         return emptySession;
     }
