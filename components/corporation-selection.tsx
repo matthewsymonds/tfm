@@ -15,7 +15,7 @@ import {CardSelector} from 'components/card-selector';
 import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
-import {useSyncState} from 'pages/sync-state';
+import {useSyncState} from 'hooks/sync-state';
 import {RootState, useTypedSelector} from 'reducer';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {CardComponent} from './card';

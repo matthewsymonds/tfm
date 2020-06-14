@@ -17,7 +17,7 @@ import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card, cards} from 'models/card';
 import {useRouter} from 'next/router';
-import {useSyncState} from 'pages/sync-state';
+import {useSyncState} from 'hooks/sync-state';
 import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';

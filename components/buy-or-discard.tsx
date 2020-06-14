@@ -9,7 +9,7 @@ import {
 import {CardSelector} from 'components/card-selector';
 import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
-import {useSyncState} from 'pages/sync-state';
+import {useSyncState} from 'hooks/sync-state';
 import React, {ReactElement, useContext, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';

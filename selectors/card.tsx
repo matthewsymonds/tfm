@@ -114,6 +114,7 @@ export function getAllowedCardsForResourceAction({
             return result;
         case ResourceLocationType.ANY_PLAYER:
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
+        case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
             throw new Error('Unsupported resource location type for card selection');
         default:
             throw spawnExhaustiveSwitchError(resourceLocationType);

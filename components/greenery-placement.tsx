@@ -18,7 +18,7 @@ import {useDispatch, useStore} from 'react-redux';
 import {ConversionLink} from './conversion-link';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
-import {useSyncState} from 'pages/sync-state';
+import {useSyncState} from 'hooks/sync-state';
 
 export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
