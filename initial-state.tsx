@@ -64,10 +64,7 @@ export function getInitialState(players: string[]): GameState {
     };
 
     for (const player of players) {
-        const possibleCorporations = [
-            ...sampleCards(allCorporations, 2),
-            cards.find(c => c.name === 'Tharsis Republic'),
-        ];
+        const possibleCorporations = sampleCards(allCorporations, 2);
 
         base.players.push({
             // 0 for card selection, 1 / 2 for active round
