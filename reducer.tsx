@@ -17,6 +17,7 @@ import {
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
     BUY_SELECTED_CARDS,
     CLAIM_MILESTONE,
@@ -32,6 +33,7 @@ import {
     GAIN_STORABLE_RESOURCE,
     INCREASE_PARAMETER,
     INCREASE_PRODUCTION,
+    MAKE_ACTION_CHOICE,
     MARK_CARD_ACTION_AS_PLAYED,
     MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
     PAY_FOR_CARDS,
@@ -49,10 +51,8 @@ import {
     SKIP_ACTION,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
-    ASK_USER_TO_MAKE_ACTION_CHOICE,
-    MAKE_ACTION_CHOICE,
 } from './actions';
-import {Amount, Action} from './constants/action';
+import {Action, Amount} from './constants/action';
 import {
     Award,
     Board,
@@ -107,7 +107,6 @@ function handleEnterActiveRound(state: RootState) {
         }
 
         state.common.gameStage = GameStage.ACTIVE_ROUND;
-        state.log.push(`Turn ${state.common.turn}`);
     }
 }
 

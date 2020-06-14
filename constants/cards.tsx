@@ -2839,14 +2839,11 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 1,
     },
     {
-        // venus: 1,
-        // addsResourceToCards: Resource.FLOATER,
         cost: 13,
         deck: Deck.VENUS,
         name: 'Air-Scrapping Expedition',
         text: 'Raise Venus 1 step. Add 3 floaters to ANY VENUS CARD.',
         increaseParameter: {[Parameter.VENUS]: 1},
-        // TODO fix any card issue
         gainResource: {[Resource.FLOATER]: 3},
         gainResourceTargetType: ResourceLocationType.VENUS_CARD,
         tags: [Tag.EVENT, Tag.VENUS],

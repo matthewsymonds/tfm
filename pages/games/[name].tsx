@@ -1,19 +1,18 @@
 import {setGame} from 'actions';
+import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {BuyOrDiscard} from 'components/buy-or-discard';
-import {GreeneryPlacement} from 'components/greenery-placement';
 import {CorporationSelection} from 'components/corporation-selection';
 import {EndOfGame} from 'components/end-of-game';
+import {GreeneryPlacement} from 'components/greenery-placement';
 import {GameStage} from 'constants/game';
+import {AppContext} from 'context/app-context';
+import {useSession} from 'hooks/use-session';
+import {useRouter} from 'next/router';
+import {useContext, useEffect, useState} from 'react';
+import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import {deserializeState} from 'state-serialization';
-import {makeGetCall} from 'api-calls';
-import {useSession} from 'hooks/use-session';
-import {useDispatch} from 'react-redux';
-import {useEffect, useState, useContext} from 'react';
-import {useRouter} from 'next/router';
-import {AppContext} from 'context/app-context';
-import Head from 'next/head';
 
 function GameComponent() {
     const {loading, session} = useSession();
@@ -46,7 +45,7 @@ function GameComponent() {
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
-    if (loading) return null;
+    if (loading) return <div />;
     if (playerIndex < 0) return null;
 
     switch (gameStage) {
@@ -68,9 +67,6 @@ function GameComponent() {
 export default function Game() {
     return (
         <>
-            <Head>
-                <title>TFM</title>
-            </Head>
             <GameComponent />
         </>
     );

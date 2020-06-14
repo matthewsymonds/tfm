@@ -1,13 +1,12 @@
-import {useCallback, useState} from 'react';
-import {useInput} from 'hooks/use-input';
-import {Input, SubmitInput} from 'components/input';
-import {Centered, CenteredLink} from 'components/centered';
-import Link from 'next/link';
-import {Box} from 'components/box';
 import {makePostCall} from 'api-calls';
-import {useRouter} from 'next/dist/client/router';
+import {CenteredLink} from 'components/centered';
+import {Input, SubmitInput} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
+import {useInput} from 'hooks/use-input';
 import {useSession} from 'hooks/use-session';
+import {useRouter} from 'next/dist/client/router';
+import Link from 'next/link';
+import {useCallback, useState} from 'react';
 
 export default function Login() {
     const [username, updateUsername] = useInput('');
@@ -32,38 +31,36 @@ export default function Login() {
     );
 
     const {loading} = useSession();
-    if (loading) return null;
+    if (loading) return <div />;
 
     return (
-        <Centered>
-            <Box>
-                <h3>Log in</h3>
-                <Link href="/signup" passHref>
-                    <CenteredLink>or Sign up</CenteredLink>
-                </Link>
-                <MaybeVisible horizontalMargin={0} visible={!!error}>
-                    <h4>
-                        <em>{error || 'Username or password did not match. Please try again.'}</em>
-                    </h4>
-                </MaybeVisible>
-                <form onSubmit={handleSubmit}>
-                    <Input
-                        autoFocus
-                        name="username"
-                        autoComplete="username"
-                        value={username}
-                        onChange={updateUsername}
-                    />
-                    <Input
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={updatePassword}
-                    />
-                    <SubmitInput />
-                </form>
-            </Box>
-        </Centered>
+        <>
+            <h3>Log in</h3>
+            <Link href="/signup" passHref>
+                <CenteredLink>or Sign up</CenteredLink>
+            </Link>
+            <MaybeVisible horizontalMargin={0} visible={!!error}>
+                <h4>
+                    <em>{error || 'Username or password did not match. Please try again.'}</em>
+                </h4>
+            </MaybeVisible>
+            <form onSubmit={handleSubmit}>
+                <Input
+                    autoFocus
+                    name="username"
+                    autoComplete="username"
+                    value={username}
+                    onChange={updateUsername}
+                />
+                <Input
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={updatePassword}
+                />
+                <SubmitInput />
+            </form>
+        </>
     );
 }

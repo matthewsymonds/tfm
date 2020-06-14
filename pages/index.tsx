@@ -1,9 +1,10 @@
+import {Box} from 'components/box';
+import {SwitchColors} from 'components/switch-colors';
+import {Switcher} from 'components/switcher';
 import {useSession} from 'hooks/use-session';
 import {useUserGames} from 'hooks/use-user-games';
-import Link from 'next/link';
-import {useState} from 'react';
 import {useRouter} from 'next/dist/client/router';
-import {Box} from 'components/box';
+import Link from 'next/link';
 
 export default function Index() {
     const router = useRouter();
@@ -17,26 +18,38 @@ export default function Index() {
     }
     return (
         <div>
-            <div>Hello {session.username}!</div>
-            <Link href="/logout">
-                <a>Log out</a>
-            </Link>
-            <div>
-                <p>User games:</p>
-                {userGames.map(game => {
-                    return (
-                        <>
-                            <Box margin="8px">
-                                <Link href={getGameLink(game.name)}>
-                                    <a>{game.name}</a>
-                                </Link>
-                                <div>{game.players.length} players</div>
-                            </Box>
-                            <hr />
-                        </>
-                    );
-                })}
-            </div>
+            <Box marginBottom="6px" width="100%" display="flex" justifyContent="flex-end">
+                <Box marginRight="6px" display="inline-block">
+                    Hello {session.username}!
+                </Box>
+                <Link href="/logout">
+                    <a>Log out</a>
+                </Link>
+            </Box>
+            {userGames.length > 0 && (
+                <Switcher tabs={['Games']}>
+                    <Box
+                        marginBottom="16px"
+                        background="#ddd"
+                        border="2px solid gray"
+                        maxHeight="400px"
+                        overflowY="auto"
+                    >
+                        <SwitchColors>
+                            {userGames.map(game => {
+                                return (
+                                    <Box key={'overview-' + game.name} padding="4px">
+                                        <Link href="/games/[name]" as={getGameLink(game.name)}>
+                                            <a>{game.name}</a>
+                                        </Link>
+                                        <div>{game.players.length} players</div>
+                                    </Box>
+                                );
+                            })}
+                        </SwitchColors>
+                    </Box>
+                </Switcher>
+            )}
             <button onClick={() => goToNewGame()}>New game</button>
         </div>
     );

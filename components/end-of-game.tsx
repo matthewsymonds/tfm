@@ -1,14 +1,18 @@
-import {useStore} from 'react-redux';
-import styled from 'styled-components';
 import {useRouter} from 'next/router';
-import {getCardVictoryPoints} from 'selectors/card';
-import {getGreeneryScore, getCityScore, getMilestoneScore, getAwardScore} from 'selectors/score';
 import {useSyncState} from 'pages/sync-state';
+import {useStore} from 'react-redux';
+import {getCardVictoryPoints} from 'selectors/card';
+import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
+import styled from 'styled-components';
 
 const EndOfGameBase = styled.div`
     display: flex;
     flex-direction: column;
     margin: 50px auto;
+    background: #ccc;
+    padding: 16px;
+    border-radius: 4px;
+    max-width: 600px;
     justify-content: center;
 `;
 

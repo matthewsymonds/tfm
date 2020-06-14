@@ -1,11 +1,10 @@
+import {makePostCall} from 'api-calls';
 import {Input, SubmitInput} from 'components/input';
 import {useInput} from 'hooks/use-input';
-import {Centered} from 'components/centered';
-import Link from 'next/link';
 import {useSession} from 'hooks/use-session';
-import {useState, ReactElement, FormEvent, useEffect} from 'react';
-import {makePostCall} from 'api-calls';
+import Link from 'next/link';
 import {useRouter} from 'next/router';
+import {FormEvent, ReactElement, useEffect, useState} from 'react';
 
 export default function NewGame() {
     const {session, loading} = useSession();
@@ -62,43 +61,41 @@ export default function NewGame() {
             router.push('/games/' + result.game.name);
         }
     }
-    if (loading) return null;
+    if (loading) return <div />;
 
     return (
-        <Centered>
-            <div>
-                <h3>New Game</h3>
-                <Link href="/">
-                    <a>Back</a>
-                </Link>
-                {error ? (
-                    <div>
-                        <em>{error}</em>
-                    </div>
-                ) : null}
-                <form onSubmit={handleSubmit}>
-                    <Input
-                        autoFocus
-                        name="Game Name"
-                        autoComplete="off"
-                        value={gameName}
-                        onChange={updateGameName}
-                    />
-                    <div>
-                        <em>Letters, numbers, hyphens, underscores</em>
-                    </div>
-                    <Input
-                        type="number"
-                        name="Players"
-                        min={1}
-                        max={5}
-                        value={numPlayers}
-                        onChange={updateNumPlayers}
-                    />
-                    {usernameInputs}
-                    <SubmitInput />
-                </form>
-            </div>
-        </Centered>
+        <div>
+            <h3>New Game</h3>
+            <Link href="/">
+                <a>Back</a>
+            </Link>
+            {error ? (
+                <div>
+                    <em>{error}</em>
+                </div>
+            ) : null}
+            <form onSubmit={handleSubmit}>
+                <Input
+                    autoFocus
+                    name="Game Name"
+                    autoComplete="off"
+                    value={gameName}
+                    onChange={updateGameName}
+                />
+                <div>
+                    <em>Letters, numbers, hyphens, underscores</em>
+                </div>
+                <Input
+                    type="number"
+                    name="Players"
+                    min={1}
+                    max={5}
+                    value={numPlayers}
+                    onChange={updateNumPlayers}
+                />
+                {usernameInputs}
+                <SubmitInput />
+            </form>
+        </div>
     );
 }

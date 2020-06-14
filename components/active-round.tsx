@@ -7,7 +7,8 @@ import {
 } from 'actions';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import PaymentPopover from 'components/popovers/payment-popover';
-import {Amount} from 'constants/action';
+import {Switcher} from 'components/switcher';
+import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {colors} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -22,23 +23,21 @@ import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
-import styled, {createGlobalStyle, css} from 'styled-components';
+import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
+import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
+import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
-import {Button} from './button';
-import {CardActionElements, CardComponent, CardText, CardDisabledText} from './card';
+import {CardActionElements, CardComponent, CardDisabledText, CardText} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
-import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
-import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
-import {Switcher} from 'components/switcher';
-import {TileType} from 'constants/board';
+import {SwitchColors} from './switch-colors';
 
 const Hand = styled.div`
     display: flex;
@@ -56,12 +55,6 @@ const Info = styled.div`
     align-items: center;
 `;
 
-const GlobalStyle = createGlobalStyle`
-    body {
-        background: #212121;     
-    }
-`;
-
 const ActionBarButton = styled.button`
     display: inline;
     margin-left: 4px;
@@ -71,14 +64,6 @@ const ActionBarButton = styled.button`
     padding-right: 8px;
     padding-top: 6px;
     padding-bottom: 6px;
-`;
-
-const SwitchColors = styled.div`
-    > * {
-        &:nth-child(2n) {
-            background: #eee;
-        }
-    }
 `;
 
 const ActiveRoundOuter = styled.div`
@@ -238,7 +223,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }, []);
     return (
         <>
-            <GlobalStyle />
             <ActionBar>
                 <ActionBarRow>
                     <Flex width="100%" justifyContent="space-between">

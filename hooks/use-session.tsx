@@ -1,6 +1,6 @@
-import {useState, useEffect, useCallback} from 'react';
-import {useRouter} from 'next/dist/client/router';
 import {makeGetCall} from 'api-calls';
+import {useRouter} from 'next/dist/client/router';
+import {useCallback, useEffect, useState} from 'react';
 
 const emptySession = {
     username: '',
@@ -20,6 +20,7 @@ function getDefaultSessionFromSessionStorage() {
         } else {
             return emptySession;
         }
+        _;
     } catch (error) {
         return emptySession;
     }
