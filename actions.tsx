@@ -337,16 +337,12 @@ export const completeAction = (playerIndex: number) => ({
     payload: {playerIndex},
 });
 
-// If this is the player's first round
+// If this is the player's first action.
 export const SKIP_ACTION = 'SKIP_ACTION';
 export const skipAction = (playerIndex: number) => ({
     type: SKIP_ACTION,
     payload: {playerIndex},
 });
-
-// For debugging
-export const START_OVER = 'START_OVER';
-export const startOver = () => ({type: START_OVER});
 
 export const MARK_CARD_ACTION_AS_PLAYED = 'MARK_CARD_ACTION_AS_PLAYED';
 export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({

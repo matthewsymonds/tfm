@@ -8,7 +8,6 @@ import {
     setCards,
     setCorporation,
     setSelectedCards,
-    startOver,
     announceReadyToStartRound,
 } from 'actions';
 import {CardSelector} from 'components/card-selector';
@@ -78,10 +77,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
     function handleSelectAll() {
         dispatch(setSelectedCards(selectAllCards, playerIndex));
     }
-
-    function handleStartOver() {
-        dispatch(startOver());
-    }
     useSyncState();
 
     const player = context.getLoggedInPlayer(state);
@@ -142,7 +137,6 @@ export const CorporationSelection = ({playerIndex}: {playerIndex: number}) => {
                 <ActionBarRow>
                     <Prompt>
                         <div>{prompt}</div>
-                        <button onClick={() => handleStartOver()}>Start over</button>
                     </Prompt>
                     {player.action !== 1 ? (
                         <CardSelector
