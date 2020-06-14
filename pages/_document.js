@@ -12,7 +12,7 @@ const GlobalStyles = createGlobalStyle`
       display: flex;
       flex-direction: column;
     }
-    div.mac {
+    div.macBROKEN {
       span.tag-icon {
         position: relative;
         left: 2px;
