@@ -240,7 +240,12 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
             return true;
         }
 
-        const playerAmount = player.resources[resource];
+        let playerAmount: number;
+        if (resource === Resource.CARD) {
+            playerAmount = player.cards.length;
+        } else {
+            playerAmount = player.resources[resource];
+        }
 
         return playerAmount >= requiredAmount;
     }

@@ -1594,6 +1594,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         removeResource: {[Resource.PLANT]: 1},
+        increaseProduction: {[Resource.PLANT]: 1},
     },
     {
         action: {
