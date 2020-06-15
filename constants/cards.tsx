@@ -1869,6 +1869,7 @@ export const cardConfigs: CardConfig[] = [
             'Increase your heat production 4 steps. Place [the Mohole Area] tile ON AN AREA RESERVED FOR OCEAN.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.HEAT]: 4},
         tilePlacements: [t(TileType.MOHOLE_AREA, PlacementRequirement.RESERVED_FOR_OCEAN, true)],
     },
     {
