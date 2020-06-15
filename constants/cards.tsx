@@ -563,6 +563,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 3},
+        gainResource: {[Resource.STEEL]: 4},
         removeResource: {[Resource.PLANT]: 8},
         removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
@@ -4642,7 +4643,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 40},
         forcedAction: {
             tilePlacements: [t(TileType.CITY)],
-        }
+        },
     },
     {
         effect: {

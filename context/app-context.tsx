@@ -1,15 +1,17 @@
 import {
-    addParameterRequirementAdjustments,
     addForcedActionToPlayer,
+    addParameterRequirementAdjustments,
     applyDiscounts,
     applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToLookAtCards,
+    askUserToMakeActionChoice,
     askUserToPlaceTile,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_LOOK_AT_CARDS,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
     buySelectedCards,
     claimMilestone as claimMilestoneAction,
@@ -28,8 +30,6 @@ import {
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
-    askUserToMakeActionChoice,
-    ASK_USER_TO_MAKE_ACTION_CHOICE,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -39,9 +39,9 @@ import {
     CellType,
     Milestone,
     Parameter,
+    PlacementRequirement,
     TilePlacement,
     TileType,
-    PlacementRequirement,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
@@ -171,9 +171,11 @@ function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     for (const tag in card.requiredTags) {
         const requiredAmount = card.requiredTags[tag];
 
-        const playerTags = player.playedCards.flatMap(card => card.tags);
+        const playerTags = getTags(player);
 
-        return playerTags.filter(t => t === tag).length >= requiredAmount;
+        const isEnough = playerTags.filter(t => t === tag).length >= requiredAmount;
+
+        if (!isEnough) return false;
     }
 
     return true;
