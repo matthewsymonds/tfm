@@ -159,7 +159,7 @@ export function CardActionElements(props: {
     }
 
     function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
-        dispatch(markCardActionAsPlayed(card, player.index));
+        context.queue.push(markCardActionAsPlayed(card, player.index));
         context.playAction({action, state, parent: card, payment});
         context.queue.push(completeAction(player.index));
         context.processQueue(dispatch);

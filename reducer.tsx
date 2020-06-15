@@ -97,9 +97,10 @@ const stepsPlural = num => (num === 1 ? 'step' : 'steps');
 
 function handleEnterActiveRound(state: RootState) {
     if (
-        state.gameStage !== GameStage.ACTIVE_ROUND &&
+        state.common.gameStage !== GameStage.ACTIVE_ROUND &&
         state.players.every(player => player.action === 1)
     ) {
+        debugger;
         // Everyone's ready!
         for (const player of state.players) {
             player.possibleCards = [];
@@ -265,7 +266,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Land Claim';
+const bonusName = '';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {

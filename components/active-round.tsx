@@ -187,20 +187,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const players = useTypedSelector(state => state.players);
 
-    function getDefaultTabIndex(thisPlayer: PlayerState) {
-        if (thisPlayer.index !== playerIndex) {
-            // Always show "Played cards" by default since you can't see any cards in hand!
-            return 1;
-        }
-
-        // Simple heuristic.
-        // If num cards in hand > num played cards with unused actions, show hand.
-        return thisPlayer.cards.length >
-            thisPlayer.playedCards.filter(card => card.action && !card.usedActionThisRound).length
-            ? 0
-            : 1;
-    }
-
     function continueAfterRevealingCards() {
         context.queue.push(discardRevealedCards());
         context.processQueue(dispatch);
@@ -437,7 +423,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 <Switcher
                                                     color={colors[thisPlayer.index]}
                                                     tabs={['Hand', 'Played Cards']}
-                                                    defaultTabIndex={getDefaultTabIndex(thisPlayer)}
+                                                    defaultTabIndex={0}
                                                 >
                                                     {[cards, playedCards]}
                                                 </Switcher>
