@@ -129,9 +129,11 @@ export function CardActionElements(props: {
     const state = store.getState();
     if (!card.action) return null;
 
+    const thisRound = useTypedSelector(state => state.common.generation);
+
     const options = card.action.choice || [card.action];
 
-    if (card.usedActionThisRound) {
+    if (card.lastRoundUsedAction === thisRound) {
         return (
             <CardText>
                 <em>Used action this round</em>

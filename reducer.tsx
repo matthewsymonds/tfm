@@ -100,13 +100,9 @@ function handleEnterActiveRound(state: RootState) {
         state.common.gameStage !== GameStage.ACTIVE_ROUND &&
         state.players.every(player => player.action === 1)
     ) {
-        debugger;
         // Everyone's ready!
         for (const player of state.players) {
             player.possibleCards = [];
-            for (const cards of player.playedCards) {
-                cards.usedActionThisRound = false;
-            }
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
     }
@@ -791,7 +787,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 const playedCard = player.playedCards.find(
                     card => card.name === payload.card.name
                 )!;
-                playedCard.usedActionThisRound = true;
+                playedCard.lastRoundUsedAction = draft.common.generation;
                 draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
                 break;
             }

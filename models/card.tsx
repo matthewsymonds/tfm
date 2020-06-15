@@ -86,7 +86,7 @@ export class Card {
     /* What type of resources can be stored on this card, if any */
     storedResourceType?: Resource;
     /* Whether the card action has been used this round, if applicable */
-    usedActionThisRound?: boolean;
+    lastRoundUsedAction?: number;
     /* How many of the stored resource type are currently stored, if applicable */
     storedResourceAmount?: number;
 
@@ -197,7 +197,7 @@ export class Card {
         this.action = config.action;
         this.storedResourceType = config.storedResourceType;
         if (config.action) {
-            this.usedActionThisRound = false;
+            this.lastRoundUsedAction = 0;
         }
         if (this.storedResourceType) {
             this.storedResourceAmount = 0;
