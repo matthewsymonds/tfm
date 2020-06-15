@@ -74,7 +74,7 @@ export function getAwardScore(state: GameState, playerIndex: number) {
 
         const awardScores = state.players
             .map(player => mappingFn(player))
-            .sort((a, b) => a.quantity - b.quantity);
+            .sort((a, b) => b.quantity - a.quantity);
 
         // assign points
         let currentQuantity = awardScores[0].quantity;
