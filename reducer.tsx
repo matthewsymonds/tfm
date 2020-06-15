@@ -623,9 +623,11 @@ export const reducer = (state: GameState | null = null, action) => {
                 let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
                 let details: string[] = [];
                 for (const resource in payload.payment) {
-                    details.push(
-                        amountAndResource(payload.payment[resource], resource as Resource)
-                    );
+                    if (payload.payment[resource]) {
+                        details.push(
+                            amountAndResource(payload.payment[resource], resource as Resource)
+                        );
+                    }
                 }
 
                 if (details.length > 0) {
@@ -843,6 +845,7 @@ export const reducer = (state: GameState | null = null, action) => {
                             for (let i = 0; i < common.firstPlayerIndex; i++) {
                                 common.playingPlayers.push(i);
                             }
+                            common.currentPlayerIndex = common.firstPlayerIndex;
                             common.turn = 1;
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
