@@ -146,7 +146,7 @@ export function CardActionElements(props: {
         ) {
             setActionPendingPayment(cardAction);
         } else {
-            playAction(parentCard, cardAction);
+            playAction(parentCard, cardAction, {[Resource.MEGACREDIT]: cardAction.cost});
         }
     }
 
