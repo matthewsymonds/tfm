@@ -5,6 +5,9 @@ import {useSession} from 'hooks/use-session';
 import {useUserGames} from 'hooks/use-user-games';
 import {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
+import styled from 'styled-components';
+
+const Username = styled.div``;
 
 export default function Index() {
     const router = useRouter();
@@ -18,9 +21,9 @@ export default function Index() {
     }
     return (
         <div>
-            <Box marginBottom="6px" width="100%" display="flex" justifyContent="flex-end">
-                <Box marginRight="6px" display="inline-block">
-                    Hello {session.username}!
+            <Box marginBottom="6px" width="100%" display="flex" justifyContent="space-between">
+                <Box marginLeft="6px" display="inline-block">
+                    <Username>{session.username}</Username>
                 </Box>
                 <Link href="/logout">
                     <a>Log out</a>

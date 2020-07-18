@@ -502,9 +502,11 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.pendingVariableAmount = amount;
 
                 sourcePlayer.resources[resource] -= amount;
-                draft.log.push(
-                    `${corporationName} lost ${amountAndResource(payload.amount, resource)}`
-                );
+                if (amount) {
+                    draft.log.push(
+                        `${corporationName} lost ${amountAndResource(payload.amount, resource)}`
+                    );
+                }
                 break;
             }
             case REMOVE_STORABLE_RESOURCE: {

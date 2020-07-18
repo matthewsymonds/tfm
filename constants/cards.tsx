@@ -1419,6 +1419,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.ENERGY]: 4},
     },

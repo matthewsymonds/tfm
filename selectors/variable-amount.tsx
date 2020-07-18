@@ -123,6 +123,10 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const player = getLoggedInPlayer(state);
         return getTags(player).filter(tag => tag === Tag.JOVIAN).length;
     },
+    [VariableAmount.HALF_MICROBE_TAGS]: (state: RootState) => {
+        const player = getLoggedInPlayer(state);
+        return Math.floor(getTags(player).filter(tag => tag === Tag.MICROBE).length / 2);
+    },
     [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
         return card?.storedResourceAmount!;
     },

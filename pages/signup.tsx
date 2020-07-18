@@ -66,7 +66,7 @@ export default function Signup() {
             <Link href="/login" passHref>
                 <CenteredLink>or Log In</CenteredLink>
             </Link>
-            <MaybeVisible horizontalMargin={0} visible={!!error}>
+            <MaybeVisible textAlign="center" visible={!!error}>
                 <h4>
                     <em>{error || 'Something went wrong'}</em>
                 </h4>
@@ -95,7 +95,7 @@ export default function Signup() {
                     onBlur={handleSetShowPasswordValidation}
                     pattern=".{8,}"
                 />
-                <MaybeVisible left horizontalMargin={0} visible={passwordValidationVisible}>
+                <MaybeVisible textAlign="center" visible={passwordValidationVisible}>
                     <em>Password must be at least 8 characters.</em>
                 </MaybeVisible>
                 <Input
@@ -107,7 +107,7 @@ export default function Signup() {
                     onBlur={handleSetShowConfirmPasswordValidation}
                     pattern={password}
                 />
-                <MaybeVisible left horizontalMargin={0} visible={confirmPasswordValidationVisible}>
+                <MaybeVisible visible={confirmPasswordValidationVisible}>
                     <em>Passwords must match.</em>
                 </MaybeVisible>
                 <SubmitInput />

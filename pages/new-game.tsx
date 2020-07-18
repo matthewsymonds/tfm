@@ -6,6 +6,8 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import {FormEvent, ReactElement, useEffect, useState} from 'react';
 import {shuffle} from 'initial-state';
+import {MaybeVisible} from 'components/maybe-visible';
+import {Box} from 'components/box';
 
 export default function NewGame() {
     const {session, loading} = useSession();
@@ -34,17 +36,22 @@ export default function NewGame() {
 
     for (let i = 0; i < numPlayers; i++) {
         usernameInputs.push(
-            <Input
-                key={i}
-                name={`Player ${i + 1}`}
-                disabled={i === 0}
-                value={usernames[i]}
-                onChange={(event: FormEvent<HTMLInputElement>) => {
-                    event.preventDefault();
-                    const eventTarget = event.target as HTMLInputElement;
-                    setUsername(i, eventTarget.value);
-                }}
-            />
+            <>
+                <Input
+                    key={i}
+                    name={`Player ${i + 1}`}
+                    disabled={i === 0}
+                    value={usernames[i]}
+                    onChange={(event: FormEvent<HTMLInputElement>) => {
+                        event.preventDefault();
+                        const eventTarget = event.target as HTMLInputElement;
+                        setUsername(i, eventTarget.value);
+                    }}
+                />
+                <MaybeVisible visible={!!error && !!i}>
+                    <em>Double-check username</em>
+                </MaybeVisible>
+            </>
         );
     }
 
@@ -67,9 +74,6 @@ export default function NewGame() {
     return (
         <div>
             <h3>New Game</h3>
-            <Link href="/">
-                <a>Back</a>
-            </Link>
             {error ? (
                 <div>
                     <em>{error}</em>
@@ -83,9 +87,11 @@ export default function NewGame() {
                     value={gameName}
                     onChange={updateGameName}
                 />
-                <div>
-                    <em>Letters, numbers, hyphens, underscores</em>
-                </div>
+                <MaybeVisible visible={!!error}>
+                    <Box marginTop="4px">
+                        <em>May only contain letters, numbers, hyphens, underscores</em>
+                    </Box>
+                </MaybeVisible>
                 <Input
                     type="number"
                     name="Players"

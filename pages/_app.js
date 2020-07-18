@@ -11,13 +11,14 @@ import platform from 'platform-detect';
 import {Provider} from 'react-redux';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
+import {Mars} from 'components/mars';
 
 const GlobalStyles = createGlobalStyle`
     body {
         margin: 0;
         font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
             Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-        background: #212121;    
+        background: #212121   
     }
     html, body, #__next, #__next > div {
       min-height: 100vh;
@@ -73,6 +74,10 @@ const GlobalStyles = createGlobalStyle`
       margin-top: 16px;
       margin-bottom: 16px;
       display: inherit;
+    }
+    h3 {
+      text-align: left;
+      margin-top: 0px;
     }
     h4 {
       font-weight: normal;
@@ -143,8 +148,8 @@ function InnerAppComponent({Component, pageProps}) {
     }
     return (
         <>
-            <Header />
             <Centered>
+                <Mars />
                 <InputBox>
                     <Component {...pageProps} />
                 </InputBox>
