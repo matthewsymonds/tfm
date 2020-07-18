@@ -1947,6 +1947,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {
             [Resource.ANIMAL]: 1,
         },
+        decreaseAnyProduction: {[Resource.PLANT]: 1},
         gainResourceTargetType: ResourceLocationType.THIS_CARD,
     },
     {
