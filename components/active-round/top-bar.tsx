@@ -8,7 +8,7 @@ import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
 import styled, {css, keyframes} from 'styled-components';
-import {ActionBar, ActionBarRow} from './action-bar';
+import {ActionBar, ActionBarRow} from '../action-bar';
 import {Flex} from 'components/box';
 
 const ActionBarButton = styled.button`

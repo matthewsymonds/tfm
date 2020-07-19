@@ -9,25 +9,27 @@ import {
     setCards,
     setSelectedCards,
 } from 'actions';
+import {PlayerPanel} from 'components/active-round/player-panel';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
-import PaymentPopover from 'components/popovers/payment-popover';
 import {Switcher} from 'components/switcher';
+import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
-import {CardType} from 'constants/card-types';
-import {colors, GameStage} from 'constants/game';
+import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
-import {getResourceName, Resource} from 'constants/resource';
+import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
+import {Pane} from 'evergreen-ui';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
-import React, {MouseEvent, useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
-import {getHumanReadableTileName, aAnOrThe} from 'selectors/get-human-readable-tile-name';
+import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
+import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import Awards from './board/awards';
 import {Board} from './board/board';
@@ -35,38 +37,10 @@ import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
 import {Button} from './button';
-import {CardActionElements, CardComponent, CardDisabledText, CardText} from './card';
+import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
-import {PlayerOverview} from './player-overview';
-import {Square} from './square';
 import {SwitchColors} from './switch-colors';
-import {TopBar} from 'components/top-bar';
-import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
-
-const Hand = styled.div`
-    display: flex;
-    align-items: stretch;
-    justify-content: flex-start;
-    width: 100%;
-    overflow-y: auto;
-    flex-wrap: wrap;
-`;
-
-const ActiveRoundOuter = styled.div`
-    width: calc(100% - 32px);
-    margin: 16px;
-    display: flex;
-`;
-
-const RightBox = styled.div`
-    width: 100%;
-    flex-grow: 1;
-`;
-
-const HiddenCardsMessage = styled.div`
-    margin: 16px;
-`;
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -253,12 +227,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         (loggedInPlayer.numCardsToTake !== null &&
             loggedInPlayer.selectedCards.length < loggedInPlayer.numCardsToTake);
 
-    const sortedPlayers = [...players].sort(
-        (a, b) =>
-            state.common.playerIndexOrderForGeneration.indexOf(a.index) -
-            state.common.playerIndexOrderForGeneration.indexOf(b.index)
-    );
-
     const isPlayerMakingDecision =
         loggedInPlayer.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
@@ -287,25 +255,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 loggedInPlayer={loggedInPlayer}
                 isPlayerMakingDecision={isPlayerMakingDecision}
             />
-            <ActiveRoundOuter className="active-round-outer">
-                <Box width={'648px'}>
-                    <Board
-                        board={state.common.board}
-                        playerIndex={loggedInPlayerIndex}
-                        parameters={state.common.parameters}
-                    />
-                    <Box>
-                        <GlobalParams parameters={state.common.parameters} />
-                    </Box>
-                    <Box>
-                        <Panel>
-                            <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
-                                <StandardProjects />
-                                <Milestones />
-                                <Awards />
-                            </Switcher>
-                        </Panel>
-                    </Box>
+            <Pane className="active-round-outer" display="flex" margin="16px">
+                <Pane className="active-round-left" display="flex" flexDirection="column">
+                    <PlayerPanel loggedInPlayerIndex={loggedInPlayerIndex} />
                     <Panel>
                         <Box margin="8px" fontWeight="bold">
                             <em>Log</em>
@@ -331,200 +283,28 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             </SwitchColors>
                         </Flex>
                     </Panel>
-                </Box>
+                </Pane>
 
-                <RightBox className="right-box">
-                    <Box width="100%">
-                        <Switcher
-                            defaultTabIndex={sortedPlayers.indexOf(loggedInPlayer)}
-                            tabs={sortedPlayers.map(player => (
-                                <Flex flexDirection="row" alignItems="center" key={player.index}>
-                                    <Box display="inline-block" marginRight="8px">
-                                        {isCorporationSelection
-                                            ? player.username
-                                            : player.corporation.name}
-                                    </Box>
-                                    <Square playerIndex={player.index} />
-                                </Flex>
-                            ))}
-                        >
-                            {sortedPlayers.map(thisPlayer => {
-                                const handKey = thisPlayer.index + 'hand';
-                                const cards = (
-                                    <Hand key={handKey}>
-                                        {thisPlayer.cards.map(card => {
-                                            const [canPlay, reason] = context.canPlayCard(
-                                                card,
-                                                state
-                                            );
-                                            return (
-                                                <CardComponent key={card.name} content={card}>
-                                                    {!canPlay && (
-                                                        <CardDisabledText>
-                                                            <em>{reason}</em>
-                                                        </CardDisabledText>
-                                                    )}
-                                                    {loggedInPlayerIndex === thisPlayer.index ? (
-                                                        <button
-                                                            disabled={
-                                                                !canPlay ||
-                                                                loggedInPlayer.pendingDiscard
-                                                            }
-                                                            onClick={() => handlePlayCard(card)}
-                                                            id={card.name.replace(/\s+/g, '-')}
-                                                        >
-                                                            Play
-                                                        </button>
-                                                    ) : null}
-                                                </CardComponent>
-                                            );
-                                        })}
-                                        {cardPendingPayment && (
-                                            <PaymentPopover
-                                                isOpen={isPaymentPopoverOpen}
-                                                target={cardPendingPayment.name.replace(
-                                                    /\s+/g,
-                                                    '-'
-                                                )}
-                                                card={cardPendingPayment}
-                                                toggle={() =>
-                                                    setIsPaymentPopoverOpen(!isPaymentPopoverOpen)
-                                                }
-                                                onConfirmPayment={(...args) =>
-                                                    handleConfirmCardPayment(...args)
-                                                }
-                                            />
-                                        )}
-                                    </Hand>
-                                );
-                                const playedCardsKey = thisPlayer.index + 'playedCards';
-                                const playedCards = (
-                                    <Hand key={playedCardsKey}>
-                                        {thisPlayer.playedCards
-                                            .filter(card => card.type !== CardType.CORPORATION)
-                                            .map(card => {
-                                                let resources = '';
-                                                const {
-                                                    storedResourceType: type,
-                                                    storedResourceAmount: amount,
-                                                } = card;
-                                                if (type) {
-                                                    resources = `Holds ${amount} ${getResourceName(
-                                                        type
-                                                    )}${amount === 1 ? '' : 's'}`;
-                                                }
-
-                                                const isLoggedInPlayer =
-                                                    thisPlayer.index === loggedInPlayerIndex;
-                                                return (
-                                                    <CardComponent
-                                                        content={card}
-                                                        key={card.name}
-                                                        isHidden={
-                                                            !isLoggedInPlayer &&
-                                                            card.type === CardType.EVENT
-                                                        }
-                                                    >
-                                                        {resources && (
-                                                            <CardText>{resources}</CardText>
-                                                        )}
-
-                                                        <CardActionElements
-                                                            player={thisPlayer}
-                                                            isLoggedInPlayer={isLoggedInPlayer}
-                                                            card={card}
-                                                        />
-                                                    </CardComponent>
-                                                );
-                                            })}
-                                    </Hand>
-                                );
-
-                                const cardsHiddenCorporationSelection = (
-                                    <HiddenCardsMessage key={handKey}>
-                                        You can't count {thisPlayer.username}'s hand until
-                                        everyone's ready.
-                                    </HiddenCardsMessage>
-                                );
-
-                                const cardsHiddenBuyOrDiscard = (
-                                    <HiddenCardsMessage key={handKey}>
-                                        {thisPlayer.corporation.name} had{' '}
-                                        {thisPlayer.previousCardsInHand || 0} card
-                                        {thisPlayer.previousCardsInHand === 1 ? '' : 's'} at the end
-                                        of the previous round.
-                                    </HiddenCardsMessage>
-                                );
-
-                                const cardsHiddenActiveRound = (
-                                    <HiddenCardsMessage key={handKey}>
-                                        {thisPlayer.corporation.name} has {thisPlayer.cards.length}{' '}
-                                        card
-                                        {thisPlayer.cards.length === 1 ? '' : 's'} in hand.
-                                    </HiddenCardsMessage>
-                                );
-
-                                const noPlayedCardsMessage = (
-                                    <HiddenCardsMessage key={playedCardsKey}>
-                                        No cards played yet.
-                                    </HiddenCardsMessage>
-                                );
-
-                                const noCardsInHandMessage = (
-                                    <HiddenCardsMessage key={handKey}>
-                                        No cards in hand.
-                                    </HiddenCardsMessage>
-                                );
-
-                                const isLoggedInPlayer = thisPlayer.index === loggedInPlayerIndex;
-
-                                const cardsHidden = isCorporationSelection
-                                    ? cardsHiddenCorporationSelection
-                                    : isBuyOrDiscard
-                                    ? cardsHiddenBuyOrDiscard
-                                    : cardsHiddenActiveRound;
-
-                                const playedCardsExcludingCorp = thisPlayer.playedCards.filter(
-                                    card => card.type !== CardType.CORPORATION
-                                );
-
-                                return (
-                                    <React.Fragment key={thisPlayer.index}>
-                                        <Flex flexDirection="column" justifyContent="stretch">
-                                            <Panel>
-                                                <PlayerOverview
-                                                    player={thisPlayer}
-                                                    isLoggedInPlayer={
-                                                        loggedInPlayerIndex === thisPlayer.index
-                                                    }
-                                                />
-                                            </Panel>
-                                            <Panel>
-                                                <Switcher
-                                                    color={colors[thisPlayer.index]}
-                                                    tabs={['Hand', 'Played Cards']}
-                                                    defaultTabIndex={0}
-                                                >
-                                                    {[
-                                                        !isLoggedInPlayer
-                                                            ? cardsHidden
-                                                            : thisPlayer.cards.length === 0
-                                                            ? noCardsInHandMessage
-                                                            : cards,
-                                                        playedCardsExcludingCorp.length > 0
-                                                            ? playedCards
-                                                            : noPlayedCardsMessage,
-                                                    ]}
-                                                </Switcher>
-                                            </Panel>
-                                        </Flex>
-                                    </React.Fragment>
-                                );
-                            })}
-                        </Switcher>
+                <Pane className="active-round-right" display="flex" flexDirection="column">
+                    <Board
+                        board={state.common.board}
+                        playerIndex={loggedInPlayerIndex}
+                        parameters={state.common.parameters}
+                    />
+                    <Box>
+                        <GlobalParams parameters={state.common.parameters} />
                     </Box>
-                </RightBox>
-            </ActiveRoundOuter>
+                    <Box>
+                        <Panel>
+                            <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
+                                <StandardProjects />
+                                <Milestones />
+                                <Awards />
+                            </Switcher>
+                        </Panel>
+                    </Box>
+                </Pane>
+            </Pane>
             {isPlayerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
