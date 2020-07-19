@@ -277,7 +277,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = '';
+const bonusName = 'Mars University';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -387,6 +387,8 @@ export const reducer = (state: GameState | null = null, action) => {
                     amount: payload.amount,
                     card: payload.card,
                 };
+                player.possibleCards = player.cards;
+                player.selectedCards = [];
                 break;
             case ASK_USER_TO_LOOK_AT_CARDS:
                 player.possibleCards = handleDrawCards(payload.amount);
@@ -435,6 +437,8 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
+                player.selectedCards = [];
+                player.possibleCards = [];
                 break;
             case DRAW_CARDS:
                 draft.log.push(
