@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
 const ActionBarBase = styled.div`
-    padding: 12px;
-    padding-left: 18px;
     background: #fdfdfd;
     position: fixed;
     top: 0;
@@ -11,7 +9,7 @@ const ActionBarBase = styled.div`
         bottom: 0;
         top: initial;
     }
-    width: calc(100% - 30px);
+    width: 100%;
     z-index: 30;
     box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.35);
     overflow-x: auto;

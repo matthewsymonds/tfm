@@ -111,7 +111,7 @@ type PlayerId = number;
 
 export type CommonState = {
     // List of indices of playing players.
-    playingPlayers: number[];
+    playerIndexOrderForGeneration: number[];
     deck: Card[];
     discardPile: Card[];
     revealedCards: Card[];
@@ -251,11 +251,25 @@ function isGameEndTriggered(draft: RootState) {
 }
 
 function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
-    const oldPlayerIndex = state.common.currentPlayerIndex;
-    const placeInTurnOrder = state.common.playingPlayers.indexOf(oldPlayerIndex);
-    const newPlayerPlaceInTurnOrder = (placeInTurnOrder + 1) % state.common.playingPlayers.length;
-    draft.common.currentPlayerIndex = state.common.playingPlayers[newPlayerPlaceInTurnOrder];
-    if (newPlayerPlaceInTurnOrder === 0) {
+    const {
+        players,
+        common: {currentPlayerIndex: oldPlayerIndex, playerIndexOrderForGeneration: turnOrder},
+    } = state;
+
+    const oldPlaceInTurnOrder = turnOrder.indexOf(oldPlayerIndex);
+    let newPlaceInTurnOrder = (oldPlaceInTurnOrder + 1) % turnOrder.length;
+
+    // keep iterating through turnOrder until you find someone who hasn't passed
+    // exit the loop if we did a full cycle
+    while (
+        players.find(p => p.index === turnOrder[newPlaceInTurnOrder]).action === 0 &&
+        newPlaceInTurnOrder !== oldPlaceInTurnOrder
+    ) {
+        newPlaceInTurnOrder = (newPlaceInTurnOrder + 1) % turnOrder.length;
+    }
+
+    draft.common.currentPlayerIndex = turnOrder[newPlaceInTurnOrder];
+    if (newPlaceInTurnOrder < oldPlaceInTurnOrder) {
         draft.common.turn++;
         draft.log.push(`Turn ${draft.common.turn}`);
     }
@@ -805,11 +819,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     player.terraformedThisGeneration = false;
                     player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
 
-                    common.playingPlayers = common.playingPlayers.filter(
-                        index => index !== common.currentPlayerIndex
-                    );
-                    // After removing the current player, is anyone else playing?
-                    if (common.playingPlayers.length === 0) {
+                    // Check if all other players have also passed
+                    const activePlayers = draft.players.filter(p => p.action !== 0);
+                    if (activePlayers.length === 0) {
                         if (common.gameStage === GameStage.GREENERY_PLACEMENT) {
                             common.gameStage = GameStage.END_OF_GAME;
                             return;
@@ -818,28 +830,33 @@ export const reducer = (state: GameState | null = null, action) => {
                         handleProduction(draft);
 
                         if (isGameEndTriggered(draft)) {
-                            common.playingPlayers = draft.players
-                                .filter(
-                                    p =>
-                                        p.resources[Resource.PLANT] >=
-                                        CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT] -
-                                            (p.plantDiscount || 0)
-                                )
-                                .map(player => player.index);
-                            if (common.playingPlayers.length > 0) {
+                            draft.players.forEach(player => {
+                                const canPlaceGreenery =
+                                    player.resources[Resource.PLANT] >=
+                                    CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT] -
+                                        (player.plantDiscount || 0);
+                                if (canPlaceGreenery) {
+                                    player.action = 1;
+                                }
+                            });
+
+                            const playersWhoCanPlaceGreenery = draft.players.filter(
+                                p => p.action === 1
+                            );
+                            if (playersWhoCanPlaceGreenery.length > 0) {
                                 common.gameStage = GameStage.GREENERY_PLACEMENT;
                             } else {
                                 common.gameStage = GameStage.END_OF_GAME;
                             }
                         } else {
+                            // shift the turn order by 1
+                            const oldTurnOrder = state.common.playerIndexOrderForGeneration;
+                            draft.common.playerIndexOrderForGeneration = [
+                                ...oldTurnOrder.slice(1),
+                                oldTurnOrder[0],
+                            ];
                             common.firstPlayerIndex =
                                 (common.firstPlayerIndex + 1) % draft.players.length;
-                            for (let i = common.firstPlayerIndex; i < draft.players.length; i++) {
-                                common.playingPlayers.push(i);
-                            }
-                            for (let i = 0; i < common.firstPlayerIndex; i++) {
-                                common.playingPlayers.push(i);
-                            }
                             common.currentPlayerIndex = common.firstPlayerIndex;
                             common.turn = 1;
                             common.generation++;

@@ -1,6 +1,6 @@
 import {GameState, useTypedSelector} from 'reducer';
 
-export function getWaitingMessage(playerIndex: number, state: GameState) {
+export function getWaitingMessage(playerIndex: number) {
     const playerWhoseTurnItIs = useTypedSelector(
         state => state.players[state.common.currentPlayerIndex]
     );

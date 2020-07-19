@@ -8,7 +8,6 @@ import {
     removeForcedActionFromPlayer,
     setCards,
     setSelectedCards,
-    skipAction,
 } from 'actions';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import PaymentPopover from 'components/popovers/payment-popover';
@@ -45,6 +44,7 @@ import GlobalParams from './global-params';
 import {PlayerOverview} from './player-overview';
 import {Square} from './square';
 import {SwitchColors} from './switch-colors';
+import {TopBar} from 'components/top-bar';
 
 const Hand = styled.div`
     display: flex;
@@ -53,24 +53,6 @@ const Hand = styled.div`
     width: 100%;
     overflow-y: auto;
     flex-wrap: wrap;
-`;
-
-const Info = styled.div`
-    font-size: 12px;
-    margin-right: 4px;
-    display: flex;
-    align-items: center;
-`;
-
-const ActionBarButton = styled.button`
-    display: inline;
-    margin-left: 4px;
-    width: fit-content;
-    min-width: 0px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 6px;
-    padding-bottom: 6px;
 `;
 
 const ActiveRoundOuter = styled.div`
@@ -250,11 +232,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     const sortedPlayers = [...players].sort(
         (a, b) =>
-            state.common.playingPlayers.indexOf(a.index) -
-            state.common.playingPlayers.indexOf(b.index)
+            state.common.playerIndexOrderForGeneration.indexOf(a.index) -
+            state.common.playerIndexOrderForGeneration.indexOf(b.index)
     );
 
-    const playerMakingDecision =
+    const isPlayerMakingDecision =
         player.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
         player.possibleCards.length > 0 ||
@@ -264,7 +246,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         player.pendingDiscard;
 
     useEffect(() => {
-        if (!playerMakingDecision) {
+        if (!isPlayerMakingDecision) {
             context.processQueue(dispatch);
         }
     }, []);
@@ -272,27 +254,10 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
 
     const passedMessage = action || gameStage !== GameStage.ACTIVE_ROUND ? '' : 'You have passed';
+
     return (
         <>
-            <ActionBar>
-                <ActionBarRow>
-                    <Flex width="100%" justifyContent="space-between">
-                        <Info>
-                            Playing as {player.corporation.name}. {passedMessage}
-                            {action ? waitingMessage || `Action ${action} of 2` : null}
-                            {action && !(context.shouldDisableUI(state) || playerMakingDecision) ? (
-                                <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
-                                    {action === 2 ? 'Skip 2nd action' : 'Pass'}
-                                </ActionBarButton>
-                            ) : null}
-                        </Info>
-                        <Info>
-                            Gen {generation}, Turn {turn}
-                            <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
-                        </Info>
-                    </Flex>
-                </ActionBarRow>
-            </ActionBar>
+            <TopBar player={player} isPlayerMakingDecision={isPlayerMakingDecision} />
             <ActiveRoundOuter className="active-round-outer">
                 <Box width={'648px'}>
                     <Board
@@ -344,7 +309,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         <Switcher
                             defaultTabIndex={sortedPlayers.indexOf(player)}
                             tabs={sortedPlayers.map(player => (
-                                <Flex flexDirection="row" alignItems="center">
+                                <Flex flexDirection="row" alignItems="center" key={player.index}>
                                     <Box display="inline-block" marginRight="8px">
                                         {isCorporationSelection
                                             ? player.username
@@ -533,7 +498,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     </Box>
                 </RightBox>
             </ActiveRoundOuter>
-            {playerMakingDecision && (
+            {isPlayerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
                         {player.pendingChoice && <AskUserToMakeActionChoice player={player} />}

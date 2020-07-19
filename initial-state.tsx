@@ -42,7 +42,7 @@ export function getInitialState(players: string[]): GameState {
     const base = {
         log: ['Generation 1'] as string[],
         common: {
-            playingPlayers: [] as number[],
+            playerIndexOrderForGeneration: [] as number[],
             discardPile: [],
             revealedCards: [],
             gameStage: GameStage.CORPORATION_SELECTION,
@@ -112,7 +112,7 @@ export function getInitialState(players: string[]): GameState {
         });
     }
 
-    base.common.playingPlayers = base.players.map(player => player.index);
+    base.common.playerIndexOrderForGeneration = base.players.map(player => player.index);
 
     return base;
 }
