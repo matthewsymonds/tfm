@@ -96,18 +96,30 @@ type TopBarProps = {
 };
 
 export const TopBar = ({loggedInPlayer, isPlayerMakingDecision}: TopBarProps) => {
+    /**
+     * Hooks
+     */
     const store = useStore<RootState>();
     const state = store.getState();
     const context = useContext(AppContext);
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const {action, index: loggedInPlayerIndex} = loggedInPlayer;
+    /**
+     * State selectors
+     */
     const generation = useTypedSelector(state => state.common.generation);
     const turn = useTypedSelector(state => state.common.turn);
     const allPlayers = useTypedSelector(state => state.players ?? []);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+
+    /**
+     * Derived state
+     */
+    const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
+    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
 
     return (
         <ActionBar>
@@ -147,6 +159,7 @@ export const TopBar = ({loggedInPlayer, isPlayerMakingDecision}: TopBarProps) =>
                         )}
                         {loggedInPlayer.action > 0 &&
                             isLoggedInPlayersTurn &&
+                            isActiveRound &&
                             !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
                                 <ActionBarButton
                                     onClick={() => dispatch(skipAction(loggedInPlayerIndex))}
