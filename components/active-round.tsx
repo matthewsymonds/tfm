@@ -21,12 +21,10 @@ import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
-import {useRouter} from 'next/router';
 import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
-import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
@@ -74,12 +72,9 @@ const PromptTitle = styled.h3`
     margin-top: 16px;
 `;
 
-export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
-    const player = useTypedSelector(state => state.players[playerIndex]);
-    const {corporation, possibleCards, cards, selectedCards} = player;
-    const turn = useTypedSelector(state => state.common.turn);
-    const action = player.action;
-    const generation = useTypedSelector(state => state.common.generation);
+export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}) => {
+    const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
+    const {corporation, possibleCards, cards, selectedCards} = loggedInPlayer;
     const store = useStore<RootState>();
     const state = store.getState();
     const dispatch = useDispatch();
@@ -91,7 +86,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
 
     let maxCardsToDiscard: number;
-    const discardAmount = player?.pendingDiscard?.amount;
+    const discardAmount = loggedInPlayer?.pendingDiscard?.amount;
 
     if (discardAmount === VariableAmount.USER_CHOICE) {
         maxCardsToDiscard = cards.length;
@@ -112,7 +107,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     // For selecting cards to discard
     function handleCardClick(card) {
-        if (player.pendingDiscard) {
+        if (loggedInPlayer.pendingDiscard) {
             let newCardsToDiscard = [...cardsToDiscard];
             if (newCardsToDiscard.includes(card)) {
                 newCardsToDiscard = newCardsToDiscard.filter(c => c !== card);
@@ -129,14 +124,16 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     useSyncState();
 
     useEffect(() => {
-        if (state.common.currentPlayerIndex === player.index) {
-            const forcedActions = getForcedActionsForPlayer(state, player.index);
+        if (state.common.currentPlayerIndex === loggedInPlayerIndex) {
+            const forcedActions = getForcedActionsForPlayer(state, loggedInPlayer.index);
 
             for (let i = 0; i < 2; i++) {
                 if (forcedActions[i]) {
                     context.playAction({state, action: forcedActions[i]});
-                    context.queue.push(completeAction(player.index));
-                    context.queue.push(removeForcedActionFromPlayer(playerIndex, forcedActions[i]));
+                    context.queue.push(completeAction(loggedInPlayer.index));
+                    context.queue.push(
+                        removeForcedActionFromPlayer(loggedInPlayerIndex, forcedActions[i])
+                    );
                 }
             }
             context.processQueue(dispatch);
@@ -144,7 +141,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }, []);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
-        dispatch(moveCardFromHandToPlayArea(card, playerIndex));
+        dispatch(moveCardFromHandToPlayArea(card, loggedInPlayerIndex));
         context.playCard(card, store.getState(), payment);
         // Have to trigger effects from the card we just played.
         // Must be processed separatedly in case the card affects itself.
@@ -157,7 +154,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }
 
     function handlePlayCard(card: Card) {
-        if (doesCardPaymentRequirePlayerInput(player, card)) {
+        if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
             setCardPendingPayment(card);
             setIsPaymentPopoverOpen(true);
         } else {
@@ -175,7 +172,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     }
 
     function confirmDiscardSelection() {
-        dispatch(discardCards(cardsToDiscard, playerIndex));
+        dispatch(discardCards(cardsToDiscard, loggedInPlayerIndex));
         context.processQueue(dispatch);
         setCardsToDiscard([]);
     }
@@ -194,45 +191,46 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         }
 
         if (gameStage === GameStage.CORPORATION_SELECTION) {
-            dispatch(moveCardFromHandToPlayArea(corporation, playerIndex));
+            dispatch(moveCardFromHandToPlayArea(corporation, loggedInPlayerIndex));
             context.playCard(corporation, state);
             context.triggerEffectsFromPlayedCard(corporation, store.getState());
         }
 
-        dispatch(setCards(cards.concat(selectedCards), playerIndex));
-        dispatch(setSelectedCards([], playerIndex));
+        dispatch(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+        dispatch(setSelectedCards([], loggedInPlayerIndex));
         dispatch(
             discardCards(
                 possibleCards.filter(card => !selectedCards.includes(card)),
-                playerIndex
+                loggedInPlayerIndex
             )
         );
-        dispatch(payForCards(selectedCards, player.index));
-        dispatch(announceReadyToStartRound(playerIndex));
+        dispatch(payForCards(selectedCards, loggedInPlayerIndex));
+        dispatch(announceReadyToStartRound(loggedInPlayerIndex));
         context.processQueue(dispatch);
     }
 
-    const waitingMessage = getWaitingMessage(playerIndex, state);
-
-    const router = useRouter();
-
-    const totalCardCost = player.selectedCards.length * 3;
+    const totalCardCost = loggedInPlayer.selectedCards.length * 3;
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const playerMoney =
         gameStage === GameStage.CORPORATION_SELECTION
-            ? player.corporation.gainResource[Resource.MEGACREDIT]
-            : player.resources[Resource.MEGACREDIT];
-    const remaining = player.buyCards ? playerMoney - totalCardCost : playerMoney;
-    const numCardsToTake = player.buyCards ? player.possibleCards.length : player.numCardsToTake;
-    let lookAtCardsPrompt = `Select ${player.buyCards ? 'up to ' : ''}${numCardsToTake} card${
-        numCardsToTake !== 1 ? 's' : ''
-    } to ${player.buyCards ? 'buy' : 'take'}`;
-    if (player.buyCards) {
+            ? loggedInPlayer.corporation.gainResource[Resource.MEGACREDIT]
+            : loggedInPlayer.resources[Resource.MEGACREDIT];
+    const remaining = loggedInPlayer.buyCards ? playerMoney - totalCardCost : playerMoney;
+    const numCardsToTake = loggedInPlayer.buyCards
+        ? loggedInPlayer.possibleCards.length
+        : loggedInPlayer.numCardsToTake;
+    let lookAtCardsPrompt = `Select ${
+        loggedInPlayer.buyCards ? 'up to ' : ''
+    }${numCardsToTake} card${numCardsToTake !== 1 ? 's' : ''} to ${
+        loggedInPlayer.buyCards ? 'buy' : 'take'
+    }`;
+    if (loggedInPlayer.buyCards) {
         lookAtCardsPrompt += ` (${remaining} MC remaining)`;
     }
     const cannotContinueAfterLookingAtCards =
         totalCardCost > playerMoney ||
-        (player.numCardsToTake !== null && player.selectedCards.length < player.numCardsToTake);
+        (loggedInPlayer.numCardsToTake !== null &&
+            loggedInPlayer.selectedCards.length < loggedInPlayer.numCardsToTake);
 
     const sortedPlayers = [...players].sort(
         (a, b) =>
@@ -241,13 +239,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     );
 
     const isPlayerMakingDecision =
-        player.pendingTilePlacement ||
+        loggedInPlayer.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
-        player.possibleCards.length > 0 ||
-        player.pendingResourceActionDetails ||
-        player.pendingChoice ||
-        player.forcedActions.length ||
-        player.pendingDiscard;
+        loggedInPlayer.possibleCards.length > 0 ||
+        loggedInPlayer.pendingResourceActionDetails ||
+        loggedInPlayer.pendingChoice ||
+        loggedInPlayer.forcedActions.length ||
+        loggedInPlayer.pendingDiscard;
 
     useEffect(() => {
         if (!isPlayerMakingDecision) {
@@ -259,12 +257,15 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
 
     return (
         <>
-            <TopBar player={player} isPlayerMakingDecision={isPlayerMakingDecision} />
+            <TopBar
+                loggedInPlayer={loggedInPlayer}
+                isPlayerMakingDecision={isPlayerMakingDecision}
+            />
             <ActiveRoundOuter className="active-round-outer">
                 <Box width={'648px'}>
                     <Board
                         board={state.common.board}
-                        playerIndex={playerIndex}
+                        playerIndex={loggedInPlayerIndex}
                         parameters={state.common.parameters}
                     />
                     <Box>
@@ -309,7 +310,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                 <RightBox className="right-box">
                     <Box width="100%">
                         <Switcher
-                            defaultTabIndex={sortedPlayers.indexOf(player)}
+                            defaultTabIndex={sortedPlayers.indexOf(loggedInPlayer)}
                             tabs={sortedPlayers.map(player => (
                                 <Flex flexDirection="row" alignItems="center" key={player.index}>
                                     <Box display="inline-block" marginRight="8px">
@@ -335,7 +336,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     key={card.name}
                                                     content={card}
                                                     onClick={(e: MouseEvent<HTMLDivElement>) => {
-                                                        if (playerIndex !== thisPlayer.index)
+                                                        if (
+                                                            loggedInPlayerIndex !== thisPlayer.index
+                                                        )
                                                             return;
                                                         handleCardClick(card);
                                                     }}
@@ -346,10 +349,11 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                             <em>{reason}</em>
                                                         </CardDisabledText>
                                                     )}
-                                                    {playerIndex === thisPlayer.index ? (
+                                                    {loggedInPlayerIndex === thisPlayer.index ? (
                                                         <button
                                                             disabled={
-                                                                !canPlay || player.pendingDiscard
+                                                                !canPlay ||
+                                                                loggedInPlayer.pendingDiscard
                                                             }
                                                             onClick={() => handlePlayCard(card)}
                                                             id={card.name.replace(/\s+/g, '-')}
@@ -396,7 +400,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 }
 
                                                 const isLoggedInPlayer =
-                                                    thisPlayer.index === playerIndex;
+                                                    thisPlayer.index === loggedInPlayerIndex;
                                                 return (
                                                     <CardComponent
                                                         content={card}
@@ -457,7 +461,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     </HiddenCardsMessage>
                                 );
 
-                                const isLoggedInPlayer = thisPlayer.index === playerIndex;
+                                const isLoggedInPlayer = thisPlayer.index === loggedInPlayerIndex;
 
                                 const cardsHidden = isCorporationSelection
                                     ? cardsHiddenCorporationSelection
@@ -476,7 +480,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 <PlayerOverview
                                                     player={thisPlayer}
                                                     isLoggedInPlayer={
-                                                        playerIndex === thisPlayer.index
+                                                        loggedInPlayerIndex === thisPlayer.index
                                                     }
                                                 />
                                             </Panel>
@@ -509,26 +513,28 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             {isPlayerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
-                        {player.pendingChoice && <AskUserToMakeActionChoice player={player} />}
-                        {player.pendingDiscard && (
+                        {loggedInPlayer.pendingChoice && (
+                            <AskUserToMakeActionChoice player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingDiscard && (
                             <AskUserToConfirmDiscardSelection
                                 minCardsToDiscard={minCardsToDiscard}
                                 maxCardsToDiscard={maxCardsToDiscard}
                                 cardsToDiscard={cardsToDiscard}
                                 confirmDiscardSelection={confirmDiscardSelection}
-                                player={player}
+                                player={loggedInPlayer}
                             />
                         )}
-                        {player.possibleCards.length > 0 && (
+                        {loggedInPlayer.possibleCards.length > 0 && (
                             <Flex flexDirection="column">
                                 <PromptTitle>{lookAtCardsPrompt}</PromptTitle>
                                 <CardSelector
-                                    max={player.numCardsToTake || Infinity}
-                                    selectedCards={player.selectedCards}
+                                    max={loggedInPlayer.numCardsToTake || Infinity}
+                                    selectedCards={loggedInPlayer.selectedCards}
                                     onSelect={cards =>
-                                        dispatch(setSelectedCards(cards, playerIndex))
+                                        dispatch(setSelectedCards(cards, loggedInPlayerIndex))
                                     }
-                                    options={player.possibleCards}
+                                    options={loggedInPlayer.possibleCards}
                                     budget={remaining}
                                     orientation="vertical"
                                 />
@@ -537,29 +543,33 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                         disabled={cannotContinueAfterLookingAtCards}
                                         onClick={() => handleConfirmBuyOrTakeCards()}
                                     >
-                                        {player.buyCards
+                                        {loggedInPlayer.buyCards
                                             ? 'Confirm'
                                             : `Take ${
-                                                  player.numCardsToTake === 1 ? 'card' : 'cards'
+                                                  loggedInPlayer.numCardsToTake === 1
+                                                      ? 'card'
+                                                      : 'cards'
                                               }`}
                                     </Button>
                                 </Flex>
                             </Flex>
                         )}
-                        {player.pendingTilePlacement &&
-                            (player.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
+                        {loggedInPlayer.pendingTilePlacement &&
+                            (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
                                 <PromptTitle>Claim an unreserved area.</PromptTitle>
                             ) : (
                                 <PromptTitle>
                                     Place the{' '}
-                                    {getHumanReadableTileName(player.pendingTilePlacement.type)}{' '}
+                                    {getHumanReadableTileName(
+                                        loggedInPlayer.pendingTilePlacement.type
+                                    )}{' '}
                                     tile.
                                 </PromptTitle>
                             ))}
-                        {player.pendingResourceActionDetails && (
+                        {loggedInPlayer.pendingResourceActionDetails && (
                             <AskUserToConfirmResourceActionDetails
-                                player={player}
-                                resourceActionDetails={player.pendingResourceActionDetails}
+                                player={loggedInPlayer}
+                                resourceActionDetails={loggedInPlayer.pendingResourceActionDetails}
                             />
                         )}
                         {state.common.revealedCards.map((card, index) => {
