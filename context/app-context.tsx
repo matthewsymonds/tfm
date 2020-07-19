@@ -213,8 +213,22 @@ function canAffordActionCost(action: Action, state: RootState) {
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
+function getAppropriatePlayer(state: RootState, parent?: Card) {
+    if (!parent) {
+        return getLoggedInPlayer(state);
+    }
+
+    return getPlayerWithCard(state, parent);
+}
+
+function getPlayerWithCard(state: RootState, parent: Card): Player {
+    return state.players.find(player =>
+        player.playedCards.find(theCard => theCard.name === parent.name)
+    )!;
+}
+
 function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootState, parent?: Card) {
-    const player = getLoggedInPlayer(state);
+    const player = getAppropriatePlayer(state, parent);
 
     if (
         action.removeResourceSourceType &&
@@ -256,7 +270,7 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
 }
 
 function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?: Card) {
-    const loggedInPlayer = getLoggedInPlayer(state);
+    const loggedInPlayer = getAppropriatePlayer(state, card);
     if (action && action instanceof Card) {
         // You can play a card without completing the theft.
         return true;
@@ -287,8 +301,8 @@ function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?:
     return true;
 }
 
-function meetsProductionRequirements(action: Action, state: RootState) {
-    const player = getLoggedInPlayer(state);
+function meetsProductionRequirements(action: Action, state: RootState, parent?: Card) {
+    const player = getAppropriatePlayer(state, parent);
 
     const {decreaseProduction, decreaseAnyProduction} = action;
 
@@ -315,13 +329,15 @@ function meetsProductionRequirements(action: Action, state: RootState) {
     return true;
 }
 
-function meetsTilePlacementRequirements(action: Action, state: RootState): boolean {
+function meetsTilePlacementRequirements(action: Action, state: RootState, parent?: Card): boolean {
     if (!action.tilePlacements) return true;
+
+    const player = getAppropriatePlayer(state, parent);
 
     for (const tilePlacement of action.tilePlacements) {
         const {isRequired, placementRequirement} = tilePlacement;
         if (!isRequired || !placementRequirement) continue;
-        const possiblePlacements = getValidPlacementsForRequirement(state, tilePlacement);
+        const possiblePlacements = getValidPlacementsForRequirement(state, tilePlacement, player);
         if (possiblePlacements.length === 0) return false;
     }
 
@@ -376,7 +392,7 @@ function canDoConversion(
             type: TileType.GREENERY,
             placementRequirement: PlacementRequirement.GREENERY,
             isRequired: true,
-        });
+        }, player);
         if (validGreeneryPlacements.length === 0) return false;
     }
     return player.resources[resource] >= quantity;
@@ -417,6 +433,18 @@ function canPlayCardAction(
     return this.canPlayAction(action, state, parent);
 }
 
+function canPlayCardActionInSpiteOfUI(
+    action: Action,
+    state: RootState,
+    parent?: Card
+): [boolean, string | undefined] {
+    if (!canAffordActionCost(action, state)) {
+        return [false, 'Cannot afford action cost'];
+    }
+
+    return this.canPlayActionInSpiteOfUI(action, state, parent);
+}
+
 function canPlayAction(
     action: Action,
     state: RootState,
@@ -439,11 +467,11 @@ function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Car
     }
 
     // Also accounts for opponent productions if applicable
-    if (!meetsProductionRequirements(action, state)) {
+    if (!meetsProductionRequirements(action, state, parent)) {
         return [false, 'Does not have required production'];
     }
 
-    if (!meetsTilePlacementRequirements(action, state)) {
+    if (!meetsTilePlacementRequirements(action, state, parent)) {
         return [false, 'Cannot place tile'];
     }
 
@@ -1214,6 +1242,7 @@ export const appContext = {
     canPlayAction,
     canPlayActionInSpiteOfUI,
     canPlayCardAction,
+    canPlayCardActionInSpiteOfUI,
     canDoConversion,
     doConversion,
     playAction,

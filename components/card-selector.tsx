@@ -52,10 +52,11 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                 const cannotUnselect = selected && selectedCards.length === min;
 
                 const disabled = cannotSelect || cannotUnselect;
+                const buttonText = cannotUnselect ? 'Selected' : selected ? 'Unselect' : 'Select';
                 return (
                     <CardComponent key={key} content={option} selected={selected}>
                         <button disabled={disabled} onClick={() => handleSelect(option)}>
-                            {selected ? 'Unselect' : 'Select'}
+                            {buttonText}
                         </button>
                     </CardComponent>
                 );

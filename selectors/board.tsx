@@ -1,4 +1,4 @@
-import {RootState} from 'reducer';
+import {RootState, PlayerState} from 'reducer';
 import {
     PlacementRequirement,
     CellAttribute,
@@ -63,62 +63,61 @@ export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     return validNeighborCells;
 }
 
-function isAvailable(state: RootState, cell: Cell) {
+function isAvailable(state: RootState, cell: Cell, player: PlayerState) {
     if (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) return false;
     return (
         !cell.tile ||
-        (cell.tile.type === TileType.LAND_CLAIM &&
-            cell.tile.ownerPlayerIndex === getLoggedInPlayerIndex())
+        (cell.tile.type === TileType.LAND_CLAIM && cell.tile.ownerPlayerIndex === player.index)
     );
 }
 
-function isOwnedByCurrentPlayer(state: RootState, cell: Cell) {
-    return cell.tile && cell.tile.ownerPlayerIndex === getLoggedInPlayerIndex();
+function isOwnedByCurrentPlayer(state: RootState, cell: Cell, player: PlayerState) {
+    return cell.tile && cell.tile.ownerPlayerIndex === player.index;
 }
 
-export function getAllCellsOwnedByCurrentPlayer(state: RootState) {
-    return state.common.board.flat().filter(cell => isOwnedByCurrentPlayer(state, cell));
+export function getAllCellsOwnedByCurrentPlayer(state: RootState, player: PlayerState) {
+    return state.common.board.flat().filter(cell => isOwnedByCurrentPlayer(state, cell, player));
 }
 
-function getAvailableCells(state: RootState) {
-    return state.common.board.flat().filter(cell => isAvailable(state, cell));
+function getAvailableCells(state: RootState, player: PlayerState) {
+    return state.common.board.flat().filter(cell => isAvailable(state, cell, player));
 }
 
-function getTakenCells(state: RootState) {
-    return state.common.board.flat().filter(cell => !isAvailable(state, cell));
+function getTakenCells(state: RootState, player: PlayerState) {
+    return state.common.board.flat().filter(cell => !isAvailable(state, cell, player));
 }
 
-function getTakenCellsOnMars(state: RootState) {
-    return getTakenCells(state).filter(cell => cellHelpers.onMars(cell));
-}
-
-function getAvailableCellsOnMars(state: RootState) {
-    return getAvailableCells(state).filter(cell => cellHelpers.onMars(cell));
+function getAvailableCellsOnMars(state: RootState, player: PlayerState) {
+    return getAvailableCells(state, player).filter(cell => cellHelpers.onMars(cell));
 }
 
 export function getCellsWithCitiesOnMars(state: RootState) {
-    return getTakenCellsOnMars(state).filter(cell => cell.tile?.type === TileType.CITY);
+    return getAllCellsOnMars(state).filter(cell => cell.tile?.type === TileType.CITY);
 }
 
-export function getCellsWithCities(state: RootState) {
+function getAllCellsOnMars(state: RootState) {
+    return state.common.board.flat().filter(cell => cellHelpers.onMars(cell));
+}
+
+export function getCellsWithCities(state: RootState, player: PlayerState) {
     const lastRow = state.common.board[state.common.board.length - 1];
     const citiesOnLastRow = lastRow.filter(cell => cell.tile?.type === TileType.CITY);
     return [...getCellsWithCitiesOnMars(state), ...citiesOnLastRow];
 }
 
 export function findCellWithTile(state: RootState, type: TileType) {
-    return getTakenCells(state).find(cell => cell.tile?.type === type);
+    return getAllCellsOnMars(state).find(cell => cell.tile?.type === type);
 }
 
 export function findCellsWithTile(state: RootState, type: TileType) {
-    return getTakenCells(state).filter(cell => cell.tile?.type === type);
+    return getAllCellsOnMars(state).filter(cell => cell.tile?.type === type);
 }
 
-function getAvailableLandCellsOnMars(state: RootState) {
-    return getAvailableCellsOnMars(state).filter(cell => cell.type === CellType.LAND);
+function getAvailableLandCellsOnMars(state: RootState, player: PlayerState) {
+    return getAvailableCellsOnMars(state, player).filter(cell => cell.type === CellType.LAND);
 }
 
-function getGreeneries(state: RootState) {
+function getGreeneries(state) {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.GREENERY);
 }
 
@@ -128,43 +127,49 @@ export function getGreeneriesForPlayer(state: RootState, playerIndex: number) {
 
 export function getValidPlacementsForRequirement(
     state: RootState,
-    tilePlacement: TilePlacement | undefined
+    tilePlacement: TilePlacement | undefined,
+    player: PlayerState
 ) {
     if (!tilePlacement) return [];
-    return getPossibleValidPlacementsForRequirement(state, tilePlacement.placementRequirement);
+    return getPossibleValidPlacementsForRequirement(
+        state,
+        tilePlacement.placementRequirement,
+        player
+    );
 }
 
 export function getPossibleValidPlacementsForRequirement(
     state: RootState,
-    requirement: PlacementRequirement | undefined
+    requirement: PlacementRequirement | undefined,
+    player: PlayerState
 ): Cell[] {
-    if (!requirement) return getAvailableLandCellsOnMars(state);
+    if (!requirement) return getAvailableLandCellsOnMars(state, player);
 
     switch (requirement) {
         case PlacementRequirement.CITY:
-            return getAvailableLandCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state, player).filter(cell =>
                 getAdjacentCellsForCell(state, cell).every(
                     adjCell => !cellHelpers.containsCity(adjCell)
                 )
             );
         case PlacementRequirement.CITY_ADJACENT:
-            return getAvailableLandCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state, player).filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
                     cellHelpers.containsCity(adjCell)
                 )
             );
         case PlacementRequirement.DOUBLE_CITY_ADJACENT:
-            return getAvailableLandCellsOnMars(state).filter(
+            return getAvailableLandCellsOnMars(state, player).filter(
                 cell =>
                     getAdjacentCellsForCell(state, cell).filter(adjCell =>
                         cellHelpers.containsCity(adjCell)
                     ).length >= 2
             );
         case PlacementRequirement.GREENERY: {
-            const availableLandCellsOnMars = getAvailableLandCellsOnMars(state);
+            const availableLandCellsOnMars = getAvailableLandCellsOnMars(state, player);
             const cellsAdjacentToCurrentTiles = availableLandCellsOnMars.filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
-                    isOwnedByCurrentPlayer(state, adjCell)
+                    isOwnedByCurrentPlayer(state, adjCell, player)
                 )
             );
             if (cellsAdjacentToCurrentTiles.length === 0) {
@@ -173,28 +178,28 @@ export function getPossibleValidPlacementsForRequirement(
             return cellsAdjacentToCurrentTiles;
         }
         case PlacementRequirement.GREENERY_ADJACENT:
-            return getAvailableLandCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state, player).filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
                     cellHelpers.containsGreenery(adjCell)
                 )
             );
         case PlacementRequirement.ISOLATED:
-            return getAvailableLandCellsOnMars(state).filter(cell =>
+            return getAvailableLandCellsOnMars(state, player).filter(cell =>
                 getAdjacentCellsForCell(state, cell).every(adjCell => cellHelpers.isEmpty(adjCell))
             );
         case PlacementRequirement.NON_RESERVED:
         case PlacementRequirement.NOT_RESERVED_FOR_OCEAN:
-            return getAvailableLandCellsOnMars(state);
+            return getAvailableLandCellsOnMars(state, player);
         case PlacementRequirement.RESERVED_FOR_OCEAN:
-            return getAvailableCells(state).filter(cell => cell.type === CellType.WATER);
+            return getAvailableCells(state, player).filter(cell => cell.type === CellType.WATER);
         case PlacementRequirement.STEEL_OR_TITANIUM:
-            return getAvailableCells(state).filter(
+            return getAvailableCells(state, player).filter(
                 cell =>
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_STEEL) ||
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
             );
         case PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT:
-            const steelOrTitaniumCells = getAvailableCells(state).filter(
+            const steelOrTitaniumCells = getAvailableCells(state, player).filter(
                 cell =>
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_STEEL) ||
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
@@ -205,7 +210,7 @@ export function getPossibleValidPlacementsForRequirement(
                 )
             );
         case PlacementRequirement.VOLCANIC:
-            return getAvailableCells(state).filter(cell =>
+            return getAvailableCells(state, player).filter(cell =>
                 cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
             );
         case PlacementRequirement.PHOBOS:

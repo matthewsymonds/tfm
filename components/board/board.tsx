@@ -59,11 +59,11 @@ const BoardAcionsContainer = styled.div`
 `;
 
 export const Board: React.FunctionComponent<BoardProps> = props => {
-    const pendingTilePlacement = useTypedSelector(
-        state => state.players[props.playerIndex].pendingTilePlacement
-    );
+    const player = useTypedSelector(state => state.players[props.playerIndex]);
+
+    const {pendingTilePlacement} = player;
     const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, pendingTilePlacement)
+        getValidPlacementsForRequirement(state, pendingTilePlacement, player)
     );
 
     const context = useContext(AppContext);

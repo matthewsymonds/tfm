@@ -81,6 +81,7 @@ import {StandardProjectType} from './constants/standard-project';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
+import {CardType} from 'constants/card-types';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -509,7 +510,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 sourcePlayer.resources[resource] -= amount;
                 if (amount) {
                     draft.log.push(
-                        `${corporationName} lost ${amountAndResource(payload.amount, resource)}`
+                        `${sourcePlayer.corporation.name} lost ${amountAndResource(
+                            payload.amount,
+                            resource
+                        )}`
                     );
                 }
                 break;
@@ -689,6 +693,9 @@ export const reducer = (state: GameState | null = null, action) => {
             case MOVE_CARD_FROM_HAND_TO_PLAY_AREA:
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
+                if (payload.card.type === CardType.CORPORATION) {
+                    draft.log.push(`${player.username} chose ${player.corporation.name}`);
+                }
                 player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
                 break;
             case ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS:
@@ -802,7 +809,6 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
-                draft.log.push(`${player.username} chose ${player.corporation.name}`);
                 handleEnterActiveRound(draft);
                 break;
             }

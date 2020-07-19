@@ -55,7 +55,7 @@ export const awardToQuantity = {
     [Award.THERMALIST]: getPlayerHeat,
     [Award.SCIENTIST]: getPlayerScienceTags,
     [Award.LANDLORD]: (player: PlayerState, state: GameState) =>
-        getAllCellsOwnedByCurrentPlayer(state).length,
+        getAllCellsOwnedByCurrentPlayer(state, player).length,
     [Award.MINER]: getPlayerSteelAndTitanium,
 };
 
