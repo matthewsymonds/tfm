@@ -170,7 +170,13 @@ export function CardActionElements(props: {
     return (
         <>
             {options.map((option, index) => {
-                const [canPlay, reason] = context.canPlayCardActionInSpiteOfUI(option, state, card);
+                let canPlay: boolean;
+                let reason: string | undefined;
+                if (isLoggedInPlayer) {
+                    [canPlay, reason] = context.canPlayCardAction(option, state, card);
+                } else {
+                    [canPlay, reason] = context.canPlayCardActionInSpiteOfUI(option, state, card);
+                }
                 return (
                     <React.Fragment key={index}>
                         {isLoggedInPlayer ? (

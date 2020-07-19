@@ -533,7 +533,11 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             <Flex flexDirection="column">
                                 <PromptTitle>{cardSelectionPrompt}</PromptTitle>
                                 <CardSelector
-                                    max={loggedInPlayer.numCardsToTake || Infinity}
+                                    max={
+                                        loggedInPlayer.numCardsToTake ||
+                                        maxCardsToDiscard ||
+                                        Infinity
+                                    }
                                     selectedCards={loggedInPlayer.selectedCards}
                                     onSelect={cards =>
                                         dispatch(setSelectedCards(cards, loggedInPlayerIndex))

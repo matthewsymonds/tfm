@@ -59,7 +59,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         }).length;
     },
     [VariableAmount.CITY_TILES_IN_PLAY]: (state: RootState) => {
-        return getCellsWithCities(state).length;
+        const player = getLoggedInPlayer(state);
+        return getCellsWithCities(state, player).length;
     },
     [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: RootState) => {
         const capital = findCellWithTile(state, TileType.CAPITAL);
@@ -165,6 +166,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return card.tags.includes(Tag.MICROBE) ? 1 : 0;
     },
     [VariableAmount.THIRD_ALL_CITIES]: (state: RootState) => {
-        return Math.floor(getCellsWithCities(state).length / 3);
+        const player = getLoggedInPlayer(state);
+        return Math.floor(getCellsWithCities(state, player).length / 3);
     },
 };
