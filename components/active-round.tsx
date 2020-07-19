@@ -70,6 +70,10 @@ const HiddenCardsMessage = styled.div`
     margin: 16px;
 `;
 
+const PromptTitle = styled.h3`
+    margin-top: 16px;
+`;
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const {corporation, possibleCards, cards, selectedCards} = player;
@@ -253,8 +257,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
 
-    const passedMessage = action || gameStage !== GameStage.ACTIVE_ROUND ? '' : 'You have passed';
-
     return (
         <>
             <TopBar player={player} isPlayerMakingDecision={isPlayerMakingDecision} />
@@ -320,8 +322,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             ))}
                         >
                             {sortedPlayers.map(thisPlayer => {
+                                const handKey = thisPlayer.index + 'hand';
                                 const cards = (
-                                    <Hand key={thisPlayer.index + 'hand'}>
+                                    <Hand key={handKey}>
                                         {thisPlayer.cards.map(card => {
                                             const [canPlay, reason] = context.canPlayCard(
                                                 card,
@@ -375,8 +378,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                         )}
                                     </Hand>
                                 );
+                                const playedCardsKey = thisPlayer.index + 'playedCards';
                                 const playedCards = (
-                                    <Hand key={thisPlayer.index + 'playedCards'}>
+                                    <Hand key={playedCardsKey}>
                                         {thisPlayer.playedCards
                                             .filter(card => card.type !== CardType.CORPORATION)
                                             .map(card => {
@@ -418,14 +422,14 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 );
 
                                 const cardsHiddenCorporationSelection = (
-                                    <HiddenCardsMessage>
+                                    <HiddenCardsMessage key={handKey}>
                                         You can't count {thisPlayer.username}'s hand until
                                         everyone's ready.
                                     </HiddenCardsMessage>
                                 );
 
                                 const cardsHiddenBuyOrDiscard = (
-                                    <HiddenCardsMessage>
+                                    <HiddenCardsMessage key={handKey}>
                                         {thisPlayer.corporation.name} had{' '}
                                         {thisPlayer.previousCardsInHand || 0} card
                                         {thisPlayer.previousCardsInHand === 1 ? '' : 's'} at the end
@@ -434,7 +438,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 );
 
                                 const cardsHiddenActiveRound = (
-                                    <HiddenCardsMessage>
+                                    <HiddenCardsMessage key={handKey}>
                                         {thisPlayer.corporation.name} has {thisPlayer.cards.length}{' '}
                                         card
                                         {thisPlayer.cards.length === 1 ? '' : 's'} in hand.
@@ -442,11 +446,15 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 );
 
                                 const noPlayedCardsMessage = (
-                                    <HiddenCardsMessage>No cards played yet.</HiddenCardsMessage>
+                                    <HiddenCardsMessage key={playedCardsKey}>
+                                        No cards played yet.
+                                    </HiddenCardsMessage>
                                 );
 
                                 const noCardsInHandMessage = (
-                                    <HiddenCardsMessage>No cards in hand.</HiddenCardsMessage>
+                                    <HiddenCardsMessage key={handKey}>
+                                        No cards in hand.
+                                    </HiddenCardsMessage>
                                 );
 
                                 const isLoggedInPlayer = thisPlayer.index === playerIndex;
@@ -513,7 +521,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         )}
                         {player.possibleCards.length > 0 && (
                             <Flex flexDirection="column">
-                                <h3>{lookAtCardsPrompt}</h3>
+                                <PromptTitle>{lookAtCardsPrompt}</PromptTitle>
                                 <CardSelector
                                     max={player.numCardsToTake || Infinity}
                                     selectedCards={player.selectedCards}
@@ -540,13 +548,13 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                         )}
                         {player.pendingTilePlacement &&
                             (player.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
-                                <h3>Claim an unreserved area.</h3>
+                                <PromptTitle>Claim an unreserved area.</PromptTitle>
                             ) : (
-                                <h3>
+                                <PromptTitle>
                                     Place the{' '}
                                     {getHumanReadableTileName(player.pendingTilePlacement.type)}{' '}
                                     tile.
-                                </h3>
+                                </PromptTitle>
                             ))}
                         {player.pendingResourceActionDetails && (
                             <AskUserToConfirmResourceActionDetails

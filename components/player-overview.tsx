@@ -82,7 +82,11 @@ export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) 
     function getTabContent(tab: PlayerOverviewTab) {
         if (tab === 'Corporation') {
             if (isCorporationSelection) {
-                return <CorporationSelector player={player} isLoggedInPlayer={isLoggedInPlayer} />;
+                if (!isLoggedInPlayer || player.action === 0) {
+                    return (
+                        <CorporationSelector player={player} isLoggedInPlayer={isLoggedInPlayer} />
+                    );
+                }
             }
 
             return (

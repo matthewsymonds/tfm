@@ -1,14 +1,15 @@
-import {ActionBar, ActionBarRow} from './action-bar';
-import styled, {keyframes, css} from 'styled-components';
-import {getWaitingMessage} from 'selectors/get-waiting-message';
-import {PlayerState, RootState, useTypedSelector} from 'reducer';
-import {useStore, useDispatch} from 'react-redux';
-import {AppContext} from 'context/app-context';
-import {useContext} from 'react';
-import {useRouter} from 'next/router';
 import {skipAction} from 'actions';
-import {Pane, Text} from 'evergreen-ui';
 import {Square} from 'components/square';
+import {GameStage} from 'constants/game';
+import {AppContext} from 'context/app-context';
+import {Pane} from 'evergreen-ui';
+import {useRouter} from 'next/router';
+import {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import {getWaitingMessage} from 'selectors/get-waiting-message';
+import styled, {css, keyframes} from 'styled-components';
+import {ActionBar, ActionBarRow} from './action-bar';
 
 const ActionBarButton = styled.button`
     display: inline;
@@ -77,10 +78,14 @@ const PlayerCorpAndColor = ({
     isPassed: boolean;
     isActive?: boolean;
 }) => {
+    const gameStage = useTypedSelector(state => state.common.gameStage);
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     return (
         <PlayerCorpAndColorBase isActive={isActive} isPassed={isPassed}>
             <Square playerIndex={player.index} shouldHideBorder={true} />
-            <Pane marginLeft="4px">{player.corporation?.name ?? player.username}</Pane>
+            <Pane marginLeft="4px">
+                {isCorporationSelection ? player.username : player.corporation.name}
+            </Pane>
         </PlayerCorpAndColorBase>
     );
 };
@@ -103,6 +108,12 @@ export const TopBar = ({player, isPlayerMakingDecision}: TopBarProps) => {
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const allPlayers = useTypedSelector(state => state.players ?? []);
     const turn = useTypedSelector(state => state.common.turn);
+    const gameStage = useTypedSelector(state => state.common.gameStage);
+
+    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
+
+    const passedMessage = action || !isActiveRound ? '' : 'You have passed';
+    const showActionMessage = action && isActiveRound;
 
     return (
         <ActionBar>
@@ -115,8 +126,8 @@ export const TopBar = ({player, isPlayerMakingDecision}: TopBarProps) => {
                     marginX="8px"
                 >
                     <Info>
-                        Playing as {player.corporation?.name}. {!action && 'You have passed'}
-                        {action ? waitingMessage || `Action ${action} of 2` : null}
+                        Playing as {player.corporation.name}. {passedMessage}
+                        {showActionMessage ? waitingMessage || `Action ${action} of 2` : null}
                         {action && !(context.shouldDisableUI(state) || isPlayerMakingDecision) ? (
                             <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
                                 {action === 2 ? 'Skip 2nd action' : 'Pass'}

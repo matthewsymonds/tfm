@@ -171,17 +171,17 @@ export function CardActionElements(props: {
         <>
             {options.map((option, index) => {
                 const [canPlay, reason] = context.canPlayCardAction(option, state, card);
-                const canReallyPlay = canPlay && isLoggedInPlayer;
-
                 return (
                     <React.Fragment key={index}>
-                        <button
-                            disabled={!canReallyPlay}
-                            id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
-                            onClick={() => handlePlayCardAction(option, card)}
-                        >
-                            {options.length === 1 ? 'Play Action' : option.text}
-                        </button>
+                        {isLoggedInPlayer ? (
+                            <button
+                                disabled={!canPlay}
+                                id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
+                                onClick={() => handlePlayCardAction(option, card)}
+                            >
+                                {options.length === 1 ? 'Play Action' : option.text}
+                            </button>
+                        ) : null}
                         {!canPlay && reason ? (
                             <CardText>
                                 <em>{reason}</em>

@@ -448,7 +448,7 @@ function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Car
     }
 
     if (!meetsTerraformRequirements(action, state, parent)) {
-        return [false, 'You have not yet terraformed this generation'];
+        return [false, 'Not yet terraformed this generation'];
     }
 
     return [true, 'Good to go'];
