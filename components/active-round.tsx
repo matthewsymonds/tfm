@@ -28,7 +28,6 @@ import {getHumanReadableTileName, aAnOrThe} from 'selectors/get-human-readable-t
 import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
-import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import Awards from './board/awards';
 import {Board} from './board/board';
@@ -79,7 +78,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    // const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
     const log = useTypedSelector(state => state.log);
 
     const [isPaymentPopoverOpen, setIsPaymentPopoverOpen] = useState(false);
@@ -104,22 +102,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         // Can't cycle a turn with sell patents by selling 0 cards!
         minCardsToDiscard = 1;
     }
-
-    // For selecting cards to discard
-    // function handleCardClick(card) {
-    //     if (loggedInPlayer.pendingDiscard) {
-    //         let newCardsToDiscard = [...cardsToDiscard];
-    //         if (newCardsToDiscard.includes(card)) {
-    //             newCardsToDiscard = newCardsToDiscard.filter(c => c !== card);
-    //         } else {
-    //             newCardsToDiscard.push(card);
-    //             while (newCardsToDiscard.length > maxCardsToDiscard) {
-    //                 newCardsToDiscard.shift();
-    //             }
-    //         }
-    //         setCardsToDiscard(newCardsToDiscard);
-    //     }
-    // }
 
     useSyncState();
 
@@ -227,8 +209,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     let cardSelectionButtonText;
     const numSelectedCards = loggedInPlayer.selectedCards.length;
     const cardOrCards = `card${numSelectedCards === 1 ? '' : 's'}`;
-
-    console.log(loggedInPlayer);
 
     if (loggedInPlayer.buyCards || isBuyOrDiscard) {
         // buying cards, e.g. between generations
