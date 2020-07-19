@@ -65,6 +65,8 @@ export class Card {
     increaseProduction: PropertyCounter<Resource>;
     /** e.g. "Increase your plant production 1 step or your energy production 2 steps" */
     increaseProductionOption: PropertyCounter<Resource>;
+    /** e.g. Duplicate only the production box of one of your building cards  */
+    duplicateProduction?: Tag;
     /** e.g. "Decrease your MC production 2 steps" */
     decreaseProduction: PropertyCounter<Resource>;
     /** e.g. "Decrease any plant production 1 step" */
@@ -141,6 +143,7 @@ export class Card {
         this.stealResourceOption = config.stealResourceOption || {};
         this.increaseProduction = config.increaseProduction || {};
         this.increaseProductionOption = config.increaseProductionOption || {};
+        this.duplicateProduction = config.duplicateProduction;
         this.decreaseProduction = config.decreaseProduction || {};
         this.decreaseAnyProduction = config.decreaseAnyProduction || {};
         this.increaseParameter = config.increaseParameter || {};

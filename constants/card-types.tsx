@@ -1,11 +1,10 @@
-import {Resource} from './resource';
-import {TileType, TilePlacement, Parameter} from './board';
-import {MoveType} from './moves';
-import {Action, ActionType, Amount} from './action';
+import {Action, Amount} from './action';
+import {Parameter, TileType} from './board';
+import {CardDiscounts, TagDiscounts} from './discounts';
 import {Effect} from './effect';
-import {Tag} from './tag';
 import {PropertyCounter} from './property-counter';
-import {Discounts, CardDiscounts, TagDiscounts} from './discounts';
+import {Resource} from './resource';
+import {Tag} from './tag';
 
 export type RequiredTilePlacement = {
     type: TileType;
@@ -40,7 +39,6 @@ export interface CardConfig extends Action {
     // (which are played immediately, or in this case "when the corporation gets played"),
     // this gets delayed until the first round.
     forcedAction?: Action;
-    increaseProductionOption?: PropertyCounter<Resource>;
     deck: Deck;
     storedResourceType?: Resource;
     name: string;

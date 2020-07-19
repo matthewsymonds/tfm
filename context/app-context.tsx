@@ -881,6 +881,26 @@ function playAction({
         );
     }
 
+    if (action.increaseProductionOption !== undefined) {
+        const resourceAndAmounts: Array<ResourceAndAmount> = [];
+        for (const resource in action.increaseProductionOption) {
+            resourceAndAmounts.push({
+                resource: resource as Resource,
+                amount: action.increaseProductionOption[resource] as number,
+            });
+        }
+        if (resourceAndAmounts.length > 0) {
+            items.push(
+                askUserToChooseResourceActionDetails({
+                    actionType: 'increaseProduction',
+                    resourceAndAmounts,
+                    playerIndex,
+                    card: parent!,
+                })
+            );
+        }
+    }
+
     for (const resource in action.gainResource) {
         items.push(
             createInitialGainResourceAction(
@@ -983,26 +1003,6 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     //     - discarding/drawing cards
     this.playAction({action: card, state, parent: card});
     const increaseProductionOptions = Object.keys(card.increaseProductionOption ?? {});
-
-    // 4. Perform increase production choice
-    //     - (this currently only affects Artificial Photosynthesis)
-    //     - TODO: move this to `playAction` to colocate with other production deltas
-    if (increaseProductionOptions.length > 0) {
-        const resourceAndAmounts = increaseProductionOptions.map(key => {
-            return {
-                resource: key as Resource,
-                amount: card.increaseProductionOption![key],
-            };
-        });
-        this.queue.push(
-            askUserToChooseResourceActionDetails({
-                actionType: 'increaseProduction',
-                resourceAndAmounts,
-                card,
-                playerIndex,
-            })
-        );
-    }
 
     if (card.forcedAction) {
         this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));

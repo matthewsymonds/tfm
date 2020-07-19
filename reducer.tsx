@@ -277,7 +277,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Mars University';
+const bonusName = 'Artificial Photosynthesis';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -488,6 +488,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
 
             case INCREASE_PRODUCTION: {
+                player.pendingResourceActionDetails = undefined;
                 const increase = convertAmountToNumber(
                     payload.amount,
                     state,

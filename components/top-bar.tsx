@@ -152,22 +152,24 @@ export const TopBar = ({loggedInPlayer, isPlayerMakingDecision}: TopBarProps) =>
                             </Pane>
                         </Pane>
                     </Flex>
-                    <Flex alignItems="center" justifyContent="center" flexBasis="20%">
-                        {loggedInPlayer.action === 0 && <span>You have passed</span>}
-                        {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && (
-                            <span>Action {action} of 2</span>
-                        )}
-                        {loggedInPlayer.action > 0 &&
-                            isLoggedInPlayersTurn &&
-                            isActiveRound &&
-                            !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
-                                <ActionBarButton
-                                    onClick={() => dispatch(skipAction(loggedInPlayerIndex))}
-                                >
-                                    {action === 2 ? 'End turn' : 'Pass'}
-                                </ActionBarButton>
+                    {gameStage === GameStage.ACTIVE_ROUND && (
+                        <Flex alignItems="center" justifyContent="center" flexBasis="20%">
+                            {loggedInPlayer.action === 0 && <span>You have passed</span>}
+                            {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && (
+                                <span>Action {action} of 2</span>
                             )}
-                    </Flex>
+                            {loggedInPlayer.action > 0 &&
+                                isLoggedInPlayersTurn &&
+                                isActiveRound &&
+                                !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
+                                    <ActionBarButton
+                                        onClick={() => dispatch(skipAction(loggedInPlayerIndex))}
+                                    >
+                                        {action === 2 ? 'End turn' : 'Pass'}
+                                    </ActionBarButton>
+                                )}
+                        </Flex>
+                    )}
                     <Flex alignItems="center" justifyContent="flex-end" flexBasis="40%">
                         Generation {generation}, Turn {turn}
                         <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>

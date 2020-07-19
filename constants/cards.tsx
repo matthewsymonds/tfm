@@ -1160,6 +1160,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Duplicate only the production box of one of your building cards.',
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
+        duplicateProduction: Tag.BUILDING,
     },
     {
         cost: 11,

@@ -2,6 +2,7 @@ import {Parameter, TilePlacement} from './board';
 import {PropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
 import {VariableAmount} from './variable-amount';
+import {Tag} from './tag';
 
 type ResourceCounter = PropertyCounter<Resource>;
 type ParameterCounter = PropertyCounter<Parameter>;
@@ -33,6 +34,8 @@ export interface Action {
     stealResource?: ResourceCounter;
     stealResourceOption?: ResourceCounter;
     increaseProduction?: ResourceCounter;
+    increaseProductionOption?: PropertyCounter<Resource>;
+    duplicateProduction?: Tag;
     decreaseProduction?: ResourceCounter;
     decreaseAnyProduction?: ResourceCounter;
     lookAtCards?: LookAtCardsConfig;

@@ -123,24 +123,31 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     useSyncState();
 
-    useEffect(() => {
-        if (state.common.currentPlayerIndex === loggedInPlayerIndex) {
-            const forcedActions = getForcedActionsForPlayer(state, loggedInPlayer.index);
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
 
-            for (let i = 0; i < 2; i++) {
-                if (forcedActions[i]) {
-                    context.playAction({state, action: forcedActions[i]});
-                    context.queue.push(completeAction(loggedInPlayer.index));
-                    context.queue.push(
-                        removeForcedActionFromPlayer(loggedInPlayerIndex, forcedActions[i])
-                    );
-                }
-            }
-            if (forcedActions.length > 0) {
-                context.processQueue(dispatch);
+    useEffect(() => {
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
+            return;
+        }
+        if (currentPlayerIndex !== loggedInPlayerIndex) {
+            return;
+        }
+        const forcedActions = getForcedActionsForPlayer(state, loggedInPlayer.index);
+
+        for (let i = 0; i < 2; i++) {
+            if (forcedActions[i]) {
+                context.playAction({state, action: forcedActions[i]});
+                context.queue.push(completeAction(loggedInPlayer.index));
+                context.queue.push(
+                    removeForcedActionFromPlayer(loggedInPlayerIndex, forcedActions[i])
+                );
             }
         }
-    }, []);
+        if (forcedActions.length > 0) {
+            context.processQueue(dispatch);
+        }
+    }, [gameStage, currentPlayerIndex]);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         dispatch(moveCardFromHandToPlayArea(card, loggedInPlayerIndex));
@@ -212,7 +219,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     const totalCardCost = loggedInPlayer.selectedCards.length * 3;
-    const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const playerMoney =
         gameStage === GameStage.CORPORATION_SELECTION
             ? loggedInPlayer.corporation.gainResource[Resource.MEGACREDIT]
@@ -227,8 +233,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     let cardSelectionButtonText;
     const numSelectedCards = loggedInPlayer.selectedCards.length;
     const cardOrCards = `card${numSelectedCards === 1 ? '' : 's'}`;
-
-    console.log(loggedInPlayer);
 
     if (loggedInPlayer.buyCards || isBuyOrDiscard) {
         // buying cards, e.g. between generations
@@ -276,16 +280,22 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         loggedInPlayer.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
         loggedInPlayer.possibleCards.length > 0 ||
+        loggedInPlayer.forcedActions.length > 0 ||
         loggedInPlayer.pendingResourceActionDetails ||
         loggedInPlayer.pendingChoice ||
-        loggedInPlayer.forcedActions.length ||
         loggedInPlayer.pendingDiscard;
 
     useEffect(() => {
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
+            return;
+        }
+        if (currentPlayerIndex !== loggedInPlayerIndex) {
+            return;
+        }
         if (!isPlayerMakingDecision) {
             context.processQueue(dispatch);
         }
-    }, []);
+    }, [gameStage, currentPlayerIndex]);
 
     return (
         <>
