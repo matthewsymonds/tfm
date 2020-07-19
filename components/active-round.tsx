@@ -228,6 +228,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const numSelectedCards = loggedInPlayer.selectedCards.length;
     const cardOrCards = `card${numSelectedCards === 1 ? '' : 's'}`;
 
+    console.log(loggedInPlayer);
+
     if (loggedInPlayer.buyCards || isBuyOrDiscard) {
         // buying cards, e.g. between generations
         const numCards = loggedInPlayer.possibleCards.length;

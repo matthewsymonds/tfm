@@ -306,7 +306,6 @@ function meetsProductionRequirements(action: Action, state: RootState, parent?: 
 
     const {decreaseProduction, decreaseAnyProduction} = action;
 
-    debugger;
     for (const production in decreaseProduction) {
         const decrease = convertAmountToNumber(decreaseProduction[production], state);
         if (player.productions[production] - decrease < MinimumProductions[production]) {

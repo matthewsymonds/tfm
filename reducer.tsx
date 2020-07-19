@@ -857,20 +857,17 @@ export const reducer = (state: GameState | null = null, action) => {
                         handleProduction(draft);
 
                         if (isGameEndTriggered(draft)) {
-                            draft.players.forEach(player => {
-                                const canPlaceGreenery =
+                            const playersWhoCanPlaceGreenery = draft.players.filter(
+                                player =>
                                     player.resources[Resource.PLANT] >=
                                     CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT] -
-                                        (player.plantDiscount || 0);
-                                if (canPlaceGreenery) {
-                                    player.action = 1;
-                                }
-                            });
-
-                            const playersWhoCanPlaceGreenery = draft.players.filter(
-                                p => p.action === 1
+                                        (player.plantDiscount || 0)
                             );
+                            for (const player of playersWhoCanPlaceGreenery) {
+                                player.action = 1;
+                            }
                             if (playersWhoCanPlaceGreenery.length > 0) {
+                                draft.log.push('Greenery Placement');
                                 common.gameStage = GameStage.GREENERY_PLACEMENT;
                             } else {
                                 common.gameStage = GameStage.END_OF_GAME;
