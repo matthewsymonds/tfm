@@ -269,7 +269,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 3 plants, or add 3 microbes or 2 animals to ANOTHER card. Place an ocean tile.',
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        gainResourceOption: {[Resource.PLANT]: 3, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 3},
+        gainResourceOption: {[Resource.PLANT]: 3, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tilePlacements: [t(TileType.OCEAN)],
     },
@@ -1947,6 +1947,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {
             [Resource.ANIMAL]: 1,
         },
+        decreaseAnyProduction: {[Resource.PLANT]: 1},
         gainResourceTargetType: ResourceLocationType.THIS_CARD,
     },
     {

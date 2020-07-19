@@ -93,7 +93,7 @@ export function EndOfGame() {
         };
     });
 
-    const winner = playerScoreInfos.sort((a, b) => a.totalScore - b.totalScore)[0];
+    const winner = playerScoreInfos.sort((a, b) => b.totalScore - a.totalScore)[0];
 
     return (
         <EndOfGameBase>
