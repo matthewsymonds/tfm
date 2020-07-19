@@ -1,9 +1,12 @@
 import {
+    announceReadyToStartRound,
+    completeAction,
     discardCards,
     discardRevealedCards,
     moveCardFromHandToPlayArea,
+    payForCards,
     removeForcedActionFromPlayer,
-    completeAction,
+    setCards,
     setSelectedCards,
     skipAction,
 } from 'actions';
@@ -12,20 +15,20 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {Switcher} from 'components/switcher';
 import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {colors} from 'constants/game';
+import {colors, GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {getResourceName, Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
-import {Card, cards} from 'models/card';
-import {useRouter} from 'next/router';
 import {useSyncState} from 'hooks/sync-state';
+import {Card} from 'models/card';
+import {useRouter} from 'next/router';
 import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import {RootState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
-import {getForcedActionsForPlayer} from 'selectors/player';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
+import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToConfirmDiscardSelection} from './ask-user-to-confirm-discard-selection';
@@ -35,6 +38,7 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel} from './box';
+import {Button} from './button';
 import {CardActionElements, CardComponent, CardDisabledText, CardText} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
@@ -80,8 +84,13 @@ const RightBox = styled.div`
     flex-grow: 1;
 `;
 
+const HiddenCardsMessage = styled.div`
+    margin: 16px;
+`;
+
 export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
+    const {corporation, possibleCards, cards, selectedCards} = player;
     const turn = useTypedSelector(state => state.common.turn);
     const action = player.action;
     const generation = useTypedSelector(state => state.common.generation);
@@ -192,17 +201,49 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         context.processQueue(dispatch);
     }
 
+    function handleConfirmBuyOrTakeCards() {
+        if (gameStage === GameStage.ACTIVE_ROUND) {
+            context.processQueue(dispatch);
+            return;
+        }
+
+        if (gameStage === GameStage.CORPORATION_SELECTION) {
+            dispatch(moveCardFromHandToPlayArea(corporation, playerIndex));
+            context.playCard(corporation, state);
+            context.triggerEffectsFromPlayedCard(corporation, store.getState());
+        }
+
+        dispatch(setCards(cards.concat(selectedCards), playerIndex));
+        dispatch(setSelectedCards([], playerIndex));
+        dispatch(
+            discardCards(
+                possibleCards.filter(card => !selectedCards.includes(card)),
+                playerIndex
+            )
+        );
+        dispatch(payForCards(selectedCards, player.index));
+        dispatch(announceReadyToStartRound(playerIndex));
+        context.processQueue(dispatch);
+    }
+
     const waitingMessage = getWaitingMessage(playerIndex, state);
 
     const router = useRouter();
 
     const totalCardCost = player.selectedCards.length * 3;
-    const playerMoney = player.resources[Resource.MEGACREDIT];
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const playerMoney =
+        gameStage === GameStage.CORPORATION_SELECTION
+            ? player.corporation.gainResource[Resource.MEGACREDIT]
+            : player.resources[Resource.MEGACREDIT];
     const remaining = player.buyCards ? playerMoney - totalCardCost : playerMoney;
     const numCardsToTake = player.buyCards ? player.possibleCards.length : player.numCardsToTake;
-    const lookAtCardsPrompt = `Select ${player.buyCards ? 'up to ' : ''}${numCardsToTake} card${
+    let lookAtCardsPrompt = `Select ${player.buyCards ? 'up to ' : ''}${numCardsToTake} card${
         numCardsToTake !== 1 ? 's' : ''
     } to ${player.buyCards ? 'buy' : 'take'}`;
+    if (player.buyCards) {
+        lookAtCardsPrompt += ` (${remaining} MC remaining)`;
+    }
     const cannotContinueAfterLookingAtCards =
         totalCardCost > playerMoney ||
         (player.numCardsToTake !== null && player.selectedCards.length < player.numCardsToTake);
@@ -227,13 +268,17 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
             context.processQueue(dispatch);
         }
     }, []);
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
+
+    const passedMessage = action || gameStage !== GameStage.ACTIVE_ROUND ? '' : 'You have passed';
     return (
         <>
             <ActionBar>
                 <ActionBarRow>
                     <Flex width="100%" justifyContent="space-between">
                         <Info>
-                            Playing as {player.corporation?.name}. {!action && 'You have passed'}
+                            Playing as {player.corporation.name}. {passedMessage}
                             {action ? waitingMessage || `Action ${action} of 2` : null}
                             {action && !(context.shouldDisableUI(state) || playerMakingDecision) ? (
                                 <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
@@ -301,7 +346,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                             tabs={sortedPlayers.map(player => (
                                 <Flex flexDirection="row" alignItems="center">
                                     <Box display="inline-block" marginRight="8px">
-                                        {player.corporation?.name}
+                                        {isCorporationSelection
+                                            ? player.username
+                                            : player.corporation.name}
                                     </Box>
                                     <Square playerIndex={player.index} />
                                 </Flex>
@@ -319,8 +366,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 <CardComponent
                                                     key={card.name}
                                                     content={card}
-                                                    isHidden={thisPlayer.index !== playerIndex}
-                                                    width={220}
                                                     onClick={(e: MouseEvent<HTMLDivElement>) => {
                                                         if (playerIndex !== thisPlayer.index)
                                                             return;
@@ -386,7 +431,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                 return (
                                                     <CardComponent
                                                         content={card}
-                                                        width={220}
                                                         key={card.name}
                                                         isHidden={
                                                             !isLoggedInPlayer &&
@@ -408,6 +452,50 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     </Hand>
                                 );
 
+                                const cardsHiddenCorporationSelection = (
+                                    <HiddenCardsMessage>
+                                        You can't count {thisPlayer.username}'s hand until
+                                        everyone's ready.
+                                    </HiddenCardsMessage>
+                                );
+
+                                const cardsHiddenBuyOrDiscard = (
+                                    <HiddenCardsMessage>
+                                        {thisPlayer.corporation.name} had{' '}
+                                        {thisPlayer.previousCardsInHand || 0} card
+                                        {thisPlayer.previousCardsInHand === 1 ? '' : 's'} at the end
+                                        of the previous round.
+                                    </HiddenCardsMessage>
+                                );
+
+                                const cardsHiddenActiveRound = (
+                                    <HiddenCardsMessage>
+                                        {thisPlayer.corporation.name} has {thisPlayer.cards.length}{' '}
+                                        card
+                                        {thisPlayer.cards.length === 1 ? '' : 's'} in hand.
+                                    </HiddenCardsMessage>
+                                );
+
+                                const noPlayedCardsMessage = (
+                                    <HiddenCardsMessage>No cards played yet.</HiddenCardsMessage>
+                                );
+
+                                const noCardsInHandMessage = (
+                                    <HiddenCardsMessage>No cards in hand.</HiddenCardsMessage>
+                                );
+
+                                const isLoggedInPlayer = thisPlayer.index === playerIndex;
+
+                                const cardsHidden = isCorporationSelection
+                                    ? cardsHiddenCorporationSelection
+                                    : isBuyOrDiscard
+                                    ? cardsHiddenBuyOrDiscard
+                                    : cardsHiddenActiveRound;
+
+                                const playedCardsExcludingCorp = thisPlayer.playedCards.filter(
+                                    card => card.type !== CardType.CORPORATION
+                                );
+
                                 return (
                                     <React.Fragment key={thisPlayer.index}>
                                         <Flex flexDirection="column" justifyContent="stretch">
@@ -425,7 +513,16 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                                     tabs={['Hand', 'Played Cards']}
                                                     defaultTabIndex={0}
                                                 >
-                                                    {[cards, playedCards]}
+                                                    {[
+                                                        !isLoggedInPlayer
+                                                            ? cardsHidden
+                                                            : thisPlayer.cards.length === 0
+                                                            ? noCardsInHandMessage
+                                                            : cards,
+                                                        playedCardsExcludingCorp.length > 0
+                                                            ? playedCards
+                                                            : noPlayedCardsMessage,
+                                                    ]}
                                                 </Switcher>
                                             </Panel>
                                         </Flex>
@@ -454,7 +551,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 <h3>{lookAtCardsPrompt}</h3>
                                 <CardSelector
                                     max={player.numCardsToTake || Infinity}
-                                    cardWidth={220}
                                     selectedCards={player.selectedCards}
                                     onSelect={cards =>
                                         dispatch(setSelectedCards(cards, playerIndex))
@@ -463,14 +559,18 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                     budget={remaining}
                                     orientation="vertical"
                                 />
-                                <button
-                                    disabled={cannotContinueAfterLookingAtCards}
-                                    onClick={() => context.processQueue(dispatch)}
-                                >
-                                    {player.buyCards
-                                        ? 'Confirm'
-                                        : `Take ${player.numCardsToTake === 1 ? 'card' : 'cards'}`}
-                                </button>
+                                <Flex justifyContent="center">
+                                    <Button
+                                        disabled={cannotContinueAfterLookingAtCards}
+                                        onClick={() => handleConfirmBuyOrTakeCards()}
+                                    >
+                                        {player.buyCards
+                                            ? 'Confirm'
+                                            : `Take ${
+                                                  player.numCardsToTake === 1 ? 'card' : 'cards'
+                                              }`}
+                                    </Button>
+                                </Flex>
                             </Flex>
                         )}
                         {player.pendingTilePlacement &&

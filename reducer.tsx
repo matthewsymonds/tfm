@@ -27,7 +27,6 @@ import {
     DISCARD_CARDS,
     DISCARD_REVEALED_CARDS,
     DRAW_CARDS,
-    DRAW_POSSIBLE_CARDS,
     FUND_AWARD,
     GAIN_RESOURCE,
     GAIN_SELECTED_CARDS,
@@ -170,16 +169,17 @@ export type PlayerState = {
     };
     // e.g. Insulation
     pendingProductionDecrease?: Resource;
+    previousCardsInHand?: number;
 
     // In an action that makes you look at cards, specifies how many you can take or buy.
     numCardsToTake: number | null;
     // Is the player considering buying the cards they're looking at?
     buyCards?: boolean | null;
     forcedActions: Array<Action>;
-    corporation: null | Card;
+    corporation: Card;
     possibleCards: Card[];
     selectedCards: Card[];
-    possibleCorporations: null | Card[];
+    possibleCorporations: Card[];
     cards: Card[];
     playedCards: Card[];
     resources: Resources;
@@ -277,7 +277,7 @@ export const reducer = (state: GameState | null = null, action) => {
     return produce(state, draft => {
         draft.set = false;
         const player = draft.players[payload?.playerIndex];
-        const corporationName = player?.corporation?.name;
+        const corporationName = player?.corporation.name;
         const {common} = draft;
         function handleParameterIncrease(parameter: Parameter, amount: number) {
             if (parameter === Parameter.TERRAFORM_RATING) {
@@ -345,7 +345,6 @@ export const reducer = (state: GameState | null = null, action) => {
         switch (action.type) {
             case SET_CORPORATION:
                 player.corporation = payload.corporation;
-                draft.log.push(`${player.username} chose ${player.corporation?.name}`);
                 break;
             case PAY_FOR_CARDS:
                 const numCards = action.payload.cards.length;
@@ -429,14 +428,6 @@ export const reducer = (state: GameState | null = null, action) => {
 
                 player.cards.push(...handleDrawCards(payload.numCards));
                 break;
-            case DRAW_POSSIBLE_CARDS:
-                player.possibleCards.push(...handleDrawCards(payload.numCards));
-                const bonus = draft.common.deck.find(card => card.name === bonusName);
-                if (bonus) {
-                    player.possibleCards.push(bonus);
-                    draft.common.deck = draft.common.deck.filter(card => card !== bonus);
-                }
-                break;
             case ADD_FORCED_ACTION_TO_PLAYER: {
                 const {forcedAction} = payload;
                 player.forcedActions.push(forcedAction);
@@ -469,9 +460,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     draft.log.push(
                         `${corporationName} decreased the ${getResourceName(
                             payload.resource
-                        )} production of ${
-                            targetPlayer.corporation?.name
-                        } ${decrease} ${stepsPlural(decrease)}`
+                        )} production of ${targetPlayer.corporation.name} ${decrease} ${stepsPlural(
+                            decrease
+                        )}`
                     );
                 }
                 break;
@@ -552,7 +543,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 player[resource] += amount;
                 draft.log.push(
                     `${corporationName} stole ${amountAndResource(payload.amount, resource)} from ${
-                        victimPlayer.corporation?.name
+                        victimPlayer.corporation.name
                     }`
                 );
                 break;
@@ -797,6 +788,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
+                draft.log.push(`${player.username} chose ${player.corporation.name}`);
                 handleEnterActiveRound(draft);
                 break;
             }
@@ -809,6 +801,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     draft.log.push(`${corporationName} passed`);
 
                     player.action = 0;
+                    player.previousCardsInHand = player.cards.length;
                     player.terraformedThisGeneration = false;
                     player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
 
@@ -852,6 +845,19 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
                             common.gameStage = GameStage.BUY_OR_DISCARD;
+
+                            for (const player of draft.players) {
+                                player.possibleCards.push(...handleDrawCards(4));
+                                const bonus = draft.common.deck.find(
+                                    card => card.name === bonusName
+                                );
+                                if (bonus) {
+                                    player.possibleCards.push(bonus);
+                                    draft.common.deck = draft.common.deck.filter(
+                                        card => card !== bonus
+                                    );
+                                }
+                            }
                         }
                     } else {
                         handleChangeCurrentPlayer(state, draft);

@@ -97,7 +97,7 @@ function Milestones() {
                                     if (!amount) return null;
                                     return (
                                         <Box key={player.index} textAlign="left" marginBottom="6px">
-                                            <em>{player.corporation?.name}:</em>
+                                            <em>{player.corporation.name}:</em>
                                             <Box display="inline-block" marginLeft="6px">
                                                 {amount}
                                             </Box>
@@ -110,7 +110,7 @@ function Milestones() {
                                             Claimed by{' '}
                                             {
                                                 state.players[claimedMilestone.claimedByPlayerIndex]
-                                                    .corporation?.name
+                                                    .corporation.name
                                             }
                                         </em>
                                     </Box>

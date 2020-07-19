@@ -51,12 +51,6 @@ export const drawCards = (numCards: number, playerIndex: number) => ({
     payload: {numCards, playerIndex},
 });
 
-export const DRAW_POSSIBLE_CARDS = 'DRAW_POSSIBLE_CARDS';
-export const drawPossibleCards = (numCards: number, playerIndex: number) => ({
-    type: DRAW_POSSIBLE_CARDS,
-    payload: {numCards, playerIndex},
-});
-
 export const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
 export const payForCards = (cards: Card[], playerIndex: number) => ({
     type: PAY_FOR_CARDS,

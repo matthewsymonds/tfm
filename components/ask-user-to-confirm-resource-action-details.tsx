@@ -352,7 +352,7 @@ function AskUserToConfirmResourceActionDetails({
 
     for (const playerToConsider of playersToConsider) {
         const listItem: ListItem = {
-            title: `${playerToConsider.corporation?.name} (${playerToConsider.username})`,
+            title: `${playerToConsider.corporation.name} (${playerToConsider.username})`,
             options: [],
             player: playerToConsider,
         };

@@ -1,11 +1,15 @@
 import {useState} from 'react';
 import {ScorePopover} from 'components/popovers/score-popover';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import {Pane, Tablist, Heading, Tab} from 'evergreen-ui';
 import {CardActionElements, CardComponent} from './card';
 import {PlayerResourceBoard} from './resource';
 import {PlayerTagCounter} from './tags';
 import styled from 'styled-components';
+import {GameStage} from 'constants/game';
+import {CardSelector} from './card-selector';
+import {setCorporation} from 'actions';
+import {useDispatch} from 'react-redux';
 
 type PlayerOverviewProps = {
     player: PlayerState;
@@ -35,16 +39,52 @@ const TextButton = styled.button`
     }
 `;
 
+const CorporationSelector = ({player, isLoggedInPlayer}: PlayerOverviewProps) => {
+    if (!isLoggedInPlayer) {
+        if (player.action) {
+            return <div>{player.username} is ready to play.</div>;
+        } else {
+            return <div>{player.username} is choosing a corporation and cards.</div>;
+        }
+    }
+
+    const {possibleCorporations, corporation} = player;
+
+    const dispatch = useDispatch();
+
+    return (
+        <>
+            <h3>Select a corporation:</h3>
+            <CardSelector
+                min={1}
+                max={1}
+                selectedCards={[corporation]}
+                onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
+                options={possibleCorporations}
+                orientation="vertical"
+            />
+        </>
+    );
+};
+
 type PlayerOverviewTab = 'Corporation' | 'Resources' | 'Tags';
 
 export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) => {
-    const corporation = player.corporation!;
+    const {corporation} = player;
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+
     const terraformRating = player.terraformRating;
     const [currentTab, setCurrentTab] = useState('Corporation');
     const tabs: Array<PlayerOverviewTab> = ['Corporation', 'Resources', 'Tags'];
 
     function getTabContent(tab: PlayerOverviewTab) {
         if (tab === 'Corporation') {
+            if (isCorporationSelection) {
+                return <CorporationSelector player={player} isLoggedInPlayer={isLoggedInPlayer} />;
+            }
+
             return (
                 <CardComponent content={corporation}>
                     <CardActionElements
@@ -57,10 +97,16 @@ export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) 
         }
 
         if (tab === 'Resources') {
+            if (isCorporationSelection) {
+                return null;
+            }
             return <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />;
         }
 
         if (tab === 'Tags') {
+            if (isCorporationSelection) {
+                return null;
+            }
             return <PlayerTagCounter player={player} />;
         }
 
@@ -70,7 +116,7 @@ export const PlayerOverview = ({player, isLoggedInPlayer}: PlayerOverviewProps) 
     return (
         <Pane padding={16}>
             <Heading size={700} color="#222" marginBottom={8} display="flex">
-                {player.corporation?.name} (
+                {isCorporationSelection ? player.username : player.corporation.name} (
                 <ScorePopover playerIndex={player.index}>
                     <Pane display="inline-flex">
                         <TextButton>{terraformRating} TR</TextButton>

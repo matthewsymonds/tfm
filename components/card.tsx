@@ -78,7 +78,7 @@ const CardBase = styled.div<CardBaseProps>`
 `;
 
 const CorporationCardBase = styled(CardBase)`
-    margin: 0;
+    margin: 10px;
     flex-basis: 250px;
     flex-grow: 1;
     min-width: 200px;
@@ -144,7 +144,7 @@ export function CardActionElements(props: {
     function handlePlayCardAction(cardAction: Action, parentCard: Card) {
         if (
             cardAction.acceptedPayment ||
-            (player.corporation?.name === 'Helion' && player.resources[Resource.HEAT] > 0)
+            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0)
         ) {
             setActionPendingPayment(cardAction);
         } else {
@@ -206,7 +206,8 @@ export function CardActionElements(props: {
 }
 
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
-    const {content, width, selected, onClick, isHidden} = props;
+    const {content, width = 240, selected, onClick, isHidden} = props;
+    if (!content) return null;
     const {name, text, action, effects, cost, tags} = content;
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);

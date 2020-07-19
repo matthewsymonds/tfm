@@ -116,7 +116,7 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
 
             return card.tags.includes(tag) && resourceAmount > 0;
         }) ||
-        (player.corporation?.name === 'Helion' && player.resources[Resource.HEAT] > 0)
+        (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0)
     );
 }
 
@@ -1120,6 +1120,9 @@ function shouldDisableUI(state: RootState) {
     const player = getLoggedInPlayer(state);
 
     if (player.index !== state.common.currentPlayerIndex) {
+        return true;
+    }
+    if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
         return true;
     }
     if (this.queue.length > 0) {

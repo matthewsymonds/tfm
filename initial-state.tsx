@@ -70,9 +70,10 @@ export function getInitialState(players: string[]): GameState {
             // 0 for card selection, 1 / 2 for active round
             action: 0,
             username: player,
+            buyCards: true,
             index: base.players.length,
             terraformRating: 20,
-            corporation: null,
+            corporation: possibleCorporations[0],
             possibleCards: sampleCards(deck, 10),
             selectedCards: [],
             numCardsToTake: null,

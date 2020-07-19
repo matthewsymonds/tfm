@@ -5,12 +5,12 @@ import styled from 'styled-components';
 import React from 'react';
 
 interface CardSelectorProps {
+    min?: number;
     max: number;
     onSelect: (cards: Card[]) => void;
     options: Card[];
     orientation: string;
     selectedCards: Card[];
-    cardWidth?: number;
     budget?: number;
     className?: string;
 }
@@ -21,19 +21,12 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     justify-content: center;
     flex-wrap: ${props => (props.orientation === 'vertical' ? 'wrap' : '')};
     margin: 0 auto;
+    max-height: 340px;
+    overflow-y: auto;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
-    const {
-        max,
-        onSelect,
-        options,
-        orientation,
-        selectedCards,
-        cardWidth,
-        budget,
-        className,
-    } = props;
+    const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const canSelect = budget === undefined || budget >= 3;
 
     const handleSelect = (card: Card) => {
@@ -54,12 +47,14 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
         <CardSelectorBase className={className} orientation={orientation}>
             {options.map((option, key) => {
                 const selected = selectedCards.indexOf(option) >= 0;
+
+                const cannotSelect = !selected && !canSelect;
+                const cannotUnselect = selected && selectedCards.length === min;
+
+                const disabled = cannotSelect || cannotUnselect;
                 return (
-                    <CardComponent width={cardWidth} key={key} content={option} selected={selected}>
-                        <button
-                            disabled={!selected && !canSelect}
-                            onClick={() => handleSelect(option)}
-                        >
+                    <CardComponent key={key} content={option} selected={selected}>
+                        <button disabled={disabled} onClick={() => handleSelect(option)}>
                             {selected ? 'Unselect' : 'Select'}
                         </button>
                     </CardComponent>

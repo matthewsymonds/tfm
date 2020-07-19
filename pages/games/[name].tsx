@@ -1,8 +1,6 @@
 import {setGame} from 'actions';
 import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
-import {BuyOrDiscard} from 'components/buy-or-discard';
-import {CorporationSelection} from 'components/corporation-selection';
 import {EndOfGame} from 'components/end-of-game';
 import {GreeneryPlacement} from 'components/greenery-placement';
 import {GameStage} from 'constants/game';
@@ -66,11 +64,9 @@ function GameComponent() {
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
-            return <CorporationSelection playerIndex={playerIndex} />;
         case GameStage.ACTIVE_ROUND:
-            return <ActiveRound playerIndex={playerIndex} />;
         case GameStage.BUY_OR_DISCARD:
-            return <BuyOrDiscard playerIndex={playerIndex} />;
+            return <ActiveRound playerIndex={playerIndex} />;
         case GameStage.GREENERY_PLACEMENT:
             return <GreeneryPlacement playerIndex={playerIndex} />;
         case GameStage.END_OF_GAME:
