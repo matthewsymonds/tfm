@@ -28,7 +28,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const dispatch = useDispatch();
     const store = useStore<RootState>();
     const state = store.getState();
-    const waitingMessage = getWaitingMessage(playerIndex, state);
+    const waitingMessage = getWaitingMessage(playerIndex);
 
     const context = useContext(AppContext);
 

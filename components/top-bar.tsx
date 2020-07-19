@@ -7,19 +7,16 @@ import {useRouter} from 'next/router';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
-import {getWaitingMessage} from 'selectors/get-waiting-message';
 import styled, {css, keyframes} from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
+import {Flex} from 'components/box';
 
 const ActionBarButton = styled.button`
     display: inline;
-    margin-left: 4px;
+    margin-left: 8px;
     width: fit-content;
     min-width: 0px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding: 6px 8px;
 `;
 
 const Info = styled.div`
@@ -58,7 +55,7 @@ const PlayerCorpAndColorBase = styled.div<{isPassed: boolean; isActive?: boolean
     display: flex;
     align-items: center;
     padding-bottom: 2px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0);
+    border-bottom: 4px solid rgba(0, 0, 0, 0);
     opacity: ${props => (props.isPassed ? 0.5 : 1)};
     font-style: ${props => (props.isPassed ? 'italic' : '')};
     ${props =>
@@ -72,48 +69,45 @@ const PlayerCorpAndColorBase = styled.div<{isPassed: boolean; isActive?: boolean
 const PlayerCorpAndColor = ({
     player,
     isPassed,
+    isLoggedInPlayer,
     isActive,
 }: {
     player: PlayerState;
     isPassed: boolean;
-    isActive?: boolean;
+    isLoggedInPlayer: boolean;
+    isActive: boolean;
 }) => {
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     return (
         <PlayerCorpAndColorBase isActive={isActive} isPassed={isPassed}>
             <Square playerIndex={player.index} shouldHideBorder={true} />
-            <Pane marginLeft="4px">
+            <Pane marginLeft="4px" whiteSpace="nowrap">
                 {isCorporationSelection ? player.username : player.corporation.name}
+                {isLoggedInPlayer && ' (You)'}
             </Pane>
         </PlayerCorpAndColorBase>
     );
 };
 
 type TopBarProps = {
-    player: PlayerState;
+    loggedInPlayer: PlayerState;
     isPlayerMakingDecision: boolean;
 };
 
-export const TopBar = ({player, isPlayerMakingDecision}: TopBarProps) => {
+export const TopBar = ({loggedInPlayer, isPlayerMakingDecision}: TopBarProps) => {
     const store = useStore<RootState>();
     const state = store.getState();
     const context = useContext(AppContext);
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const {action, index: playerIndex} = player;
-    const waitingMessage = getWaitingMessage(playerIndex);
+    const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const generation = useTypedSelector(state => state.common.generation);
-    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
-    const allPlayers = useTypedSelector(state => state.players ?? []);
     const turn = useTypedSelector(state => state.common.turn);
-    const gameStage = useTypedSelector(state => state.common.gameStage);
-
-    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-
-    const passedMessage = action || !isActiveRound ? '' : 'You have passed';
-    const showActionMessage = action && isActiveRound;
+    const allPlayers = useTypedSelector(state => state.players ?? []);
+    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+    const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
 
     return (
         <ActionBar>
@@ -125,17 +119,13 @@ export const TopBar = ({player, isPlayerMakingDecision}: TopBarProps) => {
                     fontSize="12px"
                     marginX="8px"
                 >
-                    <Info>
-                        Playing as {player.corporation.name}. {passedMessage}
-                        {showActionMessage ? waitingMessage || `Action ${action} of 2` : null}
-                        {action && !(context.shouldDisableUI(state) || isPlayerMakingDecision) ? (
-                            <ActionBarButton onClick={() => dispatch(skipAction(playerIndex))}>
-                                {action === 2 ? 'Skip 2nd action' : 'Pass'}
-                            </ActionBarButton>
-                        ) : null}
-                    </Info>
-                    <Info>
-                        <Pane display="flex" marginY="6px" flexDirection="column">
+                    <Flex alignItems="center" justifyContent="flex-start" flexBasis="40%">
+                        <Pane
+                            display="flex"
+                            marginY="8px"
+                            marginBottom="4px"
+                            flexDirection="column"
+                        >
                             <PlayerGroupHeader>Players</PlayerGroupHeader>
                             <Pane display="flex">
                                 {allPlayers.map(player => (
@@ -144,15 +134,31 @@ export const TopBar = ({player, isPlayerMakingDecision}: TopBarProps) => {
                                         player={player}
                                         isPassed={player.action === 0}
                                         isActive={player.index === currentPlayerIndex}
+                                        isLoggedInPlayer={player.index === loggedInPlayerIndex}
                                     />
                                 ))}
                             </Pane>
                         </Pane>
-                    </Info>
-                    <Info>
-                        Gen {generation}, Turn {turn}
+                    </Flex>
+                    <Flex alignItems="center" justifyContent="center" flexBasis="20%">
+                        {loggedInPlayer.action === 0 && <span>You have passed</span>}
+                        {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && (
+                            <span>Action {action} of 2</span>
+                        )}
+                        {loggedInPlayer.action > 0 &&
+                            isLoggedInPlayersTurn &&
+                            !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
+                                <ActionBarButton
+                                    onClick={() => dispatch(skipAction(loggedInPlayerIndex))}
+                                >
+                                    {action === 2 ? 'End turn' : 'Pass'}
+                                </ActionBarButton>
+                            )}
+                    </Flex>
+                    <Flex alignItems="center" justifyContent="flex-end" flexBasis="40%">
+                        Generation {generation}, Turn {turn}
                         <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
-                    </Info>
+                    </Flex>
                 </Pane>
             </ActionBarRow>
         </ActionBar>

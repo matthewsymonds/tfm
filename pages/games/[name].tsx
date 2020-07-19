@@ -15,10 +15,10 @@ import {deserializeState} from 'state-serialization';
 
 function GameComponent() {
     const {loading, session} = useSession();
-    const [playerIndex, setPlayerIndex] = useState<number>(-1);
+    const [loggedInPlayerIndex, setLoggedInPlayerIndex] = useState<number>(-1);
     const router = useRouter();
     const context = useContext(AppContext);
-    context.setLoggedInPlayerIndex(playerIndex);
+    context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 
     const dispatch = useDispatch();
 
@@ -52,7 +52,7 @@ function GameComponent() {
             return;
         }
         context.queue = result.queue;
-        setPlayerIndex(result.players.indexOf(session.username));
+        setLoggedInPlayerIndex(result.players.indexOf(session.username));
         result.state.log = result.state.log || [];
         dispatch(setGame(deserializeState(result.state)));
     };
@@ -60,15 +60,15 @@ function GameComponent() {
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
     if (loading) return <div />;
-    if (playerIndex < 0) return null;
+    if (loggedInPlayerIndex < 0) return null;
 
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
         case GameStage.ACTIVE_ROUND:
         case GameStage.BUY_OR_DISCARD:
-            return <ActiveRound playerIndex={playerIndex} />;
+            return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
         case GameStage.GREENERY_PLACEMENT:
-            return <GreeneryPlacement playerIndex={playerIndex} />;
+            return <GreeneryPlacement playerIndex={loggedInPlayerIndex} />;
         case GameStage.END_OF_GAME:
             return <EndOfGame />;
         default:
