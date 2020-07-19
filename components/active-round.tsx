@@ -25,7 +25,7 @@ import {useRouter} from 'next/router';
 import React, {MouseEvent, useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
-import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getHumanReadableTileName, aAnOrThe} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
@@ -139,7 +139,9 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                     context.queue.push(removeForcedActionFromPlayer(playerIndex, forcedActions[i]));
                 }
             }
-            context.processQueue(dispatch);
+            if (forcedActions.length > 0) {
+                context.processQueue(dispatch);
+            }
         }
     }, []);
 
@@ -211,8 +213,6 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
         dispatch(announceReadyToStartRound(playerIndex));
         context.processQueue(dispatch);
     }
-
-    const waitingMessage = getWaitingMessage(playerIndex, state);
 
     const router = useRouter();
 
@@ -551,7 +551,7 @@ export const ActiveRound = ({playerIndex}: {playerIndex: number}) => {
                                 <PromptTitle>Claim an unreserved area.</PromptTitle>
                             ) : (
                                 <PromptTitle>
-                                    Place the{' '}
+                                    Place {aAnOrThe(player.pendingTilePlacement.type)}{' '}
                                     {getHumanReadableTileName(player.pendingTilePlacement.type)}{' '}
                                     tile.
                                 </PromptTitle>

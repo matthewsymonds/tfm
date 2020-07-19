@@ -19,11 +19,11 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
         case StandardProjectType.SELL_PATENTS:
             return 'Sell patents';
         case StandardProjectType.POWER_PLANT:
-            return 'Power Plant';
+            return 'Power plant';
         case StandardProjectType.ASTEROID:
             return 'Asteroid';
         case StandardProjectType.AQUIFER:
-            return 'Ocean';
+            return 'Aquifer';
         case StandardProjectType.GREENERY:
             return 'Greenery';
         case StandardProjectType.CITY:

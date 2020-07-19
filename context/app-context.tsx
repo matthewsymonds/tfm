@@ -388,11 +388,15 @@ function canDoConversion(
     if (!conversion) return false;
     if (resource === Resource.PLANT) {
         // Ensure a valid placement for the greenery.
-        const validGreeneryPlacements = getValidPlacementsForRequirement(state, {
-            type: TileType.GREENERY,
-            placementRequirement: PlacementRequirement.GREENERY,
-            isRequired: true,
-        }, player);
+        const validGreeneryPlacements = getValidPlacementsForRequirement(
+            state,
+            {
+                type: TileType.GREENERY,
+                placementRequirement: PlacementRequirement.GREENERY,
+                isRequired: true,
+            },
+            player
+        );
         if (validGreeneryPlacements.length === 0) return false;
     }
     return player.resources[resource] >= quantity;
@@ -1055,9 +1059,7 @@ function playStandardProject(
     state: RootState
 ) {
     const playerIndex = getLoggedInPlayerIndex();
-    if (standardProjectAction.cost) {
-        this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
-    }
+    this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
 
     this.triggerEffectsFromStandardProject(standardProjectAction.cost, state);
 

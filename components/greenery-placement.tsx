@@ -86,8 +86,8 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                     <ActionBarRow>
                         {player.pendingTilePlacement ? (
                             <h3>
-                                Place the{' '}
-                                {getHumanReadableTileName(player.pendingTilePlacement.type)} tile.
+                                Place a {getHumanReadableTileName(player.pendingTilePlacement.type)}{' '}
+                                tile.
                             </h3>
                         ) : (
                             <h3>

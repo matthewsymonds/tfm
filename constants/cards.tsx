@@ -817,7 +817,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         name: 'Mangrove',
         text:
-            'Requires +4°C or warmer. Place a Greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
+            'Requires +4°C or warmer. Place a greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: 4,

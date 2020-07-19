@@ -8,7 +8,7 @@ import {getTextForStandardProject} from 'components/board/standard-projects';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
-import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getHumanReadableTileName, aAnOrThe} from 'selectors/get-human-readable-tile-name';
 import {
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
     ADD_FORCED_ACTION_TO_PLAYER,
@@ -314,9 +314,9 @@ export const reducer = (state: GameState | null = null, action) => {
             if (userTerraformRatingChange) {
                 player.terraformedThisGeneration = true;
             }
-            if (change) {
+            if (change && parameter !== Parameter.OCEAN) {
                 draft.log.push(
-                    `${corporationName} increased the ${getParameterName(
+                    `${corporationName} increased ${getParameterName(
                         parameter
                     )} ${userTerraformRatingChange} ${stepsPlural(userTerraformRatingChange)}`
                 );
@@ -649,7 +649,8 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case PAY_TO_PLAY_STANDARD_PROJECT: {
                 const {payment} = payload;
-                let cost = payload.standardProjectAction.cost - player.discounts.standardProjects;
+                let cost =
+                    (payload.standardProjectAction.cost || 0) - player.discounts.standardProjects;
                 if (payload.standardProjectAction.type === StandardProjectType.POWER_PLANT) {
                     cost -= player.discounts.standardProjectPowerPlant;
                 }
@@ -657,11 +658,20 @@ export const reducer = (state: GameState | null = null, action) => {
                 for (const resource in payment) {
                     player.resources[resource] -= payment[resource];
                 }
-                draft.log.push(
-                    `${corporationName} paid ${cost} to play standard project ${getTextForStandardProject(
-                        payload.standardProjectAction.type
-                    )}`
-                );
+                if (cost) {
+                    draft.log.push(
+                        `${corporationName} paid ${cost} for a standard project ${getTextForStandardProject(
+                            payload.standardProjectAction.type
+                        )!.toLowerCase()}`
+                    );
+                } else {
+                    draft.log.push(
+                        `${corporationName} played standard project ${getTextForStandardProject(
+                            payload.standardProjectAction.type
+                        )!.toLowerCase()}`
+                    );
+                }
+
                 break;
             }
             case CLAIM_MILESTONE: {
@@ -746,10 +756,17 @@ export const reducer = (state: GameState | null = null, action) => {
                     draft.log.push(`${corporationName} reserved an area.`);
                     return;
                 }
+
+                const numOceans =
+                    draft.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN)
+                        .length + 1;
+
+                const oceanAddendum =
+                    payload.tile.type === TileType.OCEAN ? ` (${numOceans} of 9)` : '';
                 draft.log.push(
-                    `${corporationName} placed the ${getHumanReadableTileName(
+                    `${corporationName} placed ${aAnOrThe(
                         payload.tile.type
-                    )} tile`
+                    )} ${getHumanReadableTileName(payload.tile.type)} tile${oceanAddendum}`
                 );
                 draft.common.mostRecentTilePlacementCell = matchingCell;
                 const parameterFromTile = getParameterForTile(payload.tile);
