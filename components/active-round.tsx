@@ -79,7 +79,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
+    // const [cardsToDiscard, setCardsToDiscard] = useState<Card[]>([]);
     const log = useTypedSelector(state => state.log);
 
     const [isPaymentPopoverOpen, setIsPaymentPopoverOpen] = useState(false);
@@ -106,20 +106,20 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     // For selecting cards to discard
-    function handleCardClick(card) {
-        if (loggedInPlayer.pendingDiscard) {
-            let newCardsToDiscard = [...cardsToDiscard];
-            if (newCardsToDiscard.includes(card)) {
-                newCardsToDiscard = newCardsToDiscard.filter(c => c !== card);
-            } else {
-                newCardsToDiscard.push(card);
-                while (newCardsToDiscard.length > maxCardsToDiscard) {
-                    newCardsToDiscard.shift();
-                }
-            }
-            setCardsToDiscard(newCardsToDiscard);
-        }
-    }
+    // function handleCardClick(card) {
+    //     if (loggedInPlayer.pendingDiscard) {
+    //         let newCardsToDiscard = [...cardsToDiscard];
+    //         if (newCardsToDiscard.includes(card)) {
+    //             newCardsToDiscard = newCardsToDiscard.filter(c => c !== card);
+    //         } else {
+    //             newCardsToDiscard.push(card);
+    //             while (newCardsToDiscard.length > maxCardsToDiscard) {
+    //                 newCardsToDiscard.shift();
+    //             }
+    //         }
+    //         setCardsToDiscard(newCardsToDiscard);
+    //     }
+    // }
 
     useSyncState();
 
@@ -173,12 +173,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         setCardPendingPayment(null);
     }
 
-    function confirmDiscardSelection() {
-        dispatch(discardCards(cardsToDiscard, loggedInPlayerIndex));
-        context.processQueue(dispatch);
-        setCardsToDiscard([]);
-    }
-
     const players = useTypedSelector(state => state.players);
 
     function continueAfterRevealingCards() {
@@ -186,8 +180,14 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         context.processQueue(dispatch);
     }
 
-    function handleConfirmBuyOrTakeCards() {
+    // Used for buying, taking, and discarding cards
+    function handleConfirmCardSelection() {
         if (gameStage === GameStage.ACTIVE_ROUND) {
+            // buying & taking cards already pre-dispatch the requisite next steps.
+            // for discarding, though, we need to explicitly dispatch the next step here.
+            if (loggedInPlayer.pendingDiscard) {
+                dispatch(discardCards(selectedCards, loggedInPlayerIndex));
+            }
             context.processQueue(dispatch);
             return;
         }
@@ -217,19 +217,49 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         gameStage === GameStage.CORPORATION_SELECTION
             ? loggedInPlayer.corporation.gainResource[Resource.MEGACREDIT]
             : loggedInPlayer.resources[Resource.MEGACREDIT];
-    const remaining = loggedInPlayer.buyCards ? playerMoney - totalCardCost : playerMoney;
-    const numCardsToTake = loggedInPlayer.buyCards
-        ? loggedInPlayer.possibleCards.length
-        : loggedInPlayer.numCardsToTake;
-    let lookAtCardsPrompt = `Select ${
-        loggedInPlayer.buyCards ? 'up to ' : ''
-    }${numCardsToTake} card${numCardsToTake !== 1 ? 's' : ''} to ${
-        loggedInPlayer.buyCards ? 'buy' : 'take'
-    }`;
-    if (loggedInPlayer.buyCards) {
-        lookAtCardsPrompt += ` (${remaining} MC remaining)`;
+
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
+    const remainingMegacreditsToBuyCards =
+        loggedInPlayer.buyCards || isBuyOrDiscard ? playerMoney - totalCardCost : playerMoney;
+
+    let cardSelectionPrompt;
+    let cardSelectionButtonText;
+    const numSelectedCards = loggedInPlayer.selectedCards.length;
+    const cardOrCards = `card${numSelectedCards === 1 ? '' : 's'}`;
+
+    if (loggedInPlayer.buyCards || isBuyOrDiscard) {
+        // buying cards, e.g. between generations
+        const numCards = loggedInPlayer.possibleCards.length;
+        cardSelectionPrompt = `Select up to ${numCards} card${
+            numCards === 1 ? '' : 's'
+        } to buy (${remainingMegacreditsToBuyCards} MC remaining)`;
+
+        cardSelectionButtonText = `Buy ${numSelectedCards} ${cardOrCards}`;
+    } else if (loggedInPlayer.numCardsToTake) {
+        // taking cards, e.g. invention contest (look at 4, take 2)
+        const numCards = loggedInPlayer.numCardsToTake;
+        cardSelectionPrompt = `Select ${numCards} card${numCards === 1 ? '' : 's'} to take`;
+        cardSelectionButtonText = `Take ${numSelectedCards} ${cardOrCards}`;
+    } else if (loggedInPlayer.pendingDiscard) {
+        cardSelectionButtonText = `Discard ${numSelectedCards} ${cardOrCards}`;
+        switch (loggedInPlayer.pendingDiscard.amount) {
+            case VariableAmount.USER_CHOICE:
+                cardSelectionPrompt = 'Select 1 or more cards to discard';
+                break;
+            case VariableAmount.USER_CHOICE_UP_TO_ONE:
+                cardSelectionPrompt = 'You may discard up to one card';
+                break;
+            default:
+                throw new Error('Unhandled pending discard scenario');
+        }
     }
-    const cannotContinueAfterLookingAtCards =
+
+    const shouldDisableDiscardConfirmation =
+        loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE &&
+        selectedCards.length === 0;
+    const shouldDisableConfirmCardSelection =
+        shouldDisableDiscardConfirmation ||
         totalCardCost > playerMoney ||
         (loggedInPlayer.numCardsToTake !== null &&
             loggedInPlayer.selectedCards.length < loggedInPlayer.numCardsToTake);
@@ -254,8 +284,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
             context.processQueue(dispatch);
         }
     }, []);
-    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
-    const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
 
     return (
         <>
@@ -334,18 +362,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                                 state
                                             );
                                             return (
-                                                <CardComponent
-                                                    key={card.name}
-                                                    content={card}
-                                                    onClick={(e: MouseEvent<HTMLDivElement>) => {
-                                                        if (
-                                                            loggedInPlayerIndex !== thisPlayer.index
-                                                        )
-                                                            return;
-                                                        handleCardClick(card);
-                                                    }}
-                                                    selected={cardsToDiscard.includes(card)}
-                                                >
+                                                <CardComponent key={card.name} content={card}>
                                                     {!canPlay && (
                                                         <CardDisabledText>
                                                             <em>{reason}</em>
@@ -518,18 +535,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         {loggedInPlayer.pendingChoice && (
                             <AskUserToMakeActionChoice player={loggedInPlayer} />
                         )}
-                        {loggedInPlayer.pendingDiscard && (
-                            <AskUserToConfirmDiscardSelection
-                                minCardsToDiscard={minCardsToDiscard}
-                                maxCardsToDiscard={maxCardsToDiscard}
-                                cardsToDiscard={cardsToDiscard}
-                                confirmDiscardSelection={confirmDiscardSelection}
-                                player={loggedInPlayer}
-                            />
-                        )}
                         {loggedInPlayer.possibleCards.length > 0 && (
                             <Flex flexDirection="column">
-                                <PromptTitle>{lookAtCardsPrompt}</PromptTitle>
+                                <PromptTitle>{cardSelectionPrompt}</PromptTitle>
                                 <CardSelector
                                     max={loggedInPlayer.numCardsToTake || Infinity}
                                     selectedCards={loggedInPlayer.selectedCards}
@@ -537,21 +545,15 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                         dispatch(setSelectedCards(cards, loggedInPlayerIndex))
                                     }
                                     options={loggedInPlayer.possibleCards}
-                                    budget={remaining}
+                                    budget={remainingMegacreditsToBuyCards}
                                     orientation="vertical"
                                 />
                                 <Flex justifyContent="center">
                                     <Button
-                                        disabled={cannotContinueAfterLookingAtCards}
-                                        onClick={() => handleConfirmBuyOrTakeCards()}
+                                        disabled={shouldDisableConfirmCardSelection}
+                                        onClick={() => handleConfirmCardSelection()}
                                     >
-                                        {loggedInPlayer.buyCards
-                                            ? 'Confirm'
-                                            : `Take ${
-                                                  loggedInPlayer.numCardsToTake === 1
-                                                      ? 'card'
-                                                      : 'cards'
-                                              }`}
+                                        {cardSelectionButtonText}
                                     </Button>
                                 </Flex>
                             </Flex>

@@ -213,7 +213,7 @@ function canAffordActionCost(action: Action, state: RootState) {
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
-function getAppropriatePlayer(state: RootState, parent?: Card) {
+function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
     if (!parent) {
         return getLoggedInPlayer(state);
     }
@@ -221,14 +221,14 @@ function getAppropriatePlayer(state: RootState, parent?: Card) {
     return getPlayerWithCard(state, parent);
 }
 
-function getPlayerWithCard(state: RootState, parent: Card): Player {
+function getPlayerWithCard(state: RootState, parent: Card): PlayerState {
     return state.players.find(player =>
         player.playedCards.find(theCard => theCard.name === parent.name)
     )!;
 }
 
 function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootState, parent?: Card) {
-    const player = getAppropriatePlayer(state, parent);
+    const player = getAppropriatePlayerForAction(state, parent);
 
     if (
         action.removeResourceSourceType &&
@@ -270,7 +270,7 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
 }
 
 function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?: Card) {
-    const loggedInPlayer = getAppropriatePlayer(state, card);
+    const loggedInPlayer = getAppropriatePlayerForAction(state, card);
     if (action && action instanceof Card) {
         // You can play a card without completing the theft.
         return true;
@@ -302,10 +302,11 @@ function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?:
 }
 
 function meetsProductionRequirements(action: Action, state: RootState, parent?: Card) {
-    const player = getAppropriatePlayer(state, parent);
+    const player = getAppropriatePlayerForAction(state, parent);
 
     const {decreaseProduction, decreaseAnyProduction} = action;
 
+    debugger;
     for (const production in decreaseProduction) {
         const decrease = convertAmountToNumber(decreaseProduction[production], state);
         if (player.productions[production] - decrease < MinimumProductions[production]) {
@@ -332,7 +333,7 @@ function meetsProductionRequirements(action: Action, state: RootState, parent?: 
 function meetsTilePlacementRequirements(action: Action, state: RootState, parent?: Card): boolean {
     if (!action.tilePlacements) return true;
 
-    const player = getAppropriatePlayer(state, parent);
+    const player = getAppropriatePlayerForAction(state, parent);
 
     for (const tilePlacement of action.tilePlacements) {
         const {isRequired, placementRequirement} = tilePlacement;
@@ -375,7 +376,7 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
         return [false, 'Required production not met.'];
     }
 
-    return this.canPlayAction(card, state, card);
+    return this.canPlayAction(card, state);
 }
 
 function canDoConversion(
