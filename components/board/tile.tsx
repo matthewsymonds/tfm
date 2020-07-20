@@ -15,6 +15,11 @@ const getColor = (type: TileType) => {
             return '#ff2222';
         case TileType.OTHER:
             return 'brown';
+        case TileType.MINING_AREA:
+        case TileType.MINING_RIGHTS:
+            return 'brown';
+        case TileType.COMMERCIAL_DISTRICT:
+            return '#777';
         default:
             return 'white';
     }

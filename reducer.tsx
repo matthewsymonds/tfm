@@ -52,6 +52,8 @@ import {
     SKIP_ACTION,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
+    SKIP_CHOICE,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -82,6 +84,7 @@ import {convertAmountToNumber, getDiscountedCardCost} from './context/app-contex
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
 import {CardType} from 'constants/card-types';
+import {Tag} from 'constants/tag';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -162,6 +165,10 @@ export type PlayerState = {
         card: Card;
         playedCard?: Card; // The card that was played and triggered the decision.
         locationType?: ResourceLocationType;
+    };
+    pendingDuplicateProduction?: {
+        tag: Tag;
+        card: Card;
     };
     // e.g. Sell patents
     pendingDiscard?: {
@@ -460,6 +467,7 @@ export const reducer = (state: GameState | null = null, action) => {
             case DECREASE_PRODUCTION: {
                 draft.pendingVariableAmount = payload.amount;
                 player.pendingResourceActionDetails = undefined;
+                player.pendingDuplicateProduction = undefined;
                 let targetPlayer = draft.players[payload.targetPlayerIndex];
 
                 const decrease = convertAmountToNumber(
@@ -487,14 +495,24 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             }
 
+            case SKIP_CHOICE:
+                player.pendingDuplicateProduction = undefined;
+                break;
+
             case INCREASE_PRODUCTION: {
                 player.pendingResourceActionDetails = undefined;
+                player.pendingDuplicateProduction = undefined;
                 const increase = convertAmountToNumber(
                     payload.amount,
                     state,
                     mostRecentlyPlayedCard
                 );
                 player.productions[payload.resource] += increase;
+                const card = mostRecentlyPlayedCard;
+                if (increase && (card.name === 'Mining Rights' || card.name === 'Mining Area')) {
+                    // Record the production increase for the purpose of robotic workforce.
+                    card.increaseProductionResult = payload.resource;
+                }
                 draft.log.push(
                     `${corporationName} increased their ${getResourceName(
                         payload.resource
@@ -736,6 +754,14 @@ export const reducer = (state: GameState | null = null, action) => {
                     locationType,
                 };
 
+                break;
+            }
+            case ASK_USER_TO_DUPLICATE_PRODUCTION: {
+                const {tag, card} = payload;
+                player.pendingDuplicateProduction = {
+                    tag,
+                    card,
+                };
                 break;
             }
             case ASK_USER_TO_MAKE_ACTION_CHOICE:

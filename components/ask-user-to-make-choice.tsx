@@ -7,6 +7,8 @@ import {ReactNode} from 'react';
 export const OptionsParent = styled.ul`
     padding-left: 2px;
     margin-top: 0px;
+    max-height: 400px;
+    overflow-y: auto;
     li {
         list-style-type: none;
     }
@@ -41,11 +43,10 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
     return (
         <Flex width="100%" flexWrap="wrap" justifyContent="space-around" maxWidth="800px">
             {cardDetails}
-
-            <OptionsParent>
+            <div>
                 <h3>Please confirm your choice:</h3>
-                {children}
-            </OptionsParent>
+                <OptionsParent>{children}</OptionsParent>
+            </div>
         </Flex>
     );
 }

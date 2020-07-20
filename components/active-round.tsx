@@ -42,6 +42,7 @@ import {PlayerOverview} from './player-overview';
 import {Square} from './square';
 import {SwitchColors} from './switch-colors';
 import {TopBar} from 'components/top-bar';
+import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 
 const Hand = styled.div`
     display: flex;
@@ -265,6 +266,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         loggedInPlayer.forcedActions.length > 0 ||
         loggedInPlayer.pendingResourceActionDetails ||
         loggedInPlayer.pendingChoice ||
+        loggedInPlayer.pendingDuplicateProduction ||
         loggedInPlayer.pendingDiscard;
 
     useEffect(() => {
@@ -528,6 +530,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     <ActionBarRow>
                         {loggedInPlayer.pendingChoice && (
                             <AskUserToMakeActionChoice player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingDuplicateProduction && (
+                            <AskUserToDuplicateProduction player={loggedInPlayer} />
                         )}
                         {loggedInPlayer.possibleCards.length > 0 && (
                             <Flex flexDirection="column">

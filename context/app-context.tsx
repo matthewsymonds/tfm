@@ -30,6 +30,8 @@ import {
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
+    askUserToDuplicateProduction,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
 } from 'actions';
 import {Action, Amount} from 'constants/action';
 import {
@@ -901,6 +903,16 @@ function playAction({
         }
     }
 
+    if (action.duplicateProduction) {
+        items.push(
+            askUserToDuplicateProduction({
+                tag: action.duplicateProduction,
+                playerIndex,
+                card: action as Card,
+            })
+        );
+    }
+
     for (const resource in action.gainResource) {
         items.push(
             createInitialGainResourceAction(
@@ -1217,6 +1229,7 @@ const PAUSE_ACTIONS = [
     REVEAL_AND_DISCARD_TOP_CARDS,
     ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
 ];
 
 function shouldPause(action: {type: string}): boolean {

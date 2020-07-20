@@ -65,6 +65,8 @@ export class Card {
     increaseProduction: PropertyCounter<Resource>;
     /** e.g. "Increase your plant production 1 step or your energy production 2 steps" */
     increaseProductionOption: PropertyCounter<Resource>;
+    /** Records Mining Rights and Mining Area's production increase. */
+    increaseProductionResult?: Resource;
     /** e.g. Duplicate only the production box of one of your building cards  */
     duplicateProduction?: Tag;
     /** e.g. "Decrease your MC production 2 steps" */

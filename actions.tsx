@@ -9,6 +9,7 @@ import {Card} from './models/card';
 import {RootState} from './reducer';
 import {ExchangeRates} from 'constants/card-types';
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
+import {Tag} from 'constants/tag';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -246,6 +247,30 @@ export const askUserToChooseResourceActionDetails = ({
 }) => ({
     type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     payload: {actionType, resourceAndAmounts, card, playedCard, playerIndex, locationType},
+});
+
+export const ASK_USER_TO_DUPLICATE_PRODUCTION = 'ASK_USER_TO_DUPLICATE_PRODUCTION';
+export const askUserToDuplicateProduction = ({
+    tag,
+    card,
+    playerIndex,
+}: {
+    tag: Tag;
+    card: Card;
+    playerIndex: number;
+}) => ({
+    type: ASK_USER_TO_DUPLICATE_PRODUCTION,
+    payload: {
+        tag,
+        card,
+        playerIndex,
+    },
+});
+
+export const SKIP_CHOICE = 'SKIP_CHOICE';
+export const skipChoice = (playerIndex: number) => ({
+    type: SKIP_CHOICE,
+    payload: {playerIndex},
 });
 
 export const ASK_USER_TO_MAKE_ACTION_CHOICE = 'ASK_USER_TO_MAKE_ACTION_CHOICE';

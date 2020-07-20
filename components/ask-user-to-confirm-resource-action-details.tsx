@@ -388,7 +388,11 @@ function AskUserToConfirmResourceActionDetails({
             listItem.options.push(...options);
         }
 
-        listItem.options = listItem.options.filter(option => option.quantity > 0);
+        const zeroChangeAllowed = actionType === 'decreaseProduction';
+
+        listItem.options = listItem.options.filter(
+            option => option.quantity > 0 || zeroChangeAllowed
+        );
 
         if (listItem.options.length > 0) {
             listItems.push(listItem);
@@ -453,7 +457,12 @@ function OptionComponent(props: Option) {
         context.processQueue(dispatch);
     }
 
-    const [variableAmount, setVariableAmount] = useState(1);
+    const max =
+        props.actionType === 'decreaseProduction'
+            ? player.productions[props.resource]
+            : player.resources[props.resource];
+
+    const [variableAmount, setVariableAmount] = useState(Math.min(1, max));
     let inner: Array<JSX.Element | string> = [props.text];
 
     if (props.isVariable && props.actionType === 'decreaseProduction') {
@@ -466,8 +475,10 @@ function OptionComponent(props: Option) {
                 type="number"
                 min={0}
                 value={variableAmount}
-                max={player.productions[props.resource]}
-                onChange={e => setVariableAmount(Number(e.target.value))}
+                max={max}
+                onChange={e =>
+                    setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                }
             />,
             <Box display="inline-block" width="40px" marginLeft="6px">
                 {variableAmount === 1 ? ' step' : ' steps'}
@@ -481,8 +492,10 @@ function OptionComponent(props: Option) {
                 type="number"
                 min={1}
                 value={variableAmount}
-                max={player.resources[props.resource]}
-                onChange={e => setVariableAmount(Number(e.target.value))}
+                max={max}
+                onChange={e =>
+                    setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                }
             />,
             ' ',
             getResourceName(props.resource),

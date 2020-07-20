@@ -69,14 +69,16 @@ const deserializeCommonState = (common: SerializedCommonState): CommonState => {
 type SerializedCard = {
     name: string;
     storedResourceType?: Resource;
-    lastRoundUsedAction?: boolean;
+    lastRoundUsedAction?: number;
     storedResourceAmount?: number;
+    increaseProductionResult?: Resource;
 };
 
 function deserializeCard(serializedCard: SerializedCard): Card {
     const card = cards.find(card => card.name === serializedCard.name)!;
     card.storedResourceAmount = serializedCard.storedResourceAmount || 0;
     card.lastRoundUsedAction = serializedCard.lastRoundUsedAction;
+    card.increaseProductionResult = serializedCard.increaseProductionResult;
     return card;
 }
 
@@ -89,6 +91,9 @@ function serializeCard(card: Card): SerializedCard {
     }
     if (card.lastRoundUsedAction) {
         result.lastRoundUsedAction = card.lastRoundUsedAction;
+    }
+    if (card.increaseProductionResult) {
+        result.increaseProductionResult = card.increaseProductionResult;
     }
     return result;
 }
