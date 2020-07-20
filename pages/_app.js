@@ -12,13 +12,14 @@ import {Provider} from 'react-redux';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
 import {Mars} from 'components/mars';
+import {colors} from 'components/ui';
 
 const GlobalStyles = createGlobalStyle`
     body {
         margin: 0;
         font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
             Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-        background: #212121   
+        background: ${colors.DARK_1};
     }
     html, body, #__next, #__next > div {
       min-height: 100vh;
@@ -68,6 +69,9 @@ const GlobalStyles = createGlobalStyle`
       -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
       outline: none !important;
     }
+    body::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0);
+      }
     h1, h2, h3, h4 {
       text-align: center;
       align-self: center;

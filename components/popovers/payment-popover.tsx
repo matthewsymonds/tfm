@@ -1,24 +1,15 @@
-import {ChangeEvent, useContext} from 'react';
-import {Popover} from 'reactstrap';
+import {ChangeEvent, useContext, useState} from 'react';
+import {Popover, Position, Pane} from 'evergreen-ui';
 import styled from 'styled-components';
-import {Card} from 'models/card';
-import {Tag} from 'constants/tag';
-import {Resource} from 'constants/resource';
-import {useState} from 'react';
-import {getDiscountedCardCost, AppContext} from 'context/app-context';
-import {PropertyCounter} from 'constants/property-counter';
-import {ResourceIcon} from 'components/resource';
+
 import {useTypedSelector} from 'reducer';
 import {colors} from 'constants/game';
-
-type Props = {
-    isOpen: boolean;
-    target: string | null;
-    card?: Card;
-    cost?: number;
-    toggle: () => void;
-    onConfirmPayment: (payment: PropertyCounter<Resource>) => void;
-};
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {getDiscountedCardCost, AppContext} from 'context/app-context';
+import {ResourceIcon} from 'components/resource';
+import {Card} from 'models/card';
 
 const PaymentPopoverBase = styled.div`
     padding: 16px;
@@ -116,14 +107,29 @@ function PaymentPopoverRow({
     );
 }
 
+// payment popover is used for cards, card actions, standard projects, milestones, and awards.
+// either `card` or `cost` will be defined in props. we need the full card in order to determine
+// tag discounts and alternate payments (steel / titanium).
+type BasePaymentPopoverProps = {
+    onConfirmPayment: (payment: PropertyCounter<Resource>) => void;
+    children: React.ReactNode;
+};
+type CardPaymentPopoverProps = BasePaymentPopoverProps & {
+    cost?: undefined;
+    card: Card;
+};
+type CardActionPaymentPopoverProps = BasePaymentPopoverProps & {
+    cost: number;
+    card?: undefined;
+};
+type PaymentPopoverProps = CardPaymentPopoverProps | CardActionPaymentPopoverProps;
+
 export default function PaymentPopover({
-    isOpen,
-    target,
-    toggle,
     onConfirmPayment,
+    children,
     card,
     cost,
-}: Props) {
+}: PaymentPopoverProps) {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
@@ -236,68 +242,77 @@ export default function PaymentPopover({
     const isValidPayment = actionCost <= runningTotal;
 
     return (
-        <Popover placement="right" isOpen={isOpen} target={target} toggle={toggle} fade={true}>
-            <PaymentPopoverBase>
-                <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
-                    <span>Cost: {actionCost}</span>
-                    <span className="running-total">
-                        <em style={{color: isValidPayment ? colors[1] : colors[0]}}>
-                            Current: {runningTotal}
-                        </em>
-                    </span>
-                </PaymentPopoverSummaryRow>
-                <div className="payment-rows">
-                    {resources[Resource.MEGACREDIT] > 0 && (
-                        <PaymentPopoverRow
-                            resource={Resource.MEGACREDIT}
-                            currentQuantity={numMC}
-                            availableQuantity={resources[Resource.MEGACREDIT]}
-                            handleIncrease={handleIncrease}
-                            handleDecrease={handleDecrease}
-                        />
-                    )}
-                    {card && card.tags.includes(Tag.BUILDING) && resources[Resource.STEEL] > 0 && (
-                        <PaymentPopoverRow
-                            resource={Resource.STEEL}
-                            currentQuantity={numSteel}
-                            availableQuantity={resources[Resource.STEEL]}
-                            handleIncrease={handleIncrease}
-                            handleDecrease={handleDecrease}
-                        />
-                    )}
-                    {card && card.tags.includes(Tag.SPACE) && resources[Resource.TITANIUM] > 0 && (
-                        <PaymentPopoverRow
-                            resource={Resource.TITANIUM}
-                            currentQuantity={numTitanium}
-                            availableQuantity={resources[Resource.TITANIUM]}
-                            handleIncrease={handleIncrease}
-                            handleDecrease={handleDecrease}
-                        />
-                    )}
-                    {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
-                        <PaymentPopoverRow
-                            resource={Resource.HEAT}
-                            currentQuantity={numHeat}
-                            availableQuantity={resources[Resource.HEAT]}
-                            handleIncrease={handleIncrease}
-                            handleDecrease={handleDecrease}
-                        />
-                    )}
-                </div>
-                <PaymentPopoverConfirmationButton
-                    disabled={!isValidPayment}
-                    onClick={() =>
-                        onConfirmPayment({
-                            [Resource.MEGACREDIT]: numMC,
-                            [Resource.STEEL]: numSteel,
-                            [Resource.TITANIUM]: numTitanium,
-                            [Resource.HEAT]: numHeat,
-                        })
-                    }
-                >
-                    Confirm
-                </PaymentPopoverConfirmationButton>
-            </PaymentPopoverBase>
+        <Popover
+            position={Position.RIGHT}
+            content={
+                <PaymentPopoverBase>
+                    <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
+                        <span>Cost: {actionCost}</span>
+                        <span className="running-total">
+                            <em style={{color: isValidPayment ? colors[1] : colors[0]}}>
+                                Current: {runningTotal}
+                            </em>
+                        </span>
+                    </PaymentPopoverSummaryRow>
+                    <div className="payment-rows">
+                        {resources[Resource.MEGACREDIT] > 0 && (
+                            <PaymentPopoverRow
+                                resource={Resource.MEGACREDIT}
+                                currentQuantity={numMC}
+                                availableQuantity={resources[Resource.MEGACREDIT]}
+                                handleIncrease={handleIncrease}
+                                handleDecrease={handleDecrease}
+                            />
+                        )}
+                        {card &&
+                            card.tags.includes(Tag.BUILDING) &&
+                            resources[Resource.STEEL] > 0 && (
+                                <PaymentPopoverRow
+                                    resource={Resource.STEEL}
+                                    currentQuantity={numSteel}
+                                    availableQuantity={resources[Resource.STEEL]}
+                                    handleIncrease={handleIncrease}
+                                    handleDecrease={handleDecrease}
+                                />
+                            )}
+                        {card &&
+                            card.tags.includes(Tag.SPACE) &&
+                            resources[Resource.TITANIUM] > 0 && (
+                                <PaymentPopoverRow
+                                    resource={Resource.TITANIUM}
+                                    currentQuantity={numTitanium}
+                                    availableQuantity={resources[Resource.TITANIUM]}
+                                    handleIncrease={handleIncrease}
+                                    handleDecrease={handleDecrease}
+                                />
+                            )}
+                        {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
+                            <PaymentPopoverRow
+                                resource={Resource.HEAT}
+                                currentQuantity={numHeat}
+                                availableQuantity={resources[Resource.HEAT]}
+                                handleIncrease={handleIncrease}
+                                handleDecrease={handleDecrease}
+                            />
+                        )}
+                    </div>
+                    <PaymentPopoverConfirmationButton
+                        disabled={!isValidPayment}
+                        onClick={() =>
+                            onConfirmPayment({
+                                [Resource.MEGACREDIT]: numMC,
+                                [Resource.STEEL]: numSteel,
+                                [Resource.TITANIUM]: numTitanium,
+                                [Resource.HEAT]: numHeat,
+                            })
+                        }
+                    >
+                        Confirm
+                    </PaymentPopoverConfirmationButton>
+                </PaymentPopoverBase>
+            }
+        >
+            <Pane>{children}</Pane>
         </Popover>
     );
 }

@@ -9,19 +9,18 @@ import {
     setCards,
     setSelectedCards,
 } from 'actions';
-import {PlayerPanel} from 'components/active-round/player-panel';
+import {PlayerPanel} from 'components/player-panel';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
+import {LogPanel} from 'components/log-panel';
 import {Switcher} from 'components/switcher';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
-import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
 import {useSyncState} from 'hooks/sync-state';
-import {Card} from 'models/card';
 import React, {useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
@@ -40,48 +39,24 @@ import {Button} from './button';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
 import GlobalParams from './global-params';
-import {SwitchColors} from './switch-colors';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
 `;
 
 export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}) => {
-    const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
-    const {corporation, possibleCards, cards, selectedCards} = loggedInPlayer;
+    /**
+     * Hooks
+     */
     const store = useStore<RootState>();
-    const state = store.getState();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    const log = useTypedSelector(state => state.log);
-
-    const [isPaymentPopoverOpen, setIsPaymentPopoverOpen] = useState(false);
-    const [cardPendingPayment, setCardPendingPayment] = useState<Card | null>(null);
-
-    let maxCardsToDiscard: number;
-    const discardAmount = loggedInPlayer?.pendingDiscard?.amount;
-
-    if (discardAmount === VariableAmount.USER_CHOICE) {
-        maxCardsToDiscard = cards.length;
-    } else if (discardAmount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
-        maxCardsToDiscard = 1;
-    } else {
-        maxCardsToDiscard = discardAmount as number;
-    }
-
-    let minCardsToDiscard = 0;
-    if (typeof discardAmount === 'number') {
-        minCardsToDiscard = discardAmount;
-    }
-    if (discardAmount === VariableAmount.USER_CHOICE) {
-        // Can't cycle a turn with sell patents by selling 0 cards!
-        minCardsToDiscard = 1;
-    }
-
+    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
     useSyncState();
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+    const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
 
     useEffect(() => {
         if (gameStage !== GameStage.ACTIVE_ROUND) {
@@ -106,73 +81,42 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         }
     }, [gameStage, currentPlayerIndex]);
 
-    function playCard(card: Card, payment?: PropertyCounter<Resource>) {
-        dispatch(moveCardFromHandToPlayArea(card, loggedInPlayerIndex));
-        context.playCard(card, store.getState(), payment);
-        // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card affects itself.
-        context.triggerEffectsFromPlayedCard(
-            card,
-            // refreshed state so that the card we just played is present.
-            store.getState()
-        );
-        context.processQueue(dispatch);
-    }
-
-    function handlePlayCard(card: Card) {
-        if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
-            setCardPendingPayment(card);
-            setIsPaymentPopoverOpen(true);
-        } else {
-            playCard(card);
-        }
-    }
-
-    function handleConfirmCardPayment(payment: PropertyCounter<Resource>) {
-        if (!cardPendingPayment) {
-            throw new Error('No card pending payment');
-        }
-        playCard(cardPendingPayment, payment);
-        setIsPaymentPopoverOpen(false);
-        setCardPendingPayment(null);
-    }
-
-    const players = useTypedSelector(state => state.players);
-
-    function continueAfterRevealingCards() {
-        context.queue.push(discardRevealedCards());
-        context.processQueue(dispatch);
-    }
-
-    // Used for buying, taking, and discarding cards
-    function handleConfirmCardSelection() {
-        if (gameStage === GameStage.ACTIVE_ROUND) {
-            // buying & taking cards already pre-dispatch the requisite next steps.
-            // for discarding, though, we need to explicitly dispatch the next step here.
-            if (loggedInPlayer.pendingDiscard) {
-                dispatch(discardCards(selectedCards, loggedInPlayerIndex));
-            }
-            context.processQueue(dispatch);
+    useEffect(() => {
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
             return;
         }
-
-        if (gameStage === GameStage.CORPORATION_SELECTION) {
-            dispatch(moveCardFromHandToPlayArea(corporation, loggedInPlayerIndex));
-            context.playCard(corporation, state);
-            context.triggerEffectsFromPlayedCard(corporation, store.getState());
+        if (currentPlayerIndex !== loggedInPlayerIndex) {
+            return;
         }
+        if (!isPlayerMakingDecision) {
+            context.processQueue(dispatch);
+        }
+    }, [gameStage, currentPlayerIndex]);
 
-        dispatch(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
-        dispatch(setSelectedCards([], loggedInPlayerIndex));
-        dispatch(
-            discardCards(
-                possibleCards.filter(card => !selectedCards.includes(card)),
-                loggedInPlayerIndex
-            )
-        );
-        dispatch(payForCards(selectedCards, loggedInPlayerIndex));
-        dispatch(announceReadyToStartRound(loggedInPlayerIndex));
-        context.processQueue(dispatch);
+    /**
+     * Derived state
+     */
+    const {cards, selectedCards, corporation, possibleCards} = loggedInPlayer;
+    const state = store.getState();
+
+    let maxCardsToDiscard: number;
+    const discardAmount = loggedInPlayer?.pendingDiscard?.amount;
+
+    if (discardAmount === VariableAmount.USER_CHOICE) {
+        maxCardsToDiscard = cards.length;
+    } else if (discardAmount === VariableAmount.USER_CHOICE_UP_TO_ONE) {
+        maxCardsToDiscard = 1;
+    } else {
+        maxCardsToDiscard = discardAmount as number;
+    }
+
+    let minCardsToDiscard = 0;
+    if (typeof discardAmount === 'number') {
+        minCardsToDiscard = discardAmount;
+    }
+    if (discardAmount === VariableAmount.USER_CHOICE) {
+        // Can't cycle a turn with sell patents by selling 0 cards!
+        minCardsToDiscard = 1;
     }
 
     const totalCardCost = loggedInPlayer.selectedCards.length * 3;
@@ -237,60 +181,72 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         loggedInPlayer.pendingDuplicateProduction ||
         loggedInPlayer.pendingDiscard;
 
-    useEffect(() => {
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return;
-        }
-        if (currentPlayerIndex !== loggedInPlayerIndex) {
-            return;
-        }
-        if (!isPlayerMakingDecision) {
+    /**
+     * Event handlers
+     */
+    function continueAfterRevealingCards() {
+        context.queue.push(discardRevealedCards());
+        context.processQueue(dispatch);
+    }
+    // Used for buying, taking, and discarding cards
+    function handleConfirmCardSelection() {
+        if (gameStage === GameStage.ACTIVE_ROUND) {
+            // buying & taking cards already pre-dispatch the requisite next steps.
+            // for discarding, though, we need to explicitly dispatch the next step here.
+            if (loggedInPlayer.pendingDiscard) {
+                dispatch(discardCards(selectedCards, loggedInPlayerIndex));
+            }
             context.processQueue(dispatch);
+            return;
         }
-    }, [gameStage, currentPlayerIndex]);
+
+        if (gameStage === GameStage.CORPORATION_SELECTION) {
+            dispatch(moveCardFromHandToPlayArea(corporation, loggedInPlayerIndex));
+            context.playCard(corporation, state);
+            context.triggerEffectsFromPlayedCard(corporation, store.getState());
+        }
+
+        dispatch(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+        dispatch(setSelectedCards([], loggedInPlayerIndex));
+        dispatch(
+            discardCards(
+                possibleCards.filter(card => !selectedCards.includes(card)),
+                loggedInPlayerIndex
+            )
+        );
+        dispatch(payForCards(selectedCards, loggedInPlayerIndex));
+        dispatch(announceReadyToStartRound(loggedInPlayerIndex));
+        context.processQueue(dispatch);
+    }
 
     return (
-        <>
-            <TopBar
-                loggedInPlayer={loggedInPlayer}
-                isPlayerMakingDecision={isPlayerMakingDecision}
-            />
-            <Pane className="active-round-outer" display="flex" margin="16px">
-                <Pane className="active-round-left" display="flex" flexDirection="column">
-                    <PlayerPanel loggedInPlayerIndex={loggedInPlayerIndex} />
-                    <Panel>
-                        <Box margin="8px" fontWeight="bold">
-                            <em>Log</em>
-                        </Box>
-                        <Flex
-                            maxHeight="400px"
-                            margin="12px"
-                            overflowY="auto"
-                            flexDirection="column-reverse"
-                        >
-                            <SwitchColors>
-                                {log.map((entry, entryIndex) => {
-                                    return (
-                                        <Box
-                                            marginTop="4px"
-                                            padding="8px"
-                                            key={'Log-entry-' + entryIndex}
-                                        >
-                                            {entry}
-                                        </Box>
-                                    );
-                                })}
-                            </SwitchColors>
-                        </Flex>
-                    </Panel>
+        <Flex flexDirection="column" position="absolute" left="0" right="0" bottom="0" top="0">
+            <Flex flex="none">
+                <TopBar
+                    isPlayerMakingDecision={isPlayerMakingDecision}
+                    selectedPlayerIndex={selectedPlayerIndex}
+                    setSelectedPlayerIndex={setSelectedPlayerIndex}
+                />
+            </Flex>
+            <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
+                <Pane
+                    className="active-round-left"
+                    display="flex"
+                    flexDirection="column"
+                    flex="auto"
+                    marginRight="4px"
+                >
+                    <PlayerPanel selectedPlayerIndex={selectedPlayerIndex} />
+                    <LogPanel />
                 </Pane>
 
-                <Pane className="active-round-right" display="flex" flexDirection="column">
-                    <Board
-                        board={state.common.board}
-                        playerIndex={loggedInPlayerIndex}
-                        parameters={state.common.parameters}
-                    />
+                <Pane
+                    className="active-round-right"
+                    display="flex"
+                    flexDirection="column"
+                    marginLeft="4px"
+                >
+                    <Board />
                     <Box>
                         <GlobalParams parameters={state.common.parameters} />
                     </Box>
@@ -304,7 +260,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         </Panel>
                     </Box>
                 </Pane>
-            </Pane>
+            </Flex>
             {isPlayerMakingDecision && (
                 <ActionBar className="bottom">
                     <ActionBarRow>
@@ -373,6 +329,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     </ActionBarRow>
                 </ActionBar>
             )}
-        </>
+        </Flex>
     );
 };

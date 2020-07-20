@@ -1,10 +1,10 @@
 // import {Popover} from 'reactstrap';
 import styled from 'styled-components';
+import {Popover, Position, Pane} from 'evergreen-ui';
+import {useStore} from 'react-redux';
 
-import {Popover, Position} from 'evergreen-ui';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getGreeneryScore, getCityScore, getMilestoneScore, getAwardScore} from 'selectors/score';
-import {useStore} from 'react-redux';
 
 type Props = {
     playerIndex: number;
@@ -87,7 +87,7 @@ export function ScorePopover({children, playerIndex}: Props) {
                 </ScorePopoverBase>
             }
         >
-            {children}
+            <Pane>{children}</Pane>
         </Popover>
     );
 }

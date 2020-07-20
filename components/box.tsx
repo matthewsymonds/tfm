@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import {colors} from 'components/ui';
 
 export function Box(props) {
     const {children, ...rest} = props;
@@ -16,9 +17,8 @@ export function Flex(props) {
 }
 
 export const Panel = styled.div`
-    width: 100%;
     margin-bottom: 16px;
-    border: 1px solid #dedede;
-    background: #fdfdfd;
-    border-radius: 8px;
+    padding: 8px;
+    background: ${colors.DARK_2};
+    border-radius: 3px;
 `;

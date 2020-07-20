@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import {Box, Flex} from './box';
 import PaymentPopover from './popovers/payment-popover';
 import {TagsComponent} from './tags';
+import {colors} from 'components/ui';
 
 export const CardName = styled.span`
     font-size: 16px;
@@ -56,6 +57,7 @@ interface CardBaseProps {
     width?: number;
     onClick?: (e: MouseEvent<HTMLDivElement>) => void;
     selected?: boolean;
+    isCorporation?: boolean;
 }
 
 const CardBase = styled.div<CardBaseProps>`
@@ -65,7 +67,8 @@ const CardBase = styled.div<CardBaseProps>`
     position: relative;
     flex-direction: column;
     box-shadow: none;
-    background-color: ${props => (props.selected ? '#e9ffe7' : '#f7f7f7')};
+    background-color: ${props =>
+        props.selected ? '#e9ffe7' : props.isCorporation ? colors.CORPORATION_BG : colors.CARD_BG};
     border: ${props => (props.selected ? '1px solid black' : '1px solid #dedede')};
     flex-direction: column;
     max-height: 350px;
@@ -75,14 +78,6 @@ const CardBase = styled.div<CardBaseProps>`
     button {
         justify-self: flex-end;
     }
-`;
-
-const CorporationCardBase = styled(CardBase)`
-    margin: 10px;
-    flex-basis: 250px;
-    flex-grow: 1;
-    min-width: 200px;
-    max-width: 350px;
 `;
 
 interface CardComponentProps extends CardBaseProps {
@@ -141,25 +136,6 @@ export function CardActionElements(props: {
         );
     }
 
-    function handlePlayCardAction(cardAction: Action, parentCard: Card) {
-        if (
-            cardAction.acceptedPayment ||
-            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0)
-        ) {
-            setActionPendingPayment(cardAction);
-        } else {
-            playAction(parentCard, cardAction, {[Resource.MEGACREDIT]: cardAction.cost});
-        }
-    }
-
-    function handleConfirmActionPayment(payment: PropertyCounter<Resource>, parentCard: Card) {
-        if (!actionPendingPayment) {
-            throw new Error('No action pending payment');
-        }
-        setActionPendingPayment(null);
-        playAction(parentCard, actionPendingPayment, payment);
-    }
-
     function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
         context.queue.push(markCardActionAsPlayed(card, player.index));
         context.playAction({action, state, parent: card, payment});
@@ -167,8 +143,42 @@ export function CardActionElements(props: {
         context.processQueue(dispatch);
     }
 
+    function renderPlayActionButton(option: Action, canPlay: boolean) {
+        if (!isLoggedInPlayer) {
+            return null;
+        }
+
+        const handleConfirmPayment = (
+            payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: option.cost ?? 0}
+        ) => {
+            playAction(card, option, payment);
+        };
+
+        // TODO: This naively doesn't skip the payment popover e.g. if user has none of the
+        // accepted alternate payment resources
+        const doesActionRequireUserInput =
+            option.acceptedPayment ||
+            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0);
+
+        if (option.cost && doesActionRequireUserInput) {
+            return (
+                <PaymentPopover cost={option.cost} onConfirmPayment={handleConfirmPayment}>
+                    <button disabled={!canPlay}>
+                        {options.length === 1 ? 'Play Action' : option.text}
+                    </button>
+                </PaymentPopover>
+            );
+        } else {
+            return (
+                <button disabled={!canPlay} onClick={() => handleConfirmPayment()}>
+                    {options.length === 1 ? 'Play Action' : option.text}
+                </button>
+            );
+        }
+    }
+
     return (
-        <>
+        <React.Fragment>
             {options.map((option, index) => {
                 let canPlay: boolean;
                 let reason: string | undefined;
@@ -179,35 +189,16 @@ export function CardActionElements(props: {
                 }
                 return (
                     <React.Fragment key={index}>
-                        {isLoggedInPlayer ? (
-                            <button
-                                disabled={!canPlay}
-                                id={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
-                                onClick={() => handlePlayCardAction(option, card)}
-                            >
-                                {options.length === 1 ? 'Play Action' : option.text}
-                            </button>
-                        ) : null}
+                        {renderPlayActionButton(option, canPlay)}
                         {!canPlay && reason ? (
                             <CardText>
                                 <em>{reason}</em>
                             </CardText>
                         ) : null}
-                        {option.cost && actionPendingPayment && (
-                            <PaymentPopover
-                                isOpen={!!actionPendingPayment}
-                                target={`${card.name.replace(/\s+/g, '-')}-opt-${index}`}
-                                cost={option.cost}
-                                toggle={() => setActionPendingPayment(null)}
-                                onConfirmPayment={(payment: PropertyCounter<Resource>) =>
-                                    handleConfirmActionPayment(payment, card)
-                                }
-                            />
-                        )}
                     </React.Fragment>
                 );
             })}
-        </>
+        </React.Fragment>
     );
 }
 
@@ -222,7 +213,8 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const effect = effects[0];
     const store = useStore();
     const victoryPoints = getCardVictoryPoints(content.victoryPoints, store.getState(), content);
-    const Base = content.type === CardType.CORPORATION ? CorporationCardBase : CardBase;
+    const isCorporation = content.type === CardType.CORPORATION;
+
     const innerContents = (
         <React.Fragment>
             <TagsComponent tags={tags}>
@@ -255,8 +247,8 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     );
 
     return (
-        <Base width={width} onClick={onClick} selected={selected}>
+        <CardBase width={width} onClick={onClick} selected={selected} isCorporation={isCorporation}>
             {isHidden ? <BackOfCard /> : innerContents}
-        </Base>
+        </CardBase>
     );
 };

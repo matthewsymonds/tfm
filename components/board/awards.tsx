@@ -27,7 +27,7 @@ export function getTextForAward(award: Award) {
     }
 }
 
-function getPriceForAward(award: Award, state: GameState) {
+function getCostForAward(award: Award, state: GameState) {
     const fundedIndex = state.common.fundedAwards.findIndex(claim => claim.award === award);
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];
@@ -40,51 +40,47 @@ function Awards() {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
-    const [awardPendingPayment, setAwardPendingPayment] = useState<Award | null>(null);
     const dispatch = useDispatch();
 
-    function handleFundAward(award: Award) {
-        if (!context.canFundAward(award, state)) {
-            return;
-        }
-
-        const cost = getPriceForAward(award, state);
-        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
-            // Helion can pay with heat and money
-            setAwardPendingPayment(award);
-        } else {
-            // Everyone else can only pay with money
-            context.fundAward(award, {[Resource.MEGACREDIT]: cost}, state);
+    function renderAwardButton(award: Award) {
+        const isDisabled = !context.canFundAward(award, state);
+        const isAwardFunded = state.common.fundedAwards.indexOf(a => a.award === award) > -1;
+        const text = getTextForAward(award);
+        const cost = getCostForAward(award, state);
+        const handleConfirmPayment = (
+            payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
+        ) => {
+            context.fundAward(award, payment, state);
             context.processQueue(dispatch);
-        }
-    }
+        };
 
-    function handleConfirmPayment(payment: PropertyCounter<Resource>) {
-        if (!awardPendingPayment) {
-            throw new Error('No action pending payment');
+        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
+            return (
+                <PaymentPopover cost={cost} onConfirmPayment={handleConfirmPayment}>
+                    <SharedActionRow disabled={isDisabled}>
+                        <em>{isAwardFunded ? <s>{text}</s> : text}</em>
+                        <span>{cost}€</span>
+                    </SharedActionRow>
+                </PaymentPopover>
+            );
+        } else {
+            return (
+                <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                    <em>{isAwardFunded ? <s>{text}</s> : text}</em>
+                    <span>{cost}€</span>
+                </SharedActionRow>
+            );
         }
-        context.fundAward(awardPendingPayment, payment, state);
-        context.processQueue(dispatch);
-        setAwardPendingPayment(null);
     }
 
     return (
         <SharedActionsContainer>
             {Object.values(Award).map(award => {
                 const fundedAward = state.common.fundedAwards.find(a => a.award === award);
-                const text = getTextForAward(award);
-                const price = getPriceForAward(award, state);
                 return (
                     <React.Fragment key={award}>
                         <div>
-                            <SharedActionRow
-                                id={award}
-                                selectable={context.canFundAward(award, state)}
-                                onClick={() => handleFundAward(award)}
-                            >
-                                <em>{fundedAward ? <s>{text}</s> : text}</em>
-                                <span>{price}€</span>
-                            </SharedActionRow>
+                            {renderAwardButton(award)}
                             <Box marginLeft="10px">
                                 {state.players.map(player => {
                                     const amount = awardToQuantity[award](player, state);
@@ -111,15 +107,6 @@ function Awards() {
                                 )}
                             </Box>
                         </div>
-                        {awardPendingPayment && (
-                            <PaymentPopover
-                                isOpen={!!awardPendingPayment}
-                                target={awardPendingPayment}
-                                cost={getPriceForAward(award, state)}
-                                toggle={() => setAwardPendingPayment(null)}
-                                onConfirmPayment={(...args) => handleConfirmPayment(...args)}
-                            />
-                        )}
                     </React.Fragment>
                 );
             })}

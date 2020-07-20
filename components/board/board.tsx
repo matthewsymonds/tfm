@@ -1,38 +1,23 @@
 import styled from 'styled-components';
 import React, {useContext} from 'react';
-import {
-    Board as BoardModel,
-    cellHelpers,
-    GlobalParameters,
-    Cell as CellModel,
-} from 'constants/board';
+import {cellHelpers, Cell as CellModel} from 'constants/board';
 import {Row} from 'components/row';
 import {Tile} from './tile';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {useDispatch, useStore} from 'react-redux';
-import {useTypedSelector} from 'reducer';
+import {useTypedSelector, RootState} from 'reducer';
 import {placeTile} from 'actions';
 import {AppContext} from 'context/app-context';
 import OffMarsCities from './off-mars-cities';
 import {Box} from 'components/box';
 
 const BoardOuter = styled.div`
-    position: relative;
-    padding: 24px;
     margin: 16px;
-    width: fit-content;
     display: flex;
     justify-content: center;
-    align-self: flex-start
     align-items: center;
 `;
-
-interface BoardProps {
-    board: BoardModel;
-    parameters: GlobalParameters;
-    playerIndex: number;
-}
 
 const BoardInner = styled.div`
   display: flex;
@@ -58,74 +43,74 @@ const BoardAcionsContainer = styled.div`
     }
 `;
 
-export const Board: React.FunctionComponent<BoardProps> = props => {
-    const player = useTypedSelector(state => state.players[props.playerIndex]);
-
-    const {pendingTilePlacement} = player;
-    const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, pendingTilePlacement, player)
-    );
-
+export const Board = () => {
+    const store = useStore<RootState>();
     const context = useContext(AppContext);
 
-    const dispatch = useDispatch();
-    const store = useStore();
+    const board = useTypedSelector(state => state.common.board);
+
     const state = store.getState();
+    const loggedInPlayer = context.getLoggedInPlayer(state);
+
+    const {pendingTilePlacement} = loggedInPlayer;
+    const validPlacements = useTypedSelector(state =>
+        getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
+    );
+
+    const dispatch = useDispatch();
 
     function handleClick(cell: CellModel) {
         if (!validPlacements.includes(cell)) return;
 
         const type = pendingTilePlacement!.type!;
 
-        dispatch(placeTile({type}, cell, props.playerIndex));
+        dispatch(placeTile({type}, cell, loggedInPlayer.index));
         context.triggerEffectsFromTilePlacement(type, cell, state);
         context.processQueue(dispatch);
     }
     return (
-        <>
-            <BoardOuter>
-                <Box position="relative" height="fit-content">
-                    <OffMarsCities
-                        board={props.board}
-                        validPlacements={validPlacements}
-                        handleClick={handleClick}
-                    />
-                    <Circle>
-                        <BoardInner>
-                            {props.board.map((row, outerIndex) => (
-                                <Row key={outerIndex}>
-                                    {row.map(
-                                        (cell, index) =>
-                                            cellHelpers.onMars(cell) && (
-                                                <div
-                                                    key={`${outerIndex}-${index}`}
-                                                    style={{position: 'relative'}}
-                                                    onClick={() => handleClick(cell)}
+        <BoardOuter>
+            <Box position="relative" height="fit-content">
+                <OffMarsCities
+                    board={board}
+                    validPlacements={validPlacements}
+                    handleClick={handleClick}
+                />
+                <Circle>
+                    <BoardInner>
+                        {board.map((row, outerIndex) => (
+                            <Row key={outerIndex}>
+                                {row.map(
+                                    (cell, index) =>
+                                        cellHelpers.onMars(cell) && (
+                                            <div
+                                                key={`${outerIndex}-${index}`}
+                                                style={{position: 'relative'}}
+                                                onClick={() => handleClick(cell)}
+                                            >
+                                                <Cell
+                                                    selectable={validPlacements.includes(cell)}
+                                                    type={cell.type}
+                                                    bonus={cell.bonus ?? []}
                                                 >
-                                                    <Cell
-                                                        selectable={validPlacements.includes(cell)}
-                                                        type={cell.type}
-                                                        bonus={cell.bonus ?? []}
-                                                    >
-                                                        {cell.specialName ?? ''}
-                                                    </Cell>
-                                                    {cell.tile && (
-                                                        <Tile
-                                                            ownerPlayerIndex={
-                                                                cell.tile.ownerPlayerIndex
-                                                            }
-                                                            type={cell.tile.type}
-                                                        />
-                                                    )}
-                                                </div>
-                                            )
-                                    )}
-                                </Row>
-                            ))}
-                        </BoardInner>
-                    </Circle>
-                </Box>
-            </BoardOuter>
-        </>
+                                                    {cell.specialName ?? ''}
+                                                </Cell>
+                                                {cell.tile && (
+                                                    <Tile
+                                                        ownerPlayerIndex={
+                                                            cell.tile.ownerPlayerIndex
+                                                        }
+                                                        type={cell.tile.type}
+                                                    />
+                                                )}
+                                            </div>
+                                        )
+                                )}
+                            </Row>
+                        ))}
+                    </BoardInner>
+                </Circle>
+            </Box>
+        </BoardOuter>
     );
 };
