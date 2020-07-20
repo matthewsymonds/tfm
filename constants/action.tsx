@@ -32,7 +32,6 @@ export interface Action {
     removeResource?: ResourceCounter;
     removeResourceOption?: ResourceCounter;
     stealResource?: ResourceCounter;
-    stealResourceOption?: ResourceCounter;
     increaseProduction?: ResourceCounter;
     increaseProductionOption?: PropertyCounter<Resource>;
     duplicateProduction?: Tag;

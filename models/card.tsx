@@ -80,8 +80,7 @@ export class Card {
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
     stealResource: PropertyCounter<Resource>;
-    stealResourceOption: PropertyCounter<Resource>;
-    /** e.g. "Look at the otp c" */
+    /** e.g. "Look at the top 3 cards. Take one into hand and discard the other two" */
     lookAtCards?: LookAtCardsConfig;
 
     // ====================================================
@@ -142,7 +141,6 @@ export class Card {
         this.removeResourceOption = config.removeResourceOption || {};
         this.removeResourceSourceType = config.removeResourceSourceType;
         this.stealResource = config.stealResource || {};
-        this.stealResourceOption = config.stealResourceOption || {};
         this.increaseProduction = config.increaseProduction || {};
         this.increaseProductionOption = config.increaseProductionOption || {};
         this.duplicateProduction = config.duplicateProduction;

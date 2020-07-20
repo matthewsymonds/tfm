@@ -836,17 +836,22 @@ function playAction({
         );
     }
 
+    const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
+
     for (const resource in action.stealResource) {
-        const resourceAndAmounts: Array<ResourceAndAmount> = [
-            {
-                resource: resource as Resource,
-                amount: action.stealResource[resource] as number,
-            },
-        ];
+        const resourceAndAmount: ResourceAndAmount = {
+            resource: resource as Resource,
+            amount: action.stealResource[resource] as number,
+        };
+
+        stealResourceResourceAndAmounts.push(resourceAndAmount);
+    }
+
+    if (stealResourceResourceAndAmounts.length > 0) {
         items.push(
             askUserToChooseResourceActionDetails({
                 actionType: 'stealResource',
-                resourceAndAmounts,
+                resourceAndAmounts: stealResourceResourceAndAmounts,
                 card: parent!,
                 playerIndex,
             })

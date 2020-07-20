@@ -1620,7 +1620,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Steal up to 2 steel, or 3MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
-        stealResourceOption: {
+        stealResource: {
             [Resource.MEGACREDIT]: 3,
             [Resource.STEEL]: 2,
         },

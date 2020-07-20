@@ -284,7 +284,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Mars University';
+const bonusName = 'Hired Raiders';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -581,7 +581,7 @@ export const reducer = (state: GameState | null = null, action) => {
                     throw new Error('Trying to take too many resources');
                 }
                 victimPlayer.resources[resource] -= amount;
-                player[resource] += amount;
+                player.resources[resource] += amount;
                 draft.log.push(
                     `${corporationName} stole ${amountAndResource(payload.amount, resource)} from ${
                         victimPlayer.corporation.name

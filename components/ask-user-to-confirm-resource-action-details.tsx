@@ -1,12 +1,12 @@
 import {
+    decreaseProduction,
     gainResource,
     gainStorableResource,
+    increaseProduction,
     removeResource,
     removeStorableResource,
     stealResource,
     stealStorableResource,
-    decreaseProduction,
-    increaseProduction,
 } from 'actions';
 import {
     getResourceName,
@@ -22,13 +22,12 @@ import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
 import {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState, GameState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
+import {getAdjacentCellsForCell} from 'selectors/board';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {Box, Flex} from './box';
-import {CardComponent} from './card';
-import {getAdjacentCellsForCell} from 'selectors/board';
 import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
+import {Box} from './box';
 
 export type ResourceActionType =
     | 'removeResource'
@@ -406,14 +405,22 @@ function AskUserToConfirmResourceActionDetails({
         context.processQueue(dispatch);
     };
 
-    const showSkip =
-        actionType !== 'stealResource' &&
-        actionType !== 'decreaseProduction' &&
-        actionType !== 'increaseProduction' &&
-        (actionType === 'removeResource' ||
-            resourceAndAmounts.every(resourceAndAmount =>
-                isStorableResource(resourceAndAmount.resource)
-            ));
+    const noOptions = listItems.flatMap(item => item.options).length === 0;
+
+    let showSkip = noOptions;
+    showSkip =
+        showSkip ||
+        (actionType !== 'stealResource' &&
+            actionType !== 'decreaseProduction' &&
+            actionType !== 'increaseProduction' &&
+            (actionType === 'removeResource' ||
+                resourceAndAmounts.every(resourceAndAmount =>
+                    isStorableResource(resourceAndAmount.resource)
+                )));
+
+    const warningEnabled = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
+        actionType
+    );
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
@@ -421,7 +428,7 @@ function AskUserToConfirmResourceActionDetails({
                 const warning =
                     !listItem.options.some(option => option.isVariable) &&
                     listItem.player === player &&
-                    actionType === 'removeResource';
+                    warningEnabled;
                 return (
                     <PlayerOption warning={warning} key={listItem.player.username}>
                         <h4>{listItem.title}</h4>
