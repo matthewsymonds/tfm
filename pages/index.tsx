@@ -1,5 +1,5 @@
 import {Box} from 'components/box';
-import {SwitchColors} from 'components/switch-colors';
+import {SwitchColors} from 'components/log-panel';
 import {Switcher} from 'components/switcher';
 import {useSession} from 'hooks/use-session';
 import {useUserGames} from 'hooks/use-user-games';
