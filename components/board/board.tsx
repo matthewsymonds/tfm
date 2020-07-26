@@ -29,7 +29,7 @@ const Circle = styled.div`
     border-radius: 50%;
     width: 600px;
     height: 600px;
-    background: #ce7e47;
+    background: #bf5f3f;
     display: flex;
     justify-content: center;
     align-items: center;

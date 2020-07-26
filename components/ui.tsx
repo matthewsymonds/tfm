@@ -7,7 +7,7 @@
 
 export const colors = {
     DARK_1: '#111111', // darkest
-    DARK_2: '#333342',
+    DARK_2: '#2b2f2b',
     DARK_3: '#454545', // lightest
 
     LIGHT_1: '#fff', // lightest
@@ -15,7 +15,7 @@ export const colors = {
     LIGHT_3: '#bbb', // darkest
 
     // panels
-    PANEL_HEADER: '#E9A36D',
+    PANEL_HEADER: '#bf5f3f',
     PANEL_BACKGROUND: '#FAE2CF',
 
     // cards

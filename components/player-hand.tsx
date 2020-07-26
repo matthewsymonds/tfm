@@ -93,21 +93,25 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
         </PlayerHandBase>
     );
 
-    let hiddenCardsMessage;
+    const numCards = player.cards.length;
+    const numPreviousCards = player.previousCardsInHand || 0;
+
+    let numCardsMessage;
     if (isCorporationSelection) {
-        hiddenCardsMessage = `You can't count ${player.username}'s hand until everyone's ready.`;
+        numCardsMessage = `You can't count ${player.username}'s hand until everyone's ready.`;
     } else if (isBuyOrDiscard) {
-        hiddenCardsMessage = `${player.corporation.name} had ${player.previousCardsInHand || 0} card
-        ${player.previousCardsInHand === 1 ? '' : 's'} at the end of the previous round.`;
+        numCardsMessage = `${player.corporation.name} had ${numPreviousCards} card
+        ${numPreviousCards === 1 ? '' : 's'} at the end of the previous round.`;
     } else {
-        hiddenCardsMessage = `${player.corporation.name} has ${player.cards.length} card
-        ${player.cards.length === 1 ? '' : 's'} in hand.`;
+        numCardsMessage = `${player.corporation.name} has ${player.cards.length} card${
+            numCards === 1 ? '' : 's'
+        } in hand.`;
     }
 
     if (player.index === loggedInPlayer.index) {
-        return <PlayerHandBase>{cards}</PlayerHandBase>;
+        return <PlayerHandBase>{numCards > 0 ? cards : numCardsMessage}</PlayerHandBase>;
     } else {
-        return <PlayerHandBase>{hiddenCardsMessage}</PlayerHandBase>;
+        return <PlayerHandBase>{numCardsMessage}</PlayerHandBase>;
     }
 };
 
