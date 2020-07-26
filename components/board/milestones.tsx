@@ -44,30 +44,36 @@ function Milestones() {
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
-    const [milestonePendingPayment, setMilestonePendingPayment] = useState<Milestone | null>(null);
 
-    function handleFundMilestone(milestone: Milestone) {
-        if (!context.canClaimMilestone(milestone, state)) {
-            return;
-        }
+    function renderMilestoneButton(milestone: Milestone) {
+        const isDisabled = !context.canClaimMilestone(milestone, state);
+        const isMilestoneClaimed =
+            state.common.claimedMilestones.indexOf(a => a.milestone === milestone) > -1;
+        const text = getTextForMilestone(milestone);
+        const handleConfirmPayment = (
+            payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}
+        ) => {
+            context.claimMilestone(milestone, payment, state);
+            context.processQueue(dispatch);
+        };
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
-            // Helion can pay with heat and money
-            setMilestonePendingPayment(milestone);
-        } else {
-            // Everyone else can only pay with money
-            context.claimMilestone(milestone, {[Resource.MEGACREDIT]: 8}, state);
-            context.processQueue(dispatch);
+            return (
+                <PaymentPopover cost={8} onConfirmPayment={handleConfirmPayment}>
+                    <SharedActionRow disabled={isDisabled}>
+                        <em>{isMilestoneClaimed ? <s>{text}</s> : text}</em>
+                        <span>8€</span>
+                    </SharedActionRow>
+                </PaymentPopover>
+            );
         }
-    }
 
-    function handleConfirmPayment(payment: PropertyCounter<Resource>) {
-        if (!milestonePendingPayment) {
-            throw new Error('No action pending payment');
-        }
-        context.claimMilestone(milestonePendingPayment, payment, state);
-        context.processQueue(dispatch);
-        setMilestonePendingPayment(null);
+        return (
+            <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                <em>{isMilestoneClaimed ? <s>{text}</s> : text}</em>
+                <span>8€</span>
+            </SharedActionRow>
+        );
     }
 
     return (
@@ -76,18 +82,11 @@ function Milestones() {
                 const claimedMilestone = state.common.claimedMilestones.find(
                     m => m.milestone === milestone
                 );
-                const text = getTextForMilestoneWithQuantity(milestone);
+
                 return (
                     <React.Fragment key={milestone}>
                         <div>
-                            <SharedActionRow
-                                id={milestone}
-                                selectable={context.canClaimMilestone(milestone, state)}
-                                onClick={() => handleFundMilestone(milestone)}
-                            >
-                                <span>{claimedMilestone ? <s>{text}</s> : text}</span>
-                                <span>8€</span>
-                            </SharedActionRow>
+                            {renderMilestoneButton(milestone)}
                             <Box marginLeft="10px">
                                 {state.players.map(player => {
                                     const amount = milestoneQuantitySelectors[milestone](
@@ -117,16 +116,6 @@ function Milestones() {
                                 )}
                             </Box>
                         </div>
-
-                        {milestonePendingPayment && (
-                            <PaymentPopover
-                                isOpen={!!milestonePendingPayment}
-                                target={milestonePendingPayment}
-                                cost={8}
-                                toggle={() => setMilestonePendingPayment(null)}
-                                onConfirmPayment={(...args) => handleConfirmPayment(...args)}
-                            />
-                        )}
                     </React.Fragment>
                 );
             })}

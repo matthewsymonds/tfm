@@ -13,9 +13,8 @@ import {useContext, useState} from 'react';
 import {AppContext} from 'context/app-context';
 import {ConversionLink} from './conversion-link';
 import {useStore, useDispatch} from 'react-redux';
-import {Checkbox, Pane} from 'evergreen-ui';
-import {Tag} from 'constants/tag';
-import {TagIcon} from 'components/tags';
+import {Pane} from 'evergreen-ui';
+import {colors} from 'components/ui';
 
 interface ResourceIconBaseProps {
     readonly color: string;
@@ -54,43 +53,37 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, 
     </ResourceIconBase>
 );
 
-const ResourceBoardCellBase = styled.div<{isTagCounter: boolean}>`
+const ResourceBoardCellBase = styled.div`
     display: flex;
-    width: 60px;
-    border-radius: 3px;
-    border-top-left-radius: ${props => (props.isTagCounter ? '28px' : '')};
-    border-bottom-left-radius: ${props => (props.isTagCounter ? '28px' : '')};
-    margin-right: 10px;
     align-items: center;
-    padding: 4px;
-    background-color: #f1f1f1;
-    box-shadow: 1px 1px 2px 0px #4d4d4d;
-    border: 1px solid rgba(197, 197, 197, 0.38);
+    padding: 8px;
+    font-size: 12px;
+    background-color: ${colors.DARK_3};
+    margin: 2px;
 
     .row {
         display: flex;
     }
-    .amount {
+
+    .amount,
+    .production {
         display: inline-flex;
         display: flex;
         align-items: center;
         justify-content: center;
         flex: auto;
         padding: 2px;
+        width: 22px;
+    }
+
+    .amount {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .production {
+        background: #f5923b;
     }
 `;
-
-export type ResourceBoardCellProps =
-    | {
-          amount: number;
-          resource: Resource;
-          tag?: undefined;
-      }
-    | {
-          amount: number;
-          tag: Tag;
-          resource?: undefined;
-      };
 
 export const InlineResourceIcon = styled(ResourceIcon)`
     display: inline-flex;
@@ -102,28 +95,25 @@ export const InlineResourceIcon = styled(ResourceIcon)`
     border: 1px solid #222;
 `;
 
-export const ResourceBoardCell: React.FunctionComponent<ResourceBoardCellProps> = ({
-    amount,
-    resource,
-    tag,
-}) => {
+export type ResourceBoardCellProps = {
+    resource: Resource;
+    amount: number;
+    production: number;
+};
+
+export const ResourceBoardCell = ({amount, production, resource}: ResourceBoardCellProps) => {
     return (
-        <>
-            <ResourceBoardCellBase isTagCounter={!!tag}>
-                {resource && <InlineResourceIcon name={resource} />}
-                {tag && <TagIcon name={tag} />}
-                <div className="amount">{amount}</div>
-            </ResourceBoardCellBase>
-        </>
+        <ResourceBoardCellBase>
+            <InlineResourceIcon name={resource} />
+            <div className="amount">{amount}</div>
+            <div className="production">{production}</div>
+        </ResourceBoardCellBase>
     );
 };
 
 export const ResourceBoardRow = styled.div`
     display: flex;
     align-items: flex-start;
-    &:first-child {
-        margin-bottom: 10px;
-    }
 `;
 
 export const ResourceBoard = styled.div`
@@ -157,7 +147,6 @@ export const PlayerResourceBoard = ({
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
-    const [isShowingProduction, setIsShowingProduction] = useState(false);
     const dispatch = useDispatch();
 
     return (
@@ -169,11 +158,8 @@ export const PlayerResourceBoard = ({
                             <ResourceBoardCell
                                 key={resource}
                                 resource={resource}
-                                amount={
-                                    isShowingProduction
-                                        ? player.productions[resource]
-                                        : player.resources[resource]
-                                }
+                                amount={player.resources[resource]}
+                                production={player.productions[resource]}
                             />
                         );
                     })}
@@ -185,11 +171,8 @@ export const PlayerResourceBoard = ({
                             <div key={resource}>
                                 <ResourceBoardCell
                                     resource={resource}
-                                    amount={
-                                        isShowingProduction
-                                            ? player.productions[resource]
-                                            : player.resources[resource]
-                                    }
+                                    amount={player.resources[resource]}
+                                    production={player.productions[resource]}
                                 />
                                 {isLoggedInPlayer &&
                                 context.canDoConversion(
@@ -220,12 +203,6 @@ export const PlayerResourceBoard = ({
                     })}
                 </ResourceBoardRow>
             </ResourceBoard>
-            <Checkbox
-                checked={isShowingProduction}
-                onChange={() => setIsShowingProduction(!isShowingProduction)}
-                marginTop={16}
-                label="Show productions"
-            />
         </Pane>
     );
 };

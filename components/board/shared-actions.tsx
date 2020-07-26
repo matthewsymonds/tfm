@@ -10,16 +10,16 @@ export const SharedActionsContainer = styled.div`
     max-width: 640px;
 `;
 
-export const SharedActionRow = styled.div<{selectable: boolean}>`
+export const SharedActionRow = styled.button<{disabled: boolean}>`
     margin: 8px;
     padding: 8px;
-    border: 1px solid ${props => (props.selectable ? '#bbb' : '#ccc')};
+    border: 1px solid ${props => (props.disabled ? '#bbb' : '#ccc')};
     border-radius: 3px;
-    cursor: ${props => (props.selectable ? 'pointer' : 'default')};
-    color: ${props => (props.selectable ? 'black' : '#5e5e5e')};
+    cursor: ${props => (props.disabled ? 'pointer' : 'default')};
+    color: ${props => (props.disabled ? 'black' : '#5e5e5e')};
     &:hover {
-        background: ${props => (props.selectable ? '#f4f4f4' : 'auto')};
-        box-shadow: ${props => (props.selectable ? '2px 2px 10px 0px #ddd' : 'none')};
+        background: ${props => (props.disabled ? '#f4f4f4' : 'auto')};
+        box-shadow: ${props => (props.disabled ? '2px 2px 10px 0px #ddd' : 'none')};
     }
     padding: 16px;
     margin: 8px;

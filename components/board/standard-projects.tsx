@@ -31,13 +31,13 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
     }
 }
 
-function getPriceForStandardProject(
+function getCostForStandardProject(
     standardProjectAction: StandardProjectAction,
     player: PlayerState
 ) {
     switch (standardProjectAction.type) {
         case StandardProjectType.SELL_PATENTS:
-            return 'X';
+            return 0;
         case StandardProjectType.POWER_PLANT:
             return standardProjectAction.cost - player.discounts.standardProjectPowerPlant;
         default:
@@ -50,42 +50,40 @@ export default function StandardProjects() {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
     const player = context.getLoggedInPlayer(state);
-    const [
-        actionPendingPayment,
-        setActionPendingPayment,
-    ] = useState<NonSellPatentsStandardProjectAction | null>(null);
 
-    function handlePlayStandardProject(standardProjectAction: StandardProjectAction) {
-        if (!context.canPlayStandardProject(standardProjectAction, state)) {
-            return;
-        }
+    function renderStandardProjectButton(standardProject: StandardProjectAction) {
+        const isDisabled = !context.canPlayStandardProject(standardProject, state);
+        const text = getTextForStandardProject(standardProject.type);
+        const cost = getCostForStandardProject(standardProject, player);
+        const costAsText = cost === 0 ? 'X' : `${cost}`;
+        const handleConfirmPayment = (
+            payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
+        ) => {
+            context.playStandardProject(standardProject, payment, state);
+            context.processQueue(dispatch);
+        };
 
         if (
             player.corporation.name === 'Helion' &&
             player.resources[Resource.HEAT] > 0 &&
-            standardProjectAction.type !== StandardProjectType.SELL_PATENTS
+            standardProject.type !== StandardProjectType.SELL_PATENTS
         ) {
-            // Helion can pay with heat and money
-            setActionPendingPayment(standardProjectAction);
-        } else {
-            // Everyone else can only pay with money
-            const cost = getPriceForStandardProject(standardProjectAction, player);
-            context.playStandardProject(
-                standardProjectAction,
-                typeof cost === 'number' ? {[Resource.MEGACREDIT]: cost} : undefined,
-                state
+            return (
+                <PaymentPopover cost={cost} onConfirmPayment={handleConfirmPayment}>
+                    <SharedActionRow disabled={isDisabled}>
+                        <span>{text}</span>
+                        <span>{costAsText}</span>
+                    </SharedActionRow>
+                </PaymentPopover>
             );
-            context.processQueue(dispatch);
         }
-    }
 
-    function handleConfirmPayment(payment: PropertyCounter<Resource>) {
-        if (!actionPendingPayment) {
-            throw new Error('No action pending payment');
-        }
-        context.playStandardProject(actionPendingPayment, payment, state);
-        context.processQueue(dispatch);
-        setActionPendingPayment(null);
+        return (
+            <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                <span>{text}</span>
+                <span>{costAsText}</span>
+            </SharedActionRow>
+        );
     }
 
     return (
@@ -93,26 +91,7 @@ export default function StandardProjects() {
             {standardProjectActions.map((standardProjectAction, index) => {
                 return (
                     <React.Fragment key={index}>
-                        <SharedActionRow
-                            id={standardProjectAction.type}
-                            selectable={context.canPlayStandardProject(
-                                standardProjectAction,
-                                state
-                            )}
-                            onClick={() => handlePlayStandardProject(standardProjectAction)}
-                        >
-                            <span>{getTextForStandardProject(standardProjectAction.type)}</span>
-                            <span>{getPriceForStandardProject(standardProjectAction, player)}</span>
-                        </SharedActionRow>
-                        {actionPendingPayment && (
-                            <PaymentPopover
-                                isOpen={!!actionPendingPayment}
-                                target={actionPendingPayment.type}
-                                cost={actionPendingPayment.cost}
-                                toggle={() => setActionPendingPayment(null)}
-                                onConfirmPayment={(...args) => handleConfirmPayment(...args)}
-                            />
-                        )}
+                        {renderStandardProjectButton(standardProjectAction)}
                     </React.Fragment>
                 );
             })}

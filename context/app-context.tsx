@@ -204,7 +204,7 @@ function canAffordActionCost(action: Action, state: RootState) {
         return true;
     }
 
-    for (const acceptedPaymentType in acceptedPayment) {
+    for (const acceptedPaymentType of acceptedPayment) {
         cost -= player.exchangeRates[acceptedPaymentType] * player.resources[acceptedPaymentType];
     }
 
@@ -995,6 +995,7 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     //    - This should account for discounts
     //    - This should account for non-MC payment, which is prompted by the UI
     //      and included in `payment`
+    //    - If no `payment` is defined, the reducer will defer to paying with MC
     if (card.cost) {
         this.queue.push(payToPlayCard(card, playerIndex, payment));
     }
