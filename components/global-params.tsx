@@ -11,25 +11,27 @@ const GlobalParamsBase = styled.div`
 
 const GlobalParamRow = styled.div`
     display: flex;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     flex-direction: row;
 `;
 
 const GlobalParamName = styled.span`
     text-transform: uppercase;
-    dislay: flex;
+    display: flex;
     align-items: center;
+    justify-content: flex-end;
     width: 90px;
     color: white;
     letter-spacing: 0.1em;
     font-size: 10px;
-    text-align: right;
+    margin-right: 2px;
 `;
 
 const GlobalParamStep = styled.div<{isFilledIn: boolean; color: string}>`
-    border-radius: 3px;
+    border-radius: 2px;
     border: 1px solid #b5b5b5;
     flex: auto;
+    padding: 2px 0;
     margin-left: 2px;
     display: flex;
     align-items: center;
@@ -50,13 +52,14 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     const numSteps =
         (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) / PARAMETER_STEPS[parameter];
     const steps = new Array(numSteps).fill(null).map((_, index) => {
-        return MIN_PARAMETERS[parameter] + (index + 1) * PARAMETER_STEPS[parameter];
+        return MIN_PARAMETERS[parameter] + index * PARAMETER_STEPS[parameter];
     });
+    steps.push(MAX_PARAMETERS[parameter]);
 
     return (
         <Flex justifyContent="space-between" flex="auto">
             {steps.map(value => {
-                const isFilledIn = currentValue >= value;
+                const isFilledIn = currentValue === value;
                 return (
                     <GlobalParamStep
                         key={`${parameter}-${value}`}
