@@ -19,7 +19,7 @@ const GlobalStyles = createGlobalStyle`
         margin: 0;
         font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
             Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-        background: ${colors.DARK_1};
+        background: ${colors.MAIN_BG};
     }
     html, body, #__next, #__next > div {
       min-height: 100vh;

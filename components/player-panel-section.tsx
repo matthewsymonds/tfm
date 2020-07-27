@@ -8,8 +8,8 @@ import {colors} from 'components/ui';
 import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
 
 const PlayerPanelSectionBase = styled.div`
-    background-color: ${colors.PANEL_BACKGROUND};
-    border: 2px solid ${colors.PANEL_HEADER};
+    background-color: ${colors.ACCORDION_BG};
+    border: 2px solid ${colors.ACCORDION_HEADER};
     border-radius: 3px;
 
     :not(:last-child) {
@@ -18,7 +18,7 @@ const PlayerPanelSectionBase = styled.div`
 `;
 
 const PlayerPanelSectionHeader = styled.div`
-    background-color: ${colors.PANEL_HEADER};
+    background-color: ${colors.ACCORDION_HEADER};
     padding: 4px;
     font-size: 15px;
     font-weight: 600;

@@ -1,9 +1,4 @@
-// grayscale
-// export const colors = {
-//     DARK_1: '#212121',
-//     DARK_2: '#333333',
-//     DARK_3: '#424242',
-// };
+import {Parameter} from 'constants/board';
 
 export const colors = {
     DARK_1: '#111111', // darkest
@@ -14,36 +9,38 @@ export const colors = {
     LIGHT_2: '#ddd',
     LIGHT_3: '#bbb', // darkest
 
+    // text
+    TEXT_DARK_1: '#111111',
+
+    // navbar
+    NAV_BG: '#3e3f4c',
+
+    // main content
+    MAIN_BG: '#af9688',
+
     // panels
-    PANEL_HEADER: '#bf5f3f',
-    PANEL_BACKGROUND: '#FAE2CF',
+    PANEL_BG: '#3e3f4c',
+
+    // accordions inside of panel
+    ACCORDION_HEADER: '#bf5f3f',
+    ACCORDION_BG: '#FAE2CF',
+
+    // resource board
+    RESOURCE_COUNTER_BG: '#f7f7f7',
 
     // cards
     CARD_BG: '#f7f7f7',
-    CORPORATION_BG: '#d3f0f5',
+    CORPORATION_BG: '#f7f7f7',
 
     // logs
     LOG_BG: '#fff',
     LOG_BG_ALT: '#ddd',
+
+    // mars board
+    PARAMETERS: {
+        [Parameter.TEMPERATURE]: 'red',
+        [Parameter.OXYGEN]: 'green',
+        [Parameter.OCEAN]: 'blue',
+        [Parameter.VENUS]: 'orange',
+    },
 };
-
-// greenish-gray
-// export const colors = {
-//     DARK_1: '#1A160F',
-//     DARK_2: '#342C1D',
-//     DARK_3: '#4E422D',
-// };
-
-// olive-y
-// export const colors = {
-//     DARK_1: '#1F170A',
-//     DARK_2: '#3E2E14',
-//     DARK_3: '#5C441E',
-// };
-
-// orange/brown
-// export const colors = {
-//     DARK_1: '#120903',
-//     DARK_2: '#341A09',
-//     DARK_3: '#572c0f',
-// };

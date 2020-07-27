@@ -58,7 +58,7 @@ const ResourceBoardCellBase = styled.div`
     align-items: center;
     padding: 8px;
     font-size: 12px;
-    background-color: ${colors.DARK_3};
+    background-color: ${colors.RESOURCE_COUNTER_BG};
     margin: 2px;
 
     .row {
@@ -77,7 +77,7 @@ const ResourceBoardCellBase = styled.div`
     }
 
     .amount {
-        color: rgba(255, 255, 255, 0.9);
+        color: ${colors.TEXT_DARK_1};
     }
 
     .production {

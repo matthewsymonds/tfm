@@ -11,12 +11,13 @@ import {placeTile} from 'actions';
 import {AppContext} from 'context/app-context';
 import OffMarsCities from './off-mars-cities';
 import {Box} from 'components/box';
+import GlobalParams from 'components/global-params';
 
 const BoardOuter = styled.div`
-    margin: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 `;
 
 const BoardInner = styled.div`
@@ -33,14 +34,6 @@ const Circle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-`;
-
-const BoardAcionsContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    > div {
-        margin: 16px;
-    }
 `;
 
 export const Board = () => {
@@ -70,7 +63,7 @@ export const Board = () => {
     }
     return (
         <BoardOuter>
-            <Box position="relative" height="fit-content">
+            <Box position="relative">
                 <OffMarsCities
                     board={board}
                     validPlacements={validPlacements}
@@ -111,6 +104,7 @@ export const Board = () => {
                     </BoardInner>
                 </Circle>
             </Box>
+            <GlobalParams parameters={state.common.parameters} />
         </BoardOuter>
     );
 };

@@ -221,14 +221,14 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     return (
         <Flex flexDirection="column" position="absolute" left="0" right="0" bottom="0" top="0">
-            <Flex flex="none">
+            <Flex flex="none" border>
                 <TopBar
                     isPlayerMakingDecision={isPlayerMakingDecision}
                     selectedPlayerIndex={selectedPlayerIndex}
                     setSelectedPlayerIndex={setSelectedPlayerIndex}
                 />
             </Flex>
-            <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
+            <Flex className="active-round-outer" padding="16px" flex="auto">
                 <Pane
                     className="active-round-left"
                     display="flex"
@@ -246,10 +246,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     flexDirection="column"
                     marginLeft="4px"
                 >
-                    <Board />
-                    <Box>
-                        <GlobalParams parameters={state.common.parameters} />
-                    </Box>
+                    <Panel>
+                        <Board />
+                    </Panel>
                     <Box>
                         <Panel>
                             <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>

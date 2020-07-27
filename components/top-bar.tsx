@@ -2,23 +2,25 @@ import {skipAction} from 'actions';
 import {Square} from 'components/square';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import {Pane} from 'evergreen-ui';
+import ActiveSpinner from 'assets/animated-cog.svg';
+import StaticSpinner from 'assets/static-cog.svg';
 import {useRouter} from 'next/router';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {PlayerState, RootState, useTypedSelector} from 'reducer';
-import styled, {keyframes} from 'styled-components';
-import {Flex} from 'components/box';
+import styled from 'styled-components';
+import {Flex, Box} from 'components/box';
 import {colors} from 'components/ui';
+import React from 'react';
 
 const TopBarBase = styled.div`
     display: flex;
     width: 100%;
     justifycontent: space-between;
     fontsize: 13px;
-    padding: 8px;
+    padding: 0 8px;
     color: #dddddd;
-    background-color: ${colors.DARK_2};
+    background-color: ${colors.NAV_BG};
 `;
 
 const ActionBarButton = styled.button`
@@ -34,58 +36,7 @@ const PlayerGroupHeader = styled.span`
     letter-spacing: 0.1em;
     font-weight: 600;
     font-size: 10px;
-    margin-bottom: 4px;
-`;
-
-const pulseBorder = keyframes`
-    0% {
-        border-color: rgba(0,0,0,0.2);
-    }
-
-    50% {
-      border-color: rgba(0,0,0,0.8);
-    }
-
-    100% {
-        border-color: rgba(0,0,0,0.2);
-    }
-`;
-
-const PlayerCorpAndColorBase = styled.button<{
-    isPassed: boolean;
-    isActive: boolean;
-    isSelected: boolean;
-}>`
-    margin-right: 12px;
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    background-color: unset;
-    color: unset;
-    border: 1px solid rgba(0, 0, 0, 0);
-    opacity: ${props => (props.isPassed ? 0.5 : 1)};
-    font-style: ${props => (props.isPassed ? 'italic' : '')};
-
-    &:focus,
-    &:active {
-        background-color: background: rgba(255, 255, 255, 0.08);
-    }
-
-    &:hover:not([disabled]) {
-        background-color: rgba(255, 255, 255, 0.08);
-    }
-
-    &:active {
-        border-color: #bbbbbb;
-        color: white;
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    border-color: ${props => (props.isSelected ? '#bbbbbb' : '')};
-    color: ${props => (props.isSelected ? 'white' : 'unset')};
-    background: ${props => (props.isSelected ? 'rgba(255, 255, 255, 0.08)' : 'unset')};
+    margin: 8px 0 4px;
 `;
 
 type PlayerCorpAndColorProps = {
@@ -97,31 +48,68 @@ type PlayerCorpAndColorProps = {
     isSelected: boolean;
 };
 
+const HiddenInput = styled.input`
+    display: none;
+`;
+
+const TabLabel = styled.label<{isSelected: boolean}>`
+    margin-right: 12px;
+    padding: 8px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: ${colors.TEXT_DARK_1};
+    cursor: pointer;
+
+    background-color: ${colors.MAIN_BG};
+    opacity: ${props => (props.isSelected ? 1 : 0.5)};
+`;
+
 const PlayerCorpAndColor = ({
     player,
     onSelectPlayer,
-    isPassed,
     isLoggedInPlayer,
-    isActive,
     isSelected,
+    isPassed,
+    isActive,
 }: PlayerCorpAndColorProps) => {
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+
+    const inputId = `tab-${player.username}`;
+    let playerTabText = isCorporationSelection ? player.username : player.corporation.name;
+    playerTabText += isLoggedInPlayer ? ' (you)' : '';
+
     return (
-        <PlayerCorpAndColorBase
-            isActive={isActive}
-            isPassed={isPassed}
-            isSelected={isSelected}
-            onClick={onSelectPlayer}
-        >
-            <Square playerIndex={player.index} shouldHideBorder={true} />
-            <Pane marginLeft="4px" whiteSpace="nowrap">
-                {isCorporationSelection ? player.username : player.corporation.name}
-                {isLoggedInPlayer && ' (You)'}
-            </Pane>
-        </PlayerCorpAndColorBase>
+        <React.Fragment>
+            <HiddenInput
+                type="radio"
+                name="players"
+                id={inputId}
+                checked={isSelected}
+                onChange={onSelectPlayer}
+            />
+            <TabLabel htmlFor={inputId} isSelected={isSelected}>
+                <Flex alignItems="center">
+                    <Square playerIndex={player.index} shouldHideBorder={true} />
+                    <Box marginLeft="4px" whiteSpace="nowrap" marginRight="4px">
+                        {playerTabText}
+                    </Box>
+                    {isActive ? (
+                        <img height={16} src={ActiveSpinner} alt="active" />
+                    ) : (
+                        <img height={16} src={StaticSpinner} />
+                    )}
+                </Flex>
+            </TabLabel>
+        </React.Fragment>
     );
 };
+
+const RoundText = styled.span`
+    font-size: 13px;
+`;
 
 type TopBarProps = {
     isPlayerMakingDecision: boolean;
@@ -149,16 +137,8 @@ export const TopBar = ({
     const generation = useTypedSelector(state => state.common.generation);
     const turn = useTypedSelector(state => state.common.turn);
     const allPlayers = useTypedSelector(state => state.players ?? []);
-    const playerIndexOrderForGeneration = useTypedSelector(
-        state => state.common.playerIndexOrderForGeneration ?? []
-    );
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
-    const sortedPlayers = [...allPlayers].sort(
-        (a, b) =>
-            playerIndexOrderForGeneration.indexOf(a.index) -
-            playerIndexOrderForGeneration.indexOf(b.index)
-    );
 
     /**
      * Derived state
@@ -174,7 +154,7 @@ export const TopBar = ({
                 <Flex flexDirection="column">
                     <PlayerGroupHeader>Players</PlayerGroupHeader>
                     <Flex>
-                        {sortedPlayers.map(player => (
+                        {allPlayers.map(player => (
                             <PlayerCorpAndColor
                                 key={player.index}
                                 player={player}
@@ -204,7 +184,9 @@ export const TopBar = ({
                     )}
             </Flex>
             <Flex alignItems="center" justifyContent="flex-end" flexBasis="40%">
-                Generation {generation}, Turn {turn}
+                <RoundText>
+                    Generation {generation}, Turn {turn}
+                </RoundText>
                 <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
             </Flex>
         </TopBarBase>
