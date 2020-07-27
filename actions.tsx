@@ -314,18 +314,6 @@ export const askUserToLookAtCards = (
     },
 });
 
-export const BUY_SELECTED_CARDS = 'BUY_SELECTED_CARDS';
-export const buySelectedCards = (playerIndex: number) => ({
-    type: BUY_SELECTED_CARDS,
-    payload: {playerIndex},
-});
-
-export const GAIN_SELECTED_CARDS = 'GAIN_SELECTED_CARDS';
-export const gainSelectedCards = (playerIndex: number) => ({
-    type: GAIN_SELECTED_CARDS,
-    payload: {playerIndex},
-});
-
 export const PLACE_TILE = 'PLACE_TILE';
 export const placeTile = (tile: Tile, cell: Cell, playerIndex: number) => ({
     type: PLACE_TILE,

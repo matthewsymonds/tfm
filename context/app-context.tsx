@@ -871,11 +871,6 @@ function playAction({
                 action.lookAtCards.buyCards
             )
         );
-        if (action.lookAtCards.buyCards) {
-            items.push(buySelectedCards(playerIndex));
-        } else {
-            items.push(gainSelectedCards(playerIndex));
-        }
     }
 
     for (const production in action.increaseProduction) {
