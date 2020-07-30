@@ -1,27 +1,17 @@
 import styled from 'styled-components';
+import {HEX_RADIUS} from 'constants/board';
 
-const color = (props: HexagonProps) => props.color;
+const HexagonBase = styled.div<HexagonProps>`
+    color: white;
+    font-size: 30px;
+    width: ${HEX_RADIUS * Math.cos((30 * Math.PI) / 180) * 2}px;
+    height: ${HEX_RADIUS * 2}px;
 
-interface HexagonProps {
-    color: string;
-    selectable?: boolean;
-    overlap?: boolean;
-}
-
-const borderWidth = 2;
-
-export const Hexagon = styled.div<HexagonProps>`
-    color: black;
-    position: ${props => (props.overlap ? 'absolute' : 'relative')};
-    top: 0px;
-    width: 62px;
-    height: 64px;
-    margin: -6px 2px;
+    transform: ${props => (props.scale ? `scale(${props.scale})` : '')};
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
-
     background: ${props => (props.selectable ? 'gray' : 'transparent')};
     &:hover {
         background: ${props => (props.selectable ? 'black' : 'transparent')};
@@ -32,18 +22,34 @@ export const Hexagon = styled.div<HexagonProps>`
         clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     }
 
+    &:before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: ${props => props.color};
+    }
+
     & > * {
         // Make elements visible!
         z-index: 0;
     }
-
-    &:before {
-        content: '';
-        position: absolute;
-        top: ${borderWidth}px;
-        left: ${borderWidth}px;
-        height: calc(100% - ${borderWidth * 2}px);
-        width: calc(100% - ${borderWidth * 2}px);
-        background-color: ${color};
-    }
 `;
+interface HexagonProps {
+    color: string;
+    scale?: number;
+    selectable?: boolean;
+}
+
+export const Hexagon: React.FunctionComponent<HexagonProps> = ({
+    selectable,
+    color,
+    scale,
+    children,
+}) => {
+    return (
+        <HexagonBase selectable={selectable} color={color} scale={scale}>
+            <div>{children}</div>
+        </HexagonBase>
+    );
+};

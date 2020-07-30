@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import React, {useContext} from 'react';
 import {cellHelpers, Cell as CellModel} from 'constants/board';
-import {Row} from 'components/row';
 import {Tile} from './tile';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from 'selectors/board';
@@ -9,6 +8,7 @@ import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector, RootState} from 'reducer';
 import {placeTile} from 'actions';
 import {AppContext} from 'context/app-context';
+import {HEX_RADIUS, HEX_PADDING} from 'constants/board';
 import OffMarsCities from './off-mars-cities';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
@@ -28,12 +28,21 @@ const BoardInner = styled.div`
 
 const Circle = styled.div`
     border-radius: 50%;
-    width: 600px;
-    height: 600px;
+    width: 450px;
+    height: 450px;
     background: #bf5f3f;
     display: flex;
     justify-content: center;
     align-items: center;
+`;
+
+const rowOffset = HEX_RADIUS * Math.sin((30 * Math.PI) / 180) - HEX_PADDING * 1.5;
+
+const Row = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: -${rowOffset}px;
 `;
 
 export const Board = () => {
@@ -78,24 +87,16 @@ export const Board = () => {
                                         cellHelpers.onMars(cell) && (
                                             <div
                                                 key={`${outerIndex}-${index}`}
-                                                style={{position: 'relative'}}
+                                                style={{
+                                                    position: 'relative',
+                                                    margin: `0 ${HEX_PADDING}px`,
+                                                }}
                                                 onClick={() => handleClick(cell)}
                                             >
                                                 <Cell
+                                                    cell={cell}
                                                     selectable={validPlacements.includes(cell)}
-                                                    type={cell.type}
-                                                    bonus={cell.bonus ?? []}
-                                                >
-                                                    {cell.specialName ?? ''}
-                                                </Cell>
-                                                {cell.tile && (
-                                                    <Tile
-                                                        ownerPlayerIndex={
-                                                            cell.tile.ownerPlayerIndex
-                                                        }
-                                                        type={cell.tile.type}
-                                                    />
-                                                )}
+                                                />
                                             </div>
                                         )
                                 )}

@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import {Board as BoardModel, Cell as CellModel, SpecialLocation} from 'constants/board';
 import {Cell} from './cell';
-import {Tile} from './tile';
 
 const OffMarsCityContainer = styled.div`
     position: absolute;
@@ -35,11 +34,11 @@ const OffMarsCity = ({cell, offMarsCitiesProps, top, left, right, bottom}: OffMa
         <Cell
             selectable={offMarsCitiesProps.validPlacements.includes(cell)}
             type={cell.type}
+            tile={cell.tile ?? null}
             bonus={cell.bonus ?? []}
         >
             {cell.specialName ?? ''}
         </Cell>
-        {cell.tile && <Tile ownerPlayerIndex={cell.tile.ownerPlayerIndex} type={cell.tile.type} />}
     </OffMarsCityContainer>
 );
 
