@@ -59,7 +59,7 @@ const TabLabel = styled.label<{isSelected: boolean}>`
     border-top-right-radius: 3px;
     font-size: 13px;
     font-weight: 600;
-    color: ${colors.TEXT_DARK_1};
+    color: ${colors.TEXT_LIGHT_1};
     cursor: pointer;
 
     background-color: ${colors.MAIN_BG};

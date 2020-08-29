@@ -1,5 +1,4 @@
 import {Resource} from './resource';
-import {Action} from 'redux';
 
 export enum CellType {
     LAND,
