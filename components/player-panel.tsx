@@ -48,7 +48,14 @@ const CorporationSelector = ({
         }
     }
 
-    const {possibleCorporations, corporation} = player;
+    const {possibleCorporations, corporation, buyCards} = player;
+    if (!player.buyCards) {
+        return (
+            <div>
+                {player.username} has chosen {player.corporation.name}.
+            </div>
+        );
+    }
 
     const dispatch = useDispatch();
 

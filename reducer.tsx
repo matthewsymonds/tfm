@@ -828,7 +828,6 @@ export const reducer = (state: GameState | null = null, action) => {
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
                 player.buyCards = false;
-                console.log('buy cards is now false');
                 handleEnterActiveRound(draft);
                 break;
             }

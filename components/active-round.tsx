@@ -67,14 +67,10 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         }
         const forcedActions = getForcedActionsForPlayer(state, loggedInPlayer.index);
 
-        for (let i = 0; i < 2; i++) {
-            if (forcedActions[i]) {
-                context.playAction({state, action: forcedActions[i]});
-                context.queue.push(completeAction(loggedInPlayer.index));
-                context.queue.push(
-                    removeForcedActionFromPlayer(loggedInPlayerIndex, forcedActions[i])
-                );
-            }
+        for (const forcedAction of forcedActions) {
+            context.playAction({state, action: forcedAction});
+            context.queue.push(completeAction(loggedInPlayer.index));
+            context.queue.push(removeForcedActionFromPlayer(loggedInPlayerIndex, forcedAction));
         }
         if (forcedActions.length > 0) {
             context.processQueue(dispatch);

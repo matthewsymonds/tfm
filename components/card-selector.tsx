@@ -28,7 +28,7 @@ const CardSelectorBase = styled.div<{orientation: string}>`
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const numSelected = selectedCards.length;
-    const canSelect = (budget === undefined || budget >= 3) && numSelected < max;
+    const canSelect = budget === undefined || budget >= 10;
 
     const handleSelect = (card: Card) => {
         const newSelectedCards = [...selectedCards];
