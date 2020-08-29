@@ -247,10 +247,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     flexDirection="column"
                     marginLeft="4px"
                 >
-                    <Panel>
-                        <Board />
-                    </Panel>
-                    <Box>
+                    <Board />
+                    <Box marginTop="8px">
                         <Panel>
                             <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
                                 <StandardProjects />

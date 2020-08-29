@@ -96,11 +96,12 @@ const PlayerCorpAndColor = ({
                     <Box marginLeft="4px" whiteSpace="nowrap" marginRight="4px">
                         {playerTabText}
                     </Box>
-                    {isActive ? (
-                        <img height={16} src={ActiveSpinner} alt="active" />
-                    ) : (
-                        <img height={16} src={StaticSpinner} />
-                    )}
+                    <img
+                        className="inverted left-margin-3px"
+                        height={16}
+                        src={isActive ? ActiveSpinner : StaticSpinner}
+                        alt={isActive ? 'active' : ''}
+                    />
                 </Flex>
             </TabLabel>
         </React.Fragment>

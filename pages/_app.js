@@ -28,6 +28,10 @@ const GlobalStyles = createGlobalStyle`
       display: flex;
       flex-direction: column;
     }
+    .inverted {
+      filter: invert(100%);
+    }
+    
     div.macBROKEN {
       span.tag-icon {
         position: relative;

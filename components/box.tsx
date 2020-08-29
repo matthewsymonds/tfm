@@ -19,6 +19,10 @@ export function Flex(props) {
 export const Panel = styled.div`
     margin-bottom: 16px;
     padding: 8px;
-    background: ${colors.PANEL_BG};
-    border-radius: 3px;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-color: ${colors.PANEL_BORDER};
+    border-radius: 9px;
+    border-width: 2px;
+    border-style: solid;
 `;

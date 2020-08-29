@@ -10,16 +10,16 @@ export const colors = {
     LIGHT_3: '#bbb', // darkest
 
     // text
-    TEXT_DARK_1: '#111111',
+    TEXT_DARK_1: '#ccc',
 
     // navbar
-    NAV_BG: '#3e3f4c',
+    NAV_BG: '#647d63',
 
     // main content
-    MAIN_BG: '#af9688',
+    MAIN_BG: '#393939',
 
     // panels
-    PANEL_BG: '#3e3f4c',
+    PANEL_BORDER: '#999',
 
     // accordions inside of panel
     ACCORDION_HEADER: '#bf5f3f',
