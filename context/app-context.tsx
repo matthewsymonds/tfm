@@ -13,13 +13,11 @@ import {
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
-    buySelectedCards,
     claimMilestone as claimMilestoneAction,
     completeAction,
     decreaseProduction,
     fundAward as fundAwardAction,
     gainResource,
-    gainSelectedCards,
     gainStorableResource,
     increaseParameter,
     increaseProduction,
@@ -871,11 +869,6 @@ function playAction({
                 action.lookAtCards.buyCards
             )
         );
-        if (action.lookAtCards.buyCards) {
-            items.push(buySelectedCards(playerIndex));
-        } else {
-            items.push(gainSelectedCards(playerIndex));
-        }
     }
 
     for (const production in action.increaseProduction) {

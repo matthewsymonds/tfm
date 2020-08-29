@@ -75,7 +75,6 @@ export function getInitialState(players: string[]): GameState {
             terraformRating: 20,
             corporation: possibleCorporations[0],
             possibleCards: sampleCards(deck, 10),
-            selectedCards: [],
             numCardsToTake: null,
             possibleCorporations,
             cards: [],

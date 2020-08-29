@@ -10,7 +10,7 @@ import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
 const PlayerPanelSectionBase = styled.div`
     background-color: ${colors.ACCORDION_BG};
     border: 2px solid ${colors.ACCORDION_HEADER};
-    border-radius: 3px;
+    border-radius: 2px;
 
     :not(:last-child) {
         margin-bottom: 8px;
@@ -19,7 +19,8 @@ const PlayerPanelSectionBase = styled.div`
 
 const PlayerPanelSectionHeader = styled.div`
     background-color: ${colors.ACCORDION_HEADER};
-    padding: 4px;
+    padding: 2px;
+    padding-bottom: 4px;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -29,7 +30,7 @@ const PlayerPanelSectionHeader = styled.div`
 `;
 
 const PlayerPanelSectionInner = styled.div`
-    padding: 4px;
+    padding: 6px;
 `;
 
 export type PlayerPanelSection = 'Board' | 'Played cards' | 'Hand';

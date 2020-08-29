@@ -9,20 +9,16 @@ export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile
 
 export type SerializedPlayerState = Omit<
     Omit<
-        Omit<
-            Omit<Omit<Omit<PlayerState, 'corporation'>, 'possibleCards'>, 'possibleCorporations'>,
-            'cards'
-        >,
-        'selectedCards'
+        Omit<Omit<Omit<PlayerState, 'corporation'>, 'possibleCards'>, 'possibleCorporations'>,
+        'cards'
     >,
     'playedCards'
 > & {
-    corporation: SerializedCard | null;
+    corporation: SerializedCard;
     possibleCards: SerializedCard[];
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
     playedCards: SerializedCard[];
-    selectedCards: SerializedCard[];
 };
 
 export type SerializedState = Omit<Omit<RootState, 'common'>, 'players'> & {
@@ -99,20 +95,11 @@ function serializeCard(card: Card): SerializedCard {
 }
 
 const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
-    const {
-        corporation,
-        possibleCards,
-        selectedCards,
-        possibleCorporations,
-        cards,
-        playedCards,
-        ...rest
-    } = player;
+    const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
     return {
         ...rest,
-        corporation: corporation ? serializeCard(corporation) : null,
+        corporation: serializeCard(corporation),
         possibleCards: possibleCards.map(serializeCard),
-        selectedCards: selectedCards.map(serializeCard),
         possibleCorporations: possibleCorporations?.map(serializeCard) || [],
         cards: cards.map(serializeCard),
         playedCards: playedCards.map(serializeCard),
@@ -120,19 +107,10 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
 };
 
 const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
-    const {
-        corporation,
-        possibleCards,
-        selectedCards,
-        possibleCorporations,
-        cards,
-        playedCards,
-        ...rest
-    } = player;
+    const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
     return {
         ...rest,
-        selectedCards: selectedCards.map(deserializeCard),
-        corporation: corporation ? deserializeCard(corporation) : null,
+        corporation: deserializeCard(corporation),
         possibleCards: possibleCards.map(deserializeCard),
         possibleCorporations: possibleCorporations?.map(deserializeCard) || [],
         cards: cards.map(deserializeCard),

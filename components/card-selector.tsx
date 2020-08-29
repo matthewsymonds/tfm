@@ -27,19 +27,17 @@ const CardSelectorBase = styled.div<{orientation: string}>`
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
-    const canSelect = budget === undefined || budget >= 3;
+    const numSelected = selectedCards.length;
+    const canSelect = (budget === undefined || budget >= 3) && numSelected < max;
 
     const handleSelect = (card: Card) => {
-        let newSelectedCards = [...selectedCards];
+        const newSelectedCards = [...selectedCards];
         const index = selectedCards.indexOf(card);
         if (index < 0) {
             newSelectedCards.unshift(card);
         } else {
             newSelectedCards.splice(index, 1);
         }
-
-        newSelectedCards = newSelectedCards.slice(0, max);
-
         onSelect(newSelectedCards);
     };
 
@@ -49,7 +47,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                 const selected = selectedCards.indexOf(option) >= 0;
 
                 const cannotSelect = !selected && !canSelect;
-                const cannotUnselect = selected && selectedCards.length === min;
+                const cannotUnselect = selected && numSelected === 1 && min === 1;
 
                 const disabled = cannotSelect || cannotUnselect;
                 const buttonText = cannotUnselect ? 'Selected' : selected ? 'Unselect' : 'Select';

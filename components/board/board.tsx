@@ -12,6 +12,7 @@ import {HEX_RADIUS, HEX_PADDING} from 'constants/board';
 import OffMarsCities from './off-mars-cities';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
+import {colors} from 'components/ui';
 
 const BoardOuter = styled.div`
     display: flex;
@@ -30,7 +31,7 @@ const Circle = styled.div`
     border-radius: 50%;
     width: 450px;
     height: 450px;
-    background: #bf5f3f;
+    background: ${colors.ACCORDION_HEADER};
     display: flex;
     justify-content: center;
     align-items: center;

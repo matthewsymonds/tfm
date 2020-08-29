@@ -71,8 +71,6 @@ function mergeExistingGameStateWithNew(
             player.cards = oldStatePlayer.cards;
             // Don't modify an opponent's corporation.
             player.corporation = oldStatePlayer.corporation;
-            // Don't modify an opponent's card selections.
-            player.selectedCards = oldStatePlayer.selectedCards;
 
             // If a player is "Ready" don't override their readiness to play.
             player.action = oldStatePlayer.action;

@@ -20,7 +20,6 @@ import {
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
-    BUY_SELECTED_CARDS,
     CLAIM_MILESTONE,
     COMPLETE_ACTION,
     DECREASE_PRODUCTION,
@@ -29,7 +28,6 @@ import {
     DRAW_CARDS,
     FUND_AWARD,
     GAIN_RESOURCE,
-    GAIN_SELECTED_CARDS,
     GAIN_STORABLE_RESOURCE,
     INCREASE_PARAMETER,
     INCREASE_PRODUCTION,
@@ -186,7 +184,6 @@ export type PlayerState = {
     forcedActions: Array<Action>;
     corporation: Card;
     possibleCards: Card[];
-    selectedCards: Card[];
     possibleCorporations: Card[];
     cards: Card[];
     playedCards: Card[];
@@ -284,7 +281,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Hired Raiders';
+const bonusName = 'Business Contacts';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
@@ -372,6 +369,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 const numCards = action.payload.cards.length;
                 player.resources[Resource.MEGACREDIT] -= numCards * 3;
                 player.possibleCards = [];
+                player.buyCards = null;
                 draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
                 break;
             case REVEAL_AND_DISCARD_TOP_CARDS:
@@ -395,7 +393,6 @@ export const reducer = (state: GameState | null = null, action) => {
                     card: payload.card,
                 };
                 player.possibleCards = player.cards;
-                player.selectedCards = [];
                 break;
             case ASK_USER_TO_LOOK_AT_CARDS:
                 player.possibleCards = handleDrawCards(payload.amount);
@@ -404,33 +401,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
-                break;
-            case BUY_SELECTED_CARDS: {
-                const numCards = player.selectedCards.length;
-                draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
-
-                player.cards = [...player.cards, ...player.selectedCards];
-                player.resources[Resource.MEGACREDIT] -= player.selectedCards.length * 3;
-                player.selectedCards = [];
-                player.possibleCards = [];
                 player.numCardsToTake = null;
-                payload.buyCards = null;
-                break;
-            }
-            case GAIN_SELECTED_CARDS: {
-                const numCards = player.selectedCards.length;
-                draft.log.push(
-                    `${corporationName} took ${numCards} ${cardsPlural(numCards)} into hand`
-                );
-                player.cards = [...player.cards, ...player.selectedCards];
-                player.selectedCards = [];
-                player.possibleCards = [];
-                player.numCardsToTake = null;
-                payload.buyCards = null;
-                break;
-            }
-            case SET_SELECTED_CARDS:
-                player.selectedCards = action.payload.cards;
                 break;
             case DISCARD_CARDS:
                 draft.pendingVariableAmount = payload.cards.length;
@@ -444,7 +415,6 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
-                player.selectedCards = [];
                 player.possibleCards = [];
                 break;
             case DRAW_CARDS:
@@ -858,6 +828,7 @@ export const reducer = (state: GameState | null = null, action) => {
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
                 player.buyCards = false;
+                console.log('buy cards is now false');
                 handleEnterActiveRound(draft);
                 break;
             }
@@ -920,6 +891,7 @@ export const reducer = (state: GameState | null = null, action) => {
                                 const bonus = draft.common.deck.find(
                                     card => card.name === bonusName
                                 );
+                                player.buyCards = true;
                                 if (bonus) {
                                     player.possibleCards.push(bonus);
                                     draft.common.deck = draft.common.deck.filter(
