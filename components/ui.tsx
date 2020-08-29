@@ -10,7 +10,8 @@ export const colors = {
     LIGHT_3: '#bbb', // darkest
 
     // text
-    TEXT_DARK_1: '#ccc',
+    TEXT_LIGHT_1: '#ccc',
+    TEXT_DARK_1: '#111111',
 
     // navbar
     NAV_BG_YOUR_TURN: '#48874d',

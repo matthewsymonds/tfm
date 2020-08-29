@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {useStore, useDispatch} from 'react-redux';
 import styled from 'styled-components';
 
-import {useTypedSelector, RootState} from 'reducer';
+import {useTypedSelector, RootState, PlayerState} from 'reducer';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import {Flex, Panel} from 'components/box';

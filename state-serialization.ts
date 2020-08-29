@@ -14,7 +14,7 @@ export type SerializedPlayerState = Omit<
     >,
     'playedCards'
 > & {
-    corporation: SerializedCard | null;
+    corporation: SerializedCard;
     possibleCards: SerializedCard[];
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
@@ -98,7 +98,7 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
     const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
     return {
         ...rest,
-        corporation: corporation ? serializeCard(corporation) : null,
+        corporation: serializeCard(corporation),
         possibleCards: possibleCards.map(serializeCard),
         possibleCorporations: possibleCorporations?.map(serializeCard) || [],
         cards: cards.map(serializeCard),
@@ -110,7 +110,7 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
     const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
     return {
         ...rest,
-        corporation: corporation ? deserializeCard(corporation) : null,
+        corporation: deserializeCard(corporation),
         possibleCards: possibleCards.map(deserializeCard),
         possibleCorporations: possibleCorporations?.map(deserializeCard) || [],
         cards: cards.map(deserializeCard),
