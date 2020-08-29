@@ -75,11 +75,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                 </ActionBarRow>
                 {waitingMessage ? <ActionBarRow>{waitingMessage}</ActionBarRow> : null}
             </ActionBar>
-            <Board
-                board={state.common.board}
-                playerIndex={playerIndex}
-                parameters={state.common.parameters}
-            />
+            <Board />
 
             {
                 <ActionBar className="bottom">

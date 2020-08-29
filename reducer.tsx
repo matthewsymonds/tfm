@@ -401,7 +401,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
-                player.numCardsToTake = undefined;
+                player.numCardsToTake = null;
                 break;
             case DISCARD_CARDS:
                 draft.pendingVariableAmount = payload.cards.length;

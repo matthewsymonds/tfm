@@ -124,16 +124,18 @@ export const PlayerTagCounter = ({player}: PlayerTagCounterProps) => {
         <Pane display="flex" flexDirection="row">
             {eventCount > 0 && (
                 <Pane marginRight={8}>
-                    <ResourceBoardCell amount={eventCount} tag={Tag.EVENT} />
+                    {/* FIX ME */}
+                    {/* <ResourceBoardCell amount={eventCount} tag={Tag.EVENT} /> */}
                 </Pane>
             )}
             {Object.keys(tagCountsByTagName).map(tag => (
                 <Pane key={tag} marginRight={8}>
-                    <ResourceBoardCell
+                    {/* FIX ME */}
+                    {/* <ResourceBoardCell
                         key={tag}
                         amount={tagCountsByTagName[tag]}
                         tag={tag as Tag}
-                    />
+                    /> */}
                 </Pane>
             ))}
         </Pane>

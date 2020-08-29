@@ -39,7 +39,7 @@ export default function Login() {
             <Link href="/signup" passHref>
                 <CenteredLink>or Sign up</CenteredLink>
             </Link>
-            <MaybeVisible horizontalMargin={0} visible={!!error}>
+            <MaybeVisible visible={!!error}>
                 <h4>
                     <em>{error || 'Username or password did not match. Please try again.'}</em>
                 </h4>
