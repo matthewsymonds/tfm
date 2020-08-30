@@ -21,6 +21,13 @@ export const SharedActionRow = styled.button<{disabled: boolean}>`
         background: ${props => (props.disabled ? '#f4f4f4' : 'auto')};
         box-shadow: ${props => (props.disabled ? '2px 2px 10px 0px #ddd' : 'none')};
     }
+    /*
+       HACK: The PaymentPopover doesn't respect disabled state, which appears to be a limitation of
+       evergreen-ui. Perhaps we need a more robust popover solution.
+    */
+    & > * {
+        pointer-events: none;
+    }
     padding: 16px;
     margin: 8px;
     width: 160px;
