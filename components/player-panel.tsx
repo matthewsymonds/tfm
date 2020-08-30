@@ -128,6 +128,7 @@ export const PlayerPanel = ({selectedPlayerIndex}: PlayerPanelProps) => {
                         sections.map(section => (
                             <PlayerPanelSection
                                 section={section}
+                                key={section}
                                 player={selectedPlayer}
                                 isLoggedInPlayer={selectedPlayer.index === loggedInPlayer.index}
                             />

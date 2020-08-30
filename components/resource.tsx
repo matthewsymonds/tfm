@@ -19,16 +19,17 @@ import {colors} from 'components/ui';
 interface ResourceIconBaseProps {
     readonly color: string;
     readonly background: string;
+    readonly size: number;
     readonly tall?: boolean;
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
   display: inline-block;
-  height: ${props => (props.tall ? '30px' : '20px')};
-  width 20px;
+  height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
+  width ${props => props.size}px;
   text-align: center;
   margin: 3px;
-  font-size: 14px;
+  font-size: ${props => props.size}px;
   font-weight: bold;
   color: ${props => props.color};
   background: ${props => props.background};
@@ -40,13 +41,19 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
 interface ResourceIconProps {
     name: Resource;
     className?: string;
+    size?: number;
 }
 
-export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({name, className}) => (
+export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
+    name,
+    className,
+    size = 20,
+}) => (
     <ResourceIconBase
         color={getResourceColor(name)}
         className={className}
         tall={name === Resource.CARD}
+        size={size}
         background={getResourceBackgroundColor(name)}
     >
         <span className={getClassName(name)}>{getResourceSymbol(name)}</span>

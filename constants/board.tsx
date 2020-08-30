@@ -1,5 +1,8 @@
 import {Resource} from './resource';
 
+export const HEX_RADIUS = 25;
+export const HEX_PADDING = 2;
+
 export enum CellType {
     LAND,
     WATER,
@@ -71,6 +74,63 @@ export enum PlacementRequirement {
     STEEL_OR_TITANIUM_PLAYER_ADJACENT = 'placementSteelOrTitaniumPlayerAdjacent',
     VOLCANIC = 'placementVolcanic',
 }
+
+export const getTileBgColor = (type: TileType) => {
+    switch (type) {
+        case TileType.CITY:
+            return 'gray';
+        case TileType.GREENERY:
+            return 'green';
+        case TileType.OCEAN:
+            return '#3987c9';
+        case TileType.LAVA_FLOW:
+            return '#ff2222';
+        case TileType.OTHER:
+            return 'brown';
+        case TileType.MINING_AREA:
+        case TileType.MINING_RIGHTS:
+            return 'brown';
+        case TileType.COMMERCIAL_DISTRICT:
+            return '#777';
+        default:
+            return 'white';
+    }
+};
+
+export const getTileIcon = (type: TileType) => {
+    switch (type) {
+        case TileType.CAPITAL:
+        case TileType.CITY:
+            return '🏙️';
+        case TileType.COMMERCIAL_DISTRICT:
+            return '$';
+        case TileType.ECOLOGICAL_ZONE:
+            return '🐾';
+        case TileType.GREENERY:
+            return '🌳';
+        case TileType.INDUSTRIAL_CENTER:
+            return '🏭';
+        case TileType.LAVA_FLOW:
+            return '🌋';
+        case TileType.MINING_RIGHTS:
+        case TileType.MINING_AREA:
+            return '⛏️';
+        case TileType.MOHOLE_AREA:
+            return '🕳️';
+        case TileType.NATURAL_PRESERVE:
+            return '♂️';
+        case TileType.NUCLEAR_ZONE:
+            return '☢️';
+        case TileType.OCEAN:
+            return '🌊';
+        case TileType.OTHER:
+            return '?';
+        case TileType.RESTRICTED_AREA:
+            return '🚫';
+        default:
+            return '?';
+    }
+};
 
 export enum CellAttribute {
     HAS_STEEL,
