@@ -76,7 +76,7 @@ export class Card {
     /** e.g. "Raise oxygen 1 step" */
     increaseParameter: PropertyCounter<Parameter>;
     /** e.g. "Raise your TR 1 step" */
-    increaseTerraformRating?: number;
+    increaseTerraformRating?: Amount;
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
     stealResource: PropertyCounter<Resource>;

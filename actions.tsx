@@ -326,6 +326,12 @@ export const increaseParameter = (parameter: Parameter, amount: number, playerIn
     payload: {parameter, amount, playerIndex},
 });
 
+export const INCREASE_TERRAFORM_RATING = 'INCREASE_TERRAFORM_RATING';
+export const increaseTerraformRating = (amount: Amount, playerIndex: number) => ({
+    type: INCREASE_TERRAFORM_RATING,
+    payload: {amount, playerIndex},
+});
+
 // Player announces she is ready to start round.
 export const ANNOUNCE_READY_TO_START_ROUND = 'ANNOUNCE_READY_TO_START_ROUND';
 export const announceReadyToStartRound = (playerIndex: number) => ({

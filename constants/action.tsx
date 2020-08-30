@@ -1,11 +1,19 @@
 import {Parameter, TilePlacement} from './board';
-import {PropertyCounter} from './property-counter';
+import {PropertyCounter, NumericPropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
 import {VariableAmount} from './variable-amount';
 import {Tag} from './tag';
 
 type ResourceCounter = PropertyCounter<Resource>;
-type ParameterCounter = PropertyCounter<Parameter>;
+
+// Exclude oceans from this configuration.
+// We'll use the tilePlacement property to place oceans instead.
+// This lets us specify placement requirements (like on an area not reserved for ocean)
+type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parameter.VENUS;
+
+// Only allow parameter increases by numeric amounts.
+// This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.
+export type ParameterCounter = NumericPropertyCounter<ParameterExcludingOcean>;
 
 export type Amount = number | VariableAmount;
 
@@ -40,7 +48,7 @@ export interface Action {
     lookAtCards?: LookAtCardsConfig;
     tilePlacements?: TilePlacement[];
     increaseParameter?: ParameterCounter;
-    increaseTerraformRating?: number;
+    increaseTerraformRating?: Amount;
     revealAndDiscardTopCards?: number;
 
     // For aquifier pumping, water import from europa, rotator impacts

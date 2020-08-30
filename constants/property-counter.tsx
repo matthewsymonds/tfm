@@ -9,3 +9,8 @@ import {Tag} from './tag';
 export type PropertyCounter<K extends Resource | Parameter | Tag> = {
     [k in K]?: Amount;
 };
+
+// Similar, but restricted to number amounts (no variable amounts).
+export type NumericPropertyCounter<K extends Resource | Parameter | Tag> = {
+    [k in K]?: number;
+};

@@ -209,7 +209,7 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Action: Decrease your energy production 1 step to increase your terraforming rating 1 step.',
             decreaseProduction: {[Resource.ENERGY]: 1},
-            increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
+            increaseTerraformRating: 1,
         },
         cost: 11,
         deck: Deck.BASIC,
@@ -539,7 +539,7 @@ export const cardConfigs: CardConfig[] = [
             'Raise your terraforming rating 2 steps and temperature 1 step. Increase your plant production 1 step, or 4 steps if you have 3 plant tags.',
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        increaseParameter: {[Parameter.TEMPERATURE]: 1, [Parameter.TERRAFORM_RATING]: 2},
+        increaseParameter: {[Parameter.TEMPERATURE]: 1},
         increaseProduction: {[Resource.PLANT]: VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE},
     },
     {
@@ -1474,7 +1474,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -2,
-        increaseParameter: {[Parameter.TERRAFORM_RATING]: 2},
+        increaseTerraformRating: 2,
     },
     {
         cost: 11,
@@ -2033,7 +2033,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Action: Spend 8 heat to increase your terraforming rating 1 step.',
             removeResource: {[Resource.HEAT]: 8},
-            increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
+            increaseTerraformRating: 1,
         },
         cost: 3,
         deck: Deck.CORPORATE,
@@ -2085,7 +2085,7 @@ export const cardConfigs: CardConfig[] = [
                 {
                     removeResource: {[Resource.MICROBE]: 3},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
-                    increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
+                    increaseTerraformRating: 1,
                     text: '-3 microbes, +1 TR',
                 },
             ],
@@ -2163,7 +2163,6 @@ export const cardConfigs: CardConfig[] = [
             'Raise your TR 1 step and gain 4 plants. Add 3 microbes to ANOTHER card and 2 animals to ANOTHER card.',
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
-        increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
         gainResource: {[Resource.PLANT]: 4, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
@@ -2187,7 +2186,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 4},
         increaseProduction: {[Resource.PLANT]: 2},
-        increaseParameter: {[Parameter.TERRAFORM_RATING]: 3},
+        increaseTerraformRating: 3,
     },
     {
         effect: {text: 'Effect: When you play a space card, you pay 2MC less for it.'},
@@ -2269,7 +2268,6 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 2},
         increaseProduction: {[Resource.PLANT]: 1},
-        increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
     },
     {
         effect: {
@@ -2619,9 +2617,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        increaseParameter: {
-            [Parameter.TERRAFORM_RATING]: VariableAmount.JOVIAN_TAGS,
-        },
+        increaseTerraformRating: VariableAmount.JOVIAN_TAGS,
     },
     {
         cost: 31,
@@ -2706,7 +2702,6 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.CARD]: 2},
     },
     {
-        increaseTerraformRating: 2,
         cost: 8,
         deck: Deck.BASIC,
         name: 'Rad-Chem Factory',
@@ -2714,7 +2709,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
-        increaseParameter: {[Parameter.TERRAFORM_RATING]: 2},
+        increaseTerraformRating: 2,
     },
     {
         cost: 4,
@@ -3433,10 +3428,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Requires that you have at least 25 TR. Increase your MC production 4 steps.',
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
-        requiredGlobalParameter: {
-            type: Parameter.TERRAFORM_RATING,
-            min: 25,
-        },
+        requiredTerraformRating: 25,
     },
     {
         action: {
@@ -3871,12 +3863,12 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         increaseTerraformRating: 2,
-        // addsResourceToCards: Resource.FLOATER,
         cost: 25,
         deck: Deck.COLONIES,
         name: 'Nitrogen from Titan',
         text: 'Raise your TR 2 steps. Add 2 floaters to a JOVIAN CARD.',
         gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+        gainResource: {[Resource.FLOATER]: 2},
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -4070,7 +4062,7 @@ export const cardConfigs: CardConfig[] = [
                 {
                     removeResource: {[Resource.FLOATER]: 2},
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
-                    increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
+                    increaseTerraformRating: 1,
                     text: '-2 floaters, +1 TR',
                 },
             ],
@@ -4669,7 +4661,7 @@ export const cardConfigs: CardConfig[] = [
                 'Action: If your Terraform Rating was raised this generation, you may pay 3 MC to raise it 1 step more.',
             requiresTerraformRatingIncrease: true,
             removeResource: {[Resource.MEGACREDIT]: 3},
-            increaseParameter: {[Parameter.TERRAFORM_RATING]: 1},
+            increaseTerraformRating: 1,
         },
         deck: Deck.BASIC,
         name: 'United Nations Mars Initiative',

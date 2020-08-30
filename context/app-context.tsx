@@ -19,7 +19,6 @@ import {
     fundAward as fundAwardAction,
     gainResource,
     gainStorableResource,
-    increaseParameter,
     increaseProduction,
     payToPlayCard,
     payToPlayStandardProject,
@@ -30,8 +29,10 @@ import {
     setPlantDiscount,
     askUserToDuplicateProduction,
     ASK_USER_TO_DUPLICATE_PRODUCTION,
+    increaseParameter,
+    increaseTerraformRating,
 } from 'actions';
-import {Action, Amount} from 'constants/action';
+import {Action, Amount, ParameterCounter} from 'constants/action';
 import {
     Award,
     Cell,
@@ -42,6 +43,7 @@ import {
     PlacementRequirement,
     TilePlacement,
     TileType,
+    t,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
@@ -375,6 +377,10 @@ function canPlayCard(card: Card, state: RootState): [boolean, string | undefined
         return [false, 'Required production not met.'];
     }
 
+    if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
+        return [false, 'Terraform rating too low'];
+    }
+
     return this.canPlayAction(card, state);
 }
 
@@ -600,7 +606,6 @@ function createDecreaseProductionAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
-    state: RootState,
     parent?: Card
 ) {
     if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
@@ -776,7 +781,6 @@ function playAction({
                 production as Resource,
                 action.decreaseProduction[production],
                 playerIndex,
-                state,
                 parent
             )
         );
@@ -936,14 +940,77 @@ function playAction({
         );
     }
 
-    for (const parameter in action.increaseParameter) {
-        items.push(
-            increaseParameter(
-                parameter as Parameter,
-                action.increaseParameter[parameter],
-                playerIndex
-            )
-        );
+    if (action.increaseParameter) {
+        // Ensure oxygen is checked before temperature.
+        const parameters: Parameter[] = [Parameter.OXYGEN, Parameter.TEMPERATURE, Parameter.VENUS];
+
+        // First, copy action.increaseParameter (so we can modify the amounts)
+        const increaseParametersWithBonuses: ParameterCounter = {};
+
+        for (const parameter of parameters) {
+            increaseParametersWithBonuses[parameter] = action.increaseParameter[parameter];
+        }
+
+        for (const parameter of parameters) {
+            // Start referring to the copied increaseParameter exclusively.
+            const amount = increaseParametersWithBonuses[parameter];
+            if (amount) {
+                items.push(increaseParameter(parameter as Parameter, amount, playerIndex));
+
+                // If the increase triggers a parameter increase, update the object.
+                // Relying on the order of the parameters variable here.
+                const newLevel = amount + state.common.parameters[parameter];
+                const index = parameters.indexOf(parameter);
+                // A hack, for type purposes.
+                // The increased parameter is immediately after the increaser parameter.
+                // Since TypeScript doesn't like us using Parameter.TEMPERATURE as a key,
+                // we do this instead.
+                const parameterToIncrease = parameters[index + 1];
+                switch (parameter) {
+                    case Parameter.OXYGEN:
+                        if (newLevel === 7) {
+                            // Trigger a temperature increase.
+                            increaseParametersWithBonuses[parameterToIncrease] =
+                                (increaseParametersWithBonuses[parameterToIncrease] || 0) + 1;
+                        }
+                        break;
+                    case Parameter.TEMPERATURE:
+                        if (newLevel === -28 || newLevel === -26) {
+                            // Heat production increase.
+                            items.push(increaseProduction(Resource.HEAT, 1, playerIndex));
+                        }
+                        if (newLevel === 0) {
+                            // Place an ocean.
+                            const tilePlacements = [t(TileType.OCEAN)];
+                            const filteredTilePlacements = filterOceanPlacementsOverMax(
+                                tilePlacements,
+                                state
+                            );
+                            for (const tilePlacement of filteredTilePlacements) {
+                                items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+                            }
+                        }
+                        break;
+                    case Parameter.VENUS:
+                        if (newLevel === 8) {
+                            // Draw a card.
+                            items.push(gainResource(Resource.CARD, 1, playerIndex));
+                        }
+                        if (newLevel === 16) {
+                            items.push(increaseTerraformRating(1, playerIndex));
+                        }
+                        break;
+                    case Parameter.OCEAN:
+                        // This can't happen.
+                        // Oceans are only placed through tile placement property.
+                        // Reducer handles incrementing the parameter.
+                        break;
+                    case Parameter.TERRAFORM_RATING:
+                        // Nothing to see here (until maybe Turmoil).
+                        break;
+                }
+            }
+        }
     }
 
     // TODO: Move this to `applyDiscounts`, change `plantDiscount` to a new discount type
@@ -1013,7 +1080,6 @@ function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resour
     //     - tile pacements
     //     - discarding/drawing cards
     this.playAction({action: card, state, parent: card});
-    const increaseProductionOptions = Object.keys(card.increaseProductionOption ?? {});
 
     if (card.forcedAction) {
         this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
@@ -1147,11 +1213,7 @@ function canClaimMilestone(milestone: Milestone, state: RootState) {
     return milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone];
 }
 
-function claimMilestone(
-    milestone: Milestone,
-    payment: PropertyCounter<Resource>,
-    state: RootState
-) {
+function claimMilestone(milestone: Milestone, payment: PropertyCounter<Resource>) {
     const playerIndex = getLoggedInPlayerIndex();
     this.queue.push(claimMilestoneAction(milestone, payment, playerIndex));
     this.queue.push(completeAction(playerIndex));
@@ -1205,7 +1267,7 @@ function canFundAward(award: Award, state: RootState) {
     return true;
 }
 
-function fundAward(award: Award, payment: PropertyCounter<Resource>, state: RootState) {
+function fundAward(award: Award, payment: PropertyCounter<Resource>) {
     const playerIndex = getLoggedInPlayerIndex();
     this.queue.push(fundAwardAction(award, payment, playerIndex));
     this.queue.push(completeAction(playerIndex));

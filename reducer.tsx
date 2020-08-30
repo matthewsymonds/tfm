@@ -52,6 +52,7 @@ import {
     STEAL_STORABLE_RESOURCE,
     ASK_USER_TO_DUPLICATE_PRODUCTION,
     SKIP_CHOICE,
+    INCREASE_TERRAFORM_RATING,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -299,14 +300,6 @@ export const reducer = (state: GameState | null = null, action) => {
         const corporationName = player?.corporation.name;
         const {common} = draft;
         function handleParameterIncrease(parameter: Parameter, amount: number) {
-            if (parameter === Parameter.TERRAFORM_RATING) {
-                const newRating = player.terraformRating + amount;
-                draft.log.push(
-                    `${corporationName} increased their terraform rating by ${amount} to ${newRating}`
-                );
-                player.terraformRating = newRating;
-                return;
-            }
             const scale = PARAMETER_STEPS[parameter];
             const increase = amount * scale;
             const startingAmount = draft.common.parameters[parameter];
@@ -790,6 +783,15 @@ export const reducer = (state: GameState | null = null, action) => {
                 handleParameterIncrease(parameter, amount);
                 break;
             }
+            case INCREASE_TERRAFORM_RATING:
+                const {amount} = payload;
+                const quantity = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
+                const newRating = player.terraformRating + quantity;
+                draft.log.push(
+                    `${corporationName} increased their terraform rating by ${quantity} to ${newRating}`
+                );
+                player.terraformRating = newRating;
+                break;
             case APPLY_DISCOUNTS: {
                 const {discounts} = payload;
 

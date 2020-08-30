@@ -26,7 +26,7 @@ export const Box = styled.div`
     overflow-y: ${props => props.overflowY};
     overflow-x: ${props => props.overflowX};
     overflow: ${props => props.overflow};
-`
+`;
 
 export const Flex = styled(Box)`
     display: flex;

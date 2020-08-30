@@ -85,7 +85,6 @@ export enum Parameter {
     OCEAN = 'ocean',
     OXYGEN = 'oxygen',
     VENUS = 'venus',
-    TERRAFORM_RATING = 'terraformRating',
 }
 
 export function getParameterName(parameter: Parameter) {
