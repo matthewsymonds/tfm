@@ -1,13 +1,22 @@
 import {ResourceIcon} from 'components/resource';
-import {CellType} from 'constants/board';
+import {
+    CellType,
+    Cell as CellModel,
+    Tile,
+    TileType,
+    getTileIcon,
+    getTileBgColor,
+} from 'constants/board';
 import {Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
 import {Hexagon} from './hexagon';
+import {colors} from 'constants/game';
+import {Flex} from 'components/box';
+import {Square} from 'components/square';
 
 interface CellProps {
-    bonus: Resource[];
-    type: CellType;
+    cell: CellModel;
     selectable?: boolean;
 }
 
@@ -25,21 +34,16 @@ const ChildrenWrapper = styled.div<{selectable?: boolean}>`
     position: absolute;
     color: #333333;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
-    padding: 3px;
+    padding: 2px;
     border-radius: 2px;
 
+    z-index: 1;
     user-select: none;
-    background: rgba(255, 255, 255, 0.8);
     overflow: auto;
-    z-index: 2;
-    top: 4px;
     font-weight: bold;
-    font-size: 6px;
-    transform: scale(1.7);
-    &:hover {
-        transform: scale(1.9);
-        background: rgba(255, 255, 255, 0.9);
-    }
+    font-size: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
 `;
 
 const CellWrapper = styled.div`
@@ -47,15 +51,47 @@ const CellWrapper = styled.div`
     justify-content: center;
 `;
 
-export const Cell: React.FunctionComponent<CellProps> = props => (
-    <CellWrapper>
-        <Hexagon color={getColor(props.type)} selectable={props.selectable}>
-            {props.bonus.map((resource, index) => (
-                <ResourceIcon key={index} name={resource} />
-            ))}
-        </Hexagon>
-        {props.children && (
-            <ChildrenWrapper selectable={props.selectable}>{props.children}</ChildrenWrapper>
-        )}
-    </CellWrapper>
-);
+export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
+    const {type, bonus = [], tile = null, specialName = null} = cell;
+
+    const bgColor =
+        tile && typeof tile.ownerPlayerIndex === 'number'
+            ? colors[tile?.ownerPlayerIndex]
+            : getColor(type);
+
+    function renderTile(tile) {
+        // Land claim is specially coded as a tile, but shouldn't show a tile.
+        if (tile.type === TileType.LAND_CLAIM) {
+            return <Square playerIndex={tile.ownerPlayerIndex!} />;
+        }
+
+        const scale = typeof tile.ownerPlayerIndex === 'number' ? 0.8 : 1;
+        return (
+            <Hexagon scale={scale} color={getTileBgColor(tile.type)}>
+                {getTileIcon(tile.type)}
+            </Hexagon>
+        );
+    }
+
+    function renderBonus(bonus: Array<Resource>) {
+        return (
+            <Flex flexDirection="row">
+                {bonus.map((resource, index) => (
+                    <ResourceIcon key={index} name={resource} size={12} />
+                ))}
+            </Flex>
+        );
+    }
+
+    return (
+        <CellWrapper>
+            <Hexagon color={bgColor} selectable={selectable}>
+                {tile && renderTile(tile)}
+                {bonus.length > 0 && !tile && renderBonus(bonus)}
+            </Hexagon>
+            {specialName && (
+                <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>
+            )}
+        </CellWrapper>
+    );
+};

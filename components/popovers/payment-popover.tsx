@@ -1,4 +1,4 @@
-import {ChangeEvent, useContext, useState} from 'react';
+import {useContext, useState} from 'react';
 import {Popover, Position, Pane} from 'evergreen-ui';
 import styled from 'styled-components';
 
@@ -244,7 +244,7 @@ export default function PaymentPopover({
     return (
         <Popover
             position={Position.RIGHT}
-            content={
+            content={({close}) => (
                 <PaymentPopoverBase>
                     <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
                         <span>Cost: {actionCost}</span>
@@ -298,19 +298,20 @@ export default function PaymentPopover({
                     </div>
                     <PaymentPopoverConfirmationButton
                         disabled={!isValidPayment}
-                        onClick={() =>
+                        onClick={() => {
                             onConfirmPayment({
                                 [Resource.MEGACREDIT]: numMC,
                                 [Resource.STEEL]: numSteel,
                                 [Resource.TITANIUM]: numTitanium,
                                 [Resource.HEAT]: numHeat,
-                            })
-                        }
+                            });
+                            close();
+                        }}
                     >
                         Confirm
                     </PaymentPopoverConfirmationButton>
                 </PaymentPopoverBase>
-            }
+            )}
         >
             <Pane>{children}</Pane>
         </Popover>
