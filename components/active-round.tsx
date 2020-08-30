@@ -217,7 +217,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     return (
-        <Flex flexDirection="column" position="absolute" left="0" right="0" bottom="0" top="0">
+        <Flex flexDirection="column">
             <Flex flex="none" border>
                 <TopBar
                     isPlayerMakingDecision={isPlayerMakingDecision}
@@ -225,7 +225,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     setSelectedPlayerIndex={setSelectedPlayerIndex}
                 />
             </Flex>
-            <Flex className="active-round-outer" padding="16px" flex="auto">
+            <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
                 <Pane
                     className="active-round-left"
                     display="flex"
