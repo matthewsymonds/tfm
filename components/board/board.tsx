@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import React, {useContext} from 'react';
 import {cellHelpers, Cell as CellModel} from 'constants/board';
-import {Tile} from './tile';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {useDispatch, useStore} from 'react-redux';

@@ -31,14 +31,7 @@ const OffMarsCity = ({cell, offMarsCitiesProps, top, left, right, bottom}: OffMa
         style={{top: px(top), left: px(left), bottom: px(bottom), right: px(right)}}
         onClick={() => offMarsCitiesProps.handleClick(cell)}
     >
-        <Cell
-            selectable={offMarsCitiesProps.validPlacements.includes(cell)}
-            type={cell.type}
-            tile={cell.tile ?? null}
-            bonus={cell.bonus ?? []}
-        >
-            {cell.specialName ?? ''}
-        </Cell>
+        <Cell selectable={offMarsCitiesProps.validPlacements.includes(cell)} cell={cell} />
     </OffMarsCityContainer>
 );
 

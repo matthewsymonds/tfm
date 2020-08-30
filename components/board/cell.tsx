@@ -1,5 +1,12 @@
 import {ResourceIcon} from 'components/resource';
-import {CellType, Tile, TileType, getTileIcon, getTileBgColor} from 'constants/board';
+import {
+    CellType,
+    Cell as CellModel,
+    Tile,
+    TileType,
+    getTileIcon,
+    getTileBgColor,
+} from 'constants/board';
 import {Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
@@ -9,7 +16,7 @@ import {Flex} from 'components/box';
 import {Square} from 'components/square';
 
 interface CellProps {
-    cell: Cell;
+    cell: CellModel;
     selectable?: boolean;
 }
 
@@ -79,6 +86,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         );
     }
 
+    debugger;
     return (
         <CellWrapper>
             <Hexagon color={bgColor} selectable={selectable}>
@@ -87,11 +95,10 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                 ))} */}
                 {tile && renderTile(tile)}
                 {bonus.length && !tile && renderBonus(bonus)}
-                {specialName && }
+                {specialName && (
+                    <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>
+                )}
             </Hexagon>
-            {children && (
-                <ChildrenWrapper selectable={selectable}>{children}</ChildrenWrapper>
-            )}
         </CellWrapper>
     );
 };
