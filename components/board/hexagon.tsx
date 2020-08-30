@@ -17,10 +17,7 @@ const HexagonBase = styled.div<HexagonProps>`
         background: ${props => (props.selectable ? 'black' : 'transparent')};
     }
 
-    &,
-    &:before {
-        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    }
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 
     &:before {
         content: '';

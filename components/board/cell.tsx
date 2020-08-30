@@ -34,19 +34,16 @@ const ChildrenWrapper = styled.div<{selectable?: boolean}>`
     position: absolute;
     color: #333333;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
-    padding: 3px;
+    padding: 2px;
     border-radius: 2px;
 
+    z-index: 1;
     user-select: none;
     overflow: auto;
     font-weight: bold;
-    font-size: 6px;
-    transform: scale(1.7);
+    font-size: 8px;
     background: rgba(255, 255, 255, 0.8);
-    &:hover {
-        transform: scale(1.9);
-        background: rgba(255, 255, 255, 0.9);
-    }
+    white-space: nowrap;
 `;
 
 const CellWrapper = styled.div`
@@ -86,19 +83,15 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         );
     }
 
-    debugger;
     return (
         <CellWrapper>
             <Hexagon color={bgColor} selectable={selectable}>
-                {/* {bonus.map((resource, index) => (
-                    <ResourceIcon key={index} name={resource} />
-                ))} */}
                 {tile && renderTile(tile)}
-                {bonus.length && !tile && renderBonus(bonus)}
-                {specialName && (
-                    <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>
-                )}
+                {bonus.length > 0 && !tile && renderBonus(bonus)}
             </Hexagon>
+            {specialName && (
+                <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>
+            )}
         </CellWrapper>
     );
 };
