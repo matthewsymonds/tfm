@@ -101,7 +101,7 @@ const GlobalStyles = createGlobalStyle`
         margin-left: 16px;
       }
         @media (max-width: 1210px) {
-          flex-direction: column-reverse;
+          flex-direction: column;
           align-items: center;
           .right-box {
             margin-left: 0px;
