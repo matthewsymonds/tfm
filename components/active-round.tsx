@@ -34,7 +34,7 @@ import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
-import {Box, Flex, Panel} from './box';
+import {Box, Flex, Panel, PanelWithTabs} from './box';
 import {Button} from './button';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
@@ -51,6 +51,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const dispatch = useDispatch();
     const context = useContext(AppContext);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
+    const actionSets = ['Standard Projects', 'Milestones', 'Awards'];
+    const [selectedActionSetIndex, setSelectedActionSetIndex] = useState(0);
     useSyncState();
     const [selectedCards, setSelectedCards] = useState<Card[]>([]);
 
@@ -216,44 +218,54 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         context.processQueue(dispatch);
     }
 
+    function renderSelectedActionSet() {
+        const selectedActionSet = actionSets[selectedActionSetIndex];
+        if (selectedActionSet === 'Milestones') {
+            return <Milestones />;
+        } else if (selectedActionSet === 'Awards') {
+            return <Awards />;
+        } else if (selectedActionSet === 'Standard Projects') {
+            return <StandardProjects />;
+        } else {
+            throw new Error('Unrecognized action set');
+        }
+    }
+
     return (
         <Flex flexDirection="column">
             <Flex flex="none">
-                <TopBar
-                    isPlayerMakingDecision={isPlayerMakingDecision}
-                    selectedPlayerIndex={selectedPlayerIndex}
-                    setSelectedPlayerIndex={setSelectedPlayerIndex}
-                />
+                <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
             </Flex>
             <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
-                <Pane
+                <Flex
                     className="active-round-left"
-                    display="flex"
                     flexDirection="column"
                     flex="auto"
                     marginRight="4px"
                 >
-                    <PlayerPanel selectedPlayerIndex={selectedPlayerIndex} />
-                    <LogPanel />
-                </Pane>
+                    <PlayerPanel
+                        selectedPlayerIndex={selectedPlayerIndex}
+                        setSelectedPlayerIndex={setSelectedPlayerIndex}
+                    />
+                </Flex>
 
-                <Pane
-                    className="active-round-right"
-                    display="flex"
-                    flexDirection="column"
-                    marginLeft="4px"
-                >
+                <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
                     <Board />
+                </Flex>
+
+                <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
                     <Box marginTop="8px">
-                        <Panel>
-                            <Switcher tabs={['Standard Projects', 'Milestones', 'Awards']}>
-                                <StandardProjects />
-                                <Milestones />
-                                <Awards />
-                            </Switcher>
-                        </Panel>
+                        <PanelWithTabs
+                            setSelectedTabIndex={setSelectedActionSetIndex}
+                            selectedTabIndex={selectedActionSetIndex}
+                            tabs={actionSets}
+                            tabType="action-set"
+                        >
+                            {renderSelectedActionSet()}
+                        </PanelWithTabs>
+                        <LogPanel />
                     </Box>
-                </Pane>
+                </Flex>
             </Flex>
             {isPlayerMakingDecision && (
                 <ActionBar className="bottom">

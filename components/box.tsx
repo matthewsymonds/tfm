@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import {colors} from 'components/ui';
+import React, {ReactNode} from 'react';
 
 interface BoxProps {
     margin: string;
@@ -9,6 +10,10 @@ interface BoxProps {
     marginRight: string;
     display: string;
     position: string;
+    top: string;
+    bottom: string;
+    left: string;
+    right: string;
     width: string;
     height: string;
     maxWidth: string;
@@ -40,7 +45,7 @@ interface FlexProps extends BoxProps {
 
 /* A flexible component to define styles inline */
 export const Box = styled.div<Partial<BoxProps>>`
-    // Add more properties here as needed.
+    /* Add more properties here as needed. */
     margin: ${props => props.margin};
     margin-top: ${props => props.marginTop};
     margin-bottom: ${props => props.marginBottom};
@@ -48,6 +53,10 @@ export const Box = styled.div<Partial<BoxProps>>`
     margin-right: ${props => props.marginRight};
     display: ${props => props.display};
     position: ${props => props.position};
+    bottom: ${props => props.bottom};
+    left: ${props => props.left};
+    right: ${props => props.right};
+    top: ${props => props.top};
     width: ${props => props.width};
     height: ${props => props.height};
     max-width: ${props => props.maxWidth};
@@ -83,7 +92,86 @@ export const Panel = styled.div`
     margin-bottom: 16px;
     padding: 8px;
     border-color: ${colors.PANEL_BORDER};
-    border-radius: 9px;
+    border-radius: 8px;
     border-width: 2px;
     border-style: solid;
+`;
+
+type PanelWithTabsProps = {
+    tabs: Array<ReactNode>;
+    selectedTabIndex: number;
+    setSelectedTabIndex: (tabIndex: number) => void;
+    tabType: string;
+    children: ReactNode;
+};
+
+export const PanelWithTabs = ({
+    tabs,
+    selectedTabIndex,
+    setSelectedTabIndex,
+    tabType,
+    children,
+}: PanelWithTabsProps) => {
+    return (
+        <React.Fragment>
+            <Tabs
+                tabs={tabs}
+                selectedTabIndex={selectedTabIndex}
+                setSelectedTabIndex={setSelectedTabIndex}
+                tabType={tabType}
+            />
+            <Panel>{children}</Panel>
+        </React.Fragment>
+    );
+};
+
+type TabsProps = Pick<
+    PanelWithTabsProps,
+    'tabs' | 'selectedTabIndex' | 'setSelectedTabIndex' | 'tabType'
+>;
+
+export const Tabs = ({tabs, selectedTabIndex, setSelectedTabIndex, tabType}: TabsProps) => {
+    return (
+        <Flex marginLeft="8px" position="relative" bottom="-2px">
+            {tabs.map((tab, index) => {
+                const inputId = `${tabType}-${index}`;
+                const isSelected = selectedTabIndex === index;
+                return (
+                    <React.Fragment>
+                        <HiddenInput
+                            type="radio"
+                            id={inputId}
+                            checked={isSelected}
+                            onChange={() => setSelectedTabIndex(index)}
+                        />
+                        <TabLabel htmlFor={inputId} isSelected={isSelected}>
+                            {tab}
+                        </TabLabel>
+                    </React.Fragment>
+                );
+            })}
+        </Flex>
+    );
+};
+
+const HiddenInput = styled.input`
+    display: none;
+`;
+
+const TabLabel = styled.label<{isSelected: boolean}>`
+    margin-right: 4px;
+    padding: 4px 8px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: ${colors.TEXT_LIGHT_1};
+    cursor: pointer;
+    border-color: ${colors.PANEL_BORDER};
+    border-width: 2px;
+    border-style: solid;
+
+    border-bottom-color: ${props => (props.isSelected ? colors.MAIN_BG : colors.PANEL_BORDER)};
+    background-color: ${colors.MAIN_BG};
+    opacity: ${props => (props.isSelected ? 1 : 0.5)};
 `;

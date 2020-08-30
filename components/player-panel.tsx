@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import {useTypedSelector, RootState, PlayerState} from 'reducer';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import {Flex, Panel} from 'components/box';
+import {Flex, Panel, PanelWithTabs} from 'components/box';
 import {PlayerPanelSection} from 'components/player-panel-section';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {CardSelector} from 'components/card-selector';
@@ -76,9 +76,10 @@ const CorporationSelector = ({
 
 type PlayerPanelProps = {
     selectedPlayerIndex: number;
+    setSelectedPlayerIndex: (index: number) => void;
 };
 
-export const PlayerPanel = ({selectedPlayerIndex}: PlayerPanelProps) => {
+export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: PlayerPanelProps) => {
     /**
      * State (todo: use selectors everywhere instead)
      */
@@ -107,7 +108,12 @@ export const PlayerPanel = ({selectedPlayerIndex}: PlayerPanelProps) => {
 
     return (
         <Flex flexDirection="column" justifyContent="stretch">
-            <Panel>
+            <PanelWithTabs
+                tabs={players.map(p => p.corporation.name)}
+                tabType="player"
+                selectedTabIndex={selectedPlayerIndex}
+                setSelectedTabIndex={setSelectedPlayerIndex}
+            >
                 <Flex flexDirection="column">
                     <CorporationHeader>
                         <span>
@@ -135,7 +141,7 @@ export const PlayerPanel = ({selectedPlayerIndex}: PlayerPanelProps) => {
                         ))
                     )}
                 </Flex>
-            </Panel>
+            </PanelWithTabs>
         </Flex>
     );
 };

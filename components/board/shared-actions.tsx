@@ -1,8 +1,9 @@
 import styled from 'styled-components';
+import {colors} from 'components/ui';
 
 export const SharedActionsContainer = styled.div`
     display: flex;
-    color: #333;
+    color: ${colors.TEXT_LIGHT_1};
     flex: none;
     flex-wrap: wrap;
     align-items: flex-start;

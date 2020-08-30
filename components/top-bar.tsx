@@ -1,23 +1,22 @@
 import {skipAction} from 'actions';
-import {Square} from 'components/square';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import ActiveSpinner from 'assets/animated-cog.svg';
-import StaticSpinner from 'assets/static-cog.svg';
+
 import {useRouter} from 'next/router';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import {RootState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {Flex, Box} from 'components/box';
+import {Flex} from 'components/box';
 import {colors} from 'components/ui';
 import React from 'react';
 
 const TopBarBase = styled.div`
     display: flex;
     width: 100%;
-    justifycontent: space-between;
-    fontsize: 13px;
+    height: 36px;
+    justify-content: space-between;
+    font-size: 13px;
     padding: 0 8px;
     color: #dddddd;
     background-color: ${props => props.color};
@@ -26,87 +25,9 @@ const TopBarBase = styled.div`
 const ActionBarButton = styled.button`
     display: inline;
     margin-left: 8px;
-    width: fit-content;
     min-width: 0px;
     padding: 6px 8px;
 `;
-
-const PlayerGroupHeader = styled.span`
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    font-size: 10px;
-    margin: 8px 0 4px;
-`;
-
-type PlayerCorpAndColorProps = {
-    player: PlayerState;
-    isPassed: boolean;
-    onSelectPlayer: () => void;
-    isLoggedInPlayer: boolean;
-    isActive: boolean;
-    isSelected: boolean;
-};
-
-const HiddenInput = styled.input`
-    display: none;
-`;
-
-const TabLabel = styled.label<{isSelected: boolean}>`
-    margin-right: 12px;
-    padding: 8px;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${colors.TEXT_LIGHT_1};
-    cursor: pointer;
-
-    background-color: ${colors.MAIN_BG};
-    opacity: ${props => (props.isSelected ? 1 : 0.5)};
-`;
-
-const PlayerCorpAndColor = ({
-    player,
-    onSelectPlayer,
-    isLoggedInPlayer,
-    isSelected,
-    isPassed,
-    isActive,
-}: PlayerCorpAndColorProps) => {
-    const gameStage = useTypedSelector(state => state.common.gameStage);
-    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
-
-    const inputId = `tab-${player.username}`;
-    let playerTabText = isCorporationSelection ? player.username : player.corporation.name;
-    playerTabText += isLoggedInPlayer ? ' (you)' : '';
-
-    return (
-        <React.Fragment>
-            <HiddenInput
-                type="radio"
-                name="players"
-                id={inputId}
-                checked={isSelected}
-                onChange={onSelectPlayer}
-            />
-            <TabLabel htmlFor={inputId} isSelected={isSelected}>
-                <Flex alignItems="center">
-                    <Square playerIndex={player.index} shouldHideBorder={true} />
-                    <Box marginLeft="4px" whiteSpace="nowrap" marginRight="4px">
-                        {playerTabText}
-                    </Box>
-                    <img
-                        className="inverted left-margin-3px"
-                        height={16}
-                        src={isActive ? ActiveSpinner : StaticSpinner}
-                        alt={isActive ? 'active' : ''}
-                    />
-                </Flex>
-            </TabLabel>
-        </React.Fragment>
-    );
-};
 
 const RoundText = styled.span`
     font-size: 13px;
@@ -114,15 +35,9 @@ const RoundText = styled.span`
 
 type TopBarProps = {
     isPlayerMakingDecision: boolean;
-    selectedPlayerIndex: number;
-    setSelectedPlayerIndex: (playerIndex: number) => void;
 };
 
-export const TopBar = ({
-    isPlayerMakingDecision,
-    selectedPlayerIndex,
-    setSelectedPlayerIndex,
-}: TopBarProps) => {
+export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     /**
      * Hooks
      */
@@ -137,7 +52,6 @@ export const TopBar = ({
      */
     const generation = useTypedSelector(state => state.common.generation);
     const turn = useTypedSelector(state => state.common.turn);
-    const allPlayers = useTypedSelector(state => state.players ?? []);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
@@ -163,25 +77,7 @@ export const TopBar = ({
 
     return (
         <TopBarBase color={topBarColor}>
-            <Flex alignItems="center" justifyContent="flex-start" flexBasis="40%">
-                <Flex flexDirection="column">
-                    <PlayerGroupHeader>Players</PlayerGroupHeader>
-                    <Flex>
-                        {allPlayers.map(player => (
-                            <PlayerCorpAndColor
-                                key={player.index}
-                                player={player}
-                                isPassed={player.action === 0}
-                                isActive={player.index === currentPlayerIndex && isActiveRound}
-                                isLoggedInPlayer={player.index === loggedInPlayerIndex}
-                                isSelected={player.index === selectedPlayerIndex}
-                                onSelectPlayer={() => setSelectedPlayerIndex(player.index)}
-                            />
-                        ))}
-                    </Flex>
-                </Flex>
-            </Flex>
-            <Flex alignItems="center" justifyContent="center" flexBasis="20%">
+            <Flex alignItems="center" justifyContent="center">
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
                 {!isActiveRound && !isBuyingCards && <span>Waiting to start generation.</span>}
                 {isCorporationSelection && isBuyingCards && (
@@ -200,7 +96,7 @@ export const TopBar = ({
                         </ActionBarButton>
                     )}
             </Flex>
-            <Flex alignItems="center" justifyContent="flex-end" flexBasis="40%">
+            <Flex alignItems="center" justifyContent="flex-end">
                 <RoundText>
                     Generation {generation}, Turn {turn}
                 </RoundText>

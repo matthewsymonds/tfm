@@ -1,14 +1,7 @@
-import {Panel, Box, Flex} from 'components/box';
+import {Panel, Box, Flex, PanelWithTabs} from 'components/box';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {colors} from 'components/ui';
-
-const LogHeader = styled.h2`
-    display: flex;
-    width: 100%;
-    margin: 0 0 16px;
-    color: #fff;
-`;
 
 export const SwitchColors = styled.div`
     > * {
@@ -25,8 +18,12 @@ export const LogPanel = () => {
     const log = useTypedSelector(state => state.log);
 
     return (
-        <Panel>
-            <LogHeader>Log</LogHeader>
+        <PanelWithTabs
+            selectedTabIndex={0}
+            tabs={['Action log']}
+            tabType="log"
+            setSelectedTabIndex={(_: number) => {}}
+        >
             <Flex maxHeight="400px" overflowY="auto" flexDirection="column-reverse">
                 <SwitchColors>
                     {log.map((entry, entryIndex) => {
@@ -38,6 +35,6 @@ export const LogPanel = () => {
                     })}
                 </SwitchColors>
             </Flex>
-        </Panel>
+        </PanelWithTabs>
     );
 };
