@@ -14,7 +14,9 @@ export const colors = {
     TEXT_DARK_1: '#111111',
 
     // navbar
-    NAV_BG: '#647d63',
+    NAV_BG_YOUR_TURN: '#48874d',
+    NAV_BG_WAITING: '#8e3f3f',
+    NAV_BG_PASSED: '#63667d',
 
     // main content
     MAIN_BG: '#393939',

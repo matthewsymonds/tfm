@@ -16,6 +16,7 @@ const MarsOuter = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
+    position: relative;
     &:hover > * {
         box-shadow: 1px 0px 50px 0px #a11b05;
         &:before {

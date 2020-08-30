@@ -20,7 +20,7 @@ const TopBarBase = styled.div`
     fontsize: 13px;
     padding: 0 8px;
     color: #dddddd;
-    background-color: ${colors.NAV_BG};
+    background-color: ${props => props.color};
 `;
 
 const ActionBarButton = styled.button`
@@ -148,9 +148,21 @@ export const TopBar = ({
     const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
+    const isBuyingCards = loggedInPlayer.buyCards;
+
+    const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
+
+    const topBarColor =
+        isLoggedInPlayersTurn || isBuyingCards
+            ? colors.NAV_BG_YOUR_TURN
+            : isLoggedInPlayerPassed
+            ? colors.NAV_BG_PASSED
+            : colors.NAV_BG_WAITING;
 
     return (
-        <TopBarBase>
+        <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="flex-start" flexBasis="40%">
                 <Flex flexDirection="column">
                     <PlayerGroupHeader>Players</PlayerGroupHeader>
@@ -170,8 +182,12 @@ export const TopBar = ({
                 </Flex>
             </Flex>
             <Flex alignItems="center" justifyContent="center" flexBasis="20%">
-                {loggedInPlayer.action === 0 && <span>You have passed.</span>}
-                {!isActiveRound && <span>Waiting to start generation.</span>}
+                {isLoggedInPlayerPassed && <span>You have passed.</span>}
+                {!isActiveRound && !isBuyingCards && <span>Waiting to start generation.</span>}
+                {isCorporationSelection && isBuyingCards && (
+                    <span>Please choose your corporation and cards.</span>
+                )}
+                {isBuyOrDiscard && isBuyingCards && <span>Please choose your cards.</span>}
                 {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
                     <span>Action {action} of 2</span>
                 )}
