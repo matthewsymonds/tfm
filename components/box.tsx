@@ -25,19 +25,21 @@ interface BoxProps {
     overflowY: string;
     overflowX: string;
     overflow: string;
+    background: string;
+    border: string;
 }
 
 interface FlexProps extends BoxProps {
-    display: 'flex';
     flexDirection: string;
     justifyContent: string;
     flex: string;
     alignItems: string;
     flexBasis: string;
+    flexWrap: string;
 }
 
 /* A flexible component to define styles inline */
-export const Box = styled.div<BoxProps>`
+export const Box = styled.div<Partial<BoxProps>>`
     // Add more properties here as needed.
     margin: ${props => props.margin};
     margin-top: ${props => props.marginTop};
@@ -62,9 +64,11 @@ export const Box = styled.div<BoxProps>`
     overflow-y: ${props => props.overflowY};
     overflow-x: ${props => props.overflowX};
     overflow: ${props => props.overflow};
+    background: ${props => props.background};
+    border: ${props => props.border};
 `;
 
-export const Flex = styled(Box)<FlexProps>`
+export const Flex = styled(Box)<Partial<FlexProps>>`
     display: flex;
     flex-direction: ${props => props.flexDirection};
     justify-content: ${props => props.justifyContent};

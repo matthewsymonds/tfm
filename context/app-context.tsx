@@ -1000,14 +1000,6 @@ function playAction({
                             items.push(increaseTerraformRating(1, playerIndex));
                         }
                         break;
-                    case Parameter.OCEAN:
-                        // This can't happen.
-                        // Oceans are only placed through tile placement property.
-                        // Reducer handles incrementing the parameter.
-                        break;
-                    case Parameter.TERRAFORM_RATING:
-                        // Nothing to see here (until maybe Turmoil).
-                        break;
                 }
             }
         }

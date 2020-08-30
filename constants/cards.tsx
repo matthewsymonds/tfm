@@ -1474,7 +1474,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -2,
-        increaseTerraformRating: 2,
     },
     {
         cost: 11,
@@ -2176,7 +2175,6 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.HEAT]: 1},
     },
     {
-        increaseTerraformRating: 3,
         cost: 20,
         deck: Deck.BASIC,
         name: 'Magnetic Field Generators',
@@ -3428,7 +3426,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Requires that you have at least 25 TR. Increase your MC production 4 steps.',
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
-        requiredTerraformRating: 25,
+        minTerraformRating: 25,
     },
     {
         action: {

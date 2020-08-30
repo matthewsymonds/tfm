@@ -1,5 +1,4 @@
 import {Centered} from 'components/centered';
-import {Header} from 'components/header';
 import {InputBox} from 'components/input-box';
 import {AppContext, appContext} from 'context/app-context';
 import {defaultTheme} from 'evergreen-ui';

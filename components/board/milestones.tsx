@@ -53,7 +53,7 @@ function Milestones() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}
         ) => {
-            context.claimMilestone(milestone, payment, state);
+            context.claimMilestone(milestone, payment);
             context.processQueue(dispatch);
         };
 

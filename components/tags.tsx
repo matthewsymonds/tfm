@@ -97,7 +97,7 @@ export const TagIcon = (props: TagIconProps) => {
 
 export const TagsComponent = (props: TagsComponentProps) => (
     <TagsBase>
-        <Box marginLeft={0} marginRight="auto">
+        <Box marginLeft="0" marginRight="auto">
             {props.children}
         </Box>
         {props.tags.map((tag, index) => {

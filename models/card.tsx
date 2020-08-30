@@ -34,6 +34,7 @@ export class Card {
     // ====================================================
     // Requirements
     // ====================================================
+    /** e.g. "Requires 25 TF Rating" */
     minTerraformRating?: number;
     requiredTags: PropertyCounter<Tag>;
     /** If unset, defaults to `removeResource`. e.g. "Requires that you have 5 floaters". Basically only required for Aerosport Tournament */

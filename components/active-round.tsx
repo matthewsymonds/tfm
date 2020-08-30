@@ -218,7 +218,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     return (
         <Flex flexDirection="column">
-            <Flex flex="none" border>
+            <Flex flex="none">
                 <TopBar
                     isPlayerMakingDecision={isPlayerMakingDecision}
                     selectedPlayerIndex={selectedPlayerIndex}

@@ -1,4 +1,4 @@
-import {Box} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {SwitchColors} from 'components/log-panel';
 import {Switcher} from 'components/switcher';
 import {useSession} from 'hooks/use-session';
@@ -21,14 +21,14 @@ export default function Index() {
     }
     return (
         <div>
-            <Box marginBottom="6px" width="100%" display="flex" justifyContent="space-between">
+            <Flex marginBottom="6px" width="100%" justifyContent="space-between">
                 <Box marginLeft="6px" display="inline-block">
                     <Username>{session.username}</Username>
                 </Box>
                 <Link href="/logout">
                     <a>Log out</a>
                 </Link>
-            </Box>
+            </Flex>
             {userGames.length > 0 && (
                 <Switcher tabs={['Games']}>
                     <Box

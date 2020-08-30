@@ -157,8 +157,6 @@ export function getParameterName(parameter: Parameter) {
             return 'oxygen';
         case Parameter.VENUS:
             return 'Venus';
-        case Parameter.TERRAFORM_RATING:
-            return 'terraform rating';
     }
 }
 

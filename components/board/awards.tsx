@@ -50,7 +50,7 @@ function Awards() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
-            context.fundAward(award, payment, state);
+            context.fundAward(award, payment);
             context.processQueue(dispatch);
         };
 
