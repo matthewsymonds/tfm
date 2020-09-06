@@ -1,5 +1,5 @@
 import {useDispatch, useStore} from 'react-redux';
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card} from 'models/card';
 import {PropertyCounter} from 'constants/property-counter';
@@ -11,6 +11,10 @@ import {RootState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {GameStage} from 'constants/game';
 import {CardType} from 'constants/card-types';
+import {getTagCountsByName} from 'selectors/player';
+import {TagIcon} from 'components/tags';
+import {Flex} from 'components/box';
+import {Tag} from 'constants/tag';
 
 const PlayerHandBase = styled.div`
     display: flex;
@@ -121,34 +125,45 @@ export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
     const context = useContext(AppContext);
     const loggedInPlayer = context.getLoggedInPlayer(state);
     const isLoggedInPlayer = player.index === loggedInPlayer.index;
+    const tagCountsByTagName = getTagCountsByName(player);
 
     return (
-        <PlayerHandBase>
-            {player.playedCards.map(card => {
-                let resources = '';
-                const {storedResourceType: type, storedResourceAmount: amount} = card;
-                if (type) {
-                    resources = `Holds ${amount} ${getResourceName(type)}${
-                        amount === 1 ? '' : 's'
-                    }`;
-                }
+        <React.Fragment>
+            <Flex>
+                {Object.keys(tagCountsByTagName).map(tag => (
+                    <Flex justifyContent="center" alignItems="center" marginRight="8px">
+                        <TagIcon name={tag as Tag} />
+                        {tagCountsByTagName[tag]}
+                    </Flex>
+                ))}
+            </Flex>
+            <PlayerHandBase>
+                {player.playedCards.map(card => {
+                    let resources = '';
+                    const {storedResourceType: type, storedResourceAmount: amount} = card;
+                    if (type) {
+                        resources = `Holds ${amount} ${getResourceName(type)}${
+                            amount === 1 ? '' : 's'
+                        }`;
+                    }
 
-                return (
-                    <CardComponent
-                        content={card}
-                        key={card.name}
-                        isHidden={!isLoggedInPlayer && card.type === CardType.EVENT}
-                    >
-                        {resources && <CardText>{resources}</CardText>}
+                    return (
+                        <CardComponent
+                            content={card}
+                            key={card.name}
+                            isHidden={!isLoggedInPlayer && card.type === CardType.EVENT}
+                        >
+                            {resources && <CardText>{resources}</CardText>}
 
-                        <CardActionElements
-                            player={player}
-                            isLoggedInPlayer={isLoggedInPlayer}
-                            card={card}
-                        />
-                    </CardComponent>
-                );
-            })}
-        </PlayerHandBase>
+                            <CardActionElements
+                                player={player}
+                                isLoggedInPlayer={isLoggedInPlayer}
+                                card={card}
+                            />
+                        </CardComponent>
+                    );
+                })}
+            </PlayerHandBase>
+        </React.Fragment>
     );
 };
