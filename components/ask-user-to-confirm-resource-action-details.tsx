@@ -71,6 +71,7 @@ function getPlayersToConsider(
         case ResourceLocationType.THIS_CARD:
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
         case ResourceLocationType.LAST_PLAYED_CARD:
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
             return [player];
         case ResourceLocationType.VENUS_CARD:
         case ResourceLocationType.JOVIAN_CARD:
@@ -218,7 +219,16 @@ function getOptionsForStorableResource(
         case ResourceLocationType.JOVIAN_CARD:
             cards = cards.filter(card => card.tags.includes(Tag.JOVIAN));
             break;
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
+            cards = cards.filter(
+                card =>
+                    card.storedResourceType &&
+                    card.storedResourceAmount !== undefined &&
+                    card.storedResourceAmount > 0
+            );
+            break;
         default:
+            throw new Error('Unsupported location type in getOptionsForStorableResource');
             break;
     }
 

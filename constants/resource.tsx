@@ -18,6 +18,7 @@ export enum Resource {
     STEEL = 'resourceSteel',
     TITANIUM = 'resourceTitanium',
     ASTEROID = 'asteroid',
+    ANY_STORABLE_RESOURCE = 'anyStorableResource',
 }
 
 export const PROTECTED_HABITAT_RESOURCE = [Resource.PLANT, Resource.ANIMAL, Resource.MICROBE];
@@ -52,6 +53,7 @@ export enum ResourceLocationType {
     VENUS_CARD = 'venusCard',
     JOVIAN_CARD = 'jovianCard',
     ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE = 'anyPlayerWithTileAdjacentToMostRecentlyPlacedTile',
+    ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE = 'anyCardWithNonzeroStorableResource',
 }
 
 export const USER_CHOICE_LOCATION_TYPES = [
@@ -62,6 +64,7 @@ export const USER_CHOICE_LOCATION_TYPES = [
     ResourceLocationType.JOVIAN_CARD,
     ResourceLocationType.ANY_PLAYER,
     ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
+    ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE,
 ];
 
 export const getClassName = (resource: Resource) => {

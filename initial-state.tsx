@@ -16,6 +16,13 @@ export function shuffle<T>(array: T[]) {
     return array;
 }
 
+function DEV_cardOverrides() {
+    const cardOverrides: Array<string> = [];
+    return cards.filter(card => {
+        return cardOverrides.includes(card.name);
+    });
+}
+
 function sampleCards(cards: Card[], num: number) {
     const result: Card[] = [];
     for (let i = 0; i < num; i++) {
@@ -74,7 +81,7 @@ export function getInitialState(players: string[]): GameState {
             index: base.players.length,
             terraformRating: 20,
             corporation: possibleCorporations[0],
-            possibleCards: sampleCards(deck, 10),
+            possibleCards: sampleCards(deck, 10).concat(DEV_cardOverrides()),
             numCardsToTake: null,
             possibleCorporations,
             cards: [],

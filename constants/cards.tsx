@@ -1973,6 +1973,10 @@ export const cardConfigs: CardConfig[] = [
         text: 'Add 1 resource to a card with at least 1 resource on it.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
+        gainResource: {
+            [Resource.ANY_STORABLE_RESOURCE]: 1,
+        },
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE,
     },
     {
         effect: {text: 'Effect: when you play a card, you pay 2 MC less for it.'},

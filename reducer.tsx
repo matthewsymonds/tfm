@@ -282,7 +282,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Business Contacts';
+const bonusName = 'Robotic Workforce';
 
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
