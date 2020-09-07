@@ -118,7 +118,7 @@ function getOptions(
         return getOptionsForDecreaseProduction(resourceAndAmount, player);
     } else if (actionType === 'increaseProduction') {
         return getOptionsForIncreaseProduction(resourceAndAmount, player);
-    } else if (isStorableResource(resourceAndAmount.resource) {
+    } else if (isStorableResource(resourceAndAmount.resource)) {
         return getOptionsForStorableResource(
             actionType,
             resourceAndAmount,
