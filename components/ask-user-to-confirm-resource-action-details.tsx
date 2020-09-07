@@ -114,10 +114,11 @@ function getOptions(
     player: PlayerState,
     locationType: ResourceLocationType | undefined
 ): Option[] {
-    if (
-        (locationType || actionType === 'stealResource') &&
-        isStorableResource(resourceAndAmount.resource)
-    ) {
+    if (actionType === 'decreaseProduction') {
+        return getOptionsForDecreaseProduction(resourceAndAmount, player);
+    } else if (actionType === 'increaseProduction') {
+        return getOptionsForIncreaseProduction(resourceAndAmount, player);
+    } else if (isStorableResource(resourceAndAmount.resource) {
         return getOptionsForStorableResource(
             actionType,
             resourceAndAmount,
@@ -125,10 +126,6 @@ function getOptions(
             player,
             locationType
         );
-    } else if (actionType === 'decreaseProduction') {
-        return getOptionsForDecreaseProduction(resourceAndAmount, player);
-    } else if (actionType === 'increaseProduction') {
-        return getOptionsForIncreaseProduction(resourceAndAmount, player);
     } else {
         return getOptionsForRegularResource(actionType, resourceAndAmount, player);
     }
@@ -225,6 +222,11 @@ function getOptionsForStorableResource(
                     card.storedResourceType &&
                     card.storedResourceAmount !== undefined &&
                     card.storedResourceAmount > 0
+            );
+            break;
+        case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
+            cards = cards.filter(
+                card => card.storedResourceType && card.storedResourceType === resource
             );
             break;
         default:
