@@ -840,6 +840,10 @@ function playAction({
 
     const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
 
+    // NOTE: This logic means stealResource really behaves more like
+    // stealResourceOption (which doesn't exist), but it works in all stealing
+    // cases now. If we ever need to support removing / stealing MULTIPLE
+    // resource types, this will need to be refactored (same for removeResourceOption).
     for (const resource in action.stealResource) {
         const resourceAndAmount: ResourceAndAmount = {
             resource: resource as Resource,
