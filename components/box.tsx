@@ -137,7 +137,7 @@ export const Tabs = ({tabs, selectedTabIndex, setSelectedTabIndex, tabType}: Tab
                 const inputId = `${tabType}-${index}`;
                 const isSelected = selectedTabIndex === index;
                 return (
-                    <React.Fragment>
+                    <React.Fragment key={index}>
                         <HiddenInput
                             type="radio"
                             id={inputId}

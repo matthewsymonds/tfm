@@ -9,14 +9,13 @@ import {shuffle} from 'initial-state';
 import {MaybeVisible} from 'components/maybe-visible';
 import {Box} from 'components/box';
 
-export default function NewGame() {
-    const {session, loading} = useSession();
-
+export default function NewGame(props) {
+    const {session} = props;
     const [gameName, updateGameName] = useInput('');
     const [numPlayers, updateNumPlayers] = useInput(2);
     const router = useRouter();
 
-    const [usernames, setUsernames] = useState<string[]>([]);
+    const [usernames, setUsernames] = useState<string[]>([session.username]);
 
     const [error, setError] = useState('');
 
@@ -25,12 +24,6 @@ export default function NewGame() {
         replacement[index] = username;
         setUsernames(replacement);
     }
-
-    useEffect(() => {
-        if (session.username) {
-            setUsername(0, session.username);
-        }
-    }, [session.username]);
 
     const usernameInputs: ReactElement[] = [];
 
@@ -48,7 +41,7 @@ export default function NewGame() {
                         setUsername(i, eventTarget.value);
                     }}
                 />
-                <MaybeVisible visible={!!error && !!i}>
+                <MaybeVisible key={'error-' + i} visible={!!error && !!i}>
                     <em>Double-check username</em>
                 </MaybeVisible>
             </>
@@ -69,7 +62,6 @@ export default function NewGame() {
             router.push('/games/' + result.game.name);
         }
     }
-    if (loading) return <div />;
 
     return (
         <div>

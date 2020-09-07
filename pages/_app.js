@@ -12,6 +12,7 @@ import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
 import {Mars} from 'components/mars';
 import {colors} from 'components/ui';
+import Router from 'next/router';
 
 const GlobalStyles = createGlobalStyle`
     body {
@@ -148,31 +149,86 @@ const customTheme = {
     spinnerColor: 'hotpink',
 };
 
-function InnerAppComponent({Component, pageProps}) {
+function InnerAppComponent({Component, pageProps, session}) {
     const router = useRouter();
     if (router.pathname.includes('games')) {
-        return <Component {...pageProps} />;
+        return <Component {...pageProps} session={session} />;
     }
     return (
         <>
             <Centered>
                 <Mars />
                 <InputBox>
-                    <Component {...pageProps} />
+                    <Component {...pageProps} session={session} />
                 </InputBox>
             </Centered>
         </>
     );
 }
 
+export const PROTOCOL_HOST_DELIMITER = '://';
+
+function getSessionPath(isServer, headers) {
+    const path = '/api/sessions';
+    if (!isServer) {
+        return path;
+    }
+
+    const {host} = headers;
+    const protocol = /^localhost(:\d+)?$/.test(host) ? 'http' : 'https';
+    return protocol + PROTOCOL_HOST_DELIMITER + host + path;
+}
+
 class MyApp extends App {
+    static async getInitialProps(params) {
+        const {ctx} = params;
+        const {isServer, req, res} = ctx;
+
+        const headers = isServer ? req.headers : {};
+
+        let session;
+        try {
+            const response = await fetch(getSessionPath(isServer, headers), {
+                headers,
+            });
+            session = await response.json();
+        } catch {
+            session = {username: ''};
+        }
+
+        if (isServer) {
+            // Handle server session redirect scenarios. Server-side only.
+            // Client won't generate links you're not authorized to click!
+            const hasSession = session?.username;
+            const path = isServer ? req.url : window.location.pathname;
+            const isLoginOrSignup = ['/login', '/signup', '/logout'].includes(path);
+
+            // Two scenarios require redirect:
+            // You're logged in, but you are visiting /login or /signup.
+            // You're logged out, trying to access anything else.
+            const shouldRedirect = hasSession === isLoginOrSignup;
+
+            const location = hasSession ? '/' : '/login';
+            // If they're not logged in, take them to the log in page.
+            if (shouldRedirect) {
+                res.writeHead(301, {
+                    Location: location,
+                });
+                res.end();
+            }
+        }
+
+        return {
+            session,
+            ...(await super.getInitialProps(params)),
+        };
+    }
     render() {
         const {store} = this.props;
         let className;
         if (platform.macos) {
             className = 'mac';
         }
-
         return (
             <Provider store={store}>
                 <Head>

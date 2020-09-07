@@ -7,26 +7,34 @@ import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import {isSyncing} from 'hooks/sync-state';
 import {useSession} from 'hooks/use-session';
-import {useRouter} from 'next/router';
+import Router, {useRouter} from 'next/router';
+import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import {useContext, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import {deserializeState} from 'state-serialization';
 
-function GameComponent() {
-    const {loading, session} = useSession();
-    const [loggedInPlayerIndex, setLoggedInPlayerIndex] = useState<number>(-1);
+export default function Game(props) {
+    const {game, session} = props;
     const router = useRouter();
-    const context = useContext(AppContext);
-    context.setLoggedInPlayerIndex(loggedInPlayerIndex);
-
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (session.username) {
-            retrieveGame();
+    const context = useContext(AppContext);
+
+    const handleRetrievedGame = game => {
+        if (game.error) {
+            router.push('/new-game');
+            return;
         }
-    }, [session.username]);
+        context.queue = game.queue;
+        dispatch(setGame(deserializeState(game.state)));
+    };
+    useEffect(() => {
+        handleRetrievedGame(game);
+    }, []);
+
+    const loggedInPlayerIndex = game.players.indexOf(session.username);
+    context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -47,21 +55,10 @@ function GameComponent() {
         if (isSyncing) {
             return;
         }
-        if (result.error) {
-            router.push('/new-game');
-            return;
-        }
-        context.queue = result.queue;
-        setLoggedInPlayerIndex(result.players.indexOf(session.username));
-        result.state.log = result.state.log || [];
-        dispatch(setGame(deserializeState(result.state)));
+        handleRetrievedGame(result);
     };
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
-
-    if (loading) return <div />;
-    if (loggedInPlayerIndex < 0) return null;
-
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
         case GameStage.ACTIVE_ROUND:
@@ -76,10 +73,29 @@ function GameComponent() {
     }
 }
 
-export default function Game() {
-    return (
-        <>
-            <GameComponent />
-        </>
-    );
+Game.getInitialProps = async ctx => {
+    const {isServer, req, query} = ctx;
+
+    const headers = isServer ? req.headers : {};
+
+    const response = await fetch(getGamePath(isServer, query, headers), {
+        headers,
+    });
+
+    const game = await response.json();
+    ctx.store.dispatch(setGame(deserializeState(game.state)));
+
+    return {game};
+};
+
+function getGamePath(isServer, query, headers) {
+    const path = '/api/games/';
+    const gameId = query['name'];
+    if (!isServer) {
+        return path + gameId;
+    }
+
+    const {host} = headers;
+    const protocol = /^localhost(:\d+)?$/.test(host) ? 'http' : 'https';
+    return protocol + PROTOCOL_HOST_DELIMITER + host + path + gameId;
 }

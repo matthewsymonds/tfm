@@ -140,6 +140,7 @@ export function appendSecurityCookieModifiers(
     domain: string,
     originalCookie: string
 ): string {
+    originalCookie += `; Path=/`;
     originalCookie += '; HttpOnly';
     if (secure) {
         originalCookie += '; Secure';

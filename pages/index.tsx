@@ -6,18 +6,15 @@ import {useUserGames} from 'hooks/use-user-games';
 import {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import styled from 'styled-components';
+import {PROTOCOL_HOST_DELIMITER} from './_app';
 
 const Username = styled.div``;
 
-export default function Index() {
+export default function Index(props) {
+    const {userGames, session} = props;
     const router = useRouter();
-    const {session, loading} = useSession();
-    const userGames = useUserGames(session.username);
     function goToNewGame() {
         router.push('/new-game');
-    }
-    if (loading) {
-        return null;
     }
     return (
         <div>
@@ -60,4 +57,34 @@ export default function Index() {
 
 function getGameLink(name: string) {
     return '/games/' + name;
+}
+
+Index.getInitialProps = async ctx => {
+    const {isServer, req} = ctx;
+
+    const headers = isServer ? req.headers : {};
+
+    const response = await fetch(getUserGamesPath(isServer, req, headers), {
+        headers,
+    });
+
+    const result = await response.json();
+    return {userGames: result.games};
+};
+
+function getUserGamesPath(isServer, req, headers) {
+    const path = '/api/games';
+    let url: string;
+    if (isServer) {
+        url = req.url;
+    } else {
+        url = window.location.href;
+    }
+    if (!isServer) {
+        return path;
+    }
+
+    const {host} = headers;
+    const protocol = /^localhost(:\d+)?$/.test(host) ? 'http' : 'https';
+    return protocol + PROTOCOL_HOST_DELIMITER + host + path;
 }

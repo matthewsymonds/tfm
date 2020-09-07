@@ -3,7 +3,7 @@ import {getInitialState} from 'initial-state';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
-    if (!sessionResult) {
+    if (!sessionResult || !sessionResult.username) {
         return;
     }
 
@@ -16,7 +16,10 @@ export default async (req, res) => {
         case 'GET':
             // Retrieve list of public games.
             try {
-                games = await gamesModel.find({public: true}, 'name players createdAt');
+                games = await gamesModel.find(
+                    {players: sessionResult.username},
+                    'name players createdAt'
+                );
             } catch (error) {
                 games = [];
             }

@@ -3,7 +3,6 @@ import {CenteredLink} from 'components/centered';
 import {Input, SubmitInput} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
 import {useInput} from 'hooks/use-input';
-import {useSession} from 'hooks/use-session';
 import {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import {useCallback, useState} from 'react';
@@ -29,9 +28,6 @@ export default function Login() {
         },
         [username, password]
     );
-
-    const {loading} = useSession();
-    if (loading) return <div />;
 
     return (
         <>
