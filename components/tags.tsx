@@ -4,7 +4,6 @@ import {ReactChild} from 'react';
 import {Box} from './box';
 import {PlayerState} from 'reducer';
 import {getTags, getEventCards} from 'selectors/variable-amount';
-import {ResourceBoardCell} from 'components/resource';
 import {Pane} from 'evergreen-ui';
 
 const TagsBase = styled.div`
@@ -52,7 +51,7 @@ interface TagProps {
 
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen'],
-    [Tag.BUILDING]: ['🏛️', 'brown', '#d7d7d7', '', 'building-icon'],
+    [Tag.BUILDING]: ['🏛️', 'brown', '#795548', '', 'building-icon'],
     [Tag.CITY]: ['🌆', '#333333', '#C8B3C5'],
     [Tag.EARTH]: ['🌎', 'darkgreen', 'lightblue', 'black'],
     [Tag.POWER]: ['⚡', 'white', 'purple'],

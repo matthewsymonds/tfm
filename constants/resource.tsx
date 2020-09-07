@@ -1,6 +1,7 @@
 // Can appear on the board, on a card, or in a colony.
 
 import {Amount} from './action';
+import spawnExhaustiveSwitchError from 'utils';
 
 // Can appear on the board, on a card, or in a colony.
 export enum Resource {
@@ -176,6 +177,10 @@ export const getResourceColor = (resource: Resource) => {
             return 'brown';
         case Resource.TITANIUM:
             return 'yellow';
+        case Resource.ANY_STORABLE_RESOURCE:
+            return 'white';
+        default:
+            throw spawnExhaustiveSwitchError(resource);
     }
 };
 
@@ -209,5 +214,9 @@ export const getResourceBackgroundColor = (resource: Resource) => {
             return '#795548';
         case Resource.TITANIUM:
             return 'black';
+        case Resource.ANY_STORABLE_RESOURCE:
+            return 'white';
+        default:
+            throw spawnExhaustiveSwitchError(resource);
     }
 };
