@@ -5,6 +5,7 @@ import {useStore} from 'react-redux';
 
 import {getCardVictoryPoints} from 'selectors/card';
 import {getGreeneryScore, getCityScore, getMilestoneScore, getAwardScore} from 'selectors/score';
+import {CardType} from 'constants/card-types';
 
 type Props = {
     playerIndex: number;
@@ -40,16 +41,23 @@ export function ScorePopover({children, playerIndex}: Props) {
     const state = store.getState();
     const player = state.players[playerIndex];
     const terraformRating = player.terraformRating;
-    const cardScore = player.playedCards.reduce((total, card) => {
-        return total + getCardVictoryPoints(card.victoryPoints, state, card);
-    }, 0);
+    const visibleCardScore = player.playedCards
+        .filter(card => card.type !== CardType.EVENT)
+        .reduce((total, card) => {
+            return total + getCardVictoryPoints(card.victoryPoints, state, card);
+        }, 0);
     const greeneryScore = getGreeneryScore(state, playerIndex);
     const citiesScore = getCityScore(state, playerIndex);
     const milestoneScore = getMilestoneScore(state, playerIndex);
     const awardScore = getAwardScore(state, playerIndex);
 
     const totalScore =
-        terraformRating + cardScore + greeneryScore + citiesScore + milestoneScore + awardScore;
+        terraformRating +
+        visibleCardScore +
+        greeneryScore +
+        citiesScore +
+        milestoneScore +
+        awardScore;
     return (
         <Popover
             position={Position.BOTTOM}
@@ -61,8 +69,8 @@ export function ScorePopover({children, playerIndex}: Props) {
                         <span>{terraformRating}</span>
                     </ScorePopoverRow>
                     <ScorePopoverRow>
-                        <span>Cards</span>
-                        <span>{cardScore}</span>
+                        <span>Visible Cards</span>
+                        <span>{visibleCardScore}</span>
                     </ScorePopoverRow>
                     <ScorePopoverRow>
                         <span>Cities</span>
