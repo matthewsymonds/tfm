@@ -131,7 +131,7 @@ export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
         <React.Fragment>
             <Flex>
                 {Object.keys(tagCountsByTagName).map(tag => (
-                    <Flex justifyContent="center" alignItems="center" marginRight="8px">
+                    <Flex key={tag} justifyContent="center" alignItems="center" marginRight="8px">
                         <TagIcon name={tag as Tag} />
                         {tagCountsByTagName[tag]}
                     </Flex>

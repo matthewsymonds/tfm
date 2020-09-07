@@ -20,7 +20,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
-import {useContext, useState} from 'react';
+import {useContext, useState, ReactNode} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, PlayerState} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
@@ -28,6 +28,7 @@ import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
 import {Box} from './box';
+import React from 'react';
 
 export type ResourceActionType =
     | 'removeResource'
@@ -35,11 +36,13 @@ export type ResourceActionType =
     | 'stealResource'
     | 'increaseProduction'
     | 'decreaseProduction';
-type ListItem = {
+
+type PlayerOptionWrapper = {
     title: string;
-    options: Option[];
+    options: ResourceActionOption[];
     player: PlayerState;
 };
+
 type Props = {
     player: PlayerState;
     resourceActionDetails: {
@@ -97,7 +100,7 @@ function getPlayersToConsider(
     }
 }
 
-type Option = {
+type ResourceActionOption = {
     location: PlayerState | Card;
     quantity: number;
     resource: Resource;
@@ -113,7 +116,7 @@ function getOptions(
     card: Card,
     player: PlayerState,
     locationType: ResourceLocationType | undefined
-): Option[] {
+): ResourceActionOption[] {
     if (actionType === 'decreaseProduction') {
         return getOptionsForDecreaseProduction(resourceAndAmount, player);
     } else if (actionType === 'increaseProduction') {
@@ -134,7 +137,7 @@ function getOptions(
 function getOptionsForIncreaseProduction(
     productionAndAmount: ResourceAndAmount,
     player: PlayerState
-): Option[] {
+): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
     const quantity = amount as number;
     const text = formatText(quantity, resource, 'increaseProduction');
@@ -154,11 +157,12 @@ function getOptionsForIncreaseProduction(
 function getOptionsForDecreaseProduction(
     productionAndAmount: ResourceAndAmount,
     player: PlayerState
-): Option[] {
+): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
     let maxAmount: number;
 
-    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+    if (typeof amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+        // insulation-specific
         maxAmount = player.productions[resource];
     } else {
         maxAmount = Math.min(player.productions[resource], amount as number);
@@ -186,7 +190,7 @@ function getOptionsForStorableResource(
     originalCard: Card,
     player: PlayerState,
     locationType: ResourceLocationType | undefined
-): Option[] {
+): ResourceActionOption[] {
     let {playedCards: cards} = player;
     const {resource, amount} = resourceAndAmount;
     const isVariable = amount === VariableAmount.USER_CHOICE;
@@ -230,7 +234,6 @@ function getOptionsForStorableResource(
             );
             break;
         default:
-            throw new Error('Unsupported location type in getOptionsForStorableResource');
             break;
     }
 
@@ -297,7 +300,7 @@ function getOptionsForRegularResource(
     actionType: ResourceActionType,
     resourceAndAmount: ResourceAndAmount,
     player: PlayerState
-): Option[] {
+): ResourceActionOption[] {
     const {amount, resource} = resourceAndAmount;
     let maxAmount: number;
     if (actionType === 'gainResource') {
@@ -359,10 +362,10 @@ function AskUserToConfirmResourceActionDetails({
         return alpha.username.toLowerCase() < beta.username.toLowerCase() ? -1 : 1;
     });
 
-    const listItems: ListItem[] = [];
+    const playerOptionWrappers: PlayerOptionWrapper[] = [];
 
     for (const playerToConsider of playersToConsider) {
-        const listItem: ListItem = {
+        const playerOptionWrapper: PlayerOptionWrapper = {
             title: `${playerToConsider.corporation.name} (${playerToConsider.username})`,
             options: [],
             player: playerToConsider,
@@ -396,17 +399,17 @@ function AskUserToConfirmResourceActionDetails({
                 });
             }
 
-            listItem.options.push(...options);
+            playerOptionWrapper.options.push(...options);
         }
 
         const zeroChangeAllowed = actionType === 'decreaseProduction';
 
-        listItem.options = listItem.options.filter(
+        playerOptionWrapper.options = playerOptionWrapper.options.filter(
             option => option.quantity > 0 || zeroChangeAllowed
         );
 
-        if (listItem.options.length > 0) {
-            listItems.push(listItem);
+        if (playerOptionWrapper.options.length > 0) {
+            playerOptionWrappers.push(playerOptionWrapper);
         }
     }
 
@@ -417,11 +420,10 @@ function AskUserToConfirmResourceActionDetails({
         context.processQueue(dispatch);
     };
 
-    const noOptions = listItems.flatMap(item => item.options).length === 0;
+    const hasNoOptions = playerOptionWrappers.flatMap(item => item.options).length === 0;
 
-    let showSkip = noOptions;
-    showSkip =
-        showSkip ||
+    let shouldShowSkip =
+        hasNoOptions ||
         (actionType !== 'stealResource' &&
             actionType !== 'decreaseProduction' &&
             actionType !== 'increaseProduction' &&
@@ -430,40 +432,38 @@ function AskUserToConfirmResourceActionDetails({
                     isStorableResource(resourceAndAmount.resource)
                 )));
 
-    const warningEnabled = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
+    const isNegativeAction = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
         actionType
     );
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
-            {listItems.map(listItem => {
-                const warning =
-                    !listItem.options.some(option => option.isVariable) &&
-                    listItem.player === player &&
-                    warningEnabled;
+            {playerOptionWrappers.map(playerOptionWrapper => {
+                const shouldShowWarningMessage =
+                    !playerOptionWrapper.options.some(option => option.isVariable) &&
+                    playerOptionWrapper.player === player &&
+                    isNegativeAction;
                 return (
-                    <PlayerOption warning={warning} key={listItem.player.username}>
-                        <h4>{listItem.title}</h4>
-                        {warning ? <Red>Warning: This is you!</Red> : null}
+                    <PlayerOption
+                        showWarning={shouldShowWarningMessage}
+                        key={playerOptionWrapper.player.username}
+                    >
+                        <h4>{playerOptionWrapper.title}</h4>
+                        {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
                         <OptionsParent>
-                            {listItem.options.map(childItem => {
-                                return (
-                                    <OptionComponent
-                                        {...childItem}
-                                        key={childItem.text}
-                                    ></OptionComponent>
-                                );
+                            {playerOptionWrapper.options.map(option => {
+                                return <OptionComponent option={option} key={option.text} />;
                             })}
                         </OptionsParent>
                     </PlayerOption>
                 );
             })}
-            {showSkip && <button onClick={handleSkip}>Skip</button>}
+            {shouldShowSkip && <button onClick={handleSkip}>Skip</button>}
         </AskUserToMakeChoice>
     );
 }
 
-function OptionComponent(props: Option) {
+function OptionComponent({option}: {option: ResourceActionOption}) {
     const dispatch = useDispatch();
 
     const context = useContext(AppContext);
@@ -472,59 +472,62 @@ function OptionComponent(props: Option) {
     const player = context.getLoggedInPlayer(state);
 
     function handleClick() {
-        dispatch(getAction(props, player, variableAmount));
+        dispatch(getAction(option, player, variableAmount));
         context.processQueue(dispatch);
     }
 
     const max =
-        props.actionType === 'decreaseProduction'
-            ? player.productions[props.resource]
-            : player.resources[props.resource];
+        option.actionType === 'decreaseProduction'
+            ? player.productions[option.resource]
+            : player.resources[option.resource];
 
     const [variableAmount, setVariableAmount] = useState(Math.min(1, max));
-    let inner: Array<JSX.Element | string> = [props.text];
 
-    if (props.isVariable && props.actionType === 'decreaseProduction') {
-        inner = [
-            'Decrease ',
-            getResourceName(props.resource),
-            ' production ',
-            <input
-                onClick={event => event.stopPropagation()}
-                type="number"
-                min={0}
-                value={variableAmount}
-                max={max}
-                onChange={e =>
-                    setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
-                }
-            />,
-            <Box display="inline-block" width="40px" marginLeft="6px">
+    if (option.isVariable && option.actionType === 'decreaseProduction') {
+        // Currently this is just insulation
+        return (
+            <React.Fragment>
+                Decrease {getResourceName(option.resource)} production by{' '}
+                <input
+                    type="number"
+                    min={0}
+                    value={variableAmount}
+                    max={max}
+                    onChange={e =>
+                        setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                    }
+                />
                 {variableAmount === 1 ? ' step' : ' steps'}
-            </Box>,
-        ];
-    } else if (props.isVariable) {
-        inner = [
-            'Remove ',
-            <input
-                onClick={event => event.stopPropagation()}
-                type="number"
-                min={1}
-                value={variableAmount}
-                max={max}
-                onChange={e =>
-                    setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
-                }
-            />,
-            ' ',
-            getResourceName(props.resource),
-        ];
+                <button onClick={handleClick} style={{display: 'inline-flex', marginLeft: 8}}>
+                    Confirm
+                </button>
+            </React.Fragment>
+        );
+    } else if (option.isVariable) {
+        return (
+            <React.Fragment>
+                Remove{' '}
+                <input
+                    type="number"
+                    min={1}
+                    value={variableAmount}
+                    max={max}
+                    onChange={e =>
+                        setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                    }
+                />{' '}
+                {getResourceName(option.resource)}
+                <button onClick={handleClick} style={{display: 'inline-flex', marginLeft: 8}}>
+                    Confirm
+                </button>
+            </React.Fragment>
+        );
+    } else {
+        return <button onClick={handleClick}>{option.text}</button>;
     }
-
-    return <OptionsComponentBase onClick={handleClick}>{inner}</OptionsComponentBase>;
 }
 
-function getAction(option: Option, player: PlayerState, variableAmount: number) {
+function getAction(option: ResourceActionOption, player: PlayerState, variableAmount: number) {
     const quantity = option.isVariable ? variableAmount : option.quantity;
     switch (option.actionType) {
         case 'removeResource':
@@ -586,19 +589,6 @@ function getAction(option: Option, player: PlayerState, variableAmount: number) 
     }
 }
 
-const OptionsComponentBase = styled.li`
-    margin: 8px;
-    padding: 8px;
-    background: #eee;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-
-    &:hover {
-        box-shadow: 2px 2px 10px 0px #ddd;
-    }
-`;
-
 const Red = styled.div`
     font-weight: bold;
     color: maroon;
@@ -607,14 +597,14 @@ const Red = styled.div`
     border: 2px solid black;
 `;
 
-type WarningProp = {warning?: boolean};
+type WarningProp = {showWarning?: boolean};
 
 const PlayerOption = styled.li<WarningProp>`
     display: block;
     padding: 8px;
     margin-bottom: 8px;
     border-radius: 3px;
-    border: ${props => (props.warning ? '2px solid maroon' : '1px solid #ccc')};
+    border: ${props => (props.showWarning ? '2px solid maroon' : '1px solid #ccc')};
 `;
 
 export default AskUserToConfirmResourceActionDetails;

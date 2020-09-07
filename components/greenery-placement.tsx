@@ -22,8 +22,6 @@ import {useSyncState} from 'hooks/sync-state';
 export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
-    const resources = useTypedSelector(state => state.players[playerIndex].resources);
-    const productions = useTypedSelector(state => state.players[playerIndex].productions);
     const dispatch = useDispatch();
     const store = useStore<RootState>();
     const state = store.getState();

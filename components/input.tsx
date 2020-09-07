@@ -28,6 +28,8 @@ const Label = styled.label`
 
 const InputBase = styled.input`
     display: block;
+    padding: 6px;
+    font-size: 16px;
 
     &[type='submit'] {
         margin-top: 12px;
