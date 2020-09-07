@@ -158,6 +158,7 @@ export function handleRedirect(req, res) {
         'Set-Cookie': theCookie,
         Location: '/login',
     });
+    res.end();
 }
 
 function getToken(): string {

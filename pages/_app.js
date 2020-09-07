@@ -211,7 +211,7 @@ class MyApp extends App {
             const location = hasSession ? '/' : '/login';
             // If they're not logged in, take them to the log in page.
             if (shouldRedirect) {
-                res.writeHead(301, {
+                res.writeHead(302, {
                     Location: location,
                 });
                 res.end();

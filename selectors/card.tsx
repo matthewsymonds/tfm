@@ -48,6 +48,10 @@ export function getAllPlayedCardsWithTagThatHoldResource(
     });
 }
 
+export function getAllPlayedCardsWithNonZeroStorableResource(player: PlayerState) {
+    return player.playedCards.filter(card => card.storedResourceAmount);
+}
+
 export function getAllPlayedCardsThatHoldResource(
     currentPlayer: PlayerState,
     player: PlayerState,
@@ -112,6 +116,8 @@ export function getAllowedCardsForResourceAction({
                 result.push(...getAllPlayedCardsThatHoldResource(player, thisPlayer, resource));
             }
             return result;
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
+            return getAllPlayedCardsWithNonZeroStorableResource(player);
         case ResourceLocationType.ANY_PLAYER:
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:

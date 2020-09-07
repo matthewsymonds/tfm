@@ -74,18 +74,30 @@ export default function Game(props) {
 }
 
 Game.getInitialProps = async ctx => {
-    const {isServer, req, query} = ctx;
+    const {isServer, req, res, query} = ctx;
 
     const headers = isServer ? req.headers : {};
 
-    const response = await fetch(getGamePath(isServer, query, headers), {
-        headers,
-    });
+    try {
+        const response = await fetch(getGamePath(isServer, query, headers), {
+            headers,
+        });
 
-    const game = await response.json();
-    ctx.store.dispatch(setGame(deserializeState(game.state)));
+        const game = await response.json();
+        ctx.store.dispatch(setGame(deserializeState(game.state)));
 
-    return {game};
+        return {game};
+    } catch (error) {
+        if (isServer) {
+            res.writeHead(302, {
+                Location: '/login',
+            });
+            res.end();
+        } else {
+            Router.push('/login');
+            return {};
+        }
+    }
 };
 
 function getGamePath(isServer, query, headers) {

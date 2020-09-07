@@ -3,7 +3,7 @@ import {SwitchColors} from 'components/log-panel';
 import {Switcher} from 'components/switcher';
 import {useSession} from 'hooks/use-session';
 import {useUserGames} from 'hooks/use-user-games';
-import {useRouter} from 'next/dist/client/router';
+import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import styled from 'styled-components';
 import {PROTOCOL_HOST_DELIMITER} from './_app';
@@ -60,16 +60,26 @@ function getGameLink(name: string) {
 }
 
 Index.getInitialProps = async ctx => {
-    const {isServer, req} = ctx;
+    const {isServer, req, res} = ctx;
 
     const headers = isServer ? req.headers : {};
-
-    const response = await fetch(getUserGamesPath(isServer, req, headers), {
-        headers,
-    });
-
-    const result = await response.json();
-    return {userGames: result.games};
+    try {
+        const response = await fetch(getUserGamesPath(isServer, req, headers), {
+            headers,
+        });
+        const result = await response.json();
+        return {userGames: result.games};
+    } catch (error) {
+        if (isServer) {
+            res.writeHead(302, {
+                Location: '/login',
+            });
+            res.end();
+        } else {
+            Router.push('/login');
+            return {};
+        }
+    }
 };
 
 function getUserGamesPath(isServer, req, headers) {
