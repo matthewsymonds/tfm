@@ -9,9 +9,9 @@ import {
 
 import {Conversion, CONVERSIONS} from 'constants/conversion';
 import {PlayerState} from 'reducer';
-import {useContext, useState} from 'react';
+import {useContext} from 'react';
 import {AppContext} from 'context/app-context';
-import {ConversionLink} from './conversion-link';
+import {ConversionButton} from './conversion-button';
 import {useStore, useDispatch} from 'react-redux';
 import {Pane} from 'evergreen-ui';
 import {colors} from 'components/ui';
@@ -24,18 +24,18 @@ interface ResourceIconBaseProps {
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
-  display: inline-block;
-  height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
-  width ${props => props.size}px;
-  text-align: center;
-  margin: 3px;
-  font-size: ${props => props.size}px;
-  font-weight: bold;
-  color: ${props => props.color};
-  background: ${props => props.background};
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: inline-block;
+    height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
+    width: ${props => props.size}px;
+    text-align: center;
+    margin: 3px;
+    font-size: ${props => props.size}px;
+    font-weight: bold;
+    color: ${props => props.color};
+    background: ${props => props.background};
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `;
 
 interface ResourceIconProps {
@@ -50,11 +50,11 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     size = 20,
 }) => (
     <ResourceIconBase
-        color={getResourceColor(name)}
         className={className}
-        tall={name === Resource.CARD}
-        size={size}
+        color={getResourceColor(name)}
         background={getResourceBackgroundColor(name)}
+        size={size}
+        tall={name === Resource.CARD}
     >
         <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
     </ResourceIconBase>
@@ -190,20 +190,19 @@ export const PlayerResourceBoard = ({
                                     state
                                 ) &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
-                                    <>
-                                        <ConversionLink
-                                            onClick={() =>
-                                                context.doConversion(
-                                                    state,
-                                                    player.index,
-                                                    dispatch,
-                                                    conversion
-                                                )
-                                            }
-                                        >
-                                            Convert {getConversionAmount(player, conversion)}
-                                        </ConversionLink>
-                                    </>
+                                    <ConversionButton
+                                        disabled={context.shouldDisableUI(state)}
+                                        onClick={() =>
+                                            context.doConversion(
+                                                state,
+                                                player.index,
+                                                dispatch,
+                                                conversion
+                                            )
+                                        }
+                                    >
+                                        Convert {getConversionAmount(player, conversion)}
+                                    </ConversionButton>
                                 ) : null}
                             </div>
                         );

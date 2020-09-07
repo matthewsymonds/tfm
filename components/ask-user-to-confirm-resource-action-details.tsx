@@ -71,6 +71,7 @@ function getPlayersToConsider(
         case ResourceLocationType.THIS_CARD:
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
         case ResourceLocationType.LAST_PLAYED_CARD:
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
             return [player];
         case ResourceLocationType.VENUS_CARD:
         case ResourceLocationType.JOVIAN_CARD:
@@ -113,10 +114,11 @@ function getOptions(
     player: PlayerState,
     locationType: ResourceLocationType | undefined
 ): Option[] {
-    if (
-        (locationType || actionType === 'stealResource') &&
-        isStorableResource(resourceAndAmount.resource)
-    ) {
+    if (actionType === 'decreaseProduction') {
+        return getOptionsForDecreaseProduction(resourceAndAmount, player);
+    } else if (actionType === 'increaseProduction') {
+        return getOptionsForIncreaseProduction(resourceAndAmount, player);
+    } else if (isStorableResource(resourceAndAmount.resource)) {
         return getOptionsForStorableResource(
             actionType,
             resourceAndAmount,
@@ -124,10 +126,6 @@ function getOptions(
             player,
             locationType
         );
-    } else if (actionType === 'decreaseProduction') {
-        return getOptionsForDecreaseProduction(resourceAndAmount, player);
-    } else if (actionType === 'increaseProduction') {
-        return getOptionsForIncreaseProduction(resourceAndAmount, player);
     } else {
         return getOptionsForRegularResource(actionType, resourceAndAmount, player);
     }
@@ -218,7 +216,21 @@ function getOptionsForStorableResource(
         case ResourceLocationType.JOVIAN_CARD:
             cards = cards.filter(card => card.tags.includes(Tag.JOVIAN));
             break;
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
+            cards = cards.filter(
+                card =>
+                    card.storedResourceType &&
+                    card.storedResourceAmount !== undefined &&
+                    card.storedResourceAmount > 0
+            );
+            break;
+        case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
+            cards = cards.filter(
+                card => card.storedResourceType && card.storedResourceType === resource
+            );
+            break;
         default:
+            throw new Error('Unsupported location type in getOptionsForStorableResource');
             break;
     }
 

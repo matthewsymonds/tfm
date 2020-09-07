@@ -33,7 +33,6 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
-import {Button} from './button';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
 
@@ -297,12 +296,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     orientation="vertical"
                                 />
                                 <Flex justifyContent="center">
-                                    <Button
+                                    <button
                                         disabled={shouldDisableConfirmCardSelection}
                                         onClick={() => handleConfirmCardSelection()}
                                     >
                                         {cardSelectionButtonText}
-                                    </Button>
+                                    </button>
                                 </Flex>
                             </Flex>
                         )}
