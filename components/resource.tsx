@@ -11,7 +11,7 @@ import {Conversion, CONVERSIONS} from 'constants/conversion';
 import {PlayerState} from 'reducer';
 import {useContext, useState} from 'react';
 import {AppContext} from 'context/app-context';
-import {ConversionLink} from './conversion-link';
+import {ConversionButton} from './conversion-button';
 import {useStore, useDispatch} from 'react-redux';
 import {Pane} from 'evergreen-ui';
 import {colors} from 'components/ui';
@@ -190,20 +190,19 @@ export const PlayerResourceBoard = ({
                                     state
                                 ) &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
-                                    <>
-                                        <ConversionLink
-                                            onClick={() =>
-                                                context.doConversion(
-                                                    state,
-                                                    player.index,
-                                                    dispatch,
-                                                    conversion
-                                                )
-                                            }
-                                        >
-                                            Convert {getConversionAmount(player, conversion)}
-                                        </ConversionLink>
-                                    </>
+                                    <ConversionButton
+                                        disabled={context.shouldDisableUI(state)}
+                                        onClick={() =>
+                                            context.doConversion(
+                                                state,
+                                                player.index,
+                                                dispatch,
+                                                conversion
+                                            )
+                                        }
+                                    >
+                                        Convert {getConversionAmount(player, conversion)}
+                                    </ConversionButton>
                                 ) : null}
                             </div>
                         );

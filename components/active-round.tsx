@@ -11,14 +11,12 @@ import {
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {LogPanel} from 'components/log-panel';
 import {PlayerPanel} from 'components/player-panel';
-import {Switcher} from 'components/switcher';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
-import {Pane} from 'evergreen-ui';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
 import React, {useContext, useEffect, useState} from 'react';
@@ -35,7 +33,6 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, Panel, PanelWithTabs} from './box';
-import {Button} from './button';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
 
@@ -299,12 +296,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     orientation="vertical"
                                 />
                                 <Flex justifyContent="center">
-                                    <Button
+                                    <button
                                         disabled={shouldDisableConfirmCardSelection}
                                         onClick={() => handleConfirmCardSelection()}
                                     >
                                         {cardSelectionButtonText}
-                                    </Button>
+                                    </button>
                                 </Flex>
                             </Flex>
                         )}

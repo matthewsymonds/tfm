@@ -15,7 +15,6 @@ import {useContext, useEffect} from 'react';
 import {AppContext} from 'context/app-context';
 import {TurnContext} from './turn-context';
 import {useDispatch, useStore} from 'react-redux';
-import {ConversionLink} from './conversion-link';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {useSyncState} from 'hooks/sync-state';
