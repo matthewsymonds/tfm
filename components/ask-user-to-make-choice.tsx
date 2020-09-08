@@ -4,14 +4,11 @@ import {Flex, Box} from './box';
 import {CardComponent} from './card';
 import {ReactNode} from 'react';
 
-export const OptionsParent = styled.ul`
+export const OptionsParent = styled.div`
     padding-left: 2px;
-    margin-top: 0px;
+    margin-top: 8px;
     max-height: 400px;
     overflow-y: auto;
-    li {
-        list-style-type: none;
-    }
 `;
 
 export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; children: ReactNode}) {

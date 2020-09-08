@@ -8,6 +8,7 @@ import {FormEvent, ReactElement, useEffect, useState} from 'react';
 import {shuffle} from 'initial-state';
 import {MaybeVisible} from 'components/maybe-visible';
 import {Box} from 'components/box';
+import React from 'react';
 
 export default function NewGame(props) {
     const {session} = props;
@@ -29,9 +30,8 @@ export default function NewGame(props) {
 
     for (let i = 0; i < numPlayers; i++) {
         usernameInputs.push(
-            <>
+            <React.Fragment key={i}>
                 <Input
-                    key={i}
                     name={`Player ${i + 1}`}
                     disabled={i === 0}
                     value={usernames[i]}
@@ -44,7 +44,7 @@ export default function NewGame(props) {
                 <MaybeVisible key={'error-' + i} visible={!!error && !!i}>
                     <em>Double-check username</em>
                 </MaybeVisible>
-            </>
+            </React.Fragment>
         );
     }
 

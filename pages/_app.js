@@ -109,10 +109,6 @@ const GlobalStyles = createGlobalStyle`
           }
       }
     }
-    input {
-      padding: 6px;
-      font-size: 16px;
-    }
     button, input[type="submit"] {
       display: flex;
       align-items: center;
