@@ -46,13 +46,15 @@ function getCostForStandardProject(
 }
 
 export default function StandardProjects() {
-    const state = useTypedSelector(state => state);
     const dispatch = useDispatch();
     const context = useContext(AppContext);
+    const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
 
     function renderStandardProjectButton(standardProject: StandardProjectAction) {
-        const isDisabled = !context.canPlayStandardProject(standardProject, state);
+        const isDisabled = useTypedSelector(
+            () => !context.canPlayStandardProject(standardProject, state)
+        );
         const text = getTextForStandardProject(standardProject.type);
         const cost = getCostForStandardProject(standardProject, player);
         const costAsText = cost === 0 ? 'X' : `${cost}`;

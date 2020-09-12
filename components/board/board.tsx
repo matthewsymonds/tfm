@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import React, {useContext} from 'react';
-import {cellHelpers, Cell as CellModel} from 'constants/board';
+import {cellHelpers, Cell as CellModel, Parameter} from 'constants/board';
 import {Cell} from './cell';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector, RootState} from 'reducer';
-import {placeTile} from 'actions';
+import {placeTile, increaseParameter} from 'actions';
 import {AppContext} from 'context/app-context';
 import {HEX_RADIUS, HEX_PADDING} from 'constants/board';
 import OffMarsCities from './off-mars-cities';
@@ -67,6 +67,19 @@ export const Board = () => {
         const type = pendingTilePlacement!.type!;
 
         dispatch(placeTile({type}, cell, loggedInPlayer.index));
+
+        const parameterForTile = context.getParameterForTile(type);
+        if (parameterForTile) {
+            context.playAction({
+                state,
+                action: {
+                    increaseParameter: {
+                        [parameterForTile as Parameter]: 1,
+                    },
+                },
+            });
+        }
+
         context.triggerEffectsFromTilePlacement(type, cell, state);
         context.processQueue(dispatch);
     }

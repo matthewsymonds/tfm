@@ -209,18 +209,6 @@ type PendingChoice = {
     playedCard?: Card;
 };
 
-function getParameterForTile(tile: Tile): Parameter | undefined {
-    if (tile.type === TileType.OCEAN) {
-        return Parameter.OCEAN;
-    }
-
-    if (tile.type === TileType.GREENERY) {
-        return Parameter.OXYGEN;
-    }
-
-    return undefined;
-}
-
 function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: number}> {
     const bonuses = cell.bonus || [];
     const uniqueBonuses = new Set(bonuses);
@@ -763,10 +751,6 @@ export const reducer = (state: GameState | null = null, action) => {
                     )} ${getHumanReadableTileName(payload.tile.type)} tile${oceanAddendum}`
                 );
                 draft.common.mostRecentTilePlacementCell = matchingCell;
-                const parameterFromTile = getParameterForTile(payload.tile);
-                if (parameterFromTile) {
-                    handleParameterIncrease(parameterFromTile, 1);
-                }
 
                 const tilePlacementBonus = getTilePlacementBonus(payload.cell);
                 for (const b of tilePlacementBonus) {

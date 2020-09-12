@@ -44,6 +44,7 @@ import {
     TilePlacement,
     TileType,
     t,
+    Tile,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
@@ -963,7 +964,8 @@ function playAction({
 
                 // If the increase triggers a parameter increase, update the object.
                 // Relying on the order of the parameters variable here.
-                const newLevel = amount + state.common.parameters[parameter];
+                const newLevel =
+                    amount * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
                 const index = parameters.indexOf(parameter);
                 // A hack, for type purposes.
                 // The increased parameter is immediately after the increaser parameter.
@@ -972,14 +974,14 @@ function playAction({
                 const parameterToIncrease = parameters[index + 1];
                 switch (parameter) {
                     case Parameter.OXYGEN:
-                        if (newLevel === 7) {
+                        if (newLevel === 8) {
                             // Trigger a temperature increase.
                             increaseParametersWithBonuses[parameterToIncrease] =
                                 (increaseParametersWithBonuses[parameterToIncrease] || 0) + 1;
                         }
                         break;
                     case Parameter.TEMPERATURE:
-                        if (newLevel === -28 || newLevel === -26) {
+                        if (newLevel === -24 || newLevel === -20) {
                             // Heat production increase.
                             items.push(increaseProduction(Resource.HEAT, 1, playerIndex));
                         }
@@ -1303,6 +1305,18 @@ export function getLoggedInPlayer(state) {
     return state.players[loggedInPlayerIndex];
 }
 
+export function getParameterForTile(tileType: TileType): Parameter | undefined {
+    if (tileType === TileType.OCEAN) {
+        return Parameter.OCEAN;
+    }
+
+    if (tileType === TileType.GREENERY) {
+        return Parameter.OXYGEN;
+    }
+
+    return undefined;
+}
+
 function setLoggedInPlayerIndex(index: number) {
     loggedInPlayerIndex = index;
 }
@@ -1333,6 +1347,7 @@ export const appContext = {
     getActionsFromEffect,
     setLoggedInPlayerIndex,
     getLoggedInPlayer,
+    getParameterForTile,
 };
 
 export const AppContext = createContext(appContext);
