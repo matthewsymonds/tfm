@@ -16,7 +16,7 @@ const uniqueNameSchema = {
 
 const schema = mongoose.Schema;
 
-export const db = mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, createIndexes: true, });
+export const db = mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, });
 
 const gamesSchema = new schema({
     name: uniqueNameSchema,
