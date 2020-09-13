@@ -11,6 +11,7 @@ import spawnExhaustiveSwitchError from 'utils';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import {Amount} from 'constants/action';
 import {RootState} from 'reducer';
+import {getLoggedInPlayer} from 'context/app-context';
 
 export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;
@@ -20,10 +21,11 @@ export function getCardVictoryPoints(amount: Amount | undefined, state: RootStat
     if (!amount) return 0;
     if (typeof amount === 'number') return amount;
 
+    const player = getLoggedInPlayer(state);
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!selector) return 0;
 
-    return selector(state, card) || 0;
+    return selector(state, player, card) || 0;
 }
 
 export function getAllPlayedCardsExcludingLast(player: PlayerState) {

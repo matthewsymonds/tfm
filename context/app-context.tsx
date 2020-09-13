@@ -1,8 +1,4 @@
 import {
-    addForcedActionToPlayer,
-    addParameterRequirementAdjustments,
-    applyDiscounts,
-    applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToLookAtCards,
@@ -20,7 +16,6 @@ import {
     gainResource,
     gainStorableResource,
     increaseProduction,
-    payToPlayCard,
     payToPlayStandardProject,
     removeResource,
     removeStorableResource,
@@ -45,7 +40,6 @@ import {
     TileType,
     t,
 } from 'constants/board';
-import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
@@ -67,28 +61,6 @@ import {PlayerState, RootState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-
-function canAffordCard(card: Card, state: RootState) {
-    const player = getLoggedInPlayer(state);
-    let cost = getDiscountedCardCost(card, player);
-
-    const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
-    if (isBuildingCard) {
-        cost -= player.exchangeRates[Resource.STEEL] * player.resources[Resource.STEEL];
-    }
-
-    const isSpaceCard = card.tags.some(tag => tag === Tag.SPACE);
-    if (isSpaceCard) {
-        cost -= player.exchangeRates[Resource.TITANIUM] * player.resources[Resource.TITANIUM];
-    }
-
-    const playerIsHelion = player.corporation.name === 'Helion';
-    if (playerIsHelion) {
-        cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
-    }
-
-    return cost <= player.resources[Resource.MEGACREDIT];
-}
 
 export function getDiscountedCardCost(card: Card, player: PlayerState) {
     let {cost = 0} = card;
@@ -122,29 +94,7 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
     );
 }
 
-function canPlayWithGlobalParameters(card: Card, state: RootState) {
-    const {requiredGlobalParameter} = card;
-    if (!requiredGlobalParameter) return true;
-    const player = getLoggedInPlayer(state);
-
-    const {type, min = -Infinity, max = Infinity} = requiredGlobalParameter;
-
-    const value = state.common.parameters[type];
-
-    // This section takes into account Inventrix/Special Design/...
-    let adjustedMin = min;
-    let adjustedMax = max;
-
-    adjustedMin -= player.parameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
-    adjustedMin -= player.temporaryParameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
-
-    adjustedMax += player.parameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
-    adjustedMax += player.temporaryParameterRequirementAdjustments[type] * PARAMETER_STEPS[type];
-
-    return value >= adjustedMin && value <= adjustedMax;
-}
-
-function canPlayWithTilePlacements(card: Card, state: RootState, player: PlayerState) {
+export function canPlayWithTilePlacements(card: Card, state: RootState, player: PlayerState) {
     let tiles = state.common.board
         .flat()
         .filter(cell => cell.tile)
@@ -167,7 +117,7 @@ function canPlayWithTilePlacements(card: Card, state: RootState, player: PlayerS
     return true;
 }
 
-function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
+export function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     const player = getLoggedInPlayer(state);
 
     for (const tag in card.requiredTags) {
@@ -183,21 +133,26 @@ function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
     return true;
 }
 
-export function convertAmountToNumber(amount: Amount, state: RootState, card?: Card): number {
+export function convertAmountToNumber(
+    amount: Amount,
+    state: RootState,
+    player: PlayerState,
+    card?: Card
+): number {
     if (typeof amount === 'number') return amount as number;
 
     const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!amountGetter) return 0;
-    return amountGetter(state, card) || 0;
+    return amountGetter(state, player, card) || 0;
 }
 
 /* Locations where we must remove the resource, or the action isn't playable */
-const requiredRemoveResourceLocations = [
+export const REQUIRED_REMOVE_RESOURCE_LOCATIONS = [
     ResourceLocationType.THIS_CARD,
     ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
 ];
 
-function canAffordActionCost(action: Action, state: RootState) {
+export function canAffordActionCost(action: Action, state: RootState) {
     const player = getLoggedInPlayer(state);
     let {cost, acceptedPayment = []} = action;
     if (!cost) {
@@ -215,7 +170,7 @@ function canAffordActionCost(action: Action, state: RootState) {
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
-function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
+export function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
     if (!parent) {
         return getLoggedInPlayer(state);
     }
@@ -223,25 +178,34 @@ function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
     return getPlayerWithCard(state, parent);
 }
 
-function getPlayerWithCard(state: RootState, parent: Card): PlayerState {
+export function getPlayerWithCard(state: RootState, parent: Card): PlayerState {
     return state.players.find(player =>
         player.playedCards.find(theCard => theCard.name === parent.name)
     )!;
 }
 
-function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootState, parent?: Card) {
-    const player = getAppropriatePlayerForAction(state, parent);
+export function doesPlayerHaveRequiredResourcesToRemove(
+    action: Action,
+    state: RootState,
+    _player: PlayerState | null,
+    parent?: Card
+) {
+    const player = _player ?? getAppropriatePlayerForAction(state, parent);
 
     if (
         action.removeResourceSourceType &&
-        !requiredRemoveResourceLocations.includes(action.removeResourceSourceType)
+        !REQUIRED_REMOVE_RESOURCE_LOCATIONS.includes(action.removeResourceSourceType)
     ) {
         // If we're removing a resource and it's not required, then the action is playable
         return true;
     }
 
     for (const resource in action.removeResource) {
-        const requiredAmount = convertAmountToNumber(action.removeResource[resource], state);
+        const requiredAmount = convertAmountToNumber(
+            action.removeResource[resource],
+            state,
+            player
+        );
         if (isStorableResource(resource)) {
             const cards = getAllowedCardsForResourceAction({
                 thisCard: parent!,
@@ -271,8 +235,13 @@ function doesPlayerHaveRequiredResourcesToRemove(action: Action, state: RootStat
     return true;
 }
 
-function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?: Card) {
-    const loggedInPlayer = getAppropriatePlayerForAction(state, card);
+export function doesAnyoneHaveResourcesToSteal(
+    action: Action,
+    state: RootState,
+    _player: PlayerState | null,
+    card?: Card
+) {
+    const loggedInPlayer = _player ?? getAppropriatePlayerForAction(state, card);
     if (action && action instanceof Card) {
         // You can play a card without completing the theft.
         return true;
@@ -303,13 +272,18 @@ function doesAnyoneHaveResourcesToSteal(action: Action, state: RootState, card?:
     return true;
 }
 
-function meetsProductionRequirements(action: Action, state: RootState, parent?: Card) {
-    const player = getAppropriatePlayerForAction(state, parent);
+export function meetsProductionRequirements(
+    action: Action,
+    state: RootState,
+    _player: PlayerState | null,
+    parent?: Card
+) {
+    const player = _player ?? getAppropriatePlayerForAction(state, parent);
 
     const {decreaseProduction, decreaseAnyProduction} = action;
 
     for (const production in decreaseProduction) {
-        const decrease = convertAmountToNumber(decreaseProduction[production], state);
+        const decrease = convertAmountToNumber(decreaseProduction[production], state, player);
         if (player.productions[production] - decrease < MinimumProductions[production]) {
             return false;
         }
@@ -331,10 +305,15 @@ function meetsProductionRequirements(action: Action, state: RootState, parent?: 
     return true;
 }
 
-function meetsTilePlacementRequirements(action: Action, state: RootState, parent?: Card): boolean {
+export function meetsTilePlacementRequirements(
+    action: Action,
+    state: RootState,
+    _player: PlayerState | null,
+    parent?: Card
+): boolean {
     if (!action.tilePlacements) return true;
 
-    const player = getAppropriatePlayerForAction(state, parent);
+    const player = _player ?? getAppropriatePlayerForAction(state, parent);
 
     for (const tilePlacement of action.tilePlacements) {
         const {isRequired, placementRequirement} = tilePlacement;
@@ -346,45 +325,14 @@ function meetsTilePlacementRequirements(action: Action, state: RootState, parent
     return true;
 }
 
-function meetsTerraformRequirements(action, state: RootState, parent?: Card): boolean {
+export function meetsTerraformRequirements(action, state: RootState, parent?: Card): boolean {
     if (!action.requiresTerraformRatingIncrease) return true;
 
     return state.players.find(player => player.corporation.name === parent?.name)!
         .terraformedThisGeneration;
 }
 
-function canPlayCard(card: Card, state: RootState): [boolean, string | undefined] {
-    const player = getLoggedInPlayer(state);
-    if (!canAffordCard(card, state)) {
-        return [false, 'Cannot afford to play'];
-    }
-
-    if (!doesPlayerHaveRequiredTags(card, state)) {
-        return [false, 'Required tags not met'];
-    }
-
-    if (!canPlayWithGlobalParameters(card, state)) {
-        return [false, 'Global parameters not met'];
-    }
-
-    if (!canPlayWithTilePlacements(card, state, player)) {
-        return [false, 'Tile placements not met'];
-    }
-
-    const {requiredProduction} = card;
-
-    if (requiredProduction && player.productions[requiredProduction] < 1) {
-        return [false, 'Required production not met.'];
-    }
-
-    if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
-        return [false, 'Terraform rating too low'];
-    }
-
-    return this.canPlayAction(card, state);
-}
-
-function canDoConversion(
+export function canDoConversion(
     conversion: Conversion | undefined,
     player: PlayerState,
     resource: Resource,
@@ -408,7 +356,7 @@ function canDoConversion(
     return player.resources[resource] >= quantity;
 }
 
-function doConversion(
+export function doConversion(
     state: RootState,
     playerIndex: number,
     dispatch: Function,
@@ -431,7 +379,7 @@ function doConversion(
     this.processQueue(dispatch);
 }
 
-function canPlayCardAction(
+export function canPlayCardAction(
     action: Action,
     state: RootState,
     parent?: Card
@@ -443,7 +391,7 @@ function canPlayCardAction(
     return this.canPlayAction(action, state, parent);
 }
 
-function canPlayCardActionInSpiteOfUI(
+export function canPlayCardActionInSpiteOfUI(
     action: Action,
     state: RootState,
     parent?: Card
@@ -455,7 +403,7 @@ function canPlayCardActionInSpiteOfUI(
     return this.canPlayActionInSpiteOfUI(action, state, parent);
 }
 
-function canPlayAction(
+export function canPlayAction(
     action: Action,
     state: RootState,
     parent?: Card
@@ -468,20 +416,20 @@ function canPlayAction(
 }
 
 function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Card) {
-    if (!doesPlayerHaveRequiredResourcesToRemove(action, state, parent)) {
+    if (!doesPlayerHaveRequiredResourcesToRemove(action, state, null, parent)) {
         return [false, 'Not enough of required resource'];
     }
 
-    if (!doesAnyoneHaveResourcesToSteal(action, state, parent)) {
+    if (!doesAnyoneHaveResourcesToSteal(action, state, null, parent)) {
         return [false, `There's no source to steal from`];
     }
 
     // Also accounts for opponent productions if applicable
-    if (!meetsProductionRequirements(action, state, parent)) {
+    if (!meetsProductionRequirements(action, state, null, parent)) {
         return [false, 'Does not have required production'];
     }
 
-    if (!meetsTilePlacementRequirements(action, state, parent)) {
+    if (!meetsTilePlacementRequirements(action, state, null, parent)) {
         return [false, 'Cannot place tile'];
     }
 
@@ -492,7 +440,7 @@ function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Car
     return [true, 'Good to go'];
 }
 
-function createInitialRemoveResourceAction(
+export function createInitialRemoveResourceAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
@@ -530,7 +478,7 @@ function createInitialRemoveResourceAction(
     }
 }
 
-function createRemoveResourceOptionAction(
+export function createRemoveResourceOptionAction(
     options: PropertyCounter<Resource>,
     playerIndex: number,
     parent?: Card,
@@ -550,7 +498,7 @@ function createRemoveResourceOptionAction(
     });
 }
 
-function createInitialGainResourceAction(
+export function createInitialGainResourceAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
@@ -580,7 +528,7 @@ function createInitialGainResourceAction(
     }
 }
 
-function createGainResourceOptionAction(
+export function createGainResourceOptionAction(
     options: PropertyCounter<Resource>,
     playerIndex: number,
     parent?: Card,
@@ -602,7 +550,7 @@ function createGainResourceOptionAction(
     });
 }
 
-function createDecreaseProductionAction(
+export function createDecreaseProductionAction(
     resource: Resource,
     amount: Amount,
     playerIndex: number,
@@ -642,19 +590,7 @@ function triggerEffectsFromStandardProject(cost: number, state: RootState) {
     );
 }
 
-function triggerEffectsFromPlayedCard(card: Card, state: RootState) {
-    const {cost, tags} = card;
-    this.triggerEffects(
-        {
-            cost: cost || 0,
-            tags,
-        },
-        state,
-        card
-    );
-}
-
-interface Event {
+export interface EffectEvent {
     standardProject?: StandardProjectType;
     cost?: number;
     placedTile?: TileType;
@@ -662,9 +598,9 @@ interface Event {
     tags?: Tag[];
 }
 
-type ActionCardPair = [Action, Card];
+export type ActionCardPair = [Action, Card];
 
-function triggerEffects(event: Event, state: RootState, playedCard?: Card) {
+function triggerEffects(event: EffectEvent, state: RootState, playedCard?: Card) {
     const player = getLoggedInPlayer(state);
     // track the card that triggered the action so we can "add resources to this card"
     // e.g. Ecological Zone
@@ -698,7 +634,7 @@ function triggerEffects(event: Event, state: RootState, playedCard?: Card) {
 }
 
 function getActionsFromEffect(
-    event: Event,
+    event: EffectEvent,
     trigger: EffectTrigger,
     effectAction: Action,
     player: PlayerState,
@@ -1020,7 +956,7 @@ function playAction({
     }
 }
 
-function filterOceanPlacementsOverMax(
+export function filterOceanPlacementsOverMax(
     tilePlacements: TilePlacement[],
     state: RootState
 ): TilePlacement[] {
@@ -1044,49 +980,7 @@ function filterOceanPlacementsOverMax(
     return filteredPlacements;
 }
 
-function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {
-    const playerIndex = getLoggedInPlayerIndex();
-
-    // 1. Pay for the card.
-    //    - This should account for discounts
-    //    - This should account for non-MC payment, which is prompted by the UI
-    //      and included in `payment`
-    //    - If no `payment` is defined, the reducer will defer to paying with MC
-    if (card.cost) {
-        this.queue.push(payToPlayCard(card, playerIndex, payment));
-    }
-
-    // 2. Apply effects that will affect future turns:
-    //     - parameter requirement adjustments (next turn or permanent)
-    //     - discounts (card discounts, standard project discounts, etc)
-    //     - exchange rates (e.g. advanced alloys)
-    this.queue.push(
-        addParameterRequirementAdjustments(
-            card.parameterRequirementAdjustments,
-            card.temporaryParameterRequirementAdjustments,
-            playerIndex
-        )
-    );
-    this.queue.push(applyDiscounts(card.discounts, playerIndex));
-    this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
-
-    // 3. Play the action
-    //     - action choices (done with priority)
-    //     - gaining/losing/stealing resources & production
-    //     - tile pacements
-    //     - discarding/drawing cards
-    this.playAction({action: card, state, parent: card});
-
-    if (card.forcedAction) {
-        this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
-    }
-
-    // Don't call `completeAction` for corporations, because we use `player.action` as a proxy
-    // for players being ready to start round 1, and don't want to increment it.
-    if (card.type !== CardType.CORPORATION) {
-        this.queue.push(completeAction(playerIndex));
-    }
-}
+function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {}
 
 function isActiveRound(state: RootState): boolean {
     return state.common.gameStage === GameStage.ACTIVE_ROUND;
@@ -1289,7 +1183,7 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_DUPLICATE_PRODUCTION,
 ];
 
-function shouldPause(action: {type: string}): boolean {
+export function shouldPause(action: {type: string}): boolean {
     return PAUSE_ACTIONS.includes(action.type);
 }
 
@@ -1308,8 +1202,7 @@ function setLoggedInPlayerIndex(index: number) {
 }
 
 export const appContext = {
-    queue: [] as Array<Object>,
-    canPlayCard,
+    queue: [] as Array<{type: string; payload?: Object}>,
     playCard,
     canPlayAction,
     canPlayActionInSpiteOfUI,
@@ -1329,7 +1222,6 @@ export const appContext = {
     triggerEffects,
     triggerEffectsFromTilePlacement,
     triggerEffectsFromStandardProject,
-    triggerEffectsFromPlayedCard,
     getActionsFromEffect,
     setLoggedInPlayerIndex,
     getLoggedInPlayer,

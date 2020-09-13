@@ -35,6 +35,8 @@ import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
+import {makeGetCall} from 'api-calls';
+import {ApiClient} from 'api-client';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -184,6 +186,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         context.queue.push(discardRevealedCards());
         context.processQueue(dispatch);
     }
+    const apiClient = new ApiClient(dispatch);
     // Used for buying, taking, and discarding cards
     function handleConfirmCardSelection() {
         setSelectedCards([]);
@@ -193,9 +196,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
             return;
         }
         if (gameStage === GameStage.CORPORATION_SELECTION) {
-            dispatch(moveCardFromHandToPlayArea(corporation, loggedInPlayerIndex));
-            context.playCard(corporation, state);
-            context.triggerEffectsFromPlayedCard(corporation, store.getState());
+            apiClient.playCardAsync({card: corporation});
         }
 
         if (loggedInPlayer.buyCards) {

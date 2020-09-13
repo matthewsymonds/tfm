@@ -1,6 +1,6 @@
 import {useDispatch, useStore} from 'react-redux';
 import React, {useContext} from 'react';
-import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
+import {AppContext, doesCardPaymentRequirePlayerInput, appContext} from 'context/app-context';
 import {Card} from 'models/card';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource, getResourceName} from 'constants/resource';
@@ -15,6 +15,8 @@ import {getTagCountsByName} from 'selectors/player';
 import {TagIcon} from 'components/tags';
 import {Flex} from 'components/box';
 import {Tag} from 'constants/tag';
+import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 
 const PlayerHandBase = styled.div`
     display: flex;
@@ -39,17 +41,11 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
 
+    const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
-        dispatch(moveCardFromHandToPlayArea(card, loggedInPlayer.index));
-        context.playCard(card, state, payment);
-        // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card affects itself.
-        context.triggerEffectsFromPlayedCard(
-            card,
-            // refreshed state so that the card we just played is present.
-            store.getState()
-        );
-        context.processQueue(dispatch);
+        apiClient.playCardAsync({card, payment});
     }
 
     function renderPlayCardButton(card: Card, canPlay: boolean) {
@@ -81,7 +77,7 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
         <PlayerHandBase>
             {player.cards
                 ? player.cards.map(card => {
-                      const [canPlay, reason] = context.canPlayCard(card, state);
+                      const [canPlay, reason] = actionGuard.canPlayCard(card);
                       return (
                           <CardComponent key={card.name} content={card}>
                               {renderPlayCardButton(card, canPlay)}

@@ -20,14 +20,13 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
-import {useContext, useState, ReactNode} from 'react';
+import {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, PlayerState} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
-import {Box} from './box';
 import React from 'react';
 
 export type ResourceActionType =
@@ -100,7 +99,7 @@ function getPlayersToConsider(
     }
 }
 
-type ResourceActionOption = {
+export type ResourceActionOption = {
     location: PlayerState | Card;
     quantity: number;
     resource: Resource;
@@ -161,7 +160,7 @@ function getOptionsForDecreaseProduction(
     const {amount, resource} = productionAndAmount;
     let maxAmount: number;
 
-    if (typeof amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+    if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
         // insulation-specific
         maxAmount = player.productions[resource];
     } else {
