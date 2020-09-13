@@ -61,6 +61,9 @@ export default async (req, res) => {
                     payment: payload.payment,
                 });
                 break;
+            case ApiActionType.API_CLAIM_MILESTONE:
+                await actionHandler.claimMilestoneAsync(payload);
+                break;
             default:
                 throw spawnExhaustiveSwitchError(type);
         }

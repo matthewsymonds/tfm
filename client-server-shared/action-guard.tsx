@@ -1,4 +1,5 @@
 import {Action} from 'constants/action';
+import {Milestone} from 'constants/board';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -11,6 +12,8 @@ import {
     meetsProductionRequirements,
     meetsTerraformRequirements,
     meetsTilePlacementRequirements,
+    milestoneQuantitySelectors,
+    minMilestoneQuantity,
 } from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, RootState} from 'reducer';
@@ -27,6 +30,10 @@ export class ActionGuard {
         private readonly username: string
     ) {}
 
+    get state() {
+        return this.game.state;
+    }
+
     getLoggedInPlayer() {
         return this.game.state.players.find(player => player.username === this.username)!;
     }
@@ -36,7 +43,7 @@ export class ActionGuard {
         // TODO check that the payment object as presented is something the user can afford
         payment?: PropertyCounter<Resource>
     ): CanPlayAndReason {
-        const {state} = this.game;
+        const {state} = this;
         const player = this.getLoggedInPlayer();
         if (!this.canAffordCard(card)) {
             return [false, 'Cannot afford to play'];
@@ -67,11 +74,9 @@ export class ActionGuard {
         return this.canPlayAction(card, state);
     }
 
-    canPlayStandardProject(
-        standardProjectAction: StandardProjectAction,
-        state: GameState
-    ): CanPlayAndReason {
+    canPlayStandardProject(standardProjectAction: StandardProjectAction): CanPlayAndReason {
         const player = this.getLoggedInPlayer();
+        const {state} = this;
 
         const [canPlay, reason] = this.canPlayAction(standardProjectAction, state);
         if (!canPlay) {
@@ -98,6 +103,39 @@ export class ActionGuard {
         const megacredits = player.resources[Resource.MEGACREDIT];
         const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
         return [cost <= megacredits + heat, 'Cannot afford standard project'];
+    }
+
+    canClaimMilestone(milestone: Milestone): CanPlayAndReason {
+        const player = this.getLoggedInPlayer();
+        const {state} = this;
+
+        if (!isActiveRound(state)) {
+            return [false, 'Cannot claim milestone outside active round'];
+        }
+
+        // Is it availiable?
+        if (state.common.claimedMilestones.length === 3) {
+            return [false, '3 milestones already claimed'];
+        }
+
+        if (state.common.claimedMilestones.find(claim => claim.milestone === milestone)) {
+            return [false, 'Milestone already claimed'];
+        }
+
+        // Can they afford it?
+        let availableMoney = player.resources[Resource.MEGACREDIT];
+        if (player.corporation.name === 'Helion') {
+            availableMoney += player.resources[Resource.HEAT];
+        }
+
+        if (availableMoney < 8) {
+            return [false, 'Cannot afford'];
+        }
+
+        return [
+            milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone],
+            'Has not met milestone',
+        ];
     }
 
     canAffordCard(card: Card) {

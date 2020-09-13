@@ -1,3 +1,4 @@
+import {ApiClient} from 'api-client';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Milestone} from 'constants/board';
@@ -44,6 +45,7 @@ function Milestones() {
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
 
     function renderMilestoneButton(milestone: Milestone) {
         const isDisabled = !context.canClaimMilestone(milestone, state);
@@ -53,8 +55,7 @@ function Milestones() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}
         ) => {
-            context.claimMilestone(milestone, payment);
-            context.processQueue(dispatch);
+            apiClient.claimMilestoneAsync({milestone, payment});
         };
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {

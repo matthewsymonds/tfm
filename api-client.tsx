@@ -9,6 +9,7 @@ import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
 import {Card} from 'models/card';
 import {deserializeState} from 'state-serialization';
+import {Conversion} from 'constants/conversion';
 
 export class ApiClient implements GameActionHandler {
     constructor(private readonly dispatch: Function) {}
@@ -83,7 +84,13 @@ export class ApiClient implements GameActionHandler {
     }: {
         milestone: Milestone;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const payload = {
+            milestone,
+            payment,
+        };
+        await this.makeApiCall(ApiActionType.API_CLAIM_MILESTONE, payload);
+    }
 
     async fundAwardAsync({
         award,
@@ -92,6 +99,8 @@ export class ApiClient implements GameActionHandler {
         award: Award;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {}
+
+    async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
 
     async skipActionAsync(): Promise<void> {}
 

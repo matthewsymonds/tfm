@@ -176,7 +176,7 @@ export const payToPlayStandardProject = (
 export const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
 export const claimMilestone = (
     milestone: Milestone,
-    payment: PropertyCounter<Resource>,
+    payment: PropertyCounter<Resource> | undefined,
     playerIndex: number
 ) => ({
     type: CLAIM_MILESTONE,

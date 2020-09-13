@@ -1,5 +1,6 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {Conversion} from 'constants/conversion';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -46,6 +47,8 @@ export interface GameActionHandler {
         award: Award;
         payment?: PropertyCounter<Resource>;
     }): Promise<void>;
+
+    doConversionAsync({conversion}: {conversion: Conversion}): Promise<void>;
 
     skipActionAsync(): Promise<void>;
 

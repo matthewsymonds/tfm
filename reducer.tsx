@@ -655,7 +655,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case CLAIM_MILESTONE: {
                 const {payment, milestone} = payload;
-                for (const resource in payment) {
+                for (const resource in payment || {}) {
                     player.resources[resource] -= payment[resource];
                 }
                 draft.common.claimedMilestones.push({

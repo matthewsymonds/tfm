@@ -8,7 +8,20 @@ import {
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
-    completeAction,
+
+
+
+
+
+
+
+
+
+
+
+
+
+    claimMilestone as claimMilestoneAction, completeAction,
     gainResource,
     increaseParameter,
     increaseProduction,
@@ -17,21 +30,24 @@ import {
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     payToPlayCard,
-    removeResource,
+
+
+
+    payToPlayStandardProject, removeResource,
     revealAndDiscardTopCards,
-    setPlantDiscount,
-    payToPlayStandardProject,
+    setPlantDiscount
 } from 'actions';
-import {ActionGuard} from 'client-server-shared/action-guard';
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
-import {Action, ParameterCounter} from 'constants/action';
-import {Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType} from 'constants/board';
-import {CardType} from 'constants/card-types';
-import {EffectTrigger} from 'constants/effect-trigger';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
-import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import { ActionGuard } from 'client-server-shared/action-guard';
+import { GameActionHandler } from 'client-server-shared/game-action-handler-interface';
+import { ResourceActionOption } from 'components/ask-user-to-confirm-resource-action-details';
+import { Action, ParameterCounter } from 'constants/action';
+import { Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType } from 'constants/board';
+import { CardType } from 'constants/card-types';
+import { Conversion } from 'constants/conversion';
+import { EffectTrigger } from 'constants/effect-trigger';
+import { PropertyCounter } from 'constants/property-counter';
+import { Resource, ResourceAndAmount, ResourceLocationType } from 'constants/resource';
+import { StandardProjectAction, StandardProjectType } from 'constants/standard-project';
 import {
     ActionCardPair,
     createDecreaseProductionAction,
@@ -41,10 +57,10 @@ import {
     createRemoveResourceOptionAction,
     EffectEvent,
     filterOceanPlacementsOverMax,
-    shouldPause,
+    shouldPause
 } from 'context/app-context';
-import {Card} from 'models/card';
-import {GameState, PlayerState, reducer, RootState} from 'reducer';
+import { Card } from 'models/card';
+import { GameState, PlayerState, reducer, RootState } from 'reducer';
 
 export interface ServerGameModel {
     state: GameState;
@@ -316,11 +332,7 @@ export class ApiActionHandler implements GameActionHandler {
         standardProjectAction: StandardProjectAction;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
-        const {state} = this;
-        const [canPlay, reason] = this.actionGuard.canPlayStandardProject(
-            standardProjectAction,
-            state
-        );
+        const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
         if (!canPlay) {
             throw new Error(reason);
@@ -329,6 +341,7 @@ export class ApiActionHandler implements GameActionHandler {
         const playerIndex = this.getLoggedInPlayerIndex();
         this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
 
+        const {state} = this;
         this.triggerEffectsFromStandardProject(
             standardProjectAction.cost,
             state,
@@ -360,7 +373,18 @@ export class ApiActionHandler implements GameActionHandler {
     }: {
         milestone: Milestone;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        const playerIndex = this.getLoggedInPlayerIndex();
+        this.queue.push(claimMilestoneAction(milestone, payment, playerIndex));
+        this.queue.push(completeAction(playerIndex));
+        this.processQueue();
+    }
 
     async fundAwardAsync({
         award,
@@ -369,6 +393,8 @@ export class ApiActionHandler implements GameActionHandler {
         award: Award;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {}
+
+    async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
 
     async skipActionAsync(): Promise<void> {}
 
