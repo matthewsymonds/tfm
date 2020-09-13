@@ -52,6 +52,15 @@ export default async (req, res) => {
                     choiceIndex: payload.choiceIndex,
                 });
                 break;
+            case ApiActionType.API_PLAY_STANDARD_PROJECT:
+                const standardProjectAction = stateHydrator.getStandardProject(
+                    payload.standardProjectActionType
+                );
+                await actionHandler.playStandardProjectAsync({
+                    standardProjectAction,
+                    payment: payload.payment,
+                });
+                break;
             default:
                 throw spawnExhaustiveSwitchError(type);
         }
@@ -65,7 +74,7 @@ export default async (req, res) => {
         });
     } catch (error) {
         res.status(404);
+        res.status(404);
         res.json({error: error.message});
-        return;
     }
 };

@@ -57,7 +57,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {createContext} from 'react';
-import {PlayerState, RootState} from 'reducer';
+import {PlayerState, RootState, GameState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -983,7 +983,7 @@ export function filterOceanPlacementsOverMax(
 
 function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {}
 
-function isActiveRound(state: RootState): boolean {
+export function isActiveRound(state: GameState): boolean {
     return state.common.gameStage === GameStage.ACTIVE_ROUND;
 }
 

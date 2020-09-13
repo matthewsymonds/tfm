@@ -68,7 +68,14 @@ export class ApiClient implements GameActionHandler {
     }: {
         standardProjectAction: StandardProjectAction;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const payload = {
+            standardProjectActionType: standardProjectAction.type,
+            payment,
+        };
+
+        await this.makeApiCall(ApiActionType.API_PLAY_STANDARD_PROJECT, payload);
+    }
 
     async claimMilestoneAsync({
         milestone,

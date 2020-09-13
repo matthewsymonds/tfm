@@ -1,5 +1,10 @@
 import {Card, cards} from 'models/card';
 import {ServerGameModel} from 'server/api-action-handler';
+import {
+    standardProjectActions,
+    StandardProjectType,
+    StandardProjectAction,
+} from 'constants/standard-project';
 
 export class StateHydrator {
     constructor(public game: ServerGameModel, public username: string) {}
@@ -11,5 +16,8 @@ export class StateHydrator {
         }
 
         return card;
+    }
+    getStandardProject(type: StandardProjectType): StandardProjectAction {
+        return standardProjectActions.find(action => action.type === type)!;
     }
 }

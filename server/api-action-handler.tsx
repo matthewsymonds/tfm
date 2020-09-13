@@ -20,6 +20,7 @@ import {
     removeResource,
     revealAndDiscardTopCards,
     setPlantDiscount,
+    payToPlayStandardProject,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -30,7 +31,7 @@ import {CardType} from 'constants/card-types';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
-import {StandardProjectAction} from 'constants/standard-project';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {
     ActionCardPair,
     createDecreaseProductionAction,
@@ -102,6 +103,21 @@ export class ApiActionHandler implements GameActionHandler {
             this.queue.push(payToPlayCard(card, playerIndex, payment));
         }
 
+        // Have to trigger effects from the card we just played.
+        // Must be processed separatedly in case the card affects itself.
+        // Must also happen after payment.
+        // However, it must be *before* other stuff happens.
+        // Why? Imagine you're Credicor and play Underground City.
+        // Credicor will give you 4 coins after affording the card.
+        // The board is Hellas.
+        // You place the city on the "place an ocean for 6 coins" spot.
+        // Now if you have 2 coins after paying for the card,
+        // you'll now have 6 coins and can afford the card.
+        // If the triggerEffects happened after city placement you could not.
+        // TODO fix edge cases where the ActionGuard will block you from proceeding
+        // even though it's technically possible (e.g. Tharsis and Immigrant City).
+        this.triggerEffectsFromPlayedCard(card);
+
         // 2. Apply effects that will affect future turns:
         //     - parameter requirement adjustments (next turn or permanent)
         //     - discounts (card discounts, standard project discounts, etc)
@@ -135,10 +151,6 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         this.processQueue();
-
-        // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card affects itself.
-        this.triggerEffectsFromPlayedCard(card);
     }
 
     private triggerEffectsFromPlayedCard(card: Card) {
@@ -303,7 +315,44 @@ export class ApiActionHandler implements GameActionHandler {
     }: {
         standardProjectAction: StandardProjectAction;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const {state} = this;
+        const [canPlay, reason] = this.actionGuard.canPlayStandardProject(
+            standardProjectAction,
+            state
+        );
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        const playerIndex = this.getLoggedInPlayerIndex();
+        this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
+
+        this.triggerEffectsFromStandardProject(
+            standardProjectAction.cost,
+            state,
+            standardProjectAction.type
+        );
+
+        this.playAction({action: standardProjectAction, state});
+        this.queue.push(completeAction(playerIndex));
+
+        this.processQueue();
+    }
+
+    private triggerEffectsFromStandardProject(
+        cost: number | undefined,
+        state: GameState,
+        type: StandardProjectType
+    ) {
+        if (!cost) return;
+
+        this.triggerEffects({
+            standardProject: type,
+            cost,
+        });
+    }
 
     async claimMilestoneAsync({
         milestone,

@@ -11,6 +11,7 @@ import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
+import {ApiClient} from 'api-client';
 
 export function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
@@ -49,6 +50,8 @@ export default function StandardProjects() {
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
 
+    const apiClient = new ApiClient(dispatch);
+
     function renderStandardProjectButton(standardProject: StandardProjectAction) {
         const isDisabled = useTypedSelector(
             () => !context.canPlayStandardProject(standardProject, state)
@@ -59,8 +62,7 @@ export default function StandardProjects() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
-            context.playStandardProject(standardProject, payment, state);
-            context.processQueue(dispatch);
+            apiClient.playStandardProjectAsync({payment, standardProjectAction: standardProject});
         };
 
         if (

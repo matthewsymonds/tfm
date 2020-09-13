@@ -2,10 +2,12 @@ import {Action} from 'constants/action';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {
     doesAnyoneHaveResourcesToSteal,
     doesPlayerHaveRequiredResourcesToRemove,
+    isActiveRound,
     meetsProductionRequirements,
     meetsTerraformRequirements,
     meetsTilePlacementRequirements,
@@ -63,6 +65,39 @@ export class ActionGuard {
         }
 
         return this.canPlayAction(card, state);
+    }
+
+    canPlayStandardProject(
+        standardProjectAction: StandardProjectAction,
+        state: GameState
+    ): CanPlayAndReason {
+        const player = this.getLoggedInPlayer();
+
+        const [canPlay, reason] = this.canPlayAction(standardProjectAction, state);
+        if (!canPlay) {
+            return [canPlay, reason];
+        }
+
+        if (!isActiveRound(state)) {
+            return [false, 'Cannot play standard project outside active round'];
+        }
+
+        // Selling patents is the only standard project whose cost is cards, not megacredits
+        if (standardProjectAction.type === StandardProjectType.SELL_PATENTS) {
+            return [player.cards.length > 0, 'Must have a card to sell'];
+        }
+
+        let cost = standardProjectAction.cost!;
+        const {discounts} = player;
+
+        cost -= discounts.standardProjects;
+        if (standardProjectAction.type === StandardProjectType.POWER_PLANT) {
+            cost -= discounts.standardProjectPowerPlant;
+        }
+
+        const megacredits = player.resources[Resource.MEGACREDIT];
+        const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
+        return [cost <= megacredits + heat, 'Cannot afford standard project'];
     }
 
     canAffordCard(card: Card) {
