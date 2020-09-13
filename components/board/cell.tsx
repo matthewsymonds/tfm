@@ -1,19 +1,12 @@
+import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/resource';
-import {
-    CellType,
-    Cell as CellModel,
-    Tile,
-    TileType,
-    getTileIcon,
-    getTileBgColor,
-} from 'constants/board';
+import {Square} from 'components/square';
+import {Cell as CellModel, CellType, getTileBgColor, getTileIcon, TileType} from 'constants/board';
+import {colors} from 'constants/game';
 import {Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
 import {Hexagon} from './hexagon';
-import {colors} from 'constants/game';
-import {Flex} from 'components/box';
-import {Square} from 'components/square';
 
 interface CellProps {
     cell: CellModel;

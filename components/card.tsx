@@ -1,4 +1,4 @@
-import {completeAction, markCardActionAsPlayed} from 'actions';
+import {ApiClient} from 'api-client';
 import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
@@ -14,7 +14,6 @@ import styled from 'styled-components';
 import {Box, Flex} from './box';
 import PaymentPopover from './popovers/payment-popover';
 import {TagsComponent} from './tags';
-import {ApiClient} from 'api-client';
 
 export const CardName = styled.span`
     font-size: 16px;

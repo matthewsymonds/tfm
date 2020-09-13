@@ -1,6 +1,6 @@
-import {CommonState, PlayerState, RootState} from './reducer';
-import {Card, cards} from './models/card';
 import {Resource} from './constants/resource';
+import {Card, cards} from './models/card';
+import {CommonState, PlayerState, RootState} from './reducer';
 
 export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile'> & {
     deck: SerializedCard[];

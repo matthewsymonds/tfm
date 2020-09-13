@@ -3,11 +3,11 @@ import {
     completeAction,
     discardCards,
     discardRevealedCards,
-    moveCardFromHandToPlayArea,
     payForCards,
     removeForcedActionFromPlayer,
     setCards,
 } from 'actions';
+import {ApiClient} from 'api-client';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {LogPanel} from 'components/log-panel';
 import {PlayerPanel} from 'components/player-panel';
@@ -35,8 +35,6 @@ import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
 import {CardComponent} from './card';
 import {CardSelector} from './card-selector';
-import {makeGetCall} from 'api-calls';
-import {ApiClient} from 'api-client';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;

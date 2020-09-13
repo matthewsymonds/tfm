@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import {colors} from 'components/ui';
 import React, {ReactNode} from 'react';
+import styled from 'styled-components';
 
 interface BoxProps {
     margin: string;

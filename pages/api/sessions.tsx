@@ -1,4 +1,4 @@
-import {sessionsModel, usersModel, retrieveSession, appendSecurityCookieModifiers} from 'database';
+import {appendSecurityCookieModifiers, retrieveSession, sessionsModel, usersModel} from 'database';
 import absoluteUrl from 'next-absolute-url';
 
 export default async (req, res) => {

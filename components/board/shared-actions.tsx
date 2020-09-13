@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import {colors} from 'components/ui';
+import styled from 'styled-components';
 
 export const SharedActionsContainer = styled.div`
     display: flex;

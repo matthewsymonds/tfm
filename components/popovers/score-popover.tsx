@@ -1,11 +1,10 @@
 // import {Popover} from 'reactstrap';
-import styled from 'styled-components';
-import {Popover, Position, Pane} from 'evergreen-ui';
-import {useStore} from 'react-redux';
-
-import {getCardVictoryPoints} from 'selectors/card';
-import {getGreeneryScore, getCityScore, getMilestoneScore, getAwardScore} from 'selectors/score';
 import {CardType} from 'constants/card-types';
+import {Pane, Popover, Position} from 'evergreen-ui';
+import {useStore} from 'react-redux';
+import {getCardVictoryPoints} from 'selectors/card';
+import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
+import styled from 'styled-components';
 
 type Props = {
     playerIndex: number;

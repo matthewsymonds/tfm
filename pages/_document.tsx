@@ -1,6 +1,6 @@
-import Document, {Html, Head, Main, NextScript, DocumentContext} from 'next/document';
-import {ServerStyleSheet} from 'styled-components';
+import Document, {DocumentContext, Head, Html, Main, NextScript} from 'next/document';
 import {ReactNode} from 'react';
+import {ServerStyleSheet} from 'styled-components';
 
 export default class MyDocument extends Document<{styleTags: ReactNode}> {
     static async getInitialProps(ctx: DocumentContext) {

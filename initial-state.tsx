@@ -1,11 +1,11 @@
-import {Deck, CardType} from './constants/card-types';
-import {GameState, PlayerState} from './reducer';
-import {GameStage, MIN_PARAMETERS} from './constants/game';
-import {Card, cards} from './models/card';
 import {INITIAL_BOARD_STATE} from './constants/board';
+import {CardType, Deck} from './constants/card-types';
+import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {Resource} from './constants/resource';
 import {Tag} from './constants/tag';
+import {Card, cards} from './models/card';
+import {GameState, PlayerState} from './reducer';
 
 export function shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {

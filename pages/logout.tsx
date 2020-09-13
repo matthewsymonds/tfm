@@ -1,6 +1,6 @@
 import {makeDeleteCall} from 'api-calls';
-import {useEffect} from 'react';
 import {useRouter} from 'next/router';
+import {useEffect} from 'react';
 
 export default () => {
     const router = useRouter();

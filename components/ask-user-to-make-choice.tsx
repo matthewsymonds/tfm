@@ -1,8 +1,8 @@
-import styled from 'styled-components';
 import {Card} from 'models/card';
-import {Flex, Box} from './box';
-import {CardComponent} from './card';
 import {ReactNode} from 'react';
+import styled from 'styled-components';
+import {Box, Flex} from './box';
+import {CardComponent} from './card';
 
 export const OptionsParent = styled.div`
     padding-left: 2px;

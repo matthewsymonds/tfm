@@ -1,8 +1,7 @@
 import {Card} from 'models/card';
-import {CardComponent} from './card';
-import styled from 'styled-components';
-
 import React from 'react';
+import styled from 'styled-components';
+import {CardComponent} from './card';
 
 interface CardSelectorProps {
     min?: number;

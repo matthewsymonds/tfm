@@ -1,17 +1,16 @@
-import {PlayerState} from 'reducer';
+import {Amount} from 'constants/action';
 import {
-    StorableResource,
+    PROTECTED_HABITAT_RESOURCE,
     Resource,
     ResourceLocationType,
-    PROTECTED_HABITAT_RESOURCE,
+    StorableResource,
 } from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {Card} from 'models/card';
-import spawnExhaustiveSwitchError from 'utils';
-import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
-import {Amount} from 'constants/action';
-import {RootState} from 'reducer';
 import {getLoggedInPlayer} from 'context/app-context';
+import {Card} from 'models/card';
+import {PlayerState, RootState} from 'reducer';
+import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import spawnExhaustiveSwitchError from 'utils';
 
 export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;

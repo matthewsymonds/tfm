@@ -1,11 +1,13 @@
 import {
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
+    askUserToDuplicateProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_DISCARD_CARDS,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
@@ -15,17 +17,15 @@ import {
     fundAward as fundAwardAction,
     gainResource,
     gainStorableResource,
+    increaseParameter,
     increaseProduction,
+    increaseTerraformRating,
     payToPlayStandardProject,
     removeResource,
     removeStorableResource,
     revealAndDiscardTopCards,
     REVEAL_AND_DISCARD_TOP_CARDS,
     setPlantDiscount,
-    askUserToDuplicateProduction,
-    ASK_USER_TO_DUPLICATE_PRODUCTION,
-    increaseParameter,
-    increaseTerraformRating,
 } from 'actions';
 import {Action, Amount, ParameterCounter} from 'constants/action';
 import {
@@ -36,10 +36,9 @@ import {
     Milestone,
     Parameter,
     PlacementRequirement,
+    t,
     TilePlacement,
     TileType,
-    t,
-    Tile,
 } from 'constants/board';
 import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';

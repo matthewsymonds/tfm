@@ -1,18 +1,16 @@
-import React, {useContext, useState} from 'react';
-
+import PaymentPopover from 'components/popovers/payment-popover';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
 import {
+    StandardProjectAction,
     standardProjectActions,
     StandardProjectType,
-    StandardProjectAction,
-    NonSellPatentsStandardProjectAction,
 } from 'constants/standard-project';
-import PaymentPopover from 'components/popovers/payment-popover';
 import {AppContext} from 'context/app-context';
-import {useTypedSelector, PlayerState} from 'reducer';
+import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
-import {SharedActionsContainer, SharedActionRow} from './shared-actions';
-import {Resource} from 'constants/resource';
-import {PropertyCounter} from 'constants/property-counter';
+import {PlayerState, useTypedSelector} from 'reducer';
+import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 export function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {

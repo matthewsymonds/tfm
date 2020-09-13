@@ -1,15 +1,14 @@
-import {Amount, Action} from './constants/action';
+import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
+import {ExchangeRates} from 'constants/card-types';
+import {Tag} from 'constants/tag';
+import {Action, Amount} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
-import {GameStage} from './constants/game';
 import {PropertyCounter} from './constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
 import {Card} from './models/card';
 import {RootState} from './reducer';
-import {ExchangeRates} from 'constants/card-types';
-import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
-import {Tag} from 'constants/tag';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({

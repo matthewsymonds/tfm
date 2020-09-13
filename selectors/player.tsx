@@ -1,6 +1,6 @@
-import {GameState, PlayerState} from 'reducer';
-import {Tag} from 'constants/tag';
 import {NumericPropertyCounter} from 'constants/property-counter';
+import {Tag} from 'constants/tag';
+import {GameState, PlayerState} from 'reducer';
 
 export function getForcedActionsForPlayer(state: GameState, playerIndex: number) {
     const player = state.players.find(p => p.index === playerIndex);

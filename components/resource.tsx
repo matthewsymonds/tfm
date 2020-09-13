@@ -1,20 +1,19 @@
-import styled from 'styled-components';
+import {colors} from 'components/ui';
+import {Conversion, CONVERSIONS} from 'constants/conversion';
 import {
+    getClassName,
     getResourceBackgroundColor,
     getResourceColor,
-    getClassName,
     getResourceSymbol,
     Resource,
 } from 'constants/resource';
-
-import {Conversion, CONVERSIONS} from 'constants/conversion';
-import {PlayerState} from 'reducer';
-import {useContext} from 'react';
 import {AppContext} from 'context/app-context';
-import {ConversionButton} from './conversion-button';
-import {useStore, useDispatch} from 'react-redux';
 import {Pane} from 'evergreen-ui';
-import {colors} from 'components/ui';
+import {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState} from 'reducer';
+import styled from 'styled-components';
+import {ConversionButton} from './conversion-button';
 
 interface ResourceIconBaseProps {
     readonly color: string;

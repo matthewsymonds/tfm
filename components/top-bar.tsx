@@ -1,15 +1,13 @@
 import {skipAction} from 'actions';
+import {Flex} from 'components/box';
+import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-
 import {useRouter} from 'next/router';
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {RootState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {Flex} from 'components/box';
-import {colors} from 'components/ui';
-import React from 'react';
 
 const TopBarBase = styled.div`
     display: flex;

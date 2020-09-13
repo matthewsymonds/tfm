@@ -1,7 +1,7 @@
 import {Action, ActionType} from './action';
-import {VariableAmount} from './variable-amount';
+import {Parameter, PlacementRequirement, TileType} from './board';
 import {Resource} from './resource';
-import {Parameter, TileType, PlacementRequirement} from './board';
+import {VariableAmount} from './variable-amount';
 
 export enum StandardProjectType {
     SELL_PATENTS = 'sellPatents',

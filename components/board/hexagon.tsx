@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import {HEX_RADIUS} from 'constants/board';
+import styled from 'styled-components';
 
 const HexagonBase = styled.div<HexagonProps>`
     color: white;

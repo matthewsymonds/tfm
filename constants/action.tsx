@@ -1,8 +1,8 @@
 import {Parameter, TilePlacement} from './board';
-import {PropertyCounter, NumericPropertyCounter} from './property-counter';
+import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
-import {VariableAmount} from './variable-amount';
 import {Tag} from './tag';
+import {VariableAmount} from './variable-amount';
 
 type ResourceCounter = PropertyCounter<Resource>;
 

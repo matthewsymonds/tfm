@@ -1,11 +1,10 @@
+import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
+import {colors} from 'components/ui';
 import {useState} from 'react';
 import {PlayerState} from 'reducer';
 import styled from 'styled-components';
-
-import {PlayerResourceBoard} from './resource';
 import spawnExhaustiveSwitchError from 'utils';
-import {colors} from 'components/ui';
-import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
+import {PlayerResourceBoard} from './resource';
 
 const PlayerPanelSectionBase = styled.div`
     background-color: ${colors.ACCORDION_BG};

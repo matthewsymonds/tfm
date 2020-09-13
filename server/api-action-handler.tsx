@@ -1,49 +1,49 @@
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
-import {Card} from 'models/card';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceLocationType, ResourceAndAmount} from 'constants/resource';
-import {Action, ParameterCounter} from 'constants/action';
-import {StandardProjectAction} from 'constants/standard-project';
-import {Milestone, Award, Tile, Cell, Parameter, t, TileType, CellType} from 'constants/board';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
-import {GameState, RootState, reducer, PlayerState} from 'reducer';
 import {
-    payToPlayCard,
+    addForcedActionToPlayer,
     addParameterRequirementAdjustments,
     applyDiscounts,
     applyExchangeRateChanges,
-    addForcedActionToPlayer,
-    completeAction,
-    removeResource,
     askUserToChooseResourceActionDetails,
+    askUserToDuplicateProduction,
+    askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
-    revealAndDiscardTopCards,
-    askUserToLookAtCards,
-    increaseProduction,
-    askUserToDuplicateProduction,
-    increaseParameter,
+    completeAction,
     gainResource,
+    increaseParameter,
+    increaseProduction,
     increaseTerraformRating,
-    setPlantDiscount,
-    moveCardFromHandToPlayArea,
     makeActionChoice,
     markCardActionAsPlayed,
+    moveCardFromHandToPlayArea,
+    payToPlayCard,
+    removeResource,
+    revealAndDiscardTopCards,
+    setPlantDiscount,
 } from 'actions';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Action, ParameterCounter} from 'constants/action';
+import {Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
+import {EffectTrigger} from 'constants/effect-trigger';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
+import {StandardProjectAction} from 'constants/standard-project';
 import {
+    ActionCardPair,
+    createDecreaseProductionAction,
     createGainResourceOptionAction,
-    createRemoveResourceOptionAction,
     createInitialGainResourceAction,
     createInitialRemoveResourceAction,
+    createRemoveResourceOptionAction,
+    EffectEvent,
     filterOceanPlacementsOverMax,
     shouldPause,
-    createDecreaseProductionAction,
-    ActionCardPair,
-    EffectEvent,
 } from 'context/app-context';
-import {ActionGuard} from 'client-server-shared/action-guard';
-import {EffectTrigger} from 'constants/effect-trigger';
+import {Card} from 'models/card';
+import {GameState, PlayerState, reducer, RootState} from 'reducer';
 
 export interface ServerGameModel {
     state: GameState;

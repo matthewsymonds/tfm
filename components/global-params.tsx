@@ -1,8 +1,8 @@
-import styled from 'styled-components';
-import {Parameter, GlobalParameters, getParameterName} from 'constants/board';
-import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {Flex} from 'components/box';
 import {colors} from 'components/ui';
+import {getParameterName, GlobalParameters, Parameter} from 'constants/board';
+import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
+import styled from 'styled-components';
 
 const GlobalParamsBase = styled.div`
     width: 100%;

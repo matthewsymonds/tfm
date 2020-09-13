@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import Link from 'next/link';
+import styled from 'styled-components';
 
 const MarsBase = styled.div`
     width: 27px;

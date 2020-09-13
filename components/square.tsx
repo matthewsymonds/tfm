@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import {colors} from 'constants/game';
+import styled from 'styled-components';
 
 const SquareBase = styled.div<{color: string; shouldHideBorder?: boolean}>`
     width: 9px;

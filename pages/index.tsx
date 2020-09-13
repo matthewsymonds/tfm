@@ -1,8 +1,6 @@
 import {Box, Flex} from 'components/box';
 import {SwitchColors} from 'components/log-panel';
 import {Switcher} from 'components/switcher';
-import {useSession} from 'hooks/use-session';
-import {useUserGames} from 'hooks/use-user-games';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import styled from 'styled-components';

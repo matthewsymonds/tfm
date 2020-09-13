@@ -1,15 +1,14 @@
-import React, {useContext} from 'react';
-import {useStore, useDispatch} from 'react-redux';
-import styled from 'styled-components';
-
-import {useTypedSelector, RootState, PlayerState} from 'reducer';
-import {GameStage} from 'constants/game';
-import {AppContext} from 'context/app-context';
-import {Flex, Panel, PanelWithTabs} from 'components/box';
+import {setCorporation} from 'actions';
+import {Flex, PanelWithTabs} from 'components/box';
+import {CardSelector} from 'components/card-selector';
 import {PlayerPanelSection} from 'components/player-panel-section';
 import {ScorePopover} from 'components/popovers/score-popover';
-import {CardSelector} from 'components/card-selector';
-import {setCorporation} from 'actions';
+import {GameStage} from 'constants/game';
+import {AppContext} from 'context/app-context';
+import React, {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 
 const CorporationHeader = styled.h2`
     display: flex;

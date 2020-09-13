@@ -1,7 +1,7 @@
 // Can appear on the board, on a card, or in a colony.
 
-import {Amount} from './action';
 import spawnExhaustiveSwitchError from 'utils';
+import {Amount} from './action';
 
 // Can appear on the board, on a card, or in a colony.
 export enum Resource {

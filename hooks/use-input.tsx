@@ -1,4 +1,4 @@
-import {useState, useCallback, FormEvent} from 'react';
+import {FormEvent, useCallback, useState} from 'react';
 
 export const useInput = <K extends string | number>(
     initialValue: K

@@ -1,6 +1,6 @@
-import {Resource} from './resource';
 import {Action} from './action';
-import {t, TileType, Parameter} from './board';
+import {Parameter, t, TileType} from './board';
+import {Resource} from './resource';
 
 export interface Conversion extends Action {}
 

@@ -1,22 +1,21 @@
-import {useDispatch, useStore} from 'react-redux';
-import React, {useContext} from 'react';
-import {AppContext, doesCardPaymentRequirePlayerInput, appContext} from 'context/app-context';
-import {Card} from 'models/card';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource, getResourceName} from 'constants/resource';
-import {moveCardFromHandToPlayArea} from 'actions';
-import PaymentPopover from 'components/popovers/payment-popover';
-import {CardComponent, CardDisabledText, CardText, CardActionElements} from 'components/card';
-import {RootState, PlayerState, useTypedSelector} from 'reducer';
-import styled from 'styled-components';
-import {GameStage} from 'constants/game';
-import {CardType} from 'constants/card-types';
-import {getTagCountsByName} from 'selectors/player';
-import {TagIcon} from 'components/tags';
-import {Flex} from 'components/box';
-import {Tag} from 'constants/tag';
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import {Flex} from 'components/box';
+import {CardActionElements, CardComponent, CardDisabledText, CardText} from 'components/card';
+import PaymentPopover from 'components/popovers/payment-popover';
+import {TagIcon} from 'components/tags';
+import {CardType} from 'constants/card-types';
+import {GameStage} from 'constants/game';
+import {PropertyCounter} from 'constants/property-counter';
+import {getResourceName, Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
+import {Card} from 'models/card';
+import React, {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import {getTagCountsByName} from 'selectors/player';
+import styled from 'styled-components';
 
 const PlayerHandBase = styled.div`
     display: flex;

@@ -1,18 +1,17 @@
-import {GameState, RootState} from 'reducer';
-import {Card} from 'models/card';
-import {ServerGameModel} from 'server/api-action-handler';
-import {
-    doesPlayerHaveRequiredResourcesToRemove,
-    doesAnyoneHaveResourcesToSteal,
-    meetsProductionRequirements,
-    meetsTilePlacementRequirements,
-    meetsTerraformRequirements,
-} from 'context/app-context';
 import {Action} from 'constants/action';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
+import {
+    doesAnyoneHaveResourcesToSteal,
+    doesPlayerHaveRequiredResourcesToRemove,
+    meetsProductionRequirements,
+    meetsTerraformRequirements,
+    meetsTilePlacementRequirements,
+} from 'context/app-context';
+import {Card} from 'models/card';
+import {GameState, RootState} from 'reducer';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];

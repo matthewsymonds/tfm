@@ -1,11 +1,10 @@
-import {retrieveSession, gamesModel} from 'database';
 import {ApiActionType} from 'client-server-shared/api-action-type';
+import {gamesModel, retrieveSession} from 'database';
+import {Card} from 'models/card';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
-import spawnExhaustiveSwitchError from 'utils';
 import {deserializeState, serializeState} from 'state-serialization';
-import games from 'pages/api/games';
-import {Card} from 'models/card';
+import spawnExhaustiveSwitchError from 'utils';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);

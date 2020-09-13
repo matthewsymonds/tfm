@@ -1,17 +1,16 @@
-import styled from 'styled-components';
-import React, {useContext} from 'react';
-import {cellHelpers, Cell as CellModel, Parameter} from 'constants/board';
-import {Cell} from './cell';
-import {getValidPlacementsForRequirement} from 'selectors/board';
-import {useDispatch, useStore} from 'react-redux';
-import {useTypedSelector, RootState} from 'reducer';
-import {placeTile, increaseParameter} from 'actions';
-import {AppContext} from 'context/app-context';
-import {HEX_RADIUS, HEX_PADDING} from 'constants/board';
-import OffMarsCities from './off-mars-cities';
+import {placeTile} from 'actions';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
+import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS, Parameter} from 'constants/board';
+import {AppContext} from 'context/app-context';
+import React, {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {RootState, useTypedSelector} from 'reducer';
+import {getValidPlacementsForRequirement} from 'selectors/board';
+import styled from 'styled-components';
+import {Cell} from './cell';
+import OffMarsCities from './off-mars-cities';
 
 const BoardOuter = styled.div`
     display: flex;

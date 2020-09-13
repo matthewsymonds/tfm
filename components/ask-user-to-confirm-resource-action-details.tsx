@@ -20,14 +20,13 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
-import {useContext, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, PlayerState} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
-import React from 'react';
 
 export type ResourceActionType =
     | 'removeResource'

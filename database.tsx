@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import isEmail from 'validator/lib/isEmail';
 import cookie from 'cookie';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 import absoluteUrl from 'next-absolute-url';
+import isEmail from 'validator/lib/isEmail';
 
 const uniqueNameSchema = {
     type: String,

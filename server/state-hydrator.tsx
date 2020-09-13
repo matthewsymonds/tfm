@@ -1,5 +1,5 @@
+import {Card, cards} from 'models/card';
 import {ServerGameModel} from 'server/api-action-handler';
-import {cards, Card} from 'models/card';
 
 export class StateHydrator {
     constructor(public game: ServerGameModel, public username: string) {}

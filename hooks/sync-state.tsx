@@ -1,11 +1,11 @@
-import {makePostCall} from 'api-calls';
-import {useRouter} from 'next/router';
-import {useEffect, useRef, useContext, useState} from 'react';
-import {useStore, useDispatch} from 'react-redux';
-import {RootState} from 'reducer';
-import {serializeState, deserializeState} from 'state-serialization';
-import {AppContext} from 'context/app-context';
 import {setGame} from 'actions';
+import {makePostCall} from 'api-calls';
+import {AppContext} from 'context/app-context';
+import {useRouter} from 'next/router';
+import {useContext, useEffect, useRef} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {RootState} from 'reducer';
+import {deserializeState, serializeState} from 'state-serialization';
 
 async function syncState(newState: RootState | null, queue: Object[], router, dispatch) {
     if (!newState) return;

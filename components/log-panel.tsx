@@ -1,7 +1,7 @@
-import {Panel, Box, Flex, PanelWithTabs} from 'components/box';
+import {Box, Flex, PanelWithTabs} from 'components/box';
+import {colors} from 'components/ui';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {colors} from 'components/ui';
 
 export const SwitchColors = styled.div`
     > * {

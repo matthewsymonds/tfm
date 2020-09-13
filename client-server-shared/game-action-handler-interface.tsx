@@ -1,10 +1,9 @@
-import {Card} from 'models/card';
-import {Action} from 'constants/action';
+import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Award, Cell, Milestone, Tile} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
-import {Milestone, Award, Cell, Tile} from 'constants/board';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Card} from 'models/card';
 
 export interface GameActionHandler {
     playCardAsync({

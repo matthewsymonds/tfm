@@ -1,14 +1,11 @@
 import {makePostCall} from 'api-calls';
-import {Input, SubmitInput} from 'components/input';
-import {useInput} from 'hooks/use-input';
-import {useSession} from 'hooks/use-session';
-import Link from 'next/link';
-import {useRouter} from 'next/router';
-import {FormEvent, ReactElement, useEffect, useState} from 'react';
-import {shuffle} from 'initial-state';
-import {MaybeVisible} from 'components/maybe-visible';
 import {Box} from 'components/box';
-import React from 'react';
+import {Input, SubmitInput} from 'components/input';
+import {MaybeVisible} from 'components/maybe-visible';
+import {useInput} from 'hooks/use-input';
+import {shuffle} from 'initial-state';
+import {useRouter} from 'next/router';
+import React, {FormEvent, ReactElement, useState} from 'react';
 
 export default function NewGame(props) {
     const {session} = props;

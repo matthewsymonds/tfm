@@ -4,7 +4,7 @@ import {Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {AppContext, milestoneQuantitySelectors, minMilestoneQuantity} from 'context/app-context';
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';

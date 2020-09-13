@@ -1,10 +1,10 @@
-import styled from 'styled-components';
 import {Tag} from 'constants/tag';
-import {ReactChild} from 'react';
-import {Box} from './box';
-import {PlayerState} from 'reducer';
-import {getTags, getEventCards} from 'selectors/variable-amount';
 import {Pane} from 'evergreen-ui';
+import {ReactChild} from 'react';
+import {PlayerState} from 'reducer';
+import {getEventCards, getTags} from 'selectors/variable-amount';
+import styled from 'styled-components';
+import {Box} from './box';
 
 const TagsBase = styled.div`
     display: flex;

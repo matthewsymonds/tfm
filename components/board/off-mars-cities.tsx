@@ -1,6 +1,6 @@
+import {Board as BoardModel, Cell as CellModel, SpecialLocation} from 'constants/board';
 import React from 'react';
 import styled from 'styled-components';
-import {Board as BoardModel, Cell as CellModel, SpecialLocation} from 'constants/board';
 import {Cell} from './cell';
 
 const OffMarsCityContainer = styled.div`

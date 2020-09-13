@@ -1,23 +1,17 @@
-import {ActionBar, ActionBarRow} from './action-bar';
 import {skipAction} from 'actions';
-import {
-    ResourceBoard,
-    ResourceBoardRow,
-    ResourceBoardCell,
-    PlayerResourceBoard,
-    getConversionAmount,
-} from './resource';
-import {Resource} from 'constants/resource';
 import {CONVERSIONS} from 'constants/conversion';
-import {Board} from './board/board';
-import {useTypedSelector, RootState} from 'reducer';
-import {useContext, useEffect} from 'react';
+import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
-import {TurnContext} from './turn-context';
-import {useDispatch, useStore} from 'react-redux';
-import {getWaitingMessage} from 'selectors/get-waiting-message';
-import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {useSyncState} from 'hooks/sync-state';
+import {useContext, useEffect} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {RootState, useTypedSelector} from 'reducer';
+import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getWaitingMessage} from 'selectors/get-waiting-message';
+import {ActionBar, ActionBarRow} from './action-bar';
+import {Board} from './board/board';
+import {getConversionAmount, PlayerResourceBoard} from './resource';
+import {TurnContext} from './turn-context';
 
 export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);

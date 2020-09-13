@@ -1,5 +1,7 @@
+import {skipChoice} from 'actions';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
+import {getResourceName} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {AppContext, appContext} from 'context/app-context';
 import {Card} from 'models/card';
@@ -8,8 +10,6 @@ import {useDispatch, useStore} from 'react-redux';
 import {GameState, PlayerState} from 'reducer';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 import {CardComponent} from './card';
-import {getResourceName} from 'constants/resource';
-import {skipChoice} from 'actions';
 
 type DuplicateProductionOption = {
     /* The original card */

@@ -1,5 +1,5 @@
+import {Parameter, TileType} from './board';
 import {Tag} from './tag';
-import {TileType, Parameter} from './board';
 
 export interface EffectTrigger {
     anyPlayer?: boolean;

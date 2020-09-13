@@ -1,11 +1,9 @@
+import {ApiClient} from 'api-client';
+import {AppContext} from 'context/app-context';
+import React, {useContext} from 'react';
+import {useDispatch, useStore} from 'react-redux';
 import {PlayerState} from 'reducer';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
-import {useContext} from 'react';
-import {AppContext} from 'context/app-context';
-import {useStore, useDispatch} from 'react-redux';
-import React from 'react';
-import {makeActionChoice} from 'actions';
-import {ApiClient} from 'api-client';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const {card, playedCard, choice} = player.pendingChoice!;

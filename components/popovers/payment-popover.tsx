@@ -1,15 +1,14 @@
-import {useContext, useState} from 'react';
-import {Popover, Position, Pane} from 'evergreen-ui';
-import styled from 'styled-components';
-
-import {useTypedSelector} from 'reducer';
+import {ResourceIcon} from 'components/resource';
 import {colors} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {getDiscountedCardCost, AppContext} from 'context/app-context';
-import {ResourceIcon} from 'components/resource';
+import {AppContext, getDiscountedCardCost} from 'context/app-context';
+import {Pane, Popover, Position} from 'evergreen-ui';
 import {Card} from 'models/card';
+import {useContext, useState} from 'react';
+import {useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 
 const PaymentPopoverBase = styled.div`
     padding: 16px;

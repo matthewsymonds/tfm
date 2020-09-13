@@ -1,5 +1,5 @@
-import {useRouter} from 'next/router';
 import {useSyncState} from 'hooks/sync-state';
+import {useRouter} from 'next/router';
 import {useStore} from 'react-redux';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';

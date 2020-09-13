@@ -1,14 +1,13 @@
-import {ApiActionType} from 'client-server-shared/api-action-type';
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
-import {Card} from 'models/card';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
-import {Action} from 'constants/action';
-import {StandardProjectAction} from 'constants/standard-project';
-import {Milestone, Award, Tile, Cell} from 'constants/board';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {setGame} from 'actions';
 import {makePostCall} from 'api-calls';
+import {ApiActionType} from 'client-server-shared/api-action-type';
+import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
+import {StandardProjectAction} from 'constants/standard-project';
+import {Card} from 'models/card';
 import {deserializeState} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {

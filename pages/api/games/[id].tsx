@@ -1,7 +1,7 @@
-import {gamesModel, retrieveSession} from 'database';
-import {RootState} from 'reducer';
-import {produce} from 'immer';
 import {GameStage} from 'constants/game';
+import {gamesModel, retrieveSession} from 'database';
+import {produce} from 'immer';
+import {RootState} from 'reducer';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);

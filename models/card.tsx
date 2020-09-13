@@ -4,14 +4,14 @@ import {
     CardConfig,
     CardType,
     Deck,
-    RequiredGlobalParameter,
     ExchangeRates,
+    RequiredGlobalParameter,
     RequiredTilePlacement,
 } from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
-import {PropertyCounter, NumericPropertyCounter} from 'constants/property-counter';
+import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 

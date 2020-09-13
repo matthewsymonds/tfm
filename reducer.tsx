@@ -5,18 +5,21 @@ import {
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
 import {getTextForStandardProject} from 'components/board/standard-projects';
+import {CardType} from 'constants/card-types';
+import {Tag} from 'constants/tag';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
-import {getHumanReadableTileName, aAnOrThe} from 'selectors/get-human-readable-tile-name';
+import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {
-    ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
     ADD_FORCED_ACTION_TO_PLAYER,
+    ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
     ANNOUNCE_READY_TO_START_ROUND,
     APPLY_DISCOUNTS,
     APPLY_EXCHANGE_RATE_CHANGES,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
     ASK_USER_TO_DISCARD_CARDS,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
     ASK_USER_TO_LOOK_AT_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_PLACE_TILE,
@@ -31,6 +34,7 @@ import {
     GAIN_STORABLE_RESOURCE,
     INCREASE_PARAMETER,
     INCREASE_PRODUCTION,
+    INCREASE_TERRAFORM_RATING,
     MAKE_ACTION_CHOICE,
     MARK_CARD_ACTION_AS_PLAYED,
     MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
@@ -38,21 +42,18 @@ import {
     PAY_TO_PLAY_CARD,
     PAY_TO_PLAY_STANDARD_PROJECT,
     PLACE_TILE,
+    REMOVE_FORCED_ACTION_FROM_PLAYER,
     REMOVE_RESOURCE,
     REMOVE_STORABLE_RESOURCE,
-    REMOVE_FORCED_ACTION_FROM_PLAYER,
     REVEAL_AND_DISCARD_TOP_CARDS,
     SET_CARDS,
     SET_CORPORATION,
     SET_GAME,
     SET_PLANT_DISCOUNT,
-    SET_SELECTED_CARDS,
     SKIP_ACTION,
+    SKIP_CHOICE,
     STEAL_RESOURCE,
     STEAL_STORABLE_RESOURCE,
-    ASK_USER_TO_DUPLICATE_PRODUCTION,
-    SKIP_CHOICE,
-    INCREASE_TERRAFORM_RATING,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -62,7 +63,6 @@ import {
     getParameterName,
     Milestone,
     Parameter,
-    Tile,
     TilePlacement,
     TileType,
 } from './constants/board';
@@ -70,7 +70,7 @@ import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
 import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
-import {PropertyCounter, NumericPropertyCounter} from './constants/property-counter';
+import {NumericPropertyCounter} from './constants/property-counter';
 import {
     getResourceName,
     isStorableResource,
@@ -82,8 +82,6 @@ import {StandardProjectType} from './constants/standard-project';
 import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
-import {CardType} from 'constants/card-types';
-import {Tag} from 'constants/tag';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
