@@ -11,7 +11,7 @@ import {
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
-import {PropertyCounter} from 'constants/property-counter';
+import {PropertyCounter, NumericPropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 
@@ -75,7 +75,7 @@ export class Card {
     /** e.g. "Decrease any plant production 1 step" */
     decreaseAnyProduction: PropertyCounter<Resource>;
     /** e.g. "Raise oxygen 1 step" */
-    increaseParameter: PropertyCounter<Parameter>;
+    increaseParameter: NumericPropertyCounter<Parameter>;
     /** e.g. "Raise your TR 1 step" */
     increaseTerraformRating?: Amount;
     /** e.g. "Add 1 animal to THIS CARD" */

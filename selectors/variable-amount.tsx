@@ -14,7 +14,11 @@ import {
 } from './board';
 
 type VariableAmountSelectors = {
-    [k in VariableAmount]?: (state: RootState, card?: Card) => number;
+    [k in VariableAmount]?: (
+        state: RootState,
+        player: PlayerState,
+        card: Card | undefined
+    ) => number;
 };
 
 export function getTags(player: PlayerState): Tag[] {
@@ -42,8 +46,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             return player.playedCards.filter(card => card.tags.includes(Tag.EVENT));
         }).length;
     },
-    [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return player.playedCards.filter(
             card => card.type !== CardType.EVENT && card.tags.length === 0
         ).length;
@@ -58,8 +61,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             return cell.tile?.type === TileType.CITY;
         }).length;
     },
-    [VariableAmount.CITY_TILES_IN_PLAY]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.CITY_TILES_IN_PLAY]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getCellsWithCities(state, player).length;
     },
     [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: RootState) => {
@@ -85,65 +87,81 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const mining = findCellWithTile(state, TileType.MINING_RIGHTS);
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
-    [VariableAmount.EARTH_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.EARTH_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.EARTH).length;
     },
-    [VariableAmount.HALF_BUILDING_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.HALF_BUILDING_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return Math.floor(getTags(player).filter(tag => tag === Tag.BUILDING).length / 2);
     },
-    [VariableAmount.VENUS_AND_EARTH_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.VENUS_AND_EARTH_TAGS]: (
+        state: RootState,
+        player = getLoggedInPlayer(state)
+    ) => {
         return getTags(player).filter(tag => tag === Tag.EARTH || tag === Tag.VENUS).length;
     },
-    [VariableAmount.POWER_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.POWER_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.POWER).length;
     },
-    [VariableAmount.PLANT_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.PLANT_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.PLANT).length;
     },
-    [VariableAmount.OPPONENTS_SPACE_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.OPPONENTS_SPACE_TAGS]: (
+        state: RootState,
+        player = getLoggedInPlayer(state)
+    ) => {
         return state.players
             .filter(p => p !== player)
             .flatMap(player => getTags(player))
             .filter(tag => tag === Tag.SPACE).length;
     },
-    [VariableAmount.VENUS_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.VENUS_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.VENUS).length;
     },
-    [VariableAmount.SPACE_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.SPACE_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.SPACE).length;
     },
-    [VariableAmount.JOVIAN_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.JOVIAN_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.JOVIAN).length;
     },
-    [VariableAmount.HALF_MICROBE_TAGS]: (state: RootState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.HALF_MICROBE_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return Math.floor(getTags(player).filter(tag => tag === Tag.MICROBE).length / 2);
     },
-    [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
+    [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, player: PlayerState, card?: Card) => {
         return card?.storedResourceAmount!;
     },
-    [VariableAmount.TWICE_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
+    [VariableAmount.TWICE_RESOURCES_ON_CARD]: (
+        state: RootState,
+        player: PlayerState,
+        card?: Card
+    ) => {
         return card?.storedResourceAmount! * 2;
     },
-    [VariableAmount.HALF_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
+    [VariableAmount.HALF_RESOURCES_ON_CARD]: (
+        state: RootState,
+        player: PlayerState,
+        card?: Card
+    ) => {
         return Math.floor(card?.storedResourceAmount! / 2);
     },
-    [VariableAmount.THIRD_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
+    [VariableAmount.THIRD_RESOURCES_ON_CARD]: (
+        state: RootState,
+        player: PlayerState,
+        card?: Card
+    ) => {
         return Math.floor(card?.storedResourceAmount! / 3);
     },
-    [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (state: RootState, card?: Card) => {
+    [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (
+        state: RootState,
+        player: PlayerState,
+        card?: Card
+    ) => {
         return Math.floor(card?.storedResourceAmount! / 4);
     },
-    [VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES]: (state: RootState, card?: Card) => {
+    [VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES]: (
+        state: RootState,
+        player: PlayerState,
+        card?: Card
+    ) => {
         if ((card?.storedResourceAmount || 0) > 0) {
             return 3;
         }

@@ -70,7 +70,7 @@ import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
 import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
-import {PropertyCounter} from './constants/property-counter';
+import {PropertyCounter, NumericPropertyCounter} from './constants/property-counter';
 import {
     getResourceName,
     isStorableResource,
@@ -199,8 +199,8 @@ export type PlayerState = {
     plantDiscount?: number;
     pendingChoice?: PendingChoice;
 
-    parameterRequirementAdjustments: PropertyCounter<Parameter>;
-    temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
+    parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
+    temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
 };
 
 type PendingChoice = {
@@ -322,7 +322,12 @@ export const reducer = (state: GameState | null = null, action) => {
         }
 
         function handleGainResource(resource: Resource, amount: Amount) {
-            const numberAmount = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
+            const numberAmount = convertAmountToNumber(
+                amount,
+                state,
+                player,
+                mostRecentlyPlayedCard
+            );
 
             if (resource === Resource.CARD) {
                 // Sometimes we list cards as a resource.
@@ -355,7 +360,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             case REVEAL_AND_DISCARD_TOP_CARDS:
                 // Step 1. Reveal the cards to the player so they can see them.
-                const numCardsToReveal = convertAmountToNumber(payload.amount, state);
+                const numCardsToReveal = convertAmountToNumber(payload.amount, state, player);
                 draft.common.revealedCards = handleDrawCards(numCardsToReveal);
                 draft.log.push('Revealed ', draft.common.revealedCards.map(c => c.name).join(', '));
                 break;
@@ -424,6 +429,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 const decrease = convertAmountToNumber(
                     payload.amount,
                     state,
+                    player,
                     mostRecentlyPlayedCard
                 );
 
@@ -456,6 +462,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 const increase = convertAmountToNumber(
                     payload.amount,
                     state,
+                    player,
                     mostRecentlyPlayedCard
                 );
                 player.productions[payload.resource] += increase;
@@ -585,7 +592,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 if (!draftCard) {
                     throw new Error('Card should exist to gain storable resources to');
                 }
-                const quantity = convertAmountToNumber(amount, state);
+                const quantity = convertAmountToNumber(amount, state, player);
                 draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
                 draft.log.push(
                     `${corporationName} added ${amountAndResource(
@@ -769,7 +776,12 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case INCREASE_TERRAFORM_RATING:
                 const {amount} = payload;
-                const quantity = convertAmountToNumber(amount, state, mostRecentlyPlayedCard);
+                const quantity = convertAmountToNumber(
+                    amount,
+                    state,
+                    player,
+                    mostRecentlyPlayedCard
+                );
                 const newRating = player.terraformRating + quantity;
                 draft.log.push(
                     `${corporationName} increased their terraform rating by ${quantity} to ${newRating}`
