@@ -1,8 +1,9 @@
-import Document, {Head, Main, NextScript} from 'next/document';
+import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
 import {ServerStyleSheet} from 'styled-components';
+import { ReactNode } from 'react';
 
-export default class MyDocument extends Document {
-    static async getInitialProps(ctx) {
+export default class MyDocument extends Document<{styleTags: ReactNode}> {
+    static async getInitialProps(ctx: DocumentContext) {
         const sheet = new ServerStyleSheet();
         const originalRenderPage = ctx.renderPage;
 
@@ -29,16 +30,15 @@ export default class MyDocument extends Document {
 
     render() {
         return (
-            <html>
+            <Html>
                 <Head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                     {this.props.styleTags}
                 </Head>
                 <body>
                     <Main />
                     <NextScript />
                 </body>
-            </html>
+            </Html>
         );
     }
 }
