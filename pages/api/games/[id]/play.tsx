@@ -5,6 +5,7 @@ import {StateHydrator} from 'server/state-hydrator';
 import spawnExhaustiveSwitchError from 'utils';
 import {deserializeState, serializeState} from 'state-serialization';
 import games from 'pages/api/games';
+import {Card} from 'models/card';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -38,10 +39,19 @@ export default async (req, res) => {
         };
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         const stateHydrator = new StateHydrator(hydratedGame, username);
+        let card: Card;
         switch (type) {
             case ApiActionType.API_PLAY_CARD:
-                const card = stateHydrator.getCard(payload.name);
+                card = stateHydrator.getCard(payload.name);
                 await actionHandler.playCardAsync({card, payment: payload.payment});
+                break;
+            case ApiActionType.API_PLAY_CARD_ACTION:
+                card = stateHydrator.getCard(payload.name);
+                await actionHandler.playCardActionAsync({
+                    parent: card,
+                    payment: payload.payment,
+                    choiceIndex: payload.choiceIndex,
+                });
                 break;
             default:
                 throw spawnExhaustiveSwitchError(type);

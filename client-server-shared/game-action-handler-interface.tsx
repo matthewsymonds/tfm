@@ -16,12 +16,9 @@ export interface GameActionHandler {
     }): Promise<void>;
 
     playCardActionAsync({
-        action,
         parent,
         payment,
-        choiceIndex,
     }: {
-        action: Action;
         parent: Card;
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;

@@ -46,16 +46,22 @@ export class ApiClient implements GameActionHandler {
     }
 
     async playCardActionAsync({
-        action,
         parent,
         payment,
         choiceIndex,
     }: {
-        action: Action;
         parent: Card;
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const payload = {
+            name: parent.name,
+            payment,
+            choiceIndex,
+        };
+
+        await this.makeApiCall(ApiActionType.API_PLAY_CARD_ACTION, payload);
+    }
 
     async playStandardProjectAsync({
         standardProjectAction,

@@ -27,6 +27,8 @@ import {
     increaseTerraformRating,
     setPlantDiscount,
     moveCardFromHandToPlayArea,
+    makeActionChoice,
+    markCardActionAsPlayed,
 } from 'actions';
 import {CardType} from 'constants/card-types';
 import {
@@ -247,16 +249,53 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     async playCardActionAsync({
-        action,
         parent,
         payment,
         choiceIndex,
     }: {
-        action: Action;
         parent: Card;
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;
-    }): Promise<void> {}
+    }): Promise<void> {
+        let action = parent.action!;
+        const isChoiceAction = choiceIndex !== undefined;
+        if (isChoiceAction) {
+            action = action.choice![choiceIndex!];
+        }
+
+        const {state} = this;
+
+        const [canPlay, reason] = this.actionGuard.canPlayAction(action, state, parent);
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        // If you use regolith eaters to remove 2 microbes to raise oxygen 1 step,
+        // And that triggers an ocean, we want the ocean placement to come up before the action increments.
+        // withPriority "unshifts" instead of pushing the items, so they go first.
+        const withPriority = isChoiceAction;
+
+        if (!isChoiceAction) {
+            this.queue.push(markCardActionAsPlayed(parent, this.loggedInPlayerIndex));
+        }
+
+        this.playAction({
+            action,
+            state,
+            parent,
+            payment,
+            withPriority,
+        });
+
+        if (isChoiceAction) {
+            this.queue.unshift(makeActionChoice(this.loggedInPlayerIndex));
+        } else {
+            this.queue.push(completeAction(this.loggedInPlayerIndex));
+        }
+
+        this.processQueue();
+    }
 
     async playStandardProjectAsync({
         standardProjectAction,

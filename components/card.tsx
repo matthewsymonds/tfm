@@ -1,4 +1,5 @@
 import {completeAction, markCardActionAsPlayed} from 'actions';
+import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
@@ -13,7 +14,7 @@ import styled from 'styled-components';
 import {Box, Flex} from './box';
 import PaymentPopover from './popovers/payment-popover';
 import {TagsComponent} from './tags';
-import {colors} from 'components/ui';
+import {ApiClient} from 'api-client';
 
 export const CardName = styled.span`
     font-size: 16px;
@@ -136,11 +137,10 @@ export function CardActionElements(props: {
         );
     }
 
+    const apiClient = new ApiClient(dispatch);
+
     function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
-        context.queue.push(markCardActionAsPlayed(card, player.index));
-        context.playAction({action, state, parent: card, payment});
-        context.queue.push(completeAction(player.index));
-        context.processQueue(dispatch);
+        apiClient.playCardActionAsync({action, parent: card, payment});
     }
 
     function renderPlayActionButton(option: Action, canPlay: boolean) {

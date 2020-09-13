@@ -3017,6 +3017,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.VENUS],
         type: CardType.ACTIVE,
+        // TODO add payment (helion) support to ask-user-to-make-action-choice for "Spend 2MC"
     },
     {
         action: {
@@ -3262,6 +3263,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
     },
     {
+        // TODO add payment support to ask user to make action choice (helion)
         action: {
             choice: [
                 {

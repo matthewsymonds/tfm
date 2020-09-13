@@ -5,6 +5,7 @@ import {AppContext} from 'context/app-context';
 import {useStore, useDispatch} from 'react-redux';
 import React from 'react';
 import {makeActionChoice} from 'actions';
+import {ApiClient} from 'api-client';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const {card, playedCard, choice} = player.pendingChoice!;
@@ -12,6 +13,7 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const store = useStore();
     const state = store.getState();
     const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
     const choiceButtons = choice.map((action, index) => {
         const [canPlay, reason] = context.canPlayActionInSpiteOfUI(action, state, card);
         return (
@@ -19,15 +21,10 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
                 <button
                     disabled={!canPlay}
                     onClick={() => {
-                        if (!canPlay) return;
-                        context.playAction({
-                            action,
-                            state,
+                        apiClient.playCardActionAsync({
                             parent: card,
-                            withPriority: true,
+                            choiceIndex: index,
                         });
-                        context.queue.unshift(makeActionChoice(player.index));
-                        context.processQueue(dispatch);
                     }}
                 >
                     {action.text}

@@ -1,6 +1,6 @@
-import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
+import Document, {Html, Head, Main, NextScript, DocumentContext} from 'next/document';
 import {ServerStyleSheet} from 'styled-components';
-import { ReactNode } from 'react';
+import {ReactNode} from 'react';
 
 export default class MyDocument extends Document<{styleTags: ReactNode}> {
     static async getInitialProps(ctx: DocumentContext) {
@@ -31,9 +31,7 @@ export default class MyDocument extends Document<{styleTags: ReactNode}> {
     render() {
         return (
             <Html>
-                <Head>
-                    {this.props.styleTags}
-                </Head>
+                <Head>{this.props.styleTags}</Head>
                 <body>
                     <Main />
                     <NextScript />

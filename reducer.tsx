@@ -263,7 +263,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     }
 
     draft.common.currentPlayerIndex = turnOrder[newPlaceInTurnOrder];
-    if (newPlaceInTurnOrder < oldPlaceInTurnOrder) {
+    if (newPlaceInTurnOrder < oldPlaceInTurnOrder || players.length === 1) {
         draft.common.turn++;
         draft.log.push(`Turn ${draft.common.turn}`);
     }
