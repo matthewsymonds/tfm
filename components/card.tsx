@@ -140,7 +140,7 @@ export function CardActionElements(props: {
     const apiClient = new ApiClient(dispatch);
 
     function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
-        apiClient.playCardActionAsync({action, parent: card, payment});
+        apiClient.playCardActionAsync({parent: card, payment});
     }
 
     function renderPlayActionButton(option: Action, canPlay: boolean) {
