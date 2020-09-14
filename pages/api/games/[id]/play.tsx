@@ -67,6 +67,9 @@ export default async (req, res) => {
             case ApiActionType.API_FUND_AWARD:
                 await actionHandler.fundAwardAsync(payload);
                 break;
+            case ApiActionType.API_DO_CONVERSION:
+                await actionHandler.doConversionAsync(payload);
+                break;
             default:
                 throw spawnExhaustiveSwitchError(type);
         }

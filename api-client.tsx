@@ -4,10 +4,10 @@ import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Award, Cell, Milestone, Tile} from 'constants/board';
-import {Conversion} from 'constants/conversion';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
+import {appContext} from 'context/app-context';
 import {Card} from 'models/card';
 import {deserializeState} from 'state-serialization';
 
@@ -30,7 +30,7 @@ export class ApiClient implements GameActionHandler {
 
     private async makeApiCall(type: ApiActionType, payload) {
         const result = await makePostCall(this.getPath(), {type, payload});
-
+        appContext.queue = result.queue;
         this.dispatch(setGame(deserializeState(result.state)));
     }
 
@@ -78,35 +78,23 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_STANDARD_PROJECT, payload);
     }
 
-    async claimMilestoneAsync({
-        milestone,
-        payment,
-    }: {
+    async claimMilestoneAsync(payload: {
         milestone: Milestone;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
-        const payload = {
-            milestone,
-            payment,
-        };
         await this.makeApiCall(ApiActionType.API_CLAIM_MILESTONE, payload);
     }
 
-    async fundAwardAsync({
-        award,
-        payment,
-    }: {
+    async fundAwardAsync(payload: {
         award: Award;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
-        const payload = {
-            award,
-            payment,
-        };
         await this.makeApiCall(ApiActionType.API_FUND_AWARD, payload);
     }
 
-    async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
+    async doConversionAsync(payload: {resource: Resource}): Promise<void> {
+        await this.makeApiCall(ApiActionType.API_DO_CONVERSION, payload);
+    }
 
     async skipActionAsync(): Promise<void> {}
 

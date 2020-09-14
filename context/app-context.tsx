@@ -35,12 +35,10 @@ import {
     CellType,
     Milestone,
     Parameter,
-    PlacementRequirement,
     t,
     TilePlacement,
     TileType,
 } from 'constants/board';
-import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -57,7 +55,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {createContext} from 'react';
-import {PlayerState, RootState, GameState} from 'reducer';
+import {GameState, PlayerState, RootState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -330,53 +328,6 @@ export function meetsTerraformRequirements(action, state: RootState, parent?: Ca
 
     return state.players.find(player => player.corporation.name === parent?.name)!
         .terraformedThisGeneration;
-}
-
-export function canDoConversion(
-    conversion: Conversion | undefined,
-    player: PlayerState,
-    resource: Resource,
-    quantity: number,
-    state: RootState
-) {
-    if (!conversion) return false;
-    if (resource === Resource.PLANT) {
-        // Ensure a valid placement for the greenery.
-        const validGreeneryPlacements = getValidPlacementsForRequirement(
-            state,
-            {
-                type: TileType.GREENERY,
-                placementRequirement: PlacementRequirement.GREENERY,
-                isRequired: true,
-            },
-            player
-        );
-        if (validGreeneryPlacements.length === 0) return false;
-    }
-    return player.resources[resource] >= quantity;
-}
-
-export function doConversion(
-    state: RootState,
-    playerIndex: number,
-    dispatch: Function,
-    conversion?: Conversion
-) {
-    if (!conversion) return;
-    const conversionAction = {
-        ...conversion,
-        removeResource: {
-            ...(conversion.removeResource || {}),
-        },
-    };
-    const plantDiscount = state.players[playerIndex].plantDiscount || 0;
-    const removeResource = conversionAction.removeResource;
-    removeResource[Resource.PLANT] =
-        ((removeResource[Resource.PLANT] as number) || 0) - plantDiscount;
-
-    this.playAction({action: conversionAction, state});
-    this.queue.push(completeAction(playerIndex));
-    this.processQueue(dispatch);
 }
 
 export function canPlayCardAction(
@@ -1221,8 +1172,6 @@ export const appContext = {
     canPlayActionInSpiteOfUI,
     canPlayCardAction,
     canPlayCardActionInSpiteOfUI,
-    canDoConversion,
-    doConversion,
     playAction,
     canPlayStandardProject,
     playStandardProject,

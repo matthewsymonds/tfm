@@ -1,5 +1,6 @@
 import {Action} from 'constants/action';
 import {Award, Milestone} from 'constants/board';
+import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -187,6 +188,12 @@ export class ActionGuard {
         }
 
         return cost <= player.resources[Resource.MEGACREDIT];
+    }
+
+    canDoConversion(conversion: Conversion | undefined): CanPlayAndReason {
+        if (!conversion) return [false, 'No conversion available'];
+        const {state} = this;
+        return this.canPlayAction(conversion, state);
     }
 
     getDiscountedCardCost(card: Card) {

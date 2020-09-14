@@ -1,5 +1,7 @@
+import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {colors} from 'components/ui';
-import {Conversion, CONVERSIONS} from 'constants/conversion';
+import {CONVERSIONS} from 'constants/conversion';
 import {
     getClassName,
     getResourceBackgroundColor,
@@ -7,7 +9,7 @@ import {
     getResourceSymbol,
     Resource,
 } from 'constants/resource';
-import {AppContext} from 'context/app-context';
+import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
@@ -133,18 +135,6 @@ type PlayerResourceBoardProps = {
     plantConversionOnly?: boolean;
 };
 
-export function getConversionAmount(player: PlayerState, conversion: Conversion) {
-    for (const resource in conversion?.removeResource ?? {}) {
-        const amountToRemove = conversion?.removeResource![resource]!;
-        if (resource === Resource.PLANT) {
-            return amountToRemove - (player.plantDiscount || 0);
-        }
-
-        return amountToRemove;
-    }
-    return Infinity;
-}
-
 export const PlayerResourceBoard = ({
     player,
     isLoggedInPlayer,
@@ -153,7 +143,10 @@ export const PlayerResourceBoard = ({
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
+
     const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard({state, queue: context.queue}, player.username);
 
     return (
         <Pane display="flex" flexDirection="column">
@@ -173,6 +166,7 @@ export const PlayerResourceBoard = ({
                 <ResourceBoardRow>
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
                         const conversion = CONVERSIONS[resource];
+                        const [canDoConversion] = actionGuard.canDoConversion(conversion);
                         return (
                             <div key={resource}>
                                 <ResourceBoardCell
@@ -181,26 +175,18 @@ export const PlayerResourceBoard = ({
                                     production={player.productions[resource]}
                                 />
                                 {isLoggedInPlayer &&
-                                context.canDoConversion(
-                                    conversion,
-                                    player,
-                                    resource,
-                                    getConversionAmount(player, conversion),
-                                    state
-                                ) &&
+                                canDoConversion &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
                                     <ConversionButton
                                         disabled={context.shouldDisableUI(state)}
-                                        onClick={() =>
-                                            context.doConversion(
-                                                state,
-                                                player.index,
-                                                dispatch,
-                                                conversion
-                                            )
-                                        }
+                                        onClick={() => apiClient.doConversionAsync({resource})}
                                     >
-                                        Convert {getConversionAmount(player, conversion)}
+                                        Convert{' '}
+                                        {convertAmountToNumber(
+                                            conversion.removeResource[conversion.resourceToRemove],
+                                            state,
+                                            player
+                                        )}
                                     </ConversionButton>
                                 ) : null}
                             </div>

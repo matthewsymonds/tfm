@@ -486,7 +486,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 draft.pendingVariableAmount = amount;
 
-                sourcePlayer.resources[resource] -= amount;
+                const quantity = convertAmountToNumber(amount, state, player);
+
+                sourcePlayer.resources[resource] -= quantity;
                 if (amount) {
                     draft.log.push(
                         `${sourcePlayer.corporation.name} lost ${amountAndResource(
@@ -854,8 +856,11 @@ export const reducer = (state: GameState | null = null, action) => {
                             const playersWhoCanPlaceGreenery = draft.players.filter(
                                 player =>
                                     player.resources[Resource.PLANT] >=
-                                    CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT] -
-                                        (player.plantDiscount || 0)
+                                    convertAmountToNumber(
+                                        CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT],
+                                        state,
+                                        player
+                                    )
                             );
                             for (const player of playersWhoCanPlaceGreenery) {
                                 player.action = 1;

@@ -1,3 +1,4 @@
+import {ApiClient} from 'api-client';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -11,7 +12,6 @@ import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
-import {ApiClient} from 'api-client';
 
 export function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {

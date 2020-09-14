@@ -30,7 +30,7 @@ import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-acti
 import {Action, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {Conversion} from 'constants/conversion';
+import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
@@ -392,7 +392,16 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
+    async doConversionAsync({resource}: {resource: Resource}): Promise<void> {
+        const conversion = CONVERSIONS[resource];
+        const [canPlay, reason] = this.actionGuard.canDoConversion(conversion);
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        this.playAction({action: conversion, state: this.state});
+        this.processQueue();
+    }
 
     async skipActionAsync(): Promise<void> {}
 

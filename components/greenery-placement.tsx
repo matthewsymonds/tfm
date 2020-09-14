@@ -1,4 +1,5 @@
 import {skipAction} from 'actions';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
@@ -10,7 +11,7 @@ import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {Board} from './board/board';
-import {getConversionAmount, PlayerResourceBoard} from './resource';
+import {PlayerResourceBoard} from './resource';
 import {TurnContext} from './turn-context';
 
 export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
@@ -22,17 +23,12 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const waitingMessage = getWaitingMessage(playerIndex);
 
     const context = useContext(AppContext);
+    const loggedInPlayer = context.getLoggedInPlayer(state);
 
     const conversion = CONVERSIONS[Resource.PLANT];
+    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
 
-    const conversionQuantity = getConversionAmount(player, conversion);
-    const canDoConversion = context.canDoConversion(
-        conversion,
-        player,
-        Resource.PLANT,
-        conversionQuantity,
-        state
-    );
+    const [canDoConversion] = actionGuard.canDoConversion(conversion);
 
     useSyncState();
 

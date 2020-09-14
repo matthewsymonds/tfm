@@ -126,6 +126,12 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.HALF_MICROBE_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
         return Math.floor(getTags(player).filter(tag => tag === Tag.MICROBE).length / 2);
     },
+    [VariableAmount.PLANT_CONVERSION_AMOUNT]: (
+        state: RootState,
+        player = getLoggedInPlayer(state)
+    ) => {
+        return 8 - (player.plantDiscount || 0);
+    },
     [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, player: PlayerState, card?: Card) => {
         return card?.storedResourceAmount!;
     },

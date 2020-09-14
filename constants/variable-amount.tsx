@@ -36,4 +36,5 @@ export enum VariableAmount {
     FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE = 'fourIfThreePlantTagsElseOne',
     THIRD_ALL_CITIES = 'thirdAllCities',
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
+    PLANT_CONVERSION_AMOUNT = 'plantConversionAmount',
 }
