@@ -186,7 +186,7 @@ export const claimMilestone = (
 export const FUND_AWARD = 'FUND_AWARD';
 export const fundAward = (
     award: Award,
-    payment: PropertyCounter<Resource>,
+    payment: PropertyCounter<Resource> | undefined,
     playerIndex: number
 ) => ({
     type: FUND_AWARD,

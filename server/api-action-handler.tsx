@@ -8,20 +8,9 @@ import {
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
-
-
-
-
-
-
-
-
-
-
-
-
-
-    claimMilestone as claimMilestoneAction, completeAction,
+    claimMilestone as claimMilestoneAction,
+    completeAction,
+    fundAward as fundAwardAction,
     gainResource,
     increaseParameter,
     increaseProduction,
@@ -30,24 +19,22 @@ import {
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     payToPlayCard,
-
-
-
-    payToPlayStandardProject, removeResource,
+    payToPlayStandardProject,
+    removeResource,
     revealAndDiscardTopCards,
-    setPlantDiscount
+    setPlantDiscount,
 } from 'actions';
-import { ActionGuard } from 'client-server-shared/action-guard';
-import { GameActionHandler } from 'client-server-shared/game-action-handler-interface';
-import { ResourceActionOption } from 'components/ask-user-to-confirm-resource-action-details';
-import { Action, ParameterCounter } from 'constants/action';
-import { Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType } from 'constants/board';
-import { CardType } from 'constants/card-types';
-import { Conversion } from 'constants/conversion';
-import { EffectTrigger } from 'constants/effect-trigger';
-import { PropertyCounter } from 'constants/property-counter';
-import { Resource, ResourceAndAmount, ResourceLocationType } from 'constants/resource';
-import { StandardProjectAction, StandardProjectType } from 'constants/standard-project';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Action, ParameterCounter} from 'constants/action';
+import {Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType} from 'constants/board';
+import {CardType} from 'constants/card-types';
+import {Conversion} from 'constants/conversion';
+import {EffectTrigger} from 'constants/effect-trigger';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {
     ActionCardPair,
     createDecreaseProductionAction,
@@ -57,10 +44,10 @@ import {
     createRemoveResourceOptionAction,
     EffectEvent,
     filterOceanPlacementsOverMax,
-    shouldPause
+    shouldPause,
 } from 'context/app-context';
-import { Card } from 'models/card';
-import { GameState, PlayerState, reducer, RootState } from 'reducer';
+import {Card} from 'models/card';
+import {GameState, PlayerState, reducer, RootState} from 'reducer';
 
 export interface ServerGameModel {
     state: GameState;
@@ -392,7 +379,18 @@ export class ApiActionHandler implements GameActionHandler {
     }: {
         award: Award;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const [canPlay, reason] = this.actionGuard.canFundAward(award);
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        const playerIndex = this.getLoggedInPlayerIndex();
+        this.queue.push(fundAwardAction(award, payment, playerIndex));
+        this.queue.push(completeAction(playerIndex));
+        this.processQueue();
+    }
 
     async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
 

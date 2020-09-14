@@ -1,3 +1,4 @@
+import {ApiClient} from 'api-client';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Award} from 'constants/board';
@@ -41,6 +42,7 @@ function Awards() {
     const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
 
     function renderAwardButton(award: Award) {
         const isDisabled = !context.canFundAward(award, state);
@@ -50,8 +52,7 @@ function Awards() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
-            context.fundAward(award, payment);
-            context.processQueue(dispatch);
+            apiClient.fundAwardAsync({award, payment});
         };
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {

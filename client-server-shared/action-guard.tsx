@@ -1,5 +1,5 @@
 import {Action} from 'constants/action';
-import {Milestone} from 'constants/board';
+import {Award, Milestone} from 'constants/board';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -136,6 +136,35 @@ export class ActionGuard {
             milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone],
             'Has not met milestone',
         ];
+    }
+
+    canFundAward(award: Award): CanPlayAndReason {
+        const player = this.getLoggedInPlayer();
+        const {state} = this;
+
+        if (this.shouldDisableUI(state)) return [false, 'Cannot fund award right now'];
+
+        if (!isActiveRound(state)) {
+            return [false, 'Cannot fund award when it is not active round'];
+        }
+
+        // Is it available?
+        if (state.common.fundedAwards.length === 3) {
+            return [false, 'No more awards available'];
+        }
+        if (state.common.fundedAwards.find(claim => claim.award === award)) {
+            return [false, 'Award has already been funded'];
+        }
+
+        // Can they afford it?
+        const cost = [8, 14, 20][state.common.fundedAwards.length];
+
+        let availableMoney = player.resources[Resource.MEGACREDIT];
+        if (player.corporation.name === 'Helion') {
+            availableMoney += player.resources[Resource.HEAT];
+        }
+
+        return [availableMoney >= cost, 'Cannot afford to fund award'];
     }
 
     canAffordCard(card: Card) {

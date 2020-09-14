@@ -4,12 +4,12 @@ import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {Conversion} from 'constants/conversion';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
 import {Card} from 'models/card';
 import {deserializeState} from 'state-serialization';
-import {Conversion} from 'constants/conversion';
 
 export class ApiClient implements GameActionHandler {
     constructor(private readonly dispatch: Function) {}
@@ -98,7 +98,13 @@ export class ApiClient implements GameActionHandler {
     }: {
         award: Award;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const payload = {
+            award,
+            payment,
+        };
+        await this.makeApiCall(ApiActionType.API_FUND_AWARD, payload);
+    }
 
     async doConversionAsync({conversion}: {conversion: Conversion}): Promise<void> {}
 

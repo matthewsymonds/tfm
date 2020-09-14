@@ -669,7 +669,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case FUND_AWARD: {
                 const {payment, award} = payload;
-                for (const resource in payment) {
+                for (const resource in payment || {}) {
                     player.resources[resource] -= payment[resource];
                 }
                 draft.common.fundedAwards.push({
