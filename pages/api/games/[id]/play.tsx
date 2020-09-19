@@ -1,4 +1,5 @@
 import {ApiActionType} from 'client-server-shared/api-action-type';
+import {deserializeResourceOptionAction} from 'components/ask-user-to-confirm-resource-action-details';
 import {gamesModel, retrieveSession} from 'database';
 import {Card} from 'models/card';
 import {ApiActionHandler} from 'server/api-action-handler';
@@ -72,6 +73,19 @@ export default async (req, res) => {
                 break;
             case ApiActionType.API_SKIP_ACTION:
                 await actionHandler.skipActionAsync();
+                break;
+            case ApiActionType.API_COMPLETE_PLACE_TILE:
+                await actionHandler.completePlaceTileAsync(payload);
+                break;
+            case ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS:
+                const option = deserializeResourceOptionAction(payload.option, actionHandler.state);
+                await actionHandler.completeChooseResourceActionDetailsAsync({
+                    option,
+                    variableAmount: payload.variableAmount,
+                });
+                break;
+            case ApiActionType.API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS:
+                await actionHandler.completeSkipChooseResourceActionDetailsAsync();
                 break;
             default:
                 throw spawnExhaustiveSwitchError(type);

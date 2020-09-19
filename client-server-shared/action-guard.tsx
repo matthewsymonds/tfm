@@ -1,5 +1,10 @@
+import {
+    canSkip,
+    getPlayerOptionWrappers,
+    ResourceActionOption,
+} from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
-import {Award, Milestone} from 'constants/board';
+import {Award, Cell, Milestone} from 'constants/board';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -18,6 +23,7 @@ import {
 } from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState} from 'reducer';
+import {getValidPlacementsForRequirement} from 'selectors/board';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];
@@ -290,6 +296,94 @@ export class ActionGuard {
         return this.canPlayActionInSpiteOfUI(action, state, parent);
     }
 
+    canCompletePlaceTile(cell: Cell): CanPlayAndReason {
+        const player = this.getLoggedInPlayer();
+        const validPlacements = getValidPlacementsForRequirement(
+            this.state,
+            player.pendingTilePlacement,
+            player
+        );
+
+        const matchingCell = validPlacements.find(candidate => {
+            if (candidate.specialLocation) {
+                return candidate.specialLocation === cell.specialLocation;
+            }
+            return candidate.coords?.every((coord, index) => coord === cell.coords?.[index]);
+        });
+
+        return [!!matchingCell, 'Not a valid placement location'];
+    }
+
+    canCompleteChooseResourceActionDetails(
+        option: ResourceActionOption,
+        amount: number
+    ): CanPlayAndReason {
+        const name =
+            'name' in option.location
+                ? option.location.name
+                : 'username' in option.location
+                ? option.location.username
+                : '';
+
+        const playerOptionWrappers = getPlayerOptionWrappers(this.state, this.getLoggedInPlayer());
+        const isDecreaseProduction = option.actionType === 'decreaseProduction';
+        const min = isDecreaseProduction ? 1 : 0;
+        if (amount < min) {
+            return [false, 'Variable amount too small'];
+        }
+
+        const matchingValidOption = playerOptionWrappers.some(wrapper => {
+            const max = isDecreaseProduction
+                ? wrapper.player.productions[option.resource]
+                : wrapper.player.resources[option.resource];
+            if (amount > max) {
+                return false;
+            }
+            return wrapper.options.some(validOption => {
+                // find matching valid option!
+
+                const resourceMatches = option.resource === validOption.resource;
+
+                const actionTypeMatches = option.actionType === validOption.actionType;
+
+                const {location} = validOption;
+
+                let locationMatches: boolean = false;
+
+                if ('name' in location) {
+                    locationMatches = location.name === name;
+                }
+                if ('username' in location) {
+                    locationMatches = location.username === name;
+                }
+
+                const isVariableMatches = option.isVariable === validOption.isVariable;
+
+                const quantityMatches = validOption.quantity === validOption.quantity;
+
+                return (
+                    resourceMatches &&
+                    actionTypeMatches &&
+                    isVariableMatches &&
+                    quantityMatches &&
+                    locationMatches
+                );
+            });
+        });
+
+        return [matchingValidOption, 'Did not match a valid option'];
+    }
+
+    canCompleteSkipChooseResourceActionDetails(): CanPlayAndReason {
+        const playerOptionWrappers = getPlayerOptionWrappers(this.state, this.getLoggedInPlayer());
+        const {
+            actionType,
+            resourceAndAmounts,
+        } = this.getLoggedInPlayer().pendingResourceActionDetails!;
+        const canSkipChooseResource = canSkip(playerOptionWrappers, actionType, resourceAndAmounts);
+
+        return [canSkipChooseResource, 'Cannot skip making a resource choice right now'];
+    }
     shouldDisableUI(state: GameState) {
         const player = this.getLoggedInPlayer();
 

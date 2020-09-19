@@ -8,6 +8,7 @@ import {
     stealResource,
     stealStorableResource,
 } from 'actions';
+import {ApiClient} from 'api-client';
 import {
     getResourceName,
     isStorableResource,
@@ -107,6 +108,114 @@ export type ResourceActionOption = {
     card?: Card;
     text: string;
 };
+
+export type SerializedResourceActionOption = Omit<ResourceActionOption, 'location'> & {
+    location: {type: 'Player' | 'Card'; name: string};
+};
+
+export function serializeResourceActionOption(
+    option: ResourceActionOption
+): SerializedResourceActionOption {
+    return {
+        ...option,
+        location: {
+            type: option.location instanceof Card ? 'Card' : 'Player',
+            name: option.location instanceof Card ? option.location.name : option.location.username,
+        },
+    };
+}
+
+export function deserializeResourceOptionAction(
+    option: SerializedResourceActionOption,
+    state: GameState
+): ResourceActionOption {
+    const location = (option.location.type === 'Player'
+        ? state.players.find(player => player.username === option.location.name)
+        : state.players
+              .flatMap(player => player.playedCards)
+              .find(card => card.name === option.location.name))!;
+
+    return {
+        ...option,
+        location,
+    };
+}
+
+export function getPlayerOptionWrappers(
+    state: GameState,
+    player: PlayerState
+): PlayerOptionWrapper[] {
+    const players = state.players;
+    const resourceActionDetails = player.pendingResourceActionDetails!;
+    const {actionType, resourceAndAmounts, card, locationType} = resourceActionDetails;
+    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);
+    const playerOptionWrappers: PlayerOptionWrapper[] = [];
+
+    playersToConsider = [...playersToConsider].sort((alpha, beta) => {
+        if (actionType !== 'gainResource') {
+            if (alpha.username === player.username) {
+                return 1;
+            }
+
+            if (beta.username === player.username) {
+                return -1;
+            }
+        }
+
+        return alpha.username.toLowerCase() < beta.username.toLowerCase() ? -1 : 1;
+    });
+
+    for (const playerToConsider of playersToConsider) {
+        const playerOptionWrapper: PlayerOptionWrapper = {
+            title: `${playerToConsider.corporation.name} (${playerToConsider.username})`,
+            options: [],
+            player: playerToConsider,
+        };
+        for (const resourceAndAmount of resourceAndAmounts) {
+            if (actionType !== 'gainResource') {
+                if (playerToConsider.playedCards.find(card => card.name === 'Protected Habitats')) {
+                    if (PROTECTED_HABITAT_RESOURCE.includes(resourceAndAmount.resource)) {
+                        if (playerToConsider.username !== player.username) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            let options = getOptions(
+                actionType,
+                resourceAndAmount,
+                card,
+                playerToConsider,
+                locationType
+            );
+
+            if (actionType !== 'gainResource') {
+                options = options.filter(option => {
+                    if (!(option.location instanceof Card)) {
+                        return true;
+                    }
+
+                    return option.location.name !== 'Pets';
+                });
+            }
+
+            playerOptionWrapper.options.push(...options);
+        }
+
+        const zeroChangeAllowed = actionType === 'decreaseProduction';
+
+        playerOptionWrapper.options = playerOptionWrapper.options.filter(
+            option => option.quantity > 0 || zeroChangeAllowed
+        );
+
+        if (playerOptionWrapper.options.length > 0) {
+            playerOptionWrappers.push(playerOptionWrapper);
+        }
+    }
+
+    return playerOptionWrappers;
+}
 
 function getOptions(
     actionType: ResourceActionType,
@@ -336,91 +445,13 @@ export function amountAndResource(quantity: number, resource: Resource) {
     return `${quantity} ${getResourceName(resource)}${isPluralizable && quantity !== 1 ? 's' : ''}`;
 }
 
-function AskUserToConfirmResourceActionDetails({
-    player,
-    resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard, locationType},
-}: Props) {
-    const store = useStore();
-    const state = store.getState();
-    const players = state.players;
-
-    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);
-
-    playersToConsider = [...playersToConsider].sort((alpha, beta) => {
-        if (actionType !== 'gainResource') {
-            if (alpha.username === player.username) {
-                return 1;
-            }
-
-            if (beta.username === player.username) {
-                return -1;
-            }
-        }
-
-        return alpha.username.toLowerCase() < beta.username.toLowerCase() ? -1 : 1;
-    });
-
-    const playerOptionWrappers: PlayerOptionWrapper[] = [];
-
-    for (const playerToConsider of playersToConsider) {
-        const playerOptionWrapper: PlayerOptionWrapper = {
-            title: `${playerToConsider.corporation.name} (${playerToConsider.username})`,
-            options: [],
-            player: playerToConsider,
-        };
-        for (const resourceAndAmount of resourceAndAmounts) {
-            if (actionType !== 'gainResource') {
-                if (playerToConsider.playedCards.find(card => card.name === 'Protected Habitats')) {
-                    if (PROTECTED_HABITAT_RESOURCE.includes(resourceAndAmount.resource)) {
-                        if (playerToConsider.username !== player.username) {
-                            continue;
-                        }
-                    }
-                }
-            }
-
-            let options = getOptions(
-                actionType,
-                resourceAndAmount,
-                card,
-                playerToConsider,
-                locationType
-            );
-
-            if (actionType !== 'gainResource') {
-                options = options.filter(option => {
-                    if (!(option.location instanceof Card)) {
-                        return true;
-                    }
-
-                    return option.location.name !== 'Pets';
-                });
-            }
-
-            playerOptionWrapper.options.push(...options);
-        }
-
-        const zeroChangeAllowed = actionType === 'decreaseProduction';
-
-        playerOptionWrapper.options = playerOptionWrapper.options.filter(
-            option => option.quantity > 0 || zeroChangeAllowed
-        );
-
-        if (playerOptionWrapper.options.length > 0) {
-            playerOptionWrappers.push(playerOptionWrapper);
-        }
-    }
-
-    const context = useContext(AppContext);
-    const dispatch = useDispatch();
-
-    const handleSkip = () => {
-        context.processQueue(dispatch);
-    };
-
+export function canSkip(
+    playerOptionWrappers: PlayerOptionWrapper[],
+    actionType: string,
+    resourceAndAmounts: ResourceAndAmount[]
+) {
     const hasNoOptions = playerOptionWrappers.flatMap(item => item.options).length === 0;
-
-    let shouldShowSkip =
+    return (
         hasNoOptions ||
         (actionType !== 'stealResource' &&
             actionType !== 'decreaseProduction' &&
@@ -428,7 +459,29 @@ function AskUserToConfirmResourceActionDetails({
             (actionType === 'removeResource' ||
                 resourceAndAmounts.every(resourceAndAmount =>
                     isStorableResource(resourceAndAmount.resource)
-                )));
+                )))
+    );
+}
+
+function AskUserToConfirmResourceActionDetails({
+    player,
+    resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard},
+}: Props) {
+    const store = useStore();
+    const state = store.getState();
+
+    const playerOptionWrappers: PlayerOptionWrapper[] = getPlayerOptionWrappers(state, player);
+
+    const context = useContext(AppContext);
+
+    const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
+
+    const handleSkip = () => {
+        apiClient.completeSkipChooseResourceActionDetailsAsync();
+    };
+
+    let shouldShowSkip = canSkip(playerOptionWrappers, actionType, resourceAndAmounts);
 
     const isNegativeAction = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
         actionType
@@ -440,7 +493,9 @@ function AskUserToConfirmResourceActionDetails({
                 const shouldShowWarningMessage =
                     !playerOptionWrapper.options.some(option => option.isVariable) &&
                     playerOptionWrapper.player === player &&
-                    isNegativeAction;
+                    isNegativeAction &&
+                    (playerOptionWrappers.length > 1 ||
+                        (playerOptionWrappers.length === 1 && actionType === 'removeResource'));
                 return (
                     <PlayerOption
                         showWarning={shouldShowWarningMessage}
@@ -450,7 +505,13 @@ function AskUserToConfirmResourceActionDetails({
                         {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
                         <OptionsParent>
                             {playerOptionWrapper.options.map(option => {
-                                return <OptionComponent option={option} key={option.text} />;
+                                return (
+                                    <OptionComponent
+                                        apiClient={apiClient}
+                                        option={option}
+                                        key={option.text}
+                                    />
+                                );
                             })}
                         </OptionsParent>
                     </PlayerOption>
@@ -461,17 +522,23 @@ function AskUserToConfirmResourceActionDetails({
     );
 }
 
-function OptionComponent({option}: {option: ResourceActionOption}) {
-    const dispatch = useDispatch();
-
+function OptionComponent({
+    option,
+    apiClient,
+}: {
+    option: ResourceActionOption;
+    apiClient: ApiClient;
+}) {
     const context = useContext(AppContext);
     const store = useStore();
     const state = store.getState();
     const player = context.getLoggedInPlayer(state);
 
     function handleClick() {
-        dispatch(getAction(option, player, variableAmount));
-        context.processQueue(dispatch);
+        apiClient.completeChooseResourceActionDetailsAsync({
+            option,
+            variableAmount,
+        });
     }
 
     const max =
@@ -525,7 +592,11 @@ function OptionComponent({option}: {option: ResourceActionOption}) {
     }
 }
 
-function getAction(option: ResourceActionOption, player: PlayerState, variableAmount: number) {
+export function getAction(
+    option: ResourceActionOption,
+    player: PlayerState,
+    variableAmount: number
+) {
     const quantity = option.isVariable ? variableAmount : option.quantity;
     switch (option.actionType) {
         case 'removeResource':

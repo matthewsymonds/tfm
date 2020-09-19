@@ -20,16 +20,21 @@ import {
     moveCardFromHandToPlayArea,
     payToPlayCard,
     payToPlayStandardProject,
+    placeTile,
     removeResource,
     revealAndDiscardTopCards,
     setPlantDiscount,
     skipAction,
+    skipChoice,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {
+    getAction,
+    ResourceActionOption,
+} from 'components/ask-user-to-confirm-resource-action-details';
 import {Action, ParameterCounter} from 'constants/action';
-import {Award, Cell, CellType, Milestone, Parameter, t, Tile, TileType} from 'constants/board';
+import {Award, Cell, CellType, Milestone, Parameter, t, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
@@ -45,6 +50,7 @@ import {
     createRemoveResourceOptionAction,
     EffectEvent,
     filterOceanPlacementsOverMax,
+    getParameterForTile,
     shouldPause,
 } from 'context/app-context';
 import {Card} from 'models/card';
@@ -78,7 +84,7 @@ export class ApiActionHandler implements GameActionHandler {
         return this.game.queue;
     }
 
-    private get state() {
+    get state() {
         return this.game.state;
     }
 
@@ -166,6 +172,13 @@ export class ApiActionHandler implements GameActionHandler {
             },
             card
         );
+    }
+
+    private triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell) {
+        this.triggerEffects({
+            placedTile,
+            cell,
+        });
     }
 
     private triggerEffects(event: EffectEvent, playedCard?: Card) {
@@ -415,7 +428,35 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async completePlaceTileAsync({tile, cell}: {tile: Tile; cell: Cell}): Promise<void> {}
+    async completePlaceTileAsync({cell}: {cell: Cell}): Promise<void> {
+        const [canCompletePlaceTile, reason] = this.actionGuard.canCompletePlaceTile(cell);
+
+        if (!canCompletePlaceTile) {
+            throw new Error(reason);
+        }
+
+        const {state} = this;
+        const loggedInPlayer = this.getLoggedInPlayer();
+        const {pendingTilePlacement} = loggedInPlayer;
+
+        const type = pendingTilePlacement!.type!;
+        this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
+
+        const parameterForTile = getParameterForTile(type);
+        if (parameterForTile) {
+            this.playAction({
+                state,
+                action: {
+                    increaseParameter: {
+                        [parameterForTile as Parameter]: 1,
+                    },
+                },
+            });
+        }
+
+        this.triggerEffectsFromTilePlacement(type, cell);
+        this.processQueue();
+    }
 
     async completeChooseResourceActionDetailsAsync({
         option,
@@ -423,7 +464,35 @@ export class ApiActionHandler implements GameActionHandler {
     }: {
         option: ResourceActionOption;
         variableAmount: number;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const [
+            canCompleteChooseResourceActionDetails,
+            reason,
+        ] = this.actionGuard.canCompleteChooseResourceActionDetails(option, variableAmount);
+        if (!canCompleteChooseResourceActionDetails) {
+            throw new Error(reason);
+        }
+
+        const action = getAction(option, this.getLoggedInPlayer(), variableAmount);
+
+        this.queue.unshift(action);
+
+        this.processQueue();
+    }
+
+    async completeSkipChooseResourceActionDetailsAsync(): Promise<void> {
+        const [
+            canCompleteSkipChooseResourceActionDetails,
+            reason,
+        ] = this.actionGuard.canCompleteSkipChooseResourceActionDetails();
+        if (!canCompleteSkipChooseResourceActionDetails) {
+            throw new Error(reason);
+        }
+
+        this.queue.unshift(skipChoice(this.loggedInPlayerIndex));
+
+        this.processQueue();
+    }
 
     async completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
 
@@ -662,6 +731,7 @@ export class ApiActionHandler implements GameActionHandler {
         if (action.increaseParameter) {
             // Ensure oxygen is checked before temperature.
             const parameters: Parameter[] = [
+                Parameter.OCEAN,
                 Parameter.OXYGEN,
                 Parameter.TEMPERATURE,
                 Parameter.VENUS,
@@ -722,6 +792,8 @@ export class ApiActionHandler implements GameActionHandler {
                             if (newLevel === 16) {
                                 items.push(increaseTerraformRating(1, playerIndex));
                             }
+                            break;
+                        default:
                             break;
                     }
                 }

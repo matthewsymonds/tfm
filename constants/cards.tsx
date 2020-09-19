@@ -4148,6 +4148,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 6,
         deck: Deck.COLONIES,
         name: 'Urban Decomposers',
+        // TODO handle multiple requirement types!
         text:
             'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
         requiredTags: {[Tag.SPACE]: 1},

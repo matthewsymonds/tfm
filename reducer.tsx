@@ -451,6 +451,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
 
             case SKIP_CHOICE:
+                player.pendingResourceActionDetails = undefined;
                 player.pendingDuplicateProduction = undefined;
                 break;
 
@@ -735,6 +736,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     payload.tile.ownerPlayerIndex = player.index;
                 }
                 const matchingCell = draft.common.board.flat().find(cell => {
+                    if (cell.specialLocation) {
+                        return cell.specialLocation === payload.cell.specialLocation;
+                    }
                     const coords = cell.coords || [];
                     return (
                         coords[0] === payload.cell.coords[0] && coords[1] === payload.cell.coords[1]

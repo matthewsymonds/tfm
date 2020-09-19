@@ -519,16 +519,6 @@ export function createDecreaseProductionAction(
     }
 }
 
-function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state: GameState) {
-    this.triggerEffects(
-        {
-            placedTile,
-            cell,
-        },
-        state
-    );
-}
-
 function triggerEffectsFromStandardProject(cost: number, state: GameState) {
     if (!cost) return;
 
@@ -1074,7 +1064,19 @@ function shouldDisableUI(state: GameState) {
         return true;
     }
 
-    return false;
+    const pendingActions =
+        player.pendingTilePlacement ||
+        state.common.revealedCards.length > 0 ||
+        player.possibleCards.length > 0 ||
+        player.forcedActions.length > 0 ||
+        player.pendingResourceActionDetails ||
+        player.pendingChoice ||
+        player.pendingDuplicateProduction ||
+        player.pendingDiscard;
+
+    const isPlayerMakingDecision = Boolean(pendingActions);
+
+    return isPlayerMakingDecision;
 }
 
 function canFundAward(award: Award, state: GameState) {
@@ -1182,7 +1184,6 @@ export const appContext = {
     fundAward,
     processQueue,
     triggerEffects,
-    triggerEffectsFromTilePlacement,
     triggerEffectsFromStandardProject,
     getActionsFromEffect,
     setLoggedInPlayerIndex,

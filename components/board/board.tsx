@@ -1,8 +1,8 @@
-import {placeTile} from 'actions';
+import {ApiClient} from 'api-client';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
-import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS, Parameter} from 'constants/board';
+import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
@@ -59,28 +59,10 @@ export const Board = () => {
     );
 
     const dispatch = useDispatch();
+    const apiClient = new ApiClient(dispatch);
 
     function handleClick(cell: CellModel) {
-        if (!validPlacements.includes(cell)) return;
-
-        const type = pendingTilePlacement!.type!;
-
-        dispatch(placeTile({type}, cell, loggedInPlayer.index));
-
-        const parameterForTile = context.getParameterForTile(type);
-        if (parameterForTile) {
-            context.playAction({
-                state,
-                action: {
-                    increaseParameter: {
-                        [parameterForTile as Parameter]: 1,
-                    },
-                },
-            });
-        }
-
-        context.triggerEffectsFromTilePlacement(type, cell, state);
-        context.processQueue(dispatch);
+        apiClient.completePlaceTileAsync({cell});
     }
     return (
         <BoardOuter>

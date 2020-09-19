@@ -2,8 +2,11 @@ import {setGame} from 'actions';
 import {makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
-import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
-import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {
+    ResourceActionOption,
+    serializeResourceActionOption,
+} from 'components/ask-user-to-confirm-resource-action-details';
+import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -100,7 +103,9 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_SKIP_ACTION, {});
     }
 
-    async completePlaceTileAsync({tile, cell}: {tile: Tile; cell: Cell}): Promise<void> {}
+    async completePlaceTileAsync(payload: {cell: Cell}): Promise<void> {
+        await this.makeApiCall(ApiActionType.API_COMPLETE_PLACE_TILE, payload);
+    }
 
     async completeChooseResourceActionDetailsAsync({
         option,
@@ -108,7 +113,18 @@ export class ApiClient implements GameActionHandler {
     }: {
         option: ResourceActionOption;
         variableAmount: number;
-    }): Promise<void> {}
+    }): Promise<void> {
+        const serializedOption = serializeResourceActionOption(option);
+        const payload = {
+            option: serializedOption,
+            variableAmount,
+        };
+        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS, payload);
+    }
+
+    async completeSkipChooseResourceActionDetailsAsync() {
+        await this.makeApiCall(ApiActionType.API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
+    }
 
     async completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
 
