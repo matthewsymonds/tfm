@@ -70,6 +70,9 @@ export default async (req, res) => {
             case ApiActionType.API_DO_CONVERSION:
                 await actionHandler.doConversionAsync(payload);
                 break;
+            case ApiActionType.API_SKIP_ACTION:
+                await actionHandler.skipActionAsync();
+                break;
             default:
                 throw spawnExhaustiveSwitchError(type);
         }

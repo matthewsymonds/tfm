@@ -1,4 +1,4 @@
-import {skipAction} from 'actions';
+import {ApiClient} from 'api-client';
 import {Flex} from 'components/box';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
@@ -73,6 +73,8 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
             ? colors.NAV_BG_PASSED
             : colors.NAV_BG_WAITING;
 
+    const apiClient = new ApiClient(dispatch);
+
     return (
         <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="center">
@@ -89,7 +91,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                     isLoggedInPlayersTurn &&
                     isActiveRound &&
                     !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
-                        <ActionBarButton onClick={() => dispatch(skipAction(loggedInPlayerIndex))}>
+                        <ActionBarButton onClick={() => apiClient.skipActionAsync()}>
                             {action === 2 ? 'End turn' : 'Pass'}
                         </ActionBarButton>
                     )}

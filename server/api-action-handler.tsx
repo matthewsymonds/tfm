@@ -23,6 +23,7 @@ import {
     removeResource,
     revealAndDiscardTopCards,
     setPlantDiscount,
+    skipAction,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -403,7 +404,16 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async skipActionAsync(): Promise<void> {}
+    async skipActionAsync(): Promise<void> {
+        const [canSkip, reason] = this.actionGuard.canSkipAction();
+
+        if (!canSkip) {
+            throw new Error(reason);
+        }
+
+        this.queue.unshift(skipAction(this.loggedInPlayerIndex));
+        this.processQueue();
+    }
 
     async completePlaceTileAsync({tile, cell}: {tile: Tile; cell: Cell}): Promise<void> {}
 

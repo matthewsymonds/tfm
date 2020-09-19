@@ -168,6 +168,11 @@ export class ActionGuard {
         return [availableMoney >= cost, 'Cannot afford to fund award'];
     }
 
+    canSkipAction(): CanPlayAndReason {
+        const {state} = this;
+        return [!this.shouldDisableUI(state), 'Cannot skip action right now'];
+    }
+
     canAffordCard(card: Card) {
         const player = this.getLoggedInPlayer();
         let cost = this.getDiscountedCardCost(card);

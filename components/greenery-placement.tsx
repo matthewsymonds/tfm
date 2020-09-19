@@ -1,4 +1,4 @@
-import {skipAction} from 'actions';
+import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
@@ -36,6 +36,8 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
         context.processQueue(dispatch);
     }, []);
 
+    const apiClient = new ApiClient(dispatch);
+
     return (
         <>
             <ActionBar>
@@ -49,7 +51,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
                     <TurnContext>
                         <button
                             disabled={context.shouldDisableUI(state)}
-                            onClick={() => dispatch(skipAction(playerIndex))}
+                            onClick={() => apiClient.skipActionAsync()}
                         >
                             Done placing greeneries
                         </button>

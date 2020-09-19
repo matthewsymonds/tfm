@@ -96,7 +96,9 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_DO_CONVERSION, payload);
     }
 
-    async skipActionAsync(): Promise<void> {}
+    async skipActionAsync(): Promise<void> {
+        await this.makeApiCall(ApiActionType.API_SKIP_ACTION, {});
+    }
 
     async completePlaceTileAsync({tile, cell}: {tile: Tile; cell: Cell}): Promise<void> {}
 
