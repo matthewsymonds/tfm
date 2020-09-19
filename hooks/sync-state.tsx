@@ -4,10 +4,10 @@ import {AppContext} from 'context/app-context';
 import {useRouter} from 'next/router';
 import {useContext, useEffect, useRef} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {RootState} from 'reducer';
+import {GameState} from 'reducer';
 import {deserializeState, serializeState} from 'state-serialization';
 
-async function syncState(newState: RootState | null, queue: Object[], router, dispatch) {
+async function syncState(newState: GameState | null, queue: Object[], router, dispatch) {
     if (!newState) return;
     const {origin} = window.location;
     const urlParts = window.location.href.split('/');

@@ -1,6 +1,6 @@
 import {Resource} from './constants/resource';
 import {Card, cards} from './models/card';
-import {CommonState, PlayerState, RootState} from './reducer';
+import {CommonState, GameState, PlayerState} from './reducer';
 
 export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile'> & {
     deck: SerializedCard[];
@@ -21,12 +21,12 @@ export type SerializedPlayerState = Omit<
     playedCards: SerializedCard[];
 };
 
-export type SerializedState = Omit<Omit<RootState, 'common'>, 'players'> & {
+export type SerializedState = Omit<Omit<GameState, 'common'>, 'players'> & {
     common: SerializedCommonState;
     players: SerializedPlayerState[];
 };
 
-export const serializeState = (state: RootState): SerializedState => {
+export const serializeState = (state: GameState): SerializedState => {
     const {players, common, ...rest} = state;
     return {
         ...rest,
@@ -35,7 +35,7 @@ export const serializeState = (state: RootState): SerializedState => {
     };
 };
 
-export const deserializeState = (state: SerializedState): RootState => {
+export const deserializeState = (state: SerializedState): GameState => {
     const {players, common, ...rest} = state;
     return {
         ...rest,

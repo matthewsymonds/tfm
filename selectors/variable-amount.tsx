@@ -5,7 +5,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
-import {PlayerState, RootState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {
     findCellWithTile,
     getAdjacentCellsForCell,
@@ -15,7 +15,7 @@ import {
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card: Card | undefined
     ) => number;
@@ -38,75 +38,75 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.USER_CHOICE]: () => 1,
     // You can play insulation just to get the card out, but not change any production.
     [VariableAmount.USER_CHOICE_MIN_ZERO]: () => 0,
-    [VariableAmount.BASED_ON_USER_CHOICE]: (state: RootState) => state.pendingVariableAmount!,
-    [VariableAmount.TRIPLE_BASED_ON_USER_CHOICE]: (state: RootState) =>
+    [VariableAmount.BASED_ON_USER_CHOICE]: (state: GameState) => state.pendingVariableAmount!,
+    [VariableAmount.TRIPLE_BASED_ON_USER_CHOICE]: (state: GameState) =>
         state.pendingVariableAmount! * 3,
-    [VariableAmount.ALL_EVENTS]: (state: RootState) => {
+    [VariableAmount.ALL_EVENTS]: (state: GameState) => {
         return state.players.flatMap(player => {
             return player.playedCards.filter(card => card.tags.includes(Tag.EVENT));
         }).length;
     },
-    [VariableAmount.CARDS_WITHOUT_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return player.playedCards.filter(
             card => card.type !== CardType.EVENT && card.tags.length === 0
         ).length;
     },
-    [VariableAmount.CITIES_ON_MARS]: (state: RootState) => {
+    [VariableAmount.CITIES_ON_MARS]: (state: GameState) => {
         return getCellsWithCitiesOnMars(state).length;
     },
-    [VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT]: (state: RootState) => {
+    [VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT]: (state: GameState) => {
         const commercialDistrict = findCellWithTile(state, TileType.COMMERCIAL_DISTRICT);
         if (!commercialDistrict) return 0;
         return getAdjacentCellsForCell(state, commercialDistrict!).filter(cell => {
             return cell.tile?.type === TileType.CITY;
         }).length;
     },
-    [VariableAmount.CITY_TILES_IN_PLAY]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.CITY_TILES_IN_PLAY]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getCellsWithCities(state, player).length;
     },
-    [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: RootState) => {
+    [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: GameState) => {
         const capital = findCellWithTile(state, TileType.CAPITAL);
         if (!capital) return 0;
         return getAdjacentCellsForCell(state, capital!).filter(cell => {
             return cell.tile?.type === TileType.OCEAN;
         }).length;
     },
-    [VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS]: (state: RootState) => {
+    [VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS]: (state: GameState) => {
         const mining = findCellWithTile(state, TileType.MINING_AREA);
         return mining?.bonus?.includes(Resource.STEEL) ? 1 : 0;
     },
-    [VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS]: (state: RootState) => {
+    [VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS]: (state: GameState) => {
         const mining = findCellWithTile(state, TileType.MINING_AREA);
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
-    [VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS]: (state: RootState) => {
+    [VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS]: (state: GameState) => {
         const mining = findCellWithTile(state, TileType.MINING_RIGHTS);
         return mining?.bonus?.includes(Resource.STEEL) ? 1 : 0;
     },
-    [VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS]: (state: RootState) => {
+    [VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS]: (state: GameState) => {
         const mining = findCellWithTile(state, TileType.MINING_RIGHTS);
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
-    [VariableAmount.EARTH_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.EARTH_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.EARTH).length;
     },
-    [VariableAmount.HALF_BUILDING_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.HALF_BUILDING_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return Math.floor(getTags(player).filter(tag => tag === Tag.BUILDING).length / 2);
     },
     [VariableAmount.VENUS_AND_EARTH_TAGS]: (
-        state: RootState,
+        state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
         return getTags(player).filter(tag => tag === Tag.EARTH || tag === Tag.VENUS).length;
     },
-    [VariableAmount.POWER_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.POWER_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.POWER).length;
     },
-    [VariableAmount.PLANT_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.PLANT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.PLANT).length;
     },
     [VariableAmount.OPPONENTS_SPACE_TAGS]: (
-        state: RootState,
+        state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
         return state.players
@@ -114,57 +114,57 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             .flatMap(player => getTags(player))
             .filter(tag => tag === Tag.SPACE).length;
     },
-    [VariableAmount.VENUS_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.VENUS_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.VENUS).length;
     },
-    [VariableAmount.SPACE_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.SPACE_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.SPACE).length;
     },
-    [VariableAmount.JOVIAN_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.JOVIAN_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getTags(player).filter(tag => tag === Tag.JOVIAN).length;
     },
-    [VariableAmount.HALF_MICROBE_TAGS]: (state: RootState, player = getLoggedInPlayer(state)) => {
+    [VariableAmount.HALF_MICROBE_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return Math.floor(getTags(player).filter(tag => tag === Tag.MICROBE).length / 2);
     },
     [VariableAmount.PLANT_CONVERSION_AMOUNT]: (
-        state: RootState,
+        state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
         return 8 - (player.plantDiscount || 0);
     },
-    [VariableAmount.RESOURCES_ON_CARD]: (state: RootState, player: PlayerState, card?: Card) => {
+    [VariableAmount.RESOURCES_ON_CARD]: (state: GameState, player: PlayerState, card?: Card) => {
         return card?.storedResourceAmount!;
     },
     [VariableAmount.TWICE_RESOURCES_ON_CARD]: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card?: Card
     ) => {
         return card?.storedResourceAmount! * 2;
     },
     [VariableAmount.HALF_RESOURCES_ON_CARD]: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card?: Card
     ) => {
         return Math.floor(card?.storedResourceAmount! / 2);
     },
     [VariableAmount.THIRD_RESOURCES_ON_CARD]: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card?: Card
     ) => {
         return Math.floor(card?.storedResourceAmount! / 3);
     },
     [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card?: Card
     ) => {
         return Math.floor(card?.storedResourceAmount! / 4);
     },
     [VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES]: (
-        state: RootState,
+        state: GameState,
         player: PlayerState,
         card?: Card
     ) => {
@@ -174,7 +174,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
 
         return 0;
     },
-    [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: RootState) => {
+    [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: GameState) => {
         const player = getLoggedInPlayer(state);
         const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT).length;
 
@@ -184,12 +184,12 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
 
         return 1;
     },
-    [VariableAmount.REVEALED_CARD_MICROBE]: (state: RootState) => {
+    [VariableAmount.REVEALED_CARD_MICROBE]: (state: GameState) => {
         const {revealedCards} = state.common;
         const [card] = revealedCards;
         return card.tags.includes(Tag.MICROBE) ? 1 : 0;
     },
-    [VariableAmount.THIRD_ALL_CITIES]: (state: RootState) => {
+    [VariableAmount.THIRD_ALL_CITIES]: (state: GameState) => {
         const player = getLoggedInPlayer(state);
         return Math.floor(getCellsWithCities(state, player).length / 3);
     },

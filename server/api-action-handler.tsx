@@ -47,7 +47,7 @@ import {
     shouldPause,
 } from 'context/app-context';
 import {Card} from 'models/card';
-import {GameState, PlayerState, reducer, RootState} from 'reducer';
+import {GameState, PlayerState, reducer} from 'reducer';
 
 export interface ServerGameModel {
     state: GameState;
@@ -451,7 +451,7 @@ export class ApiActionHandler implements GameActionHandler {
         withPriority,
     }: {
         action: Action;
-        state: RootState;
+        state: GameState;
         parent?: Card; // origin of action
         playedCard?: Card; // card that triggered action
         thisPlayerIndex?: number;

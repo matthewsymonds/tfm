@@ -8,7 +8,7 @@ import {PropertyCounter} from './constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/resource';
 import {StandardProjectAction} from './constants/standard-project';
 import {Card} from './models/card';
-import {RootState} from './reducer';
+import {GameState} from './reducer';
 
 export const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = (corporation: Card, playerIndex: number) => ({
@@ -366,7 +366,7 @@ export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
 });
 
 export const SET_GAME = 'SET_GAME';
-export const setGame = (gameState: RootState) => ({type: SET_GAME, payload: {gameState}});
+export const setGame = (gameState: GameState) => ({type: SET_GAME, payload: {gameState}});
 
 export const ADD_FORCED_ACTION_TO_PLAYER = 'ADD_FORCED_ACTION_TO_PLAYER';
 export const addForcedActionToPlayer = (playerIndex: number, forcedAction: Action) => ({

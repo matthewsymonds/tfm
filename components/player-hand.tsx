@@ -13,7 +13,7 @@ import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context
 import {Card} from 'models/card';
 import React, {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState, RootState, useTypedSelector} from 'reducer';
+import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import styled from 'styled-components';
 
@@ -31,7 +31,7 @@ type PlayerHandProps = {
 export const PlayerHand = ({player}: PlayerHandProps) => {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
-    const store = useStore<RootState>();
+    const store = useStore<GameState>();
     const state = store.getState();
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
@@ -115,7 +115,7 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
 };
 
 export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
-    const store = useStore<RootState>();
+    const store = useStore<GameState>();
     const state = store.getState();
     const context = useContext(AppContext);
     const loggedInPlayer = context.getLoggedInPlayer(state);

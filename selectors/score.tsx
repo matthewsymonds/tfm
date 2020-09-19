@@ -1,7 +1,7 @@
 import {Award, TileType} from 'constants/board';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {GameState, PlayerState, RootState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {
     getAdjacentCellsForCell,
     getAllCellsOwnedByCurrentPlayer,
@@ -10,13 +10,13 @@ import {
 } from 'selectors/board';
 import {getTags} from './variable-amount';
 
-export function getGreeneryScore(state: RootState, playerIndex: number) {
+export function getGreeneryScore(state: GameState, playerIndex: number) {
     return getGreeneriesForPlayer(state, playerIndex).length;
 }
 
 export function getCityScore(state: GameState, playerIndex: number) {
     const playerCitiesOnMars = getCellsWithCitiesOnMars(state).filter(
-        cell => cell.tile.ownerPlayerIndex === playerIndex
+        cell => cell.tile?.ownerPlayerIndex === playerIndex
     );
     return playerCitiesOnMars.reduce((cityScore, cell) => {
         const adjacentGreeneries = getAdjacentCellsForCell(state, cell).filter(

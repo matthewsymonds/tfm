@@ -1,7 +1,7 @@
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
 import {produce} from 'immer';
-import {RootState} from 'reducer';
+import {GameState} from 'reducer';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -47,8 +47,8 @@ export default async (req, res) => {
 };
 /* Assists with situation like card selection where multiple players are syncing state. */
 function mergeExistingGameStateWithNew(
-    newState: RootState | undefined,
-    oldState: RootState,
+    newState: GameState | undefined,
+    oldState: GameState,
     session: {username: string}
 ) {
     if (!newState) return oldState;
@@ -74,7 +74,6 @@ function mergeExistingGameStateWithNew(
 
             // If a player is "Ready" don't override their readiness to play.
             player.action = oldStatePlayer.action;
-            player.turn = oldStatePlayer.turn;
 
             if (oldState.common.gameStage !== GameStage.ACTIVE_ROUND) {
                 player.resources = oldStatePlayer.resources;

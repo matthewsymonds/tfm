@@ -6,7 +6,7 @@ import {AppContext} from 'context/app-context';
 import {useSyncState} from 'hooks/sync-state';
 import {useContext, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {RootState, useTypedSelector} from 'reducer';
+import {GameState, useTypedSelector} from 'reducer';
 import {getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getWaitingMessage} from 'selectors/get-waiting-message';
 import {ActionBar, ActionBarRow} from './action-bar';
@@ -18,7 +18,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const corporation = useTypedSelector(state => state.players[playerIndex].corporation);
     const dispatch = useDispatch();
-    const store = useStore<RootState>();
+    const store = useStore<GameState>();
     const state = store.getState();
     const waitingMessage = getWaitingMessage(playerIndex);
 

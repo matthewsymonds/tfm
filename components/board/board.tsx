@@ -6,7 +6,7 @@ import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS, Parameter} from
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {RootState, useTypedSelector} from 'reducer';
+import {GameState, useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import styled from 'styled-components';
 import {Cell} from './cell';
@@ -45,7 +45,7 @@ const Row = styled.div`
 `;
 
 export const Board = () => {
-    const store = useStore<RootState>();
+    const store = useStore<GameState>();
     const context = useContext(AppContext);
 
     const board = useTypedSelector(state => state.common.board);

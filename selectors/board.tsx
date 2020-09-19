@@ -10,9 +10,9 @@ import {
     TileType,
 } from 'constants/board';
 import {getLoggedInPlayerIndex} from 'context/app-context';
-import {PlayerState, RootState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 
-export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
+export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
     if (!cell.coords) {
         return [];
     }
@@ -62,7 +62,7 @@ export function getAdjacentCellsForCell(state: RootState, cell: Cell) {
     return validNeighborCells;
 }
 
-function isAvailable(state: RootState, cell: Cell, player: PlayerState) {
+function isAvailable(state: GameState, cell: Cell, player: PlayerState) {
     if (cell.specialLocation && RESERVED_LOCATIONS.includes(cell.specialLocation)) return false;
     return (
         !cell.tile ||
@@ -70,49 +70,49 @@ function isAvailable(state: RootState, cell: Cell, player: PlayerState) {
     );
 }
 
-function isOwnedByCurrentPlayer(state: RootState, cell: Cell, player: PlayerState) {
+function isOwnedByCurrentPlayer(state: GameState, cell: Cell, player: PlayerState) {
     return cell.tile && cell.tile.ownerPlayerIndex === player.index;
 }
 
-export function getAllCellsOwnedByCurrentPlayer(state: RootState, player: PlayerState) {
+export function getAllCellsOwnedByCurrentPlayer(state: GameState, player: PlayerState) {
     return state.common.board.flat().filter(cell => isOwnedByCurrentPlayer(state, cell, player));
 }
 
-function getAvailableCells(state: RootState, player: PlayerState) {
+function getAvailableCells(state: GameState, player: PlayerState) {
     return state.common.board.flat().filter(cell => isAvailable(state, cell, player));
 }
 
-function getTakenCells(state: RootState, player: PlayerState) {
+function getTakenCells(state: GameState, player: PlayerState) {
     return state.common.board.flat().filter(cell => !isAvailable(state, cell, player));
 }
 
-function getAvailableCellsOnMars(state: RootState, player: PlayerState) {
+function getAvailableCellsOnMars(state: GameState, player: PlayerState) {
     return getAvailableCells(state, player).filter(cell => cellHelpers.onMars(cell));
 }
 
-export function getCellsWithCitiesOnMars(state: RootState) {
+export function getCellsWithCitiesOnMars(state: GameState) {
     return getAllCellsOnMars(state).filter(cell => cell.tile?.type === TileType.CITY);
 }
 
-function getAllCellsOnMars(state: RootState) {
+function getAllCellsOnMars(state: GameState) {
     return state.common.board.flat().filter(cell => cellHelpers.onMars(cell));
 }
 
-export function getCellsWithCities(state: RootState, player: PlayerState) {
+export function getCellsWithCities(state: GameState, player: PlayerState) {
     const lastRow = state.common.board[state.common.board.length - 1];
     const citiesOnLastRow = lastRow.filter(cell => cell.tile?.type === TileType.CITY);
     return [...getCellsWithCitiesOnMars(state), ...citiesOnLastRow];
 }
 
-export function findCellWithTile(state: RootState, type: TileType) {
+export function findCellWithTile(state: GameState, type: TileType) {
     return getAllCellsOnMars(state).find(cell => cell.tile?.type === type);
 }
 
-export function findCellsWithTile(state: RootState, type: TileType) {
+export function findCellsWithTile(state: GameState, type: TileType) {
     return getAllCellsOnMars(state).filter(cell => cell.tile?.type === type);
 }
 
-function getAvailableLandCellsOnMars(state: RootState, player: PlayerState) {
+function getAvailableLandCellsOnMars(state: GameState, player: PlayerState) {
     return getAvailableCellsOnMars(state, player).filter(cell => cell.type === CellType.LAND);
 }
 
@@ -120,12 +120,12 @@ function getGreeneries(state) {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.GREENERY);
 }
 
-export function getGreeneriesForPlayer(state: RootState, playerIndex: number) {
+export function getGreeneriesForPlayer(state: GameState, playerIndex: number) {
     return getGreeneries(state).filter(cell => cell.tile.ownerPlayerIndex === playerIndex);
 }
 
 export function getValidPlacementsForRequirement(
-    state: RootState,
+    state: GameState,
     tilePlacement: TilePlacement | undefined,
     player: PlayerState
 ) {
@@ -138,7 +138,7 @@ export function getValidPlacementsForRequirement(
 }
 
 export function getPossibleValidPlacementsForRequirement(
-    state: RootState,
+    state: GameState,
     requirement: PlacementRequirement | undefined,
     player: PlayerState
 ): Cell[] {

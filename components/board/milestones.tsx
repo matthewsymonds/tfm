@@ -50,7 +50,7 @@ function Milestones() {
     function renderMilestoneButton(milestone: Milestone) {
         const isDisabled = !context.canClaimMilestone(milestone, state);
         const isMilestoneClaimed =
-            state.common.claimedMilestones.indexOf(a => a.milestone === milestone) > -1;
+            state.common.claimedMilestones.findIndex(m => m.milestone === milestone) > -1;
         const text = getTextForMilestone(milestone);
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}

@@ -95,7 +95,7 @@ export type Resources = {
 const cardsPlural = num => (num === 1 ? 'card' : 'cards');
 const stepsPlural = num => (num === 1 ? 'step' : 'steps');
 
-function handleEnterActiveRound(state: RootState) {
+function handleEnterActiveRound(state: GameState) {
     if (
         state.common.gameStage !== GameStage.ACTIVE_ROUND &&
         state.players.every(player => player.action === 1)
@@ -219,7 +219,7 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
     });
 }
 
-function handleProduction(draft: RootState) {
+function handleProduction(draft: GameState) {
     for (const player of draft.players) {
         player.resources[Resource.MEGACREDIT] += player.terraformRating;
         player.resources[Resource.HEAT] += player.resources[Resource.ENERGY];
@@ -230,7 +230,7 @@ function handleProduction(draft: RootState) {
     }
 }
 
-function isGameEndTriggered(draft: RootState) {
+function isGameEndTriggered(draft: GameState) {
     for (const parameter in draft.common.parameters) {
         if (parameter === Parameter.VENUS) continue;
 
@@ -242,7 +242,7 @@ function isGameEndTriggered(draft: RootState) {
     return true;
 }
 
-function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
+function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
     const {
         players,
         common: {currentPlayerIndex: oldPlayerIndex, playerIndexOrderForGeneration: turnOrder},
@@ -254,7 +254,7 @@ function handleChangeCurrentPlayer(state: RootState, draft: RootState) {
     // keep iterating through turnOrder until you find someone who hasn't passed
     // exit the loop if we did a full cycle
     while (
-        players.find(p => p.index === turnOrder[newPlaceInTurnOrder]).action === 0 &&
+        players.find(p => p.index === turnOrder[newPlaceInTurnOrder])?.action === 0 &&
         newPlaceInTurnOrder !== oldPlaceInTurnOrder
     ) {
         newPlaceInTurnOrder = (newPlaceInTurnOrder + 1) % turnOrder.length;
@@ -278,7 +278,7 @@ export const reducer = (state: GameState | null = null, action) => {
     }
     // We want to initially set the state async, from the server.
     // Until SET_GAME is called, every other action is a noop.
-    if (state === null) return null;
+    if (!state) return null;
     const {payload} = action;
     return produce(state, draft => {
         draft.set = false;
@@ -319,7 +319,7 @@ export const reducer = (state: GameState | null = null, action) => {
             return cardsFromDeck;
         }
 
-        function handleGainResource(resource: Resource, amount: Amount) {
+        const handleGainResource = (resource: Resource, amount: Amount) => {
             const numberAmount = convertAmountToNumber(
                 amount,
                 state,
@@ -343,7 +343,7 @@ export const reducer = (state: GameState | null = null, action) => {
             draft.log.push(
                 `${corporationName} gained ${amountAndResource(numberAmount, resource)}`
             );
-        }
+        };
 
         switch (action.type) {
             case SET_CORPORATION:
@@ -926,5 +926,4 @@ export const reducer = (state: GameState | null = null, action) => {
     });
 };
 
-export type RootState = ReturnType<typeof reducer>;
-export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useTypedSelector: TypedUseSelectorHook<GameState> = useSelector;

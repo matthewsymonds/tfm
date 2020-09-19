@@ -16,12 +16,12 @@ import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext} from 'context/app-context';
+import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
 import React, {useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {RootState, useTypedSelector} from 'reducer';
+import {GameState, useTypedSelector} from 'reducer';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
@@ -44,7 +44,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     /**
      * Hooks
      */
-    const store = useStore<RootState>();
+    const store = useStore<GameState>();
     const dispatch = useDispatch();
     const context = useContext(AppContext);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
@@ -117,10 +117,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const numSelectedCards = selectedCards.length;
 
     const totalCardCost = numSelectedCards * 3;
-    const playerMoney =
-        gameStage === GameStage.CORPORATION_SELECTION
+    const playerMoneyAmount =
+        (gameStage === GameStage.CORPORATION_SELECTION
             ? loggedInPlayer.corporation.gainResource[Resource.MEGACREDIT]
-            : loggedInPlayer.resources[Resource.MEGACREDIT];
+            : loggedInPlayer.resources[Resource.MEGACREDIT]) || 0;
+
+    const playerMoney = convertAmountToNumber(playerMoneyAmount, state, loggedInPlayer);
 
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const remainingMegacreditsToBuyCards =
@@ -167,7 +169,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         (loggedInPlayer.numCardsToTake !== null &&
             numSelectedCards < loggedInPlayer.numCardsToTake);
 
-    const isPlayerMakingDecision =
+    const pendingActions =
         loggedInPlayer.pendingTilePlacement ||
         state.common.revealedCards.length > 0 ||
         loggedInPlayer.possibleCards.length > 0 ||
@@ -176,6 +178,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         loggedInPlayer.pendingChoice ||
         loggedInPlayer.pendingDuplicateProduction ||
         loggedInPlayer.pendingDiscard;
+
+    const isPlayerMakingDecision = Boolean(pendingActions);
 
     /**
      * Event handlers
@@ -282,7 +286,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                         Infinity
                                     }
                                     min={
-                                        loggedInPlayer.buyCards ? 0 : loggedInPlayer.numCardsToTake
+                                        loggedInPlayer.buyCards
+                                            ? 0
+                                            : loggedInPlayer.numCardsToTake || 0
                                     }
                                     selectedCards={selectedCards}
                                     onSelect={cards => setSelectedCards(cards)}

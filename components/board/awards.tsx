@@ -46,7 +46,7 @@ function Awards() {
 
     function renderAwardButton(award: Award) {
         const isDisabled = !context.canFundAward(award, state);
-        const isAwardFunded = state.common.fundedAwards.indexOf(a => a.award === award) > -1;
+        const isAwardFunded = state.common.fundedAwards.findIndex(a => a.award === award) > -1;
         const text = getTextForAward(award);
         const cost = getCostForAward(award, state);
         const handleConfirmPayment = (

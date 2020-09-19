@@ -8,7 +8,7 @@ import {
 import {Tag} from 'constants/tag';
 import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
-import {PlayerState, RootState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -16,7 +16,7 @@ export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;
 }
 
-export function getCardVictoryPoints(amount: Amount | undefined, state: RootState, card: Card) {
+export function getCardVictoryPoints(amount: Amount | undefined, state: GameState, card: Card) {
     if (!amount) return 0;
     if (typeof amount === 'number') return amount;
 

@@ -17,7 +17,7 @@ import {
     minMilestoneQuantity,
 } from 'context/app-context';
 import {Card} from 'models/card';
-import {GameState, RootState} from 'reducer';
+import {GameState} from 'reducer';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];
@@ -277,7 +277,7 @@ export class ActionGuard {
         return true;
     }
 
-    canPlayAction(action: Action, state: RootState, parent?: Card): CanPlayAndReason {
+    canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
         if (this.shouldDisableUI(state)) {
             return [false, ''];
         }
@@ -285,7 +285,7 @@ export class ActionGuard {
         return this.canPlayActionInSpiteOfUI(action, state, parent);
     }
 
-    shouldDisableUI(state: RootState) {
+    shouldDisableUI(state: GameState) {
         const player = this.getLoggedInPlayer();
 
         if (player.index !== state.common.currentPlayerIndex) {
@@ -301,7 +301,7 @@ export class ActionGuard {
         return false;
     }
 
-    canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Card): CanPlayAndReason {
+    canPlayActionInSpiteOfUI(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
         if (
             !doesPlayerHaveRequiredResourcesToRemove(
                 action,

@@ -55,7 +55,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {createContext} from 'react';
-import {GameState, PlayerState, RootState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {findCellsWithTile, getValidPlacementsForRequirement} from 'selectors/board';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -92,11 +92,11 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
     );
 }
 
-export function canPlayWithTilePlacements(card: Card, state: RootState, player: PlayerState) {
+export function canPlayWithTilePlacements(card: Card, state: GameState, player: PlayerState) {
     let tiles = state.common.board
         .flat()
         .filter(cell => cell.tile)
-        .map(cell => cell.tile);
+        .map(cell => cell.tile!);
 
     for (const placement of card.requiredTilePlacements) {
         const match = tiles.find(tile => {
@@ -115,7 +115,7 @@ export function canPlayWithTilePlacements(card: Card, state: RootState, player: 
     return true;
 }
 
-export function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
+export function doesPlayerHaveRequiredTags(card: Card, state: GameState) {
     const player = getLoggedInPlayer(state);
 
     for (const tag in card.requiredTags) {
@@ -133,7 +133,7 @@ export function doesPlayerHaveRequiredTags(card: Card, state: RootState) {
 
 export function convertAmountToNumber(
     amount: Amount,
-    state: RootState,
+    state: GameState,
     player: PlayerState,
     card?: Card
 ): number {
@@ -150,7 +150,7 @@ export const REQUIRED_REMOVE_RESOURCE_LOCATIONS = [
     ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
 ];
 
-export function canAffordActionCost(action: Action, state: RootState) {
+export function canAffordActionCost(action: Action, state: GameState) {
     const player = getLoggedInPlayer(state);
     let {cost, acceptedPayment = []} = action;
     if (!cost) {
@@ -168,7 +168,7 @@ export function canAffordActionCost(action: Action, state: RootState) {
     return cost <= player.resources[Resource.MEGACREDIT];
 }
 
-export function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
+export function getAppropriatePlayerForAction(state: GameState, parent?: Card) {
     if (!parent) {
         return getLoggedInPlayer(state);
     }
@@ -176,7 +176,7 @@ export function getAppropriatePlayerForAction(state: RootState, parent?: Card) {
     return getPlayerWithCard(state, parent);
 }
 
-export function getPlayerWithCard(state: RootState, parent: Card): PlayerState {
+export function getPlayerWithCard(state: GameState, parent: Card): PlayerState {
     return state.players.find(player =>
         player.playedCards.find(theCard => theCard.name === parent.name)
     )!;
@@ -184,7 +184,7 @@ export function getPlayerWithCard(state: RootState, parent: Card): PlayerState {
 
 export function doesPlayerHaveRequiredResourcesToRemove(
     action: Action,
-    state: RootState,
+    state: GameState,
     _player: PlayerState | null,
     parent?: Card
 ) {
@@ -235,7 +235,7 @@ export function doesPlayerHaveRequiredResourcesToRemove(
 
 export function doesAnyoneHaveResourcesToSteal(
     action: Action,
-    state: RootState,
+    state: GameState,
     _player: PlayerState | null,
     card?: Card
 ) {
@@ -272,7 +272,7 @@ export function doesAnyoneHaveResourcesToSteal(
 
 export function meetsProductionRequirements(
     action: Action,
-    state: RootState,
+    state: GameState,
     _player: PlayerState | null,
     parent?: Card
 ) {
@@ -305,7 +305,7 @@ export function meetsProductionRequirements(
 
 export function meetsTilePlacementRequirements(
     action: Action,
-    state: RootState,
+    state: GameState,
     _player: PlayerState | null,
     parent?: Card
 ): boolean {
@@ -323,16 +323,16 @@ export function meetsTilePlacementRequirements(
     return true;
 }
 
-export function meetsTerraformRequirements(action, state: RootState, parent?: Card): boolean {
+export function meetsTerraformRequirements(action, state: GameState, parent?: Card): boolean {
     if (!action.requiresTerraformRatingIncrease) return true;
 
-    return state.players.find(player => player.corporation.name === parent?.name)!
+    return !!state.players.find(player => player.corporation.name === parent?.name)!
         .terraformedThisGeneration;
 }
 
 export function canPlayCardAction(
     action: Action,
-    state: RootState,
+    state: GameState,
     parent?: Card
 ): [boolean, string | undefined] {
     if (!canAffordActionCost(action, state)) {
@@ -344,7 +344,7 @@ export function canPlayCardAction(
 
 export function canPlayCardActionInSpiteOfUI(
     action: Action,
-    state: RootState,
+    state: GameState,
     parent?: Card
 ): [boolean, string | undefined] {
     if (!canAffordActionCost(action, state)) {
@@ -356,7 +356,7 @@ export function canPlayCardActionInSpiteOfUI(
 
 export function canPlayAction(
     action: Action,
-    state: RootState,
+    state: GameState,
     parent?: Card
 ): [boolean, string | undefined] {
     if (this.shouldDisableUI(state)) {
@@ -366,7 +366,7 @@ export function canPlayAction(
     return this.canPlayActionInSpiteOfUI(action, state, parent);
 }
 
-function canPlayActionInSpiteOfUI(action: Action, state: RootState, parent?: Card) {
+function canPlayActionInSpiteOfUI(action: Action, state: GameState, parent?: Card) {
     if (!doesPlayerHaveRequiredResourcesToRemove(action, state, null, parent)) {
         return [false, 'Not enough of required resource'];
     }
@@ -519,7 +519,7 @@ export function createDecreaseProductionAction(
     }
 }
 
-function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state: RootState) {
+function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state: GameState) {
     this.triggerEffects(
         {
             placedTile,
@@ -529,7 +529,7 @@ function triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell, state
     );
 }
 
-function triggerEffectsFromStandardProject(cost: number, state: RootState) {
+function triggerEffectsFromStandardProject(cost: number, state: GameState) {
     if (!cost) return;
 
     this.triggerEffects(
@@ -551,7 +551,7 @@ export interface EffectEvent {
 
 export type ActionCardPair = [Action, Card];
 
-function triggerEffects(event: EffectEvent, state: RootState, playedCard?: Card) {
+function triggerEffects(event: EffectEvent, state: GameState, playedCard?: Card) {
     const player = getLoggedInPlayer(state);
     // track the card that triggered the action so we can "add resources to this card"
     // e.g. Ecological Zone
@@ -641,7 +641,7 @@ function playAction({
     withPriority,
 }: {
     action: Action;
-    state: RootState;
+    state: GameState;
     parent?: Card; // origin of action
     playedCard?: Card; // card that triggered action
     thisPlayerIndex?: number;
@@ -910,7 +910,7 @@ function playAction({
 
 export function filterOceanPlacementsOverMax(
     tilePlacements: TilePlacement[],
-    state: RootState
+    state: GameState
 ): TilePlacement[] {
     const numOceans = findCellsWithTile(state, TileType.OCEAN).length;
 
@@ -932,13 +932,13 @@ export function filterOceanPlacementsOverMax(
     return filteredPlacements;
 }
 
-function playCard(card: Card, state: RootState, payment?: PropertyCounter<Resource>) {}
+function playCard(card: Card, state: GameState, payment?: PropertyCounter<Resource>) {}
 
 export function isActiveRound(state: GameState): boolean {
     return state.common.gameStage === GameStage.ACTIVE_ROUND;
 }
 
-function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: RootState) {
+function canPlayStandardProject(standardProjectAction: StandardProjectAction, state: GameState) {
     const player = getLoggedInPlayer(state);
 
     const [canPlay] = this.canPlayAction(standardProjectAction, state);
@@ -975,7 +975,7 @@ function canPlayStandardProject(standardProjectAction: StandardProjectAction, st
 function playStandardProject(
     standardProjectAction: StandardProjectAction,
     payment: PropertyCounter<Resource> | undefined,
-    state: RootState
+    state: GameState
 ) {
     const playerIndex = getLoggedInPlayerIndex();
     this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
@@ -986,13 +986,13 @@ function playStandardProject(
     this.queue.push(completeAction(playerIndex));
 }
 
-function getPlayerCities(player: PlayerState, state: RootState) {
+function getPlayerCities(player: PlayerState, state: GameState) {
     return state.common.board.flat().filter(cell => {
         return cellHelpers.containsCity(cell) && cellHelpers.isOwnedBy(cell, player.index);
     }).length;
 }
 
-function getPlayerGreeneries(player: PlayerState, state: RootState) {
+function getPlayerGreeneries(player: PlayerState, state: GameState) {
     return state.common.board.flat().filter(cell => {
         return cellHelpers.containsGreenery(cell) && cellHelpers.isOwnedBy(cell, player.index);
     }).length;
@@ -1026,7 +1026,7 @@ export const minMilestoneQuantity = {
     [Milestone.TERRAFORMER]: 35,
 };
 
-function canClaimMilestone(milestone: Milestone, state: RootState) {
+function canClaimMilestone(milestone: Milestone, state: GameState) {
     const player = getLoggedInPlayer(state);
 
     if (!isActiveRound(state)) {
@@ -1061,7 +1061,7 @@ function claimMilestone(milestone: Milestone, payment: PropertyCounter<Resource>
     this.queue.push(completeAction(playerIndex));
 }
 
-function shouldDisableUI(state: RootState) {
+function shouldDisableUI(state: GameState) {
     const player = getLoggedInPlayer(state);
 
     if (player.index !== state.common.currentPlayerIndex) {
@@ -1077,7 +1077,7 @@ function shouldDisableUI(state: RootState) {
     return false;
 }
 
-function canFundAward(award: Award, state: RootState) {
+function canFundAward(award: Award, state: GameState) {
     const player = getLoggedInPlayer(state);
 
     if (this.shouldDisableUI(state)) return false;
