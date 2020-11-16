@@ -21,26 +21,28 @@ import {
     payToPlayCard,
     payToPlayStandardProject,
     placeTile,
+    removeForcedActionFromPlayer,
     removeResource,
     revealAndDiscardTopCards,
     setPlantDiscount,
     skipAction,
-    skipChoice,
+    skipChoice
 } from 'actions';
-import {ActionGuard} from 'client-server-shared/action-guard';
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import { ActionGuard } from 'client-server-shared/action-guard';
+import { GameActionHandler } from 'client-server-shared/game-action-handler-interface';
 import {
     getAction,
-    ResourceActionOption,
+    ResourceActionOption
 } from 'components/ask-user-to-confirm-resource-action-details';
-import {Action, ParameterCounter} from 'constants/action';
-import {Award, Cell, CellType, Milestone, Parameter, t, TileType} from 'constants/board';
-import {CardType} from 'constants/card-types';
-import {CONVERSIONS} from 'constants/conversion';
-import {EffectTrigger} from 'constants/effect-trigger';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
-import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import { Action, ParameterCounter } from 'constants/action';
+import { Award, Cell, CellType, Milestone, Parameter, t, TileType } from 'constants/board';
+import { CardType } from 'constants/card-types';
+import { CONVERSIONS } from 'constants/conversion';
+import { EffectTrigger } from 'constants/effect-trigger';
+import { GameStage } from 'constants/game';
+import { PropertyCounter } from 'constants/property-counter';
+import { Resource, ResourceAndAmount, ResourceLocationType } from 'constants/resource';
+import { StandardProjectAction, StandardProjectType } from 'constants/standard-project';
 import {
     ActionCardPair,
     createDecreaseProductionAction,
@@ -51,10 +53,11 @@ import {
     EffectEvent,
     filterOceanPlacementsOverMax,
     getParameterForTile,
-    shouldPause,
+    shouldPause
 } from 'context/app-context';
-import {Card} from 'models/card';
-import {GameState, PlayerState, reducer} from 'reducer';
+import { Card } from 'models/card';
+import { GameState, PlayerState, reducer } from 'reducer';
+import { getForcedActionsForPlayer } from 'selectors/player';
 
 export interface ServerGameModel {
     state: GameState;
@@ -80,12 +83,35 @@ export class ApiActionHandler implements GameActionHandler {
         return this.state.players[this.loggedInPlayerIndex];
     }
 
+    private getGameStage(): GameStage {
+        return this.state.common.gameStage;
+    }
+
     private get queue() {
         return this.game.queue;
     }
 
     get state() {
         return this.game.state;
+    }
+
+    async handleForcedActionsIfNeededAsync() {
+        const gameStage = this.getGameStage();
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
+            return;
+        }
+        const {state} = this;
+        const {currentPlayerIndex} = state.common;
+        const forcedActions = getForcedActionsForPlayer(state, currentPlayerIndex);
+
+        for (const forcedAction of forcedActions) {
+            this.playAction({state, action: forcedAction});
+            this.queue.push(completeAction(currentPlayerIndex));
+            this.queue.push(removeForcedActionFromPlayer(currentPlayerIndex, forcedAction));
+        }
+        if (forcedActions.length > 0) {
+            this.processQueue();
+        }
     }
 
     async playCardAsync({

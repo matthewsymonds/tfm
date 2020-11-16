@@ -1,10 +1,8 @@
 import {
     announceReadyToStartRound,
-    completeAction,
     discardCards,
     discardRevealedCards,
     payForCards,
-    removeForcedActionFromPlayer,
     setCards,
 } from 'actions';
 import {ApiClient} from 'api-client';
@@ -19,11 +17,10 @@ import {VariableAmount} from 'constants/variable-amount';
 import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, useTypedSelector} from 'reducer';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
-import {getForcedActionsForPlayer} from 'selectors/player';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
@@ -56,37 +53,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
-
-    useEffect(() => {
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return;
-        }
-        if (currentPlayerIndex !== loggedInPlayerIndex) {
-            return;
-        }
-        const forcedActions = getForcedActionsForPlayer(state, loggedInPlayer.index);
-
-        for (const forcedAction of forcedActions) {
-            context.playAction({state, action: forcedAction});
-            context.queue.push(completeAction(loggedInPlayer.index));
-            context.queue.push(removeForcedActionFromPlayer(loggedInPlayerIndex, forcedAction));
-        }
-        if (forcedActions.length > 0) {
-            context.processQueue(dispatch);
-        }
-    }, [gameStage, currentPlayerIndex]);
-
-    useEffect(() => {
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return;
-        }
-        if (currentPlayerIndex !== loggedInPlayerIndex) {
-            return;
-        }
-        if (!isPlayerMakingDecision) {
-            context.processQueue(dispatch);
-        }
-    }, [gameStage, currentPlayerIndex]);
 
     /**
      * Derived state

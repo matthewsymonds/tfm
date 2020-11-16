@@ -90,6 +90,7 @@ export default async (req, res) => {
             default:
                 throw spawnExhaustiveSwitchError(type);
         }
+        await actionHandler.handleForcedActionsIfNeededAsync();
         game.queue = hydratedGame.queue;
         game.state = serializeState(hydratedGame.state);
         await game.save();
