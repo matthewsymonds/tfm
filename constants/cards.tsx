@@ -89,7 +89,7 @@ export const cardConfigs: CardConfig[] = [
         },
         cost: 9,
         deck: Deck.CORPORATE,
-        name: "Inventors' Guild",
+        name: "Inventor's Guild",
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
     },
@@ -118,8 +118,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CAPITAL, PlacementRequirement.CITY)],
-        decreaseProduction: {[Resource.ENERGY]: 1},
-        increaseProduction: {[Resource.MEGACREDIT]: 4},
+        decreaseProduction: {[Resource.ENERGY]: 2},
+        increaseProduction: {[Resource.MEGACREDIT]: 5},
         victoryPoints: VariableAmount.OCEANS_ADJACENT_TO_CAPITAL,
     },
     {
@@ -3091,8 +3091,11 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 2 steps. Increase your MC production 1  step for each Venus and Earth tag you have. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
-        gainResource: {
+        increaseProduction: {
             [Resource.MEGACREDIT]: VariableAmount.VENUS_AND_EARTH_TAGS,
+        },
+        decreaseProduction: {
+            [Resource.ENERGY]: 2,
         },
     },
     {
@@ -3822,10 +3825,15 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Effect: when you play an Earth tag, place an animal here. Action: Gain 1 MC per animal here.',
-            gainResource: {
-                [Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD,
+            text: ' Action: Gain 1 MC per animal here.',
+            gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD},
+        },
+        effect: {
+            text: 'Effect: when you play an Earth tag, place an animal here.',
+            trigger: {tags: [Tag.EARTH]},
+            action: {
+                gainResource: {[Resource.ANIMAL]: 1},
+                gainResourceTargetType: ResourceLocationType.THIS_CARD,
             },
         },
         cost: 12,

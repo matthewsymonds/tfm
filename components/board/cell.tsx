@@ -1,5 +1,5 @@
 import {Flex} from 'components/box';
-import {ResourceIcon} from 'components/resource';
+import {ResourceIcon} from 'components/icons/resource';
 import {Square} from 'components/square';
 import {Cell as CellModel, CellType, getTileBgColor, getTileIcon, TileType} from 'constants/board';
 import {colors} from 'constants/game';

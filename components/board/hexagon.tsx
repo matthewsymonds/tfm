@@ -1,11 +1,12 @@
-import {HEX_RADIUS} from 'constants/board';
+import React from 'react';
 import styled from 'styled-components';
+import {HEX_RADIUS} from 'constants/board';
 
-const HexagonBase = styled.div<HexagonProps>`
+const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
     color: white;
     font-size: 30px;
-    width: ${HEX_RADIUS * Math.cos((30 * Math.PI) / 180) * 2}px;
-    height: ${HEX_RADIUS * 2}px;
+    width: ${props => props.hexRadius * Math.cos((30 * Math.PI) / 180) * 2}px;
+    height: ${props => props.hexRadius * 2}px;
 
     transform: ${props => (props.scale ? `scale(${props.scale})` : '')};
     display: flex;
@@ -32,20 +33,22 @@ const HexagonBase = styled.div<HexagonProps>`
         z-index: 0;
     }
 `;
-interface HexagonProps {
+type HexagonProps = {
     color: string;
     scale?: number;
     selectable?: boolean;
-}
+    hexRadius?: number;
+};
 
 export const Hexagon: React.FunctionComponent<HexagonProps> = ({
     selectable,
     color,
     scale,
+    hexRadius = HEX_RADIUS,
     children,
 }) => {
     return (
-        <HexagonBase selectable={selectable} color={color} scale={scale}>
+        <HexagonBase selectable={selectable} color={color} scale={scale} hexRadius={hexRadius}>
             <div>{children}</div>
         </HexagonBase>
     );

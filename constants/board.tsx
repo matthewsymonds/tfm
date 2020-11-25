@@ -87,6 +87,8 @@ export const getTileBgColor = (type: TileType) => {
             return '#ff2222';
         case TileType.OTHER:
             return 'brown';
+        case TileType.NATURAL_PRESERVE:
+            return 'pink';
         case TileType.MINING_AREA:
         case TileType.MINING_RIGHTS:
             return 'brown';

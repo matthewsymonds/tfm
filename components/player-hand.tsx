@@ -3,7 +3,7 @@ import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {CardActionElements, CardComponent, CardDisabledText, CardText} from 'components/card';
 import PaymentPopover from 'components/popovers/payment-popover';
-import {TagIcon} from 'components/tags';
+import {TagIcon} from 'components/icons/tag';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';

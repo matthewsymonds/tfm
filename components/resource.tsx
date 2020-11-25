@@ -1,65 +1,16 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {colors} from 'components/ui';
-import {CONVERSIONS} from 'constants/conversion';
-import {
-    getClassName,
-    getResourceBackgroundColor,
-    getResourceColor,
-    getResourceSymbol,
-    Resource,
-} from 'constants/resource';
 import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
+import styled from 'styled-components';
+import {Resource} from 'constants/resource';
+import {CONVERSIONS} from 'constants/conversion';
+import {PlayerState} from 'reducer';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {PlayerState} from 'reducer';
-import styled from 'styled-components';
 import {ConversionButton} from './conversion-button';
-
-interface ResourceIconBaseProps {
-    readonly color: string;
-    readonly background: string;
-    readonly size: number;
-    readonly tall?: boolean;
-}
-
-const ResourceIconBase = styled.div<ResourceIconBaseProps>`
-    display: inline-block;
-    height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
-    width: ${props => props.size}px;
-    text-align: center;
-    margin: 3px;
-    font-size: ${props => props.size}px;
-    font-weight: bold;
-    color: ${props => props.color};
-    background: ${props => props.background};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`;
-
-interface ResourceIconProps {
-    name: Resource;
-    className?: string;
-    size?: number;
-}
-
-export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
-    name,
-    className,
-    size = 20,
-}) => (
-    <ResourceIconBase
-        className={className}
-        color={getResourceColor(name)}
-        background={getResourceBackgroundColor(name)}
-        size={size}
-        tall={name === Resource.CARD}
-    >
-        <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
-    </ResourceIconBase>
-);
+import {ResourceIcon} from 'components/icons/resource';
 
 const ResourceBoardCellBase = styled.div`
     display: flex;
@@ -98,7 +49,7 @@ export const InlineResourceIcon = styled(ResourceIcon)`
     flex-shrink: 0;
     margin: 0;
     height: 20px;
-    width 20px;
+    width: 20px;
     font-size: 16px;
     border: 1px solid #222;
 `;
