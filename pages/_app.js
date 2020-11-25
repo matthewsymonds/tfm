@@ -14,7 +14,7 @@ import {Mars} from 'components/mars';
 import {colors} from 'components/ui';
 import Router from 'next/router';
 
-const GlobalStyles = createGlobalStyle`
+export const GlobalStyles = createGlobalStyle`
     body {
         margin: 0;
         font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,

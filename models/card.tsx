@@ -209,4 +209,4 @@ export class Card {
     }
 }
 
-export const cards = cardConfigs.map(config => new Card(config));
+export const cards = cardConfigs.map((config) => new Card(config));

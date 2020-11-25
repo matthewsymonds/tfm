@@ -109,6 +109,8 @@ export const getResourceSymbol = (resource: Resource) => {
             return '🔨';
         case Resource.TITANIUM:
             return '☆';
+        case Resource.ANY_STORABLE_RESOURCE:
+            return '📦';
     }
 };
 
