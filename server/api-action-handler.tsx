@@ -1,6 +1,7 @@
 import {
     addForcedActionToPlayer,
     addParameterRequirementAdjustments,
+    announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
@@ -10,6 +11,8 @@ import {
     askUserToPlaceTile,
     claimMilestone as claimMilestoneAction,
     completeAction,
+    discardCards,
+    discardRevealedCards,
     fundAward as fundAwardAction,
     gainResource,
     increaseParameter,
@@ -18,31 +21,34 @@ import {
     makeActionChoice,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
+    payForCards,
     payToPlayCard,
     payToPlayStandardProject,
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
     revealAndDiscardTopCards,
+    setCards,
+    setCorporation,
     setPlantDiscount,
     skipAction,
-    skipChoice
+    skipChoice,
 } from 'actions';
-import { ActionGuard } from 'client-server-shared/action-guard';
-import { GameActionHandler } from 'client-server-shared/game-action-handler-interface';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {
     getAction,
-    ResourceActionOption
+    ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
-import { Action, ParameterCounter } from 'constants/action';
-import { Award, Cell, CellType, Milestone, Parameter, t, TileType } from 'constants/board';
-import { CardType } from 'constants/card-types';
-import { CONVERSIONS } from 'constants/conversion';
-import { EffectTrigger } from 'constants/effect-trigger';
-import { GameStage } from 'constants/game';
-import { PropertyCounter } from 'constants/property-counter';
-import { Resource, ResourceAndAmount, ResourceLocationType } from 'constants/resource';
-import { StandardProjectAction, StandardProjectType } from 'constants/standard-project';
+import {Action, ParameterCounter} from 'constants/action';
+import {Award, Cell, CellType, Milestone, Parameter, t, TileType} from 'constants/board';
+import {CardType} from 'constants/card-types';
+import {CONVERSIONS} from 'constants/conversion';
+import {EffectTrigger} from 'constants/effect-trigger';
+import {GameStage} from 'constants/game';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {
     ActionCardPair,
     createDecreaseProductionAction,
@@ -53,11 +59,11 @@ import {
     EffectEvent,
     filterOceanPlacementsOverMax,
     getParameterForTile,
-    shouldPause
+    shouldPause,
 } from 'context/app-context';
-import { Card } from 'models/card';
-import { GameState, PlayerState, reducer } from 'reducer';
-import { getForcedActionsForPlayer } from 'selectors/player';
+import {Card} from 'models/card';
+import {GameState, PlayerState, reducer} from 'reducer';
+import {getForcedActionsForPlayer} from 'selectors/player';
 
 export interface ServerGameModel {
     state: GameState;
@@ -95,17 +101,21 @@ export class ApiActionHandler implements GameActionHandler {
         return this.game.state;
     }
 
-    async handleForcedActionsIfNeededAsync() {
-        const gameStage = this.getGameStage();
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return;
-        }
+    async handleForcedActionsIfNeededAsync(originalState: GameState) {
         const {state} = this;
         const {currentPlayerIndex} = state.common;
+        const gameStage = this.getGameStage();
+        if (
+            originalState.common.currentPlayerIndex === currentPlayerIndex &&
+            gameStage === originalState.common.gameStage
+        ) {
+            return;
+        }
+
         const forcedActions = getForcedActionsForPlayer(state, currentPlayerIndex);
 
         for (const forcedAction of forcedActions) {
-            this.playAction({state, action: forcedAction});
+            this.playAction({state, action: forcedAction, thisPlayerIndex: currentPlayerIndex});
             this.queue.push(completeAction(currentPlayerIndex));
             this.queue.push(removeForcedActionFromPlayer(currentPlayerIndex, forcedAction));
         }
@@ -378,6 +388,70 @@ export class ApiActionHandler implements GameActionHandler {
         this.playAction({action: standardProjectAction, state});
         this.queue.push(completeAction(playerIndex));
 
+        this.processQueue();
+    }
+
+    async confirmCardSelectionAsync({
+        selectedCards,
+        corporation,
+    }: {
+        selectedCards: Card[];
+        corporation: Card;
+    }) {
+        const {state} = this;
+        const {
+            pendingDiscard,
+            index: loggedInPlayerIndex,
+            buyCards,
+            possibleCards,
+            cards,
+        } = this.getLoggedInPlayer();
+        const canConfirmCardSelection =
+            possibleCards.length > 0 &&
+            this.actionGuard.canConfirmCardSelection(selectedCards.length, state, corporation);
+        if (!canConfirmCardSelection) {
+            throw new Error('Cannot confirm card selection');
+        }
+        if (
+            !selectedCards.every(selectedCard =>
+                possibleCards.some(possibleCard => possibleCard.name === selectedCard.name)
+            )
+        ) {
+            throw new Error('Trying to select invalid card');
+        }
+        if (pendingDiscard) {
+            this.dispatch(discardCards(selectedCards, loggedInPlayerIndex));
+            this.processQueue();
+            return;
+        }
+        const gameStage = this.getGameStage();
+        if (gameStage === GameStage.CORPORATION_SELECTION) {
+            if (!this.actionGuard.canPlayCorporation(corporation)) {
+                throw new Error('Cannot play corporation');
+            }
+            await this.playCardAsync({card: corporation});
+            this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
+        }
+
+        if (buyCards) {
+            this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+        }
+
+        this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+        this.queue.push(
+            discardCards(
+                possibleCards.filter(card => !selectedCards.includes(card)),
+                loggedInPlayerIndex
+            )
+        );
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
+            this.queue.push(announceReadyToStartRound(loggedInPlayerIndex));
+        }
+        this.processQueue();
+    }
+
+    async continueAfterRevealingCardsAsync() {
+        this.queue.push(discardRevealedCards());
         this.processQueue();
     }
 

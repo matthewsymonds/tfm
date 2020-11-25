@@ -25,6 +25,7 @@ export const revealAndDiscardTopCards = (amount: Amount) => ({
 export const DISCARD_REVEALED_CARDS = 'DISCARD_REVEALED_CARDS';
 export const discardRevealedCards = () => ({
     type: DISCARD_REVEALED_CARDS,
+    payload: {},
 });
 
 export const DISCARD_CARDS = 'DISCARD_CARDS';

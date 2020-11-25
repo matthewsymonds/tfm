@@ -37,6 +37,7 @@ export default async (req, res) => {
             players: game.players,
             name: game.name,
         };
+        const originalState = hydratedGame.state;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         const stateHydrator = new StateHydrator(hydratedGame, username);
         let card: Card;
@@ -87,10 +88,27 @@ export default async (req, res) => {
             case ApiActionType.API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS:
                 await actionHandler.completeSkipChooseResourceActionDetailsAsync();
                 break;
+            case ApiActionType.API_CONFIRM_CARD_SELECTION:
+                const {cards} = payload;
+                if (cards.length > 10) {
+                    throw new Error('trying to select too many cards');
+                }
+                // de-duplicate the cards by name (after confirming there are a reasonable #).
+                const selectedCards = [...new Set<string>(cards.map(card => card.name))].map(
+                    name => {
+                        return stateHydrator.getCard(name);
+                    }
+                );
+                const corporation = stateHydrator.getCard(payload.corporation.name);
+                await actionHandler.confirmCardSelectionAsync({selectedCards, corporation});
+                break;
+            case ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS:
+                await actionHandler.continueAfterRevealingCardsAsync();
+                break;
             default:
                 throw spawnExhaustiveSwitchError(type);
         }
-        await actionHandler.handleForcedActionsIfNeededAsync();
+        await actionHandler.handleForcedActionsIfNeededAsync(originalState);
         game.queue = hydratedGame.queue;
         game.state = serializeState(hydratedGame.state);
         await game.save();

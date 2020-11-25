@@ -105,6 +105,7 @@ function handleEnterActiveRound(state: GameState) {
             player.possibleCards = [];
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
+        state.log.push('Turn 1');
     }
 }
 
@@ -352,7 +353,9 @@ export const reducer = (state: GameState | null = null, action) => {
             case PAY_FOR_CARDS:
                 const numCards = action.payload.cards.length;
                 player.resources[Resource.MEGACREDIT] -= numCards * 3;
-                player.possibleCards = [];
+                if (player.resources[Resource.MEGACREDIT] < 0) {
+                    throw new Error('Money went negative!');
+                }
                 player.buyCards = null;
                 draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
                 break;
@@ -686,6 +689,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.cards = player.cards.filter(c => c.name !== payload.card.name);
                 player.playedCards.push(payload.card);
                 if (payload.card.type === CardType.CORPORATION) {
+                    player.possibleCorporations = [];
                     draft.log.push(`${player.username} chose ${player.corporation.name}`);
                 }
                 player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
@@ -750,9 +754,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     return;
                 }
 
-                const numOceans =
-                    draft.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN)
-                        .length + 1;
+                const numOceans = draft.common.board
+                    .flat()
+                    .filter(cell => cell.tile?.type === TileType.OCEAN).length;
 
                 const oceanAddendum =
                     payload.tile.type === TileType.OCEAN ? ` (${numOceans} of 9)` : '';

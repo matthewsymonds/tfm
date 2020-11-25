@@ -47,11 +47,11 @@ const CorporationSelector = ({
         }
     }
 
-    const {possibleCorporations, corporation, buyCards} = player;
-    if (!player.buyCards) {
+    const {possibleCorporations, buyCards, username, corporation} = player;
+    if (!buyCards) {
         return (
             <div>
-                {player.username} has chosen {player.corporation.name}.
+                {player.username} has chosen {corporation.name}.
             </div>
         );
     }
@@ -108,7 +108,12 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
     return (
         <Flex flexDirection="column" justifyContent="stretch">
             <PanelWithTabs
-                tabs={players.map(p => p.corporation.name)}
+                tabs={players.map(p => {
+                    if (p === loggedInPlayer || gameStage !== GameStage.CORPORATION_SELECTION) {
+                        return p.corporation.name;
+                    }
+                    return p.username;
+                })}
                 tabType="player"
                 selectedTabIndex={selectedPlayerIndex}
                 setSelectedTabIndex={setSelectedPlayerIndex}

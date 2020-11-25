@@ -11,6 +11,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
 import {
     doesAnyoneHaveResourcesToSteal,
     doesPlayerHaveRequiredResourcesToRemove,
@@ -24,6 +25,7 @@ import {
 import {Card} from 'models/card';
 import {GameState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
+import {getMoney} from 'selectors/get-money';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];
@@ -52,6 +54,12 @@ export class ActionGuard {
     ): CanPlayAndReason {
         const {state} = this;
         const player = this.getLoggedInPlayer();
+        if (
+            !this.canPlayCorporation(card) &&
+            !player.cards.some(playerCard => playerCard.name === card.name)
+        ) {
+            return [false, 'User cannot play this card at this time'];
+        }
         if (!this.canAffordCard(card)) {
             return [false, 'Cannot afford to play'];
         }
@@ -385,12 +393,16 @@ export class ActionGuard {
         return [canSkipChooseResource, 'Cannot skip making a resource choice right now'];
     }
     shouldDisableUI(state: GameState) {
+        const {gameStage} = state.common;
         const player = this.getLoggedInPlayer();
+        if (gameStage === GameStage.CORPORATION_SELECTION) {
+            return false;
+        }
 
         if (player.index !== state.common.currentPlayerIndex) {
             return true;
         }
-        if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+        if (gameStage !== GameStage.ACTIVE_ROUND) {
             return true;
         }
         if (this.game.queue.length > 0) {
@@ -430,5 +442,26 @@ export class ActionGuard {
         }
 
         return [true, 'Good to go'];
+    }
+
+    canConfirmCardSelection(numCards: number, state: GameState, corporation: Card) {
+        const loggedInPlayer = this.getLoggedInPlayer();
+        const playerMoney = getMoney(state, loggedInPlayer, corporation);
+        const totalCardCost = numCards * 3;
+        const shouldDisableDiscardConfirmation =
+            loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE && numCards === 0;
+        return !(
+            shouldDisableDiscardConfirmation ||
+            totalCardCost > playerMoney ||
+            (loggedInPlayer.numCardsToTake !== null && numCards < loggedInPlayer.numCardsToTake)
+        );
+    }
+
+    canPlayCorporation(card: Card) {
+        const {possibleCorporations} = this.getLoggedInPlayer();
+
+        return possibleCorporations.some(
+            possibleCorporation => possibleCorporation.name === card.name
+        );
     }
 }

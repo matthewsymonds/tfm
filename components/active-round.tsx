@@ -1,26 +1,20 @@
-import {
-    announceReadyToStartRound,
-    discardCards,
-    discardRevealedCards,
-    payForCards,
-    setCards,
-} from 'actions';
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {LogPanel} from 'components/log-panel';
 import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
-import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext, convertAmountToNumber} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
 import React, {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, useTypedSelector} from 'reducer';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getMoney} from 'selectors/get-money';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
@@ -83,12 +77,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const numSelectedCards = selectedCards.length;
 
     const totalCardCost = numSelectedCards * 3;
-    const playerMoneyAmount =
-        (gameStage === GameStage.CORPORATION_SELECTION
-            ? loggedInPlayer.corporation.gainResource[Resource.MEGACREDIT]
-            : loggedInPlayer.resources[Resource.MEGACREDIT]) || 0;
-
-    const playerMoney = convertAmountToNumber(playerMoneyAmount, state, loggedInPlayer);
+    const playerMoney = getMoney(state, loggedInPlayer, corporation);
 
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const remainingMegacreditsToBuyCards =
@@ -126,14 +115,13 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         }
     }
 
-    const shouldDisableDiscardConfirmation =
-        loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE &&
-        numSelectedCards === 0;
-    const shouldDisableConfirmCardSelection =
-        shouldDisableDiscardConfirmation ||
-        totalCardCost > playerMoney ||
-        (loggedInPlayer.numCardsToTake !== null &&
-            numSelectedCards < loggedInPlayer.numCardsToTake);
+    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+
+    const shouldDisableConfirmCardSelection = !actionGuard.canConfirmCardSelection(
+        numSelectedCards,
+        state,
+        corporation
+    );
 
     const pendingActions =
         loggedInPlayer.pendingTilePlacement ||
@@ -147,41 +135,18 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     const isPlayerMakingDecision = Boolean(pendingActions);
 
+    const apiClient = new ApiClient(dispatch);
+
     /**
      * Event handlers
      */
-    function continueAfterRevealingCards() {
-        context.queue.push(discardRevealedCards());
-        context.processQueue(dispatch);
+    async function continueAfterRevealingCards() {
+        await apiClient.continueAfterRevealingCardsAsync();
     }
-    const apiClient = new ApiClient(dispatch);
     // Used for buying, taking, and discarding cards
-    function handleConfirmCardSelection() {
+    async function handleConfirmCardSelection() {
+        await apiClient.confirmCardSelectionAsync({selectedCards, corporation});
         setSelectedCards([]);
-        if (loggedInPlayer.pendingDiscard) {
-            dispatch(discardCards(selectedCards, loggedInPlayerIndex));
-            context.processQueue(dispatch);
-            return;
-        }
-        if (gameStage === GameStage.CORPORATION_SELECTION) {
-            apiClient.playCardAsync({card: corporation});
-        }
-
-        if (loggedInPlayer.buyCards) {
-            dispatch(payForCards(selectedCards, loggedInPlayerIndex));
-        }
-
-        dispatch(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
-        dispatch(
-            discardCards(
-                possibleCards.filter(card => !selectedCards.includes(card)),
-                loggedInPlayerIndex
-            )
-        );
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            dispatch(announceReadyToStartRound(loggedInPlayerIndex));
-        }
-        context.processQueue(dispatch);
     }
 
     function renderSelectedActionSet() {

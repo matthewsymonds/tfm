@@ -1,4 +1,5 @@
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
@@ -60,8 +61,12 @@ export const Board = () => {
 
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
 
     function handleClick(cell: CellModel) {
+        if (!actionGuard.canCompletePlaceTile(cell)[0]) {
+            return;
+        }
         apiClient.completePlaceTileAsync({cell});
     }
     return (
