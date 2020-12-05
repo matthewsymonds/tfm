@@ -15,14 +15,14 @@ import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {Action, Amount} from 'constants/action';
 
 export const InlineText = styled.span`
-    margin: 3px;
-    margin-right: 0;
+    margin: 3px 0;
     height: 16px;
+    line-height: 16px;
 `;
-const TextWithSpacing = styled.span<{spacing?: number}>`
-    margin: 0 ${(props) => props.spacing ?? 4}px;
+export const TextWithSpacing = styled.span<{spacing?: number}>`
+    margin: 0 ${props => props.spacing ?? 4}px;
 `;
-const IconographyRow = styled.div`
+export const IconographyRow = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,9 +37,9 @@ const ProductionWrapper = styled.div<{
     justify-content: center;
     align-items: center;
     padding: 2px;
-    margin-left: ${(props) => props.margin ?? 'initial'};
-    background-color: ${(props) => (props.isProduction ? 'brown' : 'initial')};
-    border: ${(props) => (props.useRedBorder ? '2px solid red' : 'initial')};
+    margin: ${props => props.margin ?? 'initial'};
+    background-color: ${props => (props.isProduction ? 'brown' : 'initial')};
+    border: ${props => (props.useRedBorder ? '2px solid red' : 'initial')};
 `;
 
 function _renderChangeResourceIconography(
@@ -71,10 +71,14 @@ function _renderChangeResourceIconography(
                 name={resource as Resource}
                 size={16}
                 showRedBorder={useResourceResourceBorder}
+                amount={
+                    resource === Resource.MEGACREDIT && typeof amount === 'number'
+                        ? `${amount}`
+                        : undefined
+                }
             />
         );
         if (typeof amount === 'number') {
-            if (opts.isNegative) amount *= -1;
             elements.push(
                 <ProductionWrapper
                     margin={i > 0 ? '0 0 0 4px' : '0'}
@@ -83,7 +87,8 @@ function _renderChangeResourceIconography(
                 >
                     <TextWithSpacing spacing={2}>
                         {opts.isSteal ? 'STEAL ' : ''}
-                        {amount}
+                        {opts.isNegative ? '-' : null}
+                        {resource === Resource.MEGACREDIT || amount === 1 ? null : amount}
                     </TextWithSpacing>
                     {resourceIconElement}
                 </ProductionWrapper>
@@ -322,7 +327,7 @@ function renderTilePlacementIconography(tilePlacements: Array<TilePlacement>) {
     );
 }
 
-function renderIncreaseProductionIconography(increaseProduction: PropertyCounter<Resource>) {
+export function renderIncreaseProductionIconography(increaseProduction: PropertyCounter<Resource>) {
     return _renderChangeResourceIconography(increaseProduction, {isProduction: true});
 }
 
@@ -398,7 +403,7 @@ function renderIncreaseTerraformRatingIconography(increaseTerraformRating: Amoun
                 <IconographyRow>
                     {Array(increaseTerraformRating)
                         .fill(null)
-                        .map((_) => (
+                        .map(_ => (
                             <Flex margin="0 4px">
                                 <TerraformRatingIcon />
                             </Flex>

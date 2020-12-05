@@ -153,20 +153,8 @@ export class Card {
         const {tags = {}, cards = {}, ...rest} = config.discounts || {};
         this.discounts = {
             card: 0,
-            tags: {
-                [Tag.SPACE]: 0,
-                [Tag.VENUS]: 0,
-                [Tag.BUILDING]: 0,
-                [Tag.SCIENCE]: 0,
-                [Tag.EARTH]: 0,
-                [Tag.POWER]: 0,
-                ...tags,
-            },
-            cards: {
-                [Tag.SPACE]: 0,
-                [Tag.EARTH]: 0,
-                ...cards,
-            },
+            tags,
+            cards,
             standardProjects: 0,
             standardProjectPowerPlant: 0,
             nextCardThisGeneration: 0,
@@ -176,8 +164,6 @@ export class Card {
         this.plantDiscount = config.plantDiscount || 0;
         const {exchangeRates = {}} = config;
         this.exchangeRates = {
-            [Resource.TITANIUM]: 0,
-            [Resource.STEEL]: 0,
             ...exchangeRates,
         };
 
@@ -209,4 +195,4 @@ export class Card {
     }
 }
 
-export const cards = cardConfigs.map((config) => new Card(config));
+export const cards = cardConfigs.map(config => new Card(config));

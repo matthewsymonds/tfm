@@ -1422,7 +1422,7 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 1,
         tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 1},
-        increaseProduction: {[Resource.ENERGY]: 4},
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
     },
     {
         effect: {

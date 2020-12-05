@@ -9,11 +9,11 @@ export default {
     component: Card,
 } as Meta;
 
-const Template: Story<{}> = (args) => (
+const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            // .filter((c) => c.name === 'Search For Life')
-            .map((cardConfig) => (
+            // .filter(c => c.name === 'Adaptation Technology')
+            .map(cardConfig => (
                 <div style={{margin: 4}}>
                     <Card card={new CardModel(cardConfig)} />
                 </div>
