@@ -1,7 +1,6 @@
 import {Centered} from 'components/centered';
 import {InputBox} from 'components/input-box';
 import {AppContext, appContext} from 'context/app-context';
-import {defaultTheme} from 'evergreen-ui';
 import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
 import Head from 'next/head';
@@ -139,11 +138,6 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
 `;
-
-const customTheme = {
-    ...defaultTheme,
-    spinnerColor: 'hotpink',
-};
 
 function InnerAppComponent({Component, pageProps, session}) {
     const router = useRouter();

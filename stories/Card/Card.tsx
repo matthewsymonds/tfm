@@ -7,7 +7,7 @@ import {CardTags} from 'stories/Card/CardTags';
 import {CardType} from 'constants/card-types';
 import {CardIconography} from 'stories/Card/CardIconography';
 import {CardVictoryPoints} from 'stories/Card/CardVictoryPoints';
-import {CardEffect} from 'stories/Card/CardEffect';
+import {CardEffects} from 'stories/Card/CardEffects';
 import {CardAction} from 'stories/Card/CardAction';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -63,7 +63,7 @@ const CardTitleBar = styled.div<{type: CardType}>`
     justify-content: center;
     font-weight: 600;
     padding: 8px 0;
-    background-color: ${(props) => getCardTitleColorForType(props.type)};
+    background-color: ${props => getCardTitleColorForType(props.type)};
     color: white;
     text-align: center;
 `;
@@ -78,7 +78,7 @@ export const Card: React.FC<CardProps> = ({card}) => {
             </CardTopBar>
             <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
             <CardText>{card.text}</CardText>
-            <CardEffect card={card} />
+            <CardEffects card={card} />
             <CardAction card={card} />
             <CardIconography card={card} />
             <CardVictoryPoints card={card} />

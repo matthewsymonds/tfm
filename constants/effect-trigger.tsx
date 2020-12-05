@@ -1,6 +1,11 @@
 import {Parameter, TileType} from './board';
 import {Tag} from './tag';
 
+// TODO: the trigger type should probably be a union of all possible trigger types, e.g.
+// EffectTrigger.TILE_PLACED_BY_ANYONE | EffectTrigger.TAG_PLAYED_BY_PLAYER | ...
+// In its current state, the presence of any one of these optional properties pretty much defines
+// its trigger type. By not having a "switch-able" property, we have to jump through hoops e.g.
+// see the CardEffect component
 export interface EffectTrigger {
     anyPlayer?: boolean;
     // To trigger the effect, action's cost must be greater than or equal to this number
