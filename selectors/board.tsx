@@ -9,7 +9,6 @@ import {
     TilePlacement,
     TileType,
 } from 'constants/board';
-import {getLoggedInPlayerIndex} from 'context/app-context';
 import {GameState, PlayerState} from 'reducer';
 
 export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
@@ -198,15 +197,16 @@ export function getPossibleValidPlacementsForRequirement(
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
             );
         case PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT:
-            const steelOrTitaniumCells = getAvailableCells(state, player).filter(
+            const availableLandCellsOnMars = getAvailableLandCellsOnMars(state, player);
+            const cellsAdjacentToCurrentTiles = availableLandCellsOnMars.filter(cell =>
+                getAdjacentCellsForCell(state, cell).some(adjCell =>
+                    isOwnedByCurrentPlayer(state, adjCell, player)
+                )
+            );
+            return cellsAdjacentToCurrentTiles.filter(
                 cell =>
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_STEEL) ||
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
-            );
-            return steelOrTitaniumCells.filter(cell =>
-                getAdjacentCellsForCell(state, cell).some(
-                    adjCell => adjCell.tile?.ownerPlayerIndex === getLoggedInPlayerIndex()
-                )
             );
         case PlacementRequirement.VOLCANIC:
             return getAvailableCells(state, player).filter(cell =>

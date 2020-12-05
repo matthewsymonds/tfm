@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 
 function usePrevious(value) {
@@ -88,7 +88,6 @@ export function Hand({cards}: {cards: Array<Object>}) {
     useEffect(() => {
         const containerElement = containerRef.current;
         if (containerWidth !== prevContainerWidth && containerElement) {
-            console.log(containerElement.getBoundingClientRect().width);
             setContainerWidth(containerElement.getBoundingClientRect().width);
         }
     }, [containerRef, setContainerWidth, prevContainerWidth, containerWidth]);

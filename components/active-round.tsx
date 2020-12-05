@@ -14,6 +14,7 @@ import React, {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, useTypedSelector} from 'reducer';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
@@ -115,7 +116,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         }
     }
 
-    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
 
     const shouldDisableConfirmCardSelection = !actionGuard.canConfirmCardSelection(
         numSelectedCards,
@@ -123,17 +124,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         corporation
     );
 
-    const pendingActions =
-        loggedInPlayer.pendingTilePlacement ||
-        state.common.revealedCards.length > 0 ||
-        loggedInPlayer.possibleCards.length > 0 ||
-        loggedInPlayer.forcedActions.length > 0 ||
-        loggedInPlayer.pendingResourceActionDetails ||
-        loggedInPlayer.pendingChoice ||
-        loggedInPlayer.pendingDuplicateProduction ||
-        loggedInPlayer.pendingDiscard;
-
-    const isPlayerMakingDecision = Boolean(pendingActions);
+    const isPlayerMakingDecision = getIsPlayerMakingDecision(state, loggedInPlayer);
 
     const apiClient = new ApiClient(dispatch);
 

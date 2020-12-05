@@ -8,7 +8,9 @@ export enum ApiActionType {
     API_SKIP_ACTION = 'apiSkipAction',
     API_COMPLETE_PLACE_TILE = 'apiCompletePlaceTile',
     API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS = 'apiCompleteChooseResourceActionDetails',
-    API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS = 'apiCompleteSkipChooseResourceActionDetails',
+    API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS = 'apiSkipChooseResourceActionDetails',
     API_CONFIRM_CARD_SELECTION = 'apiConfirmCardSelection',
     API_CONTINUE_AFTER_REVEALING_CARDS = 'apiContinueAfterRevealingCards',
+    API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION = 'apiCompleteChooseDuplicateProduction',
+    API_SKIP_CHOOSE_DUPLICATE_PRODUCTION = 'apiSkipChooseDuplicateProduction',
 }

@@ -85,8 +85,8 @@ export default async (req, res) => {
                     variableAmount: payload.variableAmount,
                 });
                 break;
-            case ApiActionType.API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS:
-                await actionHandler.completeSkipChooseResourceActionDetailsAsync();
+            case ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS:
+                await actionHandler.skipChooseResourceActionDetailsAsync();
                 break;
             case ApiActionType.API_CONFIRM_CARD_SELECTION:
                 const {cards} = payload;
@@ -104,6 +104,12 @@ export default async (req, res) => {
                 break;
             case ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS:
                 await actionHandler.continueAfterRevealingCardsAsync();
+                break;
+            case ApiActionType.API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION:
+                await actionHandler.completeChooseDuplicateProductionAsync(payload);
+                break;
+            case ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION:
+                await actionHandler.skipChooseDuplicateProductionAsync();
                 break;
             default:
                 throw spawnExhaustiveSwitchError(type);

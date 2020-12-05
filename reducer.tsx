@@ -473,11 +473,13 @@ export const reducer = (state: GameState | null = null, action) => {
                     // Record the production increase for the purpose of robotic workforce.
                     card.increaseProductionResult = payload.resource;
                 }
-                draft.log.push(
-                    `${corporationName} increased their ${getResourceName(
-                        payload.resource
-                    )} production ${increase} ${stepsPlural(increase)}`
-                );
+                if (increase) {
+                    draft.log.push(
+                        `${corporationName} increased their ${getResourceName(
+                            payload.resource
+                        )} production ${increase} ${stepsPlural(increase)}`
+                    );
+                }
                 break;
             }
             case REMOVE_RESOURCE: {
@@ -740,8 +742,8 @@ export const reducer = (state: GameState | null = null, action) => {
                     payload.tile.ownerPlayerIndex = player.index;
                 }
                 const matchingCell = draft.common.board.flat().find(cell => {
-                    if (cell.specialLocation) {
-                        return cell.specialLocation === payload.cell.specialLocation;
+                    if (cell.specialName) {
+                        return cell.specialName === payload.cell.specialName;
                     }
                     const coords = cell.coords || [];
                     return (

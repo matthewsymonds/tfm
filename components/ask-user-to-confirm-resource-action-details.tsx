@@ -445,7 +445,7 @@ export function amountAndResource(quantity: number, resource: Resource) {
     return `${quantity} ${getResourceName(resource)}${isPluralizable && quantity !== 1 ? 's' : ''}`;
 }
 
-export function canSkip(
+export function canSkipResourceActionDetails(
     playerOptionWrappers: PlayerOptionWrapper[],
     actionType: string,
     resourceAndAmounts: ResourceAndAmount[]
@@ -478,10 +478,14 @@ function AskUserToConfirmResourceActionDetails({
     const apiClient = new ApiClient(dispatch);
 
     const handleSkip = () => {
-        apiClient.completeSkipChooseResourceActionDetailsAsync();
+        apiClient.skipChooseResourceActionDetailsAsync();
     };
 
-    let shouldShowSkip = canSkip(playerOptionWrappers, actionType, resourceAndAmounts);
+    let shouldShowSkip = canSkipResourceActionDetails(
+        playerOptionWrappers,
+        actionType,
+        resourceAndAmounts
+    );
 
     const isNegativeAction = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
         actionType

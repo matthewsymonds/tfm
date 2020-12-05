@@ -1,23 +1,21 @@
-import React from 'react';
-import {Card as CardModel} from 'models/card';
-import styled from 'styled-components';
-import {Parameter} from 'constants/board';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource';
-import {ProductionIcon} from 'components/icons/production';
 import {Flex} from 'components/box';
-import {TileIcon} from 'components/icons/tile';
-import {TagIcon} from 'components/icons/tag';
-import {Tag} from 'constants/tag';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {TerraformRatingIcon} from 'components/icons/other';
+import {ProductionIcon} from 'components/icons/production';
+import {TagIcon} from 'components/icons/tag';
+import {TileIcon} from 'components/icons/tile';
+import {Parameter} from 'constants/board';
+import {Tag} from 'constants/tag';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
+import styled from 'styled-components';
 
 const MAX_TAG_SPREAD = 3;
 
 const CardRequirementBase = styled.div<{isUpperBoundedRequirement: boolean}>`
     border: 1px solid black;
     border-radius: 1px;
-    background-color: ${(props) => (props.isUpperBoundedRequirement ? '#ffca83' : '#ff8383')};
+    background-color: ${props => (props.isUpperBoundedRequirement ? '#ffca83' : '#ff8383')};
     display: flex;
     align-items: center;
     padding: 2px;
@@ -105,8 +103,6 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
     if (!hasRequirement) {
         return null;
     }
-
-    console.log(card);
 
     const isUpperBoundedRequirement = typeof card.requiredGlobalParameter?.max === 'number';
 

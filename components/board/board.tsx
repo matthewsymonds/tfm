@@ -61,7 +61,7 @@ export const Board = () => {
 
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
 
     function handleClick(cell: CellModel) {
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {

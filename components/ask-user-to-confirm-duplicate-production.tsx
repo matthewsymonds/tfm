@@ -1,11 +1,10 @@
-import {skipChoice} from 'actions';
+import {ApiClient} from 'api-client';
+import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {getResourceName} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {AppContext, appContext} from 'context/app-context';
 import {Card} from 'models/card';
-import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {GameState, PlayerState} from 'reducer';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
@@ -18,10 +17,9 @@ type DuplicateProductionOption = {
     action: Action;
 };
 
-function getOptionsForDuplicateProduction(
+export function getOptionsForDuplicateProduction(
     tag: Tag,
     player: PlayerState,
-    context: typeof appContext,
     state: GameState
 ): DuplicateProductionOption[] {
     const candidates: Card[] = player.playedCards
@@ -49,8 +47,8 @@ function getOptionsForDuplicateProduction(
 
             return [candidate, syntheticAction] as [Card, Action];
         })
-        .filter(([card, action]) => {
-            return context.canPlayActionInSpiteOfUI(action, state)[0];
+        .filter(([, action]) => {
+            return canPlayActionInSpiteOfUI(action, state, player)[0];
         })
         .map(([candidate, action]) => {
             return {
@@ -75,30 +73,29 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     const {tag, card} = pendingDuplicateProduction!;
     const store = useStore();
     const state = store.getState();
-    const context = useContext(AppContext);
 
-    const options = getOptionsForDuplicateProduction(tag, player, context, state);
+    const options = getOptionsForDuplicateProduction(tag, player, state);
 
     const dispatch = useDispatch();
 
+    const apiClient = new ApiClient(dispatch);
+
     const handleSkip = () => {
-        dispatch(skipChoice(player.index));
-        context.processQueue(dispatch);
+        apiClient.skipChooseDuplicateProductionAsync();
     };
 
-    const handleConfirmDuplicateProduction = (option: DuplicateProductionOption) => {
-        context.playAction({action: option.action, state});
-        context.processQueue(dispatch);
+    const handleConfirmDuplicateProduction = (index: number) => {
+        apiClient.completeChooseDuplicateProductionAsync(index);
     };
 
     const showSkip = options.length === 0;
 
     return (
         <AskUserToMakeChoice card={card}>
-            {options.map(option => {
+            {options.map((option, index) => {
                 return (
                     <CardComponent key={option.card.name} content={option.card}>
-                        <button onClick={() => handleConfirmDuplicateProduction(option)}>
+                        <button onClick={() => handleConfirmDuplicateProduction(index)}>
                             {formatText(option.card)}
                         </button>
                     </CardComponent>

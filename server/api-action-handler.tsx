@@ -36,6 +36,7 @@ import {
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     getAction,
     ResourceActionOption,
@@ -78,7 +79,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.loggedInPlayerIndex = this.game.state.players.findIndex(
             player => player.username === this.username
         );
-        this.actionGuard = new ActionGuard(game, username);
+        this.actionGuard = new ActionGuard(this.game.state, username);
     }
 
     private loggedInPlayerIndex: number;
@@ -471,6 +472,45 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
+    async completeChooseDuplicateProductionAsync({index}: {index: number}) {
+        const player = this.getLoggedInPlayer();
+        if (!player.pendingDuplicateProduction) {
+            return [false, 'No pending duplicate production to choose'];
+        }
+        const {tag} = player.pendingDuplicateProduction;
+        const {state} = this;
+
+        const options = getOptionsForDuplicateProduction(tag, player, state);
+
+        const action = options?.[index]?.action;
+
+        if (!action) {
+            throw new Error('No action found');
+        }
+
+        const [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(action, state);
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        this.playAction({action, state});
+        this.processQueue();
+    }
+
+    async skipChooseDuplicateProductionAsync() {
+        const [
+            canSkipChooseDuplicateProduction,
+            reason,
+        ] = this.actionGuard.canSkipChooseDuplicateProduction();
+        if (!canSkipChooseDuplicateProduction) {
+            throw new Error(reason);
+        }
+
+        this.queue.unshift(skipChoice(this.loggedInPlayerIndex));
+        this.processQueue();
+    }
+
     private triggerEffectsFromStandardProject(
         cost: number | undefined,
         state: GameState,
@@ -596,12 +636,12 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async completeSkipChooseResourceActionDetailsAsync(): Promise<void> {
+    async skipChooseResourceActionDetailsAsync(): Promise<void> {
         const [
-            canCompleteSkipChooseResourceActionDetails,
+            canSkipChooseResourceActionDetails,
             reason,
-        ] = this.actionGuard.canCompleteSkipChooseResourceActionDetails();
-        if (!canCompleteSkipChooseResourceActionDetails) {
+        ] = this.actionGuard.canSkipChooseResourceActionDetails();
+        if (!canSkipChooseResourceActionDetails) {
             throw new Error(reason);
         }
 

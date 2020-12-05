@@ -1,16 +1,16 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
+import {CONVERSIONS} from 'constants/conversion';
+import {Resource} from 'constants/resource';
 import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
-import styled from 'styled-components';
-import {Resource} from 'constants/resource';
-import {CONVERSIONS} from 'constants/conversion';
-import {PlayerState} from 'reducer';
 import {useContext} from 'react';
 import {useDispatch, useStore} from 'react-redux';
+import {PlayerState} from 'reducer';
+import styled from 'styled-components';
 import {ConversionButton} from './conversion-button';
-import {ResourceIcon} from 'components/icons/resource';
 
 const ResourceBoardCellBase = styled.div`
     display: flex;
@@ -97,7 +97,7 @@ export const PlayerResourceBoard = ({
 
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard({state, queue: context.queue}, player.username);
+    const actionGuard = new ActionGuard(state, player.username);
 
     return (
         <Pane display="flex" flexDirection="column">

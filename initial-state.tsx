@@ -23,6 +23,10 @@ function DEV_cardOverrides() {
         'Air Raid',
         'Pets',
         'Predators',
+        'Robotic Workforce',
+        'Mine',
+        'Mining Area',
+        'Research Outpost',
     ];
     return cards.filter(card => {
         return cardOverrides.includes(card.name);

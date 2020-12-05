@@ -26,7 +26,7 @@ export const GreeneryPlacement = ({playerIndex}: {playerIndex: number}) => {
     const loggedInPlayer = context.getLoggedInPlayer(state);
 
     const conversion = CONVERSIONS[Resource.PLANT];
-    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
 
     const [canDoConversion] = actionGuard.canDoConversion(conversion);
 

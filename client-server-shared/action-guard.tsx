@@ -1,5 +1,6 @@
+import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
-    canSkip,
+    canSkipResourceActionDetails,
     getPlayerOptionWrappers,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
@@ -23,28 +24,19 @@ import {
     minMilestoneQuantity,
 } from 'context/app-context';
 import {Card} from 'models/card';
-import {GameState} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
+import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];
 
 export class ActionGuard {
-    constructor(
-        private readonly game: {
-            state: GameState;
-            queue: Array<{type: string; payload?: Object}>;
-        },
-        private readonly username: string
-    ) {}
-
-    get state() {
-        return this.game.state;
-    }
+    constructor(private readonly state: GameState, private readonly username: string) {}
 
     getLoggedInPlayer() {
-        return this.game.state.players.find(player => player.username === this.username)!;
+        return this.state.players.find(player => player.username === this.username)!;
     }
 
     canPlayCard(
@@ -255,7 +247,7 @@ export class ActionGuard {
 
         const {type, min = -Infinity, max = Infinity} = requiredGlobalParameter;
 
-        const value = this.game.state.common.parameters[type];
+        const value = this.state.common.parameters[type];
 
         // This section takes into account Inventrix/Special Design/...
         let adjustedMin = min;
@@ -274,7 +266,7 @@ export class ActionGuard {
 
     canPlayWithTilePlacements(card: Card) {
         const player = this.getLoggedInPlayer();
-        let tiles = this.game.state.common.board
+        let tiles = this.state.common.board
             .flat()
             .filter(cell => cell.tile)
             .map(cell => cell.tile);
@@ -313,8 +305,8 @@ export class ActionGuard {
         );
 
         const matchingCell = validPlacements.find(candidate => {
-            if (candidate.specialLocation) {
-                return candidate.specialLocation === cell.specialLocation;
+            if (candidate.specialName) {
+                return candidate.specialName === cell.specialName;
             }
             return candidate.coords?.every((coord, index) => coord === cell.coords?.[index]);
         });
@@ -382,16 +374,34 @@ export class ActionGuard {
         return [matchingValidOption, 'Did not match a valid option'];
     }
 
-    canCompleteSkipChooseResourceActionDetails(): CanPlayAndReason {
+    canSkipChooseResourceActionDetails(): CanPlayAndReason {
         const playerOptionWrappers = getPlayerOptionWrappers(this.state, this.getLoggedInPlayer());
         const {
             actionType,
             resourceAndAmounts,
         } = this.getLoggedInPlayer().pendingResourceActionDetails!;
-        const canSkipChooseResource = canSkip(playerOptionWrappers, actionType, resourceAndAmounts);
+        const canSkipChooseResource = canSkipResourceActionDetails(
+            playerOptionWrappers,
+            actionType,
+            resourceAndAmounts
+        );
 
         return [canSkipChooseResource, 'Cannot skip making a resource choice right now'];
     }
+
+    canSkipChooseDuplicateProduction(): CanPlayAndReason {
+        const player = this.getLoggedInPlayer();
+        if (!player.pendingDuplicateProduction) {
+            return [false, 'No pending duplicate production to skip'];
+        }
+        const {tag} = player.pendingDuplicateProduction;
+        const {state} = this;
+
+        const options = getOptionsForDuplicateProduction(tag, player, state);
+
+        return [options.length === 0, 'Cannot skip if at least one option available'];
+    }
+
     shouldDisableUI(state: GameState) {
         const {gameStage} = state.common;
         const player = this.getLoggedInPlayer();
@@ -405,7 +415,7 @@ export class ActionGuard {
         if (gameStage !== GameStage.ACTIVE_ROUND) {
             return true;
         }
-        if (this.game.queue.length > 0) {
+        if (getIsPlayerMakingDecision(state, player)) {
             return true;
         }
 
@@ -413,35 +423,8 @@ export class ActionGuard {
     }
 
     canPlayActionInSpiteOfUI(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
-        if (
-            !doesPlayerHaveRequiredResourcesToRemove(
-                action,
-                state,
-                this.getLoggedInPlayer(),
-                parent
-            )
-        ) {
-            return [false, 'Not enough of required resource'];
-        }
-
-        if (!doesAnyoneHaveResourcesToSteal(action, state, this.getLoggedInPlayer(), parent)) {
-            return [false, `There's no source to steal from`];
-        }
-
-        // Also accounts for opponent productions if applicable
-        if (!meetsProductionRequirements(action, state, this.getLoggedInPlayer(), parent)) {
-            return [false, 'Does not have required production'];
-        }
-
-        if (!meetsTilePlacementRequirements(action, state, this.getLoggedInPlayer(), parent)) {
-            return [false, 'Cannot place tile'];
-        }
-
-        if (!meetsTerraformRequirements(action, state, parent)) {
-            return [false, 'Not yet terraformed this generation'];
-        }
-
-        return [true, 'Good to go'];
+        const player = this.getLoggedInPlayer();
+        return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
     canConfirmCardSelection(numCards: number, state: GameState, corporation: Card) {
@@ -464,4 +447,34 @@ export class ActionGuard {
             possibleCorporation => possibleCorporation.name === card.name
         );
     }
+}
+
+export function canPlayActionInSpiteOfUI(
+    action: Action,
+    state: GameState,
+    player: PlayerState,
+    parent?: Card
+): CanPlayAndReason {
+    if (!doesPlayerHaveRequiredResourcesToRemove(action, state, player, parent)) {
+        return [false, 'Not enough of required resource'];
+    }
+
+    if (!doesAnyoneHaveResourcesToSteal(action, state, player, parent)) {
+        return [false, `There's no source to steal from`];
+    }
+
+    // Also accounts for opponent productions if applicable
+    if (!meetsProductionRequirements(action, state, player, parent)) {
+        return [false, 'Does not have required production'];
+    }
+
+    if (!meetsTilePlacementRequirements(action, state, player, parent)) {
+        return [false, 'Cannot place tile'];
+    }
+
+    if (!meetsTerraformRequirements(action, state, parent)) {
+        return [false, 'Not yet terraformed this generation'];
+    }
+
+    return [true, 'Good to go'];
 }

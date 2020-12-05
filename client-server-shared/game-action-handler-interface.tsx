@@ -61,7 +61,7 @@ export interface GameActionHandler {
         variableAmount: number;
     }): Promise<void>;
 
-    completeSkipChooseResourceActionDetailsAsync(): Promise<void>;
+    skipChooseResourceActionDetailsAsync(): Promise<void>;
 
     completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
 

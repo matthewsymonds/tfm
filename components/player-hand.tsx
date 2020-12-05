@@ -2,8 +2,8 @@ import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {CardActionElements, CardComponent, CardDisabledText, CardText} from 'components/card';
-import PaymentPopover from 'components/popovers/payment-popover';
 import {TagIcon} from 'components/icons/tag';
+import PaymentPopover from 'components/popovers/payment-popover';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -41,7 +41,7 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
 
     const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard({state, queue: context.queue}, loggedInPlayer.username);
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
 
     function playCard(card: Card, payment?: PropertyCounter<Resource>) {
         apiClient.playCardAsync({card, payment});

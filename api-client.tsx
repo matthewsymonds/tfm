@@ -122,8 +122,8 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS, payload);
     }
 
-    async completeSkipChooseResourceActionDetailsAsync() {
-        await this.makeApiCall(ApiActionType.API_COMPLETE_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
+    async skipChooseResourceActionDetailsAsync() {
+        await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
     }
 
     async completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
@@ -169,5 +169,15 @@ export class ApiClient implements GameActionHandler {
     async continueAfterRevealingCardsAsync() {
         const payload = {};
         await this.makeApiCall(ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS, payload);
+    }
+
+    async completeChooseDuplicateProductionAsync(index: number) {
+        const payload = {index};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION, payload);
+    }
+
+    async skipChooseDuplicateProductionAsync() {
+        const payload = {};
+        await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION, payload);
     }
 }
