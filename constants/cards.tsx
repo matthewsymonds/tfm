@@ -3022,6 +3022,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text:
+                // TODO add payment (helion) support to ask-user-to-make-action-choice for "Spend 2MC"
                 'Action: Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
             choice: [
                 {

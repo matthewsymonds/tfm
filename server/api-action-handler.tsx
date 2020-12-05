@@ -149,6 +149,8 @@ export class ApiActionHandler implements GameActionHandler {
             this.queue.push(payToPlayCard(card, playerIndex, payment));
         }
 
+        this.processQueue();
+
         // Have to trigger effects from the card we just played.
         // Must be processed separatedly in case the card affects itself.
         // Must also happen after payment.
@@ -322,15 +324,29 @@ export class ApiActionHandler implements GameActionHandler {
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;
     }): Promise<void> {
-        let action = parent.action!;
-        const isChoiceAction = choiceIndex !== undefined;
-        if (isChoiceAction) {
-            action = action.choice![choiceIndex!];
+        const player = this.getLoggedInPlayer();
+        let action = parent.action;
+        let isChoiceAction = false;
+
+        if (choiceIndex !== undefined) {
+            action = player?.pendingChoice?.choice?.[choiceIndex];
+            isChoiceAction = true;
+        }
+
+        if (!action) {
+            throw new Error('No action found');
         }
 
         const {state} = this;
 
-        const [canPlay, reason] = this.actionGuard.canPlayAction(action, state, parent);
+        let canPlay: boolean;
+        let reason: string;
+
+        if (isChoiceAction) {
+            [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(action, state, parent);
+        } else {
+            [canPlay, reason] = this.actionGuard.canPlayAction(action, state, parent);
+        }
 
         if (!canPlay) {
             throw new Error(reason);
