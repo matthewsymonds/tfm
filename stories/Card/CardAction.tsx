@@ -20,15 +20,7 @@ import {
     renderRemoveResourceOptionIconography,
     TextWithSpacing,
 } from 'stories/Card/CardIconography';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource';
 import styled from 'styled-components';
-import {TileIcon} from 'components/icons/tile';
-import {Parameter} from 'constants/board';
-import {TerraformRatingIcon} from 'components/icons/other';
-import {Action} from 'constants/action';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {VariableAmount} from 'constants/variable-amount';
 
 const ActionText = styled.span`
     font-size: 10px;

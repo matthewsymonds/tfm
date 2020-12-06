@@ -7,7 +7,7 @@ export default {
     component: Hand,
 } as Meta;
 
-const Template: Story<{}> = (args) => {
+const Template: Story<{}> = args => {
     return <Hand cards={[{}, {}, {}, {}, {}, {}, {}, {}, {}]} />;
 };
 
