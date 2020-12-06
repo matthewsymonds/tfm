@@ -22,8 +22,8 @@ import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
 import React, {useContext, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {GameState, PlayerState} from 'reducer';
+import {useDispatch} from 'react-redux';
+import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
@@ -476,8 +476,7 @@ function AskUserToConfirmResourceActionDetails({
     player,
     resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard},
 }: Props) {
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
 
     const playerOptionWrappers: PlayerOptionWrapper[] = getPlayerOptionWrappers(state, player);
 
@@ -543,8 +542,7 @@ function OptionComponent({
     apiClient: ApiClient;
 }) {
     const context = useContext(AppContext);
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
     const player = context.getLoggedInPlayer(state);
 
     function handleClick() {

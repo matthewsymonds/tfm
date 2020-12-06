@@ -8,8 +8,8 @@ import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
 import {useRouter} from 'next/router';
 import React, {useContext} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {GameState, useTypedSelector} from 'reducer';
+import {useDispatch} from 'react-redux';
+import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
 const TopBarBase = styled.div`
@@ -42,8 +42,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     /**
      * Hooks
      */
-    const store = useStore<GameState>();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
     const context = useContext(AppContext);
     const dispatch = useDispatch();
     const router = useRouter();

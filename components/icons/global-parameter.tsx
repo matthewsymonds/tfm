@@ -1,15 +1,15 @@
-import React from 'react';
-import {Parameter, TileType} from 'constants/board';
-import styled from 'styled-components';
-import {TileIcon} from 'components/icons/tile';
 import {TagIcon} from 'components/icons/tag';
-import spawnExhaustiveSwitchError from 'utils';
+import {TileIcon} from 'components/icons/tile';
+import {Parameter, TileType} from 'constants/board';
 import {Tag} from 'constants/tag';
+import React from 'react';
+import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
 
 // TODO: Replace these with proper icons
 export const AllCapsIcon = styled.div<{size: number; bgColor: string}>`
-    height: ${(props) => props.size}px;
-    background-color: ${(props) => props.bgColor};
+    height: ${props => props.size}px;
+    background-color: ${props => props.bgColor};
     font-size: 0.75rem;
     text-transform: uppercase;
     font-kerning: 0.1rem;
@@ -23,7 +23,7 @@ export const GlobalParameterIcon = ({
     size = 16,
 }: {
     parameter: Parameter;
-    size: number;
+    size?: number;
 }) => {
     switch (parameter) {
         case Parameter.VENUS:

@@ -7,8 +7,8 @@ import {Resource} from 'constants/resource';
 import {AppContext, convertAmountToNumber} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
 import {useContext} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {PlayerState} from 'reducer';
+import {useDispatch} from 'react-redux';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {ConversionButton} from './conversion-button';
 
@@ -92,8 +92,7 @@ export const PlayerResourceBoard = ({
     plantConversionOnly,
 }: PlayerResourceBoardProps) => {
     const context = useContext(AppContext);
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
 
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);

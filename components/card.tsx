@@ -7,7 +7,7 @@ import {Resource} from 'constants/resource';
 import {AppContext, getDiscountedCardCost} from 'context/app-context';
 import {Card} from 'models/card';
 import React, {MouseEvent, useContext, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import styled from 'styled-components';
@@ -120,8 +120,7 @@ export function CardActionElements(props: {
 
     const context = useContext(AppContext);
     const dispatch = useDispatch();
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
     if (!card.action) return null;
 
     const thisRound = useTypedSelector(state => state.common.generation);
@@ -214,8 +213,11 @@ export const CardComponent: React.FunctionComponent<CardComponentProps> = props 
     const player = context.getLoggedInPlayer(state);
     const discountedCost = getDiscountedCardCost(content, player);
     const effect = effects[0];
-    const store = useStore();
-    const victoryPoints = getCardVictoryPoints(content.victoryPoints, store.getState(), content);
+    const victoryPoints = getCardVictoryPoints(
+        content.victoryPoints,
+        useTypedSelector(state => state),
+        content
+    );
     const isCorporation = content.type === CardType.CORPORATION;
 
     const innerContents = (

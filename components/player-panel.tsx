@@ -6,8 +6,8 @@ import {ScorePopover} from 'components/popovers/score-popover';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {GameState, PlayerState, useTypedSelector} from 'reducer';
+import {useDispatch} from 'react-redux';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
 const CorporationHeader = styled.h2`
@@ -82,8 +82,7 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
     /**
      * State (todo: use selectors everywhere instead)
      */
-    const store = useStore<GameState>();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
 
     /**
      * Hooks

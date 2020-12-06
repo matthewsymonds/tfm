@@ -5,8 +5,8 @@ import {CardType} from 'constants/card-types';
 import {getResourceName} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
-import {useDispatch, useStore} from 'react-redux';
-import {GameState, PlayerState} from 'reducer';
+import {useDispatch} from 'react-redux';
+import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 import {CardComponent} from './card';
 
@@ -71,8 +71,7 @@ function formatText(card: Card) {
 export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     const {pendingDuplicateProduction} = player;
     const {tag, card} = pendingDuplicateProduction!;
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
 
     const options = getOptionsForDuplicateProduction(tag, player, state);
 

@@ -1,16 +1,16 @@
 import {
     amountAndResource,
-    ResourceActionType
+    ResourceActionType,
 } from 'components/ask-user-to-confirm-resource-action-details';
-import { getTextForAward } from 'components/board/awards';
-import { getTextForMilestone } from 'components/board/milestones';
-import { getTextForStandardProject } from 'components/board/standard-projects';
-import { CardType } from 'constants/card-types';
-import { Tag } from 'constants/tag';
+import {getTextForAward} from 'components/board/awards';
+import {getTextForMilestone} from 'components/board/milestones';
+import {getTextForStandardProject} from 'components/board/standard-projects';
+import {CardType} from 'constants/card-types';
+import {Tag} from 'constants/tag';
 import produce from 'immer';
-import { shuffle } from 'initial-state';
-import { TypedUseSelectorHook, useSelector } from 'react-redux';
-import { aAnOrThe, getHumanReadableTileName } from 'selectors/get-human-readable-tile-name';
+import {shuffle} from 'initial-state';
+import {TypedUseSelectorHook, useSelector} from 'react-redux';
+import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {
     ADD_FORCED_ACTION_TO_PLAYER,
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
@@ -49,13 +49,14 @@ import {
     SET_CARDS,
     SET_CORPORATION,
     SET_GAME,
+    SET_IS_SYNCING,
     SET_PLANT_DISCOUNT,
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE
+    STEAL_STORABLE_RESOURCE,
 } from './actions';
-import { Action, Amount } from './constants/action';
+import {Action, Amount} from './constants/action';
 import {
     Award,
     Board,
@@ -64,24 +65,24 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType
+    TileType,
 } from './constants/board';
-import { CONVERSIONS } from './constants/conversion';
-import { Discounts } from './constants/discounts';
-import { GameStage, MAX_PARAMETERS, PARAMETER_STEPS } from './constants/game';
-import { zeroParameterRequirementAdjustments } from './constants/parameter-requirement-adjustments';
-import { NumericPropertyCounter } from './constants/property-counter';
+import {CONVERSIONS} from './constants/conversion';
+import {Discounts} from './constants/discounts';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
+import {NumericPropertyCounter} from './constants/property-counter';
 import {
     getResourceName,
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType
+    ResourceLocationType,
 } from './constants/resource';
-import { StandardProjectType } from './constants/standard-project';
-import { convertAmountToNumber, getDiscountedCardCost } from './context/app-context';
-import { Card } from './models/card';
-import { getAdjacentCellsForCell } from './selectors/board';
+import {StandardProjectType} from './constants/standard-project';
+import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
+import {Card} from './models/card';
+import {getAdjacentCellsForCell} from './selectors/board';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -136,8 +137,8 @@ export type CommonState = {
 };
 
 export type GameState = {
-    // if true, this game state is from server.
-    set?: boolean;
+    // if true, the user is waiting for a response from the server.
+    syncing?: boolean;
     pendingVariableAmount?: number;
     players: Array<PlayerState>;
     common: CommonState;
@@ -939,6 +940,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     // It's the next player's turn
                     handleChangeCurrentPlayer(state, draft);
                 }
+                break;
+            case SET_IS_SYNCING:
+                draft.syncing = true;
                 break;
             default:
                 return draft;

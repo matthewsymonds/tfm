@@ -1,4 +1,4 @@
-import {setGame} from 'actions';
+import {setGame, setIsSyncing} from 'actions';
 import {makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -31,7 +31,8 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);
     }
 
-    private async makeApiCall(type: ApiActionType, payload, retry = false) {
+    private async makeApiCall(type: ApiActionType, payload, retry = true) {
+        this.dispatch(setIsSyncing());
         try {
             const result = await makePostCall(this.getPath(), {type, payload});
             appContext.queue = result.queue;
@@ -39,10 +40,9 @@ export class ApiClient implements GameActionHandler {
         } catch (error) {
             // TODO Gracefully fail and tell user to try again.
             if (retry) {
-                return;
+                // retry once.
+                return await this.makeApiCall(type, payload, false);
             }
-            // retry once.
-            await this.makeApiCall(type, payload, true);
         }
     }
 

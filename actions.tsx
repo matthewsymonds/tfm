@@ -386,3 +386,10 @@ export const removeForcedActionFromPlayer = (playerIndex: number, forcedAction: 
         forcedAction,
     },
 });
+
+// Client side action that disables UI while waiting for a response from the server.
+export const SET_IS_SYNCING = 'SET_IS_SYNCING';
+export const setIsSyncing = () => ({
+    type: SET_IS_SYNCING,
+    payload: {},
+});

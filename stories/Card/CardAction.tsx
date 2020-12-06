@@ -1,22 +1,22 @@
-import React from 'react';
-import {Card as CardModel} from 'models/card';
 import {Box, Flex} from 'components/box';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {TerraformRatingIcon} from 'components/icons/other';
+import {ResourceIcon} from 'components/icons/resource';
+import {TagIcon} from 'components/icons/tag';
+import {TileIcon} from 'components/icons/tile';
+import {Action} from 'constants/action';
+import {Parameter, TileType} from 'constants/board';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
 import {
     InlineText,
     renderIncreaseProductionIconography,
     TextWithSpacing,
 } from 'stories/Card/CardIconography';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource';
-import {VariableAmount} from 'constants/variable-amount';
 import styled from 'styled-components';
-import {Tag} from 'constants/tag';
-import {TagIcon} from 'components/icons/tag';
-import {TileIcon} from 'components/icons/tile';
-import {TileType} from 'constants/board';
-import {TerraformRatingIcon} from 'components/icons/other';
-import {Action} from 'constants/action';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
 
 const ActionText = styled.span`
     font-size: 10px;

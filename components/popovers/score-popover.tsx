@@ -1,7 +1,7 @@
 // import {Popover} from 'reactstrap';
 import {CardType} from 'constants/card-types';
 import {Pane, Popover, Position} from 'evergreen-ui';
-import {useStore} from 'react-redux';
+import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
 import styled from 'styled-components';
@@ -36,8 +36,7 @@ const ScorePopoverTotalRow = styled(ScorePopoverRow)`
 `;
 
 export function ScorePopover({children, playerIndex}: Props) {
-    const store = useStore();
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
     const player = state.players[playerIndex];
     const terraformRating = player.terraformRating;
     const visibleCardScore = player.playedCards

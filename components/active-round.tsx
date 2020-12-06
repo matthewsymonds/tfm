@@ -7,11 +7,10 @@ import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
-import React, {useContext, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {GameState, useTypedSelector} from 'reducer';
+import React, {useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {useTypedSelector} from 'reducer';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
@@ -35,9 +34,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     /**
      * Hooks
      */
-    const store = useStore<GameState>();
     const dispatch = useDispatch();
-    const context = useContext(AppContext);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
     const actionSets = ['Standard Projects', 'Milestones', 'Awards'];
     const [selectedActionSetIndex, setSelectedActionSetIndex] = useState(0);
@@ -51,7 +48,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
      * Derived state
      */
     const {cards, corporation, possibleCards} = loggedInPlayer;
-    const state = store.getState();
+    const state = useTypedSelector(state => state);
 
     let maxCardsToDiscard: number;
     const discardAmount = loggedInPlayer?.pendingDiscard?.amount;

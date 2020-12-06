@@ -329,6 +329,10 @@ export class ApiActionHandler implements GameActionHandler {
         let action = parent.action;
         let isChoiceAction = false;
 
+        if (parent.lastRoundUsedAction === this.state.common.generation) {
+            throw new Error('Already used action this round');
+        }
+
         if (choiceIndex !== undefined) {
             action = player?.pendingChoice?.choice?.[choiceIndex];
             if (!action) {

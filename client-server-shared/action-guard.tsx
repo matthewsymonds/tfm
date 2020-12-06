@@ -426,6 +426,9 @@ export class ActionGuard {
     }
 
     shouldDisableUI(state: GameState = this.state) {
+        if (state.syncing) {
+            return true;
+        }
         const {gameStage} = state.common;
         const player = this.getLoggedInPlayer();
         if (player.index !== state.common.currentPlayerIndex) {
@@ -468,9 +471,11 @@ export class ActionGuard {
         const totalCardCost = numCards * 3;
         const shouldDisableDiscardConfirmation =
             loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE && numCards === 0;
+        if (loggedInPlayer.buyCards && totalCardCost > playerMoney) {
+            return false;
+        }
         return !(
             shouldDisableDiscardConfirmation ||
-            totalCardCost > playerMoney ||
             (loggedInPlayer.numCardsToTake !== null && numCards < loggedInPlayer.numCardsToTake)
         );
     }
