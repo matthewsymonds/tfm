@@ -8,8 +8,8 @@ const ProductionIconBase = styled.div<{size: number}>`
     display: flex;
     align-items: center;
     justify-content: center;
-    height: ${(props) => props.size}px;
-    width: ${(props) => props.size}px;
+    height: ${props => props.size}px;
+    width: ${props => props.size}px;
 `;
 
 export const ProductionIcon = ({name, size = 20}: {name: Resource; size: number}) => {

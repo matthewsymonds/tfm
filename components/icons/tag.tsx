@@ -11,16 +11,16 @@ type TagBaseProps = {
 
 const TagBase = styled.div<TagBaseProps>`
     border-radius: 50%;
-    width: ${(props) => props.size}px;
-    min-width: ${(props) => props.size}px;
-    height: ${(props) => props.size}px;
+    width: ${props => props.size}px;
+    min-width: ${props => props.size}px;
+    height: ${props => props.size}px;
     margin: 3px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: ${(props) => props.color};
-    background: ${(props) => props.background};
-    border: ${(props) => props.borderOverride ?? '1px solid #888888'};
+    color: ${props => props.color};
+    background: ${props => props.background};
+    border: ${props => props.borderOverride ?? '1px solid #888888'};
     overflow: hidden;
 `;
 
