@@ -12,7 +12,7 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            // .filter(c => c.name === 'Adaptation Technology')
+            // .filter(c => c.name === 'Mars University')
             .map(cardConfig => (
                 <div style={{margin: 4}}>
                     <Card card={new CardModel(cardConfig)} />

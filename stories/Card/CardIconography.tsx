@@ -26,43 +26,52 @@ export const IconographyRow = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 2px;
+    margin: 4px 0;
 `;
 const ProductionWrapper = styled.div<{
-    isProduction?: boolean;
     margin?: string;
     useRedBorder?: boolean;
 }>`
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2px;
-    margin: ${props => props.margin ?? 'initial'};
-    background-color: ${props => (props.isProduction ? 'brown' : 'initial')};
+    padding: 6px;
+    background-color: brown;
     border: ${props => (props.useRedBorder ? '2px solid red' : 'initial')};
 `;
 
-function _renderChangeResourceIconography(
+export function renderChangeResourceIconography(
     changeResource: PropertyCounter<Resource>,
-    opts?: {
+    _opts?: {
         isNegative?: boolean;
         isInline?: boolean;
-        isSteal?: boolean;
+        shouldShowStealText?: boolean;
         isProduction?: boolean;
+        shouldShowPlus?: boolean;
         useRedBorder?: boolean;
     }
 ) {
-    opts = {
+    if (Object.keys(changeResource).length === 0) {
+        return null;
+    }
+
+    const opts = {
         isNegative: false,
         isInline: false,
-        isSteal: false,
+        shouldShowStealText: false,
         isProduction: false,
+        shouldShowPlus: false,
         useRedBorder: false,
-        ...opts,
+        ..._opts,
     };
     const elements: Array<React.ReactNode> = [];
-    const useResourceResourceBorder = opts.useRedBorder && !opts.isProduction;
-    const useProductionRedBorder = opts.useRedBorder && opts.isProduction;
+    const shouldShowNegativeSymbol = (r: string) =>
+        opts.isNegative && (opts.isProduction || r !== Resource.MEGACREDIT);
+    const shouldShowIndividualIcons = (resource: string, amount: number) =>
+        amount <= 3 && resource !== Resource.MEGACREDIT;
+    const shouldShowAmount = (r: string, a: number) =>
+        a > 1 && !shouldShowIndividualIcons(r, a) && r !== Resource.MEGACREDIT;
 
     let i = 0;
     for (let [resource, amount] of Object.entries(changeResource)) {
@@ -70,28 +79,32 @@ function _renderChangeResourceIconography(
             <ResourceIcon
                 name={resource as Resource}
                 size={16}
-                showRedBorder={useResourceResourceBorder}
+                showRedBorder={opts.useRedBorder}
                 amount={
                     resource === Resource.MEGACREDIT && typeof amount === 'number'
-                        ? `${amount}`
+                        ? `${!opts.isProduction && opts.isNegative ? '-' : ''}${amount}`
                         : undefined
                 }
             />
         );
         if (typeof amount === 'number') {
+            const prefixElements = [
+                ...(opts.shouldShowStealText ? ['STEAL'] : []),
+                ...(shouldShowNegativeSymbol(resource) ? ['-'] : []),
+                ...(opts.shouldShowPlus ? ['+'] : []),
+                ...(shouldShowAmount(resource, amount) ? [amount] : []),
+            ];
             elements.push(
-                <ProductionWrapper
-                    margin={i > 0 ? '0 0 0 4px' : '0'}
-                    isProduction={opts.isProduction}
-                    useRedBorder={useProductionRedBorder}
-                >
-                    <TextWithSpacing spacing={2}>
-                        {opts.isSteal ? 'STEAL ' : ''}
-                        {opts.isNegative ? '-' : null}
-                        {resource === Resource.MEGACREDIT || amount === 1 ? null : amount}
-                    </TextWithSpacing>
-                    {resourceIconElement}
-                </ProductionWrapper>
+                <React.Fragment>
+                    {prefixElements.length > 0 && (
+                        <TextWithSpacing spacing={2}>{prefixElements}</TextWithSpacing>
+                    )}
+                    {shouldShowIndividualIcons(resource, amount)
+                        ? Array(amount)
+                              .fill(null)
+                              .map(() => resourceIconElement)
+                        : resourceIconElement}
+                </React.Fragment>
             );
         } else {
             let multiplierElement: React.ReactElement | null = null;
@@ -180,7 +193,7 @@ function _renderChangeResourceIconography(
                     multiplierElement = (
                         <React.Fragment>
                             <InlineText>2</InlineText>
-                            <TagIcon name={Tag.MICROBE} size={16} />;
+                            <TagIcon name={Tag.MICROBE} size={16} />
                         </React.Fragment>
                     );
                     break;
@@ -202,9 +215,49 @@ function _renderChangeResourceIconography(
                     break;
                 case VariableAmount.USER_CHOICE_MIN_ZERO:
                 case VariableAmount.BASED_ON_USER_CHOICE:
-                    multiplierElement = <InlineText>X</InlineText>;
+                    customElement = (
+                        <React.Fragment>
+                            <InlineText>{opts.shouldShowPlus ? '+' : 'X'}</InlineText>
+                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                        </React.Fragment>
+                    );
                     break;
-
+                case VariableAmount.USER_CHOICE:
+                    customElement = (
+                        <React.Fragment>
+                            <InlineText>X</InlineText>
+                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                        </React.Fragment>
+                    );
+                    break;
+                case VariableAmount.USER_CHOICE_UP_TO_ONE:
+                    customElement = (
+                        <React.Fragment>
+                            <InlineText>-</InlineText>
+                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                        </React.Fragment>
+                    );
+                    break;
+                case VariableAmount.TRIPLE_BASED_ON_USER_CHOICE:
+                    customElement = (
+                        <ResourceIcon name={resource as Resource} size={16} amount="3X" />
+                    );
+                    break;
+                case VariableAmount.REVEALED_CARD_MICROBE:
+                    customElement = (
+                        <React.Fragment>
+                            <TagIcon name={Tag.MICROBE} size={16} />
+                            <span>*</span>
+                            <TextWithSpacing>:</TextWithSpacing>
+                            <ResourceIcon name={resource as Resource} size={16} />
+                        </React.Fragment>
+                    );
+                    break;
+                case VariableAmount.RESOURCES_ON_CARD:
+                    multiplierElement = (
+                        <ResourceIcon name={Resource.ANY_STORABLE_RESOURCE} size={16} />
+                    );
+                    break;
                 default:
                     throw new Error('variable amount not supported: ' + amount);
             }
@@ -218,7 +271,6 @@ function _renderChangeResourceIconography(
                         backgroundColor: opts.isProduction ? 'brown' : 'initial',
                     }}
                 >
-                    {opts.isNegative && <span>-</span>}
                     {customElement}
                     {multiplierElement && (
                         <React.Fragment>
@@ -236,81 +288,93 @@ function _renderChangeResourceIconography(
     if (opts.isInline) {
         return <React.Fragment>{elements}</React.Fragment>;
     } else {
-        return <IconographyRow>{elements}</IconographyRow>;
+        return <IconographyRow className="change-resource">{elements}</IconographyRow>;
     }
 }
 
-function _renderChangeResourceOptionIconography(
+export function renderChangeResourceOptionIconography(
     changeResourceOption: PropertyCounter<Resource>,
     opts?: {
         isNegative?: boolean;
         useRedBorder?: boolean;
         isInline?: boolean;
-        isSteal?: boolean;
+        shouldShowStealText?: boolean;
         isProduction?: boolean;
     }
 ) {
+    if (Object.keys(changeResourceOption).length === 0) {
+        return null;
+    }
+
     opts = {
         useRedBorder: false,
         isNegative: false,
         isInline: true,
-        isSteal: false,
+        shouldShowStealText: false,
         isProduction: false,
         ...opts,
     };
     const elements: Array<React.ReactNode> = [];
 
-    for (const [resource, quantity] of Object.entries(changeResourceOption)) {
-        elements.push(_renderChangeResourceIconography({[resource]: quantity}, opts));
-        elements.push(<TextWithSpacing>or</TextWithSpacing>);
-    }
-
-    // remove the final "or"
-    elements.splice(elements.length - 1, 1);
+    Object.entries(changeResourceOption).forEach(([resource, quantity], index) => {
+        if (index > 0) {
+            elements.push(<InlineText>/</InlineText>);
+        }
+        elements.push(renderChangeResourceIconography({[resource]: quantity}, opts));
+    });
 
     return <IconographyRow>{elements}</IconographyRow>;
 }
 
-function renderGainResourceIconography(gainResource) {
-    return _renderChangeResourceIconography(gainResource);
+export function renderGainResourceIconography(
+    gainResource,
+    opts?: {
+        isInline?: boolean;
+        shouldShowPlus?: boolean;
+    }
+) {
+    return renderChangeResourceIconography(gainResource, opts);
 }
 
-function renderGainResourceOptionIconography(gainResourceOption: PropertyCounter<Resource>) {
-    return _renderChangeResourceOptionIconography(gainResourceOption, {isInline: true});
+export function renderGainResourceOptionIconography(gainResourceOption: PropertyCounter<Resource>) {
+    return renderChangeResourceOptionIconography(gainResourceOption, {isInline: true});
 }
 
-function renderRemoveResourceIconography(
+export function renderRemoveResourceIconography(
     removeResource: PropertyCounter<Resource>,
-    removeResourceSourceType: ResourceLocationType | undefined
+    removeResourceSourceType: ResourceLocationType | undefined,
+    opts?: {isInline: boolean}
 ) {
     const useRedBorder =
         removeResourceSourceType &&
-        [ResourceLocationType.THIS_CARD, ResourceLocationType.ANY_CARD_OWNED_BY_YOU].includes(
-            removeResourceSourceType
-        );
-    return _renderChangeResourceIconography(removeResource, {
+        [
+            ResourceLocationType.THIS_CARD,
+            ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+            ResourceLocationType.ANY_PLAYER,
+        ].includes(removeResourceSourceType);
+    return renderChangeResourceIconography(removeResource, {
         isNegative: true,
         useRedBorder,
-        isInline: false,
+        isInline: opts?.isInline ?? false,
     });
 }
 
 function renderStealResourceIconography(stealResource: PropertyCounter<Resource>) {
-    return _renderChangeResourceOptionIconography(stealResource, {
-        isSteal: true,
+    return renderChangeResourceOptionIconography(stealResource, {
+        shouldShowStealText: true,
     });
 }
 
-function renderRemoveResourceOptionIconography(
+export function renderRemoveResourceOptionIconography(
     removeResourceOption: PropertyCounter<Resource>,
-    removeResourceSourceType: ResourceLocationType | undefined
+    removeResourceSourceType?: ResourceLocationType | undefined
 ) {
     const useRedBorder =
         removeResourceSourceType &&
         [ResourceLocationType.THIS_CARD, ResourceLocationType.ANY_CARD_OWNED_BY_YOU].includes(
             removeResourceSourceType
         );
-    return _renderChangeResourceOptionIconography(removeResourceOption, {
+    return renderChangeResourceOptionIconography(removeResourceOption, {
         isNegative: true,
         useRedBorder,
         isInline: true,
@@ -318,43 +382,83 @@ function renderRemoveResourceOptionIconography(
 }
 
 function renderTilePlacementIconography(tilePlacements: Array<TilePlacement>) {
+    if (tilePlacements.length === 0) {
+        return null;
+    }
+
     return (
-        <IconographyRow>
+        <IconographyRow className="tile-placements">
             {tilePlacements.map((tilePlacement, index) => {
-                return <TileIcon key={index} type={tilePlacement.type} size={40} />;
+                return (
+                    <Flex margin="0 4px">
+                        <TileIcon key={index} type={tilePlacement.type} size={40} />
+                    </Flex>
+                );
             })}
         </IconographyRow>
     );
 }
 
-export function renderIncreaseProductionIconography(increaseProduction: PropertyCounter<Resource>) {
-    return _renderChangeResourceIconography(increaseProduction, {isProduction: true});
+export function renderIncreaseProductionIconography(
+    increaseProduction: PropertyCounter<Resource>,
+    opts?: {
+        shouldShowPlus?: boolean;
+    }
+) {
+    return renderChangeResourceIconography(increaseProduction, {...opts, isProduction: true});
 }
 
 function renderIncreaseProductionOptionIconography(
-    increaseProductionOption: PropertyCounter<Resource>
+    increaseProductionOption: PropertyCounter<Resource>,
+    opts?: {isInline?: boolean}
 ) {
-    return _renderChangeResourceOptionIconography(increaseProductionOption, {
-        isInline: true,
-        isProduction: true,
-    });
+    if (Object.keys(increaseProductionOption).length < 1) {
+        return null;
+    }
+
+    if (opts?.isInline) {
+        return renderChangeResourceOptionIconography(increaseProductionOption, {
+            isInline: true,
+            isProduction: true,
+        });
+    }
+    return (
+        <IconographyRow className="change-resource-option">
+            {renderChangeResourceOptionIconography(increaseProductionOption, {
+                isInline: true,
+                isProduction: true,
+            })}
+        </IconographyRow>
+    );
 }
 
-function renderDecreaseProductionIconography(decreaseProduction: PropertyCounter<Resource>) {
-    return _renderChangeResourceIconography(decreaseProduction, {
+export function renderDecreaseProductionIconography(
+    decreaseProduction: PropertyCounter<Resource>,
+    opts?: {isInline?: boolean}
+) {
+    return renderChangeResourceIconography(decreaseProduction, {
         isProduction: true,
         isNegative: true,
+        isInline: opts?.isInline ?? false,
     });
 }
 
-function renderDecreaseAnyProductionIconography(decreaseAnyProduction: PropertyCounter<Resource>) {
-    return _renderChangeResourceIconography(decreaseAnyProduction, {
+function renderDecreaseAnyProductionIconography(
+    decreaseAnyProduction: PropertyCounter<Resource>,
+    opts?: {isInline?: boolean}
+) {
+    return renderChangeResourceIconography(decreaseAnyProduction, {
         isProduction: true,
         isNegative: true,
         useRedBorder: true,
+        isInline: opts?.isInline ?? false,
     });
 }
 function renderIncreaseParameterIconography(increaseParameter: PropertyCounter<Parameter>) {
+    if (Object.values(increaseParameter).length === 0) {
+        return null;
+    }
+
     const elements: Array<React.ReactNode> = [];
     for (const [parameter, amount] of Object.entries(increaseParameter)) {
         if (typeof amount !== 'number') {
@@ -367,40 +471,81 @@ function renderIncreaseParameterIconography(increaseParameter: PropertyCounter<P
             </Flex>
         );
     }
-    return elements.length > 0 ? (
-        <Flex
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            border="1px solid black"
-            background="cream"
-            width="fit-content"
-            style={{
-                alignSelf: 'center',
-            }}
-        >
-            {elements}
-        </Flex>
-    ) : null;
+    return <IconographyRow className="increase-parameter">{elements}</IconographyRow>;
 }
 
 function renderDuplicateProductionIconography(duplicateProduction: Tag | undefined) {
     return (
         duplicateProduction && (
-            <IconographyRow>
+            <IconographyRow className="duplicate-production">
                 <InlineText>Copy a </InlineText>
-                <ProductionWrapper margin="4px" isProduction={true}>
-                    <TagIcon name={Tag.BUILDING} size={16} />
-                </ProductionWrapper>
+                <TagIcon name={Tag.BUILDING} size={16} />
             </IconographyRow>
         )
     );
 }
+
+function renderProductionIconography(cardOrAction: CardModel | Action) {
+    if (cardOrAction instanceof CardModel && !cardOrAction.hasProductionChange) {
+        return null;
+    }
+
+    if (
+        !(cardOrAction instanceof CardModel) &&
+        !cardOrAction.decreaseProduction &&
+        !cardOrAction.decreaseAnyProduction &&
+        !cardOrAction.increaseProduction &&
+        !cardOrAction.increaseProductionOption &&
+        !cardOrAction.duplicateProduction
+    ) {
+        return null;
+    }
+
+    const shouldShowPlus =
+        Object.values({
+            ...cardOrAction.decreaseProduction,
+            ...cardOrAction.decreaseAnyProduction,
+        }).length > 0;
+
+    return (
+        <IconographyRow>
+            <ProductionWrapper>
+                {Object.values({
+                    ...cardOrAction.decreaseProduction,
+                    ...cardOrAction.decreaseAnyProduction,
+                }).length > 0 && (
+                    <IconographyRow>
+                        {renderDecreaseProductionIconography(
+                            cardOrAction.decreaseProduction ?? {},
+                            {
+                                isInline: true,
+                            }
+                        )}
+                        {renderDecreaseAnyProductionIconography(
+                            cardOrAction.decreaseAnyProduction ?? {},
+                            {
+                                isInline: true,
+                            }
+                        )}
+                    </IconographyRow>
+                )}
+                {renderIncreaseProductionIconography(cardOrAction.increaseProduction ?? {}, {
+                    shouldShowPlus,
+                })}
+                {renderIncreaseProductionOptionIconography(
+                    cardOrAction.increaseProductionOption ?? {}
+                )}
+                {renderDuplicateProductionIconography(cardOrAction.duplicateProduction)}
+            </ProductionWrapper>
+        </IconographyRow>
+    );
+}
+
 function renderIncreaseTerraformRatingIconography(increaseTerraformRating: Amount | undefined) {
     if (typeof increaseTerraformRating === 'number') {
         if (increaseTerraformRating > 0) {
             return (
-                <IconographyRow>
+                <IconographyRow className="increase-terraform-rating">
                     {Array(increaseTerraformRating)
                         .fill(null)
                         .map(_ => (
@@ -415,7 +560,7 @@ function renderIncreaseTerraformRatingIconography(increaseTerraformRating: Amoun
     } else {
         if (increaseTerraformRating === VariableAmount.JOVIAN_TAGS) {
             return (
-                <IconographyRow>
+                <IconographyRow className="increase-terraform-rating">
                     <TerraformRatingIcon size={16} />
                     <InlineText>/</InlineText>
                     <TagIcon name={Tag.JOVIAN} size={16} />
@@ -429,43 +574,22 @@ function renderIncreaseTerraformRatingIconography(increaseTerraformRating: Amoun
     }
 }
 
-/**
- * removeResource
- * removeResourceOption
- * gainResource
- * gainResourceOption
- * tile placements
- * steal resource
- * increaseProduction
- * increaseProductionOption
- * duplicateProduction
- * decreaseProduction
- * decreaseAnyProduction
- * increaseParameter
- *
- * increaseTerraformRating
- */
-export const CardIconography = ({card}: {card: CardModel | Action}) => {
+export const CardIconography = ({card}: {card: CardModel}) => {
     return (
-        <Flex flexDirection="column">
-            {renderTilePlacementIconography(card.tilePlacements ?? [])}
-            {renderRemoveResourceIconography(
-                card.removeResource ?? {},
-                card.removeResourceSourceType
-            )}
+        <Flex flexDirection="column" alignItems="center">
+            <Flex justifyContent="space-evenly" width="100%">
+                {renderTilePlacementIconography(card.tilePlacements)}
+                {renderProductionIconography(card)}
+            </Flex>
+            {renderRemoveResourceIconography(card.removeResource, card.removeResourceSourceType)}
             {renderRemoveResourceOptionIconography(
-                card.removeResourceOption ?? {},
+                card.removeResourceOption,
                 card.removeResourceSourceType
             )}
             {renderGainResourceIconography(card.gainResource)}
-            {renderGainResourceOptionIconography(card.gainResourceOption ?? {})}
-            {renderStealResourceIconography(card.stealResource ?? {})}
-            {renderIncreaseProductionIconography(card.increaseProduction ?? {})}
-            {renderIncreaseProductionOptionIconography(card.increaseProductionOption ?? {})}
-            {renderDecreaseProductionIconography(card.decreaseProduction ?? {})}
-            {renderDecreaseAnyProductionIconography(card.decreaseAnyProduction ?? {})}
-            {renderDuplicateProductionIconography(card.duplicateProduction)}
-            {renderIncreaseParameterIconography(card.increaseParameter ?? {})}
+            {renderGainResourceOptionIconography(card.gainResourceOption)}
+            {renderStealResourceIconography(card.stealResource)}
+            {renderIncreaseParameterIconography(card.increaseParameter)}
             {renderIncreaseTerraformRatingIconography(card.increaseTerraformRating)}
         </Flex>
     );

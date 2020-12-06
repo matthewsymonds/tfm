@@ -28,7 +28,7 @@ const EffectWrapper = styled.div`
     flex-direction: column;
 `;
 
-const StandardProjectsIcon = styled.div`
+const IconizedText = styled.div`
     border: 2px solid black;
     background: gold;
     padding: 4px;
@@ -53,8 +53,29 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return null;
         }
 
+        const elements: Array<React.ReactNode> = [];
+
+        if (
+            Object.keys(card.discounts?.tags).length > 0 ||
+            Object.keys(card.discounts?.cards).length > 0
+        ) {
+            const tags = {...card.discounts?.tags, ...card.discounts?.cards};
+            Object.keys(tags).forEach((tag, index) => {
+                if (index > 0) {
+                    elements.push(<TextWithSpacing>/</TextWithSpacing>);
+                }
+                elements.push(<TagIcon name={tag as Tag} size={16} key={index} />);
+            });
+        }
+
+        if (card.discounts.trade) {
+            elements.push(<IconizedText>TRADE</IconizedText>);
+        }
+
+        elements.push(renderColon());
+
         if (card.discounts.card) {
-            return (
+            elements.push(
                 <ResourceIcon
                     name={Resource.MEGACREDIT}
                     size={16}
@@ -63,15 +84,25 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
+        if (card.discounts.trade > 0) {
+            elements.push(
+                <React.Fragment>
+                    <InlineText>-{card.discounts.trade}</InlineText>
+                </React.Fragment>
+            );
+        }
+
         if (
             Object.keys(card.discounts.tags).length !== 0 ||
             Object.keys(card.discounts.cards).length !== 0
         ) {
             const amount = Object.values({...card.discounts.tags, ...card.discounts.cards})[0];
-            return <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`-${amount}`} />;
+            elements.push(
+                <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`-${amount}`} />
+            );
         }
 
-        return null;
+        return elements;
     }
 
     function renderTrigger(trigger: EffectTrigger | undefined) {
@@ -111,7 +142,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return <GlobalParameterIcon parameter={trigger?.increaseParameter} size={16} />;
         } else if (trigger?.standardProject) {
             // todo: Make this look nicer
-            return <StandardProjectsIcon>STANDARD PROJECTS</StandardProjectsIcon>;
+            return <IconizedText>STANDARD PROJECTS</IconizedText>;
         } else if (trigger?.steelOrTitaniumPlacementBonus) {
             return (
                 <Flex>
@@ -122,26 +153,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
-        if (card.discounts?.card) {
-            return null;
-        } else if (card.discounts?.nextCardThisGeneration) {
-            return null;
-        } else if (
-            Object.keys(card.discounts?.tags).length > 0 ||
-            Object.keys(card.discounts?.cards).length > 0
-        ) {
-            const tags = {...card.discounts?.tags, ...card.discounts?.cards};
-            const elements: Array<React.ReactNode> = [];
-            Object.keys(tags).forEach((tag, index) => {
-                if (index > 0) {
-                    elements.push(<TextWithSpacing>/</TextWithSpacing>);
-                }
-                elements.push(<TagIcon name={tag as Tag} size={16} key={index} />);
-            });
-            return <Flex>{elements}</Flex>;
-        }
-
-        if (card.parameterRequirementAdjustments) {
+        if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
             const elements: Array<React.ReactNode> = [];
             [Parameter.OCEAN, Parameter.OXYGEN, Parameter.TEMPERATURE].map((parameter, index) => {
                 if (index > 0) {
@@ -200,11 +212,12 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
                         {Object.keys(card.exchangeRates).length > 0 ? (
                             <React.Fragment>{renderExchangeRates()}</React.Fragment>
+                        ) : card.hasDiscounts ? (
+                            renderDiscounts()
                         ) : (
                             <React.Fragment>
                                 {renderTrigger(effect.trigger)}
                                 {renderColon()}
-                                {renderDiscounts()}
                                 {renderAction(effect.action)}
                             </React.Fragment>
                         )}
