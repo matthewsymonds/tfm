@@ -27,6 +27,7 @@ function DEV_cardOverrides() {
         'Mine',
         'Mining Area',
         'Research Outpost',
+        'Olympus Conference',
     ];
     return cards.filter(card => {
         return cardOverrides.includes(card.name);

@@ -8,7 +8,6 @@ import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
 import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
-import {useSyncState} from 'hooks/sync-state';
 import {Card} from 'models/card';
 import React, {useContext, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
@@ -42,7 +41,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
     const actionSets = ['Standard Projects', 'Milestones', 'Awards'];
     const [selectedActionSetIndex, setSelectedActionSetIndex] = useState(0);
-    useSyncState();
     const [selectedCards, setSelectedCards] = useState<Card[]>([]);
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);

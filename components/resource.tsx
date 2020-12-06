@@ -129,7 +129,7 @@ export const PlayerResourceBoard = ({
                                 canDoConversion &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
                                     <ConversionButton
-                                        disabled={context.shouldDisableUI(state)}
+                                        disabled={actionGuard.shouldDisableValidGreeneryPlacementUI()}
                                         onClick={() => apiClient.doConversionAsync({resource})}
                                     >
                                         Convert{' '}

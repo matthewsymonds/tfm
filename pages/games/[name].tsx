@@ -2,10 +2,8 @@ import {setGame} from 'actions';
 import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {EndOfGame} from 'components/end-of-game';
-import {GreeneryPlacement} from 'components/greenery-placement';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import {isSyncing} from 'hooks/sync-state';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import {useContext, useEffect} from 'react';
@@ -35,36 +33,46 @@ export default function Game(props) {
     const loggedInPlayerIndex = game.players.indexOf(session.username);
     context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);
+
     useEffect(() => {
+        if (
+            gameStage !== GameStage.CORPORATION_SELECTION &&
+            gameStage !== GameStage.BUY_OR_DISCARD &&
+            currentPlayerIndex == loggedInPlayerIndex
+        ) {
+            // Don't retrieve server state while only you can play!
+            // Can lead the game to de-sync:
+            // a) the interval calls retrieve game api
+            // b) the user plays an action
+            // c) b completes
+            // d) a completes, jerking the UI back in time
+            // Simply avoid these tricky race condition scenarios whenever possible.
+            return;
+        }
         const interval = setInterval(() => {
-            if (!isSyncing) {
-                retrieveGame();
-            }
+            retrieveGame();
         }, 5000);
 
         return () => {
             clearInterval(interval);
         };
-    }, []);
+    }, [gameStage, loggedInPlayerIndex]);
 
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
-        if (isSyncing) {
-            return;
-        }
         handleRetrievedGame(result);
     };
 
-    const gameStage = useTypedSelector(state => state?.common?.gameStage);
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
         case GameStage.ACTIVE_ROUND:
         case GameStage.BUY_OR_DISCARD:
-            return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
         case GameStage.GREENERY_PLACEMENT:
-            return <GreeneryPlacement playerIndex={loggedInPlayerIndex} />;
+            return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
         case GameStage.END_OF_GAME:
             return <EndOfGame />;
         default:

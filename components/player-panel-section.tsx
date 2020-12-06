@@ -1,7 +1,8 @@
 import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
 import {colors} from 'components/ui';
+import {GameStage} from 'constants/game';
 import {useState} from 'react';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {PlayerResourceBoard} from './resource';
@@ -44,11 +45,20 @@ export const PlayerPanelSection = ({
     isLoggedInPlayer: boolean;
 }) => {
     const [isSectionContentVisible, setIsSectionContentVisible] = useState(section === 'Board');
+    const isGreeneryPlacement = useTypedSelector(
+        state => state?.common?.gameStage === GameStage.GREENERY_PLACEMENT
+    );
 
     function getSectionContent() {
         switch (section) {
             case 'Board':
-                return <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />;
+                return (
+                    <PlayerResourceBoard
+                        plantConversionOnly={isGreeneryPlacement}
+                        player={player}
+                        isLoggedInPlayer={isLoggedInPlayer}
+                    />
+                );
             case 'Played cards':
                 return <PlayerPlayedCards player={player} />;
             case 'Hand':

@@ -1,5 +1,7 @@
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import PaymentPopover from 'components/popovers/payment-popover';
+import {MAX_PARAMETERS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {
@@ -10,8 +12,21 @@ import {
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {GameState, getNumOceans, PlayerState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
+
+const Warning = styled.div`
+    font-weight: bold;
+    color: maroon;
+    text-align: center;
+    padding: 4px;
+    border: 2px solid black;
+    background: lightgray;
+    max-width: 140px;
+    font-size: 10px;
+    margin: 0 auto;
+`;
 
 export function getTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
@@ -44,6 +59,26 @@ function getCostForStandardProject(
     }
 }
 
+function getWarning(isDisabled: boolean, state: GameState, standardProject: StandardProjectAction) {
+    if (isDisabled) {
+        return null;
+    }
+    if (standardProject.type === StandardProjectType.AQUIFER) {
+        const numOceans = getNumOceans(state);
+        if (numOceans === MAX_PARAMETERS.ocean) {
+            return <Warning>All oceans placed</Warning>;
+        }
+    }
+
+    if (standardProject.type === StandardProjectType.ASTEROID) {
+        if (state.common.parameters.temperature === MAX_PARAMETERS.temperature) {
+            return <Warning>Temperature at max</Warning>;
+        }
+    }
+
+    return null;
+}
+
 export default function StandardProjects() {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
@@ -51,10 +86,11 @@ export default function StandardProjects() {
     const player = context.getLoggedInPlayer(state);
 
     const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard(state, player.username);
 
     function renderStandardProjectButton(standardProject: StandardProjectAction) {
         const isDisabled = useTypedSelector(
-            () => !context.canPlayStandardProject(standardProject, state)
+            () => !actionGuard.canPlayStandardProject(standardProject)[0]
         );
         const text = getTextForStandardProject(standardProject.type);
         const cost = getCostForStandardProject(standardProject, player);
@@ -65,26 +101,28 @@ export default function StandardProjects() {
             apiClient.playStandardProjectAsync({payment, standardProjectAction: standardProject});
         };
 
-        if (
-            player.corporation.name === 'Helion' &&
-            player.resources[Resource.HEAT] > 0 &&
-            standardProject.type !== StandardProjectType.SELL_PATENTS
-        ) {
+        const warning = getWarning(isDisabled, state, standardProject);
+
+        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0 && cost) {
             return (
                 <PaymentPopover cost={cost} onConfirmPayment={handleConfirmPayment}>
                     <SharedActionRow disabled={isDisabled}>
                         <span>{text}</span>
                         <span>{costAsText}</span>
                     </SharedActionRow>
+                    {warning}
                 </PaymentPopover>
             );
         }
 
         return (
-            <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
-                <span>{text}</span>
-                <span>{costAsText}</span>
-            </SharedActionRow>
+            <div>
+                <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                    <span>{text}</span>
+                    <span>{costAsText}</span>
+                </SharedActionRow>
+                {warning}
+            </div>
         );
     }
 

@@ -1,7 +1,10 @@
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {colors} from 'components/ui';
+import {CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
+import {Resource} from 'constants/resource';
 import {AppContext} from 'context/app-context';
 import {useRouter} from 'next/router';
 import React, {useContext} from 'react';
@@ -62,6 +65,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
+    const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
     const isBuyingCards = loggedInPlayer.buyCards;
 
     const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
@@ -75,11 +79,23 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
 
     const apiClient = new ApiClient(dispatch);
 
+    const roundText = isGreeneryPlacement
+        ? 'Greenery Placement'
+        : `Generation ${generation}, Turn ${turn}`;
+
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+
+    const greeneryPlacementText = actionGuard.canDoConversion(CONVERSIONS[Resource.PLANT])[0]
+        ? 'You may place a greenery.'
+        : 'Cannot place any more greeneries.';
+
     return (
         <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="center">
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
-                {!isActiveRound && !isBuyingCards && <span>Waiting to start generation.</span>}
+                {!isActiveRound && !isGreeneryPlacement && !isBuyingCards && (
+                    <span>Waiting to start generation.</span>
+                )}
                 {isCorporationSelection && isBuyingCards && (
                     <span>Please choose your corporation and cards.</span>
                 )}
@@ -87,19 +103,30 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
                     <span>Action {action} of 2</span>
                 )}
+                {isLoggedInPlayersTurn && isGreeneryPlacement && (
+                    <span>{greeneryPlacementText}</span>
+                )}
                 {loggedInPlayer.action > 0 &&
                     isLoggedInPlayersTurn &&
                     isActiveRound &&
-                    !(context.shouldDisableUI(state) || isPlayerMakingDecision) && (
+                    !(actionGuard.shouldDisableUI() || isPlayerMakingDecision) && (
                         <ActionBarButton onClick={() => apiClient.skipActionAsync()}>
                             {action === 2 ? 'End turn' : 'Pass'}
                         </ActionBarButton>
                     )}
+                {isLoggedInPlayersTurn &&
+                    isGreeneryPlacement &&
+                    !(
+                        actionGuard.shouldDisableValidGreeneryPlacementUI() ||
+                        isPlayerMakingDecision
+                    ) && (
+                        <ActionBarButton onClick={() => apiClient.skipActionAsync()}>
+                            End greenery placement
+                        </ActionBarButton>
+                    )}
             </Flex>
             <Flex alignItems="center" justifyContent="flex-end">
-                <RoundText>
-                    Generation {generation}, Turn {turn}
-                </RoundText>
+                <RoundText>{roundText}</RoundText>
                 <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
             </Flex>
         </TopBarBase>

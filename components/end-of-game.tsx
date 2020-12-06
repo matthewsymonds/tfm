@@ -1,4 +1,3 @@
-import {useSyncState} from 'hooks/sync-state';
 import {useRouter} from 'next/router';
 import {useStore} from 'react-redux';
 import {getCardVictoryPoints} from 'selectors/card';
@@ -57,7 +56,6 @@ type playerScoreInfos = {
 };
 
 export function EndOfGame() {
-    useSyncState();
     const store = useStore();
     const state = store.getState();
     const router = useRouter();

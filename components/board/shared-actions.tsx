@@ -18,7 +18,7 @@ export const SharedActionRow = styled.button<{disabled: boolean}>`
     border-radius: 3px;
     cursor: ${props => (props.disabled ? 'pointer' : 'default')};
     color: ${props => (props.disabled ? 'black' : '#5e5e5e')};
-    &:hover {
+    &:hover:not(:disabled) {
         background: ${props => (props.disabled ? '#f4f4f4' : 'auto')};
         box-shadow: ${props => (props.disabled ? '2px 2px 10px 0px #ddd' : 'none')};
     }

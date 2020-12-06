@@ -53,6 +53,14 @@ type Props = {
     };
 };
 
+const Red = styled.div`
+    font-weight: bold;
+    color: maroon;
+    text-align: center;
+    padding: 4px;
+    border: 2px solid black;
+`;
+
 function getPlayersToConsider(
     player: PlayerState,
     players: PlayerState[],
@@ -305,8 +313,9 @@ function getOptionsForStorableResource(
     if (actionType === 'removeResource' || actionType === 'stealResource') {
         cards = cards.filter(card => (card.storedResourceAmount || 0) > 0);
     }
-
-    cards = cards.filter(card => card.storedResourceType === resourceAndAmount.resource);
+    if (resourceAndAmount.resource !== Resource.ANY_STORABLE_RESOURCE) {
+        cards = cards.filter(card => card.storedResourceType === resourceAndAmount.resource);
+    }
 
     switch (locationType) {
         case ResourceLocationType.THIS_CARD:
@@ -661,14 +670,6 @@ export function getAction(
             throw spawnExhaustiveSwitchError(option.actionType);
     }
 }
-
-const Red = styled.div`
-    font-weight: bold;
-    color: maroon;
-    text-align: center;
-    padding: 4px;
-    border: 2px solid black;
-`;
 
 type WarningProp = {showWarning?: boolean};
 

@@ -139,6 +139,10 @@ export function CardActionElements(props: {
     const apiClient = new ApiClient(dispatch);
 
     function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
+        if (card.action?.choice) {
+            const choiceIndex = card.action.choice.indexOf(action);
+            return apiClient.playCardActionAsync({parent: card, choiceIndex, payment});
+        }
         apiClient.playCardActionAsync({parent: card, payment});
     }
 

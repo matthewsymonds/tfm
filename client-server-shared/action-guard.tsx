@@ -6,6 +6,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
 import {Award, Cell, Milestone} from 'constants/board';
+import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -76,6 +77,17 @@ export class ActionGuard {
 
         if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
             return [false, 'Terraform rating too low'];
+        }
+
+        if (
+            state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+            card.type === CardType.CORPORATION
+        ) {
+            return [true, 'Good to go'];
+        }
+
+        if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+            return [false, 'Cannot play card outside active round'];
         }
 
         return this.canPlayAction(card, state);
@@ -149,7 +161,7 @@ export class ActionGuard {
         const player = this.getLoggedInPlayer();
         const {state} = this;
 
-        if (this.shouldDisableUI(state)) return [false, 'Cannot fund award right now'];
+        if (this.shouldDisableUI()) return [false, 'Cannot fund award right now'];
 
         if (!isActiveRound(state)) {
             return [false, 'Cannot fund award when it is not active round'];
@@ -175,8 +187,7 @@ export class ActionGuard {
     }
 
     canSkipAction(): CanPlayAndReason {
-        const {state} = this;
-        return [!this.shouldDisableUI(state), 'Cannot skip action right now'];
+        return [!this.shouldDisableValidGreeneryPlacementUI(), 'Cannot skip action right now'];
     }
 
     canAffordCard(card: Card) {
@@ -204,6 +215,18 @@ export class ActionGuard {
     canDoConversion(conversion: Conversion | undefined): CanPlayAndReason {
         if (!conversion) return [false, 'No conversion available'];
         const {state} = this;
+        const gameStage = state.common.gameStage;
+        if (gameStage === GameStage.GREENERY_PLACEMENT) {
+            if (conversion.resourceToRemove !== Resource.PLANT) {
+                return [false, 'May only convert plants in greenery placement phase'];
+            }
+
+            if (this.shouldDisableValidGreeneryPlacementUI()) {
+                return [false, 'Cannot do conversion right now'];
+            }
+
+            return this.canPlayActionInSpiteOfUI(conversion, state);
+        }
         return this.canPlayAction(conversion, state);
     }
 
@@ -289,7 +312,7 @@ export class ActionGuard {
     }
 
     canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
-        if (this.shouldDisableUI(state)) {
+        if (this.shouldDisableUI()) {
             return [false, ''];
         }
 
@@ -402,17 +425,29 @@ export class ActionGuard {
         return [options.length === 0, 'Cannot skip if at least one option available'];
     }
 
-    shouldDisableUI(state: GameState) {
+    shouldDisableUI(state: GameState = this.state) {
         const {gameStage} = state.common;
         const player = this.getLoggedInPlayer();
-        if (gameStage === GameStage.CORPORATION_SELECTION) {
-            return false;
-        }
-
         if (player.index !== state.common.currentPlayerIndex) {
             return true;
         }
         if (gameStage !== GameStage.ACTIVE_ROUND) {
+            return true;
+        }
+        if (getIsPlayerMakingDecision(state, player)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    shouldDisableValidGreeneryPlacementUI(state: GameState = this.state) {
+        const {gameStage} = state.common;
+        const player = this.getLoggedInPlayer();
+        if (player.index !== state.common.currentPlayerIndex) {
+            return true;
+        }
+        if (gameStage !== GameStage.ACTIVE_ROUND && gameStage !== GameStage.GREENERY_PLACEMENT) {
             return true;
         }
         if (getIsPlayerMakingDecision(state, player)) {

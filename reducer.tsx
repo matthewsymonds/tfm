@@ -1,16 +1,16 @@
 import {
     amountAndResource,
-    ResourceActionType,
+    ResourceActionType
 } from 'components/ask-user-to-confirm-resource-action-details';
-import {getTextForAward} from 'components/board/awards';
-import {getTextForMilestone} from 'components/board/milestones';
-import {getTextForStandardProject} from 'components/board/standard-projects';
-import {CardType} from 'constants/card-types';
-import {Tag} from 'constants/tag';
+import { getTextForAward } from 'components/board/awards';
+import { getTextForMilestone } from 'components/board/milestones';
+import { getTextForStandardProject } from 'components/board/standard-projects';
+import { CardType } from 'constants/card-types';
+import { Tag } from 'constants/tag';
 import produce from 'immer';
-import {shuffle} from 'initial-state';
-import {TypedUseSelectorHook, useSelector} from 'react-redux';
-import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import { shuffle } from 'initial-state';
+import { TypedUseSelectorHook, useSelector } from 'react-redux';
+import { aAnOrThe, getHumanReadableTileName } from 'selectors/get-human-readable-tile-name';
 import {
     ADD_FORCED_ACTION_TO_PLAYER,
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
@@ -53,9 +53,9 @@ import {
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE,
+    STEAL_STORABLE_RESOURCE
 } from './actions';
-import {Action, Amount} from './constants/action';
+import { Action, Amount } from './constants/action';
 import {
     Award,
     Board,
@@ -64,24 +64,24 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType,
+    TileType
 } from './constants/board';
-import {CONVERSIONS} from './constants/conversion';
-import {Discounts} from './constants/discounts';
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
-import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
-import {NumericPropertyCounter} from './constants/property-counter';
+import { CONVERSIONS } from './constants/conversion';
+import { Discounts } from './constants/discounts';
+import { GameStage, MAX_PARAMETERS, PARAMETER_STEPS } from './constants/game';
+import { zeroParameterRequirementAdjustments } from './constants/parameter-requirement-adjustments';
+import { NumericPropertyCounter } from './constants/property-counter';
 import {
     getResourceName,
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType,
+    ResourceLocationType
 } from './constants/resource';
-import {StandardProjectType} from './constants/standard-project';
-import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
-import {Card} from './models/card';
-import {getAdjacentCellsForCell} from './selectors/board';
+import { StandardProjectType } from './constants/standard-project';
+import { convertAmountToNumber, getDiscountedCardCost } from './context/app-context';
+import { Card } from './models/card';
+import { getAdjacentCellsForCell } from './selectors/board';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -271,18 +271,28 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 // Add Card Name here.
 const bonusName = 'Robotic Workforce';
 
+export function getNumOceans(state: GameState): number {
+    return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
+}
+
 export const reducer = (state: GameState | null = null, action) => {
     if (action.type === SET_GAME) {
-        const state = action.payload.gameState;
-        handleEnterActiveRound(state);
-        return {...state, set: true};
+        // A client-side action.
+        // Sets the game state returned from the server.
+        const newState = action.payload.gameState;
+        // Exceptionally (hacky):
+        // Corporation selection happens client-side, then is finalized on server.
+        // To avoid de-syncs, prefer client-side corporation selection to server value.
+        if (newState.common.gameStage === GameStage.CORPORATION_SELECTION && state) {
+            for (let i = 0; i < state.players.length; i++) {
+                newState.players[i].corporation = state.players[i].corporation;
+            }
+        }
+        return newState;
     }
-    // We want to initially set the state async, from the server.
-    // Until SET_GAME is called, every other action is a noop.
     if (!state) return null;
     const {payload} = action;
     return produce(state, draft => {
-        draft.set = false;
         const player = draft.players[payload?.playerIndex];
         const corporationName = player?.corporation.name;
         const {common} = draft;
@@ -498,7 +508,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 if (amount) {
                     draft.log.push(
                         `${sourcePlayer.corporation.name} lost ${amountAndResource(
-                            payload.amount,
+                            quantity,
                             resource
                         )}`
                     );
@@ -756,12 +766,12 @@ export const reducer = (state: GameState | null = null, action) => {
                     return;
                 }
 
-                const numOceans = draft.common.board
-                    .flat()
-                    .filter(cell => cell.tile?.type === TileType.OCEAN).length;
+                const numOceans = getNumOceans(draft);
 
                 const oceanAddendum =
-                    payload.tile.type === TileType.OCEAN ? ` (${numOceans} of 9)` : '';
+                    payload.tile.type === TileType.OCEAN
+                        ? ` (${numOceans} of ${MAX_PARAMETERS.ocean})`
+                        : '';
                 draft.log.push(
                     `${corporationName} placed ${aAnOrThe(
                         payload.tile.type

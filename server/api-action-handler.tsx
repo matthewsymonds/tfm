@@ -46,7 +46,7 @@ import {Award, Cell, CellType, Milestone, Parameter, t, TileType} from 'constant
 import {CardType} from 'constants/card-types';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage} from 'constants/game';
+import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
@@ -331,7 +331,11 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (choiceIndex !== undefined) {
             action = player?.pendingChoice?.choice?.[choiceIndex];
-            isChoiceAction = true;
+            if (!action) {
+                action = parent.action?.choice?.[choiceIndex];
+            } else {
+                isChoiceAction = true;
+            }
         }
 
         if (!action) {
@@ -570,6 +574,10 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         this.playAction({action: conversion, state: this.state});
+        const gameStage = this.state.common.gameStage;
+        if (gameStage === GameStage.ACTIVE_ROUND) {
+            this.queue.push(completeAction(this.getLoggedInPlayerIndex()));
+        }
         this.processQueue();
     }
 
@@ -884,6 +892,8 @@ export class ApiActionHandler implements GameActionHandler {
             );
         }
 
+        let terraformRatingIncrease = action.increaseTerraformRating ?? 0;
+
         if (action.increaseParameter) {
             // Ensure oxygen is checked before temperature.
             const parameters: Parameter[] = [
@@ -908,7 +918,8 @@ export class ApiActionHandler implements GameActionHandler {
 
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
-                    const newLevel = amount + state.common.parameters[parameter];
+                    const newLevel =
+                        amount * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
                     const index = parameters.indexOf(parameter);
                     // A hack, for type purposes.
                     // The increased parameter is immediately after the increaser parameter.
@@ -946,7 +957,7 @@ export class ApiActionHandler implements GameActionHandler {
                                 items.push(gainResource(Resource.CARD, 1, playerIndex));
                             }
                             if (newLevel === 16) {
-                                items.push(increaseTerraformRating(1, playerIndex));
+                                (terraformRatingIncrease as number)++;
                             }
                             break;
                         default:
@@ -954,6 +965,10 @@ export class ApiActionHandler implements GameActionHandler {
                     }
                 }
             }
+        }
+
+        if (terraformRatingIncrease) {
+            items.push(increaseTerraformRating(terraformRatingIncrease, playerIndex));
         }
 
         // TODO: Move this to `applyDiscounts`, change `plantDiscount` to a new discount type

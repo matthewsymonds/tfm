@@ -31,10 +31,19 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);
     }
 
-    private async makeApiCall(type: ApiActionType, payload) {
-        const result = await makePostCall(this.getPath(), {type, payload});
-        appContext.queue = result.queue;
-        this.dispatch(setGame(deserializeState(result.state)));
+    private async makeApiCall(type: ApiActionType, payload, retry = false) {
+        try {
+            const result = await makePostCall(this.getPath(), {type, payload});
+            appContext.queue = result.queue;
+            this.dispatch(setGame(deserializeState(result.state)));
+        } catch (error) {
+            // TODO Gracefully fail and tell user to try again.
+            if (retry) {
+                return;
+            }
+            // retry once.
+            await this.makeApiCall(type, payload, true);
+        }
     }
 
     private getPath(): string {

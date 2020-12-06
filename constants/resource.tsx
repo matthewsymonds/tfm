@@ -31,6 +31,7 @@ const storableResources = [
     Resource.FLOATER,
     Resource.MICROBE,
     Resource.SCIENCE,
+    Resource.ANY_STORABLE_RESOURCE,
 ] as const;
 
 export type StorableResource = typeof storableResources[number];
@@ -144,6 +145,8 @@ export const getResourceName = (resource: Resource) => {
             return 'steel';
         case Resource.TITANIUM:
             return 'titanium';
+        case Resource.ANY_STORABLE_RESOURCE:
+            return 'resource';
         default:
             throw new Error('unrecognized resource');
     }
