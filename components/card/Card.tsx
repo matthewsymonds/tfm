@@ -1,23 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
 import {Card as CardModel} from 'models/card';
-import {CardRequirement} from 'stories/Card/CardRequirement';
-import {CardCost} from 'stories/Card/CardCost';
-import {CardTags} from 'stories/Card/CardTags';
+import {CardRequirement} from 'components/card/CardRequirement';
+import {CardCost} from 'components/card/CardCost';
+import {CardTags} from 'components/card/CardTags';
 import {CardType} from 'constants/card-types';
-import {CardIconography} from 'stories/Card/CardIconography';
-import {CardVictoryPoints} from 'stories/Card/CardVictoryPoints';
-import {CardEffects} from 'stories/Card/CardEffects';
-import {CardAction} from 'stories/Card/CardAction';
+import {CardIconography} from 'components/card/CardIconography';
+import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
+import {CardEffects} from 'components/card/CardEffects';
+import {CardAction} from 'components/card/CardAction';
 import spawnExhaustiveSwitchError from 'utils';
+import {Flex} from 'components/box';
 
-const CARD_WIDTH = 200;
-const CARD_HEIGHT = 300;
+export const CARD_WIDTH = 200;
+export const CARD_HEIGHT = 300;
 
-const CardBase = styled.div`
+const CardBase = styled.div<{isSelected: boolean | undefined}>`
     width: ${CARD_WIDTH}px;
     height: ${CARD_HEIGHT}px;
     border-radius: 3px;
+    border: 1px solid black;
+    box-shadow: ${props => (props.isSelected === true ? '0px 0px 6px 2px hsl(0 0% 54%);' : 'none')};
+    opacity: ${props => (props.isSelected === false ? '0.5' : '1')};
     display: flex;
     flex-direction: column;
     position: relative;
@@ -25,7 +29,8 @@ const CardBase = styled.div`
 `;
 export type CardProps = {
     card: CardModel;
-    selected?: boolean;
+    button?: React.ReactNode;
+    isSelected?: boolean;
 };
 
 const CardTopBar = styled.div`
@@ -68,9 +73,9 @@ const CardTitleBar = styled.div<{type: CardType}>`
     text-align: center;
 `;
 
-export const Card: React.FC<CardProps> = ({card}) => {
+export const Card: React.FC<CardProps> = ({card, button, isSelected}) => {
     return (
-        <CardBase>
+        <CardBase isSelected={isSelected}>
             <CardTopBar>
                 <CardCost card={card} />
                 <CardRequirement card={card} />
@@ -82,6 +87,8 @@ export const Card: React.FC<CardProps> = ({card}) => {
             <CardAction card={card} />
             <CardIconography card={card} />
             <CardVictoryPoints card={card} />
+            <Flex flex="auto"></Flex>
+            {button}
         </CardBase>
     );
 };

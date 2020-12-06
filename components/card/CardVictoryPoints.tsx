@@ -3,7 +3,7 @@ import React from 'react';
 import {Box, Flex} from 'components/box';
 import styled from 'styled-components';
 import {VariableAmount} from 'constants/variable-amount';
-import {InlineText} from 'stories/Card/CardIconography';
+import {InlineText} from 'components/card/CardIconography';
 import {TileType} from 'constants/board';
 import {TileIcon} from 'components/icons/tile';
 import {Tag} from 'constants/tag';

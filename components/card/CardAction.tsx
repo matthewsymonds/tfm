@@ -2,12 +2,10 @@ import {Box, Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
-import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {Action} from 'constants/action';
-import {Parameter, TileType} from 'constants/board';
+import {Parameter} from 'constants/board';
 import {Resource} from 'constants/resource';
-import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -19,7 +17,7 @@ import {
     renderRemoveResourceIconography,
     renderRemoveResourceOptionIconography,
     TextWithSpacing,
-} from 'stories/Card/CardIconography';
+} from 'components/card/CardIconography';
 import styled from 'styled-components';
 
 const ActionText = styled.span`

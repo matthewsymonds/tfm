@@ -1,14 +1,15 @@
 import React from 'react';
 import {Story, Meta} from '@storybook/react';
-import {Hand} from 'stories/Hand/Hand';
+import {CardHand} from 'components/card/CardHand';
+import {cards} from 'models/card';
 
 export default {
     title: 'Hand',
-    component: Hand,
+    component: CardHand,
 } as Meta;
 
 const Template: Story<{}> = args => {
-    return <Hand cards={[{}, {}, {}, {}, {}, {}, {}, {}, {}]} />;
+    return <CardHand cardInfos={cards.slice(0, 10).map(card => ({card}))} />;
 };
 
 export const Default = Template.bind({});

@@ -1,7 +1,9 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
+import {CardHand} from 'components/card/CardHand';
 import {LogPanel} from 'components/log-panel';
+import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
@@ -149,116 +151,122 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     return (
-        <Flex flexDirection="column">
-            <Flex flex="none">
-                <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
-            </Flex>
-            <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
-                <Flex
-                    className="active-round-left"
-                    flexDirection="column"
-                    flex="auto"
-                    marginRight="4px"
-                >
-                    <PlayerPanel
-                        selectedPlayerIndex={selectedPlayerIndex}
-                        setSelectedPlayerIndex={setSelectedPlayerIndex}
-                    />
+        <React.Fragment>
+            <Flex flexDirection="column">
+                <Flex flex="none">
+                    <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
                 </Flex>
+                <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
+                    <Flex
+                        className="active-round-left"
+                        flexDirection="column"
+                        flex="auto"
+                        marginRight="4px"
+                    >
+                        <PlayerPanel
+                            selectedPlayerIndex={selectedPlayerIndex}
+                            setSelectedPlayerIndex={setSelectedPlayerIndex}
+                        />
+                    </Flex>
 
-                <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
-                    <Board />
-                </Flex>
+                    <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
+                        <Board />
+                    </Flex>
 
-                <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
-                    <Box marginTop="8px">
-                        <PanelWithTabs
-                            setSelectedTabIndex={setSelectedActionSetIndex}
-                            selectedTabIndex={selectedActionSetIndex}
-                            tabs={actionSets}
-                            tabType="action-set"
-                        >
-                            {renderSelectedActionSet()}
-                        </PanelWithTabs>
-                        <LogPanel />
-                    </Box>
+                    <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
+                        <Box marginTop="8px">
+                            <PanelWithTabs
+                                setSelectedTabIndex={setSelectedActionSetIndex}
+                                selectedTabIndex={selectedActionSetIndex}
+                                tabs={actionSets}
+                                tabType="action-set"
+                            >
+                                {renderSelectedActionSet()}
+                            </PanelWithTabs>
+                            <LogPanel />
+                        </Box>
+                    </Flex>
                 </Flex>
-            </Flex>
-            {isPlayerMakingDecision && (
-                <ActionBar className="bottom">
-                    <ActionBarRow>
-                        {loggedInPlayer.pendingChoice && (
-                            <AskUserToMakeActionChoice player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingDuplicateProduction && (
-                            <AskUserToDuplicateProduction player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.possibleCards.length > 0 && (
-                            <Flex flexDirection="column">
-                                <PromptTitle>{cardSelectionPrompt}</PromptTitle>
-                                <CardSelector
-                                    max={
-                                        loggedInPlayer.numCardsToTake ||
-                                        maxCardsToDiscard ||
-                                        Infinity
-                                    }
-                                    min={
-                                        loggedInPlayer.buyCards
-                                            ? 0
-                                            : loggedInPlayer.numCardsToTake || 0
-                                    }
-                                    selectedCards={selectedCards}
-                                    onSelect={cards => setSelectedCards(cards)}
-                                    options={loggedInPlayer.possibleCards}
-                                    budget={
-                                        loggedInPlayer.buyCards
-                                            ? remainingMegacreditsToBuyCards
-                                            : Infinity
-                                    }
-                                    orientation="vertical"
-                                />
-                                <Flex justifyContent="center">
-                                    <button
-                                        disabled={shouldDisableConfirmCardSelection}
-                                        onClick={() => handleConfirmCardSelection()}
-                                    >
-                                        {cardSelectionButtonText}
-                                    </button>
-                                </Flex>
-                            </Flex>
-                        )}
-                        {loggedInPlayer.pendingTilePlacement &&
-                            (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
-                                <PromptTitle>Claim an unreserved area.</PromptTitle>
-                            ) : (
-                                <PromptTitle>
-                                    Place {aAnOrThe(loggedInPlayer.pendingTilePlacement.type)}{' '}
-                                    {getHumanReadableTileName(
-                                        loggedInPlayer.pendingTilePlacement.type
-                                    )}{' '}
-                                    tile.
-                                </PromptTitle>
-                            ))}
-                        {loggedInPlayer.pendingResourceActionDetails && (
-                            <AskUserToConfirmResourceActionDetails
-                                player={loggedInPlayer}
-                                resourceActionDetails={loggedInPlayer.pendingResourceActionDetails}
-                            />
-                        )}
-                        {state.common.revealedCards.map((card, index) => {
-                            return (
-                                <CardComponent key={index} width={250} content={card}>
-                                    {index === state.common.revealedCards.length - 1 ? (
-                                        <button onClick={continueAfterRevealingCards}>
-                                            Continue
+                {isPlayerMakingDecision && (
+                    <ActionBar className="bottom">
+                        <ActionBarRow>
+                            {loggedInPlayer.pendingChoice && (
+                                <AskUserToMakeActionChoice player={loggedInPlayer} />
+                            )}
+                            {loggedInPlayer.pendingDuplicateProduction && (
+                                <AskUserToDuplicateProduction player={loggedInPlayer} />
+                            )}
+                            {loggedInPlayer.possibleCards.length > 0 && (
+                                <Flex flexDirection="column">
+                                    <PromptTitle>{cardSelectionPrompt}</PromptTitle>
+                                    <CardSelector
+                                        max={
+                                            loggedInPlayer.numCardsToTake ||
+                                            maxCardsToDiscard ||
+                                            Infinity
+                                        }
+                                        min={
+                                            loggedInPlayer.buyCards
+                                                ? 0
+                                                : loggedInPlayer.numCardsToTake || 0
+                                        }
+                                        selectedCards={selectedCards}
+                                        onSelect={cards => setSelectedCards(cards)}
+                                        options={loggedInPlayer.possibleCards}
+                                        budget={
+                                            loggedInPlayer.buyCards
+                                                ? remainingMegacreditsToBuyCards
+                                                : Infinity
+                                        }
+                                        orientation="vertical"
+                                    />
+                                    <Flex justifyContent="center">
+                                        <button
+                                            disabled={shouldDisableConfirmCardSelection}
+                                            onClick={() => handleConfirmCardSelection()}
+                                        >
+                                            {cardSelectionButtonText}
                                         </button>
-                                    ) : null}
-                                </CardComponent>
-                            );
-                        })}
-                    </ActionBarRow>
-                </ActionBar>
-            )}
-        </Flex>
+                                    </Flex>
+                                </Flex>
+                            )}
+                            {loggedInPlayer.pendingTilePlacement &&
+                                (loggedInPlayer.pendingTilePlacement.type ===
+                                TileType.LAND_CLAIM ? (
+                                    <PromptTitle>Claim an unreserved area.</PromptTitle>
+                                ) : (
+                                    <PromptTitle>
+                                        Place {aAnOrThe(loggedInPlayer.pendingTilePlacement.type)}{' '}
+                                        {getHumanReadableTileName(
+                                            loggedInPlayer.pendingTilePlacement.type
+                                        )}{' '}
+                                        tile.
+                                    </PromptTitle>
+                                ))}
+                            {loggedInPlayer.pendingResourceActionDetails && (
+                                <AskUserToConfirmResourceActionDetails
+                                    player={loggedInPlayer}
+                                    resourceActionDetails={
+                                        loggedInPlayer.pendingResourceActionDetails
+                                    }
+                                />
+                            )}
+                            {state.common.revealedCards.map((card, index) => {
+                                return (
+                                    <CardComponent key={index} width={250} content={card}>
+                                        {index === state.common.revealedCards.length - 1 ? (
+                                            <button onClick={continueAfterRevealingCards}>
+                                                Continue
+                                            </button>
+                                        ) : null}
+                                    </CardComponent>
+                                );
+                            })}
+                        </ActionBarRow>
+                    </ActionBar>
+                )}
+            </Flex>
+            <PlayerHand player={loggedInPlayer} />
+        </React.Fragment>
     );
 };

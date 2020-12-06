@@ -1,7 +1,8 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
-import {CardActionElements, CardComponent, CardDisabledText, CardText} from 'components/card';
+import {CardActionElements, CardComponent, CardText} from 'components/card';
+import {CardHand} from 'components/card/CardHand';
 import {TagIcon} from 'components/icons/tag';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {CardType} from 'constants/card-types';
@@ -28,6 +29,24 @@ type PlayerHandProps = {
     player: PlayerState;
 };
 
+const ButtonContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+`;
+
+const CardButton = styled.button`
+    width: 80px;
+`;
+
+const CardDisabledText = styled.p`
+    margin: 0;
+    font-size: 10px;
+    color: red;
+`;
+
 export const PlayerHand = ({player}: PlayerHandProps) => {
     const dispatch = useDispatch();
     const context = useContext(AppContext);
@@ -52,7 +71,9 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
         }
 
         if (!canPlay || loggedInPlayer.pendingDiscard) {
-            return <button disabled={!canPlay || loggedInPlayer.pendingDiscard}>Play</button>;
+            return (
+                <CardButton disabled={!canPlay || loggedInPlayer.pendingDiscard}>Play</CardButton>
+            );
         }
 
         if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
@@ -63,54 +84,52 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
                         playCard(card, payment);
                     }}
                 >
-                    <button>Play</button>
+                    <CardButton>Play</CardButton>
                 </PaymentPopover>
             );
         }
 
-        return <button onClick={() => playCard(card)}>Play</button>;
+        return <CardButton onClick={() => playCard(card)}>Play</CardButton>;
     }
 
-    const cards = (
-        <PlayerHandBase>
-            {player.cards
-                ? player.cards.map(card => {
-                      const [canPlay, reason] = actionGuard.canPlayCard(card);
-                      return (
-                          <CardComponent key={card.name} content={card}>
-                              {renderPlayCardButton(card, canPlay)}
-                              {!canPlay && (
-                                  <CardDisabledText>
-                                      <em>{reason}</em>
-                                  </CardDisabledText>
-                              )}
-                          </CardComponent>
-                      );
-                  })
-                : 'No cards in hand.'}
-        </PlayerHandBase>
-    );
+    const cardInfos = player.cards.map(card => {
+        const [canPlay, reason] = actionGuard.canPlayCard(card);
 
-    const numCards = player.cards.length;
-    const numPreviousCards = player.previousCardsInHand || 0;
+        return {
+            card,
+            button: (
+                <ButtonContainer>
+                    {!canPlay && (
+                        <CardDisabledText>
+                            <em>{reason}</em>
+                        </CardDisabledText>
+                    )}
+                    {renderPlayCardButton(card, canPlay)}
+                </ButtonContainer>
+            ),
+        };
+    });
+    return <CardHand cardInfos={cardInfos} />;
+    // const numCards = player.cards.length;
+    // const numPreviousCards = player.previousCardsInHand || 0;
 
-    let numCardsMessage;
-    if (isCorporationSelection) {
-        numCardsMessage = `You can't count ${player.username}'s hand until everyone's ready.`;
-    } else if (isBuyOrDiscard) {
-        numCardsMessage = `${player.corporation.name} had ${numPreviousCards} card
-        ${numPreviousCards === 1 ? '' : 's'} at the end of the previous round.`;
-    } else {
-        numCardsMessage = `${player.corporation.name} has ${player.cards.length} card${
-            numCards === 1 ? '' : 's'
-        } in hand.`;
-    }
+    // let numCardsMessage;
+    // if (isCorporationSelection) {
+    //     numCardsMessage = `You can't count ${player.username}'s hand until everyone's ready.`;
+    // } else if (isBuyOrDiscard) {
+    //     numCardsMessage = `${player.corporation.name} had ${numPreviousCards} card
+    //     ${numPreviousCards === 1 ? '' : 's'} at the end of the previous round.`;
+    // } else {
+    //     numCardsMessage = `${player.corporation.name} has ${player.cards.length} card${
+    //         numCards === 1 ? '' : 's'
+    //     } in hand.`;
+    // }
 
-    if (player.index === loggedInPlayer.index) {
-        return <PlayerHandBase>{numCards > 0 ? cards : numCardsMessage}</PlayerHandBase>;
-    } else {
-        return <PlayerHandBase>{numCardsMessage}</PlayerHandBase>;
-    }
+    // if (player.index === loggedInPlayer.index) {
+    //     return <PlayerHandBase>{numCards > 0 ? cards : numCardsMessage}</PlayerHandBase>;
+    // } else {
+    //     return <PlayerHandBase>{numCardsMessage}</PlayerHandBase>;
+    // }
 };
 
 export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {

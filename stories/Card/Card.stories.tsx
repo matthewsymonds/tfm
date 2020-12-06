@@ -1,6 +1,6 @@
 import React from 'react';
 import {Story, Meta} from '@storybook/react';
-import {Card, CardProps} from 'stories/Card/Card';
+import {Card, CardProps} from 'components/card/Card';
 import {cardConfigs} from 'constants/cards';
 import {Card as CardModel} from 'models/card';
 

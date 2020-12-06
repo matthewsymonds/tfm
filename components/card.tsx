@@ -21,14 +21,14 @@ export const CardName = styled.span`
 `;
 
 export const CardText = styled.div`
-    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
 `;
 
-export const CardDisabledText = styled(CardText)`
+export const CardDisabledText = styled.p`
+    font-size: 10px;
     color: red;
 `;
 

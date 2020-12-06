@@ -1,15 +1,15 @@
-import {Card} from 'models/card';
 import React from 'react';
 import styled from 'styled-components';
-import {CardComponent} from './card';
+import {Card as CardModel} from 'models/card';
+import {Card as CardComponent} from 'components/card/Card';
 
 interface CardSelectorProps {
     min?: number;
     max: number;
-    onSelect: (cards: Card[]) => void;
-    options: Card[];
+    onSelect: (cards: CardModel[]) => void;
+    options: CardModel[];
     orientation: string;
-    selectedCards: Card[];
+    selectedCards: CardModel[];
     budget?: number;
     className?: string;
 }
@@ -24,12 +24,17 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     overflow-y: auto;
 `;
 
+const CardWrapper = styled.div`
+    margin: 8px;
+    cursor: pointer;
+`;
+
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const numSelected = selectedCards.length;
     const canSelect = budget === undefined || budget >= 10;
 
-    const handleSelect = (card: Card) => {
+    const handleSelect = (card: CardModel) => {
         const newSelectedCards = [...selectedCards];
         const index = selectedCards.indexOf(card);
         if (index < 0) {
@@ -51,11 +56,9 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                 const disabled = cannotSelect || cannotUnselect;
                 const buttonText = cannotUnselect ? 'Selected' : selected ? 'Unselect' : 'Select';
                 return (
-                    <CardComponent key={key} content={option} selected={selected}>
-                        <button disabled={disabled} onClick={() => handleSelect(option)}>
-                            {buttonText}
-                        </button>
-                    </CardComponent>
+                    <CardWrapper onClick={() => handleSelect(option)} key={key}>
+                        <CardComponent card={option} isSelected={selected} />
+                    </CardWrapper>
                 );
             })}
         </CardSelectorBase>

@@ -1,5 +1,8 @@
+import {Card, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import React, {useEffect, useRef, useState} from 'react';
+import {throttle} from 'throttle-debounce';
 import styled from 'styled-components';
+import {Card as CardModel} from 'models/card';
 
 function usePrevious(value) {
     const ref = useRef();
@@ -9,18 +12,24 @@ function usePrevious(value) {
     return ref.current;
 }
 
-const CARD_WIDTH = 200;
-const CARD_HEIGHT = 300;
 const MINIMUM_OVERLAP_PERCENT = 0.5; // e.g. cards will at least overlap by 50%. May be more if there are more cards
 
-const HandContainer = styled.div`
+const CardHandContainer = styled.div<{shouldShow: boolean}>`
     width: 100%;
     height: ${CARD_HEIGHT}px;
     position: fixed;
-    bottom: -20px;
+    bottom: -100px;
+    bottom: ${props => (props.shouldShow ? '-60px' : '-200px')};
+    transition: bottom 0.5s;
+    z-index: 2; /* HACK because of tile name tags */
 `;
 
-export function Hand({cards}: {cards: Array<Object>}) {
+export function CardHand({
+    cardInfos,
+}: {
+    cardInfos: Array<{card: CardModel; button?: React.ReactNode}>;
+}) {
+    const cards = cardInfos.map(c => c.card);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
     const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
@@ -92,9 +101,22 @@ export function Hand({cards}: {cards: Array<Object>}) {
         }
     }, [containerRef, setContainerWidth, prevContainerWidth, containerWidth]);
 
+    useEffect(() => {
+        const resize = () => setContainerWidth(window.innerWidth);
+        const throttledResize = throttle(200, resize);
+        window.addEventListener('resize', throttledResize);
+        return () => {
+            window.removeEventListener('resize', throttledResize);
+        };
+    }, []);
+
     return (
-        <HandContainer ref={containerRef} onMouseLeave={onMouseLeave}>
-            {cards.map((card, cardIndex) => {
+        <CardHandContainer
+            ref={containerRef}
+            onMouseLeave={onMouseLeave}
+            shouldShow={typeof highlightedIndex === 'number'}
+        >
+            {cardInfos.map(({card, button}, cardIndex) => {
                 return (
                     <div
                         key={cardIndex}
@@ -108,21 +130,10 @@ export function Hand({cards}: {cards: Array<Object>}) {
                         }}
                         onMouseEnter={() => onMouseEnter(cardIndex)}
                     >
-                        <div
-                            style={{
-                                width: 200,
-                                height: 300,
-                                border: '1px solid black',
-                                background: 'white',
-                                padding: 20,
-                                borderRadius: 3,
-                            }}
-                        >
-                            Card
-                        </div>
+                        <Card card={card} button={button} />
                     </div>
                 );
             })}
-        </HandContainer>
+        </CardHandContainer>
     );
 }
