@@ -30,7 +30,9 @@ export default function Game(props) {
         handleRetrievedGame(game);
     }, []);
 
-    const loggedInPlayerIndex = game.players.indexOf(session.username);
+    const loggedInPlayerIndex = game.state.players.findIndex(
+        player => player.username === session.username
+    );
     context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
@@ -92,7 +94,6 @@ Game.getInitialProps = async ctx => {
 
         const game = await response.json();
         ctx.store.dispatch(setGame(deserializeState(game.state)));
-
         return {game};
     } catch (error) {
         if (isServer) {

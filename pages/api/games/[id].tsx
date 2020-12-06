@@ -1,4 +1,5 @@
 import {gamesModel, retrieveSession} from 'database';
+import {censorGameState} from 'state-serialization';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -21,9 +22,7 @@ export default async (req, res) => {
     switch (req.method.toUpperCase()) {
         case 'GET':
             res.json({
-                state: game.state,
-                queue: game.queue,
-                players: game.players,
+                state: censorGameState(game.state, sessionResult.username),
             });
             return;
         default:

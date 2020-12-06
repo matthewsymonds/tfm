@@ -4,7 +4,7 @@ import {gamesModel, retrieveSession} from 'database';
 import {Card} from 'models/card';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
-import {deserializeState, serializeState} from 'state-serialization';
+import {censorGameState, deserializeState, serializeState} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
 
 export default async (req, res) => {
@@ -119,9 +119,7 @@ export default async (req, res) => {
         game.state = serializeState(hydratedGame.state);
         await game.save();
         res.json({
-            state: game.state,
-            players: game.players,
-            queue: game.queue,
+            state: censorGameState(game.state, username),
         });
     } catch (error) {
         res.status(404);

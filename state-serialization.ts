@@ -1,5 +1,7 @@
+import {CardType} from 'constants/card-types';
+import {GameStage} from 'constants/game';
 import {Resource} from './constants/resource';
-import {Card, cards} from './models/card';
+import {Card, cards, dummyCard} from './models/card';
 import {CommonState, GameState, PlayerState} from './reducer';
 
 export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile'> & {
@@ -68,10 +70,11 @@ type SerializedCard = {
     lastRoundUsedAction?: number;
     storedResourceAmount?: number;
     increaseProductionResult?: Resource;
-};
+} | null;
 
 function deserializeCard(serializedCard: SerializedCard): Card {
-    const card = cards.find(card => card.name === serializedCard.name)!;
+    if (!serializedCard) return dummyCard;
+    let card = cards.find(card => card.name === serializedCard.name) ?? dummyCard;
     card.storedResourceAmount = serializedCard.storedResourceAmount || 0;
     card.lastRoundUsedAction = serializedCard.lastRoundUsedAction;
     card.increaseProductionResult = serializedCard.increaseProductionResult;
@@ -116,4 +119,39 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
         cards: cards.map(deserializeCard),
         playedCards: playedCards.map(deserializeCard),
     };
+};
+
+// No cheating! This method hides private information.
+export const censorGameState = (state: SerializedState, username: string) => {
+    state.common.deck = [];
+    state.common.discardPile = [];
+    for (const player of state.players) {
+        if (player.username === username) {
+            continue;
+        }
+
+        player.possibleCards = Array(player.possibleCards.length);
+        player.cards = Array(player.cards.length);
+        player.possibleCorporations = Array(player.possibleCorporations.length);
+
+        if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
+            player.corporation = {name: ''};
+        }
+
+        for (const card of player.playedCards) {
+            if (!card) continue;
+            const matchingCard = cards.find(cardModel => cardModel.name === card.name)!;
+            if (matchingCard.type === CardType.EVENT) {
+                card.name = '';
+            }
+
+            if (
+                state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+                matchingCard.type === CardType.CORPORATION
+            ) {
+                card.name = '';
+            }
+        }
+    }
+    return state;
 };
