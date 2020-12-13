@@ -108,7 +108,7 @@ export const GlobalStyles = createGlobalStyle`
           }
       }
     }
-    button, input[type="submit"] {
+    /* button, input[type="submit"] {
       display: flex;
       align-items: center;
       justify-content: space-around;
@@ -118,7 +118,7 @@ export const GlobalStyles = createGlobalStyle`
       line-height: 8px;
       justify-self: flex-end;
       border: 1px solid #757575;
-      background-color: #eae9e9
+      background-color: #eae9e9;
       color: #222222;
       font-size: 14px;
 
@@ -129,14 +129,11 @@ export const GlobalStyles = createGlobalStyle`
         cursor: auto;
         opacity: 0.6;
       }
-      &:active, &:focus {
-          opacity: 0.8;
-      }
 
       &:focus {
         background: #bbb;
       }
-    }
+    } */
 `;
 
 function InnerAppComponent({Component, pageProps, session}) {

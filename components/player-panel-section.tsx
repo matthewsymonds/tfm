@@ -1,4 +1,4 @@
-import {PlayerHand, PlayerPlayedCards} from 'components/player-hand';
+import {PlayerPlayedCards} from 'components/player-played-cards';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useState} from 'react';
@@ -33,7 +33,7 @@ const PlayerPanelSectionInner = styled.div`
     padding: 6px;
 `;
 
-export type PlayerPanelSection = 'Board' | 'Played cards' | 'Hand';
+export type PlayerPanelSection = 'Board' | 'Played cards';
 
 export const PlayerPanelSection = ({
     section,
@@ -61,8 +61,7 @@ export const PlayerPanelSection = ({
                 );
             case 'Played cards':
                 return <PlayerPlayedCards player={player} />;
-            case 'Hand':
-                return <PlayerHand player={player} />;
+
             default:
                 throw spawnExhaustiveSwitchError(section);
         }

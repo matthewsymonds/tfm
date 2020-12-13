@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import styled from 'styled-components';
 import {Card as CardModel} from 'models/card';
 import {CardRequirement} from 'components/card/CardRequirement';
@@ -8,12 +8,27 @@ import {CardType} from 'constants/card-types';
 import {CardIconography} from 'components/card/CardIconography';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
 import {CardEffects} from 'components/card/CardEffects';
-import {CardAction} from 'components/card/CardAction';
+import {CardActions} from 'components/card/CardActions';
 import spawnExhaustiveSwitchError from 'utils';
 import {Flex} from 'components/box';
+import {PlayerState, useTypedSelector} from 'reducer';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {CardContextButton} from 'components/card/CardContextButton';
+import {AppContext} from 'context/app-context';
+import {ApiClient} from 'api-client';
+import {useDispatch} from 'react-redux';
 
 export const CARD_WIDTH = 200;
 export const CARD_HEIGHT = 300;
+
+export const DisabledTooltip = styled.div`
+    border-radius: 3px;
+    background-color: #fdc7bc;
+    color: #111111;
+    border: 1px solid red;
+    padding: 8px;
+    font-size: 11px;
+`;
 
 const CardBase = styled.div<{isSelected: boolean | undefined}>`
     width: ${CARD_WIDTH}px;
@@ -29,9 +44,20 @@ const CardBase = styled.div<{isSelected: boolean | undefined}>`
 `;
 export type CardProps = {
     card: CardModel;
+    cardContext: CardContext;
+    cardOwner?: PlayerState;
     button?: React.ReactNode;
     isSelected?: boolean;
 };
+
+export enum CardContext {
+    NONE = 'none', // just show the card with no clickable buttons
+    SELECT_TO_BUY = 'selectToBuy', // if selecting to buy (ie drafting)
+    SELECT_TO_PLAY = 'selectToPlay', // if selecting to play (ie in hand)
+    SELECT_TO_KEEP = 'selectToKeep', // if selecting to keep (eg draw 4 keep 2)
+    SELECT_TO_DISCARD = 'selectToDiscard', // if selecting to discard (could this be merged with selectToDiscard?)
+    PLAYED_CARD = 'playedCard', // if card is played, actions are usable
+}
 
 const CardTopBar = styled.div`
     padding: 4px;
@@ -40,7 +66,7 @@ const CardTopBar = styled.div`
 `;
 
 const CardText = styled.span`
-    margin: 8px;
+    margin: 4px;
     font-size: 11px;
 `;
 
@@ -73,22 +99,49 @@ const CardTitleBar = styled.div<{type: CardType}>`
     text-align: center;
 `;
 
-export const Card: React.FC<CardProps> = ({card, button, isSelected}) => {
+export const Card: React.FC<CardProps> = ({
+    card,
+    cardContext = CardContext.NONE,
+    cardOwner,
+    isSelected,
+}) => {
+    const context = useContext(AppContext);
+    const state = useTypedSelector(state => state);
+    const dispatch = useDispatch();
+    const loggedInPlayer = context.getLoggedInPlayer(state);
+    const actionGuard = new ActionGuard(
+        state,
+        loggedInPlayer?.username ?? state.players[0].username // fallback to first player for storybook
+    );
+    const apiClient = new ApiClient(dispatch);
+
     return (
         <CardBase isSelected={isSelected}>
             <CardTopBar>
-                <CardCost card={card} />
+                <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
                 <CardRequirement card={card} />
                 <CardTags card={card} />
             </CardTopBar>
             <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
-            <CardText>{card.text}</CardText>
+            {card.text && <CardText>{card.text}</CardText>}
             <CardEffects card={card} />
-            <CardAction card={card} />
+            <CardActions
+                card={card}
+                cardOwner={cardOwner}
+                cardContext={cardContext}
+                apiClient={apiClient}
+                actionGuard={actionGuard}
+            />
             <CardIconography card={card} />
             <CardVictoryPoints card={card} />
             <Flex flex="auto"></Flex>
-            {button}
+            <CardContextButton
+                card={card}
+                cardContext={cardContext}
+                actionGuard={actionGuard}
+                apiClient={apiClient}
+                loggedInPlayer={loggedInPlayer}
+            />
         </CardBase>
     );
 };

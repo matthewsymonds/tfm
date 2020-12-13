@@ -1,8 +1,9 @@
-import {Card, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
+import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import React, {useEffect, useRef, useState} from 'react';
 import {throttle} from 'throttle-debounce';
 import styled from 'styled-components';
 import {Card as CardModel} from 'models/card';
+import {PlayerState} from 'reducer';
 
 function usePrevious(value) {
     const ref = useRef();
@@ -14,24 +15,37 @@ function usePrevious(value) {
 
 const MINIMUM_OVERLAP_PERCENT = 0.5; // e.g. cards will at least overlap by 50%. May be more if there are more cards
 
-const CardHandContainer = styled.div<{shouldShow: boolean}>`
+const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}>`
     width: 100%;
     height: ${CARD_HEIGHT}px;
     position: fixed;
-    bottom: -100px;
-    bottom: ${props => (props.shouldShow ? '-60px' : '-200px')};
-    transition: bottom 0.5s;
+    bottom: ${props => (props.shouldHoist ? '-60px' : '-200px')};
+    opacity: ${props => (props.shouldShow ? 1 : 0)};
+    transition: bottom 0.5s, opacity 0.2s;
     z-index: 2; /* HACK because of tile name tags */
+`;
+
+const MinimizeCardsButton = styled.button`
+    width: 40px;
+    height: 40px;
+    position: fixed;
+    right: 15px;
+    bottom: 15px;
+    opacity: 1;
+    border-radius: 50%;
+    padding: 0;
+    z-index: 3;
 `;
 
 export function CardHand({
     cardInfos,
 }: {
-    cardInfos: Array<{card: CardModel; button?: React.ReactNode}>;
+    cardInfos: Array<{card: CardModel; cardContext: CardContext; cardOwner: PlayerState}>;
 }) {
     const cards = cardInfos.map(c => c.card);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
+    const [shouldShowCardHand, setShouldShowCardHand] = useState(true);
     const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
     const prevContainerWidth = usePrevious(containerWidth);
 
@@ -56,7 +70,7 @@ export function CardHand({
         if (highlightedIndex !== null && !isHighlighted) {
             // if another card is highlighted, push cards away from the highlighted card
             // this math is weird, it assumes gapBetweenCards is negative, it works so /shrug
-            const bonusCardPadding = -20;
+            const bonusCardPadding = 20;
             if (highlightedIndex < cardIndex) {
                 xOffset += -1 * (gapBetweenCards + bonusCardPadding);
             } else {
@@ -66,8 +80,9 @@ export function CardHand({
 
         const normalizedHalf = (cards.length - 1) / 2;
         const distanceToMiddle = Math.abs(normalizedHalf - cardIndex);
+        // middle card = 0; edge cards = 1
         const scaleYOffset = distanceToMiddle / normalizedHalf;
-        const yOffset = Math.pow(scaleYOffset, 1.5) * 100; // magic numbers
+        const yOffset = scaleYOffset * 0.4 * 100; // magic numbers
 
         return `translate(${xOffset}px, ${isHighlighted ? '-100' : yOffset}px)`;
     }
@@ -83,15 +98,19 @@ export function CardHand({
         const distanceToMiddle = normalizedHalf - cardIndex;
         const scaleRotation = distanceToMiddle / normalizedHalf;
 
-        return `rotate(${scaleRotation * -20}deg)`;
+        return `rotate(${scaleRotation * -10}deg)`;
     }
 
     function onMouseEnter(cardIndex: number) {
-        setHighlightedIndex(cardIndex);
+        shouldShowCardHand && setHighlightedIndex(cardIndex);
     }
 
     function onMouseLeave() {
-        setHighlightedIndex(null);
+        shouldShowCardHand && setHighlightedIndex(null);
+    }
+
+    function toggleCardDrawer() {
+        setShouldShowCardHand(!shouldShowCardHand);
     }
 
     useEffect(() => {
@@ -111,29 +130,37 @@ export function CardHand({
     }, []);
 
     return (
-        <CardHandContainer
-            ref={containerRef}
-            onMouseLeave={onMouseLeave}
-            shouldShow={typeof highlightedIndex === 'number'}
-        >
-            {cardInfos.map(({card, button}, cardIndex) => {
-                return (
-                    <div
-                        key={cardIndex}
-                        style={{
-                            position: 'absolute',
-                            transform: `${getCardPosition(cardIndex)} ${getCardRotation(
-                                cardIndex
-                            )}`,
-                            transition: 'transform 0.5s',
-                            transformOrigin: 'center',
-                        }}
-                        onMouseEnter={() => onMouseEnter(cardIndex)}
-                    >
-                        <Card card={card} button={button} />
-                    </div>
-                );
-            })}
-        </CardHandContainer>
+        <React.Fragment>
+            <CardHandContainer
+                ref={containerRef}
+                onMouseLeave={onMouseLeave}
+                shouldShow={shouldShowCardHand}
+                shouldHoist={typeof highlightedIndex === 'number'}
+            >
+                {cardInfos.map(({card, cardOwner, cardContext}, cardIndex) => {
+                    return (
+                        <div
+                            key={cardIndex}
+                            style={{
+                                position: 'absolute',
+                                transform: `${getCardPosition(cardIndex)} ${getCardRotation(
+                                    cardIndex
+                                )}`,
+                                boxShadow: 'rgb(191 95 63 / 0.5) 0px 0px 10px 0px',
+                                transition: 'all 0.5s',
+                                transformOrigin: 'center',
+                                zIndex: cardIndex === highlightedIndex ? 1 : 0,
+                            }}
+                            onMouseEnter={() => onMouseEnter(cardIndex)}
+                        >
+                            <Card card={card} cardOwner={cardOwner} cardContext={cardContext} />
+                        </div>
+                    );
+                })}
+            </CardHandContainer>
+            <MinimizeCardsButton onClick={toggleCardDrawer}>
+                {shouldShowCardHand ? '-' : '+'}
+            </MinimizeCardsButton>
+        </React.Fragment>
     );
 }

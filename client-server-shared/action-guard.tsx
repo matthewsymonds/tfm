@@ -34,7 +34,10 @@ import {getTags} from 'selectors/variable-amount';
 type CanPlayAndReason = [boolean, string];
 
 export class ActionGuard {
-    constructor(private readonly state: GameState, private readonly username: string) {}
+    constructor(private readonly state: GameState, private readonly username: string) {
+        // this.state = state;
+        // this.username = username;
+    }
 
     getLoggedInPlayer() {
         return this.state.players.find(player => player.username === this.username)!;
@@ -77,6 +80,10 @@ export class ActionGuard {
 
         if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
             return [false, 'Terraform rating too low'];
+        }
+
+        if (player.pendingDiscard) {
+            return [false, 'Cannot play while selecting card(s) to discard'];
         }
 
         if (
@@ -188,6 +195,25 @@ export class ActionGuard {
 
     canSkipAction(): CanPlayAndReason {
         return [!this.shouldDisableValidGreeneryPlacementUI(), 'Cannot skip action right now'];
+    }
+
+    canAffordActionCost(action: Action) {
+        const player = this.getLoggedInPlayer();
+        let {cost, acceptedPayment = []} = action;
+        if (!cost) {
+            return true;
+        }
+
+        for (const acceptedPaymentType of acceptedPayment) {
+            cost -=
+                player.exchangeRates[acceptedPaymentType] * player.resources[acceptedPaymentType];
+        }
+
+        if (player.corporation.name === 'Helion') {
+            cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+        }
+
+        return cost <= player.resources[Resource.MEGACREDIT];
     }
 
     canAffordCard(card: Card) {
@@ -309,6 +335,18 @@ export class ActionGuard {
         }
 
         return true;
+    }
+
+    canPlayCardAction(action: Action, state: GameState, parent: Card): CanPlayAndReason {
+        if (!this.canAffordActionCost(action)) {
+            return [false, 'Cannot afford action cost'];
+        }
+
+        if (parent.lastRoundUsedAction === state.common.generation) {
+            return [false, 'Already used this generation'];
+        }
+
+        return this.canPlayAction(action, state, parent);
     }
 
     canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {

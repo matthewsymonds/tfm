@@ -9,7 +9,7 @@ import {TileIcon} from 'components/icons/tile';
 import {ResourceIcon} from 'components/icons/resource';
 import {Resource} from 'constants/resource';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardAction';
+import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {Action} from 'constants/action';
 import {Tag} from 'constants/tag';
 import {Parameter} from 'constants/board';

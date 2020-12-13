@@ -95,14 +95,14 @@ export function renderChangeResourceIconography(
                 ...(shouldShowAmount(resource, amount) ? [amount] : []),
             ];
             elements.push(
-                <React.Fragment>
+                <React.Fragment key={i}>
                     {prefixElements.length > 0 && (
                         <TextWithSpacing spacing={2}>{prefixElements}</TextWithSpacing>
                     )}
                     {shouldShowIndividualIcons(resource, amount)
                         ? Array(amount)
                               .fill(null)
-                              .map(() => resourceIconElement)
+                              .map((_, index) => <div key={index}>{resourceIconElement}</div>)
                         : resourceIconElement}
                 </React.Fragment>
             );
@@ -264,6 +264,7 @@ export function renderChangeResourceIconography(
 
             elements.push(
                 <Flex
+                    key={i}
                     justifyContent="center"
                     alignItems="center"
                     marginLeft={i > 0 ? '4px' : 'initial'}
@@ -390,8 +391,8 @@ function renderTilePlacementIconography(tilePlacements: Array<TilePlacement>) {
         <IconographyRow className="tile-placements">
             {tilePlacements.map((tilePlacement, index) => {
                 return (
-                    <Flex margin="0 4px">
-                        <TileIcon key={index} type={tilePlacement.type} size={40} />
+                    <Flex margin="0 4px" key={index}>
+                        <TileIcon type={tilePlacement.type} size={40} />
                     </Flex>
                 );
             })}
@@ -548,8 +549,8 @@ function renderIncreaseTerraformRatingIconography(increaseTerraformRating: Amoun
                 <IconographyRow className="increase-terraform-rating">
                     {Array(increaseTerraformRating)
                         .fill(null)
-                        .map(_ => (
-                            <Flex margin="0 4px">
+                        .map((_, index) => (
+                            <Flex key={index} margin="0 4px">
                                 <TerraformRatingIcon />
                             </Flex>
                         ))}

@@ -102,7 +102,7 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
     const selectedPlayer = players.find(p => p.index === selectedPlayerIndex)!;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const terraformRating = selectedPlayer.terraformRating;
-    const sections: Array<PlayerPanelSection> = ['Board', 'Played cards', 'Hand'];
+    const sections: Array<PlayerPanelSection> = ['Board', 'Played cards'];
 
     return (
         <Flex flexDirection="column" justifyContent="stretch">
