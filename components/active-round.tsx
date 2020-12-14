@@ -1,7 +1,6 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
-import {CardHand} from 'components/card/CardHand';
 import {LogPanel} from 'components/log-panel';
 import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
@@ -216,7 +215,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                         budget={
                                             loggedInPlayer.buyCards
                                                 ? remainingMegacreditsToBuyCards
-                                                : Infinity
+                                                : undefined
                                         }
                                         orientation="vertical"
                                     />

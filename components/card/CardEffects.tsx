@@ -1,18 +1,18 @@
-import React from 'react';
-import {Card as CardModel} from 'models/card';
-import styled from 'styled-components';
 import {Flex} from 'components/box';
-import {EffectTrigger} from 'constants/effect-trigger';
+import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {IconographyRow, InlineText, TextWithSpacing} from 'components/card/CardIconography';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {Action} from 'constants/action';
-import {Tag} from 'constants/tag';
 import {Parameter} from 'constants/board';
+import {EffectTrigger} from 'constants/effect-trigger';
+import {Resource} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
+import styled from 'styled-components';
 
 const EffectText = styled.span`
     font-size: 10px;
@@ -44,8 +44,8 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
     const {effects} = card;
 
-    function renderColon() {
-        return <TextWithSpacing>:</TextWithSpacing>;
+    function renderColon(key?: number = 0) {
+        return <TextWithSpacing key={key}>:</TextWithSpacing>;
     }
 
     function renderDiscounts() {
@@ -60,23 +60,24 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             Object.keys(card.discounts?.cards).length > 0
         ) {
             const tags = {...card.discounts?.tags, ...card.discounts?.cards};
-            Object.keys(tags).forEach((tag, index) => {
+            Object.keys(tags).forEach(tag => {
                 if (index > 0) {
-                    elements.push(<TextWithSpacing>/</TextWithSpacing>);
+                    elements.push(<TextWithSpacing key={elements.length}>/</TextWithSpacing>);
                 }
-                elements.push(<TagIcon name={tag as Tag} size={16} key={index} />);
+                elements.push(<TagIcon name={tag as Tag} size={16} key={elements.length} />);
             });
         }
 
         if (card.discounts.trade) {
-            elements.push(<IconizedText>TRADE</IconizedText>);
+            elements.push(<IconizedText key={elements.length}>TRADE</IconizedText>);
         }
 
-        elements.push(renderColon());
+        elements.push(renderColon(elements.length));
 
         if (card.discounts.card) {
             elements.push(
                 <ResourceIcon
+                    key={elements.length}
                     name={Resource.MEGACREDIT}
                     size={16}
                     amount={`${card.discounts.card}`}
@@ -86,7 +87,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
         if (card.discounts.trade > 0) {
             elements.push(
-                <React.Fragment>
+                <React.Fragment key={elements.length}>
                     <InlineText>-{card.discounts.trade}</InlineText>
                 </React.Fragment>
             );
@@ -101,8 +102,6 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`-${amount}`} />
             );
         }
-
-        return elements;
     }
 
     function renderTrigger(trigger: EffectTrigger | undefined) {

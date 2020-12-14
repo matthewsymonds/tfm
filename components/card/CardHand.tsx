@@ -1,9 +1,9 @@
 import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
-import React, {useEffect, useRef, useState} from 'react';
-import {throttle} from 'throttle-debounce';
-import styled from 'styled-components';
 import {Card as CardModel} from 'models/card';
+import React, {useEffect, useRef, useState} from 'react';
 import {PlayerState} from 'reducer';
+import styled from 'styled-components';
+import {throttle} from 'throttle-debounce';
 
 function usePrevious(value) {
     const ref = useRef();
@@ -40,7 +40,7 @@ const MinimizeCardsButton = styled.button`
 export function CardHand({
     cardInfos,
 }: {
-    cardInfos: Array<{card: CardModel; cardContext: CardContext; cardOwner: PlayerState}>;
+    cardInfos: Array<{card: CardModel; cardContext?: CardContext; cardOwner?: PlayerState}>;
 }) {
     const cards = cardInfos.map(c => c.card);
     const containerRef = useRef<HTMLDivElement>(null);

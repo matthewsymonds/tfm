@@ -1,17 +1,17 @@
-import {Card as CardModel} from 'models/card';
-import {CardContext, DisabledTooltip} from 'components/card/Card';
-import spawnExhaustiveSwitchError from 'utils';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {ApiClient} from 'api-client';
-import {doesCardPaymentRequirePlayerInput} from 'context/app-context';
-import React from 'react';
-import {PlayerState} from 'reducer';
-import styled from 'styled-components';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {Flex} from 'components/box';
+import {CardContext, DisabledTooltip} from 'components/card/Card';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {Flex} from 'components/box';
+import {doesCardPaymentRequirePlayerInput} from 'context/app-context';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
 import {Tooltip} from 'react-tippy';
+import {PlayerState} from 'reducer';
+import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
 
 const CardButton = styled.button`
     width: 80px;
@@ -41,30 +41,37 @@ export function CardContextButton({
         case CardContext.PLAYED_CARD:
             buttonContent = null;
             break;
-        case CardContext.SELECT_TO_PLAY: {
-            const [canPlay, reason] = actionGuard.canPlayCard(card);
-            if (!canPlay) {
-                buttonContent = (
-                    <Tooltip html={<DisabledTooltip>{reason}</DisabledTooltip>} animation="fade">
-                        <div>
-                            <CardButton disabled>Play</CardButton>
-                        </div>
-                    </Tooltip>
-                );
-            } else if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
-                buttonContent = (
-                    <PaymentPopover card={card} onConfirmPayment={playCard}>
-                        <CardButton>Play</CardButton>
-                    </PaymentPopover>
-                );
-            } else {
-                buttonContent = <CardButton onClick={() => playCard()}>Play</CardButton>;
+        case CardContext.SELECT_TO_PLAY:
+            {
+                const [canPlay, reason] = actionGuard.canPlayCard(card);
+                if (!canPlay) {
+                    buttonContent = (
+                        <Tooltip
+                            html={<DisabledTooltip>{reason}</DisabledTooltip>}
+                            animation="fade"
+                        >
+                            <div>
+                                <CardButton disabled>Play</CardButton>
+                            </div>
+                        </Tooltip>
+                    );
+                } else if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
+                    buttonContent = (
+                        <PaymentPopover card={card} onConfirmPayment={playCard}>
+                            <CardButton>Play</CardButton>
+                        </PaymentPopover>
+                    );
+                } else {
+                    buttonContent = <CardButton onClick={() => playCard()}>Play</CardButton>;
+                }
             }
             break;
-        }
         case CardContext.SELECT_TO_DISCARD:
-        case CardContext.SELECT_TO_KEEP:
+        case CardContext.SELECT_TO_BUY:
             throw new Error('Not implemented ' + cardContext);
+        case CardContext.SELECT_TO_KEEP:
+            buttonContent = null;
+            break;
         default:
             throw spawnExhaustiveSwitchError(cardContext);
     }

@@ -1,22 +1,22 @@
-import React, {useContext} from 'react';
-import styled from 'styled-components';
-import {Card as CardModel} from 'models/card';
-import {CardRequirement} from 'components/card/CardRequirement';
-import {CardCost} from 'components/card/CardCost';
-import {CardTags} from 'components/card/CardTags';
-import {CardType} from 'constants/card-types';
-import {CardIconography} from 'components/card/CardIconography';
-import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
-import {CardEffects} from 'components/card/CardEffects';
-import {CardActions} from 'components/card/CardActions';
-import spawnExhaustiveSwitchError from 'utils';
-import {Flex} from 'components/box';
-import {PlayerState, useTypedSelector} from 'reducer';
-import {ActionGuard} from 'client-server-shared/action-guard';
-import {CardContextButton} from 'components/card/CardContextButton';
-import {AppContext} from 'context/app-context';
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {Flex} from 'components/box';
+import {CardActions} from 'components/card/CardActions';
+import {CardContextButton} from 'components/card/CardContextButton';
+import {CardCost} from 'components/card/CardCost';
+import {CardEffects} from 'components/card/CardEffects';
+import {CardIconography} from 'components/card/CardIconography';
+import {CardRequirement} from 'components/card/CardRequirement';
+import {CardTags} from 'components/card/CardTags';
+import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
+import {CardType} from 'constants/card-types';
+import {AppContext} from 'context/app-context';
+import {Card as CardModel} from 'models/card';
+import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
+import {PlayerState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
 
 export const CARD_WIDTH = 200;
 export const CARD_HEIGHT = 300;
@@ -44,7 +44,7 @@ const CardBase = styled.div<{isSelected: boolean | undefined}>`
 `;
 export type CardProps = {
     card: CardModel;
-    cardContext: CardContext;
+    cardContext?: CardContext;
     cardOwner?: PlayerState;
     button?: React.ReactNode;
     isSelected?: boolean;

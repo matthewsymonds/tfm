@@ -1,14 +1,7 @@
+import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box, Flex} from 'components/box';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {TerraformRatingIcon} from 'components/icons/other';
-import {ResourceIcon} from 'components/icons/resource';
-import {TileIcon} from 'components/icons/tile';
-import {Action} from 'constants/action';
-import {Parameter} from 'constants/board';
-import {Resource} from 'constants/resource';
-import {VariableAmount} from 'constants/variable-amount';
-import {Card as CardModel} from 'models/card';
-import React, {useContext} from 'react';
+import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
     renderDecreaseProductionIconography,
     renderGainResourceIconography,
@@ -18,15 +11,22 @@ import {
     renderRemoveResourceOptionIconography,
     TextWithSpacing,
 } from 'components/card/CardIconography';
-import styled from 'styled-components';
-import {AppContext} from 'context/app-context';
-import {PlayerState, useTypedSelector} from 'reducer';
-import {Tooltip} from 'react-tippy';
-import {ApiClient} from 'api-client';
-import {CardContext, DisabledTooltip} from 'components/card/Card';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {TerraformRatingIcon} from 'components/icons/other';
+import {ResourceIcon} from 'components/icons/resource';
+import {TileIcon} from 'components/icons/tile';
 import PaymentPopover from 'components/popovers/payment-popover';
+import {Action} from 'constants/action';
+import {Parameter} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
-import {ActionGuard} from 'client-server-shared/action-guard';
+import {Resource} from 'constants/resource';
+import {VariableAmount} from 'constants/variable-amount';
+import {AppContext} from 'context/app-context';
+import {Card as CardModel} from 'models/card';
+import React, {useContext} from 'react';
+import {Tooltip} from 'react-tippy';
+import {PlayerState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 
 const ActionText = styled.span`
     font-size: 10px;
@@ -46,7 +46,7 @@ const ActionContainerBase = styled.button`
     background-color: initial;
 
     &:hover:not(:disabled) {
-        cursor: pointer;
+        cursor: initial;
         background-color: lightblue;
     }
 `;

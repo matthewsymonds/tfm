@@ -1,5 +1,7 @@
 import {Centered} from 'components/centered';
 import {InputBox} from 'components/input-box';
+import {Mars} from 'components/mars';
+import {colors} from 'components/ui';
 import {AppContext, appContext} from 'context/app-context';
 import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
@@ -9,9 +11,6 @@ import platform from 'platform-detect';
 import {Provider} from 'react-redux';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
-import {Mars} from 'components/mars';
-import {colors} from 'components/ui';
-import Router from 'next/router';
 
 export const GlobalStyles = createGlobalStyle`
     body {

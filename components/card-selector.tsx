@@ -1,7 +1,7 @@
+import {Card as CardComponent, CardContext} from 'components/card/Card';
+import {Card as CardModel} from 'models/card';
 import React from 'react';
 import styled from 'styled-components';
-import {Card as CardModel} from 'models/card';
-import {Card as CardComponent} from 'components/card/Card';
 
 interface CardSelectorProps {
     min?: number;
@@ -32,13 +32,20 @@ const CardWrapper = styled.div`
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const numSelected = selectedCards.length;
-    const canSelect = budget === undefined || budget >= 10;
+    const mustSelectOne = max === 1 && min === 1;
+    const canAfford = budget === undefined || budget >= (numSelected + 1) * 3;
+    const canSelect = canAfford && (selectedCards.length < max || mustSelectOne);
 
     const handleSelect = (card: CardModel) => {
-        const newSelectedCards = [...selectedCards];
+        let newSelectedCards = [...selectedCards];
         const index = selectedCards.indexOf(card);
         if (index < 0) {
-            newSelectedCards.unshift(card);
+            if (mustSelectOne) {
+                // Special case. Just change the selection to the unselected card.
+                newSelectedCards = [card];
+            } else {
+                newSelectedCards.unshift(card);
+            }
         } else {
             newSelectedCards.splice(index, 1);
         }
@@ -56,8 +63,20 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                 const disabled = cannotSelect || cannotUnselect;
                 const buttonText = cannotUnselect ? 'Selected' : selected ? 'Unselect' : 'Select';
                 return (
-                    <CardWrapper onClick={() => handleSelect(option)} key={key}>
-                        <CardComponent card={option} isSelected={selected} />
+                    <CardWrapper
+                        onClick={() => {
+                            if (disabled) {
+                                return;
+                            }
+                            handleSelect(option);
+                        }}
+                        key={key}
+                    >
+                        <CardComponent
+                            cardContext={CardContext.SELECT_TO_KEEP}
+                            card={option}
+                            isSelected={selected}
+                        />
                     </CardWrapper>
                 );
             })}
