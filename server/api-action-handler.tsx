@@ -939,7 +939,7 @@ export class ApiActionHandler implements GameActionHandler {
                             }
                             break;
                         case Parameter.TEMPERATURE:
-                            if (newLevel === -28 || newLevel === -26) {
+                            if (newLevel === -24 || newLevel === -20) {
                                 // Heat production increase.
                                 items.push(increaseProduction(Resource.HEAT, 1, playerIndex));
                             }

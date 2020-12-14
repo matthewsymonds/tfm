@@ -1,9 +1,6 @@
 import {Flex} from 'components/box';
-import {CardActionElements, CardText} from 'components/card';
 import {Card as CardComponent, CardContext} from 'components/card/Card';
 import {TagIcon} from 'components/icons/tag';
-import {CardType} from 'constants/card-types';
-import {getResourceName} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';

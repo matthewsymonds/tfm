@@ -60,7 +60,7 @@ export default function Game(props) {
         return () => {
             clearInterval(interval);
         };
-    }, [gameStage, loggedInPlayerIndex]);
+    }, [gameStage, loggedInPlayerIndex, currentPlayerIndex]);
 
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;

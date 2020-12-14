@@ -1,4 +1,5 @@
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Award} from 'constants/board';
@@ -43,9 +44,10 @@ function Awards() {
     const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard(state, player.username);
 
     function renderAwardButton(award: Award) {
-        const isDisabled = !context.canFundAward(award, state);
+        const isDisabled = !actionGuard.canFundAward(award);
         const isAwardFunded = state.common.fundedAwards.findIndex(a => a.award === award) > -1;
         const text = getTextForAward(award);
         const cost = getCostForAward(award, state);

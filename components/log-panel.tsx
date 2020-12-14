@@ -1,5 +1,6 @@
 import {Box, Flex, PanelWithTabs} from 'components/box';
 import {colors} from 'components/ui';
+import {GameStage} from 'constants/game';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
@@ -16,6 +17,13 @@ export const SwitchColors = styled.div`
 
 export const LogPanel = () => {
     const log = useTypedSelector(state => state.log);
+    const isCorporationSelection = useTypedSelector(
+        state => state.common.gameStage === GameStage.CORPORATION_SELECTION
+    );
+
+    if (isCorporationSelection) {
+        return null;
+    }
 
     return (
         <PanelWithTabs

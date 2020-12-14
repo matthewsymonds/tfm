@@ -1,18 +1,12 @@
-import {ApiClient} from 'api-client';
 import {colors} from 'components/ui';
-import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
 import {AppContext, getDiscountedCardCost} from 'context/app-context';
 import {Card} from 'models/card';
-import React, {MouseEvent, useContext, useState} from 'react';
-import {useDispatch} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
+import React, {MouseEvent, useContext} from 'react';
+import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import PaymentPopover from './popovers/payment-popover';
 import {TagsComponent} from './tags';
 
 export const CardName = styled.span`
@@ -109,100 +103,6 @@ const Circle = styled.div`
     height: 120px;
     background: #ce7e47;
 `;
-
-export function CardActionElements(props: {
-    player: PlayerState;
-    isLoggedInPlayer: boolean;
-    card: Card;
-}) {
-    const {player, isLoggedInPlayer, card} = props;
-    const [actionPendingPayment, setActionPendingPayment] = useState<Action | null>(null);
-
-    const context = useContext(AppContext);
-    const dispatch = useDispatch();
-    const state = useTypedSelector(state => state);
-    if (!card.action) return null;
-
-    const thisRound = useTypedSelector(state => state.common.generation);
-
-    const options = card.action.choice || [card.action];
-
-    if (card.lastRoundUsedAction === thisRound) {
-        return (
-            <CardText>
-                <em>Used action this round</em>
-            </CardText>
-        );
-    }
-
-    const apiClient = new ApiClient(dispatch);
-
-    function playAction(card: Card, action: Action, payment?: PropertyCounter<Resource>) {
-        if (card.action?.choice) {
-            const choiceIndex = card.action.choice.indexOf(action);
-            return apiClient.playCardActionAsync({parent: card, choiceIndex, payment});
-        }
-        apiClient.playCardActionAsync({parent: card, payment});
-    }
-
-    function renderPlayActionButton(option: Action, canPlay: boolean) {
-        if (!isLoggedInPlayer) {
-            return null;
-        }
-
-        const handleConfirmPayment = (
-            payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: option.cost ?? 0}
-        ) => {
-            playAction(card, option, payment);
-        };
-
-        // TODO: This naively doesn't skip the payment popover e.g. if user has none of the
-        // accepted alternate payment resources
-        const doesActionRequireUserInput =
-            option.acceptedPayment ||
-            (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0);
-
-        if (option.cost && doesActionRequireUserInput) {
-            return (
-                <PaymentPopover cost={option.cost} onConfirmPayment={handleConfirmPayment}>
-                    <button disabled={!canPlay}>
-                        {options.length === 1 ? 'Play Action' : option.text}
-                    </button>
-                </PaymentPopover>
-            );
-        } else {
-            return (
-                <button disabled={!canPlay} onClick={() => handleConfirmPayment()}>
-                    {options.length === 1 ? 'Play Action' : option.text}
-                </button>
-            );
-        }
-    }
-
-    return (
-        <React.Fragment>
-            {options.map((option, index) => {
-                let canPlay: boolean;
-                let reason: string | undefined;
-                if (isLoggedInPlayer) {
-                    [canPlay, reason] = context.canPlayCardAction(option, state, card);
-                } else {
-                    [canPlay, reason] = context.canPlayCardActionInSpiteOfUI(option, state, card);
-                }
-                return (
-                    <React.Fragment key={index}>
-                        {renderPlayActionButton(option, canPlay)}
-                        {!canPlay && reason ? (
-                            <CardText>
-                                <em>{reason}</em>
-                            </CardText>
-                        ) : null}
-                    </React.Fragment>
-                );
-            })}
-        </React.Fragment>
-    );
-}
 
 export const CardComponent: React.FunctionComponent<CardComponentProps> = props => {
     const {content, width = 240, selected, onClick, isHidden} = props;

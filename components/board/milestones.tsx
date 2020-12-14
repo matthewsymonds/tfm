@@ -1,4 +1,5 @@
 import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Milestone} from 'constants/board';
@@ -46,9 +47,10 @@ function Milestones() {
     const player = context.getLoggedInPlayer(state);
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
+    const actionGuard = new ActionGuard(state, player.username);
 
     function renderMilestoneButton(milestone: Milestone) {
-        const isDisabled = !context.canClaimMilestone(milestone, state);
+        const isDisabled = !actionGuard.canClaimMilestone(milestone);
         const isMilestoneClaimed =
             state.common.claimedMilestones.findIndex(m => m.milestone === milestone) > -1;
         const text = getTextForMilestone(milestone);
