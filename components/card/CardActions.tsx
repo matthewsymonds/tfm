@@ -249,6 +249,7 @@ function ActionContainer({
         return (
             <PaymentPopover
                 cost={action.cost}
+                action={action}
                 onConfirmPayment={payment => playAction(action, payment)}
             >
                 <ActionContainerBase disabled={isDisabled}>{children}</ActionContainerBase>

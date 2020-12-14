@@ -1,10 +1,11 @@
+import {ResourceIcon} from 'components/icons/resource';
+import {Action} from 'constants/action';
 import {colors} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {AppContext, getDiscountedCardCost} from 'context/app-context';
 import {Pane, Popover, Position} from 'evergreen-ui';
-import {ResourceIcon} from 'components/icons/resource';
 import {Card} from 'models/card';
 import {useContext, useState} from 'react';
 import {useTypedSelector} from 'reducer';
@@ -116,10 +117,12 @@ type BasePaymentPopoverProps = {
 type CardPaymentPopoverProps = BasePaymentPopoverProps & {
     cost?: undefined;
     card: Card;
+    action?: Action;
 };
 type CardActionPaymentPopoverProps = BasePaymentPopoverProps & {
     cost: number;
     card?: undefined;
+    action?: Action;
 };
 type PaymentPopoverProps = CardPaymentPopoverProps | CardActionPaymentPopoverProps;
 
@@ -127,6 +130,7 @@ export default function PaymentPopover({
     onConfirmPayment,
     children,
     card,
+    action,
     cost,
 }: PaymentPopoverProps) {
     const context = useContext(AppContext);
@@ -263,19 +267,19 @@ export default function PaymentPopover({
                                 handleDecrease={handleDecrease}
                             />
                         )}
-                        {card &&
-                            card.tags.includes(Tag.BUILDING) &&
+                        {(card?.tags.includes(Tag.BUILDING) ||
+                            action?.acceptedPayment?.includes(Resource.STEEL)) &&
                             resources[Resource.STEEL] > 0 && (
                                 <PaymentPopoverRow
-                                    resource={Resource.STEEL}
                                     currentQuantity={numSteel}
+                                    resource={Resource.STEEL}
                                     availableQuantity={resources[Resource.STEEL]}
                                     handleIncrease={handleIncrease}
                                     handleDecrease={handleDecrease}
                                 />
                             )}
-                        {card &&
-                            card.tags.includes(Tag.SPACE) &&
+                        {(card?.tags.includes(Tag.SPACE) ||
+                            action?.acceptedPayment?.includes(Resource.TITANIUM)) &&
                             resources[Resource.TITANIUM] > 0 && (
                                 <PaymentPopoverRow
                                     resource={Resource.TITANIUM}
