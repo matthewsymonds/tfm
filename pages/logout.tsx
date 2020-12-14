@@ -8,7 +8,8 @@ export default () => {
     async function logout() {
         await makeDeleteCall('/api/sessions');
         sessionStorage.clear();
-        router.push('/login');
+        // TODO(matthew) restore router usage here if possible.
+        window.location.href = '/';
     }
 
     useEffect(() => {

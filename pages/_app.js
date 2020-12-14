@@ -8,6 +8,7 @@ import App from 'next/app';
 import Head from 'next/head';
 import {useRouter} from 'next/router';
 import platform from 'platform-detect';
+import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
@@ -20,7 +21,7 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
     }
     html, body, #__next, #__next > div {
-      min-height: 100vh;
+      min-height: 100%;
     }
     #__next > div {
       display: flex;
@@ -75,7 +76,6 @@ export const GlobalStyles = createGlobalStyle`
         background: rgba(0,0,0,0);
       }
     h1, h2, h3, h4 {
-      text-align: center;
       align-self: center;
       margin-top: 16px;
       margin-bottom: 16px;
@@ -137,7 +137,11 @@ export const GlobalStyles = createGlobalStyle`
 
 function InnerAppComponent({Component, pageProps, session}) {
     const router = useRouter();
-    if (router.pathname.includes('games')) {
+    const [path, setPath] = useState(router.pathname ?? '');
+    useEffect(() => {
+        setPath(router.pathname);
+    }, [router.pathname]);
+    if (path.includes('games')) {
         return <Component {...pageProps} session={session} />;
     }
     return (

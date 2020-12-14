@@ -40,7 +40,10 @@ export default function Index(props) {
                                         <Link href="/games/[name]" as={getGameLink(game.name)}>
                                             <a>{game.name}</a>
                                         </Link>
-                                        <div>{game.players.length} players</div>
+                                        <div>
+                                            {game.players.length} player
+                                            {game.players.length !== 1 ? 's' : ''}
+                                        </div>
                                     </Box>
                                 );
                             })}
