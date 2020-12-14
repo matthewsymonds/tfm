@@ -44,7 +44,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
     const {effects} = card;
 
-    function renderColon(key?: number = 0) {
+    function renderColon(key: number = 0) {
         return <TextWithSpacing key={key}>:</TextWithSpacing>;
     }
 

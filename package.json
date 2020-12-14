@@ -1,7 +1,7 @@
 {
     "name": "tfm-2020",
     "engines": {
-        "node": "14.x"
+        "node": "12.x"
     },
     "scripts": {
         "dev": "next",
