@@ -319,6 +319,7 @@ export class ActionGuard {
 
     canSatisfyTilePlacements(card: Card) {
         const player = this.getLoggedInPlayer();
+
         for (const tilePlacement of card.tilePlacements) {
             const validPlacements = getValidPlacementsForRequirement(
                 this.state,

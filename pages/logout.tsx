@@ -2,7 +2,7 @@ import {makeDeleteCall} from 'api-calls';
 import {useRouter} from 'next/router';
 import {useEffect} from 'react';
 
-export default () => {
+const Logout = () => {
     const router = useRouter();
 
     async function logout() {
@@ -18,3 +18,4 @@ export default () => {
 
     return null;
 };
+export default Logout;

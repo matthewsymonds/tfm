@@ -17,7 +17,7 @@ export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
     }
     const [rowIndex, cellIndex] = cell.coords;
 
-    const neighborCoords: [number, number][] = [];
+    let neighborCoords: [number, number][] = [];
     if (rowIndex < 4) {
         // top half of board
         neighborCoords.push(
@@ -47,6 +47,11 @@ export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
         [rowIndex, cellIndex - 1], // left
         [rowIndex, cellIndex + 1] // right
     );
+
+    // We hackishly put ganymede, etc. on row 9 -- remove those
+    neighborCoords = neighborCoords.filter(([rowIndex, colIndex]) => {
+        rowIndex >= 0 && rowIndex <= 8 && colIndex >= 0;
+    });
 
     const validNeighborCells: Array<Cell> = [];
     neighborCoords.forEach(([neighborRowIndex, neighborCellIndex]) => {
