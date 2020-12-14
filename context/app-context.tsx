@@ -92,7 +92,11 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
     );
 }
 
-export function canPlayWithTilePlacements(card: Card, state: GameState, player: PlayerState) {
+export function canPlayWithRequiredTilePlacements(
+    card: Card,
+    state: GameState,
+    player: PlayerState
+) {
     let tiles = state.common.board
         .flat()
         .filter(cell => cell.tile)

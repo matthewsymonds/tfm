@@ -68,8 +68,12 @@ export class ActionGuard {
             return [false, 'Global parameters not met'];
         }
 
-        if (!this.canPlayWithTilePlacements(card)) {
+        if (!this.canPlayWithRequiredTilePlacements(card)) {
             return [false, 'Tile placements not met'];
+        }
+
+        if (!this.canSatisfyTilePlacements(card)) {
+            return [false, 'No valid tile placements'];
         }
 
         const {requiredProduction} = card;
@@ -313,7 +317,24 @@ export class ActionGuard {
         return value >= adjustedMin && value <= adjustedMax;
     }
 
-    canPlayWithTilePlacements(card: Card) {
+    canSatisfyTilePlacements(card: Card) {
+        const player = this.getLoggedInPlayer();
+        for (const tilePlacement of card.tilePlacements) {
+            const validPlacements = getValidPlacementsForRequirement(
+                this.state,
+                tilePlacement,
+                player
+            );
+
+            if (validPlacements.length === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    canPlayWithRequiredTilePlacements(card: Card) {
         const player = this.getLoggedInPlayer();
         let tiles = this.state.common.board
             .flat()
