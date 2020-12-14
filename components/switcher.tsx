@@ -24,6 +24,7 @@ const Tab = styled.div<{selected: boolean; color: string; index: number}>`
 
 const SwitcherChildContainer = styled.div`
     width: 100%;
+    text-align: left;
 `;
 
 const defaultTabs: ReactNode[] = [];
