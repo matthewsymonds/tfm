@@ -152,42 +152,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     return (
         <React.Fragment>
             <Flex flexDirection="column">
-                <Flex flex="none">
-                    <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
-                </Flex>
-                <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
-                    <Flex
-                        className="active-round-left"
-                        flexDirection="column"
-                        flex="auto"
-                        marginRight="4px"
-                    >
-                        <PlayerPanel
-                            selectedPlayerIndex={selectedPlayerIndex}
-                            setSelectedPlayerIndex={setSelectedPlayerIndex}
-                        />
-                    </Flex>
-
-                    <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
-                        <Board />
-                    </Flex>
-
-                    <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
-                        <Box marginTop="8px">
-                            <PanelWithTabs
-                                setSelectedTabIndex={setSelectedActionSetIndex}
-                                selectedTabIndex={selectedActionSetIndex}
-                                tabs={actionSets}
-                                tabType="action-set"
-                            >
-                                {renderSelectedActionSet()}
-                            </PanelWithTabs>
-                            <LogPanel />
-                        </Box>
-                    </Flex>
-                </Flex>
                 {isPlayerMakingDecision && (
-                    <ActionBar className="bottom">
+                    <ActionBar>
                         <ActionBarRow>
                             {loggedInPlayer.pendingChoice && (
                                 <AskUserToMakeActionChoice player={loggedInPlayer} />
@@ -264,6 +230,40 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         </ActionBarRow>
                     </ActionBar>
                 )}
+                <Flex flex="none">
+                    <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
+                </Flex>
+                <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
+                    <Flex
+                        className="active-round-left"
+                        flexDirection="column"
+                        flex="auto"
+                        marginRight="4px"
+                    >
+                        <PlayerPanel
+                            selectedPlayerIndex={selectedPlayerIndex}
+                            setSelectedPlayerIndex={setSelectedPlayerIndex}
+                        />
+                    </Flex>
+
+                    <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
+                        <Board />
+                    </Flex>
+
+                    <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
+                        <Box marginTop="8px">
+                            <PanelWithTabs
+                                setSelectedTabIndex={setSelectedActionSetIndex}
+                                selectedTabIndex={selectedActionSetIndex}
+                                tabs={actionSets}
+                                tabType="action-set"
+                            >
+                                {renderSelectedActionSet()}
+                            </PanelWithTabs>
+                            <LogPanel />
+                        </Box>
+                    </Flex>
+                </Flex>
             </Flex>
             <PlayerHand player={loggedInPlayer} />
         </React.Fragment>

@@ -60,7 +60,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             Object.keys(card.discounts?.cards).length > 0
         ) {
             const tags = {...card.discounts?.tags, ...card.discounts?.cards};
-            Object.keys(tags).forEach(tag => {
+            Object.keys(tags).forEach((tag, index) => {
                 if (index > 0) {
                     elements.push(<TextWithSpacing key={elements.length}>/</TextWithSpacing>);
                 }

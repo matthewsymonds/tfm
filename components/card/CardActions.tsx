@@ -1,7 +1,7 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
-import {Box, Flex} from 'components/box';
-import {CardContext, DisabledTooltip} from 'components/card/Card';
+import { ApiClient } from 'api-client';
+import { ActionGuard } from 'client-server-shared/action-guard';
+import { Box, Flex } from 'components/box';
+import { CardContext, DisabledTooltip } from 'components/card/Card';
 import {
     renderDecreaseProductionIconography,
     renderGainResourceIconography,
@@ -9,23 +9,23 @@ import {
     renderIncreaseProductionIconography,
     renderRemoveResourceIconography,
     renderRemoveResourceOptionIconography,
-    TextWithSpacing,
+    TextWithSpacing
 } from 'components/card/CardIconography';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {TerraformRatingIcon} from 'components/icons/other';
-import {ResourceIcon} from 'components/icons/resource';
-import {TileIcon} from 'components/icons/tile';
+import { GlobalParameterIcon } from 'components/icons/global-parameter';
+import { TerraformRatingIcon } from 'components/icons/other';
+import { ResourceIcon } from 'components/icons/resource';
+import { TileIcon } from 'components/icons/tile';
 import PaymentPopover from 'components/popovers/payment-popover';
-import {Action} from 'constants/action';
-import {Parameter} from 'constants/board';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
-import {VariableAmount} from 'constants/variable-amount';
-import {AppContext} from 'context/app-context';
-import {Card as CardModel} from 'models/card';
-import React, {useContext} from 'react';
-import {Tooltip} from 'react-tippy';
-import {PlayerState, useTypedSelector} from 'reducer';
+import { Action } from 'constants/action';
+import { Parameter } from 'constants/board';
+import { PropertyCounter } from 'constants/property-counter';
+import { Resource } from 'constants/resource';
+import { VariableAmount } from 'constants/variable-amount';
+import { AppContext } from 'context/app-context';
+import { Card as CardModel } from 'models/card';
+import React, { useContext } from 'react';
+import { Tooltip } from 'react-tippy';
+import { PlayerState, useTypedSelector } from 'reducer';
 import styled from 'styled-components';
 
 const ActionText = styled.span`
@@ -258,7 +258,9 @@ function ActionContainer({
 
     if (isDisabled && cardContext === CardContext.PLAYED_CARD) {
         return (
-            <Tooltip html={<DisabledTooltip>{disabledReason}</DisabledTooltip>}>
+            <Tooltip
+                html={disabledReason ? <DisabledTooltip>{disabledReason}</DisabledTooltip> : <div />}
+            >
                 <ActionContainerBase disabled={isDisabled} onClick={() => playAction(action)}>
                     {children}
                 </ActionContainerBase>

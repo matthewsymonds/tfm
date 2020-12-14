@@ -13,6 +13,7 @@ const ActionBarBase = styled.div`
     z-index: 30;
     box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.35);
     overflow-x: auto;
+    padding-bottom: 8px;
 `;
 
 export const ActionBarRow = styled.div`

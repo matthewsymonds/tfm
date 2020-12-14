@@ -1,7 +1,7 @@
 import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef, useState} from 'react';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {throttle} from 'throttle-debounce';
 
@@ -19,9 +19,10 @@ const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}
     width: 100%;
     height: ${CARD_HEIGHT}px;
     position: fixed;
-    bottom: ${props => (props.shouldHoist ? '-60px' : '-200px')};
+    bottom: 0;
+    transform: translateY(${props => (props.shouldHoist ? '60px' : '200px')});
     opacity: ${props => (props.shouldShow ? 1 : 0)};
-    transition: bottom 0.5s, opacity 0.2s;
+    transition: transform 0.5s, opacity 0.2s;
     z-index: 2; /* HACK because of tile name tags */
 `;
 
@@ -43,6 +44,7 @@ export function CardHand({
     cardInfos: Array<{card: CardModel; cardContext?: CardContext; cardOwner?: PlayerState}>;
 }) {
     const cards = cardInfos.map(c => c.card);
+    const gameState = useTypedSelector(state => state);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
     const [shouldShowCardHand, setShouldShowCardHand] = useState(true);
@@ -61,7 +63,12 @@ export function CardHand({
 
     const sidePadding = (containerWidth - requiredCardWidth) / 2;
     // gapBetweenCards will be a negative number
-    const gapBetweenCards = (requiredCardWidth - cards.length * CARD_WIDTH) / (cards.length - 1);
+    let gapBetweenCards: number;
+    if (cards.length === 0 || cards.length === 1) {
+        gapBetweenCards = 0;
+    } else {
+        gapBetweenCards = (requiredCardWidth - cards.length * CARD_WIDTH) / (cards.length - 1);
+    }
 
     // Chock full of magic numbers
     function getCardPosition(cardIndex: number) {
@@ -78,12 +85,16 @@ export function CardHand({
             }
         }
 
-        const normalizedHalf = (cards.length - 1) / 2;
+        const normalizedHalf = Math.max(0, (cards.length - 1) / 2);
         const distanceToMiddle = Math.abs(normalizedHalf - cardIndex);
         // middle card = 0; edge cards = 1
-        const scaleYOffset = distanceToMiddle / normalizedHalf;
+        let scaleYOffset: number;
+        if (normalizedHalf) {
+            scaleYOffset = distanceToMiddle / normalizedHalf;
+        } else {
+            scaleYOffset = 0;
+        }
         const yOffset = scaleYOffset * 0.4 * 100; // magic numbers
-
         return `translate(${xOffset}px, ${isHighlighted ? '-100' : yOffset}px)`;
     }
 
@@ -95,9 +106,13 @@ export function CardHand({
         }
 
         const normalizedHalf = (cards.length - 1) / 2;
-        const distanceToMiddle = normalizedHalf - cardIndex;
-        const scaleRotation = distanceToMiddle / normalizedHalf;
-
+        let scaleRotation: number;
+        if (normalizedHalf) {
+            const distanceToMiddle = normalizedHalf - cardIndex;
+            scaleRotation = distanceToMiddle / normalizedHalf;
+        } else {
+            scaleRotation = 0;
+        }
         return `rotate(${scaleRotation * -10}deg)`;
     }
 
@@ -137,26 +152,32 @@ export function CardHand({
                 shouldShow={shouldShowCardHand}
                 shouldHoist={typeof highlightedIndex === 'number'}
             >
-                {cardInfos.map(({card, cardOwner, cardContext}, cardIndex) => {
-                    return (
-                        <div
-                            key={cardIndex}
-                            style={{
-                                position: 'absolute',
-                                transform: `${getCardPosition(cardIndex)} ${getCardRotation(
-                                    cardIndex
-                                )}`,
-                                boxShadow: 'rgb(191 95 63 / 0.5) 0px 0px 10px 0px',
-                                transition: 'all 0.5s',
-                                transformOrigin: 'center',
-                                zIndex: cardIndex === highlightedIndex ? 1 : 0,
-                            }}
-                            onMouseEnter={() => onMouseEnter(cardIndex)}
-                        >
-                            <Card card={card} cardOwner={cardOwner} cardContext={cardContext} />
-                        </div>
-                    );
-                })}
+                {containerWidth
+                    ? cardInfos.map(({card, cardOwner, cardContext}, cardIndex) => {
+                          return (
+                              <div
+                                  key={card.name}
+                                  style={{
+                                      position: 'absolute',
+                                      transform: `${getCardPosition(cardIndex)} ${getCardRotation(
+                                          cardIndex
+                                      )}`,
+                                      boxShadow: 'rgb(191 95 63 / 0.5) 0px 0px 10px 0px',
+                                      transition: 'all 0.5s',
+                                      transformOrigin: 'center',
+                                      zIndex: cardIndex === highlightedIndex ? 1 : 0,
+                                  }}
+                                  onMouseEnter={() => onMouseEnter(cardIndex)}
+                              >
+                                  <Card
+                                      card={card}
+                                      cardOwner={cardOwner}
+                                      cardContext={cardContext}
+                                  />
+                              </div>
+                          );
+                      })
+                    : null}
             </CardHandContainer>
             <MinimizeCardsButton onClick={toggleCardDrawer}>
                 {shouldShowCardHand ? '-' : '+'}
