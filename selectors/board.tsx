@@ -50,7 +50,7 @@ export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
 
     // We hackishly put ganymede, etc. on row 9 -- remove those
     neighborCoords = neighborCoords.filter(([rowIndex, colIndex]) => {
-        rowIndex >= 0 && rowIndex <= 8 && colIndex >= 0;
+        return rowIndex >= 0 && rowIndex <= 8 && colIndex >= 0;
     });
 
     const validNeighborCells: Array<Cell> = [];
