@@ -19,6 +19,7 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
             Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
         background: ${colors.MAIN_BG};
+        overscroll-behavior: none;
     }
     html, body, #__next, #__next > div {
       min-height: 100%;

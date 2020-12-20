@@ -213,10 +213,8 @@ export const CardActions = ({
                             playAction={playAction}
                             canPlay={canPlay}
                             tooltipText={tooltipText}
-                            isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
-                            cardContext={cardContext}
-                            disabledReason={disabledReason}
                             loggedInPlayer={loggedInPlayer}
+                            isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
                         >
                             <Flex alignItems="center" justifyContent="center" margin="4px">
                                 {renderLeftSideOfArrow(action, card)}
@@ -238,9 +236,7 @@ function ActionContainer({
     tooltipText,
     isOwnedByLoggedInPlayer,
     loggedInPlayer,
-    cardContext,
     children,
-    disabledReason,
 }: {
     action: Action;
     playAction: (action: Action, payment?: PropertyCounter<Resource>) => void;
@@ -248,8 +244,6 @@ function ActionContainer({
     tooltipText: string | null;
     isOwnedByLoggedInPlayer: boolean;
     loggedInPlayer: PlayerState | null;
-    cardContext: CardContext;
-    disabledReason: string;
     children: React.ReactNode;
 }) {
     const doesActionRequireUserInput =
@@ -271,7 +265,11 @@ function ActionContainer({
 
     if (tooltipText) {
         return (
-            <Tooltip html={<DisabledTooltip>{tooltipText}</DisabledTooltip>}>
+            <Tooltip
+                sticky={true}
+                animation="fade"
+                html={<DisabledTooltip>{tooltipText}</DisabledTooltip>}
+            >
                 <ActionContainerBase
                     disabled={!canPlay || !isOwnedByLoggedInPlayer}
                     onClick={() => {}}
