@@ -41,7 +41,7 @@ const MegacreditIcon = styled.div<{size?: number}>`
     justify-content: center;
     border-radius: 3px;
     background-color: gold;
-    border: 3px solid #c59739;
+    border: 1px solid #c59739;
 `;
 interface ResourceIconProps {
     name: Resource;

@@ -12,7 +12,7 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            // .filter(c => c.name === 'Ants')
+            // .filter(c => c.name === 'Olympus Conference')
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

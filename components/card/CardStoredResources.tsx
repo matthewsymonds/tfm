@@ -9,7 +9,7 @@ const StoredResourcesContainer = styled.div`
     left: 8px;
     bottom: 8px;
     height: 30px;
-    width: 60px;
+    width: 45px;
     border: 1px solid black;
     padding: 4px;
     display: flex;
@@ -18,7 +18,7 @@ const StoredResourcesContainer = styled.div`
 `;
 
 const StoredResourcesContent = styled.div`
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 500;
     color: black;
     display: flex;
@@ -37,7 +37,7 @@ export const CardStoredResources = ({card}: CardStoredResourcesProps) => {
         <React.Fragment>
             <StoredResourcesContainer>
                 <StoredResourcesContent>
-                    <span style={{marginRight: 4}}>{card.storedResourceAmount}</span>
+                    <span>{card.storedResourceAmount}</span>
                     <ResourceIcon name={card.storedResourceType} />
                 </StoredResourcesContent>
             </StoredResourcesContainer>

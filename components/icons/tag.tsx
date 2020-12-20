@@ -14,7 +14,6 @@ const TagBase = styled.div<TagBaseProps>`
     width: ${props => props.size}px;
     min-width: ${props => props.size}px;
     height: ${props => props.size}px;
-    margin: 3px;
     display: flex;
     justify-content: center;
     align-items: center;
