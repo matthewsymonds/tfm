@@ -7,12 +7,13 @@ import {AppContext} from 'context/app-context';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import {useContext, useEffect} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import {deserializeState} from 'state-serialization';
 
 export default function Game(props) {
     const {game, session} = props;
+    const store = useStore();
     const router = useRouter();
     const dispatch = useDispatch();
 
@@ -36,12 +37,15 @@ export default function Game(props) {
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);
+    const numPlayers = useTypedSelector(state => state?.players?.length ?? 0);
 
     useEffect(() => {
+        // Do not sync if you're the only one who can play!
         if (
-            gameStage !== GameStage.CORPORATION_SELECTION &&
-            gameStage !== GameStage.BUY_OR_DISCARD &&
-            currentPlayerIndex == loggedInPlayerIndex
+            (gameStage !== GameStage.CORPORATION_SELECTION &&
+                gameStage !== GameStage.BUY_OR_DISCARD &&
+                currentPlayerIndex == loggedInPlayerIndex) ||
+            numPlayers === 1
         ) {
             // Don't retrieve server state while only you can play!
             // Can lead the game to de-sync:
@@ -65,7 +69,16 @@ export default function Game(props) {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
-        handleRetrievedGame(result);
+        const oldState = store.getState();
+        const oldNumChanges = oldState?.numChanges ?? 0;
+        const newNumChanges = result?.state?.numChanges ?? 0;
+        if (!oldState.syncing && oldNumChanges < newNumChanges) {
+            // Make sure both:
+            // 1) that we are not syncing (ie, playing an action), which would mean
+            //    we are about to get a more up to date state.
+            // 2) that this state we got is newer than the state we already have.
+            handleRetrievedGame(result);
+        }
     };
 
     switch (gameStage) {

@@ -64,10 +64,7 @@ export function getInitialState(players: string[]): GameState {
             fundedAwards: [],
         },
         players: [] as PlayerState[],
-        transaction: {
-            isPending: false,
-            pendingPlayers: [],
-        },
+        numChanges: 0,
     };
 
     for (const player of players) {

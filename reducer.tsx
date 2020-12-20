@@ -143,11 +143,8 @@ export type GameState = {
     pendingVariableAmount?: number;
     players: Array<PlayerState>;
     common: CommonState;
-    transaction: {
-        isPending: boolean;
-        pendingPlayers: Array<PlayerId>;
-    };
     log: string[];
+    numChanges: number;
 };
 
 export type PlayerState = {
@@ -295,6 +292,11 @@ export const reducer = (state: GameState | null = null, action) => {
     if (!state) return null;
     const {payload} = action;
     return produce(state, draft => {
+        // increment the state changes tally if on server.
+        if (payload?.type !== SET_IS_SYNCING) {
+            draft.numChanges = (state.numChanges ?? 0) + 1;
+        }
+
         const player = draft.players[payload?.playerIndex];
         const corporationName = player?.corporation.name;
         const {common} = draft;
