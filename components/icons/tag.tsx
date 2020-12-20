@@ -7,6 +7,7 @@ type TagBaseProps = {
     background: string;
     size: number;
     borderOverride: string | null;
+    margin: number;
 };
 
 const TagBase = styled.div<TagBaseProps>`
@@ -14,6 +15,7 @@ const TagBase = styled.div<TagBaseProps>`
     width: ${props => props.size}px;
     min-width: ${props => props.size}px;
     height: ${props => props.size}px;
+    margin: ${props => props.margin}px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -63,16 +65,18 @@ type TagIconProps = {
     name: Tag;
     size?: number;
     borderOverride?: string;
+    margin?: number;
 };
 
-export const TagIcon = (props: TagIconProps) => {
-    const tagProps = getTagProps(props.name);
+export const TagIcon = ({name, size = 12, borderOverride, margin = 0}: TagIconProps) => {
+    const tagProps = getTagProps(name);
     return (
         <TagBase
             color={tagProps.color}
-            size={props.size ?? 32}
+            size={size ?? 32}
             background={tagProps.backgroundColor}
-            borderOverride={props.borderOverride ?? null}
+            borderOverride={borderOverride ?? null}
+            margin={margin}
         >
             <span className={tagProps.className}>{tagProps.icon}</span>
         </TagBase>

@@ -14,6 +14,7 @@ interface ResourceIconBaseProps {
     readonly size: number;
     readonly showRedBorder: boolean;
     readonly tall?: boolean;
+    readonly margin: number;
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
@@ -21,7 +22,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
     width: ${props => props.size}px;
     text-align: center;
-    margin: 3px;
+    margin: ${props => props.margin}px;
     font-size: ${props => props.size * 0.5}px;
     font-weight: bold;
     color: ${props => props.color};
@@ -29,14 +30,15 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: ${props => (props.showRedBorder ? '2px solid red' : 'initial')};
+    box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
 `;
 
-const MegacreditIcon = styled.div<{size?: number}>`
+const MegacreditIcon = styled.div<{size?: number; showRedBorder?: boolean}>`
     height: ${props => props.size}px;
     width: ${props => props.size}px;
     font-size: ${props => (props.size ? props.size * 0.75 : '12')}px;
     display: flex;
+    box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
     align-items: center;
     justify-content: center;
     border-radius: 3px;
@@ -48,6 +50,7 @@ interface ResourceIconProps {
     size?: number;
     showRedBorder?: boolean;
     amount?: string;
+    margin?: number;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
@@ -55,10 +58,11 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     size = 20,
     showRedBorder = false,
     amount,
+    margin = 0,
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
-            <MegacreditIcon size={size}>
+            <MegacreditIcon size={size} showRedBorder={showRedBorder}>
                 <span>{amount ?? null}</span>
             </MegacreditIcon>
         );
@@ -71,6 +75,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
             size={size}
             tall={name === Resource.CARD}
             showRedBorder={showRedBorder}
+            margin={margin}
         >
             <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
         </ResourceIconBase>

@@ -9,8 +9,9 @@ import {
     IncreaseParameterIconography,
     IncreaseProductionIconography,
     RemoveResourceIconography,
+    StealResourceIconography,
     RemoveResourceOptionIconography,
-    TextWithSpacing,
+    TextWithMargin,
 } from 'components/card/CardIconography';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
@@ -63,7 +64,10 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.gainResourceOption) {
         elements.push(
-            <GainResourceOptionIconography gainResourceOption={action.gainResourceOption} />
+            <GainResourceOptionIconography
+                gainResourceOption={action.gainResourceOption}
+                opts={{useSlashSeparator: true, isInline: true}}
+            />
         );
     }
     if (action.increaseProduction) {
@@ -127,18 +131,10 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.stealResource) {
         elements.push(
-            <React.Fragment>
-                {Object.keys(action.stealResource).map((resource, index) => {
-                    return (
-                        <ResourceIcon
-                            key={index}
-                            name={resource as Resource}
-                            size={16}
-                            showRedBorder={true}
-                        />
-                    );
-                })}
-            </React.Fragment>
+            <StealResourceIconography
+                stealResource={action.stealResource}
+                opts={{shouldShowStealText: false}}
+            />
         );
     }
     if (action.removeResourceOption) {
@@ -198,7 +194,7 @@ export const CardActions = ({
     const action = card.action;
 
     function renderArrow() {
-        return <TextWithSpacing>{'=>'}</TextWithSpacing>;
+        return <TextWithMargin>{'=>'}</TextWithMargin>;
     }
 
     function playAction(action: Action, payment?: PropertyCounter<Resource>) {
@@ -234,7 +230,7 @@ export const CardActions = ({
                 }
                 return (
                     <React.Fragment>
-                        {index > 0 && <TextWithSpacing>OR</TextWithSpacing>}
+                        {index > 0 && <TextWithMargin>OR</TextWithMargin>}
                         <ActionContainer
                             action={action}
                             playAction={playAction}

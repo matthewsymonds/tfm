@@ -37,7 +37,7 @@ export const CardStoredResources = ({card}: CardStoredResourcesProps) => {
         <React.Fragment>
             <StoredResourcesContainer>
                 <StoredResourcesContent>
-                    <span>{card.storedResourceAmount}</span>
+                    <span style={{marginRight: 4}}>{card.storedResourceAmount}</span>
                     <ResourceIcon name={card.storedResourceType} />
                 </StoredResourcesContent>
             </StoredResourcesContainer>

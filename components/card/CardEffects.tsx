@@ -1,6 +1,6 @@
 import {Flex} from 'components/box';
 import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
-import {IconographyRow, InlineText, TextWithSpacing} from 'components/card/CardIconography';
+import {IconographyRow, InlineText, TextWithMargin} from 'components/card/CardIconography';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -22,7 +22,7 @@ const EffectWrapper = styled.div`
     display: flex;
     border: 2px dashed red;
     margin: 3px;
-    padding: 2px;
+    padding: 6px;
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -45,7 +45,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
     const {effects} = card;
 
     function renderColon(key: number = 0) {
-        return <TextWithSpacing key={key}>:</TextWithSpacing>;
+        return <TextWithMargin key={key}>:</TextWithMargin>;
     }
 
     function renderDiscounts() {
@@ -62,7 +62,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             const tags = {...card.discounts?.tags, ...card.discounts?.cards};
             Object.keys(tags).forEach((tag, index) => {
                 if (index > 0) {
-                    elements.push(<TextWithSpacing key={elements.length}>/</TextWithSpacing>);
+                    elements.push(<TextWithMargin key={elements.length}>/</TextWithMargin>);
                 }
                 elements.push(<TagIcon name={tag as Tag} size={16} key={elements.length} />);
             });
@@ -110,7 +110,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 <Flex>
                     {trigger?.tags.map((tag, index) => (
                         <React.Fragment>
-                            {index > 0 && <TextWithSpacing>/</TextWithSpacing>}
+                            {index > 0 && <TextWithMargin>/</TextWithMargin>}
                             <TagIcon name={tag} size={16} />
                         </React.Fragment>
                     ))}
@@ -146,7 +146,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return (
                 <Flex>
                     <ResourceIcon name={Resource.STEEL} size={16} />
-                    <TextWithSpacing>/</TextWithSpacing>
+                    <TextWithMargin>/</TextWithMargin>
                     <ResourceIcon name={Resource.TITANIUM} size={16} />
                 </Flex>
             );
@@ -156,7 +156,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             const elements: Array<React.ReactNode> = [];
             [Parameter.OCEAN, Parameter.OXYGEN, Parameter.TEMPERATURE].map((parameter, index) => {
                 if (index > 0) {
-                    elements.push(<TextWithSpacing>/</TextWithSpacing>);
+                    elements.push(<TextWithMargin>/</TextWithMargin>);
                 }
                 elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
             });
@@ -199,12 +199,12 @@ export const CardEffects = ({card}: {card: CardModel}) => {
     function renderExchangeRates() {
         return (
             <Flex flexDirection="column">
-                {Object.keys(card.exchangeRates).map(resource => (
+                {Object.entries(card.exchangeRates).map(([resource, amount]) => (
                     <IconographyRow>
                         <ResourceIcon name={resource as Resource} size={16} />
-                        <InlineText>:</InlineText>
-                        {resource !== Resource.HEAT && <InlineText>+</InlineText>}
-                        <ResourceIcon name={Resource.MEGACREDIT} size={16} />
+                        <TextWithMargin>:</TextWithMargin>
+                        {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
+                        <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${amount}`} />
                     </IconographyRow>
                 ))}
             </Flex>

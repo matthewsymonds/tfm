@@ -19,8 +19,10 @@ export const InlineText = styled.span`
     height: 16px;
     line-height: 16px;
 `;
-export const TextWithSpacing = styled.span<{spacing?: number}>`
-    margin: 0 ${props => props.spacing ?? 4}px;
+export const TextWithMargin = styled(InlineText)<{margin?: string; useMonoFont?: boolean}>`
+    font-family: ${props =>
+        props.useMonoFont ? 'monospace' : 'inherit'}; // for evenly spaced icon text
+    margin: ${props => props.margin ?? '0 4px'};
 `;
 export const IconographyRow = styled.div<{isInline?: boolean}>`
     display: ${props => (props.isInline ? 'inline-flex' : 'flex')};
@@ -66,24 +68,30 @@ export function ChangeResourceIconography({
     };
     const elements: Array<React.ReactNode> = [];
     const shouldShowNegativeSymbol = (r: string) =>
-        opts?.isNegative && (opts?.isProduction || r !== Resource.MEGACREDIT);
+        opts?.isNegative && !(opts?.isProduction && r === Resource.MEGACREDIT);
     const shouldShowIndividualIcons = (resource: string, amount: number) =>
-        amount <= 3 && resource !== Resource.MEGACREDIT;
+        amount > 1 && amount <= 3 && resource !== Resource.MEGACREDIT;
     const shouldShowAmount = (r: string, a: number) =>
         a > 1 && !shouldShowIndividualIcons(r, a) && r !== Resource.MEGACREDIT;
 
     let i = 0;
     for (let [resource, amount] of Object.entries(changeResource)) {
+        // HACK: this naively assumes all variable amounts are coded as "1 per X", where X may be
+        // "3 bacteria", "2 building tags", etc. If we ever want to support "Y per X", we'll need
+        // to modify this to determine what value to show as Y (instead of always showing 1)
         const resourceIconElement = (
             <ResourceIcon
                 name={resource as Resource}
                 size={16}
                 showRedBorder={opts.useRedBorder}
                 amount={
-                    resource === Resource.MEGACREDIT && typeof amount === 'number'
-                        ? `${!opts.isProduction && opts.isNegative ? '-' : ''}${amount}`
+                    resource === Resource.MEGACREDIT
+                        ? `${!shouldShowNegativeSymbol(resource) && opts.isNegative ? '-' : ''}${
+                              typeof amount === 'number' ? amount : 1
+                          }`
                         : undefined
                 }
+                margin={0}
             />
         );
         if (typeof amount === 'number') {
@@ -94,16 +102,22 @@ export function ChangeResourceIconography({
                 ...(shouldShowAmount(resource, amount) ? [amount] : []),
             ];
             let el = (
-                <React.Fragment>
+                <Flex marginLeft={i > 0 ? '6px' : '0px'}>
                     {prefixElements.length > 0 && (
-                        <TextWithSpacing spacing={2}>{prefixElements}</TextWithSpacing>
+                        <TextWithMargin useMonoFont={true} margin="0 4px 0 0">
+                            {prefixElements}
+                        </TextWithMargin>
                     )}
                     {shouldShowIndividualIcons(resource, amount)
                         ? Array(amount)
                               .fill(null)
-                              .map((_, index) => <div key={index}>{resourceIconElement}</div>)
+                              .map((_, index) => (
+                                  <Flex key={index} marginLeft={index > 0 ? '6px' : '0px'}>
+                                      {resourceIconElement}
+                                  </Flex>
+                              ))
                         : resourceIconElement}
-                </React.Fragment>
+                </Flex>
             );
             if (opts.isProduction) {
                 elements.push(<ProductionWrapper>{el}</ProductionWrapper>);
@@ -133,17 +147,17 @@ export function ChangeResourceIconography({
                 case VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE:
                     customElement = (
                         <Flex flexDirection="column" alignItems="center">
-                            <IconographyRow>
+                            <Flex alignItems="center" marginBottom="8px">
                                 <ResourceIcon name={Resource.PLANT} size={16} />
-                                <TextWithSpacing>OR</TextWithSpacing>
-                            </IconographyRow>
-                            <IconographyRow>
-                                <InlineText>3</InlineText>
+                                <TextWithMargin>OR</TextWithMargin>
+                            </Flex>
+                            <Flex alignItems="center" justifyContent="center">
+                                <TextWithMargin>3</TextWithMargin>
                                 <TagIcon name={Tag.PLANT} size={16} />
-                                <TextWithSpacing>:</TextWithSpacing>
-                                <InlineText>4</InlineText>{' '}
+                                <TextWithMargin>:</TextWithMargin>
+                                <TextWithMargin>4</TextWithMargin>{' '}
                                 <ResourceIcon name={Resource.PLANT} size={16} />
-                            </IconographyRow>
+                            </Flex>
                         </Flex>
                     );
                     break;
@@ -155,7 +169,7 @@ export function ChangeResourceIconography({
                     customElement = (
                         <React.Fragment>
                             <ResourceIcon name={Resource.STEEL} size={16} />
-                            <InlineText>OR</InlineText>
+                            <TextWithMargin>OR</TextWithMargin>
                             <ResourceIcon name={Resource.TITANIUM} size={16} />
                         </React.Fragment>
                     );
@@ -221,7 +235,7 @@ export function ChangeResourceIconography({
                 case VariableAmount.BASED_ON_USER_CHOICE:
                     customElement = (
                         <React.Fragment>
-                            <InlineText>{opts.shouldShowPlus ? '+' : 'X'}</InlineText>
+                            <TextWithMargin>{opts.shouldShowPlus ? '+' : 'X'}</TextWithMargin>
                             <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
                         </React.Fragment>
                     );
@@ -229,7 +243,7 @@ export function ChangeResourceIconography({
                 case VariableAmount.USER_CHOICE:
                     customElement = (
                         <React.Fragment>
-                            <InlineText>X</InlineText>
+                            <TextWithMargin>X</TextWithMargin>
                             <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
                         </React.Fragment>
                     );
@@ -237,7 +251,7 @@ export function ChangeResourceIconography({
                 case VariableAmount.USER_CHOICE_UP_TO_ONE:
                     customElement = (
                         <React.Fragment>
-                            <InlineText>-</InlineText>
+                            <TextWithMargin>-</TextWithMargin>
                             <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
                         </React.Fragment>
                     );
@@ -252,7 +266,7 @@ export function ChangeResourceIconography({
                         <React.Fragment>
                             <TagIcon name={Tag.MICROBE} size={16} />
                             <span>*</span>
-                            <TextWithSpacing>:</TextWithSpacing>
+                            <TextWithMargin>:</TextWithMargin>
                             <ResourceIcon name={resource as Resource} size={16} />
                         </React.Fragment>
                     );
@@ -280,7 +294,7 @@ export function ChangeResourceIconography({
                     {multiplierElement && (
                         <React.Fragment>
                             {resourceIconElement}
-                            <TextWithSpacing>/</TextWithSpacing>
+                            <TextWithMargin>/</TextWithMargin>
                             {multiplierElement}
                         </React.Fragment>
                     )}
@@ -318,7 +332,7 @@ export function ChangeResourceOptionIconography({
     opts = {
         useRedBorder: false,
         isNegative: false,
-        isInline: true,
+        isInline: false,
         shouldShowStealText: false,
         isProduction: false,
         useSlashSeparator: false,
@@ -328,16 +342,17 @@ export function ChangeResourceOptionIconography({
 
     Object.entries(changeResourceOption).forEach(([resource, quantity], index) => {
         if (index > 0) {
-            elements.push(
-                <TextWithSpacing>{opts?.useSlashSeparator ? '/' : 'or'}</TextWithSpacing>
-            );
+            elements.push(<TextWithMargin>{opts?.useSlashSeparator ? '/' : 'or'}</TextWithMargin>);
         }
         elements.push(
-            <ChangeResourceIconography changeResource={{[resource]: quantity}} opts={opts} />
+            <ChangeResourceIconography
+                changeResource={{[resource]: quantity}}
+                opts={{...opts, isInline: true}}
+            />
         );
     });
 
-    return <IconographyRow>{elements}</IconographyRow>;
+    return <IconographyRow isInline={opts.isInline}>{elements}</IconographyRow>;
 }
 
 export function GainResourceIconography({
@@ -360,12 +375,16 @@ export function GainResourceOptionIconography({
     gainResourceOption: PropertyCounter<Resource>;
     opts?: {
         useSlashSeparator?: boolean;
+        isInline?: boolean;
     };
 }) {
     return (
         <ChangeResourceOptionIconography
             changeResourceOption={gainResourceOption}
-            opts={{isInline: true, useSlashSeparator: opts?.useSlashSeparator ?? false}}
+            opts={{
+                isInline: opts?.isInline ?? false,
+                useSlashSeparator: opts?.useSlashSeparator ?? false,
+            }}
         />
     );
 }
@@ -398,12 +417,18 @@ export function RemoveResourceIconography({
     );
 }
 
-function StealResourceIconography({stealResource}: {stealResource: PropertyCounter<Resource>}) {
+export function StealResourceIconography({
+    stealResource,
+    opts,
+}: {
+    stealResource: PropertyCounter<Resource>;
+    opts?: {shouldShowStealText?: boolean};
+}) {
     return (
         <ChangeResourceOptionIconography
             changeResourceOption={stealResource}
             opts={{
-                shouldShowStealText: true,
+                shouldShowStealText: opts?.shouldShowStealText ?? true,
                 useRedBorder: true,
             }}
         />
@@ -581,7 +606,7 @@ function DuplicateProductionIconography({
 
     return (
         <IconographyRow className="duplicate-production">
-            <InlineText>Copy a </InlineText>
+            <TextWithMargin margin="0 4px 0 0">Copy a </TextWithMargin>
             <TagIcon name={Tag.BUILDING} size={16} />
         </IconographyRow>
     );
@@ -609,6 +634,9 @@ function ProductionIconography({cardOrAction}: {cardOrAction: CardModel | Action
             ...cardOrAction.decreaseAnyProduction,
         }).length > 0;
 
+    // NOTE: For this aggregated ProductionIconography component (which combines all production
+    // deltas into a single block with uniform brown bg), we use the ChangeResource variants
+    // instead of ChangeProduction. This is so we don't duplicate the brown background.
     return (
         <IconographyRow>
             <ProductionWrapper>
@@ -616,23 +644,35 @@ function ProductionIconography({cardOrAction}: {cardOrAction: CardModel | Action
                     {Object.values({
                         ...cardOrAction.decreaseProduction,
                         ...cardOrAction.decreaseAnyProduction,
-                    }).length > 0 && (
+                    }).length > 1 ? (
                         <IconographyRow>
-                            <RemoveResourceIconography
-                                removeResource={cardOrAction.decreaseProduction ?? {}}
-                                sourceType={undefined}
+                            <TextWithMargin margin="0 4px 0 0">-</TextWithMargin>
+                            <ChangeResourceIconography
+                                changeResource={cardOrAction.decreaseProduction ?? {}}
                                 opts={{
                                     isInline: true,
                                 }}
+                            />
+                            <div style={{width: 6}} /> {/* hack for spacing */}
+                            <ChangeResourceIconography
+                                changeResource={cardOrAction.decreaseAnyProduction ?? {}}
+                                opts={{
+                                    isInline: true,
+                                    useRedBorder: true,
+                                }}
+                            />
+                        </IconographyRow>
+                    ) : (
+                        <React.Fragment>
+                            <RemoveResourceIconography
+                                removeResource={cardOrAction.decreaseProduction ?? {}}
+                                sourceType={undefined}
                             />
                             <RemoveResourceIconography
                                 removeResource={cardOrAction.decreaseAnyProduction ?? {}}
                                 sourceType={ResourceLocationType.ANY_PLAYER}
-                                opts={{
-                                    isInline: true,
-                                }}
                             />
-                        </IconographyRow>
+                        </React.Fragment>
                     )}
                     <GainResourceIconography
                         gainResource={cardOrAction.increaseProduction ?? {}}
@@ -711,13 +751,13 @@ function TemporaryAdjustmentIconography({
         elements.push(
             <IconographyRow>
                 <GlobalParameterIcon parameter={parameter as Parameter} size={12} />
-                <TextWithSpacing>:</TextWithSpacing>
+                <TextWithMargin>:</TextWithMargin>
                 <InlineText>+/- {adjustment}</InlineText>
             </IconographyRow>
         );
     }
 
-    return <>{elements}</>;
+    return <React.Fragment>{elements}</React.Fragment>;
 }
 
 export const CardIconography = ({card}: {card: CardModel}) => {
