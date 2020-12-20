@@ -268,7 +268,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = '';
+const bonusName = 'Search For Life';
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;

@@ -612,26 +612,24 @@ function DuplicateProductionIconography({
     );
 }
 
-function ProductionIconography({cardOrAction}: {cardOrAction: CardModel | Action}) {
-    if (cardOrAction instanceof CardModel && !cardOrAction.hasProductionChange) {
-        return null;
-    }
-
+function ProductionIconography({card}: {card: CardModel}) {
+    debugger;
     if (
-        !(cardOrAction instanceof CardModel) &&
-        !cardOrAction.decreaseProduction &&
-        !cardOrAction.decreaseAnyProduction &&
-        !cardOrAction.increaseProduction &&
-        !cardOrAction.increaseProductionOption &&
-        !cardOrAction.duplicateProduction
+        Object.keys({
+            ...card.decreaseProduction,
+            ...card.decreaseAnyProduction,
+            ...card.increaseProduction,
+            ...card.increaseProductionOption,
+        }).length === 0 &&
+        !card.duplicateProduction
     ) {
         return null;
     }
 
     const shouldShowPlus =
         Object.values({
-            ...cardOrAction.decreaseProduction,
-            ...cardOrAction.decreaseAnyProduction,
+            ...card.decreaseProduction,
+            ...card.decreaseAnyProduction,
         }).length > 0;
 
     // NOTE: For this aggregated ProductionIconography component (which combines all production
@@ -642,20 +640,20 @@ function ProductionIconography({cardOrAction}: {cardOrAction: CardModel | Action
             <ProductionWrapper>
                 <Flex flexDirection="column" justifyContent="center" alignItems="center">
                     {Object.values({
-                        ...cardOrAction.decreaseProduction,
-                        ...cardOrAction.decreaseAnyProduction,
+                        ...card.decreaseProduction,
+                        ...card.decreaseAnyProduction,
                     }).length > 1 ? (
                         <IconographyRow>
                             <TextWithMargin margin="0 4px 0 0">-</TextWithMargin>
                             <ChangeResourceIconography
-                                changeResource={cardOrAction.decreaseProduction ?? {}}
+                                changeResource={card.decreaseProduction ?? {}}
                                 opts={{
                                     isInline: true,
                                 }}
                             />
                             <div style={{width: 6}} /> {/* hack for spacing */}
                             <ChangeResourceIconography
-                                changeResource={cardOrAction.decreaseAnyProduction ?? {}}
+                                changeResource={card.decreaseAnyProduction ?? {}}
                                 opts={{
                                     isInline: true,
                                     useRedBorder: true,
@@ -665,26 +663,26 @@ function ProductionIconography({cardOrAction}: {cardOrAction: CardModel | Action
                     ) : (
                         <React.Fragment>
                             <RemoveResourceIconography
-                                removeResource={cardOrAction.decreaseProduction ?? {}}
+                                removeResource={card.decreaseProduction ?? {}}
                                 sourceType={undefined}
                             />
                             <RemoveResourceIconography
-                                removeResource={cardOrAction.decreaseAnyProduction ?? {}}
+                                removeResource={card.decreaseAnyProduction ?? {}}
                                 sourceType={ResourceLocationType.ANY_PLAYER}
                             />
                         </React.Fragment>
                     )}
                     <GainResourceIconography
-                        gainResource={cardOrAction.increaseProduction ?? {}}
+                        gainResource={card.increaseProduction ?? {}}
                         opts={{
                             shouldShowPlus,
                         }}
                     />
                     <GainResourceOptionIconography
-                        gainResourceOption={cardOrAction.increaseProductionOption ?? {}}
+                        gainResourceOption={card.increaseProductionOption ?? {}}
                     />
                     <DuplicateProductionIconography
-                        duplicateProduction={cardOrAction.duplicateProduction}
+                        duplicateProduction={card.duplicateProduction}
                     />
                 </Flex>
             </ProductionWrapper>
@@ -765,7 +763,7 @@ export const CardIconography = ({card}: {card: CardModel}) => {
         <Flex flexDirection="column" alignItems="center">
             <Flex justifyContent="space-evenly" width="100%">
                 <TilePlacementIconography tilePlacements={card.tilePlacements} />
-                <ProductionIconography cardOrAction={card} />
+                <ProductionIconography card={card} />
             </Flex>
             <RemoveResourceIconography
                 removeResource={card.removeResource}

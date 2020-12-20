@@ -16,7 +16,6 @@ import {Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 
 export class Card {
-    _rawConfig: CardConfig;
     // ====================================================
     // Card properties
     // ====================================================
@@ -114,8 +113,6 @@ export class Card {
         // Hack to fix compile bug
         config.resources = {};
 
-        this._rawConfig = config;
-
         // Card properties
         this.name = config.name;
         this.text = config.text || '';
@@ -196,21 +193,24 @@ export class Card {
             this.storedResourceAmount = 0;
         }
     }
-
-    get hasDiscounts(): boolean {
-        return !!this._rawConfig.discounts;
-    }
-
-    get hasProductionChange(): boolean {
-        return !!(
-            this._rawConfig.decreaseProduction ||
-            this._rawConfig.decreaseAnyProduction ||
-            this._rawConfig.increaseProduction ||
-            this._rawConfig.increaseProductionOption ||
-            this._rawConfig.duplicateProduction
-        );
-    }
 }
+
+export const doesCardHaveDiscounts = (card: Card) => {
+    for (const value of Object.values(card.discounts)) {
+        if (typeof value === 'number') {
+            if (value > 0) {
+                return true;
+            }
+        } else {
+            for (const subValue of Object.values(value)) {
+                if (typeof subValue === 'number' && subValue > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+};
 
 export const cards = cardConfigs.map(config => new Card(config));
 
