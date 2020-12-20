@@ -1,4 +1,4 @@
-import {colors} from 'constants/game';
+import {PLAYER_COLORS} from 'constants/game';
 import styled from 'styled-components';
 
 const SquareBase = styled.div<{color: string; shouldHideBorder?: boolean}>`
@@ -16,7 +16,7 @@ export const Square = ({
     playerIndex: number;
     shouldHideBorder?: boolean;
 }) => {
-    const color = colors[playerIndex];
+    const color = PLAYER_COLORS[playerIndex];
 
     return <SquareBase color={color} shouldHideBorder={shouldHideBorder} />;
 };

@@ -1,6 +1,7 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
+import {PlayerCorpAndIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
@@ -104,7 +105,11 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                     <span>Action {action} of 2</span>
                 )}
                 {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
-                    <span>Waiting on {currentPlayer.username} to take their turn...</span>
+                    <React.Fragment>
+                        <span style={{marginRight: 4}}>Waiting on </span>
+                        <PlayerCorpAndIcon player={currentPlayer} />
+                        <span style={{marginLeft: 4}}> to take their turn...</span>
+                    </React.Fragment>
                 )}
                 {isLoggedInPlayersTurn && isGreeneryPlacement && (
                     <span>{greeneryPlacementText}</span>

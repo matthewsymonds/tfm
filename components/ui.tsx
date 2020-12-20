@@ -46,4 +46,10 @@ export const colors = {
         [Parameter.OCEAN]: 'blue',
         [Parameter.VENUS]: 'orange',
     },
+
+    PLAYER_COLOR_RED: 'hsl(345, 40%, 40%)',
+    PLAYER_COLOR_GREEN: 'hsl(124.8, 30.4%, 40.6%)',
+    PLAYER_COLOR_BLUE: 'hsl(220, 40%, 50%)',
+    PLAYER_COLOR_YELLOW: 'hsl(50, 60%, 60%)',
+    PLAYER_COLOR_GRAY: 'hsl(233.1, 11.6%, 43.9%)',
 };
