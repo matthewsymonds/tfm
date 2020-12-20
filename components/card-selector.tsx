@@ -22,6 +22,8 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     margin: 0 auto;
     max-height: 340px;
     overflow-y: auto;
+    margin-bottom: 8px;
+    width: 100%;
 `;
 
 const CardWrapper = styled.div`

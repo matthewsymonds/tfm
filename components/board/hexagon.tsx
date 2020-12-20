@@ -1,9 +1,9 @@
+import {HEX_RADIUS} from 'constants/board';
 import React from 'react';
 import styled from 'styled-components';
-import {HEX_RADIUS} from 'constants/board';
 
 const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
-    color: white;
+    color: black;
     font-size: 30px;
     width: ${props => props.hexRadius * Math.cos((30 * Math.PI) / 180) * 2}px;
     height: ${props => props.hexRadius * 2}px;

@@ -1,11 +1,11 @@
-import React from 'react';
 import {
-    getResourceColor,
-    Resource,
-    getResourceBackgroundColor,
     getClassName,
+    getResourceBackgroundColor,
+    getResourceColor,
     getResourceSymbol,
+    Resource,
 } from 'constants/resource';
+import React from 'react';
 import styled from 'styled-components';
 
 interface ResourceIconBaseProps {
@@ -15,6 +15,7 @@ interface ResourceIconBaseProps {
     readonly showRedBorder: boolean;
     readonly tall?: boolean;
     readonly margin: number;
+    readonly marginLeft: number;
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
@@ -23,6 +24,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     width: ${props => props.size}px;
     text-align: center;
     margin: ${props => props.margin}px;
+    margin-left: ${props => props.marginLeft}px;
     font-size: ${props => props.size * 0.5}px;
     font-weight: bold;
     color: ${props => props.color};
@@ -51,6 +53,7 @@ interface ResourceIconProps {
     showRedBorder?: boolean;
     amount?: string;
     margin?: number;
+    marginLeft?: number;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
@@ -59,6 +62,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     showRedBorder = false,
     amount,
     margin = 0,
+    marginLeft = 0,
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
@@ -76,6 +80,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
             tall={name === Resource.CARD}
             showRedBorder={showRedBorder}
             margin={margin}
+            marginLeft={marginLeft}
         >
             <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
         </ResourceIconBase>

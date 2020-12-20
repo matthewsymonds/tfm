@@ -70,7 +70,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         return (
             <Flex flexDirection="row">
                 {bonus.map((resource, index) => (
-                    <ResourceIcon key={index} name={resource} size={12} />
+                    <ResourceIcon marginLeft={index && 6} key={index} name={resource} size={12} />
                 ))}
             </Flex>
         );

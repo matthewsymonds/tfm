@@ -162,7 +162,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                 <AskUserToDuplicateProduction player={loggedInPlayer} />
                             )}
                             {loggedInPlayer.possibleCards.length > 0 && (
-                                <Flex flexDirection="column">
+                                <Flex flexDirection="column" width="100%" maxWidth="936px">
                                     <PromptTitle>{cardSelectionPrompt}</PromptTitle>
                                     <CardSelector
                                         max={

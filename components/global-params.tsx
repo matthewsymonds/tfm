@@ -75,12 +75,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                 const color = colors.PARAMETERS[parameter];
                 // Where's the water?
                 const stepElement = (
-                    <GlobalParamStep
-                        key={`${parameter}-${value}`}
-                        isFilledIn={isFilledIn}
-                        bonus={!!bonus}
-                        color={color}
-                    >
+                    <GlobalParamStep isFilledIn={isFilledIn} bonus={!!bonus} color={color}>
                         {value}
                     </GlobalParamStep>
                 );
@@ -89,6 +84,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
 
                 return (
                     <Tooltip
+                        key={`${parameter}-${value}`}
                         style={{flexBasis: '100%'}}
                         sticky={true}
                         animation="fade"
