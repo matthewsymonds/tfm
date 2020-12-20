@@ -167,13 +167,21 @@ export const CardEffects = ({card}: {card: CardModel}) => {
     }
 
     function renderAction(action: Action | undefined) {
+        if (action?.choice) {
+            return (
+                <Flex alignItems="center">
+                    {action?.choice.map((actionChoice, index) => (
+                        <React.Fragment>
+                            {index > 0 && <InlineText>or</InlineText>}
+                            {renderAction(actionChoice)}
+                        </React.Fragment>
+                    ))}
+                </Flex>
+            );
+        }
         if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
             return (
-                <React.Fragment>
-                    <InlineText>
-                        +/-{Object.values(card.parameterRequirementAdjustments)[0]}
-                    </InlineText>
-                </React.Fragment>
+                <InlineText>+/-{Object.values(card.parameterRequirementAdjustments)[0]}</InlineText>
             );
         }
         if (!action) {

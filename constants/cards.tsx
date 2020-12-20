@@ -1567,6 +1567,12 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 1 step and increase your MC production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
+        decreaseProduction: {
+            [Resource.ENERGY]: 1,
+        },
+        increaseProduction: {
+            [Resource.MEGACREDIT]: 2,
+        },
         tilePlacements: [t(TileType.CITY, PlacementRequirement.DOUBLE_CITY_ADJACENT, true)],
     },
     {
