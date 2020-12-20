@@ -36,7 +36,7 @@ export class ActionGuard {
         this.username = username;
     }
 
-    getLoggedInPlayer() {
+    _getPlayerToConsider() {
         return this.state.players.find(player => player.username === this.username)!;
     }
 
@@ -46,7 +46,13 @@ export class ActionGuard {
         payment?: PropertyCounter<Resource>
     ): CanPlayAndReason {
         const {state} = this;
-        const player = this.getLoggedInPlayer();
+        const [canPlay, reason] = this.canPlayAction(card, state);
+
+        if (!canPlay) {
+            return [canPlay, reason];
+        }
+
+        const player = this._getPlayerToConsider();
         if (
             !this.canPlayCorporation(card) &&
             !player.cards.some(playerCard => playerCard.name === card.name)
@@ -98,11 +104,11 @@ export class ActionGuard {
             return [false, 'Cannot play card outside active round'];
         }
 
-        return this.canPlayAction(card, state);
+        return [canPlay, reason];
     }
 
     canPlayStandardProject(standardProjectAction: StandardProjectAction): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         const {state} = this;
 
         const [canPlay, reason] = this.canPlayAction(standardProjectAction, state);
@@ -133,7 +139,7 @@ export class ActionGuard {
     }
 
     canClaimMilestone(milestone: Milestone): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         const {state} = this;
 
         if (!isActiveRound(state)) {
@@ -166,7 +172,7 @@ export class ActionGuard {
     }
 
     canFundAward(award: Award): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         const {state} = this;
 
         if (this.shouldDisableUI()) return [false, 'Cannot fund award right now'];
@@ -199,7 +205,7 @@ export class ActionGuard {
     }
 
     canAffordActionCost(action: Action) {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         let {cost, acceptedPayment = []} = action;
         if (!cost) {
             return true;
@@ -218,7 +224,7 @@ export class ActionGuard {
     }
 
     canAffordCard(card: Card) {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         let cost = this.getDiscountedCardCost(card);
 
         const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
@@ -259,7 +265,7 @@ export class ActionGuard {
 
     getDiscountedCardCost(card: Card) {
         let {cost = 0} = card;
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         const {discounts} = player;
 
         cost -= discounts.card;
@@ -275,7 +281,7 @@ export class ActionGuard {
     }
 
     doesPlayerHaveRequiredTags(card: Card) {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
 
         for (const tag in card.requiredTags) {
             const requiredAmount = card.requiredTags[tag];
@@ -293,7 +299,7 @@ export class ActionGuard {
     canPlayWithGlobalParameters(card: Card) {
         const {requiredGlobalParameter} = card;
         if (!requiredGlobalParameter) return true;
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
 
         const {type, min = -Infinity, max = Infinity} = requiredGlobalParameter;
 
@@ -315,7 +321,7 @@ export class ActionGuard {
     }
 
     canSatisfyTilePlacements(card: Card) {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
 
         for (const tilePlacement of card.tilePlacements) {
             const validPlacements = getValidPlacementsForRequirement(
@@ -333,7 +339,7 @@ export class ActionGuard {
     }
 
     canPlayWithRequiredTilePlacements(card: Card) {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         let tiles = this.state.common.board
             .flat()
             .filter(cell => cell.tile)
@@ -369,15 +375,19 @@ export class ActionGuard {
     }
 
     canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
-            return [false, ''];
+            if (state.common.currentPlayerIndex === player.index) {
+                return [false, 'Cannot play action before finalizing other choices.'];
+            }
+            return [false, 'Cannot play out of turn.'];
         }
 
         return this.canPlayActionInSpiteOfUI(action, state, parent);
     }
 
     canCompletePlaceTile(cell: Cell): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         const validPlacements = getValidPlacementsForRequirement(
             this.state,
             player.pendingTilePlacement,
@@ -405,7 +415,10 @@ export class ActionGuard {
                 ? option.location.username
                 : '';
 
-        const playerOptionWrappers = getPlayerOptionWrappers(this.state, this.getLoggedInPlayer());
+        const playerOptionWrappers = getPlayerOptionWrappers(
+            this.state,
+            this._getPlayerToConsider()
+        );
         const isDecreaseProduction = option.actionType === 'decreaseProduction';
         const min = isDecreaseProduction ? 1 : 0;
         if (amount < min) {
@@ -455,11 +468,14 @@ export class ActionGuard {
     }
 
     canSkipChooseResourceActionDetails(): CanPlayAndReason {
-        const playerOptionWrappers = getPlayerOptionWrappers(this.state, this.getLoggedInPlayer());
+        const playerOptionWrappers = getPlayerOptionWrappers(
+            this.state,
+            this._getPlayerToConsider()
+        );
         const {
             actionType,
             resourceAndAmounts,
-        } = this.getLoggedInPlayer().pendingResourceActionDetails!;
+        } = this._getPlayerToConsider().pendingResourceActionDetails!;
         const canSkipChooseResource = canSkipResourceActionDetails(
             playerOptionWrappers,
             actionType,
@@ -470,7 +486,7 @@ export class ActionGuard {
     }
 
     canSkipChooseDuplicateProduction(): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         if (!player.pendingDuplicateProduction) {
             return [false, 'No pending duplicate production to skip'];
         }
@@ -487,7 +503,7 @@ export class ActionGuard {
             return true;
         }
         const {gameStage} = state.common;
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         if (player.index !== state.common.currentPlayerIndex) {
             return true;
         }
@@ -503,7 +519,7 @@ export class ActionGuard {
 
     shouldDisableValidGreeneryPlacementUI(state: GameState = this.state) {
         const {gameStage} = state.common;
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         if (player.index !== state.common.currentPlayerIndex) {
             return true;
         }
@@ -518,12 +534,12 @@ export class ActionGuard {
     }
 
     canPlayActionInSpiteOfUI(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
-        const player = this.getLoggedInPlayer();
+        const player = this._getPlayerToConsider();
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
     canConfirmCardSelection(numCards: number, state: GameState, corporation: Card) {
-        const loggedInPlayer = this.getLoggedInPlayer();
+        const loggedInPlayer = this._getPlayerToConsider();
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
         const totalCardCost = numCards * 3;
         const shouldDisableDiscardConfirmation =
@@ -538,7 +554,7 @@ export class ActionGuard {
     }
 
     canPlayCorporation(card: Card) {
-        const {possibleCorporations} = this.getLoggedInPlayer();
+        const {possibleCorporations} = this._getPlayerToConsider();
 
         return possibleCorporations.some(
             possibleCorporation => possibleCorporation.name === card.name

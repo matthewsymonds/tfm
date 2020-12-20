@@ -195,17 +195,25 @@ export const CardActions = ({
                     state,
                     card
                 );
+                let tooltipText: string | null = null;
+                if (cardContext === CardContext.PLAYED_CARD) {
+                    if (isOwnedByLoggedInPlayer) {
+                        tooltipText = canPlay ? null : disabledReason;
+                    } else {
+                        tooltipText = canPlay
+                            ? `${cardOwner?.corporation?.name} can play this.`
+                            : `${cardOwner?.corporation?.name} cannot play: ${disabledReason}.`;
+                    }
+                }
                 return (
                     <React.Fragment>
                         {index > 0 && <TextWithSpacing>OR</TextWithSpacing>}
                         <ActionContainer
                             action={action}
                             playAction={playAction}
-                            isDisabled={
-                                cardContext !== CardContext.PLAYED_CARD ||
-                                !isOwnedByLoggedInPlayer ||
-                                !canPlay
-                            }
+                            canPlay={canPlay}
+                            tooltipText={tooltipText}
+                            isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
                             cardContext={cardContext}
                             disabledReason={disabledReason}
                             loggedInPlayer={loggedInPlayer}
@@ -226,7 +234,9 @@ export const CardActions = ({
 function ActionContainer({
     action,
     playAction,
-    isDisabled,
+    canPlay,
+    tooltipText,
+    isOwnedByLoggedInPlayer,
     loggedInPlayer,
     cardContext,
     children,
@@ -234,7 +244,9 @@ function ActionContainer({
 }: {
     action: Action;
     playAction: (action: Action, payment?: PropertyCounter<Resource>) => void;
-    isDisabled: boolean;
+    canPlay: boolean;
+    tooltipText: string | null;
+    isOwnedByLoggedInPlayer: boolean;
     loggedInPlayer: PlayerState | null;
     cardContext: CardContext;
     disabledReason: string;
@@ -245,26 +257,25 @@ function ActionContainer({
         (loggedInPlayer?.corporation.name === 'Helion' &&
             loggedInPlayer?.resources[Resource.HEAT] > 0);
 
-    if (!isDisabled && action.cost && doesActionRequireUserInput) {
+    if (canPlay && isOwnedByLoggedInPlayer && action.cost && doesActionRequireUserInput) {
         return (
             <PaymentPopover
                 cost={action.cost}
                 action={action}
                 onConfirmPayment={payment => playAction(action, payment)}
             >
-                <ActionContainerBase disabled={isDisabled}>{children}</ActionContainerBase>
+                <ActionContainerBase>{children}</ActionContainerBase>
             </PaymentPopover>
         );
     }
 
-    if (isDisabled && cardContext === CardContext.PLAYED_CARD) {
+    if (tooltipText) {
         return (
-            <Tooltip
-                html={
-                    disabledReason ? <DisabledTooltip>{disabledReason}</DisabledTooltip> : <div />
-                }
-            >
-                <ActionContainerBase disabled={isDisabled} onClick={() => playAction(action)}>
+            <Tooltip html={<DisabledTooltip>{tooltipText}</DisabledTooltip>}>
+                <ActionContainerBase
+                    disabled={!canPlay || !isOwnedByLoggedInPlayer}
+                    onClick={() => {}}
+                >
                     {children}
                 </ActionContainerBase>
             </Tooltip>
@@ -272,7 +283,7 @@ function ActionContainer({
     }
 
     return (
-        <ActionContainerBase disabled={isDisabled} onClick={() => playAction(action)}>
+        <ActionContainerBase disabled={!canPlay} onClick={() => playAction(action)}>
             {children}
         </ActionContainerBase>
     );
