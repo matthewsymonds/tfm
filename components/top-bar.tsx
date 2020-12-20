@@ -54,6 +54,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const turn = useTypedSelector(state => state.common.turn);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const players = useTypedSelector(state => state?.players);
 
     /**
      * Derived state
@@ -66,7 +67,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
     const isBuyingCards = loggedInPlayer.buyCards;
-
+    const currentPlayer = players[currentPlayerIndex];
     const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
 
     const topBarColor =
@@ -101,6 +102,9 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 {isBuyOrDiscard && isBuyingCards && <span>Please choose your cards.</span>}
                 {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
                     <span>Action {action} of 2</span>
+                )}
+                {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
+                    <span>Waiting on {currentPlayer.username} to take their turn...</span>
                 )}
                 {isLoggedInPlayersTurn && isGreeneryPlacement && (
                     <span>{greeneryPlacementText}</span>
