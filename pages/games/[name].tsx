@@ -72,7 +72,7 @@ export default function Game(props) {
         const oldState = store.getState();
         const oldNumChanges = oldState?.numChanges ?? 0;
         const newNumChanges = result?.state?.numChanges ?? 0;
-        if (!oldState.syncing && oldNumChanges < newNumChanges) {
+        if (!oldState.syncing && oldNumChanges <= newNumChanges) {
             // Make sure both:
             // 1) that we are not syncing (ie, playing an action), which would mean
             //    we are about to get a more up to date state.

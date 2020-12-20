@@ -57,10 +57,17 @@ export const PlayerPanelSection = ({
     const isActiveRound = useTypedSelector(
         state => state?.common?.gameStage === GameStage.ACTIVE_ROUND
     );
+    const isBuyOrDiscard = useTypedSelector(
+        state => state?.common.gameStage === GameStage.BUY_OR_DISCARD
+    );
     const numCards = player.cards.length;
 
     const playerCardsElement = isActiveRound ? (
         <CardsInHandMessage>Cards in hand: {numCards}</CardsInHandMessage>
+    ) : isBuyOrDiscard ? (
+        <CardsInHandMessage>
+            Cards in hand at the end of last round: {player.previousCardsInHand ?? 0}
+        </CardsInHandMessage>
     ) : null;
 
     function getSectionContent() {
