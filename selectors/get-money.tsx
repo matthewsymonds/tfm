@@ -1,8 +1,8 @@
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
-import {convertAmountToNumber} from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 
 export function getMoney(state: GameState, player: PlayerState, corporation: Card) {
     const playerMoneyAmount =

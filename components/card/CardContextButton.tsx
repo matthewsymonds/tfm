@@ -5,11 +5,11 @@ import {CardContext, DisabledTooltip} from 'components/card/Card';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {doesCardPaymentRequirePlayerInput} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState} from 'reducer';
+import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 

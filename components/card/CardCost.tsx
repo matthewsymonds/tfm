@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from 'styled-components';
-import {Card as CardModel} from 'models/card';
 import {CardContext} from 'components/card/Card';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
 import {PlayerState} from 'reducer';
-import {getDiscountedCardCost} from 'context/app-context';
+import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
+import styled from 'styled-components';
 
 const CardCostBase = styled.div`
     border-radius: 50%;

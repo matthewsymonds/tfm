@@ -1,10 +1,11 @@
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
-import {AppContext, getDiscountedCardCost} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import {Card} from 'models/card';
 import React, {MouseEvent, useContext} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
+import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {TagsComponent} from './tags';

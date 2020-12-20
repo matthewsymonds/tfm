@@ -1,17 +1,7 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {CardContext} from 'components/card/Card';
 import {CardHand} from 'components/card/CardHand';
-import PaymentPopover from 'components/popovers/payment-popover';
-import {GameStage} from 'constants/game';
-import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
-import {AppContext, doesCardPaymentRequirePlayerInput} from 'context/app-context';
-import {Card} from 'models/card';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
-import styled from 'styled-components';
+import React from 'react';
+import {PlayerState} from 'reducer';
 
 type PlayerHandProps = {
     player: PlayerState;

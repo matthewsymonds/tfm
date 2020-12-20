@@ -5,10 +5,11 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {AppContext, milestoneQuantitySelectors, minMilestoneQuantity} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
+import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 export function getTextForMilestoneWithQuantity(milestone: Milestone) {

@@ -10,7 +10,6 @@ import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
-import {appContext} from 'context/app-context';
 import {Card} from 'models/card';
 import {deserializeState} from 'state-serialization';
 
@@ -35,7 +34,6 @@ export class ApiClient implements GameActionHandler {
         this.dispatch(setIsSyncing());
         try {
             const result = await makePostCall(this.getPath(), {type, payload});
-            appContext.queue = result.queue;
             this.dispatch(setGame(deserializeState(result.state)));
         } catch (error) {
             // TODO Gracefully fail and tell user to try again.

@@ -14,21 +14,18 @@ import {Resource} from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {
-    doesAnyoneHaveResourcesToSteal,
-    doesPlayerHaveRequiredResourcesToRemove,
-    isActiveRound,
-    meetsProductionRequirements,
-    meetsTerraformRequirements,
-    meetsTilePlacementRequirements,
-    milestoneQuantitySelectors,
-    minMilestoneQuantity,
-} from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
+import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
+import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
+import {isActiveRound} from 'selectors/is-active-round';
+import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
+import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
+import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
+import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {getTags} from 'selectors/variable-amount';
 
 type CanPlayAndReason = [boolean, string];

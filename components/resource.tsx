@@ -4,11 +4,12 @@ import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
-import {AppContext, convertAmountToNumber} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
 import {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
 import {ConversionButton} from './conversion-button';
 

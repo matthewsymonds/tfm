@@ -5,16 +5,25 @@ import {
     applyDiscounts,
     applyExchangeRateChanges,
     askUserToChooseResourceActionDetails,
+    askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
+    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
+    ASK_USER_TO_DISCARD_CARDS,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
+    ASK_USER_TO_LOOK_AT_CARDS,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
+    ASK_USER_TO_PLACE_TILE,
     claimMilestone as claimMilestoneAction,
     completeAction,
+    decreaseProduction,
     discardCards,
     discardRevealedCards,
     fundAward as fundAwardAction,
     gainResource,
+    gainStorableResource,
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
@@ -27,7 +36,9 @@ import {
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
+    removeStorableResource,
     revealAndDiscardTopCards,
+    REVEAL_AND_DISCARD_TOP_CARDS,
     setCards,
     setCorporation,
     setPlantDiscount,
@@ -41,29 +52,35 @@ import {
     getAction,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
-import {Action, ParameterCounter} from 'constants/action';
-import {Award, Cell, CellType, Milestone, Parameter, t, TileType} from 'constants/board';
+import {Action, Amount, ParameterCounter} from 'constants/action';
+import {
+    Award,
+    Cell,
+    CellType,
+    Milestone,
+    Parameter,
+    t,
+    TilePlacement,
+    TileType,
+} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage, PARAMETER_STEPS} from 'constants/game';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceAndAmount, ResourceLocationType} from 'constants/resource';
-import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {
-    ActionCardPair,
-    createDecreaseProductionAction,
-    createGainResourceOptionAction,
-    createInitialGainResourceAction,
-    createInitialRemoveResourceAction,
-    createRemoveResourceOptionAction,
-    EffectEvent,
-    filterOceanPlacementsOverMax,
-    getParameterForTile,
-    shouldPause,
-} from 'context/app-context';
+    isStorableResource,
+    Resource,
+    ResourceAndAmount,
+    ResourceLocationType,
+    USER_CHOICE_LOCATION_TYPES,
+} from 'constants/resource';
+import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
+import {findCellsWithTile} from 'selectors/board';
 import {getForcedActionsForPlayer} from 'selectors/player';
 
 export interface ServerGameModel {
@@ -72,6 +89,24 @@ export interface ServerGameModel {
     players: Array<string>;
     name: string;
 }
+
+interface EffectEvent {
+    standardProject?: StandardProjectType;
+    cost?: number;
+    placedTile?: TileType;
+    cell?: Cell;
+    tags?: Tag[];
+}
+
+const PAUSE_ACTIONS = [
+    ASK_USER_TO_PLACE_TILE,
+    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
+    ASK_USER_TO_LOOK_AT_CARDS,
+    REVEAL_AND_DISCARD_TOP_CARDS,
+    ASK_USER_TO_DISCARD_CARDS,
+    ASK_USER_TO_MAKE_ACTION_CHOICE,
+    ASK_USER_TO_DUPLICATE_PRODUCTION,
+];
 
 export class ApiActionHandler implements GameActionHandler {
     private readonly actionGuard: ActionGuard;
@@ -221,6 +256,8 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     private triggerEffects(event: EffectEvent, playedCard?: Card) {
+        type ActionCardPair = [Action, Card];
+
         const {state} = this;
         const player = this.getLoggedInPlayer();
         // track the card that triggered the action so we can "add resources to this card"
@@ -306,7 +343,7 @@ export class ApiActionHandler implements GameActionHandler {
         while (this.queue.length > 0) {
             const item = this.queue.shift()!;
             this.dispatch(item);
-            if (shouldPause(item)) {
+            if (this.shouldPause(item)) {
                 break;
             }
         }
@@ -610,7 +647,7 @@ export class ApiActionHandler implements GameActionHandler {
         const type = pendingTilePlacement!.type!;
         this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
 
-        const parameterForTile = getParameterForTile(type);
+        const parameterForTile = this.getParameterForTile(type);
         if (parameterForTile) {
             this.playAction({
                 state,
@@ -726,7 +763,7 @@ export class ApiActionHandler implements GameActionHandler {
 
         for (const production in action.decreaseProduction) {
             items.push(
-                createDecreaseProductionAction(
+                this.createDecreaseProductionAction(
                     production as Resource,
                     action.decreaseProduction[production],
                     playerIndex,
@@ -757,10 +794,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         if (action.tilePlacements) {
-            const filteredTilePlacements = filterOceanPlacementsOverMax(
-                action.tilePlacements,
-                state
-            );
+            const filteredTilePlacements = this.filterOceanPlacementsOverMax(action.tilePlacements);
             for (const tilePlacement of filteredTilePlacements) {
                 items.push(askUserToPlaceTile(tilePlacement, playerIndex));
             }
@@ -768,7 +802,7 @@ export class ApiActionHandler implements GameActionHandler {
 
         for (const resource in action.removeResource) {
             items.push(
-                createInitialRemoveResourceAction(
+                this.createInitialRemoveResourceAction(
                     resource as Resource,
                     action.removeResource[resource],
                     playerIndex,
@@ -781,7 +815,7 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
             items.push(
-                createRemoveResourceOptionAction(
+                this.createRemoveResourceOptionAction(
                     action.removeResourceOption!,
                     playerIndex,
                     parent,
@@ -873,7 +907,7 @@ export class ApiActionHandler implements GameActionHandler {
 
         for (const resource in action.gainResource) {
             items.push(
-                createInitialGainResourceAction(
+                this.createInitialGainResourceAction(
                     resource as Resource,
                     action.gainResource[resource],
                     playerIndex,
@@ -886,7 +920,7 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
             items.push(
-                createGainResourceOptionAction(
+                this.createGainResourceOptionAction(
                     action.gainResourceOption!,
                     playerIndex,
                     parent,
@@ -946,9 +980,8 @@ export class ApiActionHandler implements GameActionHandler {
                             if (newLevel === 0) {
                                 // Place an ocean.
                                 const tilePlacements = [t(TileType.OCEAN)];
-                                const filteredTilePlacements = filterOceanPlacementsOverMax(
-                                    tilePlacements,
-                                    state
+                                const filteredTilePlacements = this.filterOceanPlacementsOverMax(
+                                    tilePlacements
                                 );
                                 for (const tilePlacement of filteredTilePlacements) {
                                     items.push(askUserToPlaceTile(tilePlacement, playerIndex));
@@ -984,5 +1017,171 @@ export class ApiActionHandler implements GameActionHandler {
         } else {
             this.queue.push(...items);
         }
+    }
+
+    private createDecreaseProductionAction(
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parent?: Card
+    ) {
+        if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
+            return askUserToChooseResourceActionDetails({
+                actionType: 'decreaseProduction',
+                resourceAndAmounts: [{resource, amount}],
+                card: parent!,
+                playerIndex,
+            });
+        } else {
+            return decreaseProduction(resource, amount, playerIndex);
+        }
+    }
+
+    private createGainResourceOptionAction(
+        options: PropertyCounter<Resource>,
+        playerIndex: number,
+        parent?: Card,
+        playedCard?: Card,
+        locationType?: ResourceLocationType
+    ) {
+        // HACK: all instances of `gainResourceOption` use a number amount, so we don't account for variable amounts here
+        const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+            resource,
+            amount: options[resource] as number,
+        }));
+        return askUserToChooseResourceActionDetails({
+            actionType: 'gainResource',
+            resourceAndAmounts,
+            card: parent!,
+            playedCard,
+            locationType,
+            playerIndex,
+        });
+    }
+
+    private createInitialGainResourceAction(
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parent?: Card,
+        playedCard?: Card,
+        locationType?: ResourceLocationType
+    ) {
+        const requiresLocationChoice =
+            locationType &&
+            USER_CHOICE_LOCATION_TYPES.includes(locationType) &&
+            resource !== Resource.CARD;
+        if (requiresLocationChoice) {
+            return askUserToChooseResourceActionDetails({
+                actionType: 'gainResource',
+                resourceAndAmounts: [{resource, amount}],
+                card: parent!,
+                playedCard,
+                locationType,
+                playerIndex,
+            });
+        }
+
+        if (isStorableResource(resource)) {
+            return gainStorableResource(resource, amount, parent!, playerIndex);
+        } else {
+            return gainResource(resource, amount, playerIndex);
+        }
+    }
+
+    private createInitialRemoveResourceAction(
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parent?: Card,
+        playedCard?: Card,
+        locationType?: ResourceLocationType
+    ) {
+        const requiresLocationChoice =
+            locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
+        const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
+
+        const requiresDiscard = resource === Resource.CARD;
+
+        if (requiresDiscard) {
+            return askUserToDiscardCards(playerIndex, amount, parent);
+        }
+
+        if (requiresAmountChoice || requiresLocationChoice) {
+            return askUserToChooseResourceActionDetails({
+                actionType: 'removeResource',
+                resourceAndAmounts: [{resource, amount}],
+                card: parent!,
+                playedCard,
+                locationType,
+                playerIndex,
+            });
+        }
+
+        if (isStorableResource(resource)) {
+            // Assumes you're removing from "This card" (parent)
+            return removeStorableResource(resource, amount as number, playerIndex, parent!);
+        } else {
+            // Assumes you're removing from your own resources
+            return removeResource(resource, amount as number, playerIndex, playerIndex);
+        }
+    }
+
+    private createRemoveResourceOptionAction(
+        options: PropertyCounter<Resource>,
+        playerIndex: number,
+        parent?: Card,
+        locationType?: ResourceLocationType
+    ) {
+        // HACK: all instances of `removeResourceOption` use a number amount, so we don't account for variable amounts here
+        const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+            resource,
+            amount: options[resource] as number,
+        }));
+        return askUserToChooseResourceActionDetails({
+            actionType: 'removeResource',
+            resourceAndAmounts,
+            card: parent!,
+            locationType,
+            playerIndex,
+        });
+    }
+
+    private filterOceanPlacementsOverMax(tilePlacements: TilePlacement[]): TilePlacement[] {
+        const {state} = this;
+        const numOceans = findCellsWithTile(state, TileType.OCEAN).length;
+
+        let filteredPlacements: TilePlacement[] = [];
+        let numOceanTilePlacements = 0;
+
+        for (const placement of tilePlacements) {
+            if (placement.type !== TileType.OCEAN) {
+                filteredPlacements.push(placement);
+                continue;
+            }
+
+            if (numOceanTilePlacements + numOceans < MAX_PARAMETERS[Parameter.OCEAN]) {
+                filteredPlacements.push(placement);
+                numOceanTilePlacements++;
+            }
+        }
+
+        return filteredPlacements;
+    }
+
+    private getParameterForTile(tileType: TileType): Parameter | undefined {
+        if (tileType === TileType.OCEAN) {
+            return Parameter.OCEAN;
+        }
+
+        if (tileType === TileType.GREENERY) {
+            return Parameter.OXYGEN;
+        }
+
+        return undefined;
+    }
+
+    private shouldPause(action: {type: string}): boolean {
+        return PAUSE_ACTIONS.includes(action.type);
     }
 }

@@ -4,11 +4,12 @@ import {colors} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {AppContext, getDiscountedCardCost} from 'context/app-context';
+import {AppContext} from 'context/app-context';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {Card} from 'models/card';
 import {useContext, useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import styled from 'styled-components';
 
 const PaymentPopoverBase = styled.div`

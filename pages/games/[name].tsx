@@ -23,7 +23,6 @@ export default function Game(props) {
             router.push('/new-game');
             return;
         }
-        context.queue = game.queue;
         dispatch(setGame(deserializeState(game.state)));
     };
     useEffect(() => {

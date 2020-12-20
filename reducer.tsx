@@ -10,6 +10,7 @@ import {Tag} from 'constants/tag';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {
     ADD_FORCED_ACTION_TO_PLAYER,
@@ -80,9 +81,9 @@ import {
     ResourceLocationType,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
-import {convertAmountToNumber, getDiscountedCardCost} from './context/app-context';
 import {Card} from './models/card';
 import {getAdjacentCellsForCell} from './selectors/board';
+import {getDiscountedCardCost} from './selectors/get-discounted-card-cost';
 
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -270,7 +271,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Robotic Workforce';
+const bonusName = '';
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;

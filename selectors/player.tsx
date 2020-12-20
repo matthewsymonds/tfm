@@ -10,6 +10,10 @@ export function getForcedActionsForPlayer(state: GameState, playerIndex: number)
 export function getTagCountsByName(player: PlayerState) {
     return player.playedCards.reduce<NumericPropertyCounter<Tag>>((tagCountsByName, card) => {
         card.tags.forEach(tag => {
+            if (card.tags.includes(Tag.EVENT) && tag !== Tag.EVENT) {
+                // Don't count a space event toward space tags.
+                return;
+            }
             if (!tagCountsByName[tag]) {
                 tagCountsByName[tag] = 0;
             }
