@@ -97,6 +97,9 @@ export default function Game(props) {
 Game.getInitialProps = async ctx => {
     const {isServer, req, res, query} = ctx;
 
+    // To start, clear out the old game if any is present.
+    ctx.store.dispatch(setGame(null));
+
     const headers = isServer ? req.headers : {};
 
     try {
