@@ -1,18 +1,18 @@
+import {Flex} from 'components/box';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
+import {ResourceIcon} from 'components/icons/resource';
+import {TagIcon} from 'components/icons/tag';
+import {TileIcon} from 'components/icons/tile';
+import {Action, Amount} from 'constants/action';
+import {Parameter, TilePlacement, TileType} from 'constants/board';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource, ResourceLocationType} from 'constants/resource';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
+import {Card as CardModel} from 'models/card';
 import React from 'react';
 import styled from 'styled-components';
-import {Card as CardModel} from 'models/card';
-import {Flex} from 'components/box';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource, ResourceLocationType} from 'constants/resource';
-import {VariableAmount} from 'constants/variable-amount';
-import {Parameter, TilePlacement, TileType} from 'constants/board';
-import {TileIcon} from 'components/icons/tile';
-import {TagIcon} from 'components/icons/tag';
-import {Tag} from 'constants/tag';
-import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
-import {PropertyCounter} from 'constants/property-counter';
-import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {Action, Amount} from 'constants/action';
 
 export const InlineText = styled.span`
     margin: 3px 0;
@@ -29,7 +29,7 @@ export const IconographyRow = styled.div<{isInline?: boolean}>`
     justify-content: center;
     margin: ${props => (props.isInline ? '0' : '4px')};
 `;
-const ProductionWrapper = styled.div<>`
+const ProductionWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -717,7 +717,7 @@ function TemporaryAdjustmentIconography({
         );
     }
 
-    return elements;
+    return <>{elements}</>;
 }
 
 export const CardIconography = ({card}: {card: CardModel}) => {

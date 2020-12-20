@@ -8,7 +8,7 @@ import {Resource} from 'constants/resource';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
@@ -35,6 +35,7 @@ export function CardContextButton({
     }
 
     let buttonContent: React.ReactNode | null;
+    const isSyncing = useTypedSelector(state => state.syncing);
 
     switch (cardContext) {
         case CardContext.NONE:
@@ -49,7 +50,13 @@ export function CardContextButton({
                         <Tooltip
                             sticky={true}
                             animation="fade"
-                            html={reason ? <DisabledTooltip>{reason}</DisabledTooltip> : <div />}
+                            html={
+                                !isSyncing && reason ? (
+                                    <DisabledTooltip>{reason}</DisabledTooltip>
+                                ) : (
+                                    <div />
+                                )
+                            }
                         >
                             <div>
                                 <CardButton disabled>Play</CardButton>

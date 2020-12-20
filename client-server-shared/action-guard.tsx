@@ -46,18 +46,23 @@ export class ActionGuard {
         payment?: PropertyCounter<Resource>
     ): CanPlayAndReason {
         const {state} = this;
-        const [canPlay, reason] = this.canPlayAction(card, state);
-
-        if (!canPlay) {
-            return [canPlay, reason];
-        }
-
         const player = this._getPlayerToConsider();
         if (
             !this.canPlayCorporation(card) &&
             !player.cards.some(playerCard => playerCard.name === card.name)
         ) {
             return [false, 'User cannot play this card at this time'];
+        }
+        if (
+            state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+            card.type === CardType.CORPORATION
+        ) {
+            return [true, 'Good to go'];
+        }
+        const [canPlay, reason] = this.canPlayAction(card, state);
+
+        if (!canPlay) {
+            return [canPlay, reason];
         }
         if (!this.canAffordCard(card)) {
             return [false, 'Cannot afford to play'];
@@ -91,13 +96,6 @@ export class ActionGuard {
 
         if (player.pendingDiscard) {
             return [false, 'Cannot play while selecting card(s) to discard'];
-        }
-
-        if (
-            state.common.gameStage === GameStage.CORPORATION_SELECTION &&
-            card.type === CardType.CORPORATION
-        ) {
-            return [true, 'Good to go'];
         }
 
         if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {

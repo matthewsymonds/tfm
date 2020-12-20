@@ -6,10 +6,10 @@ import {
     DecreaseProductionIconography,
     GainResourceIconography,
     GainResourceOptionIconography,
+    IncreaseParameterIconography,
     IncreaseProductionIconography,
     RemoveResourceIconography,
     RemoveResourceOptionIconography,
-    IncreaseParameterIconography,
     TextWithSpacing,
 } from 'components/card/CardIconography';
 import {TerraformRatingIcon} from 'components/icons/other';
@@ -19,7 +19,6 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {VariableAmount} from 'constants/variable-amount';
 import {AppContext} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
 import React, {useContext} from 'react';
@@ -189,6 +188,8 @@ export const CardActions = ({
         return null;
     }
     const state = useTypedSelector(state => state);
+    const isSyncing = useTypedSelector(state => state.syncing);
+
     const appContext = useContext(AppContext);
     const loggedInPlayer = appContext.getLoggedInPlayer(state) ?? null;
     const isOwnedByLoggedInPlayer =
@@ -222,7 +223,7 @@ export const CardActions = ({
                     card
                 );
                 let tooltipText: string | null = null;
-                if (cardContext === CardContext.PLAYED_CARD) {
+                if (!isSyncing && cardContext === CardContext.PLAYED_CARD) {
                     if (isOwnedByLoggedInPlayer) {
                         tooltipText = canPlay ? null : disabledReason;
                     } else {
