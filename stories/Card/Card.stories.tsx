@@ -12,12 +12,16 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            .filter(c => c.name === 'Electro Catapult')
-            .map(cardConfig => (
-                <div style={{margin: 4}}>
-                    <Card card={new CardModel(cardConfig)} cardContext={CardContext.NONE} />
-                </div>
-            ))}
+            // .filter(c => c.name === 'Ants')
+            .map(cardConfig => {
+                const card = new CardModel(cardConfig);
+                card.storedResourceAmount = 3;
+                return (
+                    <div style={{margin: 4}}>
+                        <Card card={card} cardContext={CardContext.NONE} />
+                    </div>
+                );
+            })}
     </div>
 );
 

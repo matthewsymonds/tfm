@@ -9,6 +9,7 @@ import {CardIconography} from 'components/card/CardIconography';
 import {CardRequirement} from 'components/card/CardRequirement';
 import {CardTags} from 'components/card/CardTags';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
+import {CardStoredResources} from 'components/card/CardStoredResources';
 import {CardType} from 'constants/card-types';
 import {AppContext} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
@@ -142,6 +143,7 @@ export const Card: React.FC<CardProps> = ({
                 apiClient={apiClient}
                 loggedInPlayer={loggedInPlayer}
             />
+            <CardStoredResources card={card} />
         </CardBase>
     );
 };

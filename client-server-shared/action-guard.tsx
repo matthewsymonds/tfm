@@ -32,8 +32,8 @@ type CanPlayAndReason = [boolean, string];
 
 export class ActionGuard {
     constructor(private readonly state: GameState, private readonly username: string) {
-        // this.state = state;
-        // this.username = username;
+        this.state = state;
+        this.username = username;
     }
 
     getLoggedInPlayer() {
