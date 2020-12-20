@@ -49,7 +49,7 @@ const CorporationSelector = ({
         }
     }
 
-    const {possibleCorporations, buyCards, username, corporation} = player;
+    const {possibleCorporations, buyCards, corporation} = player;
     if (!buyCards) {
         return (
             <div>

@@ -47,20 +47,23 @@ function Awards() {
     const actionGuard = new ActionGuard(state, player.username);
 
     function renderAwardButton(award: Award) {
-        const isDisabled = !actionGuard.canFundAward(award);
+        const isDisabled = !actionGuard.canFundAward(award)[0];
         const isAwardFunded = state.common.fundedAwards.findIndex(a => a.award === award) > -1;
         const text = getTextForAward(award);
         const cost = getCostForAward(award, state);
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
+            if (isDisabled) {
+                return;
+            }
             apiClient.fundAwardAsync({award, payment});
         };
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
             return (
                 <PaymentPopover cost={cost} onConfirmPayment={handleConfirmPayment}>
-                    <SharedActionRow disabled={isDisabled}>
+                    <SharedActionRow isDisabled={isDisabled}>
                         <em>{isAwardFunded ? <s>{text}</s> : text}</em>
                         <span>{cost}€</span>
                     </SharedActionRow>
@@ -68,7 +71,7 @@ function Awards() {
             );
         } else {
             return (
-                <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                <SharedActionRow isDisabled={isDisabled} onClick={() => handleConfirmPayment()}>
                     <em>{isAwardFunded ? <s>{text}</s> : text}</em>
                     <span>{cost}€</span>
                 </SharedActionRow>

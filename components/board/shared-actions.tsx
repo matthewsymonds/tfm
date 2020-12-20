@@ -11,16 +11,16 @@ export const SharedActionsContainer = styled.div`
     max-width: 640px;
 `;
 
-export const SharedActionRow = styled.button<{disabled: boolean}>`
+export const SharedActionRow = styled.button<{isDisabled: boolean}>`
     margin: 8px;
     padding: 8px;
-    border: 1px solid ${props => (props.disabled ? '#bbb' : '#ccc')};
+    border: 1px solid ${props => (!props.isDisabled ? '#bbb' : '#ccc')};
     border-radius: 3px;
-    cursor: ${props => (props.disabled ? 'pointer' : 'default')};
-    color: ${props => (props.disabled ? 'black' : '#5e5e5e')};
+    cursor: ${props => (!props.isDisabled ? 'pointer' : 'default')};
+    color: ${props => (!props.isDisabled ? 'black' : '#5e5e5e')};
     &:hover:not(:disabled) {
-        background: ${props => (props.disabled ? '#f4f4f4' : 'auto')};
-        box-shadow: ${props => (props.disabled ? '2px 2px 10px 0px #ddd' : 'none')};
+        background: ${props => (!props.isDisabled ? '#f4f4f4' : 'auto')};
+        box-shadow: ${props => (!props.isDisabled ? '2px 2px 10px 0px #ddd' : 'none')};
     }
     /*
        HACK: The PaymentPopover doesn't respect disabled state, which appears to be a limitation of

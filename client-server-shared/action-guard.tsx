@@ -186,12 +186,9 @@ export class ActionGuard {
         // Can they afford it?
         const cost = [8, 14, 20][state.common.fundedAwards.length];
 
-        let availableMoney = player.resources[Resource.MEGACREDIT];
-        if (player.corporation.name === 'Helion') {
-            availableMoney += player.resources[Resource.HEAT];
-        }
-
-        return [availableMoney >= cost, 'Cannot afford to fund award'];
+        const megacredits = player.resources[Resource.MEGACREDIT];
+        const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
+        return [cost <= megacredits + heat, 'Cannot afford to fund award'];
     }
 
     canSkipAction(): CanPlayAndReason {
@@ -524,6 +521,9 @@ export class ActionGuard {
 
     canConfirmCardSelection(numCards: number, state: GameState, corporation: Card) {
         const loggedInPlayer = this.getLoggedInPlayer();
+        if (!loggedInPlayer.corporation) {
+            return false;
+        }
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
         const totalCardCost = numCards * 3;
         const shouldDisableDiscardConfirmation =

@@ -27,6 +27,8 @@ import {
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
+    INCREASE_PARAMETER,
+    INCREASE_TERRAFORM_RATING,
     makeActionChoice,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
@@ -53,20 +55,12 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action, Amount, ParameterCounter} from 'constants/action';
-import {
-    Award,
-    Cell,
-    CellType,
-    Milestone,
-    Parameter,
-    t,
-    TilePlacement,
-    TileType,
-} from 'constants/board';
+import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
+import {GameStage, PARAMETER_STEPS} from 'constants/game';
+import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
@@ -80,7 +74,6 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
-import {findCellsWithTile} from 'selectors/board';
 import {getForcedActionsForPlayer} from 'selectors/player';
 
 export interface ServerGameModel {
@@ -793,11 +786,8 @@ export class ApiActionHandler implements GameActionHandler {
             items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
         }
 
-        if (action.tilePlacements) {
-            const filteredTilePlacements = this.filterOceanPlacementsOverMax(action.tilePlacements);
-            for (const tilePlacement of filteredTilePlacements) {
-                items.push(askUserToPlaceTile(tilePlacement, playerIndex));
-            }
+        for (const tilePlacement of action?.tilePlacements ?? []) {
+            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
 
         for (const resource in action.removeResource) {
@@ -958,47 +948,21 @@ export class ApiActionHandler implements GameActionHandler {
                     // Relying on the order of the parameters variable here.
                     const newLevel =
                         amount * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
-                    const index = parameters.indexOf(parameter);
-                    // A hack, for type purposes.
-                    // The increased parameter is immediately after the increaser parameter.
-                    // Since TypeScript doesn't like us using Parameter.TEMPERATURE as a key,
-                    // we do this instead.
-                    const parameterToIncrease = parameters[index + 1];
-                    switch (parameter) {
-                        case Parameter.OXYGEN:
-                            if (newLevel === 7) {
-                                // Trigger a temperature increase.
-                                increaseParametersWithBonuses[parameterToIncrease] =
-                                    (increaseParametersWithBonuses[parameterToIncrease] || 0) + 1;
-                            }
-                            break;
-                        case Parameter.TEMPERATURE:
-                            if (newLevel === -24 || newLevel === -20) {
-                                // Heat production increase.
-                                items.push(increaseProduction(Resource.HEAT, 1, playerIndex));
-                            }
-                            if (newLevel === 0) {
-                                // Place an ocean.
-                                const tilePlacements = [t(TileType.OCEAN)];
-                                const filteredTilePlacements = this.filterOceanPlacementsOverMax(
-                                    tilePlacements
-                                );
-                                for (const tilePlacement of filteredTilePlacements) {
-                                    items.push(askUserToPlaceTile(tilePlacement, playerIndex));
-                                }
-                            }
-                            break;
-                        case Parameter.VENUS:
-                            if (newLevel === 8) {
-                                // Draw a card.
-                                items.push(gainResource(Resource.CARD, 1, playerIndex));
-                            }
-                            if (newLevel === 16) {
-                                (terraformRatingIncrease as number)++;
-                            }
-                            break;
-                        default:
-                            break;
+                    const getBonus = PARAMETER_BONUSES[parameter][newLevel];
+                    if (getBonus) {
+                        const bonus = getBonus(playerIndex);
+                        if (bonus.type === INCREASE_PARAMETER) {
+                            // combine the bonus parameter increase with the rest of the parameter increases.
+                            // That way an oxygen can trigger a temperature which triggers an
+                            // ocean.
+                            increaseParametersWithBonuses[bonus.payload.parameter] +=
+                                bonus.payload.amount;
+                        } else if (bonus.type === INCREASE_TERRAFORM_RATING) {
+                            // combine terraform increases into one action/log message.
+                            (terraformRatingIncrease as number) += bonus.payload.amount as number;
+                        } else {
+                            items.push(bonus);
+                        }
                     }
                 }
             }
@@ -1145,28 +1109,6 @@ export class ApiActionHandler implements GameActionHandler {
             locationType,
             playerIndex,
         });
-    }
-
-    private filterOceanPlacementsOverMax(tilePlacements: TilePlacement[]): TilePlacement[] {
-        const {state} = this;
-        const numOceans = findCellsWithTile(state, TileType.OCEAN).length;
-
-        let filteredPlacements: TilePlacement[] = [];
-        let numOceanTilePlacements = 0;
-
-        for (const placement of tilePlacements) {
-            if (placement.type !== TileType.OCEAN) {
-                filteredPlacements.push(placement);
-                continue;
-            }
-
-            if (numOceanTilePlacements + numOceans < MAX_PARAMETERS[Parameter.OCEAN]) {
-                filteredPlacements.push(placement);
-                numOceanTilePlacements++;
-            }
-        }
-
-        return filteredPlacements;
     }
 
     private getParameterForTile(tileType: TileType): Parameter | undefined {

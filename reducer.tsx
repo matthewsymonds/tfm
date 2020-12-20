@@ -721,6 +721,13 @@ export const reducer = (state: GameState | null = null, action) => {
                 }
                 break;
             case ASK_USER_TO_PLACE_TILE:
+                const {type} = payload.tilePlacement;
+                if (type === TileType.OCEAN) {
+                    // Check that 9 oceans haven't already been placed.
+                    if (getNumOceans(state) === MAX_PARAMETERS[Parameter.OCEAN]) {
+                        break;
+                    }
+                }
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {

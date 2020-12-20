@@ -98,6 +98,9 @@ export default function StandardProjects() {
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
+            if (isDisabled) {
+                return;
+            }
             apiClient.playStandardProjectAsync({payment, standardProjectAction: standardProject});
         };
 
@@ -106,7 +109,7 @@ export default function StandardProjects() {
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0 && cost) {
             return (
                 <PaymentPopover cost={cost} onConfirmPayment={handleConfirmPayment}>
-                    <SharedActionRow disabled={isDisabled}>
+                    <SharedActionRow isDisabled={isDisabled}>
                         <span>{text}</span>
                         <span>{costAsText}</span>
                     </SharedActionRow>
@@ -117,7 +120,7 @@ export default function StandardProjects() {
 
         return (
             <div>
-                <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+                <SharedActionRow isDisabled={isDisabled} onClick={() => handleConfirmPayment()}>
                     <span>{text}</span>
                     <span>{costAsText}</span>
                 </SharedActionRow>

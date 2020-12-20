@@ -51,20 +51,23 @@ function Milestones() {
     const actionGuard = new ActionGuard(state, player.username);
 
     function renderMilestoneButton(milestone: Milestone) {
-        const isDisabled = !actionGuard.canClaimMilestone(milestone);
+        const isDisabled = !actionGuard.canClaimMilestone(milestone)[0];
         const isMilestoneClaimed =
             state.common.claimedMilestones.findIndex(m => m.milestone === milestone) > -1;
         const text = getTextForMilestone(milestone);
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}
         ) => {
+            if (isDisabled) {
+                return;
+            }
             apiClient.claimMilestoneAsync({milestone, payment});
         };
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
             return (
                 <PaymentPopover cost={8} onConfirmPayment={handleConfirmPayment}>
-                    <SharedActionRow disabled={isDisabled}>
+                    <SharedActionRow isDisabled={isDisabled}>
                         <em>{isMilestoneClaimed ? <s>{text}</s> : text}</em>
                         <span>8€</span>
                     </SharedActionRow>
@@ -73,7 +76,7 @@ function Milestones() {
         }
 
         return (
-            <SharedActionRow disabled={isDisabled} onClick={() => handleConfirmPayment()}>
+            <SharedActionRow isDisabled={isDisabled} onClick={() => handleConfirmPayment()}>
                 <em>{isMilestoneClaimed ? <s>{text}</s> : text}</em>
                 <span>8€</span>
             </SharedActionRow>
