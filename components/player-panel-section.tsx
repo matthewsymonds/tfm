@@ -33,7 +33,11 @@ const PlayerPanelSectionInner = styled.div`
     padding: 6px;
 `;
 
-export type PlayerPanelSection = 'Board' | 'Played cards';
+export type PlayerPanelSection = 'Board & Hand' | 'Played cards';
+
+const CardsInHandMessage = styled.div`
+    padding-top: 8px;
+`;
 
 export const PlayerPanelSection = ({
     section,
@@ -44,20 +48,33 @@ export const PlayerPanelSection = ({
     player: PlayerState;
     isLoggedInPlayer: boolean;
 }) => {
-    const [isSectionContentVisible, setIsSectionContentVisible] = useState(section === 'Board');
+    const [isSectionContentVisible, setIsSectionContentVisible] = useState(
+        section === 'Board & Hand'
+    );
     const isGreeneryPlacement = useTypedSelector(
         state => state?.common?.gameStage === GameStage.GREENERY_PLACEMENT
     );
+    const isActiveRound = useTypedSelector(
+        state => state?.common?.gameStage === GameStage.ACTIVE_ROUND
+    );
+    const numCards = player.cards.length;
+
+    const playerCardsElement = isActiveRound ? (
+        <CardsInHandMessage>Cards in hand: {numCards}</CardsInHandMessage>
+    ) : null;
 
     function getSectionContent() {
         switch (section) {
-            case 'Board':
+            case 'Board & Hand':
                 return (
-                    <PlayerResourceBoard
-                        plantConversionOnly={isGreeneryPlacement}
-                        player={player}
-                        isLoggedInPlayer={isLoggedInPlayer}
-                    />
+                    <>
+                        <PlayerResourceBoard
+                            plantConversionOnly={isGreeneryPlacement}
+                            player={player}
+                            isLoggedInPlayer={isLoggedInPlayer}
+                        />
+                        {playerCardsElement}
+                    </>
                 );
             case 'Played cards':
                 return <PlayerPlayedCards player={player} />;
