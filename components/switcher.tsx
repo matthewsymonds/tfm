@@ -1,4 +1,4 @@
-import {colors} from 'constants/game';
+import {PLAYER_COLORS} from 'constants/game';
 import React, {Children, ReactNode, useState} from 'react';
 import styled from 'styled-components';
 import {Box} from './box';
@@ -52,7 +52,7 @@ export function Switcher({
             <Tabs>
                 {tabs.map((tab, index) => (
                     <Tab
-                        color={color || colors[index]}
+                        color={color || PLAYER_COLORS[index]}
                         key={index}
                         index={index}
                         selected={index === selectedTabIndex}

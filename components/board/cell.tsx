@@ -2,7 +2,7 @@ import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {Square} from 'components/square';
 import {Cell as CellModel, CellType, getTileBgColor, getTileIcon, TileType} from 'constants/board';
-import {colors} from 'constants/game';
+import {PLAYER_COLORS} from 'constants/game';
 import {Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
@@ -49,7 +49,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
 
     const bgColor =
         tile && typeof tile.ownerPlayerIndex === 'number'
-            ? colors[tile?.ownerPlayerIndex]
+            ? PLAYER_COLORS[tile?.ownerPlayerIndex]
             : getColor(type);
 
     function renderTile(tile) {

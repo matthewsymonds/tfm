@@ -1,6 +1,7 @@
 import {setCorporation} from 'actions';
 import {Flex, PanelWithTabs} from 'components/box';
 import {CardSelector} from 'components/card-selector';
+import {PlayerIcon} from 'components/icons/player';
 import {PlayerPanelSection} from 'components/player-panel-section';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {GameStage} from 'constants/game';
@@ -14,6 +15,7 @@ const CorporationHeader = styled.h2`
     display: flex;
     width: 100%;
     margin: 0 0 16px;
+    align-items: center;
     color: #fff;
 `;
 
@@ -108,10 +110,18 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
         <Flex flexDirection="column" justifyContent="stretch">
             <PanelWithTabs
                 tabs={players.map(p => {
-                    if (p === loggedInPlayer || gameStage !== GameStage.CORPORATION_SELECTION) {
-                        return p.corporation.name;
-                    }
-                    return p.username;
+                    const displayName =
+                        gameStage !== GameStage.CORPORATION_SELECTION
+                            ? p.corporation.name
+                            : p.username;
+
+                    return (
+                        <Flex justifyContent="center" alignItems="center">
+                            <PlayerIcon size={12} playerIndex={p.index} />
+                            <span style={{marginLeft: 4}}>{displayName}</span>
+                            {p === loggedInPlayer && <span style={{marginLeft: 4}}>(you)</span>}
+                        </Flex>
+                    );
                 })}
                 tabType="player"
                 selectedTabIndex={selectedPlayerIndex}
@@ -119,7 +129,8 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
             >
                 <Flex flexDirection="column">
                     <CorporationHeader>
-                        <span>
+                        <PlayerIcon size={16} playerIndex={selectedPlayer.index} />
+                        <span style={{marginLeft: 8}}>
                             {isCorporationSelection
                                 ? selectedPlayer.username
                                 : selectedPlayer.corporation.name}

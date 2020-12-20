@@ -1,6 +1,6 @@
 import {ResourceIcon} from 'components/icons/resource';
 import {Action} from 'constants/action';
-import {colors} from 'constants/game';
+import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
@@ -253,7 +253,11 @@ export default function PaymentPopover({
                     <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
                         <span>Cost: {actionCost}</span>
                         <span className="running-total">
-                            <em style={{color: isValidPayment ? colors[1] : colors[0]}}>
+                            <em
+                                style={{
+                                    color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
+                                }}
+                            >
                                 Current: {runningTotal}
                             </em>
                         </span>

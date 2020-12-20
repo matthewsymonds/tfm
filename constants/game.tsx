@@ -1,5 +1,6 @@
 import {Parameter} from './board';
 import {Resource} from './resource';
+import {colors} from 'components/ui';
 
 export enum GameStage {
     CORPORATION_SELECTION = 'corporationSelection',
@@ -40,4 +41,10 @@ export const MinimumProductions = {
     [Resource.HEAT]: 0,
 };
 
-export const colors = ['#d9330e', '#008000', '#3987c9', 'gray', 'gold'];
+export const PLAYER_COLORS = [
+    colors.PLAYER_COLOR_RED,
+    colors.PLAYER_COLOR_GREEN,
+    colors.PLAYER_COLOR_BLUE,
+    colors.PLAYER_COLOR_YELLOW,
+    colors.PLAYER_COLOR_GRAY,
+];
