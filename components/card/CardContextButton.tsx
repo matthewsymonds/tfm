@@ -47,8 +47,9 @@ export function CardContextButton({
                 if (!canPlay) {
                     buttonContent = (
                         <Tooltip
-                            html={reason ? <DisabledTooltip>{reason}</DisabledTooltip> : <div />}
+                            sticky={true}
                             animation="fade"
+                            html={reason ? <DisabledTooltip>{reason}</DisabledTooltip> : <div />}
                         >
                             <div>
                                 <CardButton disabled>Play</CardButton>

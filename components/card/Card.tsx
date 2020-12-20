@@ -112,7 +112,7 @@ export const Card: React.FC<CardProps> = ({
     const loggedInPlayer = context.getLoggedInPlayer(state);
     const actionGuard = new ActionGuard(
         state,
-        loggedInPlayer?.username ?? state.players[0].username // fallback to first player for storybook
+        cardOwner?.username ?? loggedInPlayer?.username ?? state.players[0].username // fallback to first player for storybook
     );
     const apiClient = new ApiClient(dispatch);
 
