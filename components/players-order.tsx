@@ -1,4 +1,4 @@
-import {PLAYER_COLORS} from 'constants/game';
+import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tooltip} from 'react-tippy';
 import {GameState, useTypedSelector} from 'reducer';
 import {getHasPlayerPassed} from 'selectors/get-has-player-passed';
@@ -53,6 +53,14 @@ function getTooltipText(playerIndex: number, state: GameState): string {
     const passed = getHasPlayerPassed(playerIndex, state);
     const firstPlayer = state.common.firstPlayerIndex === playerIndex;
     const currentPlayer = state.common.currentPlayerIndex === playerIndex;
+    const isActiveRound = state.common.gameStage === GameStage.ACTIVE_ROUND;
+    if (!isActiveRound) {
+        if (firstPlayer) {
+            return `${name} is first player`;
+        } else {
+            return name;
+        }
+    }
     if (passed && firstPlayer) {
         return `${name} is first player and has passed`;
     }
