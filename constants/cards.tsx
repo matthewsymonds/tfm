@@ -1394,6 +1394,9 @@ export const cardConfigs: CardConfig[] = [
         name: 'Acquired Company',
         text: 'Increase your MC production 3 steps.',
         tags: [Tag.EARTH],
+        increaseProduction: {
+            [Resource.MEGACREDIT]: 3,
+        },
         type: CardType.AUTOMATED,
     },
     {
