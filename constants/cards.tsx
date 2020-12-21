@@ -2346,7 +2346,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Action: Spend 3 energy to raise oxygen 1 step.',
-            removeResource: {[Resource.ENERGY]: 1},
+            removeResource: {[Resource.ENERGY]: 3},
             increaseParameter: {[Parameter.OXYGEN]: 1},
         },
         cost: 12,
