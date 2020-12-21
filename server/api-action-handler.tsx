@@ -484,8 +484,8 @@ export class ApiActionHandler implements GameActionHandler {
             if (!this.actionGuard.canPlayCorporation(corporation)) {
                 throw new Error('Cannot play corporation');
             }
-            await this.playCardAsync({card: corporation});
             this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
+            await this.playCardAsync({card: corporation});
         }
 
         if (buyCards) {
