@@ -24,7 +24,7 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
-import {CardComponent} from './card';
+import {Card as CardComponent} from 'components/card/Card';
 import {CardSelector} from './card-selector';
 
 const PromptTitle = styled.h3`
@@ -216,17 +216,25 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     }
                                 />
                             )}
-                            {state.common.revealedCards.map((card, index) => {
-                                return (
-                                    <CardComponent key={index} width={250} content={card}>
-                                        {index === state.common.revealedCards.length - 1 ? (
-                                            <button onClick={continueAfterRevealingCards}>
-                                                Continue
-                                            </button>
-                                        ) : null}
-                                    </CardComponent>
-                                );
-                            })}
+                            {state.common.revealedCards.length > 0 && (
+                                <Flex flexDirection="column">
+                                    <p>
+                                        Card{state.common.revealedCards.length > 1 ? 's' : ''}{' '}
+                                        revealed & discarded:
+                                    </p>
+                                    <Flex>
+                                        {state.common.revealedCards.map((card, index) => {
+                                            return <CardComponent key={index} card={card} />;
+                                        })}
+                                    </Flex>
+                                    <button
+                                        style={{margin: '8px 0'}}
+                                        onClick={continueAfterRevealingCards}
+                                    >
+                                        Continue
+                                    </button>
+                                </Flex>
+                            )}
                         </ActionBarRow>
                     </ActionBar>
                 )}

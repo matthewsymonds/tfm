@@ -1,14 +1,16 @@
 import {ApiClient} from 'api-client';
 import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
+import {Flex} from 'components/box';
+import {Card as CardComponent} from 'components/card/Card';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
-import {getResourceName} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
+import {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
-import {CardComponent} from './card';
 
 type DuplicateProductionOption = {
     /* The original card */
@@ -24,7 +26,6 @@ export function getOptionsForDuplicateProduction(
 ): DuplicateProductionOption[] {
     const candidates: Card[] = player.playedCards
         .filter(card => card.type !== CardType.EVENT)
-        .filter(card => card.type !== CardType.CORPORATION)
         .filter(card => card.tags.includes(tag))
         .filter(card => {
             const productionDelta = {
@@ -48,7 +49,8 @@ export function getOptionsForDuplicateProduction(
             return [candidate, syntheticAction] as [Card, Action];
         })
         .filter(([, action]) => {
-            return canPlayActionInSpiteOfUI(action, state, player)[0];
+            const [canPlay, reason] = canPlayActionInSpiteOfUI(action, state, player);
+            return canPlay;
         })
         .map(([candidate, action]) => {
             return {
@@ -58,22 +60,14 @@ export function getOptionsForDuplicateProduction(
         });
 }
 
-function formatText(card: Card) {
-    const base = `Copy ${card.name}`;
-
-    if (card.increaseProductionResult) {
-        return `${base} (${getResourceName(card.increaseProductionResult)})`;
-    }
-
-    return base;
-}
+const CardWrapper = styled.div``;
 
 export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     const {pendingDuplicateProduction} = player;
     const {tag, card} = pendingDuplicateProduction!;
     const state = useTypedSelector(state => state);
-
     const options = getOptionsForDuplicateProduction(tag, player, state);
+    const [selectedIndex, setSelectedIndex] = useState<null | number>(options.length ? 0 : null);
 
     const dispatch = useDispatch();
 
@@ -91,16 +85,35 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
 
     return (
         <AskUserToMakeChoice card={card}>
-            {options.map((option, index) => {
-                return (
-                    <CardComponent key={option.card.name} content={option.card}>
-                        <button onClick={() => handleConfirmDuplicateProduction(index)}>
-                            {formatText(option.card)}
-                        </button>
-                    </CardComponent>
-                );
-            })}
-            {showSkip && <button onClick={handleSkip}>Skip</button>}
+            <Flex>
+                <Flex marginRight="8px">
+                    {options.map((option, index) => {
+                        return (
+                            <CardWrapper
+                                onClick={() => {
+                                    setSelectedIndex(index);
+                                }}
+                                key={option.card.name}
+                                style={{marginLeft: index > 0 ? 8 : 0}}
+                            >
+                                <CardComponent
+                                    card={option.card}
+                                    isSelected={selectedIndex === index}
+                                />
+                            </CardWrapper>
+                        );
+                    })}
+                </Flex>
+                <div>
+                    <button
+                        onClick={() => handleConfirmDuplicateProduction(selectedIndex as number)}
+                        disabled={typeof selectedIndex !== 'number'}
+                    >
+                        Confirm production duplication
+                    </button>
+                    {showSkip && <button onClick={handleSkip}>Skip</button>}
+                </div>
+            </Flex>
         </AskUserToMakeChoice>
     );
 }

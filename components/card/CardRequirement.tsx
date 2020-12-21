@@ -26,7 +26,7 @@ const CardRequirementBase = styled.div<{isUpperBoundedRequirement: boolean}>`
 
 function getCardRequirementText(card: CardModel) {
     let text: string | null = null;
-    if (card.requiredGlobalParameter !== undefined) {
+    if (card.requiredGlobalParameter) {
         text = String(card.requiredGlobalParameter.min ?? card.requiredGlobalParameter.max);
         if (card.requiredGlobalParameter.type === Parameter.OXYGEN) {
             text += '%';

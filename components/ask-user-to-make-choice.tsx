@@ -1,14 +1,12 @@
+import {Card as CardComponent} from 'components/card/Card';
 import {Card} from 'models/card';
 import {ReactNode} from 'react';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {CardComponent} from './card';
 
 export const OptionsParent = styled.div`
-    padding-left: 2px;
-    margin-top: 8px;
     max-height: 400px;
-    overflow-y: auto;
+    overflow-y: hidden;
 `;
 
 export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; children: ReactNode}) {
@@ -19,11 +17,11 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
             <>
                 <Box marginRight="32px">
                     <h3>You played</h3>
-                    <CardComponent content={playedCard} />
+                    <CardComponent card={playedCard} />
                 </Box>
                 <Box marginRight="32px">
                     <h3>which triggered</h3>
-                    <CardComponent content={card} />
+                    <CardComponent card={card} />
                 </Box>
             </>
         );
@@ -31,19 +29,19 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
         cardDetails = (
             <Box marginRight="32px">
                 <h3>You played</h3>
-                <CardComponent content={card} />
+                <CardComponent card={card} />
             </Box>
         );
     } else {
         cardDetails = null;
     }
     return (
-        <Flex width="100%" flexWrap="wrap" justifyContent="space-around" maxWidth="800px">
+        <Flex width="100%" flexWrap="wrap" justifyContent="space-around">
             {cardDetails}
-            <div>
+            <Flex flexDirection="column">
                 <h3>Please confirm your choice:</h3>
                 <OptionsParent>{children}</OptionsParent>
-            </div>
+            </Flex>
         </Flex>
     );
 }

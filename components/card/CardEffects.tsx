@@ -10,7 +10,7 @@ import {Parameter} from 'constants/board';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {Card as CardModel} from 'models/card';
+import {Card as CardModel, doesCardHaveDiscounts} from 'models/card';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -56,16 +56,20 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         const elements: Array<React.ReactNode> = [];
 
         if (
-            Object.keys(card.discounts?.tags).length > 0 ||
-            Object.keys(card.discounts?.cards).length > 0
+            Object.keys(card.discounts.tags).length > 0 ||
+            Object.keys(card.discounts.cards).length > 0
         ) {
-            const tags = {...card.discounts?.tags, ...card.discounts?.cards};
+            const tags = {...card.discounts.tags, ...card.discounts.cards};
             Object.keys(tags).forEach((tag, index) => {
                 if (index > 0) {
                     elements.push(<TextWithMargin key={elements.length}>/</TextWithMargin>);
                 }
                 elements.push(<TagIcon name={tag as Tag} size={16} key={elements.length} />);
             });
+        }
+
+        if (card.discounts.card) {
+            elements.push(<ResourceIcon name={Resource.CARD} size={16} />);
         }
 
         if (card.discounts.trade) {
@@ -102,6 +106,8 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`-${amount}`} />
             );
         }
+
+        return <React.Fragment>{elements}</React.Fragment>;
     }
 
     function renderTrigger(trigger: EffectTrigger | undefined) {
@@ -219,8 +225,8 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
                         {Object.keys(card.exchangeRates).length > 0 ? (
                             <React.Fragment>{renderExchangeRates()}</React.Fragment>
-                        ) : card.hasDiscounts ? (
-                            renderDiscounts()
+                        ) : doesCardHaveDiscounts(card) ? (
+                            <React.Fragment>{renderDiscounts()}</React.Fragment>
                         ) : (
                             <React.Fragment>
                                 {renderTrigger(effect.trigger)}
