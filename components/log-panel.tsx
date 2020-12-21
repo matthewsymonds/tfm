@@ -39,10 +39,6 @@ export const LogPanel = () => {
         .filter(player => player?.corporation?.name)
         .map(player => player.corporation.name);
 
-    if (isCorporationSelection) {
-        return null;
-    }
-
     useIsomorphicLayoutEffect(() => {
         const logWrapperElement = logRef.current;
         if (logWrapperElement) {
@@ -65,6 +61,9 @@ export const LogPanel = () => {
         }
     }, [lastNumLogItems, log.length]);
 
+    if (isCorporationSelection) {
+        return null;
+    }
     return (
         <PanelWithTabs
             selectedTabIndex={0}
