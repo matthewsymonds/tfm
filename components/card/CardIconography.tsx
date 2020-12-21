@@ -233,12 +233,21 @@ export function ChangeResourceIconography({
                     break;
                 case VariableAmount.USER_CHOICE_MIN_ZERO:
                 case VariableAmount.BASED_ON_USER_CHOICE:
-                    customElement = (
-                        <React.Fragment>
-                            <TextWithMargin>{opts.shouldShowPlus ? '+' : 'X'}</TextWithMargin>
-                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
-                        </React.Fragment>
-                    );
+                    if (resource === Resource.MEGACREDIT) {
+                        customElement = (
+                            <React.Fragment>
+                                <TextWithMargin>+</TextWithMargin>
+                                <ResourceIcon name={resource as Resource} size={16} amount="X" />
+                            </React.Fragment>
+                        );
+                    } else {
+                        customElement = (
+                            <React.Fragment>
+                                <TextWithMargin>{opts.shouldShowPlus ? '+' : 'X'}</TextWithMargin>
+                                <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                            </React.Fragment>
+                        );
+                    }
                     break;
                 case VariableAmount.USER_CHOICE:
                     customElement = (
@@ -638,47 +647,37 @@ function ProductionIconography({card}: {card: CardModel}) {
         <IconographyRow>
             <ProductionWrapper>
                 <Flex flexDirection="column" justifyContent="center" alignItems="center">
-                    {Object.values({
-                        ...card.decreaseProduction,
-                        ...card.decreaseAnyProduction,
-                    }).length > 1 ? (
-                        <IconographyRow>
-                            <TextWithMargin margin="0 4px 0 0">-</TextWithMargin>
-                            <ChangeResourceIconography
-                                changeResource={card.decreaseProduction ?? {}}
-                                opts={{
-                                    isInline: true,
-                                }}
-                            />
-                            <div style={{width: 6}} /> {/* hack for spacing */}
-                            <ChangeResourceIconography
-                                changeResource={card.decreaseAnyProduction ?? {}}
-                                opts={{
-                                    isInline: true,
-                                    useRedBorder: true,
-                                }}
-                            />
-                        </IconographyRow>
-                    ) : (
-                        <React.Fragment>
-                            <RemoveResourceIconography
-                                removeResource={card.decreaseProduction ?? {}}
-                                sourceType={undefined}
-                            />
-                            <RemoveResourceIconography
-                                removeResource={card.decreaseAnyProduction ?? {}}
-                                sourceType={ResourceLocationType.ANY_PLAYER}
-                            />
-                        </React.Fragment>
-                    )}
-                    <GainResourceIconography
-                        gainResource={card.increaseProduction ?? {}}
+                    <IconographyRow isInline={true}>
+                        {Object.values({
+                            ...card.decreaseProduction,
+                            ...card.decreaseAnyProduction,
+                        }).length > 0 && <TextWithMargin margin="0 4px 0 0">-</TextWithMargin>}
+                        <ChangeResourceIconography
+                            changeResource={card.decreaseProduction ?? {}}
+                            opts={{
+                                isInline: true,
+                            }}
+                        />
+                        {Object.values({
+                            ...card.decreaseProduction,
+                            ...card.decreaseAnyProduction,
+                        }).length > 1 && <div style={{width: 6}} />}
+                        <ChangeResourceIconography
+                            changeResource={card.decreaseAnyProduction ?? {}}
+                            opts={{
+                                isInline: true,
+                                useRedBorder: true,
+                            }}
+                        />
+                    </IconographyRow>
+                    <ChangeResourceIconography
+                        changeResource={card.increaseProduction ?? {}}
                         opts={{
                             shouldShowPlus,
                         }}
                     />
-                    <GainResourceOptionIconography
-                        gainResourceOption={card.increaseProductionOption ?? {}}
+                    <ChangeResourceOptionIconography
+                        changeResourceOption={card.increaseProductionOption ?? {}}
                     />
                     <DuplicateProductionIconography
                         duplicateProduction={card.duplicateProduction}

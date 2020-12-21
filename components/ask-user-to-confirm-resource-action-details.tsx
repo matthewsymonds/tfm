@@ -9,6 +9,10 @@ import {
     stealStorableResource,
 } from 'actions';
 import {ApiClient} from 'api-client';
+import {Box, Flex} from 'components/box';
+import {ChangeResourceIconography} from 'components/card/CardIconography';
+import {ProductionIcon} from 'components/icons/production';
+import {ResourceIcon} from 'components/icons/resource';
 import {
     getResourceName,
     isStorableResource,
@@ -25,6 +29,7 @@ import React, {useContext, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
+import {deserializeCard, serializeCard, SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
@@ -114,18 +119,26 @@ export type ResourceActionOption = {
     isVariable: boolean;
     actionType: ResourceActionType;
     card?: Card;
-    text: string;
+    text: React.ReactNode;
 };
 
-export type SerializedResourceActionOption = Omit<ResourceActionOption, 'location'> & {
+export type SerializedResourceActionOption = Omit<
+    ResourceActionOption,
+    'location' | 'text' | 'card'
+> & {
     location: {type: 'Player' | 'Card'; name: string};
+    card?: SerializedCard;
 };
 
 export function serializeResourceActionOption(
     option: ResourceActionOption
 ): SerializedResourceActionOption {
     return {
-        ...option,
+        quantity: option.quantity,
+        resource: option.resource,
+        isVariable: option.isVariable,
+        actionType: option.actionType,
+        card: option.card ? serializeCard(option.card) : undefined,
         location: {
             type: option.location instanceof Card ? 'Card' : 'Player',
             name: option.location instanceof Card ? option.location.name : option.location.username,
@@ -146,6 +159,8 @@ export function deserializeResourceOptionAction(
     return {
         ...option,
         location,
+        card: option.card ? deserializeCard(option.card) : undefined,
+        text: '',
     };
 }
 
@@ -255,7 +270,7 @@ function getOptionsForIncreaseProduction(
 ): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
     const quantity = amount as number;
-    const text = formatText(quantity, resource, 'increaseProduction');
+    const text = formatText({quantity, resource, actionType: 'increaseProduction'});
 
     return [
         {
@@ -285,7 +300,7 @@ function getOptionsForDecreaseProduction(
 
     const isVariable = amount === VariableAmount.USER_CHOICE_MIN_ZERO;
 
-    const text = formatText(maxAmount, resource, 'decreaseProduction');
+    const text = formatText({quantity: maxAmount, resource, actionType: 'decreaseProduction'});
 
     return [
         {
@@ -365,7 +380,12 @@ function getOptionsForStorableResource(
             }
         }
 
-        const text = formatText(maxAmount, resource, actionType, card.name);
+        const text = formatText({
+            quantity: maxAmount,
+            resource,
+            actionType,
+            locationName: card.name,
+        });
 
         return {
             location: card,
@@ -379,15 +399,20 @@ function getOptionsForStorableResource(
     });
 }
 
-function formatText(
-    quantity: number,
-    resource: Resource,
-    actionType: ResourceActionType,
-    locationName?: string
-) {
-    if (actionType === 'decreaseProduction' || actionType === 'increaseProduction') {
-        return formatProductionText(actionType, quantity, resource);
-    }
+function formatText({
+    quantity,
+    resource,
+    actionType,
+    locationName,
+}: {
+    quantity: number;
+    resource: Resource;
+    actionType: ResourceActionType;
+    locationName?: string;
+}) {
+    // if (actionType === 'decreaseProduction' || actionType === 'increaseProduction') {
+    //     return formatProductionText(actionType, quantity, resource);
+    // }
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
 
     const locationAppendix = locationName ? `${modifier} ${locationName}` : '';
@@ -396,9 +421,33 @@ function formatText(
         gainResource: 'Add',
         removeResource: 'Remove',
         stealResource: 'Steal',
+        increaseProduction: 'Increase',
+        decreaseProduction: 'Decrease',
     }[actionType];
 
-    return `${verb} ${amountAndResource(quantity, resource)} ${locationAppendix}`;
+    return (
+        <Flex alignItems="center">
+            <span>{verb}</span>
+            <Box margin="0 4px">
+                <ChangeResourceIconography
+                    changeResource={{[resource]: quantity}}
+                    opts={{
+                        isInline: true,
+                        isProduction: ['increaseProduction', 'decreaseProduction'].includes(
+                            actionType
+                        ),
+                        isNegative: ['decreaseProduction', 'removeResource'].includes(actionType),
+                        useRedBorder: [
+                            'decreaseProduction',
+                            'stealResource',
+                            'removeResorce',
+                        ].includes(actionType),
+                    }}
+                />
+            </Box>
+            <span>{locationAppendix}</span>
+        </Flex>
+    );
 }
 
 function formatProductionText(
@@ -431,7 +480,7 @@ function getOptionsForRegularResource(
 
     const isVariable = amount === VariableAmount.USER_CHOICE;
 
-    const text = formatText(maxAmount, resource, actionType);
+    const text = formatText({quantity: maxAmount, resource, actionType});
 
     return [
         {
@@ -516,15 +565,18 @@ function AskUserToConfirmResourceActionDetails({
                         <h4>{playerOptionWrapper.title}</h4>
                         {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
                         <OptionsParent>
-                            {playerOptionWrapper.options.map(option => {
-                                return (
-                                    <OptionComponent
-                                        apiClient={apiClient}
-                                        option={option}
-                                        key={option.text}
-                                    />
-                                );
-                            })}
+                            <Flex>
+                                {playerOptionWrapper.options.map((option, index) => {
+                                    return (
+                                        <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
+                                            <OptionComponent
+                                                apiClient={apiClient}
+                                                option={option}
+                                            />
+                                        </Box>
+                                    );
+                                })}
+                            </Flex>
                         </OptionsParent>
                     </PlayerOption>
                 );
@@ -562,44 +614,76 @@ function OptionComponent({
     if (option.isVariable && option.actionType === 'decreaseProduction') {
         // Currently this is just insulation
         return (
+            <Flex flexDirection="column">
+                <Flex alignItems="center">
+                    <span>Decrease</span>
+                    <Box margin="0 4px">
+                        <ProductionIcon name={option.resource} size={20} />
+                    </Box>
+                    <span>by</span>
+                    <input
+                        type="number"
+                        min={0}
+                        style={{margin: '0 4px'}}
+                        value={variableAmount}
+                        max={max}
+                        onChange={e =>
+                            setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                        }
+                    />
+                    <span>{variableAmount === 1 ? ' step' : ' steps'},</span>
+                </Flex>
+                <Flex alignItems="center" marginTop="2px">
+                    <span>increase</span>
+                    <Box margin="0 4px">
+                        <ProductionIcon name={Resource.MEGACREDIT} size={20} />
+                    </Box>
+                    <span>by</span>
+                    <input
+                        type="number"
+                        min={0}
+                        style={{margin: '0 4px'}}
+                        value={variableAmount}
+                        max={max}
+                        onChange={e =>
+                            setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                        }
+                    />
+                    <span>{variableAmount === 1 ? ' step' : ' steps'}</span>
+                </Flex>
+                <Box marginTop="8px">
+                    <button onClick={handleClick}>Confirm</button>
+                </Box>
+            </Flex>
+        );
+    } else if (option.isVariable) {
+        return (
             <React.Fragment>
-                Decrease {getResourceName(option.resource)} production by{' '}
+                <span>Remove</span>
                 <input
                     type="number"
-                    min={0}
+                    min={1}
+                    style={{margin: '0 4px'}}
                     value={variableAmount}
                     max={max}
                     onChange={e =>
                         setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
                     }
                 />
-                {variableAmount === 1 ? ' step' : ' steps'}
-                <button onClick={handleClick} style={{display: 'inline-flex', marginLeft: 8}}>
-                    Confirm
-                </button>
-            </React.Fragment>
-        );
-    } else if (option.isVariable) {
-        return (
-            <React.Fragment>
-                Remove{' '}
-                <input
-                    type="number"
-                    min={1}
-                    value={variableAmount}
-                    max={max}
-                    onChange={e =>
-                        setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
-                    }
-                />{' '}
-                {getResourceName(option.resource)}
+                <Box margin="0 4px">
+                    <ResourceIcon name={option.resource} size={20} />
+                </Box>
                 <button onClick={handleClick} style={{display: 'inline-flex', marginLeft: 8}}>
                     Confirm
                 </button>
             </React.Fragment>
         );
     } else {
-        return <button onClick={handleClick}>{option.text}</button>;
+        return (
+            <button onClick={handleClick} style={{padding: 4}}>
+                {option.text}
+            </button>
+        );
     }
 }
 

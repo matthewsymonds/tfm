@@ -92,7 +92,7 @@ const deserializeCommonState = (common: SerializedCommonState): CommonState => {
     };
 };
 
-type SerializedCard = {
+export type SerializedCard = {
     name: string;
     storedResourceType?: Resource;
     lastRoundUsedAction?: number;
@@ -100,7 +100,7 @@ type SerializedCard = {
     increaseProductionResult?: Resource;
 } | null;
 
-function deserializeCard(serializedCard: SerializedCard): Card {
+export function deserializeCard(serializedCard: SerializedCard): Card {
     if (!serializedCard) return dummyCard;
     let card = cards.find(card => card.name === serializedCard.name) ?? dummyCard;
     card.storedResourceAmount = serializedCard.storedResourceAmount || 0;
@@ -109,7 +109,7 @@ function deserializeCard(serializedCard: SerializedCard): Card {
     return card;
 }
 
-function serializeCard(card: Card): SerializedCard {
+export function serializeCard(card: Card): SerializedCard {
     const result: SerializedCard = {
         name: card.name,
     };

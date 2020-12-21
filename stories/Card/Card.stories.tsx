@@ -1,8 +1,8 @@
-import React from 'react';
-import {Story, Meta} from '@storybook/react';
+import {Meta, Story} from '@storybook/react';
 import {Card, CardContext} from 'components/card/Card';
 import {cardConfigs} from 'constants/cards';
 import {Card as CardModel} from 'models/card';
+import React from 'react';
 
 export default {
     title: 'Card',
@@ -12,7 +12,7 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            .filter(c => c.name === 'Anti-Gravity Technology')
+            // .filter(c => c.name === 'Anti-Gravity Technology')
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;
