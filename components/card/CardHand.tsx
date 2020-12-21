@@ -1,17 +1,10 @@
 import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
+import {usePrevious} from 'hooks/use-previous';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef, useState} from 'react';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {PlayerState} from 'reducer';
 import styled from 'styled-components';
 import {throttle} from 'throttle-debounce';
-
-function usePrevious(value) {
-    const ref = useRef();
-    useEffect(() => {
-        ref.current = value;
-    }, [value]);
-    return ref.current;
-}
 
 const MINIMUM_OVERLAP_PERCENT = 0.5; // e.g. cards will at least overlap by 50%. May be more if there are more cards
 
@@ -44,7 +37,6 @@ export function CardHand({
     cardInfos: Array<{card: CardModel; cardContext?: CardContext; cardOwner?: PlayerState}>;
 }) {
     const cards = cardInfos.map(c => c.card);
-    const gameState = useTypedSelector(state => state);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
     const [shouldShowCardHand, setShouldShowCardHand] = useState(true);

@@ -21,11 +21,11 @@ export const PlayerIcon = ({playerIndex, size}: {playerIndex: number; size: numb
     return <PlayerIconBase size={size} color={color} passed={passed} />;
 };
 
-export const PlayerCorpAndIcon = ({player}: {player: PlayerState}) => {
+export const PlayerCorpAndIcon = ({player, color}: {player: PlayerState; color?: string}) => {
     return (
         <Flex alignItems="center" justifyContent="center">
             <PlayerIcon playerIndex={player.index} size={12} />
-            <span style={{marginLeft: 4, fontWeight: 600, color: 'white'}}>
+            <span style={{marginLeft: 4, fontWeight: 600, color: color ?? 'white'}}>
                 {player.corporation?.name ?? player.username}
             </span>
         </Flex>
