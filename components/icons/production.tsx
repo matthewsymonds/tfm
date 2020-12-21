@@ -1,7 +1,7 @@
-import React from 'react';
-import {Resource} from 'constants/resource';
-import styled from 'styled-components';
 import {ResourceIcon} from 'components/icons/resource';
+import {Resource} from 'constants/resource';
+import React from 'react';
+import styled from 'styled-components';
 
 const ProductionIconBase = styled.div<{size: number}>`
     background-color: brown;

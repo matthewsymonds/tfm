@@ -93,8 +93,6 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                         {stepElement}
                     </Tooltip>
                 );
-
-                return stepElement;
             })}
         </Flex>
     );

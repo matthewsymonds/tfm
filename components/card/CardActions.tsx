@@ -9,8 +9,8 @@ import {
     IncreaseParameterIconography,
     IncreaseProductionIconography,
     RemoveResourceIconography,
-    StealResourceIconography,
     RemoveResourceOptionIconography,
+    StealResourceIconography,
     TextWithMargin,
 } from 'components/card/CardIconography';
 import {TerraformRatingIcon} from 'components/icons/other';

@@ -1,7 +1,7 @@
-import React from 'react';
-import {Card as CardModel} from 'models/card';
-import {TagIcon} from 'components/icons/tag';
 import {Flex} from 'components/box';
+import {TagIcon} from 'components/icons/tag';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
 
 export const CardTags = ({card}: {card: CardModel}) => {
     return (

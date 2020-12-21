@@ -1,6 +1,6 @@
-import React from 'react';
-import {TileType, getTileBgColor, getTileIcon} from 'constants/board';
 import {Hexagon} from 'components/board/hexagon';
+import {getTileBgColor, getTileIcon, TileType} from 'constants/board';
+import React from 'react';
 
 export const TileIcon = ({type, size = 16}: {type: TileType; size?: number}) => {
     return (

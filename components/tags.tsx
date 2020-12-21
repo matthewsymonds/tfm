@@ -1,10 +1,10 @@
+import {Box, Flex} from 'components/box';
+import {TagIcon} from 'components/icons/tag';
+import {Tag} from 'constants/tag';
 import {ReactChild} from 'react';
 import {PlayerState} from 'reducer';
+import {getEventCards, getTags} from 'selectors/variable-amount';
 import styled from 'styled-components';
-import {Tag} from 'constants/tag';
-import {getTags, getEventCards} from 'selectors/variable-amount';
-import {TagIcon} from 'components/icons/tag';
-import {Flex, Box} from 'components/box';
 
 const TagsBase = styled.div`
     display: flex;

@@ -1,6 +1,6 @@
+import {Tag} from 'constants/tag';
 import React from 'react';
 import styled from 'styled-components';
-import {Tag} from 'constants/tag';
 
 type TagBaseProps = {
     color: string;

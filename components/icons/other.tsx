@@ -1,5 +1,5 @@
-import React from 'react';
 import {AllCapsIcon} from 'components/icons/global-parameter';
+import React from 'react';
 
 // HACK: make a proper icon for this
 export const TerraformRatingIcon = ({size = 16}: {size?: number}) => {

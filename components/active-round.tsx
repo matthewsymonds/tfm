@@ -1,6 +1,7 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
+import {Card as CardComponent} from 'components/card/Card';
 import {LogPanel} from 'components/log-panel';
 import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
@@ -24,7 +25,6 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
-import {Card as CardComponent} from 'components/card/Card';
 import {CardSelector} from './card-selector';
 
 const PromptTitle = styled.h3`

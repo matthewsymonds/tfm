@@ -1,8 +1,7 @@
-import React from 'react';
-import {Card as CardModel} from 'models/card';
-import styled from 'styled-components';
-import {getResourceName} from 'constants/resource';
 import {ResourceIcon} from 'components/icons/resource';
+import {Card as CardModel} from 'models/card';
+import React from 'react';
+import styled from 'styled-components';
 
 const StoredResourcesContainer = styled.div`
     position: absolute;

@@ -1,14 +1,14 @@
+import {Box} from 'components/box';
+import {InlineText} from 'components/card/CardIconography';
+import {ColonyIcon} from 'components/icons/other';
+import {TagIcon} from 'components/icons/tag';
+import {TileIcon} from 'components/icons/tile';
+import {TileType} from 'constants/board';
+import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
-import {Box, Flex} from 'components/box';
 import styled from 'styled-components';
-import {VariableAmount} from 'constants/variable-amount';
-import {InlineText} from 'components/card/CardIconography';
-import {TileType} from 'constants/board';
-import {TileIcon} from 'components/icons/tile';
-import {Tag} from 'constants/tag';
-import {TagIcon} from 'components/icons/tag';
-import {ColonyIcon} from 'components/icons/other';
 
 const Circle = styled.div`
     border-radius: 50%;
