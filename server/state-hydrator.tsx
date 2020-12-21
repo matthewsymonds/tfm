@@ -1,10 +1,10 @@
-import {Card, cards} from 'models/card';
-import {ServerGameModel} from 'server/api-action-handler';
 import {
+    StandardProjectAction,
     standardProjectActions,
     StandardProjectType,
-    StandardProjectAction,
 } from 'constants/standard-project';
+import {Card, cards} from 'models/card';
+import {ServerGameModel} from 'server/api-action-handler';
 
 export class StateHydrator {
     constructor(public game: ServerGameModel, public username: string) {}

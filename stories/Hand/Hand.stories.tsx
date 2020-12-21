@@ -1,7 +1,7 @@
-import React from 'react';
-import {Story, Meta} from '@storybook/react';
+import {Meta, Story} from '@storybook/react';
 import {CardHand} from 'components/card/CardHand';
 import {cards} from 'models/card';
+import React from 'react';
 
 export default {
     title: 'Hand',
