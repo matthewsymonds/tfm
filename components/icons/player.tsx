@@ -13,6 +13,7 @@ const PlayerIconBase = styled.div<{size: number; color: string; passed: boolean}
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 `;
 
 export const PlayerIcon = ({playerIndex, size}: {playerIndex: number; size: number}) => {
