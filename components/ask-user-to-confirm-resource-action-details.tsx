@@ -226,7 +226,10 @@ export function getPlayerOptionWrappers(
             playerOptionWrapper.options.push(...options);
         }
 
-        const zeroChangeAllowed = actionType === 'decreaseProduction';
+        const zeroChangeAllowed =
+            actionType === 'removeResource' &&
+            locationType &&
+            locationType !== ResourceLocationType.ANY_CARD_OWNED_BY_YOU;
 
         playerOptionWrapper.options = playerOptionWrapper.options.filter(
             option => option.quantity > 0 || zeroChangeAllowed
