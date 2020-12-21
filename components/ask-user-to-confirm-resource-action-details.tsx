@@ -195,7 +195,7 @@ export function getPlayerOptionWrappers(
             player: playerToConsider,
         };
         for (const resourceAndAmount of resourceAndAmounts) {
-            if (actionType !== 'gainResource') {
+            if (actionType === 'removeResource' || actionType === 'stealResource') {
                 if (playerToConsider.playedCards.find(card => card.name === 'Protected Habitats')) {
                     if (PROTECTED_HABITAT_RESOURCE.includes(resourceAndAmount.resource)) {
                         if (playerToConsider.username !== player.username) {
@@ -528,8 +528,6 @@ function AskUserToConfirmResourceActionDetails({
     const state = useTypedSelector(state => state);
 
     const playerOptionWrappers: PlayerOptionWrapper[] = getPlayerOptionWrappers(state, player);
-
-    const context = useContext(AppContext);
 
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
