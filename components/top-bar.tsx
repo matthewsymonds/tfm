@@ -12,6 +12,7 @@ import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {PlayersOrder} from './players-order';
 
 const TopBarBase = styled.div`
     display: flex;
@@ -134,6 +135,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                     )}
             </Flex>
             <Flex alignItems="center" justifyContent="flex-end">
+                <PlayersOrder />
                 <RoundText>{roundText}</RoundText>
                 <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
             </Flex>

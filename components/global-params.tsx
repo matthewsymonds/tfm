@@ -4,6 +4,7 @@ import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {Tooltip} from 'react-tippy';
 import styled from 'styled-components';
 import {Flex} from './box';
+import {ColoredTooltip} from './colored-tooltip';
 import {colors} from './ui';
 
 const GlobalParamsBase = styled.div`
@@ -49,15 +50,6 @@ type GlobalParamValueProps = {
     currentValue: number;
 };
 
-const BonusTooltip = styled.div<{color: string}>`
-    border-radius: 3px;
-    background-color: #fae2cf;
-    color: #111111;
-    border: 1px solid ${props => props.color};
-    padding: 8px;
-    font-size: 11px;
-`;
-
 function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     const numSteps =
         (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) / PARAMETER_STEPS[parameter];
@@ -90,9 +82,9 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                         animation="fade"
                         html={
                             showTooltip ? (
-                                <BonusTooltip color={color}>
+                                <ColoredTooltip color={color}>
                                     {isFilledIn ? 'Current value' : bonus!.name}
-                                </BonusTooltip>
+                                </ColoredTooltip>
                             ) : (
                                 <div />
                             )
