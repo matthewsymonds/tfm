@@ -709,7 +709,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.playedCards.push(payload.card);
                 if (payload.card.type === CardType.CORPORATION) {
                     player.possibleCorporations = [];
-                    draft.log.push(`${player.username} chose ${player.corporation.name}`);
+                    draft.log.push(`${player.username} chose ${payload.card.name}`);
                 }
                 player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
                 break;
