@@ -93,12 +93,12 @@ export const LogPanel = () => {
                                             stringOrElement.indexOf(corpName)
                                         )
                                     );
+                                    i++;
                                     elements.splice(
                                         i,
                                         0,
-                                        <Flex margin="0 4px">
+                                        <Flex margin="0 4px" key={i}>
                                             <PlayerCorpAndIcon
-                                                key={i}
                                                 player={players[index]}
                                                 color="black"
                                             />
