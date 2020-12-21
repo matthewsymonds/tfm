@@ -192,7 +192,7 @@ export const getResourceColor = (resource: Resource) => {
 export const getResourceBackgroundColor = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:
-            return 'brown';
+            return '#eee';
         case Resource.ASTEROID:
             return 'black';
         case Resource.CAMP:
