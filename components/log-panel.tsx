@@ -35,7 +35,9 @@ export const LogPanel = () => {
     const logRef = useRef<HTMLDivElement>(null);
     const lastNumLogItems = usePrevious(log.length);
     const players = useTypedSelector(state => state.players);
-    const corporationNames = players.map(player => player.corporation.name);
+    const corporationNames = players
+        .filter(player => player?.corporation?.name)
+        .map(player => player.corporation.name);
 
     if (isCorporationSelection) {
         return null;
