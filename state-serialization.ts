@@ -1,5 +1,5 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
-import {Amount} from 'constants/action';
+import {Action, Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {Tag} from 'constants/tag';
@@ -22,6 +22,7 @@ export type SerializedPlayerState = Omit<
     | 'pendingResourceActionDetails'
     | 'pendingDuplicateProduction'
     | 'pendingDiscard'
+    | 'pendingChoice'
 > & {
     corporation: SerializedCard;
     possibleCards: SerializedCard[];
@@ -42,6 +43,11 @@ export type SerializedPlayerState = Omit<
     pendingDiscard?: {
         amount: Amount;
         card?: SerializedCard;
+    };
+    pendingChoice?: {
+        choice: Action[];
+        card: SerializedCard;
+        playedCard?: SerializedCard;
     };
 };
 
@@ -129,6 +135,7 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
         pendingResourceActionDetails,
         pendingDuplicateProduction,
         pendingDiscard,
+        pendingChoice,
         ...rest
     } = player;
     return {
@@ -159,6 +166,15 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
                   card: pendingDiscard.card ? serializeCard(pendingDiscard.card) : undefined,
               }
             : undefined,
+        pendingChoice: pendingChoice
+            ? {
+                  choice: pendingChoice.choice,
+                  card: serializeCard(pendingChoice.card),
+                  playedCard: pendingChoice.playedCard
+                      ? serializeCard(pendingChoice.playedCard)
+                      : undefined,
+              }
+            : undefined,
     };
 };
 
@@ -172,6 +188,7 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
         pendingResourceActionDetails,
         pendingDuplicateProduction,
         pendingDiscard,
+        pendingChoice,
         ...rest
     } = player;
     return {
@@ -200,6 +217,15 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
             ? {
                   amount: pendingDiscard.amount,
                   card: pendingDiscard.card ? deserializeCard(pendingDiscard.card) : undefined,
+              }
+            : undefined,
+        pendingChoice: pendingChoice
+            ? {
+                  choice: pendingChoice.choice,
+                  card: deserializeCard(pendingChoice.card),
+                  playedCard: pendingChoice.playedCard
+                      ? deserializeCard(pendingChoice.playedCard)
+                      : undefined,
               }
             : undefined,
     };
