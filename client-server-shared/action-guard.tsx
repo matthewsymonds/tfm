@@ -409,6 +409,7 @@ export class ActionGuard {
                 : 'username' in option.location
                 ? option.location.username
                 : '';
+        const quantity = option.isVariable ? amount : option.quantity;
 
         const playerOptionWrappers = getPlayerOptionWrappers(
             this.state,
@@ -416,7 +417,7 @@ export class ActionGuard {
         );
         const isDecreaseProduction = option.actionType === 'decreaseProduction';
         const min = isDecreaseProduction ? 1 : 0;
-        if (amount < min) {
+        if (option.isVariable && amount < min) {
             return [false, 'Variable amount too small'];
         }
 
@@ -424,8 +425,8 @@ export class ActionGuard {
             const max = isDecreaseProduction
                 ? wrapper.player.productions[option.resource]
                 : wrapper.player.resources[option.resource];
-            if (amount > max) {
-                return false;
+            if (quantity > max) {
+                return [false, 'Not enough resources or production'];
             }
             return wrapper.options.some(validOption => {
                 // find matching valid option!
@@ -446,16 +447,16 @@ export class ActionGuard {
                 }
 
                 const isVariableMatches = option.isVariable === validOption.isVariable;
+                const quantityMatches = option.quantity === validOption.quantity;
 
-                const quantityMatches = validOption.quantity === validOption.quantity;
-
-                return (
+                return [
                     resourceMatches &&
-                    actionTypeMatches &&
-                    isVariableMatches &&
-                    quantityMatches &&
-                    locationMatches
-                );
+                        actionTypeMatches &&
+                        isVariableMatches &&
+                        quantityMatches &&
+                        locationMatches,
+                    'Did not pass action check',
+                ];
             });
         });
 
