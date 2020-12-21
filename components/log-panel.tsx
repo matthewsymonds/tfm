@@ -43,6 +43,16 @@ export const LogPanel = () => {
 
     useIsomorphicLayoutEffect(() => {
         const logWrapperElement = logRef.current;
+        if (logWrapperElement) {
+            logWrapperElement.scroll({
+                top: -1 * logWrapperElement.scrollHeight,
+                behavior: 'smooth',
+            });
+        }
+    }, []);
+
+    useIsomorphicLayoutEffect(() => {
+        const logWrapperElement = logRef.current;
 
         // scroll the log to the top whenever a new log item comes in
         if (logWrapperElement && lastNumLogItems !== log.length) {
