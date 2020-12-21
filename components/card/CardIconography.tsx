@@ -4,7 +4,7 @@ import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
-import {Action, Amount} from 'constants/action';
+import {Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceLocationType} from 'constants/resource';
@@ -613,7 +613,6 @@ function DuplicateProductionIconography({
 }
 
 function ProductionIconography({card}: {card: CardModel}) {
-    debugger;
     if (
         Object.keys({
             ...card.decreaseProduction,

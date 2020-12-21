@@ -1,6 +1,9 @@
+import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
+import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
-import {Resource} from './constants/resource';
+import {Tag} from 'constants/tag';
+import {Resource, ResourceLocationType} from './constants/resource';
 import {Card, cards, dummyCard} from './models/card';
 import {CommonState, GameState, PlayerState} from './reducer';
 
@@ -10,17 +13,36 @@ export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile
 };
 
 export type SerializedPlayerState = Omit<
-    Omit<
-        Omit<Omit<Omit<PlayerState, 'corporation'>, 'possibleCards'>, 'possibleCorporations'>,
-        'cards'
-    >,
-    'playedCards'
+    PlayerState,
+    | 'corporation'
+    | 'possibleCards'
+    | 'possibleCorporations'
+    | 'cards'
+    | 'playedCards'
+    | 'pendingResourceActionDetails'
+    | 'pendingDuplicateProduction'
+    | 'pendingDiscard'
 > & {
     corporation: SerializedCard;
     possibleCards: SerializedCard[];
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
     playedCards: SerializedCard[];
+    pendingResourceActionDetails?: {
+        actionType: ResourceActionType;
+        resourceAndAmounts: Array<{resource: Resource; amount: Amount}>;
+        card: SerializedCard;
+        playedCard?: SerializedCard;
+        locationType?: ResourceLocationType;
+    };
+    pendingDuplicateProduction?: {
+        tag: Tag;
+        card: SerializedCard;
+    };
+    pendingDiscard?: {
+        amount: Amount;
+        card?: SerializedCard;
+    };
 };
 
 export type SerializedState = Omit<Omit<GameState, 'common'>, 'players'> & {
@@ -98,7 +120,17 @@ function serializeCard(card: Card): SerializedCard {
 }
 
 const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
-    const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
+    const {
+        corporation,
+        possibleCards,
+        possibleCorporations,
+        cards,
+        playedCards,
+        pendingResourceActionDetails,
+        pendingDuplicateProduction,
+        pendingDiscard,
+        ...rest
+    } = player;
     return {
         ...rest,
         corporation: serializeCard(corporation),
@@ -106,11 +138,42 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
         possibleCorporations: possibleCorporations?.map(serializeCard) || [],
         cards: cards.map(serializeCard),
         playedCards: playedCards.map(serializeCard),
+        pendingResourceActionDetails: pendingResourceActionDetails
+            ? {
+                  ...pendingResourceActionDetails,
+                  card: serializeCard(pendingResourceActionDetails.card),
+                  playedCard: pendingResourceActionDetails.playedCard
+                      ? serializeCard(pendingResourceActionDetails.playedCard)
+                      : undefined,
+              }
+            : undefined,
+        pendingDuplicateProduction: pendingDuplicateProduction
+            ? {
+                  tag: pendingDuplicateProduction.tag,
+                  card: serializeCard(pendingDuplicateProduction.card),
+              }
+            : undefined,
+        pendingDiscard: pendingDiscard
+            ? {
+                  amount: pendingDiscard.amount,
+                  card: pendingDiscard.card ? serializeCard(pendingDiscard.card) : undefined,
+              }
+            : undefined,
     };
 };
 
 const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
-    const {corporation, possibleCards, possibleCorporations, cards, playedCards, ...rest} = player;
+    const {
+        corporation,
+        possibleCards,
+        possibleCorporations,
+        cards,
+        playedCards,
+        pendingResourceActionDetails,
+        pendingDuplicateProduction,
+        pendingDiscard,
+        ...rest
+    } = player;
     return {
         ...rest,
         corporation: deserializeCard(corporation),
@@ -118,6 +181,27 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
         possibleCorporations: possibleCorporations?.map(deserializeCard) || [],
         cards: cards.map(deserializeCard),
         playedCards: playedCards.map(deserializeCard),
+        pendingResourceActionDetails: pendingResourceActionDetails
+            ? {
+                  ...pendingResourceActionDetails,
+                  card: deserializeCard(pendingResourceActionDetails.card),
+                  playedCard: pendingResourceActionDetails.playedCard
+                      ? deserializeCard(pendingResourceActionDetails.playedCard)
+                      : undefined,
+              }
+            : undefined,
+        pendingDuplicateProduction: pendingDuplicateProduction
+            ? {
+                  tag: pendingDuplicateProduction.tag,
+                  card: deserializeCard(pendingDuplicateProduction.card),
+              }
+            : undefined,
+        pendingDiscard: pendingDiscard
+            ? {
+                  amount: pendingDiscard.amount,
+                  card: pendingDiscard.card ? deserializeCard(pendingDiscard.card) : undefined,
+              }
+            : undefined,
     };
 };
 

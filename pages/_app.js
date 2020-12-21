@@ -77,7 +77,6 @@ export const GlobalStyles = createGlobalStyle`
         background: rgba(0,0,0,0);
       }
     h1, h2, h3, h4 {
-      align-self: center;
       margin-top: 16px;
       margin-bottom: 16px;
       display: inherit;
