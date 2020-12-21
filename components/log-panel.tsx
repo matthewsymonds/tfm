@@ -56,7 +56,7 @@ export const LogPanel = () => {
     return (
         <PanelWithTabs
             selectedTabIndex={0}
-            tabs={['Action log']}
+            tabs={['Action log ⬆️']}
             tabType="log"
             setSelectedTabIndex={(_: number) => {}}
         >
