@@ -935,7 +935,7 @@ export class ApiActionHandler implements GameActionHandler {
             const increaseParametersWithBonuses: ParameterCounter = {};
 
             for (const parameter of parameters) {
-                increaseParametersWithBonuses[parameter] = action.increaseParameter[parameter];
+                increaseParametersWithBonuses[parameter] = action.increaseParameter[parameter] ?? 0;
             }
 
             for (const parameter of parameters) {
