@@ -867,8 +867,9 @@ export const reducer = (state: GameState | null = null, action) => {
                 const previous = player.action;
                 player.action = 1;
                 // Did the player just skip on their first action?
+                // Or is this greenery phase?
                 // If so, they're out for the rest of the round.
-                if (previous === 1) {
+                if (previous === 1 || common.gameStage === GameStage.GREENERY_PLACEMENT) {
                     draft.log.push(`${corporationName} passed`);
 
                     player.action = 0;
@@ -949,7 +950,12 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.action = (player.action % 2) + 1;
 
                 // Did the player just complete their second action?
-                if (player.action === 1) {
+                // And is it not greenery placement?
+                // their turn is over.
+                if (
+                    player.action === 1 &&
+                    draft.common.gameStage !== GameStage.GREENERY_PLACEMENT
+                ) {
                     // It's the next player's turn
                     handleChangeCurrentPlayer(state, draft);
                 }
