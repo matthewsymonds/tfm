@@ -22,7 +22,6 @@ export const LogPanelBase = styled(SwitchColors)`
     display: flex;
     max-height: 400px;
     overflow-y: auto;
-    font-size: 11px;
     flex-direction: column-reverse;
 `;
 
@@ -99,13 +98,12 @@ export const LogPanel = () => {
                                     elements.splice(
                                         i,
                                         0,
-                                        <span style={{margin: '0 4px'}} key={i}>
+                                        <Flex margin="0 4px" key={i}>
                                             <PlayerCorpAndIcon
                                                 player={players[index]}
                                                 color="black"
-                                                isInline={true}
                                             />
-                                        </span>
+                                        </Flex>
                                     );
                                     i++;
                                     elements.splice(

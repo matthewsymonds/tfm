@@ -22,36 +22,7 @@ export const PlayerIcon = ({playerIndex, size}: {playerIndex: number; size: numb
     return <PlayerIconBase size={size} color={color} passed={passed} />;
 };
 
-const InlinePlayerIcon = styled.span<{bgColor: string}>`
-    height: 12px;
-    width: 12px;
-    background-color: ${props => props.bgColor};
-`;
-
-const InlinePlayerCorp = styled.span`
-    margin-left: 4px;
-    font-weight: 600;
-    color: black;
-`;
-
-export const PlayerCorpAndIcon = ({
-    player,
-    color,
-    isInline,
-}: {
-    player: PlayerState;
-    color?: string;
-    isInline?: boolean;
-}) => {
-    if (isInline) {
-        return (
-            <span>
-                <InlinePlayerIcon bgColor={PLAYER_COLORS[player.index]} />
-                <InlinePlayerCorp>{player.corporation?.name ?? player.username}</InlinePlayerCorp>
-            </span>
-        );
-    }
-
+export const PlayerCorpAndIcon = ({player, color}: {player: PlayerState; color?: string}) => {
     return (
         <Flex alignItems="center" justifyContent="center">
             <PlayerIcon playerIndex={player.index} size={12} />
