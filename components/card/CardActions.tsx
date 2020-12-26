@@ -51,7 +51,7 @@ const ActionContainerBase = styled.button`
     }
 `;
 
-export function renderRightSideOfArrow(action: Action, card?: CardModel) {
+export function renderRightSideOfArrow(action: Action, prefix: string, card?: CardModel) {
     const elements: Array<React.ReactNode> = [];
     if (action.stealResource) {
         elements.push(
@@ -113,7 +113,10 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     if (action.lookAtCards) {
         elements.push(
             <Box marginLeft="8px" display="flex">
-                <ActionText>{action.text}</ActionText>
+                <ActionText>
+                    {prefix}
+                    {action.text}
+                </ActionText>
             </Box>
         );
     }
@@ -251,7 +254,7 @@ export const CardActions = ({
                             <Flex alignItems="center" justifyContent="center" margin="4px">
                                 {renderLeftSideOfArrow(action, card)}
                                 {renderArrow()}
-                                {renderRightSideOfArrow(action, card)}
+                                {renderRightSideOfArrow(action, prefix, card)}
                             </Flex>
                         </ActionContainer>
                     </React.Fragment>
