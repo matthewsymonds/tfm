@@ -743,22 +743,6 @@ export class ApiActionHandler implements GameActionHandler {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<{type: string; payload}> = [];
 
-        // Only accept payment for actions with a parent (ie, card actions).
-        // Other actions should already be accounting for payment in their internals.
-        // TODO: Consolidate payment logic into here
-        if (payment && action.cost && parent) {
-            for (const resource in payment) {
-                items.push(
-                    removeResource(
-                        resource as Resource,
-                        payment[resource],
-                        playerIndex,
-                        playerIndex
-                    )
-                );
-            }
-        }
-
         for (const production in action.decreaseProduction) {
             items.push(
                 this.createDecreaseProductionAction(
