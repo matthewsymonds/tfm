@@ -2658,7 +2658,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: Each time a city tile is placed, including this, increase your MC production 1 step.',
-            trigger: {placedTile: TileType.CITY},
+            trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         cost: 13,
@@ -4609,7 +4609,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: Each time any Jovian tag is put into play, including this, increase your MC production 1 step.',
-            trigger: {tags: [Tag.JOVIAN]},
+            trigger: {tags: [Tag.JOVIAN], anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         deck: Deck.CORPORATE,

@@ -46,14 +46,14 @@ import {
     setCorporation,
     setPlantDiscount,
     skipAction,
-    skipChoice,
+    skipChoice
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     getAction,
-    ResourceActionOption,
+    ResourceActionOption
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action, Amount, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
@@ -68,7 +68,7 @@ import {
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
-    USER_CHOICE_LOCATION_TYPES,
+    USER_CHOICE_LOCATION_TYPES
 } from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
@@ -182,7 +182,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
 
         // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card affects itself.
+        // Must be processed separatedly in case the card effects itself.
         // Must also happen after payment.
         // However, it must be *before* other stuff happens.
         // Why? Imagine you're Credicor and play Underground City.
@@ -207,7 +207,6 @@ export class ApiActionHandler implements GameActionHandler {
                 playerIndex
             )
         );
-
         this.queue.push(applyDiscounts(card.discounts, playerIndex));
         this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
 
@@ -256,6 +255,7 @@ export class ApiActionHandler implements GameActionHandler {
         const player = this.getLoggedInPlayer();
         // track the card that triggered the action so we can "add resources to this card"
         // e.g. Ecological Zone
+
         for (const thisPlayer of state.players) {
             const actionCardPairs: ActionCardPair[] = [];
             for (const card of thisPlayer.playedCards) {

@@ -71,7 +71,7 @@ export function getInitialState(players: string[]): GameState {
         const possibleCorporations = sampleCards(allCorporations, 2);
         // const possibleCorporations = [
         //     ...sampleCards(allCorporations, 2),
-        //     allCorporations.find(corp => corp.name === 'Helion')!,
+        //     ...allCorporations.filter(corp => corp.name === 'Saturn Systems'),
         // ];
 
         base.players.push({
