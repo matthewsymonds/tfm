@@ -546,7 +546,12 @@ function AskUserToConfirmResourceActionDetails({
                     playerOptionWrapper.player === player &&
                     isNegativeAction &&
                     (playerOptionWrappers.length > 1 ||
-                        (playerOptionWrappers.length === 1 && actionType === 'removeResource'));
+                        (playerOptionWrappers.length === 1 &&
+                            actionType === 'removeResource' &&
+                            card.removeResourceSourceType &&
+                            card.removeResourceSourceType !== ResourceLocationType.THIS_CARD &&
+                            card.removeResourceSourceType !==
+                                ResourceLocationType.ANY_CARD_OWNED_BY_YOU));
                 return (
                     <PlayerOption
                         showWarning={shouldShowWarningMessage}

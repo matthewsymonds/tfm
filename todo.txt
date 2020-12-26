@@ -1,5 +1,4 @@
 Old:
-Insulation
 Invention Contest
 
 New:
@@ -18,4 +17,3 @@ greenery
 research/olympus conference
 auto play phobos ganymede.
 greenery phase weirdness
-spend 2 to draw a cardno warning for electo catapult
