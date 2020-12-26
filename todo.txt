@@ -28,3 +28,5 @@ greenery
 research/olympus conference
 auto play phobos ganymede.
 greenery phase weirdness
+mining rights can place on oceans
+spend 2 to draw a cardno warning for electo catapult
