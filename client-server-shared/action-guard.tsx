@@ -140,9 +140,7 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
-        if (!isActiveRound(state)) {
-            return [false, 'Cannot claim milestone outside active round'];
-        }
+        if (this.shouldDisableUI()) return [false, 'Cannot claim milestone right now'];
 
         // Is it availiable?
         if (state.common.claimedMilestones.length === 3) {
