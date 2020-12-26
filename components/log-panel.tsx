@@ -3,8 +3,8 @@ import {PlayerCorpAndIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {usePrevious} from 'hooks/use-previous';
-import {useEffect, useLayoutEffect, useRef} from 'react';
-import {useTypedSelector} from 'reducer';
+import React, {useEffect, useLayoutEffect, useRef} from 'react';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
 export const SwitchColors = styled.div`
@@ -34,6 +34,7 @@ export const LogPanel = () => {
     );
     const logRef = useRef<HTMLDivElement>(null);
     const lastNumLogItems = usePrevious(log.length);
+
     const players = useTypedSelector(state => state.players);
     const corporationNames = players
         .filter(player => player?.corporation?.name)
@@ -72,68 +73,91 @@ export const LogPanel = () => {
             setSelectedTabIndex={(_: number) => {}}
         >
             <LogPanelBase ref={logRef}>
-                {log.map((entry, entryIndex) => {
-                    const elements: Array<React.ReactNode> = [entry];
-                    corporationNames.forEach((corpName, index) => {
-                        let i = 0;
-                        while (i < elements.length) {
-                            const stringOrElement = elements[i];
-                            if (typeof stringOrElement !== 'string') {
-                                i++;
-                                continue;
-                            } else {
-                                if (stringOrElement.indexOf(corpName) === -1) {
-                                    i++;
-                                    continue;
-                                } else {
-                                    elements.splice(
-                                        i,
-                                        1,
-                                        stringOrElement.substring(
-                                            0,
-                                            stringOrElement.indexOf(corpName)
-                                        )
-                                    );
-                                    i++;
-                                    elements.splice(
-                                        i,
-                                        0,
-                                        <Flex margin="0 4px" key={i}>
-                                            <PlayerCorpAndIcon
-                                                player={players[index]}
-                                                color="black"
-                                            />
-                                        </Flex>
-                                    );
-                                    i++;
-                                    elements.splice(
-                                        i,
-                                        0,
-                                        stringOrElement.substring(
-                                            stringOrElement.indexOf(corpName) + corpName.length
-                                        )
-                                    );
-                                    i++;
-                                    continue;
-                                }
-                            }
-                        }
-                    });
-
-                    return (
-                        <Box marginBottom="2px" padding="8px" key={'Log-entry-' + entryIndex}>
-                            <Flex alignItems="flex-start">
-                                {elements.map((el, index) => {
-                                    if (typeof el === 'string') {
-                                        return <span key={index}>{el}</span>;
-                                    }
-                                    return el;
-                                })}
-                            </Flex>
-                        </Box>
-                    );
-                })}
+                {log.map((entry, entryIndex) => (
+                    <LogEntry
+                        entry={entry}
+                        entryIndex={entryIndex}
+                        players={players}
+                        corporationNames={corporationNames}
+                        key={`${entry}-${entryIndex}`}
+                    />
+                ))}
             </LogPanelBase>
         </PanelWithTabs>
     );
 };
+
+let renderCount = 0;
+
+const LogEntryInner = ({
+    entry,
+    entryIndex,
+    players,
+    corporationNames,
+}: {
+    entry: string;
+    entryIndex: number;
+    players: PlayerState[];
+    corporationNames: string[];
+}) => {
+    const elements: Array<React.ReactNode> = [entry];
+
+    corporationNames.forEach((corpName, index) => {
+        let i = 0;
+        while (i < elements.length) {
+            const stringOrElement = elements[i];
+            if (typeof stringOrElement !== 'string') {
+                i++;
+                continue;
+            } else {
+                if (stringOrElement.indexOf(corpName) === -1) {
+                    i++;
+                    continue;
+                } else {
+                    elements.splice(
+                        i,
+                        1,
+                        stringOrElement.substring(0, stringOrElement.indexOf(corpName))
+                    );
+                    i++;
+                    elements.splice(
+                        i,
+                        0,
+                        <Flex margin="0 4px" key={i}>
+                            <PlayerCorpAndIcon player={players[index]} color="black" />
+                        </Flex>
+                    );
+                    i++;
+                    elements.splice(
+                        i,
+                        0,
+                        stringOrElement.substring(
+                            stringOrElement.indexOf(corpName) + corpName.length
+                        )
+                    );
+                    i++;
+                    continue;
+                }
+            }
+        }
+    });
+
+    return (
+        <Box marginBottom="2px" padding="8px" key={'Log-entry-' + entryIndex}>
+            <Flex alignItems="flex-start">
+                {elements.map((el, index) => {
+                    if (typeof el === 'string') {
+                        return <span key={index}>{el}</span>;
+                    }
+                    return el;
+                })}
+            </Flex>
+        </Box>
+    );
+};
+
+const LogEntry = React.memo(LogEntryInner, logPropsAreEqual);
+
+function logPropsAreEqual() {
+    return true;
+}

@@ -183,7 +183,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
-            return 'white';
+            return 'black';
         default:
             throw spawnExhaustiveSwitchError(resource);
     }
