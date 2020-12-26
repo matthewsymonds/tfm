@@ -46,14 +46,14 @@ import {
     setCorporation,
     setPlantDiscount,
     skipAction,
-    skipChoice
+    skipChoice,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     getAction,
-    ResourceActionOption
+    ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action, Amount, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
@@ -68,7 +68,7 @@ import {
     Resource,
     ResourceAndAmount,
     ResourceLocationType,
-    USER_CHOICE_LOCATION_TYPES
+    USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
