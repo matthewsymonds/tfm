@@ -269,7 +269,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Restricted Area';
+const bonusName = '';
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
