@@ -752,6 +752,8 @@ export class ApiActionHandler implements GameActionHandler {
                     )
                 );
             }
+        } else if (action.cost && !parent) {
+            items.push(removeResource(Resource.MEGACREDIT, action.cost, playerIndex, playerIndex));
         }
 
         for (const production in action.decreaseProduction) {
