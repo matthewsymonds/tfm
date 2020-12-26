@@ -946,28 +946,32 @@ export class ApiActionHandler implements GameActionHandler {
             for (const parameter of parameters) {
                 // Start referring to the copied increaseParameter exclusively.
                 const amount = increaseParametersWithBonuses[parameter];
-                if (amount) {
-                    items.push(increaseParameter(parameter as Parameter, amount, playerIndex));
-
+                if (!amount) {
+                    continue;
+                }
+                items.push(increaseParameter(parameter as Parameter, amount, playerIndex));
+                // Check every step along the way for bonuses!
+                for (let i = 1; i <= amount; i++) {
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
                     const newLevel =
-                        amount * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
+                        i * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
                     const getBonus = PARAMETER_BONUSES[parameter][newLevel];
-                    if (getBonus) {
-                        const bonus = getBonus(playerIndex);
-                        if (bonus.type === INCREASE_PARAMETER) {
-                            // combine the bonus parameter increase with the rest of the parameter increases.
-                            // That way an oxygen can trigger a temperature which triggers an
-                            // ocean.
-                            increaseParametersWithBonuses[bonus.payload.parameter] +=
-                                bonus.payload.amount;
-                        } else if (bonus.type === INCREASE_TERRAFORM_RATING) {
-                            // combine terraform increases into one action/log message.
-                            (terraformRatingIncrease as number) += bonus.payload.amount as number;
-                        } else {
-                            items.push(bonus);
-                        }
+                    if (!getBonus) {
+                        continue;
+                    }
+                    const bonus = getBonus(playerIndex);
+                    const {type, payload} = bonus;
+                    if (type === INCREASE_PARAMETER) {
+                        // combine the bonus parameter increase with the rest of the parameter increases.
+                        // That way an oxygen can trigger a temperature which triggers an
+                        // ocean.
+                        increaseParametersWithBonuses[payload.parameter] += payload.amount;
+                    } else if (type === INCREASE_TERRAFORM_RATING) {
+                        // combine terraform increases into one action/log message.
+                        (terraformRatingIncrease as number) += payload.amount as number;
+                    } else {
+                        items.push(bonus);
                     }
                 }
             }

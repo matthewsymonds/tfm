@@ -223,6 +223,8 @@ export function getPlayerOptionWrappers(
                 });
             }
 
+            options = options.filter(option => option.quantity !== 0);
+
             playerOptionWrapper.options.push(...options);
         }
 
