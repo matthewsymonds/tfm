@@ -1,6 +1,6 @@
 import {
     amountAndResource,
-    ResourceActionType,
+    ResourceActionType
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
@@ -41,6 +41,7 @@ import {
     MOVE_CARD_FROM_HAND_TO_PLAY_AREA,
     PAY_FOR_CARDS,
     PAY_TO_PLAY_CARD,
+    PAY_TO_PLAY_CARD_ACTION,
     PAY_TO_PLAY_STANDARD_PROJECT,
     PLACE_TILE,
     REMOVE_FORCED_ACTION_FROM_PLAYER,
@@ -55,7 +56,7 @@ import {
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE,
+    STEAL_STORABLE_RESOURCE
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -66,7 +67,7 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType,
+    TileType
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -78,7 +79,7 @@ import {
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType,
+    ResourceLocationType
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Card} from './models/card';
@@ -268,7 +269,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = '';
+const bonusName = 'Restricted Area';
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -651,6 +652,34 @@ export const reducer = (state: GameState | null = null, action) => {
                 draft.log.push(logMessage);
                 break;
             }
+            case PAY_TO_PLAY_CARD_ACTION: {
+                // discounts don't apply to card actions (standard projects are handled
+                // in a separate reducer action PAY_TO_PLAY_STANDARD_PROJECT)
+                const actionCost = payload.action.cost;
+                if (payload.payment) {
+                    for (const resource in payload.payment) {
+                        player.resources[resource] -= payload.payment[resource];
+                    }
+                } else {
+                    player.resources[Resource.MEGACREDIT] -= actionCost;
+                }
+                player.discounts.nextCardThisGeneration = 0;
+                let logMessage = `${corporationName} paid ${actionCost} to play ${payload.parentCard.name}'s action`;
+                let details: string[] = [];
+                for (const resource in payload.payment) {
+                    if (payload.payment[resource]) {
+                        details.push(
+                            amountAndResource(payload.payment[resource], resource as Resource)
+                        );
+                    }
+                }
+
+                if (details.length > 0) {
+                    logMessage += ` (with ${details.join(', ')})`;
+                }
+                draft.log.push(logMessage);
+                break;
+            }
             case PAY_TO_PLAY_STANDARD_PROJECT: {
                 const {payment} = payload;
                 let cost =
@@ -854,7 +883,11 @@ export const reducer = (state: GameState | null = null, action) => {
                     card => card.name === payload.card.name
                 )!;
                 playedCard.lastRoundUsedAction = draft.common.generation;
-                draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
+                // We skip logging if the action has a cost b/c in that case we already have logged
+                // e.g. "Corp X paid 2 to play Card Y's action" inside PAY_TO_PLAY_CARD_ACTION
+                if (payload.shouldLog) {
+                    draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
+                }
                 break;
             }
             case ANNOUNCE_READY_TO_START_ROUND: {

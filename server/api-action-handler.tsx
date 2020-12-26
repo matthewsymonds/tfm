@@ -34,6 +34,7 @@ import {
     moveCardFromHandToPlayArea,
     payForCards,
     payToPlayCard,
+    payToPlayCardAction,
     payToPlayStandardProject,
     placeTile,
     removeForcedActionFromPlayer,
@@ -391,13 +392,17 @@ export class ApiActionHandler implements GameActionHandler {
             throw new Error(reason);
         }
 
+        if (action.cost) {
+            this.queue.push(payToPlayCardAction(action, player.index, parent, payment));
+        }
+
         // If you use regolith eaters to remove 2 microbes to raise oxygen 1 step,
         // And that triggers an ocean, we want the ocean placement to come up before the action increments.
         // withPriority "unshifts" instead of pushing the items, so they go first.
         const withPriority = isChoiceAction;
 
         if (!isChoiceAction) {
-            this.queue.push(markCardActionAsPlayed(parent, this.loggedInPlayerIndex));
+            this.queue.push(markCardActionAsPlayed(parent, this.loggedInPlayerIndex, !action.cost));
         }
 
         this.playAction({

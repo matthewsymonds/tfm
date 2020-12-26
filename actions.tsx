@@ -164,6 +164,17 @@ export const payToPlayCard = (
     payload: {card, playerIndex, payment},
 });
 
+export const PAY_TO_PLAY_CARD_ACTION = 'PAY_TO_PLAY_CARD_ACTION';
+export const payToPlayCardAction = (
+    action: Action,
+    playerIndex: number,
+    parentCard: Card,
+    payment: PropertyCounter<Resource> | undefined
+) => ({
+    type: PAY_TO_PLAY_CARD_ACTION,
+    payload: {action, playerIndex, parentCard, payment},
+});
+
 export const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
 export const payToPlayStandardProject = (
     standardProjectAction: StandardProjectAction,
@@ -358,11 +369,16 @@ export const skipAction = (playerIndex: number) => ({
 });
 
 export const MARK_CARD_ACTION_AS_PLAYED = 'MARK_CARD_ACTION_AS_PLAYED';
-export const markCardActionAsPlayed = (card: Card, playerIndex: number) => ({
+export const markCardActionAsPlayed = (
+    card: Card,
+    playerIndex: number,
+    shouldLog: boolean = true
+) => ({
     type: MARK_CARD_ACTION_AS_PLAYED,
     payload: {
         card,
         playerIndex,
+        shouldLog,
     },
 });
 
