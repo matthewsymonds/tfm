@@ -1,24 +1,14 @@
 Old:
-CEO's Favorite Project,
 Insulation
-Protected Habitats
-Flooding
 Invention Contest
-Indentured Workers
 
 New:
 tharsis effects UI
-*Restore icons for special tiles
-get rid of this.queue.length calls in app context (and eventually app context)
-Indicate who is the current player
 re consider discount UI
 tweak colors in cards
 tweak sizes in cards
 add iconography in choice buttons
-*indicate bonuses in ui
-*player order indication
 unfortunately we are forced to refresh when entering card selection.
-*Add ui for seeing how many cards are in hand.
 make requirement background green if you can do it now
 *pass button disappeared
 Why is turn showing up in the middle of the log?
@@ -28,5 +18,4 @@ greenery
 research/olympus conference
 auto play phobos ganymede.
 greenery phase weirdness
-mining rights can place on oceans
 spend 2 to draw a cardno warning for electo catapult

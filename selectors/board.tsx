@@ -196,7 +196,7 @@ export function getPossibleValidPlacementsForRequirement(
         case PlacementRequirement.RESERVED_FOR_OCEAN:
             return getAvailableCells(state, player).filter(cell => cell.type === CellType.WATER);
         case PlacementRequirement.STEEL_OR_TITANIUM:
-            return getAvailableCells(state, player).filter(
+            return getAvailableLandCellsOnMars(state, player).filter(
                 cell =>
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_STEEL) ||
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)

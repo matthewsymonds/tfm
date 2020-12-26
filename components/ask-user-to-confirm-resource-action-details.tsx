@@ -387,7 +387,8 @@ function getOptionsForStorableResource(
 
         const text = formatText({
             quantity: maxAmount,
-            resource,
+            // For CEO's favorite project, the resource icon should be determin
+            resource: card.storedResourceType ?? resource,
             actionType,
             locationName: card.name,
         });
@@ -415,9 +416,6 @@ function formatText({
     actionType: ResourceActionType;
     locationName?: string;
 }) {
-    // if (actionType === 'decreaseProduction' || actionType === 'increaseProduction') {
-    //     return formatProductionText(actionType, quantity, resource);
-    // }
     const modifier = actionType === 'gainResource' ? 'to' : 'from';
 
     const locationAppendix = locationName ? `${modifier} ${locationName}` : '';
@@ -431,7 +429,7 @@ function formatText({
     }[actionType];
 
     return (
-        <Flex alignItems="center">
+        <Flex alignItems="center" key={`${quantity}-${resource}-${actionType}-${locationName}`}>
             <span>{verb}</span>
             <Box margin="0 4px">
                 <ChangeResourceIconography
@@ -453,17 +451,6 @@ function formatText({
             <span>{locationAppendix}</span>
         </Flex>
     );
-}
-
-function formatProductionText(
-    actionType: ResourceActionType,
-    quantity: number,
-    resource: Resource
-) {
-    const verb = actionType === 'decreaseProduction' ? 'Decrease' : 'Increase';
-    return `${verb} ${getResourceName(resource)} production ${quantity} step${
-        quantity === 1 ? '' : 's'
-    }`;
 }
 
 function getOptionsForRegularResource(

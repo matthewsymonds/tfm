@@ -830,7 +830,12 @@ export const reducer = (state: GameState | null = null, action) => {
                     getAdjacentCellsForCell(draft, payload.cell).filter(cell => {
                         return cell.tile?.type === TileType.OCEAN;
                     }).length * 2;
-                player.resources[Resource.MEGACREDIT] += megacreditIncreaseFromOceans;
+                if (megacreditIncreaseFromOceans) {
+                    player.resources[Resource.MEGACREDIT] += megacreditIncreaseFromOceans;
+                    draft.log.push(
+                        `${corporationName} gained ${megacreditIncreaseFromOceans} megacredits from ocean adjacency`
+                    );
+                }
                 break;
             case INCREASE_PARAMETER: {
                 const {parameter, amount} = payload;

@@ -4066,6 +4066,9 @@ export const cardConfigs: CardConfig[] = [
             type: Parameter.TEMPERATURE,
             min: -6,
         },
+        decreaseAnyProduction: {
+            [Resource.PLANT]: 1,
+        },
         tags: [Tag.ANIMAL],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
