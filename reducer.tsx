@@ -1,6 +1,6 @@
 import {
     amountAndResource,
-    ResourceActionType
+    ResourceActionType,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
@@ -56,7 +56,7 @@ import {
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE
+    STEAL_STORABLE_RESOURCE,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -67,7 +67,7 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType
+    TileType,
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -79,7 +79,7 @@ import {
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType
+    ResourceLocationType,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Card} from './models/card';
