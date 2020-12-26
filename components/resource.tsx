@@ -118,6 +118,14 @@ export const PlayerResourceBoard = ({
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
                         const conversion = CONVERSIONS[resource];
                         const [canDoConversion] = actionGuard.canDoConversion(conversion);
+                        let canDoConversionInSpiteOfUI = false;
+                        if (conversion) {
+                            [canDoConversionInSpiteOfUI] = actionGuard.canPlayActionInSpiteOfUI(
+                                conversion,
+                                state
+                            );
+                        }
+
                         return (
                             <div key={resource}>
                                 <ResourceBoardCell
@@ -126,10 +134,13 @@ export const PlayerResourceBoard = ({
                                     production={player.productions[resource]}
                                 />
                                 {isLoggedInPlayer &&
-                                canDoConversion &&
+                                canDoConversionInSpiteOfUI &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
                                     <ConversionButton
-                                        disabled={actionGuard.shouldDisableValidGreeneryPlacementUI()}
+                                        disabled={
+                                            !canDoConversion ||
+                                            actionGuard.shouldDisableValidGreeneryPlacementUI()
+                                        }
                                         onClick={() => apiClient.doConversionAsync({resource})}
                                     >
                                         Convert{' '}

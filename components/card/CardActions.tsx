@@ -27,8 +27,9 @@ import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
-const ActionText = styled.span`
+const ActionText = styled.div`
     font-size: 10px;
+    margin-bottom: 2px;
 `;
 
 const ActionsWrapper = styled.div`
@@ -173,12 +174,14 @@ export const CardActions = ({
     cardContext,
     apiClient,
     actionGuard,
+    useCardName,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
     apiClient: ApiClient;
     actionGuard: ActionGuard;
+    useCardName?: boolean;
 }) => {
     if (!card.action) {
         return null;
@@ -209,9 +212,15 @@ export const CardActions = ({
     }
 
     const actions = [...(action.choice ? action.choice : [action])];
+    const prefix = useCardName ? <div>{card.name}:</div> : 'Action: ';
     return (
         <ActionsWrapper>
-            {!action.lookAtCards && <ActionText>{action.text}</ActionText>}
+            {!action.lookAtCards && (
+                <ActionText>
+                    {prefix}
+                    {action.text}
+                </ActionText>
+            )}
             {actions.map((action, index) => {
                 const [canPlay, disabledReason] = actionGuard.canPlayCardAction(
                     action,

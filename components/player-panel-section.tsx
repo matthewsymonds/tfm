@@ -5,6 +5,7 @@ import {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
+import {PlayerCardActions} from './player-card-actions';
 import {PlayerResourceBoard} from './resource';
 
 const PlayerPanelSectionBase = styled.div`
@@ -33,7 +34,7 @@ const PlayerPanelSectionInner = styled.div`
     padding: 6px;
 `;
 
-export type PlayerPanelSection = 'Board & Hand' | 'Played cards';
+export type PlayerPanelSection = 'Board & Hand' | 'Card Actions' | 'Played Cards';
 
 const CardsInHandMessage = styled.div`
     padding-top: 8px;
@@ -83,7 +84,9 @@ export const PlayerPanelSection = ({
                         {playerCardsElement}
                     </>
                 );
-            case 'Played cards':
+            case 'Card Actions':
+                return <PlayerCardActions player={player} />;
+            case 'Played Cards':
                 return <PlayerPlayedCards player={player} />;
 
             default:
