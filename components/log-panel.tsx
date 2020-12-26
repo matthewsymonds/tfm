@@ -87,8 +87,6 @@ export const LogPanel = () => {
     );
 };
 
-let renderCount = 0;
-
 const LogEntryInner = ({
     entry,
     entryIndex,
