@@ -69,6 +69,10 @@ export function getInitialState(players: string[]): GameState {
 
     for (const player of players) {
         const possibleCorporations = sampleCards(allCorporations, 2);
+        // const possibleCorporations = [
+        //     ...sampleCards(allCorporations, 2),
+        //     allCorporations.find(corp => corp.name === 'Helion')!,
+        // ];
 
         base.players.push({
             // 0 for card selection, 1 / 2 for active round
