@@ -468,10 +468,11 @@ export class ApiActionHandler implements GameActionHandler {
             cards,
         } = this.getLoggedInPlayer();
 
-        if (!pendingCardSelection) {
+        if (!pendingCardSelection && !pendingDiscard) {
             throw new Error('No pending card selection to confirm');
         }
-        const {possibleCards, isBuyingCards} = pendingCardSelection;
+        const isBuyingCards = pendingCardSelection?.isBuyingCards ?? false;
+        const possibleCards = pendingCardSelection ? pendingCardSelection.possibleCards : cards;
         const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
             selectedCards,
             state,
