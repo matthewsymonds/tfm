@@ -532,10 +532,10 @@ export class ActionGuard {
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
-    canConfirmCardSelection(numCards: number, state: GameState) {
+    canConfirmCardSelection(numCards: number, state: GameState, corporation?: Card) {
         const loggedInPlayer = this._getPlayerToConsider();
 
-        const playerMoney = getMoney(state, loggedInPlayer);
+        const playerMoney = getMoney(state, loggedInPlayer, corporation);
         const totalCardCost = numCards * 3;
 
         // user doesnt have cards to discard, but is supposed to discard one

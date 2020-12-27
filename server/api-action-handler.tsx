@@ -472,7 +472,8 @@ export class ApiActionHandler implements GameActionHandler {
         const {possibleCards, isBuyingCards} = pendingCardSelection;
         const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
             selectedCards.length,
-            state
+            state,
+            corporation
         );
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
