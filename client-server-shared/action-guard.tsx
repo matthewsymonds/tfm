@@ -539,13 +539,11 @@ export class ActionGuard {
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
         const totalCardCost = numCards * 3;
 
-        // trying to draft a card not in their list
+        // trying to draft a card not in their list (or discard a card they don't own)
+        const possibleCards =
+            loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
         for (const selectedCard of selectedCards) {
-            if (
-                !loggedInPlayer.pendingCardSelection?.possibleCards?.some(
-                    possibleCard => possibleCard.name === selectedCard.name
-                )
-            ) {
+            if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
                 return false;
             }
         }
