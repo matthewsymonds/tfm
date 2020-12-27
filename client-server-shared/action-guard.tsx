@@ -532,11 +532,30 @@ export class ActionGuard {
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
-    canConfirmCardSelection(numCards: number, state: GameState, corporation?: Card) {
+    canConfirmCardSelection(selectedCards: Array<Card>, state: GameState, corporation?: Card) {
         const loggedInPlayer = this._getPlayerToConsider();
+        const numCards = selectedCards.length;
 
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
         const totalCardCost = numCards * 3;
+
+        // trying to draft a card not in their list
+        for (const selectedCard of selectedCards) {
+            if (
+                !loggedInPlayer.pendingCardSelection?.possibleCards?.some(
+                    possibleCard => possibleCard.name === selectedCard.name
+                )
+            ) {
+                return false;
+            }
+        }
+
+        if (state.common.gameStage === GameStage.DRAFTING) {
+            // trying to draft more than one card
+            if (numCards !== 1) {
+                return false;
+            }
+        }
 
         // user doesnt have cards to discard, but is supposed to discard one
         if (

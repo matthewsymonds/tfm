@@ -66,6 +66,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isDrafting = gameStage === GameStage.DRAFTING;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
     const hasPendingCardSelection = !!loggedInPlayer.pendingCardSelection;
@@ -101,7 +102,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 {isCorporationSelection && hasPendingCardSelection && (
                     <span>Please choose your corporation and cards.</span>
                 )}
-                {isBuyOrDiscard && hasPendingCardSelection && (
+                {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && (
                     <span>Please choose your cards.</span>
                 )}
                 {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
@@ -110,7 +111,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
                     <React.Fragment>
                         <span style={{marginRight: 4}}>Waiting on </span>
-                        <PlayerCorpAndIcon player={currentPlayer} />
+                        <PlayerCorpAndIcon player={currentPlayer} color="white" />
                         <span style={{marginLeft: 4}}> to take their turn...</span>
                     </React.Fragment>
                 )}

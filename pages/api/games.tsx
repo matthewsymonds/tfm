@@ -10,8 +10,6 @@ export default async (req, res) => {
     let games;
     let game;
 
-    const {name, players} = req.body;
-
     switch (req.method) {
         case 'GET':
             // Retrieve list of public games.
@@ -24,7 +22,8 @@ export default async (req, res) => {
                 games = [];
             }
             return res.json({games});
-        case 'POST':
+        case 'POST': {
+            const {name, players, options} = req.body;
             game = await gamesModel.findOne({name});
             if (game) {
                 res.json({error: 'Game with that name already exists'});
@@ -32,7 +31,7 @@ export default async (req, res) => {
             }
             game = new gamesModel();
             game.name = name;
-            game.state = getInitialState(players);
+            game.state = getInitialState(players, options);
             game.players = players;
             // TODO make configurable
             game.public = false;
@@ -44,6 +43,7 @@ export default async (req, res) => {
             }
             res.json({game});
             return;
+        }
         default:
             res.status(404);
             res.json({error: 'Call misformatted '});

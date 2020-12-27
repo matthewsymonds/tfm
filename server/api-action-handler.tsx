@@ -21,6 +21,7 @@ import {
     decreaseProduction,
     discardCards,
     discardRevealedCards,
+    draftCard,
     fundAward as fundAwardAction,
     gainResource,
     gainStorableResource,
@@ -470,7 +471,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
         const {possibleCards, isBuyingCards} = pendingCardSelection;
         const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
-            selectedCards.length,
+            selectedCards,
             state,
             corporation
         );
@@ -490,28 +491,55 @@ export class ApiActionHandler implements GameActionHandler {
             return;
         }
         const gameStage = this.getGameStage();
-        if (gameStage === GameStage.CORPORATION_SELECTION) {
-            if (!this.actionGuard.canPlayCorporation(corporation)) {
-                throw new Error('Cannot play corporation');
+        switch (gameStage) {
+            case GameStage.CORPORATION_SELECTION: {
+                if (!this.actionGuard.canPlayCorporation(corporation)) {
+                    throw new Error('Cannot play corporation');
+                }
+                this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
+                await this.playCardAsync({card: corporation});
+                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(
+                    discardCards(
+                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        loggedInPlayerIndex
+                    )
+                );
+                this.queue.push(announceReadyToStartRound(loggedInPlayerIndex));
+                break;
             }
-            this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
-            await this.playCardAsync({card: corporation});
+            case GameStage.DRAFTING: {
+                this.queue.push(draftCard(selectedCards[0], loggedInPlayerIndex));
+                break;
+            }
+            case GameStage.BUY_OR_DISCARD: {
+                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(
+                    discardCards(
+                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        loggedInPlayerIndex
+                    )
+                );
+                this.queue.push(announceReadyToStartRound(loggedInPlayerIndex));
+                break;
+            }
+            case GameStage.ACTIVE_ROUND: {
+                if (isBuyingCards) {
+                    this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                }
+                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(
+                    discardCards(
+                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        loggedInPlayerIndex
+                    )
+                );
+                break;
+            }
         }
 
-        if (isBuyingCards) {
-            this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
-        }
-
-        this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
-        this.queue.push(
-            discardCards(
-                possibleCards.filter(card => !selectedCards.includes(card)),
-                loggedInPlayerIndex
-            )
-        );
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            this.queue.push(announceReadyToStartRound(loggedInPlayerIndex));
-        }
         this.processQueue();
     }
 

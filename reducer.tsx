@@ -1,6 +1,6 @@
 import {
     amountAndResource,
-    ResourceActionType,
+    ResourceActionType
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
@@ -30,6 +30,7 @@ import {
     DECREASE_PRODUCTION,
     DISCARD_CARDS,
     DISCARD_REVEALED_CARDS,
+    DRAFT_CARD,
     DRAW_CARDS,
     FUND_AWARD,
     GAIN_RESOURCE,
@@ -57,7 +58,7 @@ import {
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE,
+    STEAL_STORABLE_RESOURCE
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -68,7 +69,7 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType,
+    TileType
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -80,7 +81,7 @@ import {
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType,
+    ResourceLocationType
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Card} from './models/card';
@@ -137,13 +138,18 @@ export type CommonState = {
     board: Board;
 };
 
+export type GameOptions = {
+    isDraftingEnabled: boolean;
+};
+
 export type GameState = {
     // if true, the user is waiting for a response from the server.
     syncing?: boolean;
-    pendingVariableAmount?: number;
-    players: Array<PlayerState>;
+    options: GameOptions;
     common: CommonState;
+    players: Array<PlayerState>;
     log: string[];
+    pendingVariableAmount?: number;
     numChanges: number;
 };
 
@@ -179,6 +185,8 @@ export type PlayerState = {
         isBuyingCards?: boolean;
         // In an action that makes you look at cards, specifies how many you can take or buy.
         numCardsToTake?: number | null;
+        // During drafting, cards selected thus far are stored here
+        draftPicks?: Card[];
     };
 
     previousCardsInHand?: number;
@@ -377,6 +385,73 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingCardSelection = undefined;
                 draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
                 break;
+            case DRAFT_CARD: {
+                const draftedCard = action.payload.card;
+                const {pendingCardSelection} = player;
+                if (!pendingCardSelection || !Array.isArray(pendingCardSelection?.draftPicks)) {
+                    throw new Error('Drafting state is borked');
+                }
+                pendingCardSelection.draftPicks.push(draftedCard);
+
+                // check to see if this was the last person of the group to pick a card
+                //   - if so, cycle everyone's leftover cards left or right
+                //   - otherwise, hold off on cycling (we don't want to overwrite possibleCards for someone still picking)
+                const numDraftedSoFar = pendingCardSelection.draftPicks.length;
+                const hasEveryonePickedCard = draft.players.every(
+                    player => player.pendingCardSelection?.draftPicks?.length === numDraftedSoFar
+                );
+                if (hasEveryonePickedCard) {
+                    // Cycle cards
+                    // 1. r
+                    draft.players.forEach(player => {
+                        const selection = player.pendingCardSelection;
+                        if (!selection) {
+                            throw new Error('Drafting state is borked for another player');
+                        }
+                        selection.possibleCards = selection.possibleCards.filter(card => {
+                            return !(selection.draftPicks ?? [])
+                                .map(d => d.name)
+                                .includes(card.name);
+                        });
+                    });
+                    const remainingPossibleCards = draft.players.map(
+                        p => p.pendingCardSelection?.possibleCards ?? []
+                    );
+                    // e.g. [A,B,C]
+                    if (common.generation % 2) {
+                        // (A passes to B, B passes to C, C passes to A)
+                        remainingPossibleCards.unshift(remainingPossibleCards.pop()!);
+                    } else {
+                        // (A passes to C, B passes to A, C passes to B)
+                        remainingPossibleCards.push(remainingPossibleCards.shift()!);
+                    }
+                    for (let i = 0; i < draft.players.length; i++) {
+                        draft.players[i].pendingCardSelection = {
+                            ...draft.players[i].pendingCardSelection,
+                            possibleCards: remainingPossibleCards[i],
+                        };
+                    }
+                    // if we're done drafting, move to buy/discard
+                    // we can automate the final round of drafting because its just picking from 1 card
+                    if (numDraftedSoFar >= 3) {
+                        draft.players.forEach(
+                            player =>
+                                (player.pendingCardSelection = {
+                                    ...player.pendingCardSelection,
+                                    possibleCards: [
+                                        ...player.pendingCardSelection?.possibleCards,
+                                        ...player.pendingCardSelection?.draftPicks,
+                                    ],
+                                    draftPicks: undefined,
+                                    isBuyingCards: true,
+                                })
+                        );
+                        draft.common.gameStage = GameStage.BUY_OR_DISCARD;
+                    }
+                } else {
+                    break;
+                }
+            }
             case REVEAL_AND_DISCARD_TOP_CARDS:
                 // Step 1. Reveal the cards to the player so they can see them.
                 const numCardsToReveal = convertAmountToNumber(payload.amount, state, player);
@@ -971,12 +1046,15 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.turn = 1;
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
-                            common.gameStage = GameStage.BUY_OR_DISCARD;
+                            common.gameStage = draft.options.isDraftingEnabled
+                                ? GameStage.DRAFTING
+                                : GameStage.BUY_OR_DISCARD;
 
                             for (const player of draft.players) {
                                 player.pendingCardSelection = {
                                     possibleCards: handleDrawCards(4),
-                                    isBuyingCards: true,
+                                    isBuyingCards: draft.options.isDraftingEnabled ? false : true,
+                                    draftPicks: draft.options.isDraftingEnabled ? [] : undefined,
                                 };
                                 const bonuses = draft.common.deck.filter(card =>
                                     bonusNames.includes(card.name)

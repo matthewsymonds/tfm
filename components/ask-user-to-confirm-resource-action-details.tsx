@@ -32,7 +32,7 @@ import {getAdjacentCellsForCell} from 'selectors/board';
 import {deserializeCard, serializeCard, SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {AskUserToMakeChoice, OptionsParent} from './ask-user-to-make-choice';
+import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 
 export type ResourceActionType =
     | 'removeResource'
@@ -559,20 +559,15 @@ function AskUserToConfirmResourceActionDetails({
                     >
                         <h4>{playerOptionWrapper.title}</h4>
                         {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
-                        <OptionsParent>
-                            <Flex>
-                                {playerOptionWrapper.options.map((option, index) => {
-                                    return (
-                                        <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
-                                            <OptionComponent
-                                                apiClient={apiClient}
-                                                option={option}
-                                            />
-                                        </Box>
-                                    );
-                                })}
-                            </Flex>
-                        </OptionsParent>
+                        <Flex>
+                            {playerOptionWrapper.options.map((option, index) => {
+                                return (
+                                    <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
+                                        <OptionComponent apiClient={apiClient} option={option} />
+                                    </Box>
+                                );
+                            })}
+                        </Flex>
                     </PlayerOption>
                 );
             })}

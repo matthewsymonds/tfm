@@ -29,6 +29,7 @@ export type SerializedPlayerState = Omit<
         possibleCards: SerializedCard[];
         numCardsToTake?: number | null;
         isBuyingCards?: boolean;
+        draftPicks?: SerializedCard[];
     };
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
@@ -150,6 +151,9 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
         pendingCardSelection: pendingCardSelection
             ? {
                   possibleCards: pendingCardSelection.possibleCards.map(serializeCard),
+                  draftPicks: pendingCardSelection.draftPicks
+                      ? pendingCardSelection.draftPicks.map(serializeCard)
+                      : undefined,
                   numCardsToTake: pendingCardSelection.numCardsToTake,
                   isBuyingCards: pendingCardSelection.isBuyingCards,
               }
@@ -213,6 +217,9 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
         pendingCardSelection: pendingCardSelection
             ? {
                   possibleCards: pendingCardSelection.possibleCards.map(deserializeCard),
+                  draftPicks: pendingCardSelection.draftPicks
+                      ? pendingCardSelection.draftPicks.map(deserializeCard)
+                      : undefined,
                   numCardsToTake: pendingCardSelection.numCardsToTake,
                   isBuyingCards: pendingCardSelection.isBuyingCards,
               }
@@ -269,6 +276,9 @@ export const censorGameState = (state: SerializedState, username: string) => {
         (player.pendingCardSelection = player.pendingCardSelection
             ? {
                   possibleCards: Array(player.pendingCardSelection.possibleCards.length),
+                  draftPicks: player.pendingCardSelection.draftPicks
+                      ? Array(player.pendingCardSelection.draftPicks?.length)
+                      : undefined,
                   numCardsToTake: player.pendingCardSelection.numCardsToTake,
                   isBuyingCards: player.pendingCardSelection.isBuyingCards,
               }

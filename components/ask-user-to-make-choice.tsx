@@ -4,7 +4,8 @@ import {ReactNode} from 'react';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 
-export const OptionsParent = styled.div`
+export const ChoiceWrapper = styled.div`
+    display: flex;
     overflow-y: hidden;
 `;
 
@@ -38,7 +39,7 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
         <Flex width="100%" marginTop="16px" flexWrap="wrap" justifyContent="space-around">
             {cardDetails}
             <Flex flexDirection="column">
-                <OptionsParent>{children}</OptionsParent>
+                <ChoiceWrapper>{children}</ChoiceWrapper>
             </Flex>
         </Flex>
     );

@@ -5,7 +5,7 @@ import {zeroParameterRequirementAdjustments} from './constants/parameter-require
 import {Resource} from './constants/resource';
 import {Tag} from './constants/tag';
 import {Card, cards} from './models/card';
-import {GameState, PlayerState} from './reducer';
+import {GameOptions, GameState, PlayerState} from './reducer';
 
 export function shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -35,7 +35,7 @@ function sampleCards(cards: Card[], num: number) {
     return result;
 }
 
-export function getInitialState(players: string[]): GameState {
+export function getInitialState(players: string[], options: GameOptions): GameState {
     const possibleCards = cards.filter(
         card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
     );
@@ -64,6 +64,7 @@ export function getInitialState(players: string[]): GameState {
             fundedAwards: [],
         },
         players: [] as PlayerState[],
+        options,
         numChanges: 0,
     };
 

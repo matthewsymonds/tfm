@@ -58,6 +58,7 @@ export enum CardContext {
     SELECT_TO_KEEP = 'selectToKeep', // if selecting to keep (eg draw 4 keep 2)
     SELECT_TO_DISCARD = 'selectToDiscard', // if selecting to discard (could this be merged with selectToDiscard?)
     PLAYED_CARD = 'playedCard', // if card is played, actions are usable
+    DISPLAY_ONLY = 'displayOnly', // card does not need to be interactive
 }
 
 const CardTopBar = styled.div`

@@ -52,6 +52,12 @@ export const payForCards = (cards: Card[], playerIndex: number) => ({
     payload: {cards, playerIndex},
 });
 
+export const DRAFT_CARD = 'DRAFT_CARD';
+export const draftCard = (card: Card, playerIndex: number) => ({
+    type: DRAFT_CARD,
+    payload: {card, playerIndex},
+});
+
 export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
 export const decreaseProduction = (
     resource: Resource,
