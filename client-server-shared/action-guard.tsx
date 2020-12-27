@@ -532,22 +532,34 @@ export class ActionGuard {
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
-    canConfirmCardSelection(numCards: number, state: GameState, corporation: Card) {
+    canConfirmCardSelection(numCards: number, state: GameState) {
         const loggedInPlayer = this._getPlayerToConsider();
-        if (!loggedInPlayer.corporation) {
-            return false;
-        }
-        const playerMoney = getMoney(state, loggedInPlayer, corporation);
+
+        const playerMoney = getMoney(state, loggedInPlayer);
         const totalCardCost = numCards * 3;
-        const shouldDisableDiscardConfirmation =
-            loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE && numCards === 0;
-        if (loggedInPlayer.buyCards && totalCardCost > playerMoney) {
+
+        // user doesnt have cards to discard, but is supposed to discard one
+        if (
+            loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE &&
+            numCards === 0
+        ) {
             return false;
         }
-        return !(
-            shouldDisableDiscardConfirmation ||
-            (loggedInPlayer.numCardsToTake !== null && numCards < loggedInPlayer.numCardsToTake)
-        );
+
+        // user doesn't have money to buy cards
+        if (loggedInPlayer.pendingCardSelection?.isBuyingCards && totalCardCost > playerMoney) {
+            return false;
+        }
+
+        // user trying to take the wrong number of cards
+        if (
+            loggedInPlayer.pendingCardSelection?.numCardsToTake &&
+            loggedInPlayer.pendingCardSelection?.numCardsToTake !== numCards
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     canPlayCorporation(card: Card) {

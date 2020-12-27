@@ -34,7 +34,7 @@ const CardWrapper = styled.div`
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const numSelected = selectedCards.length;
-    const mustSelectOne = max === 1 && min === 1;
+    const mustSelectOne = max === 1;
     const canAfford = budget === undefined || budget >= (numSelected + 1) * 3;
     const canSelect = canAfford && (selectedCards.length < max || mustSelectOne);
 

@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {Box, Flex} from './box';
 
 export const OptionsParent = styled.div`
-    max-height: 400px;
     overflow-y: hidden;
 `;
 
@@ -36,10 +35,9 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
         cardDetails = null;
     }
     return (
-        <Flex width="100%" flexWrap="wrap" justifyContent="space-around">
+        <Flex width="100%" marginTop="16px" flexWrap="wrap" justifyContent="space-around">
             {cardDetails}
             <Flex flexDirection="column">
-                <h3>Please confirm your choice:</h3>
                 <OptionsParent>{children}</OptionsParent>
             </Flex>
         </Flex>

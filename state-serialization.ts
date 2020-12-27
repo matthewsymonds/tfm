@@ -15,17 +15,21 @@ export type SerializedCommonState = Omit<Omit<CommonState, 'deck'>, 'discardPile
 export type SerializedPlayerState = Omit<
     PlayerState,
     | 'corporation'
-    | 'possibleCards'
     | 'possibleCorporations'
     | 'cards'
     | 'playedCards'
+    | 'pendingCardSelection'
+    | 'pendingDiscard'
     | 'pendingResourceActionDetails'
     | 'pendingDuplicateProduction'
-    | 'pendingDiscard'
     | 'pendingChoice'
 > & {
     corporation: SerializedCard;
-    possibleCards: SerializedCard[];
+    pendingCardSelection?: {
+        possibleCards: SerializedCard[];
+        numCardsToTake?: number | null;
+        isBuyingCards?: boolean;
+    };
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
     playedCards: SerializedCard[];
@@ -43,6 +47,8 @@ export type SerializedPlayerState = Omit<
     pendingDiscard?: {
         amount: Amount;
         card?: SerializedCard;
+        playedCard?: SerializedCard;
+        isFromSellPatents?: boolean;
     };
     pendingChoice?: {
         choice: Action[];
@@ -128,10 +134,10 @@ export function serializeCard(card: Card): SerializedCard {
 const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
     const {
         corporation,
-        possibleCards,
         possibleCorporations,
         cards,
         playedCards,
+        pendingCardSelection,
         pendingResourceActionDetails,
         pendingDuplicateProduction,
         pendingDiscard,
@@ -141,7 +147,13 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
     return {
         ...rest,
         corporation: serializeCard(corporation),
-        possibleCards: possibleCards.map(serializeCard),
+        pendingCardSelection: pendingCardSelection
+            ? {
+                  possibleCards: pendingCardSelection.possibleCards.map(serializeCard),
+                  numCardsToTake: pendingCardSelection.numCardsToTake,
+                  isBuyingCards: pendingCardSelection.isBuyingCards,
+              }
+            : undefined,
         possibleCorporations: possibleCorporations?.map(serializeCard) || [],
         cards: cards.map(serializeCard),
         playedCards: playedCards.map(serializeCard),
@@ -164,6 +176,10 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
             ? {
                   amount: pendingDiscard.amount,
                   card: pendingDiscard.card ? serializeCard(pendingDiscard.card) : undefined,
+                  playedCard: pendingDiscard.playedCard
+                      ? serializeCard(pendingDiscard.playedCard)
+                      : undefined,
+                  isFromSellPatents: pendingDiscard.isFromSellPatents ?? false,
               }
             : undefined,
         pendingChoice: pendingChoice
@@ -181,10 +197,10 @@ const serializePlayerState = (player: PlayerState): SerializedPlayerState => {
 const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
     const {
         corporation,
-        possibleCards,
         possibleCorporations,
         cards,
         playedCards,
+        pendingCardSelection,
         pendingResourceActionDetails,
         pendingDuplicateProduction,
         pendingDiscard,
@@ -194,7 +210,13 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
     return {
         ...rest,
         corporation: deserializeCard(corporation),
-        possibleCards: possibleCards.map(deserializeCard),
+        pendingCardSelection: pendingCardSelection
+            ? {
+                  possibleCards: pendingCardSelection.possibleCards.map(deserializeCard),
+                  numCardsToTake: pendingCardSelection.numCardsToTake,
+                  isBuyingCards: pendingCardSelection.isBuyingCards,
+              }
+            : undefined,
         possibleCorporations: possibleCorporations?.map(deserializeCard) || [],
         cards: cards.map(deserializeCard),
         playedCards: playedCards.map(deserializeCard),
@@ -217,6 +239,10 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
             ? {
                   amount: pendingDiscard.amount,
                   card: pendingDiscard.card ? deserializeCard(pendingDiscard.card) : undefined,
+                  playedCard: pendingDiscard.playedCard
+                      ? deserializeCard(pendingDiscard.playedCard)
+                      : undefined,
+                  isFromSellPatents: pendingDiscard.isFromSellPatents ?? false,
               }
             : undefined,
         pendingChoice: pendingChoice
@@ -240,8 +266,14 @@ export const censorGameState = (state: SerializedState, username: string) => {
             continue;
         }
 
-        player.possibleCards = Array(player.possibleCards.length);
-        player.cards = Array(player.cards.length);
+        (player.pendingCardSelection = player.pendingCardSelection
+            ? {
+                  possibleCards: Array(player.pendingCardSelection.possibleCards.length),
+                  numCardsToTake: player.pendingCardSelection.numCardsToTake,
+                  isBuyingCards: player.pendingCardSelection.isBuyingCards,
+              }
+            : undefined),
+            (player.cards = Array(player.cards.length));
         player.possibleCorporations = Array(player.possibleCorporations.length);
 
         if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {

@@ -49,8 +49,8 @@ const CorporationSelector = ({
         }
     }
 
-    const {possibleCorporations, buyCards, corporation} = player;
-    if (!buyCards) {
+    const {possibleCorporations, pendingCardSelection: isBuyingCards, corporation} = player;
+    if (!isBuyingCards) {
         return (
             <div>
                 {player.username} has chosen {corporation.name}.

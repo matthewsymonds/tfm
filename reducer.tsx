@@ -7,6 +7,7 @@ import {getTextForMilestone} from 'components/board/milestones';
 import {getTextForStandardProject} from 'components/board/standard-projects';
 import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
+import {VariableAmount} from 'constants/variable-amount';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
@@ -105,14 +106,12 @@ function handleEnterActiveRound(state: GameState) {
     ) {
         // Everyone's ready!
         for (const player of state.players) {
-            player.possibleCards = [];
+            player.pendingCardSelection = undefined;
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
         state.log.push('Turn 1');
     }
 }
-
-type PlayerId = number;
 
 export type CommonState = {
     // List of indices of playing players.
@@ -156,7 +155,6 @@ export type PlayerState = {
     action: number; // 1 or 2.
     terraformRating: number;
     pendingTilePlacement?: TilePlacement;
-    pendingResourceSource?: string | number; // either card name or player index
     pendingResourceActionDetails?: {
         actionType: ResourceActionType;
         resourceAndAmounts: Array<ResourceAndAmount>;
@@ -168,22 +166,24 @@ export type PlayerState = {
         tag: Tag;
         card: Card;
     };
-    // e.g. Sell patents
+    // e.g. Sell patents, mars university, etc.
     pendingDiscard?: {
         amount: Amount;
         card?: Card;
+        playedCard?: Card;
+        isFromSellPatents: boolean;
     };
-    // e.g. Insulation
-    pendingProductionDecrease?: Resource;
-    previousCardsInHand?: number;
+    pendingCardSelection?: {
+        possibleCards: Card[];
+        // Is the player considering buying the cards they're looking at?
+        isBuyingCards?: boolean;
+        // In an action that makes you look at cards, specifies how many you can take or buy.
+        numCardsToTake?: number | null;
+    };
 
-    // In an action that makes you look at cards, specifies how many you can take or buy.
-    numCardsToTake: number | null;
-    // Is the player considering buying the cards they're looking at?
-    buyCards?: boolean | null;
+    previousCardsInHand?: number;
     forcedActions: Array<Action>;
     corporation: Card;
-    possibleCards: Card[];
     possibleCorporations: Card[];
     cards: Card[];
     playedCards: Card[];
@@ -269,7 +269,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = '';
+const bonusName = 'Mars University';
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -374,7 +374,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 if (player.resources[Resource.MEGACREDIT] < 0) {
                     throw new Error('Money went negative!');
                 }
-                player.buyCards = null;
+                player.pendingCardSelection = undefined;
                 draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
                 break;
             case REVEAL_AND_DISCARD_TOP_CARDS:
@@ -396,20 +396,26 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingDiscard = {
                     amount: payload.amount,
                     card: payload.card,
+                    playedCard: payload.playedCard,
+                    isFromSellPatents: payload.isFromSellPatents,
                 };
-                player.possibleCards = player.cards;
                 break;
             case ASK_USER_TO_LOOK_AT_CARDS:
-                player.possibleCards = handleDrawCards(payload.amount);
-                player.numCardsToTake = payload.numCardsToTake || null;
-                player.buyCards = payload.buyCards;
+                player.pendingCardSelection = {
+                    possibleCards: handleDrawCards(payload.amount),
+                    numCardsToTake: payload.numCardsToTake ?? null,
+                    isBuyingCards: payload.buyCards ?? false,
+                };
                 break;
             case SET_CARDS:
                 player.cards = action.payload.cards;
-                player.numCardsToTake = null;
+                player.pendingCardSelection = undefined;
                 break;
             case DISCARD_CARDS:
-                draft.pendingVariableAmount = payload.cards.length;
+                let pendingDiscardAmount = player.pendingDiscard?.amount;
+                if (pendingDiscardAmount && pendingDiscardAmount in VariableAmount) {
+                    draft.pendingVariableAmount = payload.cards.length;
+                }
                 draft.log.push(
                     `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
                         payload.cards.length
@@ -420,7 +426,6 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.cards = player.cards.filter(
                     playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
                 );
-                player.possibleCards = [];
                 break;
             case DRAW_CARDS:
                 draft.log.push(
@@ -897,7 +902,7 @@ export const reducer = (state: GameState | null = null, action) => {
             }
             case ANNOUNCE_READY_TO_START_ROUND: {
                 player.action = 1;
-                player.buyCards = false;
+                player.pendingCardSelection = undefined;
                 handleEnterActiveRound(draft);
                 break;
             }
@@ -960,13 +965,16 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.gameStage = GameStage.BUY_OR_DISCARD;
 
                             for (const player of draft.players) {
-                                player.possibleCards.push(...handleDrawCards(4));
+                                player.pendingCardSelection = {
+                                    possibleCards: handleDrawCards(4),
+                                    isBuyingCards: true,
+                                };
                                 const bonus = draft.common.deck.find(
                                     card => card.name === bonusName
                                 );
-                                player.buyCards = true;
                                 if (bonus) {
-                                    player.possibleCards.push(bonus);
+                                    // (hack for debugging)
+                                    player.pendingCardSelection.possibleCards.push(bonus);
                                     draft.common.deck = draft.common.deck.filter(
                                         card => card !== bonus
                                     );
@@ -985,6 +993,7 @@ export const reducer = (state: GameState | null = null, action) => {
 
             case COMPLETE_ACTION:
                 player.pendingResourceActionDetails = undefined;
+                draft.pendingVariableAmount = undefined;
                 player.action = (player.action % 2) + 1;
 
                 // Did the player just complete their second action?

@@ -40,12 +40,6 @@ export const setCards = (cards: Card[], playerIndex: number) => ({
     payload: {cards, playerIndex},
 });
 
-export const SET_SELECTED_CARDS = 'SET_SELECTED_CARDS';
-export const setSelectedCards = (cards: Card[], playerIndex: number) => ({
-    type: SET_SELECTED_CARDS,
-    payload: {cards, playerIndex},
-});
-
 export const DRAW_CARDS = 'DRAW_CARDS';
 export const drawCards = (numCards: number, playerIndex: number) => ({
     type: DRAW_CARDS,
@@ -234,9 +228,15 @@ export const askUserToPlaceTile = (tilePlacement: TilePlacement, playerIndex: nu
 };
 
 export const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
-export const askUserToDiscardCards = (playerIndex: number, amount: Amount, card?: Card) => ({
+export const askUserToDiscardCards = (
+    playerIndex: number,
+    amount: Amount,
+    card?: Card,
+    playedCard?: Card,
+    isFromSellPatents?: boolean
+) => ({
     type: ASK_USER_TO_DISCARD_CARDS,
-    payload: {playerIndex, amount, card},
+    payload: {playerIndex, amount, card, playedCard, isFromSellPatents},
 });
 
 export const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS =

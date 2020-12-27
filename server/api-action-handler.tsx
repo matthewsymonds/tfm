@@ -55,7 +55,7 @@ import {
     getAction,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
-import {Action, Amount, ParameterCounter} from 'constants/action';
+import {Action, ActionType, Amount, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {CONVERSIONS} from 'constants/conversion';
@@ -462,13 +462,18 @@ export class ApiActionHandler implements GameActionHandler {
         const {
             pendingDiscard,
             index: loggedInPlayerIndex,
-            buyCards,
-            possibleCards,
+            pendingCardSelection,
             cards,
         } = this.getLoggedInPlayer();
-        const canConfirmCardSelection =
-            possibleCards.length > 0 &&
-            this.actionGuard.canConfirmCardSelection(selectedCards.length, state, corporation);
+
+        if (!pendingCardSelection) {
+            throw new Error('No pending card selection to confirm');
+        }
+        const {possibleCards, isBuyingCards} = pendingCardSelection;
+        const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
+            selectedCards.length,
+            state
+        );
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
         }
@@ -493,7 +498,7 @@ export class ApiActionHandler implements GameActionHandler {
             await this.playCardAsync({card: corporation});
         }
 
-        if (buyCards) {
+        if (isBuyingCards) {
             this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
         }
 
@@ -780,6 +785,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         for (const resource in action.removeResource) {
+            console.log('playedCard', playedCard);
             items.push(
                 this.createInitialRemoveResourceAction(
                     resource as Resource,
@@ -787,7 +793,8 @@ export class ApiActionHandler implements GameActionHandler {
                     playerIndex,
                     parent,
                     playedCard,
-                    action.removeResourceSourceType
+                    action.removeResourceSourceType,
+                    action
                 )
             );
         }
@@ -1052,7 +1059,8 @@ export class ApiActionHandler implements GameActionHandler {
         playerIndex: number,
         parent?: Card,
         playedCard?: Card,
-        locationType?: ResourceLocationType
+        locationType?: ResourceLocationType,
+        action?: Action
     ) {
         const requiresLocationChoice =
             locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
@@ -1061,7 +1069,13 @@ export class ApiActionHandler implements GameActionHandler {
         const requiresDiscard = resource === Resource.CARD;
 
         if (requiresDiscard) {
-            return askUserToDiscardCards(playerIndex, amount, parent);
+            return askUserToDiscardCards(
+                playerIndex,
+                amount,
+                parent,
+                playedCard,
+                action?.actionType === ActionType.STANDARD_PROJECT
+            );
         }
 
         if (requiresAmountChoice || requiresLocationChoice) {

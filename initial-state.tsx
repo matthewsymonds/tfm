@@ -78,12 +78,13 @@ export function getInitialState(players: string[]): GameState {
             // 0 for card selection, 1 / 2 for active round
             action: 0,
             username: player,
-            buyCards: true,
             index: base.players.length,
             terraformRating: 20,
             corporation: possibleCorporations[0],
-            possibleCards: sampleCards(deck, 10).concat(DEV_cardOverrides()),
-            numCardsToTake: null,
+            pendingCardSelection: {
+                possibleCards: sampleCards(deck, 10).concat(DEV_cardOverrides()),
+                isBuyingCards: true,
+            },
             possibleCorporations,
             cards: [],
             forcedActions: [],

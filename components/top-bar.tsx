@@ -68,12 +68,12 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
-    const isBuyingCards = loggedInPlayer.buyCards;
+    const hasPendingCardSelection = !!loggedInPlayer.pendingCardSelection;
     const currentPlayer = players[currentPlayerIndex];
     const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
 
     const topBarColor =
-        isLoggedInPlayersTurn || isBuyingCards
+        isLoggedInPlayersTurn || hasPendingCardSelection
             ? colors.NAV_BG_YOUR_TURN
             : isLoggedInPlayerPassed
             ? colors.NAV_BG_PASSED
@@ -95,13 +95,15 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
         <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="center">
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
-                {!isActiveRound && !isGreeneryPlacement && !isBuyingCards && (
+                {!isActiveRound && !isGreeneryPlacement && !hasPendingCardSelection && (
                     <span>Waiting to start generation.</span>
                 )}
-                {isCorporationSelection && isBuyingCards && (
+                {isCorporationSelection && hasPendingCardSelection && (
                     <span>Please choose your corporation and cards.</span>
                 )}
-                {isBuyOrDiscard && isBuyingCards && <span>Please choose your cards.</span>}
+                {isBuyOrDiscard && hasPendingCardSelection && (
+                    <span>Please choose your cards.</span>
+                )}
                 {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
                     <span>Action {action} of 2</span>
                 )}
