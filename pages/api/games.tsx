@@ -23,7 +23,8 @@ export default async (req, res) => {
             }
             return res.json({games});
         case 'POST': {
-            const {name, players, options} = req.body;
+            const {name, options} = req.body;
+            const players = req.body.players.slice(0, 5);
             game = await gamesModel.findOne({name});
             if (game) {
                 res.json({error: 'Game with that name already exists'});

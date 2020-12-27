@@ -1,5 +1,5 @@
 import {INITIAL_BOARD_STATE} from './constants/board';
-import {CardType, Deck} from './constants/card-types';
+import {CardType} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {Resource} from './constants/resource';
@@ -36,9 +36,7 @@ function sampleCards(cards: Card[], num: number) {
 }
 
 export function getInitialState(players: string[], options: GameOptions): GameState {
-    const possibleCards = cards.filter(
-        card => card.deck === Deck.BASIC || card.deck === Deck.CORPORATE
-    );
+    const possibleCards = cards.filter(card => options.decks.includes(card.deck));
 
     shuffle(possibleCards);
 
@@ -91,7 +89,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             forcedActions: [],
             playedCards: [],
             resources: initialResources(),
-            productions: initialResources(),
+            productions: initialResources(Number(options.decks.length === 1)),
             parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
             temporaryParameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
             exchangeRates: {
@@ -126,13 +124,13 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
     return base;
 }
 
-function initialResources() {
+function initialResources(startingAmount: number = 0) {
     return {
-        [Resource.MEGACREDIT]: 0,
-        [Resource.STEEL]: 0,
-        [Resource.TITANIUM]: 0,
-        [Resource.PLANT]: 0,
-        [Resource.ENERGY]: 0,
-        [Resource.HEAT]: 0,
+        [Resource.MEGACREDIT]: startingAmount,
+        [Resource.STEEL]: startingAmount,
+        [Resource.TITANIUM]: startingAmount,
+        [Resource.PLANT]: startingAmount,
+        [Resource.ENERGY]: startingAmount,
+        [Resource.HEAT]: startingAmount,
     };
 }

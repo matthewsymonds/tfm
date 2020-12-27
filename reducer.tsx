@@ -5,7 +5,7 @@ import {
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
 import {getTextForStandardProject} from 'components/board/standard-projects';
-import {CardType} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
@@ -140,6 +140,7 @@ export type CommonState = {
 
 export type GameOptions = {
     isDraftingEnabled: boolean;
+    decks: Deck[];
 };
 
 export type GameState = {

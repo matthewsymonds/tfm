@@ -54,6 +54,23 @@ export const Input = ({
 }: InputProps) => {
     const labelText = titleCase(name);
 
+    const handleChange = event => {
+        if (max) {
+            if (event.target.value > max) {
+                event.preventDefault();
+                return;
+            }
+        }
+        if (min) {
+            if (event.target.value < min) {
+                event.preventDefault();
+                return;
+            }
+        }
+
+        onChange(event);
+    };
+
     return (
         <Label>
             {labelText}
@@ -63,7 +80,7 @@ export const Input = ({
                 name={name}
                 value={value}
                 autoComplete={autoComplete}
-                onChange={onChange}
+                onChange={handleChange}
                 onBlur={onBlur}
                 required={required}
                 pattern={pattern}

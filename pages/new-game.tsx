@@ -1,8 +1,8 @@
 import {makePostCall} from 'api-calls';
-import {Box} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {Input, SubmitInput} from 'components/input';
+import {Deck} from 'constants/card-types';
 import {useInput} from 'hooks/use-input';
-import {shuffle} from 'initial-state';
 import {useRouter} from 'next/router';
 import React, {FormEvent, ReactElement, useState} from 'react';
 import styled from 'styled-components';
@@ -17,7 +17,8 @@ export default function NewGame(props) {
     const {session} = props;
     const [gameName, updateGameName] = useInput('');
     const [numPlayers, updateNumPlayers] = useInput(2);
-    const [isDraftingEnabled, setIsDraftingEnabled] = useState(false);
+    const [isDraftingEnabled, setIsDraftingEnabled] = useState(true);
+    const [isCorporateEraEnabled, setIsCorporateEraEnabled] = useState(true);
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -54,11 +55,17 @@ export default function NewGame(props) {
         event.preventDefault();
         const players = usernames;
 
+        const decks: Deck[] = [Deck.BASIC];
+        if (isCorporateEraEnabled) {
+            decks.push(Deck.CORPORATE);
+        }
+
         const result = await makePostCall('/api/games', {
             name: gameName,
-            players: shuffle(players.slice(0, numPlayers)),
+            players,
             options: {
                 isDraftingEnabled,
+                decks,
             },
         });
         if (result.error) {
@@ -93,18 +100,25 @@ export default function NewGame(props) {
                     onChange={updateNumPlayers}
                 />
                 {usernameInputs}
-                <Box margin="16px 0">
+                <Flex flexDirection="column" margin="16px 0">
                     <h3>Options</h3>
-                    <input
-                        type="checkbox"
-                        id="drafting-variant"
-                        checked={isDraftingEnabled}
-                        onChange={e => setIsDraftingEnabled(e.target.checked)}
-                    />
-                    <label htmlFor="drafting-variant" style={{marginLeft: 4}}>
-                        Drafting variant
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            checked={isCorporateEraEnabled}
+                            onChange={e => setIsCorporateEraEnabled(e.target.checked)}
+                        />
+                        Corporate Era
                     </label>
-                </Box>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            checked={isDraftingEnabled}
+                            onChange={e => setIsDraftingEnabled(e.target.checked)}
+                        />
+                        Draft variant
+                    </label>
+                </Flex>
                 <Box marginTop="32px">
                     <SubmitInput value="Create game" />
                 </Box>
