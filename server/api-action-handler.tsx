@@ -409,7 +409,6 @@ export class ApiActionHandler implements GameActionHandler {
             action,
             state,
             parent,
-            payment,
             withPriority,
         });
 
@@ -735,7 +734,6 @@ export class ApiActionHandler implements GameActionHandler {
         parent,
         playedCard,
         thisPlayerIndex,
-        payment,
         withPriority,
     }: {
         action: Action;
@@ -743,7 +741,6 @@ export class ApiActionHandler implements GameActionHandler {
         parent?: Card; // origin of action
         playedCard?: Card; // card that triggered action
         thisPlayerIndex?: number;
-        payment?: PropertyCounter<Resource>;
         withPriority?: boolean;
     }) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
@@ -786,7 +783,6 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         for (const resource in action.removeResource) {
-            console.log('playedCard', playedCard);
             items.push(
                 this.createInitialRemoveResourceAction(
                     resource as Resource,

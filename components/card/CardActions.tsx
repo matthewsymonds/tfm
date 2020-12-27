@@ -240,7 +240,7 @@ export const CardActions = ({
                     }
                 }
                 return (
-                    <React.Fragment>
+                    <React.Fragment key={index}>
                         {index > 0 && <TextWithMargin>OR</TextWithMargin>}
                         <ActionContainer
                             action={action}

@@ -269,7 +269,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusName = 'Mars University';
+const bonusNames = [];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -768,7 +768,13 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.pendingTilePlacement = payload.tilePlacement;
                 break;
             case ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS: {
-                const {actionType, resourceAndAmounts, card, playedCard, locationType} = payload;
+                const {actionType, resourceAndAmounts, locationType} = payload;
+                const card = player.playedCards.find(
+                    playerCard => playerCard.name === payload.card.name
+                )!;
+                const playedCard = player.playedCards.find(
+                    playerPlayedCard => playerPlayedCard.name === payload.playedCard?.name
+                );
                 player.pendingResourceActionDetails = {
                     actionType,
                     resourceAndAmounts,
@@ -788,7 +794,10 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             }
             case ASK_USER_TO_MAKE_ACTION_CHOICE:
-                const {choice, card, playedCard} = payload;
+                const {choice, playedCard} = payload;
+                const card = player.playedCards.find(
+                    playedCard => playedCard.name === payload.card.name
+                )!;
                 player.pendingChoice = {choice, card, playedCard};
                 break;
             case MAKE_ACTION_CHOICE:
@@ -969,16 +978,14 @@ export const reducer = (state: GameState | null = null, action) => {
                                     possibleCards: handleDrawCards(4),
                                     isBuyingCards: true,
                                 };
-                                const bonus = draft.common.deck.find(
-                                    card => card.name === bonusName
+                                const bonuses = draft.common.deck.filter(card =>
+                                    bonusNames.includes(card.name)
                                 );
-                                if (bonus) {
-                                    // (hack for debugging)
-                                    player.pendingCardSelection.possibleCards.push(bonus);
-                                    draft.common.deck = draft.common.deck.filter(
-                                        card => card !== bonus
-                                    );
-                                }
+                                // (hack for debugging)
+                                player.pendingCardSelection.possibleCards.push(...bonuses);
+                                draft.common.deck = draft.common.deck.filter(
+                                    card => !bonusNames.includes(card.name)
+                                );
                             }
                         }
                     } else {
