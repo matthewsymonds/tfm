@@ -84,7 +84,7 @@ export interface ServerGameModel {
     name: string;
 }
 
-interface EffectEvent {
+export interface EffectEvent {
     standardProject?: StandardProjectType;
     cost?: number;
     placedTile?: TileType;
@@ -192,8 +192,6 @@ export class ApiActionHandler implements GameActionHandler {
         // Now if you have 2 coins after paying for the card,
         // you'll now have 6 coins and can afford the card.
         // If the triggerEffects happened after city placement you could not.
-        // TODO fix edge cases where the ActionGuard will block you from proceeding
-        // even though it's technically possible (e.g. Tharsis and Immigrant City).
         this.triggerEffectsFromPlayedCard(card);
 
         // 2. Apply effects that will affect future turns:
@@ -249,31 +247,13 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     private triggerEffects(event: EffectEvent, playedCard?: Card) {
-        type ActionCardPair = [Action, Card];
-
         const {state} = this;
         const player = this.getLoggedInPlayer();
         // track the card that triggered the action so we can "add resources to this card"
         // e.g. Ecological Zone
 
         for (const thisPlayer of state.players) {
-            const actionCardPairs: ActionCardPair[] = [];
-            for (const card of thisPlayer.playedCards) {
-                for (const effect of card.effects) {
-                    if (effect.trigger && effect.action) {
-                        const actions = this.getActionsFromEffect(
-                            event,
-                            effect.trigger,
-                            effect.action,
-                            thisPlayer,
-                            player.index
-                        );
-                        actionCardPairs.push(
-                            ...actions.map(action => [action, card] as [Action, Card])
-                        );
-                    }
-                }
-            }
+            const actionCardPairs = getActionsFromEffectForPlayer(thisPlayer, event, player);
             for (const [action, card] of actionCardPairs) {
                 this.playAction({
                     action,
@@ -281,56 +261,10 @@ export class ApiActionHandler implements GameActionHandler {
                     parent: card,
                     playedCard,
                     thisPlayerIndex: thisPlayer.index,
+                    withPriority: true,
                 });
             }
         }
-    }
-
-    private getActionsFromEffect(
-        event: EffectEvent,
-        trigger: EffectTrigger,
-        effectAction: Action,
-        player: PlayerState,
-        currentPlayerIndex: number
-    ): Action[] {
-        if (!trigger.anyPlayer && player.index !== currentPlayerIndex) return [];
-
-        if (trigger.placedTile) {
-            if (event.placedTile !== trigger.placedTile) return [];
-            if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
-
-            return [effectAction];
-        }
-
-        if (trigger.steelOrTitaniumPlacementBonus) {
-            const bonus = event.cell?.bonus || [];
-            if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
-            return [effectAction];
-        }
-
-        if (trigger.standardProject) {
-            if (!event.standardProject) return [];
-
-            return [effectAction];
-        }
-
-        if (trigger.cost) {
-            if ((event.cost || 0) < trigger.cost) return [];
-            return [effectAction];
-        }
-
-        const eventTags = event.tags || [];
-
-        if (trigger.cardTags) {
-            for (const tag of trigger.cardTags || []) {
-                if (!eventTags.includes(tag)) return [];
-            }
-            return [effectAction];
-        }
-
-        const triggerTags = trigger.tags || [];
-        const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
-        return Array(numTagsTriggered).fill(effectAction);
     }
 
     private processQueue() {
@@ -648,7 +582,7 @@ export class ApiActionHandler implements GameActionHandler {
         const {pendingTilePlacement} = loggedInPlayer;
 
         const type = pendingTilePlacement!.type!;
-        this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
+        this.triggerEffectsFromTilePlacement(type, cell);
 
         const parameterForTile = this.getParameterForTile(type);
         if (parameterForTile) {
@@ -659,10 +593,12 @@ export class ApiActionHandler implements GameActionHandler {
                         [parameterForTile as Parameter]: 1,
                     },
                 },
+                withPriority: true,
             });
         }
 
-        this.triggerEffectsFromTilePlacement(type, cell);
+        this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
+
         this.processQueue();
     }
 
@@ -1131,3 +1067,76 @@ export class ApiActionHandler implements GameActionHandler {
         return PAUSE_ACTIONS.includes(action.type);
     }
 }
+
+export function getActionsFromEffectForPlayer(
+    player: PlayerState,
+    event: EffectEvent,
+    loggedInPlayer: PlayerState,
+    additionalCards: Card[] = []
+) {
+    const list: ActionCardPair[] = [];
+    for (const card of player.playedCards.concat(additionalCards)) {
+        for (const effect of card.effects) {
+            if (effect.trigger && effect.action) {
+                const actions = getActionsFromEffect(
+                    event,
+                    effect.trigger,
+                    effect.action,
+                    player,
+                    loggedInPlayer.index
+                );
+                list.push(...actions.map(action => [action, card] as ActionCardPair));
+            }
+        }
+    }
+    return list;
+}
+
+function getActionsFromEffect(
+    event: EffectEvent,
+    trigger: EffectTrigger,
+    effectAction: Action,
+    player: PlayerState,
+    currentPlayerIndex: number
+): Action[] {
+    if (!trigger.anyPlayer && player.index !== currentPlayerIndex) return [];
+
+    if (trigger.placedTile) {
+        if (event.placedTile !== trigger.placedTile) return [];
+        if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
+
+        return [effectAction];
+    }
+
+    if (trigger.steelOrTitaniumPlacementBonus) {
+        const bonus = event.cell?.bonus || [];
+        if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
+        return [effectAction];
+    }
+
+    if (trigger.standardProject) {
+        if (!event.standardProject) return [];
+
+        return [effectAction];
+    }
+
+    if (trigger.cost) {
+        if ((event.cost || 0) < trigger.cost) return [];
+        return [effectAction];
+    }
+
+    const eventTags = event.tags || [];
+
+    if (trigger.cardTags) {
+        for (const tag of trigger.cardTags || []) {
+            if (!eventTags.includes(tag)) return [];
+        }
+        return [effectAction];
+    }
+
+    const triggerTags = trigger.tags || [];
+    const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
+    return Array(numTagsTriggered).fill(effectAction);
+}
+
+type ActionCardPair = [Action, Card];

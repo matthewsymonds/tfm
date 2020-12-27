@@ -16,6 +16,7 @@ import {Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 
 export class Card {
+    isCard = true;
     // ====================================================
     // Card properties
     // ====================================================

@@ -13,12 +13,24 @@ const REQUIRED_REMOVE_RESOURCE_LOCATIONS = [
 ];
 
 export function doesPlayerHaveRequiredResourcesToRemove(
-    action: Action,
+    action: Action | Card,
     state: GameState,
     _player: PlayerState | null,
     parent?: Card
 ) {
     const player = _player ?? getAppropriatePlayerForAction(state, parent);
+
+    // Moss exception.
+    // Note because this handling is special,
+    // it gets in the way of custom cards.
+    if ('name' in action) {
+        if (action.name === 'Moss') {
+            // Viral enhancers will always give us the plant we need to continue.
+            if (player.playedCards.some(card => card.name === 'Viral Enhancers')) {
+                return true;
+            }
+        }
+    }
 
     if (
         action.removeResourceSourceType &&

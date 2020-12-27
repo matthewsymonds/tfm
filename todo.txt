@@ -10,10 +10,8 @@ add iconography in choice buttons
 unfortunately we are forced to refresh when entering card selection.
 make requirement background green if you can do it now
 *pass button disappeared
-Why is turn showing up in the middle of the log?
 
 hide log during buy or discard?
 greenery
-research/olympus conference
 auto play phobos ganymede.
 greenery phase weirdness
