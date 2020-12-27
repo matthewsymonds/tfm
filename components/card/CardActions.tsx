@@ -51,7 +51,7 @@ const ActionContainerBase = styled.button`
     }
 `;
 
-export function renderRightSideOfArrow(action: Action, prefix: string, card?: CardModel) {
+export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     const elements: Array<React.ReactNode> = [];
     if (action.stealResource) {
         elements.push(
@@ -113,14 +113,11 @@ export function renderRightSideOfArrow(action: Action, prefix: string, card?: Ca
     if (action.lookAtCards) {
         elements.push(
             <Box marginLeft="8px" display="flex">
-                <ActionText>
-                    {prefix}
-                    {action.text}
-                </ActionText>
+                <ActionText>{action.text}</ActionText>
             </Box>
         );
     }
-    return elements.length ? elements : null;
+    return elements.map((element, index) => <React.Fragment key={index}>{element}</React.Fragment>);
 }
 
 export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
@@ -168,7 +165,7 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
             />
         );
     }
-    return elements.length ? elements : null;
+    return elements.map((element, i) => <React.Fragment key={i}>{element}</React.Fragment>);
 }
 
 export const CardActions = ({
@@ -215,13 +212,15 @@ export const CardActions = ({
     }
 
     const actions = [...(action.choice ? action.choice : [action])];
-    const prefix = useCardName ? <div>{card.name}:</div> : 'Action: ';
     return (
         <ActionsWrapper>
             {!action.lookAtCards && (
                 <ActionText>
-                    {prefix}
-                    {action.text}
+                    {useCardName ? (
+                        <div style={{fontWeight: 600}}>{card.name}</div>
+                    ) : (
+                        <span>Action: {action.text}</span>
+                    )}
                 </ActionText>
             )}
             {actions.map((action, index) => {
@@ -254,7 +253,7 @@ export const CardActions = ({
                             <Flex alignItems="center" justifyContent="center" margin="4px">
                                 {renderLeftSideOfArrow(action, card)}
                                 {renderArrow()}
-                                {renderRightSideOfArrow(action, prefix, card)}
+                                {renderRightSideOfArrow(action, card)}
                             </Flex>
                         </ActionContainer>
                     </React.Fragment>

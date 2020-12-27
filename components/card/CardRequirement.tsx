@@ -84,7 +84,13 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 }
             }
         }
-        return <Flex>{tagElements}</Flex>;
+        return (
+            <Flex>
+                {tagElements.map((el, i) => (
+                    <React.Fragment key={i}>{el}</React.Fragment>
+                ))}
+            </Flex>
+        );
     } else if (card.minTerraformRating !== undefined) {
         return <TerraformRatingIcon size={16} />;
     } else {

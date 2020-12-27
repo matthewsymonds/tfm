@@ -6,5 +6,5 @@ export enum Condition {}
 export interface Effect {
     trigger?: EffectTrigger;
     action?: Action;
-    text?: string;
+    text?: string; // this is optional exclusively for tharsis right now
 }

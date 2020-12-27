@@ -1,5 +1,6 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import React from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {Box} from './box';
@@ -13,15 +14,16 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
     const actionGuard = new ActionGuard(state, player.username);
 
     return (
-        <>
+        <React.Fragment>
             {player.playedCards
                 .filter(card => card.action)
                 .map(card => {
                     return (
                         <Box
                             key={`card-actions-${card.name}`}
-                            marginBottom="8px"
-                            textAlign="center"
+                            width="fit-content"
+                            border="1px solid black"
+                            borderRadius="3px"
                         >
                             <CardActions
                                 card={card}
@@ -34,6 +36,6 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                         </Box>
                     );
                 })}
-        </>
+        </React.Fragment>
     );
 };

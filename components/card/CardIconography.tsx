@@ -120,9 +120,9 @@ export function ChangeResourceIconography({
                 </Flex>
             );
             if (opts.isProduction) {
-                elements.push(<ProductionWrapper>{el}</ProductionWrapper>);
+                elements.push(<ProductionWrapper key={elements.length}>{el}</ProductionWrapper>);
             } else {
-                elements.push(el);
+                elements.push(<React.Fragment key={elements.length}>{el}</React.Fragment>);
             }
         } else {
             let multiplierElement: React.ReactElement | null = null;
@@ -181,9 +181,7 @@ export function ChangeResourceIconography({
                     multiplierElement = null;
                     break;
                 case VariableAmount.OPPONENTS_SPACE_TAGS:
-                    multiplierElement = (
-                        <TagIcon name={Tag.SPACE} size={16} borderOverride="2px solid red" />
-                    );
+                    multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
                     break;
                 case VariableAmount.POWER_TAGS:
                     multiplierElement = <TagIcon name={Tag.POWER} size={16} />;
@@ -351,10 +349,15 @@ export function ChangeResourceOptionIconography({
 
     Object.entries(changeResourceOption).forEach(([resource, quantity], index) => {
         if (index > 0) {
-            elements.push(<TextWithMargin>{opts?.useSlashSeparator ? '/' : 'or'}</TextWithMargin>);
+            elements.push(
+                <TextWithMargin key={elements.length}>
+                    {opts?.useSlashSeparator ? '/' : 'or'}
+                </TextWithMargin>
+            );
         }
         elements.push(
             <ChangeResourceIconography
+                key={elements.length}
                 changeResource={{[resource]: quantity}}
                 opts={{...opts, isInline: true}}
             />
@@ -745,7 +748,7 @@ function TemporaryAdjustmentIconography({
         }
 
         elements.push(
-            <IconographyRow>
+            <IconographyRow key={elements.length}>
                 <GlobalParameterIcon parameter={parameter as Parameter} size={12} />
                 <TextWithMargin>:</TextWithMargin>
                 <InlineText>+/- {adjustment}</InlineText>

@@ -6,7 +6,7 @@ type TagBaseProps = {
     color: string;
     background: string;
     size: number;
-    borderOverride: string | null;
+    showRedBorder: boolean;
     margin: number;
 };
 
@@ -21,7 +21,8 @@ const TagBase = styled.div<TagBaseProps>`
     align-items: center;
     color: ${props => props.color};
     background: ${props => props.background};
-    border: ${props => props.borderOverride ?? '1px solid #888888'};
+    box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
+    border: 1px solid #888888;
     overflow: hidden;
 `;
 
@@ -64,18 +65,18 @@ function getTagProps(tag: Tag): TagProps {
 type TagIconProps = {
     name: Tag;
     size?: number;
-    borderOverride?: string;
+    showRedBorder?: boolean;
     margin?: number;
 };
 
-export const TagIcon = ({name, size = 12, borderOverride, margin = 0}: TagIconProps) => {
+export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: TagIconProps) => {
     const tagProps = getTagProps(name);
     return (
         <TagBase
             color={tagProps.color}
             size={size ?? 32}
             background={tagProps.backgroundColor}
-            borderOverride={borderOverride ?? null}
+            showRedBorder={showRedBorder ?? null}
             margin={margin}
         >
             <span className={tagProps.className}>{tagProps.icon}</span>

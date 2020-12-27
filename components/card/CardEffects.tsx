@@ -62,9 +62,9 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             const tags = {...card.discounts.tags, ...card.discounts.cards};
             Object.keys(tags).forEach((tag, index) => {
                 if (index > 0) {
-                    elements.push(<TextWithMargin key={elements.length}>/</TextWithMargin>);
+                    elements.push(<TextWithMargin>/</TextWithMargin>);
                 }
-                elements.push(<TagIcon name={tag as Tag} size={16} key={elements.length} />);
+                elements.push(<TagIcon name={tag as Tag} size={16} />);
             });
         }
 
@@ -73,7 +73,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         }
 
         if (card.discounts.trade) {
-            elements.push(<IconizedText key={elements.length}>TRADE</IconizedText>);
+            elements.push(<IconizedText>TRADE</IconizedText>);
         }
 
         elements.push(renderColon(elements.length));
@@ -81,7 +81,6 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         if (card.discounts.card) {
             elements.push(
                 <ResourceIcon
-                    key={elements.length}
                     name={Resource.MEGACREDIT}
                     size={16}
                     amount={`${card.discounts.card}`}
@@ -91,7 +90,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
         if (card.discounts.trade > 0) {
             elements.push(
-                <React.Fragment key={elements.length}>
+                <React.Fragment>
                     <InlineText>-{card.discounts.trade}</InlineText>
                 </React.Fragment>
             );
@@ -107,7 +106,13 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
-        return <React.Fragment>{elements}</React.Fragment>;
+        return (
+            <React.Fragment>
+                {elements.map((el, i) => (
+                    <React.Fragment key={i}>{el}</React.Fragment>
+                ))}
+            </React.Fragment>
+        );
     }
 
     function renderTrigger(trigger: EffectTrigger | undefined) {
@@ -115,7 +120,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return (
                 <Flex>
                     {trigger?.tags.map((tag, index) => (
-                        <React.Fragment>
+                        <React.Fragment key={`${tag}-${index}`}>
                             {index > 0 && <TextWithMargin>/</TextWithMargin>}
                             <TagIcon name={tag} size={16} />
                         </React.Fragment>
@@ -126,7 +131,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return (
                 <Flex>
                     {trigger?.cardTags.map((tag, index) => (
-                        <TagIcon name={tag} size={16} />
+                        <TagIcon name={tag} size={16} key={index} />
                     ))}
                 </Flex>
             );
@@ -166,7 +171,13 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 }
                 elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
             });
-            return <Flex>{elements}</Flex>;
+            return (
+                <Flex>
+                    {elements.map((el, i) => (
+                        <React.Fragment key={i}>{el}</React.Fragment>
+                    ))}
+                </Flex>
+            );
         }
 
         return null;
@@ -177,7 +188,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             return (
                 <Flex alignItems="center">
                     {action?.choice.map((actionChoice, index) => (
-                        <React.Fragment>
+                        <React.Fragment key={index}>
                             {index > 0 && <InlineText>or</InlineText>}
                             {renderAction(actionChoice)}
                         </React.Fragment>
@@ -206,7 +217,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         return (
             <Flex flexDirection="column">
                 {Object.entries(card.exchangeRates).map(([resource, amount]) => (
-                    <IconographyRow>
+                    <IconographyRow key={resource}>
                         <ResourceIcon name={resource as Resource} size={16} />
                         <TextWithMargin>:</TextWithMargin>
                         {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
@@ -219,9 +230,9 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
     return (
         <React.Fragment>
-            {effects.map(effect => (
-                <EffectWrapper>
-                    <EffectText>{effect.text}</EffectText>
+            {effects.map((effect, index) => (
+                <EffectWrapper key={index}>
+                    {effect.text && <EffectText>{effect.text}</EffectText>}
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
                         {Object.keys(card.exchangeRates).length > 0 ? (
                             <React.Fragment>{renderExchangeRates()}</React.Fragment>
