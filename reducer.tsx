@@ -7,12 +7,12 @@ import {getTextForMilestone} from 'components/board/milestones';
 import {getTextForStandardProject} from 'components/board/standard-projects';
 import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
-import {VariableAmount} from 'constants/variable-amount';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {TypedUseSelectorHook, useSelector} from 'react-redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {isVariableAmount} from 'selectors/is-variable-amount';
 import {
     ADD_FORCED_ACTION_TO_PLAYER,
     ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS,
@@ -495,7 +495,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 break;
             case DISCARD_CARDS:
                 let pendingDiscardAmount = player.pendingDiscard?.amount;
-                if (pendingDiscardAmount && pendingDiscardAmount in VariableAmount) {
+                if (pendingDiscardAmount && isVariableAmount(pendingDiscardAmount)) {
                     draft.pendingVariableAmount = payload.cards.length;
                 }
                 draft.log.push(
@@ -1053,15 +1053,15 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.turn = 1;
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
-                            common.gameStage = draft.options.isDraftingEnabled
+                            common.gameStage = draft.options?.isDraftingEnabled
                                 ? GameStage.DRAFTING
                                 : GameStage.BUY_OR_DISCARD;
 
                             for (const player of draft.players) {
                                 player.pendingCardSelection = {
                                     possibleCards: handleDrawCards(4),
-                                    isBuyingCards: draft.options.isDraftingEnabled ? false : true,
-                                    draftPicks: draft.options.isDraftingEnabled ? [] : undefined,
+                                    isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
+                                    draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
                                 };
                                 const bonuses = draft.common.deck.filter(card =>
                                     bonusNames.includes(card.name)

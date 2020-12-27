@@ -40,8 +40,7 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
-            <Flex flexDirection="column" width="100%" maxWidth="936px">
-                <h3>{cardSelectionPrompt}</h3>
+            <Flex flexDirection="column" width="100%">
                 <CardSelector
                     max={maxCardsToDiscard}
                     min={0}
@@ -49,7 +48,9 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
                     onSelect={cards => setSelectedCards(cards)}
                     options={player.cards}
                     orientation="vertical"
-                />
+                >
+                    <h3>{cardSelectionPrompt}</h3>
+                </CardSelector>
                 <Flex justifyContent="center">
                     <button onClick={handleConfirmCardSelection}>
                         Discard {selectedCards.length} card{selectedCards.length === 1 ? '' : 's'}

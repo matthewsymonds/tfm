@@ -7,6 +7,7 @@ import {Box, Flex} from './box';
 export const ChoiceWrapper = styled.div`
     display: flex;
     overflow-y: hidden;
+    width: 100%;
 `;
 
 export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; children: ReactNode}) {
@@ -36,9 +37,9 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
         cardDetails = null;
     }
     return (
-        <Flex width="100%" marginTop="16px" flexWrap="wrap" justifyContent="space-around">
+        <Flex width="fit-content" marginTop="16px" flexWrap="wrap" justifyContent="space-around">
             {cardDetails}
-            <Flex flexDirection="column">
+            <Flex flexDirection="column" width="100%">
                 <ChoiceWrapper>{children}</ChoiceWrapper>
             </Flex>
         </Flex>

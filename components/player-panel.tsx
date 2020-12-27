@@ -62,7 +62,6 @@ const CorporationSelector = ({
 
     return (
         <>
-            <h3>Select a corporation:</h3>
             <CardSelector
                 min={1}
                 max={1}
@@ -70,7 +69,9 @@ const CorporationSelector = ({
                 onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
                 options={possibleCorporations}
                 orientation="vertical"
-            />
+            >
+                <h3>Select a corporation:</h3>
+            </CardSelector>
         </>
     );
 };

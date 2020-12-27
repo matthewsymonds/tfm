@@ -18,12 +18,22 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     display: flex;
     align-items: stretch;
     justify-content: center;
-    flex-wrap: ${props => (props.orientation === 'vertical' ? 'wrap' : '')};
-    margin: 0 auto;
+    flex-wrap: wrap;
+    height: 100%;
     max-height: 340px;
     overflow-y: auto;
     margin-bottom: 8px;
-    width: 100%;
+`;
+
+const CardSelectorOuter = styled.div`
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 906px;
+`;
+
+const CardSelectorChildren = styled.div`
+    margin: 8px;
+    margin-top: 0px;
 `;
 
 const CardWrapper = styled.div`
@@ -55,32 +65,35 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     };
 
     return (
-        <CardSelectorBase className={className} orientation={orientation}>
-            {options.map((option, key) => {
-                const selected = selectedCards.some(card => card.name === option.name);
+        <CardSelectorOuter className={className}>
+            <CardSelectorChildren>{props.children}</CardSelectorChildren>
+            <CardSelectorBase orientation={orientation}>
+                {options.map((option, key) => {
+                    const selected = selectedCards.some(card => card.name === option.name);
 
-                const cannotSelect = !selected && !canSelect;
-                const cannotUnselect = selected && numSelected === 1 && min === 1;
+                    const cannotSelect = !selected && !canSelect;
+                    const cannotUnselect = selected && numSelected === 1 && min === 1;
 
-                const disabled = cannotSelect || cannotUnselect;
-                return (
-                    <CardWrapper
-                        onClick={() => {
-                            if (disabled) {
-                                return;
-                            }
-                            handleSelect(option);
-                        }}
-                        key={key}
-                    >
-                        <CardComponent
-                            cardContext={CardContext.SELECT_TO_KEEP}
-                            card={option}
-                            isSelected={selected}
-                        />
-                    </CardWrapper>
-                );
-            })}
-        </CardSelectorBase>
+                    const disabled = cannotSelect || cannotUnselect;
+                    return (
+                        <CardWrapper
+                            onClick={() => {
+                                if (disabled) {
+                                    return;
+                                }
+                                handleSelect(option);
+                            }}
+                            key={key}
+                        >
+                            <CardComponent
+                                cardContext={CardContext.SELECT_TO_KEEP}
+                                card={option}
+                                isSelected={selected}
+                            />
+                        </CardWrapper>
+                    );
+                })}
+            </CardSelectorBase>
+        </CardSelectorOuter>
     );
 };

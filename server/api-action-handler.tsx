@@ -103,6 +103,15 @@ const PAUSE_ACTIONS = [
     ASK_USER_TO_DUPLICATE_PRODUCTION,
 ];
 
+type PlayActionParams = {
+    action: Action;
+    state: GameState;
+    parent?: Card; // origin of action
+    playedCard?: Card; // card that triggered action
+    thisPlayerIndex?: number;
+    withPriority?: boolean;
+};
+
 export class ApiActionHandler implements GameActionHandler {
     private readonly actionGuard: ActionGuard;
     constructor(public game: ServerGameModel, private readonly username: string) {
@@ -214,7 +223,12 @@ export class ApiActionHandler implements GameActionHandler {
         //     - gaining/losing/stealing resources & production
         //     - tile pacements
         //     - discarding/drawing cards
-        this.playAction({action: card, state: this.state, parent: card});
+        const playActionParams = {action: card, state: this.state, parent: card};
+        // Get the resources/production/cards first.
+        // Trigger effects after.
+        this.playActionBenefits({...playActionParams, withPriority: true});
+        // Finally, pay the costs.
+        this.playActionCosts(playActionParams);
 
         if (card.forcedAction) {
             this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
@@ -262,7 +276,7 @@ export class ApiActionHandler implements GameActionHandler {
                     parent: card,
                     playedCard,
                     thisPlayerIndex: thisPlayer.index,
-                    withPriority: true,
+                    withPriority: !!event.placedTile,
                 });
             }
         }
@@ -695,85 +709,16 @@ export class ApiActionHandler implements GameActionHandler {
         selectedCards: Array<Card>;
     }): Promise<void> {}
 
-    private playAction({
+    private playActionBenefits({
         action,
         state,
         parent,
         playedCard,
         thisPlayerIndex,
         withPriority,
-    }: {
-        action: Action;
-        state: GameState;
-        parent?: Card; // origin of action
-        playedCard?: Card; // card that triggered action
-        thisPlayerIndex?: number;
-        withPriority?: boolean;
-    }) {
+    }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<{type: string; payload}> = [];
-
-        for (const production in action.decreaseProduction) {
-            items.push(
-                this.createDecreaseProductionAction(
-                    production as Resource,
-                    action.decreaseProduction[production],
-                    playerIndex,
-                    parent
-                )
-            );
-        }
-
-        for (const production in action.decreaseAnyProduction) {
-            items.push(
-                askUserToChooseResourceActionDetails({
-                    actionType: 'decreaseProduction',
-                    card: parent!,
-                    playerIndex,
-                    locationType: ResourceLocationType.ANY_PLAYER,
-                    resourceAndAmounts: [
-                        {
-                            resource: production as Resource,
-                            amount: action.decreaseAnyProduction[production],
-                        },
-                    ],
-                })
-            );
-        }
-
-        if (action.choice) {
-            items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
-        }
-
-        for (const tilePlacement of action?.tilePlacements ?? []) {
-            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
-        }
-
-        for (const resource in action.removeResource) {
-            items.push(
-                this.createInitialRemoveResourceAction(
-                    resource as Resource,
-                    action.removeResource[resource],
-                    playerIndex,
-                    parent,
-                    playedCard,
-                    action.removeResourceSourceType,
-                    action
-                )
-            );
-        }
-
-        if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
-            items.push(
-                this.createRemoveResourceOptionAction(
-                    action.removeResourceOption!,
-                    playerIndex,
-                    parent,
-                    action.removeResourceSourceType
-                )
-            );
-        }
-
         const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
 
         // NOTE: This logic means stealResource really behaves more like
@@ -945,6 +890,89 @@ export class ApiActionHandler implements GameActionHandler {
         } else {
             this.queue.push(...items);
         }
+    }
+
+    private playActionCosts({
+        action,
+        parent,
+        playedCard,
+        thisPlayerIndex,
+        withPriority,
+    }: PlayActionParams) {
+        const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
+        const items: Array<{type: string; payload}> = [];
+
+        for (const production in action.decreaseProduction) {
+            items.push(
+                this.createDecreaseProductionAction(
+                    production as Resource,
+                    action.decreaseProduction[production],
+                    playerIndex,
+                    parent
+                )
+            );
+        }
+
+        for (const production in action.decreaseAnyProduction) {
+            items.push(
+                askUserToChooseResourceActionDetails({
+                    actionType: 'decreaseProduction',
+                    card: parent!,
+                    playerIndex,
+                    locationType: ResourceLocationType.ANY_PLAYER,
+                    resourceAndAmounts: [
+                        {
+                            resource: production as Resource,
+                            amount: action.decreaseAnyProduction[production],
+                        },
+                    ],
+                })
+            );
+        }
+
+        if (action.choice) {
+            items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
+        }
+
+        for (const tilePlacement of action?.tilePlacements ?? []) {
+            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+        }
+
+        for (const resource in action.removeResource) {
+            items.push(
+                this.createInitialRemoveResourceAction(
+                    resource as Resource,
+                    action.removeResource[resource],
+                    playerIndex,
+                    parent,
+                    playedCard,
+                    action.removeResourceSourceType,
+                    action
+                )
+            );
+        }
+
+        if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
+            items.push(
+                this.createRemoveResourceOptionAction(
+                    action.removeResourceOption!,
+                    playerIndex,
+                    parent,
+                    action.removeResourceSourceType
+                )
+            );
+        }
+
+        if (withPriority) {
+            this.queue.unshift(...items);
+        } else {
+            this.queue.push(...items);
+        }
+    }
+
+    private playAction(playActionParams: PlayActionParams) {
+        this.playActionCosts(playActionParams);
+        this.playActionBenefits(playActionParams);
     }
 
     private createDecreaseProductionAction(

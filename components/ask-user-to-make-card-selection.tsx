@@ -125,13 +125,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     Waiting on other players to draft...
                 </Flex>
             ) : (
-                <Flex flexDirection="column" width="100%" maxWidth="936px">
-                    <h3
-                        style={{marginBottom: cardSelectionSubtitle ? 4 : 'initial', marginLeft: 8}}
-                    >
-                        {cardSelectionPrompt}
-                    </h3>
-                    {cardSelectionSubtitle}
+                <Flex flexDirection="column" width="100%">
                     <CardSelector
                         max={maxCards}
                         min={minCards}
@@ -143,7 +137,16 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         }}
                         options={pendingCardSelection.possibleCards}
                         orientation="vertical"
-                    />
+                    >
+                        <h3
+                            style={{
+                                marginBottom: cardSelectionSubtitle ? 4 : 'initial',
+                            }}
+                        >
+                            {cardSelectionPrompt}
+                        </h3>
+                        {cardSelectionSubtitle}
+                    </CardSelector>
                     <Flex justifyContent="center">
                         <PaymentPopover
                             cost={selectedCards.length * 3}
