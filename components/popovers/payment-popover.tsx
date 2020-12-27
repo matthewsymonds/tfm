@@ -7,7 +7,7 @@ import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {Card} from 'models/card';
-import {useContext, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import styled from 'styled-components';
@@ -15,6 +15,7 @@ import styled from 'styled-components';
 const PaymentPopoverBase = styled.div`
     padding: 16px;
     border-radius: 3px;
+    z-index: 31; // HACK: Remove this once the top-bar is either modalized or has less janky scroll behavior
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
     background: #f7f7f7;
     .payment-rows {
@@ -114,6 +115,7 @@ function PaymentPopoverRow({
 type BasePaymentPopoverProps = {
     onConfirmPayment: (payment: PropertyCounter<Resource>) => void;
     children: React.ReactNode;
+    shouldHide?: boolean;
 };
 type CardPaymentPopoverProps = BasePaymentPopoverProps & {
     cost?: undefined;
@@ -133,6 +135,7 @@ export default function PaymentPopover({
     card,
     action,
     cost,
+    shouldHide,
 }: PaymentPopoverProps) {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
@@ -150,6 +153,10 @@ export default function PaymentPopover({
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
+
+    if (shouldHide) {
+        return <React.Fragment>{children}</React.Fragment>;
+    }
 
     function handleDecrease(resource: Resource) {
         const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();

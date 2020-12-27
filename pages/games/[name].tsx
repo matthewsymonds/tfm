@@ -44,6 +44,7 @@ export default function Game(props) {
         if (
             (gameStage !== GameStage.CORPORATION_SELECTION &&
                 gameStage !== GameStage.BUY_OR_DISCARD &&
+                gameStage !== GameStage.DRAFTING &&
                 currentPlayerIndex == loggedInPlayerIndex) ||
             numPlayers === 1
         ) {
@@ -84,6 +85,7 @@ export default function Game(props) {
     switch (gameStage) {
         case GameStage.CORPORATION_SELECTION:
         case GameStage.ACTIVE_ROUND:
+        case GameStage.DRAFTING:
         case GameStage.BUY_OR_DISCARD:
         case GameStage.GREENERY_PLACEMENT:
             return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;

@@ -80,7 +80,7 @@ export const Box = styled.div<Partial<BoxProps>>`
 `;
 
 export const Flex = styled(Box)<Partial<FlexProps>>`
-    display: flex;
+    display: ${props => props.display ?? 'flex'};
     flex-direction: ${props => props.flexDirection};
     justify-content: ${props => props.justifyContent};
     flex: ${props => props.flex};

@@ -122,7 +122,7 @@ const LogEntryInner = ({
                         i,
                         0,
                         <Flex margin="0 4px" key={i}>
-                            <PlayerCorpAndIcon player={players[index]} color="black" />
+                            <PlayerCorpAndIcon player={players[index]} />
                         </Flex>
                     );
                     i++;

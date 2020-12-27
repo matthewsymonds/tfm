@@ -162,13 +162,16 @@ export class ApiClient implements GameActionHandler {
     async confirmCardSelectionAsync({
         selectedCards,
         corporation,
+        payment,
     }: {
         selectedCards: Array<Card>;
         corporation: Card;
+        payment?: PropertyCounter<Resource>;
     }): Promise<void> {
         const payload = {
             cards: selectedCards.map(card => ({name: card.name})),
             corporation: {name: corporation.name},
+            payment,
         };
         await this.makeApiCall(ApiActionType.API_CONFIRM_CARD_SELECTION, payload);
     }

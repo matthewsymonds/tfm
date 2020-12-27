@@ -5,8 +5,8 @@ import {Resource} from './resource';
 export enum GameStage {
     CORPORATION_SELECTION = 'corporationSelection',
     ACTIVE_ROUND = 'activeRound',
-    BUY_OR_DISCARD = 'buyOrDiscard',
     DRAFTING = 'drafting',
+    BUY_OR_DISCARD = 'buyOrDiscard',
     END_OF_GAME = 'endOfGame',
     GREENERY_PLACEMENT = 'greeneryPlacement',
 }

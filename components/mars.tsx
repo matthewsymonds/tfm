@@ -6,8 +6,7 @@ const MarsBase = styled.div`
     height: 25px;
     border-radius: 50%;
     background: #8b2405;
-    margin: 50px;
-    margin-bottom: 125px;
+    margin: 25px;
     position: relative;
 `;
 

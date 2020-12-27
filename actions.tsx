@@ -47,9 +47,19 @@ export const drawCards = (numCards: number, playerIndex: number) => ({
 });
 
 export const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
-export const payForCards = (cards: Card[], playerIndex: number) => ({
+export const payForCards = (
+    cards: Card[],
+    playerIndex: number,
+    payment?: PropertyCounter<Resource>
+) => ({
     type: PAY_FOR_CARDS,
-    payload: {cards, playerIndex},
+    payload: {cards, playerIndex, payment},
+});
+
+export const DRAFT_CARD = 'DRAFT_CARD';
+export const draftCard = (card: Card, playerIndex: number) => ({
+    type: DRAFT_CARD,
+    payload: {card, playerIndex},
 });
 
 export const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';

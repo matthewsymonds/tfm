@@ -78,6 +78,7 @@ export function CardContextButton({
         case CardContext.SELECT_TO_BUY:
             throw new Error('Not implemented ' + cardContext);
         case CardContext.SELECT_TO_KEEP:
+        case CardContext.DISPLAY_ONLY:
             buttonContent = null;
             break;
         default:
