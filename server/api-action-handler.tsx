@@ -454,9 +454,11 @@ export class ApiActionHandler implements GameActionHandler {
     async confirmCardSelectionAsync({
         selectedCards,
         corporation,
+        payment,
     }: {
         selectedCards: Card[];
         corporation: Card;
+        payment?: PropertyCounter<Resource>;
     }) {
         const {state} = this;
         const {
@@ -498,7 +500,7 @@ export class ApiActionHandler implements GameActionHandler {
                 }
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
                 await this.playCardAsync({card: corporation});
-                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
@@ -514,7 +516,7 @@ export class ApiActionHandler implements GameActionHandler {
                 break;
             }
             case GameStage.BUY_OR_DISCARD: {
-                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
@@ -527,7 +529,7 @@ export class ApiActionHandler implements GameActionHandler {
             }
             case GameStage.ACTIVE_ROUND: {
                 if (isBuyingCards) {
-                    this.queue.push(payForCards(selectedCards, loggedInPlayerIndex));
+                    this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 }
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(

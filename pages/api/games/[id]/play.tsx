@@ -89,7 +89,7 @@ export default async (req, res) => {
                 await actionHandler.skipChooseResourceActionDetailsAsync();
                 break;
             case ApiActionType.API_CONFIRM_CARD_SELECTION:
-                const {cards} = payload;
+                const {cards, payment} = payload;
                 if (cards.length > 10) {
                     throw new Error('trying to select too many cards');
                 }
@@ -100,7 +100,11 @@ export default async (req, res) => {
                     }
                 );
                 const corporation = stateHydrator.getCard(payload.corporation.name);
-                await actionHandler.confirmCardSelectionAsync({selectedCards, corporation});
+                await actionHandler.confirmCardSelectionAsync({
+                    selectedCards,
+                    corporation,
+                    payment,
+                });
                 break;
             case ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS:
                 await actionHandler.continueAfterRevealingCardsAsync();

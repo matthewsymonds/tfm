@@ -1,6 +1,6 @@
 import {
     amountAndResource,
-    ResourceActionType
+    ResourceActionType,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/awards';
 import {getTextForMilestone} from 'components/board/milestones';
@@ -58,7 +58,7 @@ import {
     SKIP_ACTION,
     SKIP_CHOICE,
     STEAL_RESOURCE,
-    STEAL_STORABLE_RESOURCE
+    STEAL_STORABLE_RESOURCE,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {
@@ -69,7 +69,7 @@ import {
     Milestone,
     Parameter,
     TilePlacement,
-    TileType
+    TileType,
 } from './constants/board';
 import {CONVERSIONS} from './constants/conversion';
 import {Discounts} from './constants/discounts';
@@ -81,7 +81,7 @@ import {
     isStorableResource,
     Resource,
     ResourceAndAmount,
-    ResourceLocationType
+    ResourceLocationType,
 } from './constants/resource';
 import {StandardProjectType} from './constants/standard-project';
 import {Card} from './models/card';
@@ -377,8 +377,15 @@ export const reducer = (state: GameState | null = null, action) => {
                 player.corporation = payload.corporation;
                 break;
             case PAY_FOR_CARDS:
-                const numCards = action.payload.cards.length;
-                player.resources[Resource.MEGACREDIT] -= numCards * 3;
+                const {cards, payment} = action.payload;
+                const numCards = cards.length;
+                if (payment) {
+                    for (const [resource, amount] of Object.entries(payment)) {
+                        player.resources[resource] -= amount as number;
+                    }
+                } else {
+                    player.resources[Resource.MEGACREDIT] -= numCards * 3;
+                }
                 if (player.resources[Resource.MEGACREDIT] < 0) {
                     throw new Error('Money went negative!');
                 }

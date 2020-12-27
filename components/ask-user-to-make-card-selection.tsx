@@ -4,7 +4,10 @@ import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {Card as CardComponent, CardContext} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
+import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
+import {PropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource';
 import {Card} from 'models/card';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
@@ -67,8 +70,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         throw new Error('Unhandled scenario in ask user to make card selection');
     }
 
-    async function handleConfirmCardSelection() {
-        await apiClient.confirmCardSelectionAsync({selectedCards, corporation: player.corporation});
+    async function handleConfirmCardSelection(payment?: PropertyCounter<Resource>) {
+        await apiClient.confirmCardSelectionAsync({
+            selectedCards,
+            corporation: player.corporation,
+            payment,
+        });
         setSelectedCards([]);
     }
 
@@ -85,6 +92,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     let passSourceIndex = state.common.generation % 2 ? player.index - 1 : player.index + 1;
     passSourceIndex = passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
     passSourceIndex = passSourceIndex >= state.players.length ? 0 : passSourceIndex;
+    const usePaymentPopover =
+        pendingCardSelection.isBuyingCards &&
+        player.corporation.name === 'Helion' &&
+        selectedCards.length;
 
     return (
         <AskUserToMakeChoice>
@@ -134,12 +145,18 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         orientation="vertical"
                     />
                     <Flex justifyContent="center">
-                        <button
-                            disabled={shouldDisableConfirmCardSelection}
-                            onClick={handleConfirmCardSelection}
+                        <PaymentPopover
+                            cost={selectedCards.length * 3}
+                            onConfirmPayment={payment => handleConfirmCardSelection(payment)}
+                            shouldHide={!usePaymentPopover}
                         >
-                            {cardSelectionButtonText}
-                        </button>
+                            <button
+                                disabled={shouldDisableConfirmCardSelection}
+                                onClick={() => !usePaymentPopover && handleConfirmCardSelection()}
+                            >
+                                {cardSelectionButtonText}
+                            </button>
+                        </PaymentPopover>
                     </Flex>
                 </Flex>
             )}
