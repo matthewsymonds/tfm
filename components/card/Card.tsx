@@ -10,6 +10,7 @@ import {CardRequirement} from 'components/card/CardRequirement';
 import {CardStoredResources} from 'components/card/CardStoredResources';
 import {CardTags} from 'components/card/CardTags';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
+import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {AppContext} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
@@ -35,13 +36,30 @@ const CardBase = styled.div<{isSelected: boolean | undefined}>`
     width: ${CARD_WIDTH}px;
     height: ${CARD_HEIGHT}px;
     border-radius: 3px;
-    border: 1px solid black;
+    border-width: 4px;
+    border-style: solid;
+    border-top-color: ${colors.CARD_BORDER_1};
+    border-left-color: ${colors.CARD_BORDER_1};
+    border-bottom-color: ${colors.CARD_BORDER_2};
+    border-right-color: ${colors.CARD_BORDER_2};
     box-shadow: ${props => (props.isSelected === true ? '0px 0px 6px 2px hsl(0 0% 54%);' : 'none')};
     opacity: ${props => (props.isSelected === false ? '0.5' : '1')};
     display: flex;
+    font-family: 'Open Sans', 'Roboto', sans-serif;
+    font-size: 12px;
     flex-direction: column;
+
     position: relative;
-    background-color: #f6d0b1;
+    box-sizing: border-box;
+    &:before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        filter: sepia(0.1) hue-rotate(-9deg) drop-shadow(2px 4px 6px black);
+        z-index: -1;
+        background-image: url(${require('assets/hexellence.png')});
+    }
 `;
 export type CardProps = {
     card: CardModel;
@@ -55,49 +73,45 @@ export enum CardContext {
     NONE = 'none', // just show the card with no clickable buttons
     SELECT_TO_BUY = 'selectToBuy', // if selecting to buy (ie drafting)
     SELECT_TO_PLAY = 'selectToPlay', // if selecting to play (ie in hand)
-    SELECT_TO_KEEP = 'selectToKeep', // if selecting to keep (eg draw 4 keep 2)
-    SELECT_TO_DISCARD = 'selectToDiscard', // if selecting to discard (could this be merged with selectToDiscard?)
     PLAYED_CARD = 'playedCard', // if card is played, actions are usable
     DISPLAY_ONLY = 'displayOnly', // card does not need to be interactive
 }
 
-const CardTopBar = styled.div`
-    padding: 4px;
-    display: flex;
-    align-items: center;
-`;
-
 const CardText = styled.span`
     margin: 4px;
-    font-size: 11px;
 `;
 
 function getCardTitleColorForType(type: CardType) {
     switch (type) {
         case CardType.ACTIVE:
-            return 'blue';
+            return colors.CARD_ACTIVE;
         case CardType.EVENT:
-            return 'red';
+            return colors.CARD_EVENT;
         case CardType.AUTOMATED:
-            return 'green';
+            return colors.CARD_AUTOMATED;
         case CardType.PRELUDE:
+            return colors.CARD_PRELUDE;
         case CardType.CORPORATION:
-            return 'black';
+            return colors.CARD_CORPORATION;
         default:
             throw spawnExhaustiveSwitchError(type);
     }
 }
 
 const CardTitleBar = styled.div<{type: CardType}>`
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
     padding: 8px 0;
+    margin-top: 26px;
+    border-top: 1px solid ${colors.CARD_BORDER_2};
+    border-bottom: 1px solid ${colors.CARD_BORDER_2};
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     background-color: ${props => getCardTitleColorForType(props.type)};
-    color: white;
+    /* color: white; */
+    color: #f6f1eb;
     text-align: center;
 `;
 
@@ -119,11 +133,9 @@ export const Card: React.FC<CardProps> = ({
 
     return (
         <CardBase isSelected={isSelected}>
-            <CardTopBar>
-                <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
-                <CardRequirement card={card} />
-                <CardTags card={card} />
-            </CardTopBar>
+            <CardRequirement card={card} />
+            <CardTags card={card} />
+            <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
             <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
             {card.text && <CardText>{card.text}</CardText>}
             <CardEffects card={card} />

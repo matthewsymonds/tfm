@@ -4360,7 +4360,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Orbital Construction Yard',
-        text: 'Increase your titanium produciton [sic] 1 step. Gain 4 titanium.',
+        text: 'Increase your titanium production 1 step. Gain 4 titanium.',
         tags: [Tag.SPACE],
         type: CardType.PRELUDE,
     },
@@ -4638,16 +4638,15 @@ export const cardConfigs: CardConfig[] = [
         discounts: {cards: {[Tag.EARTH]: 3}},
     },
     {
-        effect: {
-            text:
-                'Effect: When any city tile is placed ON MARS, increase your MC production 1 step. When you place a city tile, gain 3 MC.',
-        },
         effects: [
             {
+                text:
+                    'Effect: When any city tile is placed ON MARS, increase your MC production 1 step.',
                 trigger: {placedTile: TileType.CITY, anyPlayer: true, onMars: true},
                 action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
             },
             {
+                text: 'Effect: When you place a city tile, gain 3 MC.',
                 trigger: {placedTile: TileType.CITY},
                 action: {gainResource: {[Resource.MEGACREDIT]: 3}},
             },

@@ -1,3 +1,4 @@
+import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import React from 'react';
 import styled from 'styled-components';
@@ -22,8 +23,11 @@ const TagBase = styled.div<TagBaseProps>`
     color: ${props => props.color};
     background: ${props => props.background};
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
-    border: 1px solid #888888;
+    border: 1px solid ${colors.CARD_BORDER_2};
     overflow: hidden;
+    font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+        Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-weight: 600;
 `;
 
 const dict = {

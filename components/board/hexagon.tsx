@@ -7,7 +7,6 @@ const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
     font-size: 30px;
     width: ${props => props.hexRadius * Math.cos((30 * Math.PI) / 180) * 2}px;
     height: ${props => props.hexRadius * 2}px;
-
     transform: ${props => (props.scale ? `scale(${props.scale})` : '')};
     display: flex;
     justify-content: center;

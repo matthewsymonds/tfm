@@ -15,7 +15,6 @@ export const AllCapsIcon = styled.div<{size: number; bgColor: string}>`
     font-kerning: 0.1rem;
     display: flex;
     align-items: center;
-    padding: 2px;
 `;
 
 export const GlobalParameterIcon = ({
@@ -38,8 +37,8 @@ export const GlobalParameterIcon = ({
             );
         case Parameter.TEMPERATURE:
             return (
-                <AllCapsIcon size={size} bgColor="#ebd19d">
-                    TEMP
+                <AllCapsIcon size={size} bgColor="#eb9db4">
+                    🌡
                 </AllCapsIcon>
             );
         default:

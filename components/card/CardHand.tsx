@@ -69,7 +69,7 @@ export function CardHand({
         if (highlightedIndex !== null && !isHighlighted) {
             // if another card is highlighted, push cards away from the highlighted card
             // this math is weird, it assumes gapBetweenCards is negative, it works so /shrug
-            const bonusCardPadding = 20;
+            const bonusCardPadding = -12;
             if (highlightedIndex < cardIndex) {
                 xOffset += -1 * (gapBetweenCards + bonusCardPadding);
             } else {
@@ -155,9 +155,9 @@ export function CardHand({
                                           cardIndex
                                       )}`,
                                       boxShadow: 'rgb(191 95 63 / 0.5) 0px 0px 10px 0px',
-                                      transition: 'all 0.5s',
+                                      transition: 'transform 0.5s',
                                       transformOrigin: 'center',
-                                      zIndex: cardIndex === highlightedIndex ? 1 : 0,
+                                      //   zIndex: cardIndex === highlightedIndex ? 1 : 0,
                                   }}
                                   onMouseEnter={() => onMouseEnter(cardIndex)}
                               >

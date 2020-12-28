@@ -1,4 +1,6 @@
 import {CardContext} from 'components/card/Card';
+import {colors} from 'components/ui';
+import {CardType} from 'constants/card-types';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {PlayerState} from 'reducer';
@@ -6,13 +8,17 @@ import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import styled from 'styled-components';
 
 const CardCostBase = styled.div`
-    border-radius: 50%;
-    position: relative;
-    border: 1px solid black;
-    background-color: yellow;
-    font-size: 1rem;
     width: 30px;
     height: 30px;
+    border-radius: 10px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-family: 'Ubuntu Condensed', sans-serif;
+
+    border: 1px solid ${colors.CARD_BORDER_2};
+    background-color: ${colors.MEGACREDIT};
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,6 +41,9 @@ export const CardCost = ({
     loggedInPlayer: PlayerState;
     cardContext: CardContext;
 }) => {
+    if (card.type === CardType.CORPORATION) {
+        return null;
+    }
     let discountedCost;
     if (cardContext === CardContext.SELECT_TO_PLAY || cardContext === CardContext.SELECT_TO_BUY) {
         discountedCost = getDiscountedCardCost(card, loggedInPlayer);

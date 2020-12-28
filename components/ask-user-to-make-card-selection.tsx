@@ -112,7 +112,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             {pendingCardSelection.draftPicks.map(draftedCard => (
                                 <Flex margin="8px" key={draftedCard.name}>
                                     <CardComponent
-                                        cardContext={CardContext.DISPLAY_ONLY}
+                                        cardContext={CardContext.SELECT_TO_BUY}
                                         card={draftedCard}
                                     />
                                 </Flex>
