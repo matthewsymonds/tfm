@@ -4,6 +4,7 @@ import {TerraformRatingIcon} from 'components/icons/other';
 import {ProductionIcon} from 'components/icons/production';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {Tag} from 'constants/tag';
 import {Card as CardModel} from 'models/card';
@@ -12,12 +13,15 @@ import styled from 'styled-components';
 
 const MAX_TAG_SPREAD = 3;
 
-const CardRequirementBase = styled.div<{isUpperBoundedRequirement: boolean}>`
-    border: 1px solid black;
+const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     border-radius: 1px;
-    background-color: ${props => (props.isUpperBoundedRequirement ? '#ffca83' : '#ff8383')};
+    background-color: ${props =>
+        props.isMinRequirement ? colors.CARD_MIN_REQUIREMENT_BG : colors.CARD_MAX_REQUIREMENT_BG};
     display: flex;
     align-items: center;
+    position: absolute;
+    top: 3px;
+    left: 38px;
     padding: 2px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -110,14 +114,14 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
         return null;
     }
 
-    const isUpperBoundedRequirement = typeof card.requiredGlobalParameter?.max === 'number';
+    const isMinRequirement = typeof card.requiredGlobalParameter?.min === 'number';
 
     const text = getCardRequirementText(card);
     const icon = getCardRequirementIcons(card);
 
     return (
-        <CardRequirementBase isUpperBoundedRequirement={isUpperBoundedRequirement}>
-            {text}
+        <CardRequirementBase isMinRequirement={isMinRequirement}>
+            <span style={{margin: '0 2px'}}>{text}</span>
             {icon}
         </CardRequirementBase>
     );

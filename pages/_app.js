@@ -107,32 +107,6 @@ export const GlobalStyles = createGlobalStyle`
           }
       }
     }
-    /* button, input[type="submit"] {
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      cursor: pointer;
-      padding: 10px 20px;
-      border-radius: 3px;
-      line-height: 8px;
-      justify-self: flex-end;
-      border: 1px solid #757575;
-      background-color: #eae9e9;
-      color: #222222;
-      font-size: 14px;
-
-      &:hover:not([disabled]) {
-        background: #cccccc;
-      }
-      &:disabled {
-        cursor: auto;
-        opacity: 0.6;
-      }
-
-      &:focus {
-        background: #bbb;
-      }
-    } */
 `;
 
 function InnerAppComponent({Component, pageProps, session}) {
@@ -223,7 +197,12 @@ class MyApp extends App {
             <Provider store={store}>
                 <Head>
                     <title>TFM Online</title>
+                    <link
+                        href="https://fonts.googleapis.com/css2?family=Roboto&family=Ubuntu+Condensed&display=swap"
+                        rel="stylesheet"
+                    />
                 </Head>
+
                 <AppContext.Provider value={appContext}>
                     <div className={className}>
                         <GlobalStyles />

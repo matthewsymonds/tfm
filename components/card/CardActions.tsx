@@ -29,7 +29,6 @@ import {isActiveRound} from 'selectors/is-active-round';
 import styled from 'styled-components';
 
 const ActionText = styled.div`
-    font-size: 10px;
     margin-bottom: 2px;
 `;
 
@@ -135,7 +134,7 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
         elements.push(
             <StealResourceIconography
                 stealResource={action.stealResource}
-                opts={{shouldShowStealText: false}}
+                opts={{showStealText: false}}
             />
         );
     }
@@ -221,7 +220,10 @@ export const CardActions = ({
                     {useCardName ? (
                         <div style={{fontWeight: 600}}>{card.name}</div>
                     ) : (
-                        <span>Action: {action.text}</span>
+                        <React.Fragment>
+                            <span style={{fontWeight: 600}}>Action: </span>
+                            <span>{action.text}</span>
+                        </React.Fragment>
                     )}
                 </ActionText>
             )}
@@ -245,6 +247,7 @@ export const CardActions = ({
                     <React.Fragment key={index}>
                         {index > 0 && <TextWithMargin>OR</TextWithMargin>}
                         <ActionContainer
+                            cardContext={cardContext}
                             action={action}
                             playAction={playAction}
                             canPlay={canPlay}
@@ -266,6 +269,7 @@ export const CardActions = ({
 };
 
 function ActionContainer({
+    cardContext,
     action,
     playAction,
     canPlay,
@@ -274,6 +278,7 @@ function ActionContainer({
     loggedInPlayer,
     children,
 }: {
+    cardContext: CardContext;
     action: Action;
     playAction: (action: Action, payment?: PropertyCounter<Resource>) => void;
     canPlay: boolean;
@@ -287,7 +292,13 @@ function ActionContainer({
         (loggedInPlayer?.corporation.name === 'Helion' &&
             loggedInPlayer?.resources[Resource.HEAT] > 0);
 
-    if (canPlay && isOwnedByLoggedInPlayer && action.cost && doesActionRequireUserInput) {
+    if (
+        canPlay &&
+        isOwnedByLoggedInPlayer &&
+        cardContext === CardContext.PLAYED_CARD &&
+        action.cost &&
+        doesActionRequireUserInput
+    ) {
         return (
             <PaymentPopover
                 cost={action.cost}
@@ -299,7 +310,7 @@ function ActionContainer({
         );
     }
 
-    if (tooltipText) {
+    if (tooltipText && cardContext === CardContext.PLAYED_CARD) {
         return (
             <Tooltip
                 sticky={true}

@@ -6,7 +6,7 @@ import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {Action} from 'constants/action';
-import {Parameter} from 'constants/board';
+import {Parameter, TileType} from 'constants/board';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
@@ -49,7 +49,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
     }
 
     function renderDiscounts() {
-        if (!card.discounts) {
+        if (!card.discounts && !card.plantDiscount) {
             return null;
         }
 
@@ -74,6 +74,15 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
         if (card.discounts.trade) {
             elements.push(<IconizedText>TRADE</IconizedText>);
+        }
+
+        if (card.plantDiscount) {
+            elements.push(
+                <React.Fragment>
+                    <TextWithMargin>{8 - card.plantDiscount}</TextWithMargin>
+                    <ResourceIcon name={Resource.PLANT} size={16} />
+                </React.Fragment>
+            );
         }
 
         elements.push(renderColon(elements.length));
@@ -106,6 +115,10 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
+        if (card.plantDiscount) {
+            elements.push(<TileIcon type={TileType.GREENERY} size={20} />);
+        }
+
         return (
             <React.Fragment>
                 {elements.map((el, i) => (
@@ -136,17 +149,22 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 </Flex>
             );
         } else if (trigger?.placedTile) {
-            return <TileIcon type={trigger?.placedTile} size={16} />;
+            return (
+                <React.Fragment>
+                    <TileIcon type={trigger?.placedTile} size={16} />
+                    {trigger?.onMars && <TextWithMargin>*</TextWithMargin>}
+                </React.Fragment>
+            );
         } else if (trigger?.cost) {
             return (
-                <Flex>
+                <React.Fragment>
                     <ResourceIcon
                         name={Resource.MEGACREDIT}
                         size={16}
                         amount={`${trigger?.cost}`}
                     />
-                    <ResourceIcon name={Resource.CARD} size={16} />
-                </Flex>
+                    <ResourceIcon name={Resource.CARD} size={16} marginLeft={4} />
+                </React.Fragment>
             );
         } else if (trigger?.increaseParameter) {
             return <GlobalParameterIcon parameter={trigger?.increaseParameter} size={16} />;

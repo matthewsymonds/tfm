@@ -5,9 +5,19 @@ import React from 'react';
 
 export const CardTags = ({card}: {card: CardModel}) => {
     return (
-        <Flex flex="auto" justifyContent="flex-end">
+        <Flex
+            position="absolute"
+            top="0"
+            right="0"
+            flex="auto"
+            justifyContent="flex-end"
+            marginTop="4px"
+            marginRight="4px"
+        >
             {card.tags.map((tag, index) => (
-                <TagIcon key={index} name={tag} size={16} />
+                <div style={{marginLeft: 2}}>
+                    <TagIcon key={index} name={tag} size={26} />
+                </div>
             ))}
         </Flex>
     );

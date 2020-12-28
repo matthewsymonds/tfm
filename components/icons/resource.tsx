@@ -1,9 +1,10 @@
+import {colors} from 'components/ui';
 import {
     getClassName,
     getResourceBackgroundColor,
     getResourceColor,
     getResourceSymbol,
-    Resource,
+    Resource
 } from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
@@ -44,7 +45,7 @@ const MegacreditIcon = styled.div<{size?: number; showRedBorder?: boolean}>`
     align-items: center;
     justify-content: center;
     border-radius: 3px;
-    background-color: gold;
+    background-color: ${colors.MEGACREDIT};
     border: 1px solid #c59739;
 `;
 interface ResourceIconProps {

@@ -210,6 +210,9 @@ export const doesCardHaveDiscounts = (card: Card) => {
             }
         }
     }
+    if (card.plantDiscount) {
+        return true;
+    }
     return false;
 };
 

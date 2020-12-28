@@ -1,4 +1,4 @@
-import {Card as CardComponent} from 'components/card/Card';
+import {Card as CardComponent, CardContext} from 'components/card/Card';
 import {Card} from 'models/card';
 import {ReactNode} from 'react';
 import styled from 'styled-components';
@@ -18,11 +18,11 @@ export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; chil
             <>
                 <Box marginRight="32px">
                     <h3>You played</h3>
-                    <CardComponent card={playedCard} />
+                    <CardComponent card={playedCard} cardContext={CardContext.DISPLAY_ONLY} />
                 </Box>
                 <Box marginRight="32px">
                     <h3>which triggered</h3>
-                    <CardComponent card={card} />
+                    <CardComponent card={card} cardContext={CardContext.DISPLAY_ONLY} />
                 </Box>
             </>
         );

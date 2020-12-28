@@ -86,7 +86,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                             key={key}
                         >
                             <CardComponent
-                                cardContext={CardContext.SELECT_TO_KEEP}
+                                cardContext={CardContext.SELECT_TO_BUY}
                                 card={option}
                                 isSelected={selected}
                             />
