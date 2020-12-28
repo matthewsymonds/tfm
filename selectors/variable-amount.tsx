@@ -174,8 +174,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
 
         return 0;
     },
-    [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: GameState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: GameState, player: PlayerState) => {
         const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT).length;
 
         if (numPlantTags >= 3) {
@@ -189,8 +188,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const [card] = revealedCards;
         return card.tags.includes(Tag.MICROBE) ? 1 : 0;
     },
-    [VariableAmount.THIRD_ALL_CITIES]: (state: GameState) => {
-        const player = getLoggedInPlayer(state);
+    [VariableAmount.THIRD_ALL_CITIES]: (state: GameState, player: PlayerState) => {
         return Math.floor(getCellsWithCities(state, player).length / 3);
     },
 };

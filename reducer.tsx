@@ -276,7 +276,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
         (players.length === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT)
     ) {
         draft.common.turn++;
-        draft.log.push(`Turn ${draft.common.turn}`);
+        draft.log.push(`Generation ${draft.common.generation}, turn ${draft.common.turn}`);
     }
 }
 
