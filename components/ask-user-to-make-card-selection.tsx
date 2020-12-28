@@ -131,7 +131,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         min={minCards}
                         selectedCards={selectedCards}
                         onSelect={cards => {
-                            if (cards.length * 3 <= playerBudget) {
+                            if (
+                                !pendingCardSelection.isBuyingCards ||
+                                cards.length * 3 <= playerBudget
+                            ) {
                                 setSelectedCards(cards);
                             }
                         }}
