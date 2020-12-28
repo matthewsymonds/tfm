@@ -9,6 +9,7 @@ import {CardIconography} from 'components/card/CardIconography';
 import {CardRequirement} from 'components/card/CardRequirement';
 import {CardStoredResources} from 'components/card/CardStoredResources';
 import {CardTags} from 'components/card/CardTags';
+import {CardText} from 'components/card/CardText';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
@@ -49,16 +50,26 @@ const CardBase = styled.div<{isSelected: boolean | undefined}>`
     font-size: 12px;
     flex-direction: column;
 
+    /* background-color: ${colors.CARD_BG} */
     position: relative;
     box-sizing: border-box;
-    &:before {
+    &:after {
         content: '';
         position: absolute;
         height: 100%;
         width: 100%;
         filter: sepia(0.1) hue-rotate(-9deg) drop-shadow(2px 4px 6px black);
         z-index: -1;
+        opacity: 0.8;
         background-image: url(${require('assets/hexellence.png')});
+    }
+    &:before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: -1;
+        background-color: hsl(15, 70%, 50%);
     }
 `;
 export type CardProps = {
@@ -77,8 +88,8 @@ export enum CardContext {
     DISPLAY_ONLY = 'displayOnly', // card does not need to be interactive
 }
 
-const CardText = styled.span`
-    margin: 4px;
+const MainCardText = styled(CardText)`
+    margin: 4px 4px 16px;
 `;
 
 function getCardTitleColorForType(type: CardType) {
@@ -137,7 +148,7 @@ export const Card: React.FC<CardProps> = ({
             <CardTags card={card} />
             <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
             <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
-            {card.text && <CardText>{card.text}</CardText>}
+            {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} />
             <CardActions
                 card={card}

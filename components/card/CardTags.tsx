@@ -15,8 +15,8 @@ export const CardTags = ({card}: {card: CardModel}) => {
             marginRight="4px"
         >
             {card.tags.map((tag, index) => (
-                <div style={{marginLeft: 2}}>
-                    <TagIcon key={index} name={tag} size={26} />
+                <div key={index} style={{marginLeft: 2}}>
+                    <TagIcon name={tag} size={28} />
                 </div>
             ))}
         </Flex>

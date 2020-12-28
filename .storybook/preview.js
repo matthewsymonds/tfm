@@ -5,6 +5,7 @@ import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 import {reducer} from '../reducer';
 import {getInitialState} from 'initial-state';
+import {Deck} from 'constants/card-types';
 
 export const parameters = {
     actions: {argTypesRegex: '^on[A-Z].*'},
@@ -27,7 +28,7 @@ const withAppContext = (Story, context) => {
     );
 };
 
-const store = createStore(reducer, getInitialState(['testUser']));
+const store = createStore(reducer, getInitialState(['testUser'], {decks: [Deck.BASIC]}));
 const withReduxStore = (Story, context) => {
     return (
         <Provider store={store}>

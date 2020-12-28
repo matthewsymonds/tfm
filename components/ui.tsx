@@ -64,4 +64,6 @@ export const colors = {
     CARD_BORDER_2: 'hsl(260, 4%, 17%)',
     CARD_MAX_REQUIREMENT_BG: '#ff8383',
     CARD_MIN_REQUIREMENT_BG: '#ffca83',
+    CARD_VP_BG: 'hsl(15, 60%, 50%)',
+    CARD_STORED_RESOURCES_BG: 'hsl(230, 60%, 75%)',
 };

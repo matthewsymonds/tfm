@@ -20,7 +20,7 @@ export const InlineText = styled.span`
     line-height: 16px;
 `;
 export const TextWithMargin = styled(InlineText)<{margin?: string; fontSize?: string}>`
-    font-size: ${props => props.fontSize ?? '12px'};
+    font-size: ${props => props.fontSize ?? '11px'};
     margin: ${props => props.margin ?? '0 4px'};
 `;
 export const IconographyRow = styled.div<{isInline?: boolean}>`
@@ -557,12 +557,8 @@ export function IncreaseParameterIconography({
             ...Array(amount)
                 .fill(null)
                 .map((_, index) => (
-                    <Flex marginLeft={index > 0 ? '4px' : '0'}>
-                        <GlobalParameterIcon
-                            key={index}
-                            parameter={parameter as Parameter}
-                            size={16}
-                        />
+                    <Flex key={index} marginLeft={index > 0 ? '4px' : '0'}>
+                        <GlobalParameterIcon parameter={parameter as Parameter} size={16} />
                     </Flex>
                 ))
         );

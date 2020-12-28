@@ -13,6 +13,7 @@ import {
     StealResourceIconography,
     TextWithMargin,
 } from 'components/card/CardIconography';
+import {CardText} from 'components/card/CardText';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
@@ -28,7 +29,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {isActiveRound} from 'selectors/is-active-round';
 import styled from 'styled-components';
 
-const ActionText = styled.div`
+const ActionText = styled(CardText)`
     margin-bottom: 2px;
 `;
 

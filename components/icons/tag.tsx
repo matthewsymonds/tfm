@@ -13,10 +13,13 @@ type TagBaseProps = {
 
 const TagBase = styled.div<TagBaseProps>`
     border-radius: 50%;
+    box-sizing: border-box;
     width: ${props => props.size}px;
     min-width: ${props => props.size}px;
     height: ${props => props.size}px;
     margin: ${props => props.margin}px;
+    font-size: 14px;
+    font-weight: 400;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -20,9 +20,9 @@ const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     display: flex;
     align-items: center;
     position: absolute;
-    top: 3px;
+    top: 2px;
     left: 38px;
-    padding: 2px;
+    padding: 3px;
     font-size: 0.75rem;
     font-weight: 600;
     color: black;
@@ -121,7 +121,7 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
 
     return (
         <CardRequirementBase isMinRequirement={isMinRequirement}>
-            <span style={{margin: '0 2px'}}>{text}</span>
+            {text && <span style={{margin: '0 2px'}}>{text}</span>}
             {icon}
         </CardRequirementBase>
     );

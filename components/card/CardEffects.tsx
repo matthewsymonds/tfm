@@ -1,6 +1,7 @@
 import {Flex} from 'components/box';
 import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {IconographyRow, InlineText, TextWithMargin} from 'components/card/CardIconography';
+import {CardText} from 'components/card/CardText';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -14,9 +15,7 @@ import {Card as CardModel, doesCardHaveDiscounts} from 'models/card';
 import React from 'react';
 import styled from 'styled-components';
 
-const EffectText = styled.span`
-    font-size: 10px;
-`;
+const EffectText = styled(CardText)``;
 
 const EffectWrapper = styled.div`
     display: flex;

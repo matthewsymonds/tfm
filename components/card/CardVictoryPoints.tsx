@@ -1,8 +1,10 @@
 import {Box} from 'components/box';
 import {InlineText} from 'components/card/CardIconography';
 import {ColonyIcon} from 'components/icons/other';
+import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
@@ -12,11 +14,15 @@ import styled from 'styled-components';
 
 const Circle = styled.div`
     border-radius: 50%;
-    border: 2px solid orangered;
     height: 40px;
     width: 40px;
     margin: 4px;
     display: flex;
+    font-size: 19px;
+    background-color: ${colors.CARD_VP_BG};
+    color: ${colors.CARD_BORDER_2};
+    border: 1px solid ${colors.CARD_BORDER_2};
+    font-family: 'Ubuntu Condensed', sans-serif;
     align-items: center;
     justify-content: center;
 `;
@@ -32,48 +38,50 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
         return null;
     }
 
+    const storedResource = card.storedResourceType;
+
     function renderVariableAmountVictoryPoints() {
         switch (card.victoryPoints) {
             case VariableAmount.RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.TWICE_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>2/</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.HALF_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/2</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.THIRD_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/3</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.QUARTER_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/4</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES:
                 return (
                     <CenteredText>
                         <InlineText>3:</InlineText>
-                        <div style={{width: 16, height: 16, backgroundColor: 'silver'}} />
+                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
                     </CenteredText>
                 );
             case VariableAmount.OCEANS_ADJACENT_TO_CAPITAL:

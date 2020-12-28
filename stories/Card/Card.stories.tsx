@@ -12,7 +12,7 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            .filter(c => c.name.length >= 25)
+            // .filter(c => c.name.length >= 25)
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

@@ -154,10 +154,8 @@ export function CardHand({
                                       transform: `${getCardPosition(cardIndex)} ${getCardRotation(
                                           cardIndex
                                       )}`,
-                                      boxShadow: 'rgb(191 95 63 / 0.5) 0px 0px 10px 0px',
                                       transition: 'transform 0.5s',
                                       transformOrigin: 'center',
-                                      //   zIndex: cardIndex === highlightedIndex ? 1 : 0,
                                   }}
                                   onMouseEnter={() => onMouseEnter(cardIndex)}
                               >

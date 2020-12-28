@@ -13,6 +13,7 @@ export const AllCapsIcon = styled.div<{size: number; bgColor: string}>`
     font-size: 0.75rem;
     text-transform: uppercase;
     font-kerning: 0.1rem;
+    padding: 0 4px;
     display: flex;
     align-items: center;
 `;
