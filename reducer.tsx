@@ -462,6 +462,7 @@ export const reducer = (state: GameState | null = null, action) => {
                 } else {
                     break;
                 }
+                break;
             }
             case REVEAL_AND_DISCARD_TOP_CARDS:
                 // Step 1. Reveal the cards to the player so they can see them.
