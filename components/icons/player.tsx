@@ -22,13 +22,25 @@ export const PlayerIcon = ({playerIndex, size}: {playerIndex: number; size: numb
     return <PlayerIconBase size={size} color={color} passed={passed} />;
 };
 
-export const PlayerCorpAndIcon = ({player, color}: {player: PlayerState; color?: string}) => {
+export const PlayerCorpAndIcon = ({
+    player,
+    color,
+    includeUsername,
+}: {
+    player: PlayerState;
+    color?: string;
+    includeUsername?: boolean;
+}) => {
+    let text = player.corporation?.name ?? '';
+    if (!text) {
+        text = player.username;
+    } else if (includeUsername) {
+        text = `${text} (${player.username})`;
+    }
     return (
         <Flex display="inline-flex" alignItems="center" justifyContent="center">
             <PlayerIcon playerIndex={player.index} size={12} />
-            <span style={{marginLeft: 4, fontWeight: 600, color: color ?? 'black'}}>
-                {player.corporation?.name ?? player.username}
-            </span>
+            <span style={{marginLeft: 4, fontWeight: 600, color: color ?? 'black'}}>{text}</span>
         </Flex>
     );
 };

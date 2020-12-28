@@ -25,6 +25,7 @@ import {Card as CardModel} from 'models/card';
 import React, {useContext} from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {isActiveRound} from 'selectors/is-active-round';
 import styled from 'styled-components';
 
 const ActionText = styled.div`
@@ -188,6 +189,7 @@ export const CardActions = ({
     }
     const state = useTypedSelector(state => state);
     const isSyncing = useTypedSelector(state => state.syncing);
+    const activeRound = useTypedSelector(state => isActiveRound(state));
 
     const appContext = useContext(AppContext);
     const loggedInPlayer = appContext.getLoggedInPlayer(state) ?? null;
@@ -214,7 +216,7 @@ export const CardActions = ({
     const actions = [...(action.choice ? action.choice : [action])];
     return (
         <ActionsWrapper>
-            {!action.lookAtCards && (
+            {(!action.lookAtCards || useCardName) && (
                 <ActionText>
                     {useCardName ? (
                         <div style={{fontWeight: 600}}>{card.name}</div>
@@ -230,7 +232,7 @@ export const CardActions = ({
                     card
                 );
                 let tooltipText: string | null = null;
-                if (!isSyncing && cardContext === CardContext.PLAYED_CARD) {
+                if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {
                     if (isOwnedByLoggedInPlayer) {
                         tooltipText = canPlay ? null : disabledReason;
                     } else {

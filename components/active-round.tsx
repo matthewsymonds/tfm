@@ -8,6 +8,7 @@ import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
+import {GameStage} from 'constants/game';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
@@ -22,6 +23,7 @@ import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
 import {Box, Flex, PanelWithTabs} from './box';
+import {EndOfGame} from './end-of-game';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -52,6 +54,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         await apiClient.continueAfterRevealingCardsAsync();
     }
 
+    const gameStage = useTypedSelector(state => state.common.gameStage);
+
     function renderSelectedActionSet() {
         const selectedActionSet = actionSets[selectedActionSetIndex];
         if (selectedActionSet === 'Milestones') {
@@ -71,6 +75,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 {isPlayerMakingDecision && (
                     <ActionBar>
                         <ActionBarRow>
+                            {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                             {loggedInPlayer.pendingChoice && (
                                 <AskUserToMakeActionChoice player={loggedInPlayer} />
                             )}

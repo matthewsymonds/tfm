@@ -1,3 +1,4 @@
+import {GameStage} from 'constants/game';
 import {GameState, PlayerState} from 'reducer';
 
 export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: PlayerState): boolean {
@@ -10,6 +11,7 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
             loggedInPlayer.pendingResourceActionDetails ||
             loggedInPlayer.pendingChoice ||
             loggedInPlayer.pendingDuplicateProduction ||
+            state.common.gameStage === GameStage.END_OF_GAME ||
             loggedInPlayer.pendingDiscard;
 
         return Boolean(pendingActions);

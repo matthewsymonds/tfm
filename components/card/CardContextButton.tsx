@@ -10,6 +10,7 @@ import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
+import {isActiveRound} from 'selectors/is-active-round';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -36,6 +37,7 @@ export function CardContextButton({
 
     let buttonContent: React.ReactNode | null;
     const isSyncing = useTypedSelector(state => state.syncing);
+    const activeRound = useTypedSelector(state => isActiveRound(state));
 
     switch (cardContext) {
         case CardContext.NONE:
@@ -51,7 +53,7 @@ export function CardContextButton({
                             sticky={true}
                             animation="fade"
                             html={
-                                !isSyncing && reason ? (
+                                !isSyncing && activeRound && reason ? (
                                     <DisabledTooltip>{reason}</DisabledTooltip>
                                 ) : (
                                     <div />

@@ -22,7 +22,8 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                         <Box
                             key={`card-actions-${card.name}`}
                             width="fit-content"
-                            border="1px solid black"
+                            border="1px solid #aaa"
+                            marginBottom="6px"
                             borderRadius="3px"
                         >
                             <CardActions

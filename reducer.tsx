@@ -271,7 +271,10 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
     }
 
     draft.common.currentPlayerIndex = turnOrder[newPlaceInTurnOrder];
-    if (newPlaceInTurnOrder < oldPlaceInTurnOrder || players.length === 1) {
+    if (
+        newPlaceInTurnOrder < oldPlaceInTurnOrder ||
+        (players.length === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT)
+    ) {
         draft.common.turn++;
         draft.log.push(`Turn ${draft.common.turn}`);
     }
@@ -1054,9 +1057,10 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.turn = 1;
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
-                            common.gameStage = draft.options?.isDraftingEnabled
-                                ? GameStage.DRAFTING
-                                : GameStage.BUY_OR_DISCARD;
+                            common.gameStage =
+                                draft.options?.isDraftingEnabled && draft.players.length > 1
+                                    ? GameStage.DRAFTING
+                                    : GameStage.BUY_OR_DISCARD;
 
                             for (const player of draft.players) {
                                 player.pendingCardSelection = {

@@ -69,6 +69,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     const isDrafting = gameStage === GameStage.DRAFTING;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
+    const isEndOfGame = gameStage === GameStage.END_OF_GAME;
     const hasPendingCardSelection = !!loggedInPlayer.pendingCardSelection;
     const currentPlayer = players[currentPlayerIndex];
     const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
@@ -96,9 +97,11 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
         <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="center">
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
-                {!isActiveRound && !isGreeneryPlacement && !hasPendingCardSelection && (
-                    <span>Waiting to start generation.</span>
-                )}
+                {isEndOfGame && <span>The game has ended.</span>}
+                {!isActiveRound &&
+                    !isEndOfGame &&
+                    !isGreeneryPlacement &&
+                    !hasPendingCardSelection && <span>Waiting to start generation.</span>}
                 {isCorporationSelection && hasPendingCardSelection && (
                     <span>Please choose your corporation and cards.</span>
                 )}

@@ -1,30 +1,34 @@
 import {useRouter} from 'next/router';
 import {useStore} from 'react-redux';
+import {PlayerState} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
 import styled from 'styled-components';
+import {PlayerCorpAndIcon} from './icons/player';
 
 const EndOfGameBase = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 50px auto;
-    background: #ccc;
-    padding: 16px;
-    border-radius: 4px;
-    max-width: 600px;
     justify-content: center;
 `;
 
-const AllScoresContainer = styled.div`
-    display: flex;
-    justify-content: space-between;
+const AllScoresContainer = styled.div<{numPlayers: number}>`
+    display: grid;
+    grid-template-columns: ${props => `repeat(${props.numPlayers}, 1fr)`};
 `;
 
 const PlayerScoreContainer = styled.div`
-    margin: 16px;
+    margin-left: 16px;
+    &:first-child {
+        margin-left: 0px;
+    }
     padding: 16px;
     border: 1px solid black;
     background-color: lightgray;
+    border-radius: 2px;
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: fit-content;
 `;
 const PlayerScoreHeader = styled.div`
     font-size: 22px;
@@ -43,9 +47,7 @@ const PlayerScoreTotalRow = styled(PlayerScoreRow)`
     font-weight: 600;
 `;
 
-type playerScoreInfos = {
-    username: string;
-    corporation: string;
+type PlayerScoreInfos = {
     terraformRating: number;
     cardScore: number;
     greeneryScore: number;
@@ -53,6 +55,7 @@ type playerScoreInfos = {
     milestoneScore: number;
     awardScore: number;
     totalScore: number;
+    player: PlayerState;
 };
 
 export function EndOfGame() {
@@ -60,12 +63,8 @@ export function EndOfGame() {
     const state = store.getState();
     const router = useRouter();
 
-    const playerScoreInfos: Array<playerScoreInfos> = state.players.map(player => {
-        const {
-            index: playerIndex,
-            username,
-            corporation: {name: corporation},
-        } = player;
+    const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(player => {
+        const {index: playerIndex} = player;
         const terraformRating = player.terraformRating;
         const cardScore = player.playedCards.reduce((total, card) => {
             return total + getCardVictoryPoints(card.victoryPoints, state, card);
@@ -79,8 +78,7 @@ export function EndOfGame() {
             terraformRating + cardScore + greeneryScore + citiesScore + milestoneScore + awardScore;
 
         return {
-            username,
-            corporation,
+            player,
             terraformRating,
             cardScore,
             greeneryScore,
@@ -96,13 +94,16 @@ export function EndOfGame() {
     return (
         <EndOfGameBase>
             <h2>
-                Game over. {winner.corporation} ({winner.username}) wins!
+                Game over. {winner.player.corporation.name} ({winner.player.username}) wins!
             </h2>
-            <AllScoresContainer>
+            <AllScoresContainer numPlayers={playerScoreInfos.length}>
                 {playerScoreInfos.map(scoreInfo => (
-                    <PlayerScoreContainer>
+                    <PlayerScoreContainer key={scoreInfo.player.username}>
                         <PlayerScoreHeader>
-                            {scoreInfo.corporation} ({scoreInfo.username})
+                            <PlayerCorpAndIcon
+                                player={scoreInfo.player}
+                                includeUsername
+                            ></PlayerCorpAndIcon>
                         </PlayerScoreHeader>
                         <PlayerScoreRow>
                             <span>TR</span>
@@ -135,7 +136,6 @@ export function EndOfGame() {
                     </PlayerScoreContainer>
                 ))}
             </AllScoresContainer>
-            <button onClick={() => router.push('/')}>Home</button>
         </EndOfGameBase>
     );
 }

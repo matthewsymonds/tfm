@@ -1,7 +1,6 @@
 import {setGame} from 'actions';
 import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
-import {EndOfGame} from 'components/end-of-game';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import Router, {useRouter} from 'next/router';
@@ -46,7 +45,8 @@ export default function Game(props) {
                 gameStage !== GameStage.BUY_OR_DISCARD &&
                 gameStage !== GameStage.DRAFTING &&
                 currentPlayerIndex == loggedInPlayerIndex) ||
-            numPlayers === 1
+            numPlayers === 1 ||
+            gameStage === GameStage.END_OF_GAME
         ) {
             // Don't retrieve server state while only you can play!
             // Can lead the game to de-sync:
@@ -82,18 +82,7 @@ export default function Game(props) {
         }
     };
 
-    switch (gameStage) {
-        case GameStage.CORPORATION_SELECTION:
-        case GameStage.ACTIVE_ROUND:
-        case GameStage.DRAFTING:
-        case GameStage.BUY_OR_DISCARD:
-        case GameStage.GREENERY_PLACEMENT:
-            return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
-        case GameStage.END_OF_GAME:
-            return <EndOfGame />;
-        default:
-            return null;
-    }
+    return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
 }
 
 Game.getInitialProps = async ctx => {
