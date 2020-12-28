@@ -35,7 +35,7 @@ const TagBase = styled.div<TagBaseProps>`
 
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen'],
-    [Tag.BUILDING]: ['🏛️', 'brown', '#795548', '', 'building-icon'],
+    [Tag.BUILDING]: ['🏛️', 'brown', '#f7dbc7', '', 'building-icon'],
     [Tag.CITY]: ['🌆', '#333333', '#C8B3C5'],
     [Tag.EARTH]: ['🌎', 'darkgreen', 'lightblue', 'black'],
     [Tag.POWER]: ['⚡', 'white', 'purple'],
