@@ -956,6 +956,9 @@ export const reducer = (state: GameState | null = null, action) => {
                     `${corporationName} increased their terraform rating by ${quantity} to ${newRating}`
                 );
                 player.terraformRating = newRating;
+                if (quantity) {
+                    player.terraformedThisGeneration = true;
+                }
                 break;
             case APPLY_DISCOUNTS: {
                 const {discounts} = payload;
