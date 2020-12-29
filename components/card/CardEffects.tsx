@@ -19,6 +19,7 @@ const EffectText = styled(CardText)``;
 
 const EffectWrapper = styled.div`
     display: flex;
+    position: relative;
     border: 2px dashed red;
     margin: 3px;
     padding: 6px;

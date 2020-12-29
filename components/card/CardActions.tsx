@@ -35,6 +35,7 @@ const ActionText = styled(CardText)`
 
 const ActionsWrapper = styled.div`
     display: flex;
+    position: relative;
     margin: 4px;
     align-items: center;
     justify-content: center;

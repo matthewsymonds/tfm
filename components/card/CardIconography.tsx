@@ -775,7 +775,7 @@ function TemporaryAdjustmentIconography({
 
 export const CardIconography = ({card}: {card: CardModel}) => {
     return (
-        <Flex flexDirection="column" alignItems="center">
+        <Flex flexDirection="column" alignItems="center" position="relative">
             <Flex justifyContent="space-evenly" width="100%">
                 <TilePlacementIconography tilePlacements={card.tilePlacements} />
                 <ProductionIconography card={card} />

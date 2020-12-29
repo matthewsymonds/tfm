@@ -45,33 +45,38 @@ const CardBase = styled.div<{isSelected: boolean | undefined}>`
     border-right-color: ${colors.CARD_BORDER_2};
     box-shadow: ${props => (props.isSelected === true ? '0px 0px 6px 2px hsl(0 0% 54%);' : 'none')};
     opacity: ${props => (props.isSelected === false ? '0.5' : '1')};
-    display: flex;
     font-family: 'Open Sans', 'Roboto', sans-serif;
     font-size: 12px;
-    flex-direction: column;
 
     /* background-color: ${colors.CARD_BG} */
     position: relative;
     box-sizing: border-box;
-    &:after {
-        content: '';
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        filter: sepia(0.1) hue-rotate(-9deg) drop-shadow(2px 4px 6px black);
-        z-index: -1;
-        opacity: 0.8;
-        background-image: url(${require('assets/hexellence.png')});
-    }
+
     &:before {
         content: '';
         position: absolute;
         height: 100%;
         width: 100%;
-        z-index: -1;
         background-color: hsl(15, 70%, 50%);
     }
 `;
+
+const CardTexture = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &:before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        filter: sepia(0.1) hue-rotate(-9deg) drop-shadow(2px 4px 6px black);
+        opacity: 0.8;
+        background-image: url(${require('assets/hexellence.png')});
+    }
+`;
+
 export type CardProps = {
     card: CardModel;
     cardContext?: CardContext;
@@ -89,7 +94,9 @@ export enum CardContext {
 }
 
 const MainCardText = styled(CardText)`
-    margin: 4px 4px 16px;
+    position: relative;
+    display: block;
+    margin: 4px;
 `;
 
 function getCardTitleColorForType(type: CardType) {
@@ -111,6 +118,7 @@ function getCardTitleColorForType(type: CardType) {
 
 const CardTitleBar = styled.div<{type: CardType}>`
     display: flex;
+    position: relative;
     align-items: center;
     justify-content: center;
     padding: 8px 0;
@@ -144,30 +152,32 @@ export const Card: React.FC<CardProps> = ({
 
     return (
         <CardBase isSelected={isSelected}>
-            <CardRequirement card={card} />
-            <CardTags card={card} />
-            <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
-            <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
-            {card.text && <MainCardText>{card.text}</MainCardText>}
-            <CardEffects card={card} />
-            <CardActions
-                card={card}
-                cardOwner={cardOwner}
-                cardContext={cardContext}
-                apiClient={apiClient}
-                actionGuard={actionGuard}
-            />
-            <CardIconography card={card} />
-            <CardVictoryPoints card={card} />
-            <Flex flex="auto"></Flex>
-            <CardContextButton
-                card={card}
-                cardContext={cardContext}
-                actionGuard={actionGuard}
-                apiClient={apiClient}
-                loggedInPlayer={loggedInPlayer}
-            />
-            <CardStoredResources card={card} />
+            <CardTexture>
+                <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
+                <CardRequirement card={card} />
+                <CardTags card={card} />
+                <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
+                {card.text && <MainCardText>{card.text}</MainCardText>}
+                <CardEffects card={card} />
+                <CardActions
+                    card={card}
+                    cardOwner={cardOwner}
+                    cardContext={cardContext}
+                    apiClient={apiClient}
+                    actionGuard={actionGuard}
+                />
+                <CardIconography card={card} />
+                <CardVictoryPoints card={card} />
+                <Flex flex="auto" /> {/* push the button to the bottom */}
+                <CardContextButton
+                    card={card}
+                    cardContext={cardContext}
+                    actionGuard={actionGuard}
+                    apiClient={apiClient}
+                    loggedInPlayer={loggedInPlayer}
+                />
+                <CardStoredResources card={card} />
+            </CardTexture>
         </CardBase>
     );
 };
