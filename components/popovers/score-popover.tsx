@@ -42,7 +42,7 @@ export function ScorePopover({children, playerIndex}: Props) {
     const visibleCardScore = player.playedCards
         .filter(card => card.type !== CardType.EVENT)
         .reduce((total, card) => {
-            return total + getCardVictoryPoints(card.victoryPoints, state, card);
+            return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
         }, 0);
     const greeneryScore = getGreeneryScore(state, playerIndex);
     const citiesScore = getCityScore(state, playerIndex);

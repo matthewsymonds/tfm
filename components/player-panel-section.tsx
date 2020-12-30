@@ -3,8 +3,11 @@ import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {getTagCountsByName} from 'selectors/player';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
+import {Flex} from './box';
+import {TagIcon} from './icons/tag';
 import {PlayerCardActions} from './player-card-actions';
 import {PlayerResourceBoard} from './resource';
 
@@ -72,6 +75,8 @@ export const PlayerPanelSection = ({
     ) : null;
 
     function getSectionContent() {
+        const tagCountsByTagName = getTagCountsByName(player);
+
         switch (section) {
             case 'Board & Hand':
                 return (
@@ -82,6 +87,22 @@ export const PlayerPanelSection = ({
                             isLoggedInPlayer={isLoggedInPlayer}
                         />
                         {playerCardsElement}
+                        <Flex margin="4px 0">
+                            {tagCountsByTagName.map(tagCount => {
+                                const [tag, count] = tagCount;
+                                return (
+                                    <Flex
+                                        key={tag}
+                                        justifyContent="center"
+                                        alignItems="center"
+                                        marginRight="8px"
+                                    >
+                                        <TagIcon size={24} margin={4} name={tag} />
+                                        {count}
+                                    </Flex>
+                                );
+                            })}
+                        </Flex>
                     </>
                 );
             case 'Card Actions':

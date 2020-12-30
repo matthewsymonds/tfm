@@ -221,7 +221,7 @@ export const cards = cardConfigs.map(config => new Card(config));
 // Used as a filler in censored state.
 export const dummyCard = new Card({
     deck: Deck.BASIC,
-    tags: [],
+    tags: [Tag.EVENT],
     name: '',
     type: CardType.EVENT,
 });

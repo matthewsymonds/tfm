@@ -268,6 +268,11 @@ const deserializePlayerState = (player: SerializedPlayerState): PlayerState => {
 export const censorGameState = (state: SerializedState, username: string) => {
     state.common.deck = [];
     state.common.discardPile = [];
+    if (state.common.gameStage === GameStage.END_OF_GAME) {
+        // No need to censor the game state anymore.
+        // Out of performance concern, still don't include deck or discard.
+        return state;
+    }
     for (const player of state.players) {
         if (player.username === username) {
             continue;

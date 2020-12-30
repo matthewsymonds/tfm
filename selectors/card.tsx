@@ -6,7 +6,6 @@ import {
     StorableResource,
 } from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -16,11 +15,15 @@ export function getAllPlayedCards(player: PlayerState) {
     return player.playedCards;
 }
 
-export function getCardVictoryPoints(amount: Amount | undefined, state: GameState, card: Card) {
+export function getCardVictoryPoints(
+    amount: Amount | undefined,
+    state: GameState,
+    player: PlayerState,
+    card: Card
+) {
     if (!amount) return 0;
     if (typeof amount === 'number') return amount;
 
-    const player = getLoggedInPlayer(state);
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!selector) return 0;
 

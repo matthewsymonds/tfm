@@ -1,4 +1,3 @@
-import {NumericPropertyCounter} from 'constants/property-counter';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
 
@@ -8,18 +7,23 @@ export function getForcedActionsForPlayer(state: GameState, playerIndex: number)
 }
 
 export function getTagCountsByName(player: PlayerState) {
-    return player.playedCards.reduce<NumericPropertyCounter<Tag>>((tagCountsByName, card) => {
-        card.tags.forEach(tag => {
-            if (card.tags.includes(Tag.EVENT) && tag !== Tag.EVENT) {
-                // Don't count a space event toward space tags.
-                return;
+    const tagCountsByName: Array<[Tag, number]> = [];
+    for (const card of player.playedCards) {
+        for (const tag of card.tags) {
+            let tagCount = tagCountsByName.find(tagCount => tagCount[0] === tag);
+            if (!tagCount) {
+                tagCount = [tag, 0];
+                tagCountsByName.push(tagCount);
             }
-            if (!tagCountsByName[tag]) {
-                tagCountsByName[tag] = 0;
-            }
-            // @ts-ignore-next-line not sure why this doesnt type refine
-            tagCountsByName[tag] += 1;
-        });
-        return tagCountsByName;
-    }, {});
+
+            tagCount[1]++;
+        }
+    }
+
+    tagCountsByName.sort((alpha, beta) => {
+        // show biggest tag count first.
+        return beta[1] - alpha[1];
+    });
+
+    return tagCountsByName;
 }

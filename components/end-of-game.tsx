@@ -67,7 +67,7 @@ export function EndOfGame() {
         const {index: playerIndex} = player;
         const terraformRating = player.terraformRating;
         const cardScore = player.playedCards.reduce((total, card) => {
-            return total + getCardVictoryPoints(card.victoryPoints, state, card);
+            return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
         }, 0);
         const greeneryScore = getGreeneryScore(state, playerIndex);
         const citiesScore = getCityScore(state, playerIndex);

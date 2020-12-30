@@ -4,7 +4,7 @@ import {
     getResourceBackgroundColor,
     getResourceColor,
     getResourceSymbol,
-    Resource
+    Resource,
 } from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
