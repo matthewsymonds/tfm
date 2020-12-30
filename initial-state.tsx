@@ -44,6 +44,8 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
 
     const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
 
+    options.isDraftingEnabled = options.isDraftingEnabled && players.length > 1;
+
     const base = {
         log: ['Generation 1'] as string[],
         common: {

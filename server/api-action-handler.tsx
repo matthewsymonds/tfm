@@ -719,6 +719,9 @@ export class ApiActionHandler implements GameActionHandler {
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<{type: string; payload}> = [];
+        for (const tilePlacement of action?.tilePlacements ?? []) {
+            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+        }
         const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
 
         // NOTE: This logic means stealResource really behaves more like
@@ -932,10 +935,6 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (action.choice) {
             items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
-        }
-
-        for (const tilePlacement of action?.tilePlacements ?? []) {
-            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
 
         for (const resource in action.removeResource) {

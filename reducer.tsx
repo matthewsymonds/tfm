@@ -281,7 +281,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Mining Area', 'Mining Rights'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -1061,10 +1061,9 @@ export const reducer = (state: GameState | null = null, action) => {
                             common.turn = 1;
                             common.generation++;
                             draft.log.push(`Generation ${common.generation}`);
-                            common.gameStage =
-                                draft.options?.isDraftingEnabled && draft.players.length > 1
-                                    ? GameStage.DRAFTING
-                                    : GameStage.BUY_OR_DISCARD;
+                            common.gameStage = draft.options?.isDraftingEnabled
+                                ? GameStage.DRAFTING
+                                : GameStage.BUY_OR_DISCARD;
 
                             for (const player of draft.players) {
                                 player.pendingCardSelection = {
