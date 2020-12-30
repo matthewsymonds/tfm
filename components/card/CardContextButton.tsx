@@ -89,7 +89,13 @@ export function CardContextButton({
     }
 
     return (
-        <Flex margin="8px" flexDirection="column" alignItems="center" justifyContent="center">
+        <Flex
+            margin="8px"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            position="relative"
+        >
             {buttonContent}
         </Flex>
     );

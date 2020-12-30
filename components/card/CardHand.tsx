@@ -17,6 +17,12 @@ const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}
     opacity: ${props => (props.shouldShow ? 1 : 0)};
     transition: transform 0.5s, opacity 0.2s;
     z-index: 2; /* HACK because of tile name tags */
+
+    // disable pointer events so we don't disable the clicks on the bottom part of the screen. when
+    // the cards aren't being looked at. we explicitly enable pointer-events on the cards themselves.
+    // ideally, even when cards are being looked at, we only need pointer events on the cards +
+    // an "active area" of maybe 30px margin around the active card, but this gets us 90% of the way there
+    pointer-events: ${props => (props.shouldShow && props.shouldHoist ? 'initial' : 'none')};
 `;
 
 const MinimizeCardsButton = styled.button`
@@ -156,6 +162,7 @@ export function CardHand({
                                       )}`,
                                       transition: 'transform 0.5s',
                                       transformOrigin: 'center',
+                                      pointerEvents: 'initial',
                                   }}
                                   onMouseEnter={() => onMouseEnter(cardIndex)}
                               >

@@ -35,13 +35,11 @@ export const CardStoredResources = ({card}: CardStoredResourcesProps) => {
         return null;
     }
     return (
-        <React.Fragment>
-            <StoredResourcesContainer>
-                <StoredResourcesContent>
-                    <span style={{marginRight: 4}}>{card.storedResourceAmount}</span>
-                    <ResourceIcon name={card.storedResourceType} />
-                </StoredResourcesContent>
-            </StoredResourcesContainer>
-        </React.Fragment>
+        <StoredResourcesContainer>
+            <StoredResourcesContent>
+                <span style={{marginRight: 4}}>{card.storedResourceAmount}</span>
+                <ResourceIcon name={card.storedResourceType} />
+            </StoredResourcesContent>
+        </StoredResourcesContainer>
     );
 };
