@@ -33,6 +33,7 @@ interface BoxProps {
     background: string;
     border: string;
     borderRadius: string;
+    zIndex: number;
 }
 
 interface FlexProps extends BoxProps {
@@ -77,6 +78,7 @@ export const Box = styled.div<Partial<BoxProps>>`
     background: ${props => props.background};
     border: ${props => props.border};
     border-radius: ${props => props.borderRadius};
+    z-index: ${props => props.zIndex};
 `;
 
 export const Flex = styled(Box)<Partial<FlexProps>>`

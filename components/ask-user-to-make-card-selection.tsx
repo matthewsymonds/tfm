@@ -150,7 +150,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         </h3>
                         {cardSelectionSubtitle}
                     </CardSelector>
-                    <Flex justifyContent="center">
+                    <Flex justifyContent="center" zIndex={40}>
                         <PaymentPopover
                             cost={selectedCards.length * 3}
                             onConfirmPayment={payment => handleConfirmCardSelection(payment)}

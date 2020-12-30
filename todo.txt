@@ -15,3 +15,11 @@ hide log during buy or discard?
 greenery
 auto play phobos ganymede.
 greenery phase weirdness
+
+scroll bars on corporation selection
+cannot click buy on draft button
+showing wrong tags for vp calculation
+maybe vp calculation (for other players?) only enabled when params are done?
+show event tag counts
+mining area not working
+empty white action bar with tharsis

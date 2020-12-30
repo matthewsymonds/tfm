@@ -774,7 +774,7 @@ export const cardConfigs: CardConfig[] = [
             type: Parameter.OCEAN,
             min: 6,
         },
-        tags: [],
+        tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: {[Resource.MEGACREDIT]: 2, [Resource.PLANT]: 3},
