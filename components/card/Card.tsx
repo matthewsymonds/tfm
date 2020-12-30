@@ -10,16 +10,15 @@ import {CardRequirement} from 'components/card/CardRequirement';
 import {CardStoredResources} from 'components/card/CardStoredResources';
 import {CardTags} from 'components/card/CardTags';
 import {CardText} from 'components/card/CardText';
+import {CardTitleBar} from 'components/card/CardTitle';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
 import {colors} from 'components/ui';
-import {CardType} from 'constants/card-types';
 import {AppContext} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
 import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import spawnExhaustiveSwitchError from 'utils';
 
 export const CARD_WIDTH = 200;
 export const CARD_HEIGHT = 300;
@@ -97,41 +96,6 @@ const MainCardText = styled(CardText)`
     position: relative;
     display: block;
     margin: 4px;
-`;
-
-function getCardTitleColorForType(type: CardType) {
-    switch (type) {
-        case CardType.ACTIVE:
-            return colors.CARD_ACTIVE;
-        case CardType.EVENT:
-            return colors.CARD_EVENT;
-        case CardType.AUTOMATED:
-            return colors.CARD_AUTOMATED;
-        case CardType.PRELUDE:
-            return colors.CARD_PRELUDE;
-        case CardType.CORPORATION:
-            return colors.CARD_CORPORATION;
-        default:
-            throw spawnExhaustiveSwitchError(type);
-    }
-}
-
-const CardTitleBar = styled.div<{type: CardType}>`
-    display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 0;
-    margin-top: 26px;
-    border-top: 1px solid ${colors.CARD_BORDER_2};
-    border-bottom: 1px solid ${colors.CARD_BORDER_2};
-    font-family: 'Ubuntu Condensed', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    background-color: ${props => getCardTitleColorForType(props.type)};
-    /* color: white; */
-    color: #f6f1eb;
-    text-align: center;
 `;
 
 export const Card: React.FC<CardProps> = ({

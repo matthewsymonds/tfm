@@ -49,16 +49,24 @@ export const CardCost = ({
         discountedCost = getDiscountedCardCost(card, loggedInPlayer);
     }
 
-    if (typeof discountedCost === 'number' && discountedCost !== card.cost) {
-        return (
-            <CardCostBase>
-                <OriginalCost>
-                    <s>{card.cost}</s>
-                </OriginalCost>
+    return <GenericCardCost originalCost={card.cost} cost={discountedCost ?? card.cost} />;
+};
 
-                {discountedCost}
-            </CardCostBase>
-        );
-    }
-    return <CardCostBase>{card.cost}</CardCostBase>;
+export const GenericCardCost = ({
+    cost,
+    originalCost,
+}: {
+    cost: string | number;
+    originalCost?: string | number;
+}) => {
+    return (
+        <CardCostBase>
+            {originalCost && originalCost !== cost && (
+                <OriginalCost>
+                    <s>{originalCost}</s>
+                </OriginalCost>
+            )}
+            {cost}
+        </CardCostBase>
+    );
 };

@@ -100,20 +100,25 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
 
 type GlobalParamsProps = {
     parameters: GlobalParameters;
+    showVenus: boolean;
 };
 
 export default function GlobalParams(props: GlobalParamsProps) {
     return (
         <GlobalParamsBase>
-            {Object.keys(props.parameters).map(parameter => (
-                <GlobalParamRow key={parameter as Parameter}>
-                    <GlobalParamName>{getParameterName(parameter as Parameter)}</GlobalParamName>
-                    <GlobalParamValue
-                        parameter={parameter as Parameter}
-                        currentValue={props.parameters[parameter]}
-                    />
-                </GlobalParamRow>
-            ))}
+            {Object.keys(props.parameters)
+                .filter(parameter => parameter !== Parameter.VENUS || props.showVenus)
+                .map(parameter => (
+                    <GlobalParamRow key={parameter as Parameter}>
+                        <GlobalParamName>
+                            {getParameterName(parameter as Parameter)}
+                        </GlobalParamName>
+                        <GlobalParamValue
+                            parameter={parameter as Parameter}
+                            currentValue={props.parameters[parameter]}
+                        />
+                    </GlobalParamRow>
+                ))}
         </GlobalParamsBase>
     );
 }

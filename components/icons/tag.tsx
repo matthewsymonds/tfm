@@ -8,7 +8,7 @@ type TagBaseProps = {
     background: string;
     size: number;
     showRedBorder: boolean;
-    margin: number;
+    margin: number | string;
 };
 
 const TagBase = styled.div<TagBaseProps>`
@@ -18,7 +18,7 @@ const TagBase = styled.div<TagBaseProps>`
     min-width: ${props => props.size}px;
     height: ${props => props.size}px;
     line-height: ${props => props.size}px;
-    margin: ${props => props.margin}px;
+    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
     font-size: 14px;
     font-weight: 400;
     display: flex;
@@ -74,7 +74,7 @@ type TagIconProps = {
     name: Tag;
     size?: number;
     showRedBorder?: boolean;
-    margin?: number;
+    margin?: number | string;
 };
 
 export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: TagIconProps) => {

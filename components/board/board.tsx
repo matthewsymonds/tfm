@@ -1,9 +1,12 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import MilestonesNew from 'components/board/milestones-new';
+import StandardProjectsNew from 'components/board/standard-projects-new';
 import {Box} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
+import {Deck} from 'constants/card-types';
 import {AppContext} from 'context/app-context';
 import React, {useContext} from 'react';
 import {useDispatch} from 'react-redux';
@@ -103,7 +106,12 @@ export const Board = () => {
                     </BoardInner>
                 </Circle>
             </Box>
-            <GlobalParams parameters={state.common.parameters} />
+            <GlobalParams
+                parameters={state.common.parameters}
+                showVenus={state.options.decks.includes(Deck.VENUS)}
+            />
+            <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
+            <MilestonesNew loggedInPlayer={loggedInPlayer} />
         </BoardOuter>
     );
 };

@@ -1,6 +1,7 @@
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
+import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
@@ -30,8 +31,7 @@ export const IconographyRow = styled.div<{isInline?: boolean}>`
     justify-content: center;
     margin: ${props => (props.isInline ? '0' : '4px')};
 `;
-const PRODUCTION_PADDING = 6;
-const ProductionWrapper = styled.div`
+export const ProductionWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -270,7 +270,9 @@ export function ChangeResourceIconography({
                 case VariableAmount.USER_CHOICE:
                     customElement = (
                         <React.Fragment>
-                            <TextWithMargin>X</TextWithMargin>
+                            <TextWithMargin>
+                                {shouldShowNegativeSymbol(resource) && '-'}X
+                            </TextWithMargin>
                             <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
                         </React.Fragment>
                     );

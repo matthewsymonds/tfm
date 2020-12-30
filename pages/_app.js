@@ -16,8 +16,9 @@ import {createGlobalStyle} from 'styled-components';
 export const GlobalStyles = createGlobalStyle`
     body {
         margin: 0;
-        font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-            Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        /* font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+            Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; */
+        font-family: 'Open Sans', 'Roboto', sans-serif;
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
@@ -28,46 +29,7 @@ export const GlobalStyles = createGlobalStyle`
       display: flex;
       flex-direction: column;
     }
-    .inverted {
-      filter: invert(100%);
-    }
-    
-    div.macBROKEN {
-      span.tag-icon {
-        position: relative;
-        left: 2px;
-        bottom: 0.5px;
-      }
-      span.resource-icon {
-        position: relative;
-        left: 2.5px;
-        bottom: 0.5px;
-      }
-      span.titanium-icon {
-        position: relative;
-        bottom: 0.5px;
-      }
-      span.megacredit-icon {
-        position: relative;
-        left: 1px;
-        bottom: 0.5px;
-      }
-      span.jovian-icon {
-        position: relative;
-        left: 0.5px;
-        bottom: 0.5px;
-      }
-      span.building-icon {
-        position: relative;
-        left: 2.75px;
-        bottom: 0.5px;
-      }
-      span.space-icon {
-        position: relative;
-        left: 3px;
-        bottom: 0.5px;
-      }
-    }
+
     * {
       -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
       -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
@@ -94,6 +56,9 @@ export const GlobalStyles = createGlobalStyle`
       height: 2px;
       background: #cecece;
       margin: 0;
+    }
+    .display {
+        font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
       .right-box {

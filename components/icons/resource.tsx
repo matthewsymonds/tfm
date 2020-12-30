@@ -14,9 +14,8 @@ interface ResourceIconBaseProps {
     readonly background: string;
     readonly size: number;
     readonly showRedBorder: boolean;
+    readonly margin: number | string;
     readonly tall?: boolean;
-    readonly margin: number;
-    readonly marginLeft: number;
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
@@ -24,8 +23,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
     width: ${props => props.size}px;
     text-align: center;
-    margin: ${props => props.margin}px;
-    margin-left: ${props => props.marginLeft}px;
+    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
     font-size: ${props => props.size * 0.5}px;
     font-weight: bold;
     color: ${props => props.color};
@@ -36,7 +34,11 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
 `;
 
-const MegacreditIcon = styled.div<{size?: number; showRedBorder?: boolean}>`
+const MegacreditIcon = styled.div<{
+    size?: number;
+    showRedBorder?: boolean;
+    margin: string | number;
+}>`
     height: ${props => props.size}px;
     width: ${props => props.size}px;
     font-size: ${props => (props.size ? props.size * 0.75 : '12')}px;
@@ -47,14 +49,14 @@ const MegacreditIcon = styled.div<{size?: number; showRedBorder?: boolean}>`
     border-radius: 3px;
     background-color: ${colors.MEGACREDIT};
     border: 1px solid #c59739;
+    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
 `;
 interface ResourceIconProps {
     name: Resource;
     size?: number;
     showRedBorder?: boolean;
-    amount?: string;
-    margin?: number;
-    marginLeft?: number;
+    amount?: string | number;
+    margin?: number | string;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
@@ -63,11 +65,10 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     showRedBorder = false,
     amount,
     margin = 0,
-    marginLeft = 0,
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
-            <MegacreditIcon size={size} showRedBorder={showRedBorder}>
+            <MegacreditIcon size={size} showRedBorder={showRedBorder} margin={margin}>
                 <span>{amount ?? null}</span>
             </MegacreditIcon>
         );
@@ -81,7 +82,6 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
             tall={name === Resource.CARD}
             showRedBorder={showRedBorder}
             margin={margin}
-            marginLeft={marginLeft}
         >
             <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
         </ResourceIconBase>

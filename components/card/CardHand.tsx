@@ -163,6 +163,7 @@ export function CardHand({
                                       transition: 'transform 0.5s',
                                       transformOrigin: 'center',
                                       pointerEvents: 'initial',
+                                      zIndex: 99999,
                                   }}
                                   onMouseEnter={() => onMouseEnter(cardIndex)}
                               >

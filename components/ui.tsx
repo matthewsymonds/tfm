@@ -21,7 +21,8 @@ export const colors = {
     NAV_BG_PASSED: '#63667d',
 
     // main content
-    MAIN_BG: '#393939',
+    MAIN_BG: 'hsl(0, 0%, 22.4%)',
+    LIGHT_BG: 'hsl(0, 0%, 45%)',
 
     // panels
     PANEL_BORDER: '#999',
