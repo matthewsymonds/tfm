@@ -8,7 +8,6 @@ export const colors = {
     LIGHT_1: '#fff', // lightest
     LIGHT_2: '#ddd',
     LIGHT_3: '#bbb', // darkest
-    LIGHT_BG: '#ddd',
 
     // text
     TEXT_LIGHT_1: '#ccc',

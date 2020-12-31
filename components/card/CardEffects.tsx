@@ -163,7 +163,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                         size={16}
                         amount={`${trigger?.cost}`}
                     />
-                    <ResourceIcon name={Resource.CARD} size={16} marginLeft={4} />
+                    <ResourceIcon name={Resource.CARD} size={16} margin="0px 0px 0px 4px" />
                 </React.Fragment>
             );
         } else if (trigger?.increaseParameter) {

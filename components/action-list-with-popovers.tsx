@@ -60,9 +60,9 @@ export default function ActionListWithPopovers<T>({
 
     return (
         <OuterWrapper id={id}>
-            {actions.map(action => {
+            {actions.map((action, index) => {
                 return (
-                    <StylizedActionWrapper isSelected={selectedAction === action}>
+                    <StylizedActionWrapper key={index} isSelected={selectedAction === action}>
                         <ActionComponent
                             action={action}
                             setSelectedAction={setSelectedAction}

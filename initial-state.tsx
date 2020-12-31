@@ -23,6 +23,13 @@ function DEV_cardOverrides() {
     });
 }
 
+function DEV_corporationOverrides() {
+    const cardOverrides: Array<string> = [];
+    return cards.filter(card => {
+        return cardOverrides.includes(card.name) && card.type === CardType.CORPORATION;
+    });
+}
+
 function sampleCards(cards: Card[], num: number) {
     const result: Card[] = [];
     for (let i = 0; i < num; i++) {
@@ -69,11 +76,9 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
     };
 
     for (const player of players) {
-        const possibleCorporations = sampleCards(allCorporations, 2);
-        // const possibleCorporations = [
-        //     ...sampleCards(allCorporations, 2),
-        //     ...allCorporations.filter(corp => corp.name === 'Saturn Systems'),
-        // ];
+        const possibleCorporations = sampleCards(allCorporations, 2).concat(
+            DEV_corporationOverrides()
+        );
 
         base.players.push({
             // 0 for card selection, 1 / 2 for active round

@@ -179,7 +179,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.SCIENCE:
             return 'white';
         case Resource.STEEL:
-            return 'brown';
+            return '#ffefec';
         case Resource.TITANIUM:
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
@@ -216,7 +216,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.SCIENCE:
             return 'darkgray';
         case Resource.STEEL:
-            return '#795548';
+            return 'brown';
         case Resource.TITANIUM:
             return 'black';
         case Resource.ANY_STORABLE_RESOURCE:
