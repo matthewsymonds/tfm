@@ -1,19 +1,61 @@
-import {Box, Flex, PanelWithTabs} from 'components/box';
+import {Box, Flex} from 'components/box';
+import Button from 'components/controls/button';
 import {PlayerCorpAndIcon} from 'components/icons/player';
+import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {usePrevious} from 'hooks/use-previous';
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {usePopper} from 'react-popper';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
+export const ActionLog = () => {
+    const [isPopperVisible, setIsPopperVisible] = useState(false);
+    const referenceElement = useRef(null);
+    const popperElement = useRef(null);
+    const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
+        placement: 'bottom-end',
+        modifiers: [
+            {
+                name: 'offset',
+                options: {
+                    offset: [0, 2],
+                },
+            },
+        ],
+    });
+
+    return (
+        <React.Fragment>
+            <Button ref={referenceElement} onClick={() => setIsPopperVisible(!isPopperVisible)}>
+                Log
+            </Button>
+            <TexturedCard
+                ref={popperElement}
+                borderRadius={5}
+                bgColor="white"
+                style={{
+                    ...styles.popper,
+                    height: isPopperVisible ? 'initial' : '0',
+                    border: isPopperVisible ? '' : 'none',
+                    zIndex: 20,
+                    overflow: 'hidden',
+                    // borderRadius: 5,
+                    boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
+                }}
+                {...attributes.popper}
+            >
+                <LogPanel />
+            </TexturedCard>
+        </React.Fragment>
+    );
+};
+
 export const SwitchColors = styled.div`
     > * {
-        &:nth-child(odd) {
-            background: ${colors.LOG_BG};
-        }
         &:nth-child(even) {
-            background: ${colors.LOG_BG_ALT};
+            background-color: hsla(0, 0%, 50%, 25%);
         }
     }
 `;
@@ -22,12 +64,13 @@ export const LogPanelBase = styled(SwitchColors)`
     display: flex;
     max-height: 400px;
     overflow-y: auto;
+    color: ${colors.TEXT_DARK_1};
     flex-direction: column-reverse;
 `;
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-export const LogPanel = () => {
+const LogPanel = () => {
     const log = useTypedSelector(state => state.log);
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
@@ -66,24 +109,17 @@ export const LogPanel = () => {
         return null;
     }
     return (
-        <PanelWithTabs
-            selectedTabIndex={0}
-            tabs={['Action log ⬆️']}
-            tabType="log"
-            setSelectedTabIndex={(_: number) => {}}
-        >
-            <LogPanelBase ref={logRef}>
-                {log.map((entry, entryIndex) => (
-                    <LogEntry
-                        entry={entry}
-                        entryIndex={entryIndex}
-                        players={players}
-                        corporationNames={corporationNames}
-                        key={`${entry}-${entryIndex}`}
-                    />
-                ))}
-            </LogPanelBase>
-        </PanelWithTabs>
+        <LogPanelBase ref={logRef}>
+            {log.map((entry, entryIndex) => (
+                <LogEntry
+                    entry={entry}
+                    entryIndex={entryIndex}
+                    players={players}
+                    corporationNames={corporationNames}
+                    key={`${entry}-${entryIndex}`}
+                />
+            ))}
+        </LogPanelBase>
     );
 };
 
@@ -141,7 +177,7 @@ const LogEntryInner = ({
     });
 
     return (
-        <Box marginBottom="2px" padding="8px" key={'Log-entry-' + entryIndex}>
+        <Box padding="8px" key={'Log-entry-' + entryIndex}>
             <Flex alignItems="flex-start">
                 {elements.map((el, index) => {
                     if (typeof el === 'string') {

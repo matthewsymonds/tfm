@@ -3,7 +3,6 @@ import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confir
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
 import {Card as CardComponent} from 'components/card/Card';
-import {LogPanel} from 'components/log-panel';
 import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
@@ -23,7 +22,7 @@ import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
-import {Box, Flex} from './box';
+import {Flex} from './box';
 import {EndOfGame} from './end-of-game';
 
 const PromptTitle = styled.h3`
@@ -151,11 +150,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     <Flex className="active-round-right" flexDirection="column" marginRight="4px">
                         <Board />
                     </Flex>
-                </Flex>
-                <Flex className="active-round-bottom" flexDirection="column" marginLeft="4px">
-                    <Box marginTop="8px">
-                        <LogPanel />
-                    </Box>
                 </Flex>
             </Flex>
             <PlayerHand player={loggedInPlayer} />
