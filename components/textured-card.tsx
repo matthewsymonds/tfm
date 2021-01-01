@@ -12,7 +12,6 @@ const CardContainer = styled.div<{
     isSelected?: boolean;
     borderRadius: number;
     borderWidth: number;
-    opacity: number;
 }>`
     width: ${props => (props.width ? `${props.width}px` : 'initial')};
     height: ${props => (props.height ? `${props.height}px` : 'initial')};
