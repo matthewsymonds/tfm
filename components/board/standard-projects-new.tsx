@@ -267,7 +267,7 @@ function StandardProjectActionDescription({action}: {action: StandardProjectActi
         case StandardProjectType.SELL_PATENTS:
             return (
                 <React.Fragment>
-                    Discard any number of cards from your hand to gain that many MC.
+                    Discard any number of cards from hand to gain that many MC.
                 </React.Fragment>
             );
         case StandardProjectType.POWER_PLANT:
