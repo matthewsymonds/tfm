@@ -61,6 +61,13 @@ export const Board = () => {
     }
     return (
         <Flex justifyContent="flex-end" alignItems="flex-start">
+            <Flex flexDirection="column" justifyContent="space-between">
+                <div style={{width: 75}}>
+                    <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
+                </div>
+                <MilestonesNew loggedInPlayer={loggedInPlayer} />
+                <AwardsNew loggedInPlayer={loggedInPlayer} />
+            </Flex>
             <Box position="relative">
                 <OffMarsCities
                     board={board}
@@ -98,11 +105,6 @@ export const Board = () => {
                 parameters={state.common.parameters}
                 showVenus={state.options.decks.includes(Deck.VENUS)}
             />
-            <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
-            <Flex flexDirection="column" justifyContent="space-between">
-                <MilestonesNew loggedInPlayer={loggedInPlayer} />
-                <AwardsNew loggedInPlayer={loggedInPlayer} />
-            </Flex>
         </Flex>
     );
 };

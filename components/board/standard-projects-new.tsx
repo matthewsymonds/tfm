@@ -54,6 +54,11 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
         <ActionListWithPopovers<StandardProjectAction>
             id="standard-projects"
             actions={standardProjectActions}
+            style={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+            }}
             ActionComponent={({action}) => (
                 <StandardProject
                     action={action}

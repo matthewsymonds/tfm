@@ -18,6 +18,7 @@ export default function ActionListWithPopovers<T>({
     actions,
     ActionComponent,
     ActionPopoverComponent,
+    style,
 }: {
     id: string;
     actions: Array<T>;
@@ -27,9 +28,10 @@ export default function ActionListWithPopovers<T>({
     ActionPopoverComponent: React.FunctionComponent<{
         action: T;
     }>;
+    style?: React.CSSProperties;
 }) {
     return (
-        <OuterWrapper id={id}>
+        <OuterWrapper id={id} style={style}>
             {actions.map((action, index) => {
                 return (
                     <ActionButton<T>
@@ -65,7 +67,7 @@ function ActionButton<T>({
     const referenceElement = useRef(null);
     const popperElement = useRef(null);
     const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
-        placement: 'left-start',
+        placement: 'right-start',
         modifiers: [
             {
                 name: 'offset',
@@ -96,6 +98,7 @@ function ActionButton<T>({
                         ref={popperElement}
                         style={{
                             ...styles.popper,
+                            zIndex: 10,
                             display: isPopperVisible ? 'initial' : 'none',
                         }}
                         {...attributes.popper}
