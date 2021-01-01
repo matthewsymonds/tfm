@@ -765,9 +765,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (claimMilestone.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-
             const {payment, milestone} = payload;
-            for (const resource in payment) {
+            for (const resource in payment ?? {[Resource.MEGACREDIT]: 8}) {
                 player.resources[resource] -= payment[resource];
             }
             draft.common.claimedMilestones.push({
@@ -805,7 +804,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 player.possibleCorporations = [];
                 draft.log.push(`${player.username} chose ${payload.card.name}`);
             }
-            player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
         }
 
         if (addParameterRequirementAdjustments.match(action)) {

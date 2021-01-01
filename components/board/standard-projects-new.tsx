@@ -34,14 +34,6 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
-const OuterWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    position: relative;
-`;
-
-const ACTION_MARGIN = 0;
-
 export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
@@ -50,7 +42,7 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
-        payment?: PropertyCounter<Resource>
+        payment: PropertyCounter<Resource>
     ) => {
         const [canPlay] = actionGuard.canPlayStandardProject(standardProjectAction);
         if (canPlay) {
@@ -62,20 +54,15 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
         <ActionListWithPopovers<StandardProjectAction>
             id="standard-projects"
             actions={standardProjectActions}
-            ActionComponent={StandardProject}
-            ActionPopoverComponent={({
-                action,
-                closePopover,
-            }: {
-                action: StandardProjectAction;
-                closePopover: () => void;
-            }) => (
-                <StandardProjectTooltip
+            ActionComponent={({action}) => (
+                <StandardProject
                     action={action}
-                    loggedInPlayer={loggedInPlayer}
                     playStandardProjectAction={playStandardProjectAction}
-                    closeTooltip={closePopover}
+                    loggedInPlayer={loggedInPlayer}
                 />
+            )}
+            ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
+                <StandardProjectTooltip action={action} loggedInPlayer={loggedInPlayer} />
             )}
         />
     );
@@ -85,59 +72,50 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function StandardProject({
-    action,
-    setSelectedAction,
-    isSelected,
-}: {
-    action: StandardProjectAction;
-    setSelectedAction: (action: StandardProjectAction | null) => void;
-    isSelected: boolean;
-}) {
-    return (
-        <Flex
-            onClick={() => {
-                setSelectedAction(isSelected ? null : action);
-            }}
-            height="32px"
-            width="32px"
-            justifyContent="center"
-            alignItems="center"
-        >
-            {/* <StandardProjectActionIconWrapper isActive={isSelected}> */}
-            <StandardProjectActionIcon actionType={action.type} />
-            {/* </StandardProjectActionIconWrapper> */}
-        </Flex>
-    );
-}
+const HoverMask = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    > * {
+        transition: opacity 350ms;
+        opacity: 1;
+    }
 
-const TooltipWrapper = styled.div`
-    position: absolute;
-    bottom: 48px;
-    left: ${ACTION_MARGIN}px;
-    right: ${ACTION_MARGIN}px;
-    z-index: 1;
-    transition: opacity 250ms;
+    &:hover > * {
+        opacity: 0;
+    }
+
+    &:after {
+        content: '';
+        opacity: 0;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 350ms;
+    }
+
+    &:hover:after {
+        content: '☑️';
+        opacity: 1;
+    }
 `;
 
-function StandardProjectTooltip({
+function StandardProject({
     action,
-    loggedInPlayer,
     playStandardProjectAction,
-    closeTooltip,
+    loggedInPlayer,
 }: {
     action: StandardProjectAction;
-    loggedInPlayer: PlayerState;
     playStandardProjectAction: (
-        action: StandardProjectAction,
-        payment?: PropertyCounter<Resource>
+        action: StandardProjectAction | null,
+        payment: PropertyCounter<Resource>
     ) => void;
-    closeTooltip: () => void;
+    loggedInPlayer: PlayerState;
 }) {
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
     const cost = getCostForStandardProject(action, loggedInPlayer);
-    const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
 
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' &&
@@ -145,83 +123,69 @@ function StandardProjectTooltip({
         action.cost;
 
     return (
-        <TooltipWrapper>
-            <TexturedCard height={188} borderRadius={4} borderWidth={0}>
-                <GenericCardTitleBar bgColor={'#d67500'}>
-                    {getTextForStandardProject(action.type)}
-                </GenericCardTitleBar>
-                <GenericCardCost cost={cost} originalCost={action.cost} />
-                <Flex alignItems="center" margin="4px" marginBottom="8px" fontSize="13px">
-                    <StandardProjectActionDescription action={action} />
-                </Flex>
-                <Flex alignItems="center" justifyContent="center" marginBottom="8px">
-                    <StandardProjectActionIconography action={action} />
-                </Flex>
-                <Flex flex="auto"></Flex>
+        <PaymentPopover
+            cost={cost}
+            onConfirmPayment={payment => playStandardProjectAction(action, payment)}
+            shouldHide={!showPaymentPopover}
+        >
+            <Flex
+                onClick={() => {
+                    !showPaymentPopover &&
+                        playStandardProjectAction(action, {[Resource.MEGACREDIT]: cost});
+                }}
+                height="32px"
+                width="32px"
+                justifyContent="center"
+                alignItems="center"
+            >
+                <HoverMask>
+                    <StandardProjectActionIcon actionType={action.type} />
+                </HoverMask>
+            </Flex>
+        </PaymentPopover>
+    );
+}
+
+function StandardProjectTooltip({
+    action,
+    loggedInPlayer,
+}: {
+    action: StandardProjectAction;
+    loggedInPlayer: PlayerState;
+}) {
+    const state = useTypedSelector(state => state);
+    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const cost = getCostForStandardProject(action, loggedInPlayer);
+    const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
+
+    return (
+        <TexturedCard width={200}>
+            <GenericCardTitleBar bgColor={'#d67500'}>
+                {getTextForStandardProject(action.type)}
+            </GenericCardTitleBar>
+            <GenericCardCost cost={cost} originalCost={action.cost} />
+            <Flex alignItems="center" margin="8px" marginBottom="8px" fontSize="13px">
+                <StandardProjectActionDescription action={action} />
+            </Flex>
+            <Flex alignItems="center" justifyContent="center" marginBottom="8px">
+                <StandardProjectActionIconography action={action} />
+            </Flex>
+            <Flex flex="auto"></Flex>
+            {!canPlay && reason && (
                 <Flex
                     margin="8px"
                     flexDirection="column"
                     alignItems="center"
                     justifyContent="center"
                     position="relative"
+                    fontSize="13px"
                 >
-                    {!canPlay && <ErrorText>Cannot play: {reason}</ErrorText>}
-                    {showPaymentPopover && (
-                        <PaymentPopover
-                            cost={cost}
-                            onConfirmPayment={payment => playStandardProjectAction(action, payment)}
-                        >
-                            <button disabled={!canPlay} style={{width: 80}}>
-                                Play
-                            </button>
-                        </PaymentPopover>
-                    )}
-                    {!showPaymentPopover && (
-                        <button
-                            disabled={!canPlay}
-                            style={{width: 80}}
-                            onClick={() => {
-                                closeTooltip();
-                                playStandardProjectAction(action);
-                            }}
-                        >
-                            Play
-                        </button>
-                    )}
+                    <ErrorText>{reason}</ErrorText>
                 </Flex>
-            </TexturedCard>
-        </TooltipWrapper>
+            )}
+        </TexturedCard>
     );
 }
-
-const StandardProjectActionIconWrapper = styled.div<{isActive: boolean}>`
-    display: flex;
-    position: relative;
-    height: 32px;
-    width: 32px;
-    margin: 0 ${ACTION_MARGIN}px;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-    user-select: none;
-
-    &:before {
-        content: '';
-        background-color: ${props => (props.isActive ? colors.LIGHT_BG : 'initial')};
-        box-shadow: ${props => (props.isActive ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px' : 'none')};
-        transition: background-color 250ms, box-shadow 250ms;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        z-index: -1;
-        border-radius: 3px;
-    }
-
-    &:hover:before {
-        background-color: ${colors.LIGHT_BG};
-        box-shadow: rgb(0 0 0 / 1) 4px 6px 6px -1px;
-    }
-`;
 
 function StandardProjectActionIcon({actionType}: {actionType: StandardProjectType}) {
     switch (actionType) {
@@ -307,7 +271,7 @@ function StandardProjectActionIconography({action}: {action: StandardProjectActi
                 </React.Fragment>
             );
         case StandardProjectType.POWER_PLANT:
-            return <ProductionIconography card={{increaseProduction: {[Resource.ENERGY]: 1}}} />;
+            return <ProductionIcon name={Resource.ENERGY} size={26} paddingSize={4} />;
         case StandardProjectType.ASTEROID:
             return (
                 <IncreaseParameterIconography

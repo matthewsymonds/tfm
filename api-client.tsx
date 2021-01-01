@@ -77,7 +77,7 @@ export class ApiClient implements GameActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void> {
         const payload = {
             standardProjectActionType: standardProjectAction.type,
