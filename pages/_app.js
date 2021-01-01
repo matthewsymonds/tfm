@@ -61,15 +61,11 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
-      .right-box {
-        margin-left: 16px;
-      }
+        flex-direction: row;
+          align-items: center;
+
         @media (max-width: 1210px) {
           flex-direction: column;
-          align-items: center;
-          .right-box {
-            margin-left: 0px;
-          }
       }
     }
 `;
@@ -169,7 +165,7 @@ class MyApp extends App {
                 </Head>
 
                 <AppContext.Provider value={appContext}>
-                    <div className={className}>
+                    <div className={className} id={'root'}>
                         <GlobalStyles />
                         <InnerAppComponent {...this.props} />
                     </div>

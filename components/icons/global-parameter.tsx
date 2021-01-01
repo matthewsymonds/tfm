@@ -1,5 +1,6 @@
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import {colors} from 'components/ui';
 import {Parameter, TileType} from 'constants/board';
 import {Tag} from 'constants/tag';
 import React from 'react';
@@ -14,7 +15,7 @@ export const AllCapsIcon = styled.div<{size: number; bgColor: string; margin?: n
     margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
     font-size: ${props => Math.ceil((2 / 3) * props.size)}px;
     text-transform: uppercase;
-    ))font-kerning: 0.1rem;
+    font-kerning: 0.1rem;
     padding: 4px;
     display: flex;
     align-items: center;
@@ -37,13 +38,13 @@ export const GlobalParameterIcon = ({
             return <TileIcon type={TileType.OCEAN} size={size} margin={margin} />;
         case Parameter.OXYGEN:
             return (
-                <AllCapsIcon size={size} bgColor="#9dd3eb" margin={margin}>
+                <AllCapsIcon size={size} bgColor={colors.PARAMETERS[parameter]} margin={margin}>
                     O₂
                 </AllCapsIcon>
             );
         case Parameter.TEMPERATURE:
             return (
-                <AllCapsIcon size={size} bgColor="#d92407" margin={margin}>
+                <AllCapsIcon size={size} bgColor={colors.PARAMETERS[parameter]} margin={margin}>
                     🌡
                 </AllCapsIcon>
             );

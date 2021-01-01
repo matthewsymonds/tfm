@@ -17,6 +17,16 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
+const MilestoneHeader = styled.div`
+    margin: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    opacity: 0.3;
+`;
+
 export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
@@ -31,20 +41,23 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     };
 
     return (
-        <ActionListWithPopovers<Milestone>
-            id="milestones"
-            actions={Object.values(Milestone)}
-            ActionComponent={({action}) => (
-                <MilestoneBadge
-                    milestone={action}
-                    claimMilestone={claimMilestone}
-                    loggedInPlayer={loggedInPlayer}
-                />
-            )}
-            ActionPopoverComponent={({action}) => (
-                <MilestonePopover milestone={action} loggedInPlayer={loggedInPlayer} />
-            )}
-        />
+        <Flex flexDirection="column" alignItems="flex-start">
+            <MilestoneHeader className="display">Milestones</MilestoneHeader>
+            <ActionListWithPopovers<Milestone>
+                id="milestones"
+                actions={Object.values(Milestone)}
+                ActionComponent={({action}) => (
+                    <MilestoneBadge
+                        milestone={action}
+                        claimMilestone={claimMilestone}
+                        loggedInPlayer={loggedInPlayer}
+                    />
+                )}
+                ActionPopoverComponent={({action}) => (
+                    <MilestonePopover milestone={action} loggedInPlayer={loggedInPlayer} />
+                )}
+            />
+        </Flex>
     );
 }
 

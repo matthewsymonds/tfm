@@ -17,6 +17,16 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
+const AwardHeader = styled.div`
+    margin: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    opacity: 0.3;
+`;
+
 export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
@@ -45,28 +55,32 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     };
 
     return (
-        <ActionListWithPopovers<Award>
-            id="awards"
-            actions={Object.values(Award)}
-            ActionComponent={({action}) => (
-                <AwardBadge
-                    award={action}
-                    fundAward={fundAward}
-                    loggedInPlayer={loggedInPlayer}
-                    cost={awardConfigsByAward[action].cost}
-                    isFunded={awardConfigsByAward[action].isFunded}
-                />
-            )}
-            ActionPopoverComponent={({action}) => (
-                <AwardPopover
-                    award={action}
-                    loggedInPlayer={loggedInPlayer}
-                    cost={awardConfigsByAward[action].cost}
-                    isFunded={awardConfigsByAward[action].isFunded}
-                    fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
-                />
-            )}
-        />
+        <Flex flexDirection="column" alignItems="flex-start">
+            <AwardHeader className="display">Awards</AwardHeader>
+
+            <ActionListWithPopovers<Award>
+                id="awards"
+                actions={Object.values(Award)}
+                ActionComponent={({action}) => (
+                    <AwardBadge
+                        award={action}
+                        fundAward={fundAward}
+                        loggedInPlayer={loggedInPlayer}
+                        cost={awardConfigsByAward[action].cost}
+                        isFunded={awardConfigsByAward[action].isFunded}
+                    />
+                )}
+                ActionPopoverComponent={({action}) => (
+                    <AwardPopover
+                        award={action}
+                        loggedInPlayer={loggedInPlayer}
+                        cost={awardConfigsByAward[action].cost}
+                        isFunded={awardConfigsByAward[action].isFunded}
+                        fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
+                    />
+                )}
+            />
+        </Flex>
     );
 }
 
