@@ -61,7 +61,7 @@ export const Board = () => {
     }
     return (
         <Flex justifyContent="flex-end" alignItems="flex-start">
-            <Flex flexDirection="column" justifyContent="space-between">
+            <Flex flexDirection="column" alignItems="flex-end">
                 <div style={{width: 75}}>
                     <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
                 </div>

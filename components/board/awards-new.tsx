@@ -18,7 +18,7 @@ import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
 const AwardHeader = styled.div`
-    margin: 4px 0;
+    margin: 4px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 13px;
@@ -55,11 +55,10 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     };
 
     return (
-        <Flex flexDirection="column" alignItems="flex-start">
+        <Flex flexDirection="column" alignItems="flex-end">
             <AwardHeader className="display">Awards</AwardHeader>
 
             <ActionListWithPopovers<Award>
-                id="awards"
                 actions={Object.values(Award)}
                 ActionComponent={({action}) => (
                     <AwardBadge

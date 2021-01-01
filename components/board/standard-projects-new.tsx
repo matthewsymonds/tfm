@@ -52,12 +52,12 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
 
     return (
         <ActionListWithPopovers<StandardProjectAction>
-            id="standard-projects"
             actions={standardProjectActions}
             style={{
                 display: 'flex',
                 flexDirection: 'row',
                 flexWrap: 'wrap',
+                justifyContent: 'flex-end',
             }}
             ActionComponent={({action}) => (
                 <StandardProject
@@ -81,12 +81,12 @@ const HoverMask = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    > * {
+    /* > * {
         transition: opacity 350ms;
         opacity: 1;
-    }
+    } */
 
-    &:hover > * {
+    /* &:hover > * {
         opacity: 0;
     }
 
@@ -105,7 +105,7 @@ const HoverMask = styled.div`
     &:hover:after {
         content: '☑️';
         opacity: 1;
-    }
+    } */
 `;
 
 function StandardProject({

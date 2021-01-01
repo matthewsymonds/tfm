@@ -18,7 +18,7 @@ import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
 const MilestoneHeader = styled.div`
-    margin: 4px 0;
+    margin: 4px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 13px;
@@ -41,10 +41,9 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     };
 
     return (
-        <Flex flexDirection="column" alignItems="flex-start">
+        <Flex flexDirection="column" alignItems="flex-end">
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
-                id="milestones"
                 actions={Object.values(Milestone)}
                 ActionComponent={({action}) => (
                     <MilestoneBadge

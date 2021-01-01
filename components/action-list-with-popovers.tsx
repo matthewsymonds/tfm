@@ -1,6 +1,5 @@
 import {colors} from 'components/ui';
-import {useEffect, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
+import {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import styled from 'styled-components';
 
@@ -8,19 +7,16 @@ const OuterWrapper = styled.div`
     display: flex;
     height: 100%;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: stretch;
     margin: 0 2px;
 `;
 
 export default function ActionListWithPopovers<T>({
-    id,
     actions,
     ActionComponent,
     ActionPopoverComponent,
     style,
 }: {
-    id: string;
     actions: Array<T>;
     ActionComponent: React.FunctionComponent<{
         action: T;
@@ -30,42 +26,9 @@ export default function ActionListWithPopovers<T>({
     }>;
     style?: React.CSSProperties;
 }) {
-    return (
-        <OuterWrapper id={id} style={style}>
-            {actions.map((action, index) => {
-                return (
-                    <ActionButton<T>
-                        action={action}
-                        key={index}
-                        ActionComponent={ActionComponent}
-                        ActionPopoverComponent={ActionPopoverComponent}
-                        targetId={id}
-                    />
-                );
-            })}
-        </OuterWrapper>
-    );
-}
-
-function ActionButton<T>({
-    action,
-    ActionComponent,
-    ActionPopoverComponent,
-    targetId,
-}: {
-    targetId: string;
-    action: T;
-    ActionComponent: React.FunctionComponent<{
-        action: T;
-    }>;
-    ActionPopoverComponent: React.FunctionComponent<{
-        action: T;
-    }>;
-}) {
-    const [_document, setDocument] = useState<null | Document>(null);
-    const [isPopperVisible, setIsPopperVisible] = useState(false);
-    const referenceElement = useRef(null);
-    const popperElement = useRef(null);
+    const [selectedAction, setSelectedAction] = useState<T | null>(null);
+    const referenceElement = useRef<HTMLDivElement>();
+    const popperElement = useRef<HTMLDivElement>();
     const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
         placement: 'right-start',
         modifiers: [
@@ -78,35 +41,54 @@ function ActionButton<T>({
         ],
     });
 
-    useEffect(() => {
-        if (!_document) {
-            setDocument(document);
-        }
-    }, []);
-
     return (
-        <StylizedActionWrapper
+        <OuterWrapper
             ref={referenceElement}
-            onMouseEnter={() => setIsPopperVisible(true)}
-            onMouseLeave={() => setIsPopperVisible(false)}
+            style={style}
+            onMouseLeave={() => setSelectedAction(null)}
         >
+            {actions.map((action, index) => {
+                return (
+                    <ActionButton<T>
+                        key={index}
+                        action={action}
+                        setSelectedAction={setSelectedAction}
+                        ActionComponent={ActionComponent}
+                    />
+                );
+            })}
+            {selectedAction && (
+                <div
+                    ref={popperElement}
+                    style={{
+                        ...styles.popper,
+                        zIndex: 10,
+                        display: selectedAction ? 'initial' : 'none',
+                    }}
+                    {...attributes.popper}
+                >
+                    <ActionPopoverComponent action={selectedAction} />
+                </div>
+            )}
+            ,
+        </OuterWrapper>
+    );
+}
+
+function ActionButton<T>({
+    action,
+    ActionComponent,
+    setSelectedAction,
+}: {
+    action: T;
+    ActionComponent: React.FunctionComponent<{
+        action: T;
+    }>;
+    setSelectedAction: (action: T) => void;
+}) {
+    return (
+        <StylizedActionWrapper onMouseEnter={() => setSelectedAction(action)}>
             <ActionComponent action={action} />
-            {_document &&
-                _document.querySelector(`#${targetId}`) &&
-                ReactDOM.createPortal(
-                    <div
-                        ref={popperElement}
-                        style={{
-                            ...styles.popper,
-                            zIndex: 10,
-                            display: isPopperVisible ? 'initial' : 'none',
-                        }}
-                        {...attributes.popper}
-                    >
-                        <ActionPopoverComponent action={action} />
-                    </div>,
-                    _document.querySelector(`#${targetId}`)
-                )}
         </StylizedActionWrapper>
     );
 }
@@ -115,7 +97,7 @@ const StylizedActionWrapper = styled.div`
     display: flex;
     position: relative;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     cursor: default;
     margin-bottom: 4px;
     user-select: none;
