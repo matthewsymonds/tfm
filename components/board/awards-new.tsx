@@ -88,37 +88,6 @@ const AwardBadgeContainer = styled.div`
     color: white;
 `;
 
-const HoverMask = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    > * {
-        transition: opacity 350ms;
-        opacity: 1;
-    }
-
-    &:hover > * {
-        opacity: 0;
-    }
-
-    &:after {
-        content: '';
-        opacity: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 350ms;
-    }
-
-    &:hover:after {
-        content: 'Fund';
-        opacity: 1;
-    }
-`;
-
 function AwardBadge({
     award,
     fundAward,
@@ -146,9 +115,7 @@ function AwardBadge({
                     !showPaymentPopover && fundAward(award, {[Resource.MEGACREDIT]: cost});
                 }}
             >
-                <HoverMask>
-                    <span>{getTextForAward(award)}</span>
-                </HoverMask>
+                <span>{getTextForAward(award)}</span>
             </AwardBadgeContainer>
         </PaymentPopover>
     );
@@ -271,7 +238,7 @@ function getRequirementTextForAward(award: Award) {
 }
 
 function getCostForAward(award: Award, state: GameState) {
-    const fundedIndex = state.common.fundedAwards.findIndex(claim => claim.award === award);
+    const fundedIndex = state.common.fundedAwards.findIndex(config => config.award === award);
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];
     } else {

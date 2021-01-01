@@ -65,37 +65,6 @@ const MilestoneBadgeContainer = styled.div`
     color: white;
 `;
 
-const HoverMask = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    > * {
-        transition: opacity 350ms;
-        opacity: 1;
-    }
-
-    &:hover > * {
-        opacity: 0;
-    }
-
-    &:after {
-        content: '';
-        opacity: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 350ms;
-    }
-
-    &:hover:after {
-        content: 'Claim';
-        opacity: 1;
-    }
-`;
-
 function MilestoneBadge({
     milestone,
     claimMilestone,
@@ -120,9 +89,7 @@ function MilestoneBadge({
                     !showPaymentPopover && claimMilestone(milestone);
                 }}
             >
-                <HoverMask>
-                    <span>{getTextForMilestone(milestone)}</span>
-                </HoverMask>
+                <span>{getTextForMilestone(milestone)}</span>
             </MilestoneBadgeContainer>
         </PaymentPopover>
     );

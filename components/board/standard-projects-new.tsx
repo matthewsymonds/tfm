@@ -77,37 +77,6 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-const HoverMask = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* > * {
-        transition: opacity 350ms;
-        opacity: 1;
-    } */
-
-    /* &:hover > * {
-        opacity: 0;
-    }
-
-    &:after {
-        content: '';
-        opacity: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 350ms;
-    }
-
-    &:hover:after {
-        content: '☑️';
-        opacity: 1;
-    } */
-`;
-
 function StandardProject({
     action,
     playStandardProjectAction,
@@ -143,9 +112,7 @@ function StandardProject({
                 justifyContent="center"
                 alignItems="center"
             >
-                <HoverMask>
-                    <StandardProjectActionIcon actionType={action.type} />
-                </HoverMask>
+                <StandardProjectActionIcon actionType={action.type} />
             </Flex>
         </PaymentPopover>
     );
