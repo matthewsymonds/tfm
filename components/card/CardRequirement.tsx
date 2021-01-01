@@ -20,12 +20,13 @@ const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     display: flex;
     align-items: center;
     position: absolute;
-    top: 2px;
+    top: 0px;
     left: 38px;
     padding: 3px;
     font-size: 0.75rem;
     font-weight: 600;
     color: black;
+    height: 20px;
 `;
 
 function getCardRequirementText(card: CardModel) {
@@ -57,7 +58,7 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
         return <GlobalParameterIcon parameter={card.requiredGlobalParameter.type} size={16} />;
     } else if (card.requiredProduction !== undefined) {
         // currently all cards with required production only require a single production
-        return <ProductionIcon name={card.requiredProduction} size={16} />;
+        return <ProductionIcon name={card.requiredProduction} size={16} paddingSize={0} />;
     } else if (card.requiredTilePlacements.length > 0) {
         // for required tile placements, we only show icons
         return (
@@ -79,7 +80,7 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 tagElements.push(
                     <Flex alignItems="center" justifyContent="center">
                         <span>{tagCount}</span>
-                        <TagIcon name={tag as Tag} size={16} />
+                        <TagIcon name={tag as Tag} size={12} />
                     </Flex>
                 );
             } else {

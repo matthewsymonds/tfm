@@ -9,20 +9,22 @@ import spawnExhaustiveSwitchError from 'utils';
 // TODO: Replace these with proper icons
 export const AllCapsIcon = styled.div<{size: number; bgColor: string; margin?: number | string}>`
     height: ${props => props.size}px;
+    line-height: ${props => props.size}px;
     background-color: ${props => props.bgColor};
     margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
-    font-size: 0.75rem;
+    font-size: ${props => Math.ceil((2 / 3) * props.size)}px;
     text-transform: uppercase;
-    font-kerning: 0.1rem;
-    padding: 0 4px;
+    ))font-kerning: 0.1rem;
+    padding: 4px;
     display: flex;
     align-items: center;
+    justify-content: center;
 `;
 
 export const GlobalParameterIcon = ({
     parameter,
     size = 16,
-    margin = 0,
+    margin = 2,
 }: {
     parameter: Parameter;
     size?: number;
@@ -41,7 +43,7 @@ export const GlobalParameterIcon = ({
             );
         case Parameter.TEMPERATURE:
             return (
-                <AllCapsIcon size={size} bgColor="#eb9db4" margin={margin}>
+                <AllCapsIcon size={size} bgColor="#d92407" margin={margin}>
                     🌡
                 </AllCapsIcon>
             );

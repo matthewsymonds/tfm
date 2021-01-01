@@ -92,7 +92,7 @@ export function CardHand({
         } else {
             scaleYOffset = 0;
         }
-        const yOffset = scaleYOffset * 0.4 * 100; // magic numbers
+        const yOffset = scaleYOffset * 0.3 * 100; // magic numbers
         return `translate(${xOffset}px, ${isHighlighted ? '-100' : yOffset}px)`;
     }
 
@@ -111,7 +111,7 @@ export function CardHand({
         } else {
             scaleRotation = 0;
         }
-        return `rotate(${scaleRotation * -10}deg)`;
+        return `rotate(${scaleRotation * -5}deg)`;
     }
 
     function onMouseEnter(cardIndex: number) {

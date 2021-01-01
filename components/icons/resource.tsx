@@ -6,7 +6,6 @@ import {
     getResourceSymbol,
     Resource,
 } from 'constants/resource';
-import React from 'react';
 import styled from 'styled-components';
 
 interface ResourceIconBaseProps {
@@ -16,6 +15,7 @@ interface ResourceIconBaseProps {
     readonly showRedBorder: boolean;
     readonly margin: number | string;
     readonly tall?: boolean;
+    readonly border?: string;
 }
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
@@ -32,6 +32,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     align-items: center;
     justify-content: center;
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
+    border: ${props => props.border || 'none'};
 `;
 
 const MegacreditIcon = styled.div<{
@@ -57,6 +58,7 @@ interface ResourceIconProps {
     showRedBorder?: boolean;
     amount?: string | number;
     margin?: number | string;
+    border?: string;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
@@ -65,6 +67,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     showRedBorder = false,
     amount,
     margin = 0,
+    border = 'none',
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
@@ -82,6 +85,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
             tall={name === Resource.CARD}
             showRedBorder={showRedBorder}
             margin={margin}
+            border={border}
         >
             <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
         </ResourceIconBase>

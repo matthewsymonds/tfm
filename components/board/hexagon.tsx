@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
     color: black;
-    font-size: 30px;
+    font-size: ${props => Math.floor((props.hexRadius * 5) / 3)}px;
     width: ${props => props.hexRadius * Math.cos((30 * Math.PI) / 180) * 2}px;
     height: ${props => props.hexRadius * 2}px;
     transform: ${props => (props.scale ? `scale(${props.scale})` : '')};

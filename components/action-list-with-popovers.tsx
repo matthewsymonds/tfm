@@ -6,6 +6,10 @@ const OuterWrapper = styled.div`
     display: flex;
     align-items: center;
     position: relative;
+    margin: 8px;
+    padding: 4px;
+    background: ${colors.ACCORDION_BG};
+    border-radius: 4px;
 `;
 
 export default function ActionListWithPopovers<T>({
@@ -91,6 +95,7 @@ const StylizedActionWrapper = styled.div<{isSelected: boolean}>`
     justify-content: center;
     cursor: default;
     user-select: none;
+    cursor: pointer;
 
     &:before {
         content: '';

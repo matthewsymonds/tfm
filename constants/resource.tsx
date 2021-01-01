@@ -80,6 +80,15 @@ export const getClassName = (resource: Resource) => {
     }
 };
 
+export const getResourceBorder = (resource: Resource) => {
+    switch (resource) {
+        case Resource.STEEL:
+            return '1px solid black';
+        default:
+            return 'none';
+    }
+};
+
 export const getResourceSymbol = (resource: Resource) => {
     switch (resource) {
         case Resource.ANIMAL:

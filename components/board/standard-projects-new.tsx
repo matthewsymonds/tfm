@@ -7,7 +7,7 @@ import {GenericCardCost} from 'components/card/CardCost';
 import {
     GainResourceIconography,
     IncreaseParameterIconography,
-    IncreaseProductionIconography,
+    ProductionIconography,
     RemoveResourceIconography,
 } from 'components/card/CardIconography';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
@@ -40,45 +40,13 @@ const OuterWrapper = styled.div`
     position: relative;
 `;
 
-const ACTION_MARGIN = 6;
+const ACTION_MARGIN = 0;
 
 export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
     const state = useTypedSelector(state => state);
     const actionGuard = new ActionGuard(state, loggedInPlayer.username);
-    // const [isFadingTooltip, setIsFadingTooltip] = useState(false);
-    // const [selectedAction, _setSelectedAction] = useState<null | StandardProjectAction>(null);
-
-    // const setSelectedAction = (action: null | StandardProjectAction) => {
-    //     if (action === null && selectedAction) {
-    //         setIsFadingTooltip(true);
-    //         setTimeout(() => {
-    //             _setSelectedAction(null);
-    //             setIsFadingTooltip(false);
-    //         }, 250);
-    //     } else {
-    //         _setSelectedAction(action);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     function clickToCloseListener(this: Window, e: MouseEvent) {
-    //         if (!(e.target as HTMLElement)?.closest('#standard-projects')) {
-    //             setSelectedAction(null);
-    //         }
-    //     }
-
-    //     if (selectedAction) {
-    //         window.addEventListener('click', clickToCloseListener);
-    //     } else {
-    //         window.removeEventListener('click', clickToCloseListener);
-    //     }
-
-    //     return () => {
-    //         window.removeEventListener('click', clickToCloseListener);
-    //     };
-    // }, [selectedAction]);
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
@@ -145,7 +113,7 @@ function StandardProject({
 
 const TooltipWrapper = styled.div`
     position: absolute;
-    bottom: 40px;
+    bottom: 48px;
     left: ${ACTION_MARGIN}px;
     right: ${ACTION_MARGIN}px;
     z-index: 1;
@@ -171,36 +139,44 @@ function StandardProjectTooltip({
     const cost = getCostForStandardProject(action, loggedInPlayer);
     const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
 
+    const showPaymentPopover =
+        loggedInPlayer.corporation.name === 'Helion' &&
+        loggedInPlayer.resources[Resource.HEAT] > 0 &&
+        action.cost;
+
     return (
         <TooltipWrapper>
-            <TexturedCard>
-                <GenericCardTitleBar bgColor="orange">
+            <TexturedCard height={188} borderRadius={4} borderWidth={0}>
+                <GenericCardTitleBar bgColor={'#d67500'}>
                     {getTextForStandardProject(action.type)}
                 </GenericCardTitleBar>
                 <GenericCardCost cost={cost} originalCost={action.cost} />
-                <Flex padding="8px" flexDirection="column">
-                    <Flex alignItems="center" marginBottom="8px" fontSize="13px">
-                        <StandardProjectActionDescription action={action} />
-                    </Flex>
-                    <Flex alignItems="center" justifyContent="center" marginBottom="8px">
-                        <StandardProjectActionIconography action={action} />
-                    </Flex>
+                <Flex alignItems="center" margin="4px" marginBottom="8px" fontSize="13px">
+                    <StandardProjectActionDescription action={action} />
+                </Flex>
+                <Flex alignItems="center" justifyContent="center" marginBottom="8px">
+                    <StandardProjectActionIconography action={action} />
+                </Flex>
+                <Flex flex="auto"></Flex>
+                <Flex
+                    margin="8px"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    position="relative"
+                >
                     {!canPlay && <ErrorText>Cannot play: {reason}</ErrorText>}
-                    <Flex justifyContent="center">
-                        {loggedInPlayer.corporation.name === 'Helion' &&
-                            loggedInPlayer.resources[Resource.HEAT] > 0 &&
-                            action.cost && (
-                                <PaymentPopover
-                                    cost={cost}
-                                    onConfirmPayment={payment =>
-                                        playStandardProjectAction(action, payment)
-                                    }
-                                >
-                                    <button disabled={!canPlay} style={{width: 80}}>
-                                        Play
-                                    </button>
-                                </PaymentPopover>
-                            )}
+                    {showPaymentPopover && (
+                        <PaymentPopover
+                            cost={cost}
+                            onConfirmPayment={payment => playStandardProjectAction(action, payment)}
+                        >
+                            <button disabled={!canPlay} style={{width: 80}}>
+                                Play
+                            </button>
+                        </PaymentPopover>
+                    )}
+                    {!showPaymentPopover && (
                         <button
                             disabled={!canPlay}
                             style={{width: 80}}
@@ -211,7 +187,7 @@ function StandardProjectTooltip({
                         >
                             Play
                         </button>
-                    </Flex>
+                    )}
                 </Flex>
             </TexturedCard>
         </TooltipWrapper>
@@ -291,13 +267,13 @@ function StandardProjectActionDescription({action}: {action: StandardProjectActi
         case StandardProjectType.SELL_PATENTS:
             return (
                 <React.Fragment>
-                    Sell any number of cards from your hand to gain that many MC.
+                    Discard any number of cards from your hand to gain that many MC.
                 </React.Fragment>
             );
         case StandardProjectType.POWER_PLANT:
-            return <React.Fragment>Increase your energy production one step.</React.Fragment>;
+            return <React.Fragment>Increase your energy production 1 step.</React.Fragment>;
         case StandardProjectType.ASTEROID:
-            return <React.Fragment>Raise the temperature by one step.</React.Fragment>;
+            return <React.Fragment>Raise temperature 1 step.</React.Fragment>;
         case StandardProjectType.AQUIFER:
             return <React.Fragment>Place an ocean tile.</React.Fragment>;
         case StandardProjectType.GREENERY:
@@ -305,13 +281,13 @@ function StandardProjectActionDescription({action}: {action: StandardProjectActi
         case StandardProjectType.CITY:
             return (
                 <React.Fragment>
-                    Place a city tile and increase your MC production by 1 step.
+                    Place a city tile and increase your MC production 1 step.
                 </React.Fragment>
             );
         case StandardProjectType.COLONY:
             return <React.Fragment>Build a colony.</React.Fragment>;
         case StandardProjectType.VENUS:
-            return <React.Fragment>Raise Venus one step.</React.Fragment>;
+            return <React.Fragment>Raise Venus 1 step.</React.Fragment>;
         default:
             throw spawnExhaustiveSwitchError(action);
     }
@@ -331,26 +307,29 @@ function StandardProjectActionIconography({action}: {action: StandardProjectActi
                 </React.Fragment>
             );
         case StandardProjectType.POWER_PLANT:
-            return <IncreaseProductionIconography increaseProduction={{[Resource.ENERGY]: 1}} />;
+            return <ProductionIconography card={{increaseProduction: {[Resource.ENERGY]: 1}}} />;
         case StandardProjectType.ASTEROID:
             return (
-                <IncreaseParameterIconography increaseParameter={{[Parameter.TEMPERATURE]: 1}} />
+                <IncreaseParameterIconography
+                    size={32}
+                    increaseParameter={{[Parameter.TEMPERATURE]: 1}}
+                />
             );
         case StandardProjectType.AQUIFER:
-            return <TileIcon type={TileType.OCEAN} size={22} />;
+            return <TileIcon type={TileType.OCEAN} size={40} />;
         case StandardProjectType.GREENERY:
             return (
                 <React.Fragment>
-                    <TileIcon type={TileType.GREENERY} size={22} />
+                    <TileIcon type={TileType.GREENERY} size={40} />
                     <IncreaseParameterIconography increaseParameter={{[Parameter.OXYGEN]: 1}} />
                 </React.Fragment>
             );
         case StandardProjectType.CITY:
             return (
                 <React.Fragment>
-                    <TileIcon type={TileType.CITY} size={22} />
-                    <IncreaseProductionIconography
-                        increaseProduction={{[Resource.MEGACREDIT]: 1}}
+                    <TileIcon type={TileType.CITY} size={40} />
+                    <ProductionIconography
+                        card={{increaseProduction: {[Resource.MEGACREDIT]: 1}}}
                     />
                 </React.Fragment>
             );

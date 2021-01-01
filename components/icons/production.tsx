@@ -1,5 +1,5 @@
 import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource';
+import {getResourceBorder, Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -30,7 +30,11 @@ export const ProductionIcon = ({
 }) => {
     return (
         <ProductionIconBase size={size} paddingSize={paddingSize} margin={margin}>
-            <ResourceIcon name={name} size={size - paddingSize * 2} />
+            <ResourceIcon
+                border={getResourceBorder(name)}
+                name={name}
+                size={size - paddingSize * 2}
+            />
         </ProductionIconBase>
     );
 };

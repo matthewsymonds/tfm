@@ -12,7 +12,7 @@ import {CardTags} from 'components/card/CardTags';
 import {CardText} from 'components/card/CardText';
 import {CardTitleBar} from 'components/card/CardTitle';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
-import {colors} from 'components/ui';
+import TexturedCard from 'components/textured-card';
 import {AppContext} from 'context/app-context';
 import {Card as CardModel} from 'models/card';
 import React, {useContext} from 'react';
@@ -32,56 +32,13 @@ export const DisabledTooltip = styled.div`
     font-size: 11px;
 `;
 
-const CardBase = styled.div<{isSelected: boolean | undefined}>`
-    width: ${CARD_WIDTH}px;
-    height: ${CARD_HEIGHT}px;
-    border-radius: 3px;
-    border-width: 4px;
-    border-style: solid;
-    border-top-color: ${colors.CARD_BORDER_1};
-    border-left-color: ${colors.CARD_BORDER_1};
-    border-bottom-color: ${colors.CARD_BORDER_2};
-    border-right-color: ${colors.CARD_BORDER_2};
-    box-shadow: ${props => (props.isSelected === true ? '0px 0px 6px 2px hsl(0 0% 54%);' : 'none')};
-    opacity: ${props => (props.isSelected === false ? '0.5' : '1')};
-    font-family: 'Open Sans', 'Roboto', sans-serif;
-    font-size: 12px;
-
-    /* background-color: ${colors.CARD_BG} */
-    position: relative;
-    box-sizing: border-box;
-
-    &:before {
-        content: '';
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        background-color: hsl(15, 70%, 50%);
-    }
-`;
-
-const CardTexture = styled.div`
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    &:before {
-        content: '';
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        filter: sepia(0.1) hue-rotate(-9deg) drop-shadow(2px 4px 6px black);
-        opacity: 0.8;
-        background-image: url(${require('assets/hexellence.png')});
-    }
-`;
-
 export type CardProps = {
     card: CardModel;
     cardContext?: CardContext;
     cardOwner?: PlayerState;
     button?: React.ReactNode;
     isSelected?: boolean;
+    borderWidth?: number;
 };
 
 export enum CardContext {
@@ -103,6 +60,7 @@ export const Card: React.FC<CardProps> = ({
     cardContext = CardContext.NONE,
     cardOwner,
     isSelected,
+    borderWidth,
 }) => {
     const context = useContext(AppContext);
     const state = useTypedSelector(state => state);
@@ -115,34 +73,37 @@ export const Card: React.FC<CardProps> = ({
     const apiClient = new ApiClient(dispatch);
 
     return (
-        <CardBase isSelected={isSelected}>
-            <CardTexture>
-                <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
-                <CardRequirement card={card} />
-                <CardTags card={card} />
-                <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
-                {card.text && <MainCardText>{card.text}</MainCardText>}
-                <CardEffects card={card} />
-                <CardActions
-                    card={card}
-                    cardOwner={cardOwner}
-                    cardContext={cardContext}
-                    apiClient={apiClient}
-                    actionGuard={actionGuard}
-                />
-                <CardIconography card={card} />
-                <CardVictoryPoints card={card} />
-                <Flex flex="auto" /> {/* push the button to the bottom */}
-                <CardContextButton
-                    card={card}
-                    cardContext={cardContext}
-                    actionGuard={actionGuard}
-                    apiClient={apiClient}
-                    loggedInPlayer={loggedInPlayer}
-                />
-                <CardStoredResources card={card} />
-            </CardTexture>
-        </CardBase>
+        <TexturedCard
+            isSelected={isSelected}
+            width={CARD_WIDTH}
+            height={CARD_HEIGHT}
+            borderWidth={borderWidth}
+        >
+            <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
+            <CardRequirement card={card} />
+            <CardTags card={card} />
+            <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
+            {card.text && <MainCardText>{card.text}</MainCardText>}
+            <CardEffects card={card} />
+            <CardActions
+                card={card}
+                cardOwner={cardOwner}
+                cardContext={cardContext}
+                apiClient={apiClient}
+                actionGuard={actionGuard}
+            />
+            <CardIconography card={card} />
+            <CardVictoryPoints card={card} />
+            <Flex flex="auto" /> {/* push the button to the bottom */}
+            <CardContextButton
+                card={card}
+                cardContext={cardContext}
+                actionGuard={actionGuard}
+                apiClient={apiClient}
+                loggedInPlayer={loggedInPlayer}
+            />
+            <CardStoredResources card={card} />
+        </TexturedCard>
     );
 };
 ``;

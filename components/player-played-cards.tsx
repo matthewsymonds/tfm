@@ -21,6 +21,7 @@ export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
                             key={card.name}
                             cardOwner={player}
                             cardContext={CardContext.PLAYED_CARD}
+                            borderWidth={1}
                         />
                     </div>
                 );

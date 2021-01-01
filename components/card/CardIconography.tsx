@@ -5,10 +5,10 @@ import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
-import {Amount} from 'constants/action';
+import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceLocationType} from 'constants/resource';
+import {getResourceBorder, Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
@@ -19,6 +19,9 @@ export const InlineText = styled.span`
     margin: 3px 0;
     height: 16px;
     line-height: 16px;
+    display: inline-block;
+    min-width: 6px;
+    text-align: center;
 `;
 export const TextWithMargin = styled(InlineText)<{margin?: string; fontSize?: string}>`
     font-size: ${props => props.fontSize ?? '11px'};
@@ -98,9 +101,10 @@ export function ChangeResourceIconography({
         // HACK: this naively assumes all variable amounts are coded as "1 per X", where X may be
         // "3 bacteria", "2 building tags", etc. If we ever want to support "Y per X", we'll need
         // to modify this to determine what value to show as Y (instead of always showing 1)
+        const name = resource as Resource;
         const resourceIconElement = (
             <ResourceIcon
-                name={resource as Resource}
+                name={name}
                 size={16}
                 showRedBorder={opts.useRedBorder}
                 amount={
@@ -111,6 +115,7 @@ export function ChangeResourceIconography({
                         : undefined
                 }
                 margin={0}
+                border={opts.isProduction ? getResourceBorder(name) : 'none'}
             />
         );
         if (typeof amount === 'number') {
@@ -139,11 +144,7 @@ export function ChangeResourceIconography({
                               ))}
                 </Flex>
             );
-            if (opts.isProduction) {
-                elements.push(<ProductionWrapper>{el}</ProductionWrapper>);
-            } else {
-                elements.push(<React.Fragment>{el}</React.Fragment>);
-            }
+            elements.push(<React.Fragment>{el}</React.Fragment>);
         } else {
             let multiplierElement: React.ReactElement | null = null;
             let customElement: React.ReactElement | null = null;
@@ -188,7 +189,11 @@ export function ChangeResourceIconography({
                 case VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS:
                     customElement = (
                         <React.Fragment>
-                            <ResourceIcon name={Resource.STEEL} size={16} />
+                            <ResourceIcon
+                                border={getResourceBorder(Resource.STEEL)}
+                                name={Resource.STEEL}
+                                size={16}
+                            />
                             <TextWithMargin>OR</TextWithMargin>
                             <ResourceIcon name={Resource.TITANIUM} size={16} />
                         </React.Fragment>
@@ -543,8 +548,10 @@ export function DecreaseProductionIconography({
 
 export function IncreaseParameterIconography({
     increaseParameter,
+    size = 16,
 }: {
     increaseParameter: PropertyCounter<Parameter>;
+    size?: number;
 }) {
     if (Object.values(increaseParameter).length === 0) {
         return null;
@@ -560,7 +567,7 @@ export function IncreaseParameterIconography({
                 .fill(null)
                 .map((_, index) => (
                     <Flex key={index} marginLeft={index > 0 ? '4px' : '0'}>
-                        <GlobalParameterIcon parameter={parameter as Parameter} size={16} />
+                        <GlobalParameterIcon parameter={parameter as Parameter} size={size} />
                     </Flex>
                 ))
         );
@@ -587,7 +594,7 @@ function DuplicateProductionIconography({
     );
 }
 
-function ProductionIconography({card}: {card: CardModel}) {
+export function ProductionIconography({card}: {card: Action}) {
     if (
         Object.keys({
             ...card.decreaseProduction,
@@ -633,6 +640,7 @@ function ProductionIconography({card}: {card: CardModel}) {
                     changeResource={card.decreaseProduction ?? {}}
                     opts={{
                         isInline: true,
+                        isProduction: true,
                     }}
                 />
                 {hasDecreaseProduction && hasDecreaseAnyProduction && <div style={{width: 6}} />}
@@ -641,13 +649,14 @@ function ProductionIconography({card}: {card: CardModel}) {
                     opts={{
                         isInline: true,
                         useRedBorder: true,
+                        isProduction: true,
                     }}
                 />
             </React.Fragment>
         );
     }
     if (hasIncreaseProduction) {
-        for (const [resource, amount] of Object.entries(card.increaseProduction)) {
+        for (const [resource, amount] of Object.entries(card.increaseProduction ?? {})) {
             if (
                 amount === VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS ||
                 amount === VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS
@@ -661,6 +670,7 @@ function ProductionIconography({card}: {card: CardModel}) {
                     opts={{
                         shouldShowPlus,
                         isInline: true,
+                        isProduction: true,
                     }}
                 />
             );
@@ -670,7 +680,7 @@ function ProductionIconography({card}: {card: CardModel}) {
         rows.push(
             <ChangeResourceOptionIconography
                 changeResourceOption={card.increaseProductionOption ?? {}}
-                opts={{isInline: true}}
+                opts={{isInline: true, isProduction: true}}
             />
         );
     }

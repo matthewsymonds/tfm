@@ -10,7 +10,6 @@ import React from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 
-
 export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
