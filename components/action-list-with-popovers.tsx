@@ -27,8 +27,8 @@ export default function ActionListWithPopovers<T>({
     style?: React.CSSProperties;
 }) {
     const [selectedAction, setSelectedAction] = useState<T | null>(null);
-    const referenceElement = useRef<HTMLDivElement>();
-    const popperElement = useRef<HTMLDivElement>();
+    const referenceElement = useRef<HTMLDivElement>(null);
+    const popperElement = useRef<HTMLDivElement>(null);
     const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
         placement: 'right-start',
         modifiers: [
@@ -70,7 +70,6 @@ export default function ActionListWithPopovers<T>({
                     <ActionPopoverComponent action={selectedAction} />
                 </div>
             )}
-            ,
         </OuterWrapper>
     );
 }
