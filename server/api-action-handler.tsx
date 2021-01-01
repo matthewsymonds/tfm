@@ -375,7 +375,7 @@ export class ApiActionHandler implements GameActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void> {
         const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
@@ -384,7 +384,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         const playerIndex = this.getLoggedInPlayerIndex();
-        this.queue.push(payToPlayStandardProject(standardProjectAction, payment!, playerIndex));
+        this.queue.push(payToPlayStandardProject(standardProjectAction, payment, playerIndex));
 
         const {state} = this;
         this.triggerEffectsFromStandardProject(

@@ -32,7 +32,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     align-items: center;
     justify-content: center;
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
-    border: ${props => props.border || 'none'};
+    border: ${props => props.border ?? 'none'};
 `;
 
 const MegacreditIcon = styled.div<{

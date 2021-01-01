@@ -1,5 +1,6 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import AwardsNew from 'components/board/awards-new';
 import MilestonesNew from 'components/board/milestones-new';
 import StandardProjectsNew from 'components/board/standard-projects-new';
 import {Box} from 'components/box';
@@ -112,6 +113,7 @@ export const Board = () => {
             />
             <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
             <MilestonesNew loggedInPlayer={loggedInPlayer} />
+            <AwardsNew loggedInPlayer={loggedInPlayer} />
         </BoardOuter>
     );
 };
