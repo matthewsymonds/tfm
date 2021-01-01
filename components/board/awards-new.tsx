@@ -276,6 +276,6 @@ function getCostForAward(award: Award, state: GameState) {
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];
     } else {
-        return [8, 14, 20][state.common.fundedAwards.length];
+        return [8, 14, 20, 20][state.common.fundedAwards.length];
     }
 }

@@ -1,3 +1,4 @@
+import {Flex} from 'components/box';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tooltip} from 'react-tippy';
 import {GameState, useTypedSelector} from 'reducer';
@@ -11,7 +12,7 @@ export function PlayersOrder() {
     const playerIndexes = useTypedSelector(state => state.common.playerIndexOrderForGeneration);
     return (
         <PlayersOrderBase>
-            {playerIndexes.map(playerIndex => {
+            {playerIndexes.map((playerIndex, orderIndex) => {
                 const tooltipText = useTypedSelector(state => getTooltipText(playerIndex, state));
                 const color = PLAYER_COLORS[playerIndex];
                 return (
@@ -25,9 +26,12 @@ export function PlayersOrder() {
                             </ColoredTooltip>
                         }
                     >
-                        <PlayerIconSpacing>
+                        <Flex marginLeft={orderIndex > 0 ? '8px' : '0'} alignItems="center">
+                            <span className="display" style={{marginRight: 4}}>
+                                {orderIndex + 1}
+                            </span>
                             <PlayerIcon playerIndex={playerIndex} size={12} />
-                        </PlayerIconSpacing>
+                        </Flex>
                     </Tooltip>
                 );
             })}
@@ -37,13 +41,10 @@ export function PlayersOrder() {
 
 const PlayersOrderBase = styled.div`
     display: flex;
-    margin: 8px;
+    margin: 0 8px;
+    padding: 6px;
     background: ${colors.MAIN_BG};
     border-radius: 3px;
-`;
-
-const PlayerIconSpacing = styled.div`
-    margin: 8px;
 `;
 
 function getTooltipText(playerIndex: number, state: GameState): string {
