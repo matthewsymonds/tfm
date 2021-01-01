@@ -3,6 +3,7 @@ import {CardType} from 'constants/card-types';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
 import styled from 'styled-components';
 
@@ -39,7 +40,7 @@ export function ScorePopover({children, playerIndex}: Props) {
     const state = useTypedSelector(state => state);
     const player = state.players[playerIndex];
     const terraformRating = player.terraformRating;
-    const visibleCardScore = player.playedCards
+    const visibleCardScore = getPlayedCards(player)
         .filter(card => card.type !== CardType.EVENT)
         .reduce((total, card) => {
             return total + getCardVictoryPoints(card.victoryPoints, state, player, card);

@@ -10,12 +10,6 @@ import {
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
-    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
-    ASK_USER_TO_DISCARD_CARDS,
-    ASK_USER_TO_DUPLICATE_PRODUCTION,
-    ASK_USER_TO_LOOK_AT_CARDS,
-    ASK_USER_TO_MAKE_ACTION_CHOICE,
-    ASK_USER_TO_PLACE_TILE,
     claimMilestone as claimMilestoneAction,
     completeAction,
     decreaseProduction,
@@ -28,11 +22,10 @@ import {
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
-    INCREASE_PARAMETER,
-    INCREASE_TERRAFORM_RATING,
     makeActionChoice,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
+    PAUSE_ACTIONS,
     payForCards,
     payToPlayCard,
     payToPlayCardAction,
@@ -42,7 +35,6 @@ import {
     removeResource,
     removeStorableResource,
     revealAndDiscardTopCards,
-    REVEAL_AND_DISCARD_TOP_CARDS,
     setCards,
     setCorporation,
     setPlantDiscount,
@@ -76,11 +68,15 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
+import {AnyAction} from 'redux';
+import {getCard} from 'selectors/get-card';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
+import {SerializedCard} from 'state-serialization';
 
 export interface ServerGameModel {
     state: GameState;
-    queue: Array<{type: string; payload}>;
+    queue: Array<AnyAction>;
     players: Array<string>;
     name: string;
 }
@@ -92,16 +88,6 @@ export interface EffectEvent {
     cell?: Cell;
     tags?: Tag[];
 }
-
-const PAUSE_ACTIONS = [
-    ASK_USER_TO_PLACE_TILE,
-    ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
-    ASK_USER_TO_LOOK_AT_CARDS,
-    REVEAL_AND_DISCARD_TOP_CARDS,
-    ASK_USER_TO_DISCARD_CARDS,
-    ASK_USER_TO_MAKE_ACTION_CHOICE,
-    ASK_USER_TO_DUPLICATE_PRODUCTION,
-];
 
 type PlayActionParams = {
     action: Action;
@@ -165,12 +151,13 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     async playCardAsync({
-        card,
+        serializedCard,
         payment,
     }: {
-        card: Card;
+        serializedCard: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
+        const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
         const [canPlay, reason] = this.actionGuard.canPlayCard(card, payment);
 
@@ -282,9 +269,12 @@ export class ApiActionHandler implements GameActionHandler {
         }
     }
 
+    readonly executedItems: Array<AnyAction> = [];
+
     private processQueue() {
         while (this.queue.length > 0) {
             const item = this.queue.shift()!;
+            this.executedItems.push(item);
             this.dispatch(item);
             if (this.shouldPause(item)) {
                 break;
@@ -292,8 +282,11 @@ export class ApiActionHandler implements GameActionHandler {
         }
     }
 
-    private dispatch(action: {type: string; payload}) {
-        this.game.state = reducer(this.game.state, action);
+    private dispatch(action: AnyAction) {
+        const newState = reducer(this.game.state, action);
+        if (newState) {
+            this.game.state = newState;
+        }
     }
 
     async playCardActionAsync({
@@ -404,8 +397,8 @@ export class ApiActionHandler implements GameActionHandler {
         corporation,
         payment,
     }: {
-        selectedCards: Card[];
-        corporation: Card;
+        selectedCards: SerializedCard[];
+        corporation: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }) {
         const {state} = this;
@@ -422,9 +415,9 @@ export class ApiActionHandler implements GameActionHandler {
         const isBuyingCards = pendingCardSelection?.isBuyingCards ?? false;
         const possibleCards = pendingCardSelection ? pendingCardSelection.possibleCards : cards;
         const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
-            selectedCards,
+            selectedCards.map(getCard),
             state,
-            corporation
+            getCard(corporation)
         );
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
@@ -444,16 +437,19 @@ export class ApiActionHandler implements GameActionHandler {
         const gameStage = this.getGameStage();
         switch (gameStage) {
             case GameStage.CORPORATION_SELECTION: {
-                if (!this.actionGuard.canPlayCorporation(corporation)) {
+                if (!this.actionGuard.canPlayCorporation(getCard(corporation))) {
                     throw new Error('Cannot play corporation');
                 }
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
-                await this.playCardAsync({card: corporation});
+                await this.playCardAsync({serializedCard: corporation});
                 this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
-                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        possibleCards.filter(
+                            card =>
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                        ),
                         loggedInPlayerIndex
                     )
                 );
@@ -469,7 +465,10 @@ export class ApiActionHandler implements GameActionHandler {
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
-                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        possibleCards.filter(
+                            card =>
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                        ),
                         loggedInPlayerIndex
                     )
                 );
@@ -483,7 +482,10 @@ export class ApiActionHandler implements GameActionHandler {
                 this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
-                        possibleCards.filter(card => !selectedCards.includes(card)),
+                        possibleCards.filter(
+                            card =>
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                        ),
                         loggedInPlayerIndex
                     )
                 );
@@ -556,7 +558,7 @@ export class ApiActionHandler implements GameActionHandler {
         payment,
     }: {
         milestone: Milestone;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void> {
         const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
 
@@ -575,7 +577,7 @@ export class ApiActionHandler implements GameActionHandler {
         payment,
     }: {
         award: Award;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void> {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
@@ -718,7 +720,7 @@ export class ApiActionHandler implements GameActionHandler {
         withPriority,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
-        const items: Array<{type: string; payload}> = [];
+        const items: Array<AnyAction> = [];
         for (const tilePlacement of action?.tilePlacements ?? []) {
             items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
@@ -749,7 +751,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         if (action.revealAndDiscardTopCards) {
-            items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards));
+            items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards, playerIndex));
         }
 
         if (action.lookAtCards) {
@@ -865,12 +867,12 @@ export class ApiActionHandler implements GameActionHandler {
                     }
                     const bonus = getBonus(playerIndex);
                     const {type, payload} = bonus;
-                    if (type === INCREASE_PARAMETER) {
+                    if (increaseParameter.match(bonus)) {
                         // combine the bonus parameter increase with the rest of the parameter increases.
                         // That way an oxygen can trigger a temperature which triggers an
                         // ocean.
                         increaseParametersWithBonuses[payload.parameter] += payload.amount;
-                    } else if (type === INCREASE_TERRAFORM_RATING) {
+                    } else if (increaseTerraformRating.match(bonus)) {
                         // combine terraform increases into one action/log message.
                         (terraformRatingIncrease as number) += payload.amount as number;
                     } else {
@@ -903,7 +905,7 @@ export class ApiActionHandler implements GameActionHandler {
         withPriority,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
-        const items: Array<{type: string; payload}> = [];
+        const items: Array<AnyAction> = [];
 
         for (const production in action.decreaseProduction) {
             items.push(
@@ -1133,7 +1135,7 @@ export function getActionsFromEffectForPlayer(
     additionalCards: Card[] = []
 ) {
     const list: ActionCardPair[] = [];
-    for (const card of player.playedCards.concat(additionalCards)) {
+    for (const card of getPlayedCards(player).concat(additionalCards)) {
         for (const effect of card.effects) {
             if (effect.trigger && effect.action) {
                 const actions = getActionsFromEffect(

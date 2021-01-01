@@ -3,6 +3,7 @@ import {ActionGuard} from 'client-server-shared/action-guard';
 import React from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import {Box} from './box';
 import {CardContext} from './card/Card';
 import {CardActions} from './card/CardActions';
@@ -15,7 +16,7 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
 
     return (
         <React.Fragment>
-            {player.playedCards
+            {getPlayedCards(player)
                 .filter(card => card.action)
                 .map(card => {
                     return (

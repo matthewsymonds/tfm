@@ -1,6 +1,7 @@
 import {Card as CardComponent, CardContext} from 'components/card/Card';
 import React from 'react';
 import {PlayerState} from 'reducer';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import styled from 'styled-components';
 
 const PlayerHandBase = styled.div`
@@ -13,7 +14,7 @@ const PlayerHandBase = styled.div`
 export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
     return (
         <PlayerHandBase>
-            {player.playedCards.map(card => {
+            {getPlayedCards(player).map(card => {
                 return (
                     <div style={{margin: 4}}>
                         <CardComponent

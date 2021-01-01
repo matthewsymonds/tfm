@@ -75,11 +75,6 @@ type MaximumGlobalParameter = {
 
 export type RequiredGlobalParameter = MinimumGlobalParameter | MaximumGlobalParameter;
 
-export type ReduxAction = {
-    type: string;
-    payload: any;
-};
-
 export enum Deck {
     BASIC,
     COLONIES,

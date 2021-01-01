@@ -2,6 +2,7 @@ import {useRouter} from 'next/router';
 import {useStore} from 'react-redux';
 import {PlayerState} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
 import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
@@ -66,7 +67,7 @@ export function EndOfGame() {
     const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(player => {
         const {index: playerIndex} = player;
         const terraformRating = player.terraformRating;
-        const cardScore = player.playedCards.reduce((total, card) => {
+        const cardScore = getPlayedCards(player).reduce((total, card) => {
             return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
         }, 0);
         const greeneryScore = getGreeneryScore(state, playerIndex);

@@ -4,7 +4,7 @@ import {gamesModel, retrieveSession} from 'database';
 import {Card} from 'models/card';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
-import {censorGameState, deserializeState, serializeState} from 'state-serialization';
+import {censorGameState} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
 
 export default async (req, res) => {
@@ -33,7 +33,7 @@ export default async (req, res) => {
         const {type, payload}: {type: ApiActionType; payload} = req.body;
         const hydratedGame = {
             queue: game.queue,
-            state: deserializeState(game.state),
+            state: game.state,
             players: game.players,
             name: game.name,
         };
@@ -44,7 +44,8 @@ export default async (req, res) => {
         switch (type) {
             case ApiActionType.API_PLAY_CARD:
                 card = stateHydrator.getCard(payload.name);
-                await actionHandler.playCardAsync({card, payment: payload.payment});
+                await actionHandler.playCardAsync({serializedCard: card, payment: payload.payment});
+
                 break;
             case ApiActionType.API_PLAY_CARD_ACTION:
                 card = stateHydrator.getCard(payload.name);
@@ -89,19 +90,12 @@ export default async (req, res) => {
                 await actionHandler.skipChooseResourceActionDetailsAsync();
                 break;
             case ApiActionType.API_CONFIRM_CARD_SELECTION:
-                const {cards, payment} = payload;
+                const {cards, payment, corporation} = payload;
                 if (cards.length > 10) {
                     throw new Error('trying to select too many cards');
                 }
-                // de-duplicate the cards by name (after confirming there are a reasonable #).
-                const selectedCards = [...new Set<string>(cards.map(card => card.name))].map(
-                    name => {
-                        return stateHydrator.getCard(name);
-                    }
-                );
-                const corporation = stateHydrator.getCard(payload.corporation.name);
                 await actionHandler.confirmCardSelectionAsync({
-                    selectedCards,
+                    selectedCards: cards,
                     corporation,
                     payment,
                 });
@@ -120,7 +114,7 @@ export default async (req, res) => {
         }
         await actionHandler.handleForcedActionsIfNeededAsync(originalState);
         game.queue = hydratedGame.queue;
-        game.state = serializeState(hydratedGame.state);
+        game.state = hydratedGame.state;
         await game.save();
         res.json({
             state: censorGameState(game.state, username),

@@ -8,7 +8,6 @@ import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import {useContext, useEffect} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector} from 'reducer';
-import {deserializeState} from 'state-serialization';
 
 export default function Game(props) {
     const {game, session} = props;
@@ -23,7 +22,7 @@ export default function Game(props) {
             router.push('/new-game');
             return;
         }
-        dispatch(setGame(deserializeState(game.state)));
+        dispatch(setGame(game.state));
     };
     useEffect(() => {
         handleRetrievedGame(game);
@@ -99,7 +98,7 @@ Game.getInitialProps = async ctx => {
         });
 
         const game = await response.json();
-        ctx.store.dispatch(setGame(deserializeState(game.state)));
+        ctx.store.dispatch(setGame(game.state));
         return {game};
     } catch (error) {
         if (isServer) {

@@ -1,6 +1,7 @@
 import {Card as CardComponent, CardContext} from 'components/card/Card';
-import {Card} from 'models/card';
 import {ReactNode} from 'react';
+import {getCard} from 'selectors/get-card';
+import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 
@@ -10,8 +11,14 @@ export const ChoiceWrapper = styled.div`
     width: 100%;
 `;
 
-export function AskUserToMakeChoice(props: {card?: Card; playedCard?: Card; children: ReactNode}) {
-    const {card, playedCard, children} = props;
+export function AskUserToMakeChoice(props: {
+    card?: SerializedCard;
+    playedCard?: SerializedCard;
+    children: ReactNode;
+}) {
+    const {children} = props;
+    const card = props.card ? getCard(props.card) : undefined;
+    const playedCard = props.playedCard ? getCard(props.playedCard) : undefined;
     let cardDetails;
     if (playedCard && card) {
         cardDetails = (

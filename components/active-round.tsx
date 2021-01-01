@@ -12,6 +12,7 @@ import {GameStage} from 'constants/game';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
+import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import styled from 'styled-components';
@@ -117,7 +118,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     </p>
                                     <Flex>
                                         {state.common.revealedCards.map((card, index) => {
-                                            return <CardComponent key={index} card={card} />;
+                                            return (
+                                                <CardComponent key={index} card={getCard(card)} />
+                                            );
                                         })}
                                     </Flex>
                                     <button

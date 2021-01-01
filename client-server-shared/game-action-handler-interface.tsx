@@ -7,10 +7,10 @@ import {Card} from 'models/card';
 
 export interface GameActionHandler {
     playCardAsync({
-        card,
+        serializedCard,
         payment,
     }: {
-        card: Card;
+        serializedCard: Card;
         payment?: PropertyCounter<Resource>;
     }): Promise<void>;
 
@@ -36,7 +36,7 @@ export interface GameActionHandler {
         payment,
     }: {
         milestone: Milestone;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void>;
 
     fundAwardAsync({
@@ -44,7 +44,7 @@ export interface GameActionHandler {
         payment,
     }: {
         award: Award;
-        payment?: PropertyCounter<Resource>;
+        payment: PropertyCounter<Resource>;
     }): Promise<void>;
 
     doConversionAsync({resource}: {resource: Resource}): Promise<void>;

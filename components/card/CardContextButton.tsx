@@ -11,6 +11,7 @@ import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {isActiveRound} from 'selectors/is-active-round';
+import {serializeCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -32,7 +33,7 @@ export function CardContextButton({
     loggedInPlayer: PlayerState;
 }) {
     function playCard(payment?: PropertyCounter<Resource>) {
-        apiClient.playCardAsync({card, payment});
+        apiClient.playCardAsync({serializedCard: serializeCard(card), payment});
     }
 
     let buttonContent: React.ReactNode | null;

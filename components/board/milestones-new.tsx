@@ -19,7 +19,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
         const [canPlay] = actionGuard.canClaimMilestone(milestone);
         if (canPlay) {
-            apiClient.claimMilestoneAsync({milestone, payment});
+            apiClient.claimMilestoneAsync({milestone, payment: payment ?? {}});
         }
     };
 
@@ -79,7 +79,7 @@ function MilestonePopover({
             <Flex flexDirection="column">
                 <button
                     onClick={() => {
-                        claimMilestone(action);
+                        claimMilestone(action, {});
                         closePopover();
                     }}
                 >

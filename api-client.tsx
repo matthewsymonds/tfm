@@ -10,20 +10,19 @@ import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
-import {Card} from 'models/card';
-import {deserializeState} from 'state-serialization';
+import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
     constructor(private readonly dispatch: Function) {}
     async playCardAsync({
-        card,
+        serializedCard,
         payment,
     }: {
-        card: Card;
+        serializedCard: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
         const payload = {
-            name: card.name,
+            name: serializedCard.name,
             payment,
         };
 
@@ -34,7 +33,7 @@ export class ApiClient implements GameActionHandler {
         this.dispatch(setIsSyncing());
         try {
             const result = await makePostCall(this.getPath(), {type, payload});
-            this.dispatch(setGame(deserializeState(result.state)));
+            this.dispatch(setGame(result.state));
         } catch (error) {
             // TODO Gracefully fail and tell user to try again.
             if (retry) {
@@ -60,7 +59,7 @@ export class ApiClient implements GameActionHandler {
         payment,
         choiceIndex,
     }: {
-        parent: Card;
+        parent: SerializedCard;
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;
     }): Promise<void> {
@@ -133,30 +132,38 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
     }
 
-    async completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
+    async completeLookAtCardsAsync({
+        selectedCards,
+    }: {
+        selectedCards: Array<SerializedCard>;
+    }): Promise<void> {}
 
     async completeChooseDiscardCardsAsync({
         selectedCards,
     }: {
-        selectedCards: Array<Card>;
+        selectedCards: Array<SerializedCard>;
     }): Promise<void> {}
 
-    async completeDuplicateProductionAsync({card}: {card: Card}): Promise<void> {}
+    async completeDuplicateProductionAsync({card}: {card: SerializedCard}): Promise<void> {}
 
     async chooseCorporationAndStartingCardsAsync({
         corporation,
         selectedCards,
     }: {
-        corporation: Card;
-        selectedCards: Array<Card>;
+        corporation: SerializedCard;
+        selectedCards: Array<SerializedCard>;
     }): Promise<void> {}
 
-    async chooseCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
+    async chooseCardsAsync({
+        selectedCards,
+    }: {
+        selectedCards: Array<SerializedCard>;
+    }): Promise<void> {}
 
     async chooseCardForDraftRoundAsync({
         selectedCards,
     }: {
-        selectedCards: Array<Card>;
+        selectedCards: Array<SerializedCard>;
     }): Promise<void> {}
 
     async confirmCardSelectionAsync({
@@ -164,8 +171,8 @@ export class ApiClient implements GameActionHandler {
         corporation,
         payment,
     }: {
-        selectedCards: Array<Card>;
-        corporation: Card;
+        selectedCards: Array<SerializedCard>;
+        corporation: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
         const payload = {

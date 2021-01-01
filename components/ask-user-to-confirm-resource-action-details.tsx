@@ -29,6 +29,8 @@ import React, {useContext, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
+import {getCard} from 'selectors/get-card';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import {deserializeCard, serializeCard, SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
@@ -52,8 +54,8 @@ type Props = {
     resourceActionDetails: {
         actionType: ResourceActionType;
         resourceAndAmounts: ResourceAndAmount[];
-        card: Card;
-        playedCard?: Card;
+        card: SerializedCard;
+        playedCard?: SerializedCard;
         locationType?: ResourceLocationType;
     };
 };
@@ -105,7 +107,9 @@ function getPlayersToConsider(
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
             return players.filter(
                 player =>
-                    !!player.playedCards.flatMap(card => card.tags).find(tag => tag === Tag.VENUS)
+                    !!getPlayedCards(player)
+                        .flatMap(card => card.tags)
+                        .find(tag => tag === Tag.VENUS)
             );
         default:
             throw spawnExhaustiveSwitchError(locationType);
@@ -153,7 +157,7 @@ export function deserializeResourceOptionAction(
     const location = (option.location.type === 'Player'
         ? state.players.find(player => player.username === option.location.name)
         : state.players
-              .flatMap(player => player.playedCards)
+              .flatMap(player => getPlayedCards(player))
               .find(card => card.name === option.location.name))!;
 
     return {
@@ -170,7 +174,8 @@ export function getPlayerOptionWrappers(
 ): PlayerOptionWrapper[] {
     const players = state.players;
     const resourceActionDetails = player.pendingResourceActionDetails!;
-    const {actionType, resourceAndAmounts, card, locationType} = resourceActionDetails;
+    const {actionType, resourceAndAmounts, locationType} = resourceActionDetails;
+    const card = getCard(resourceActionDetails.card);
     let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);
     const playerOptionWrappers: PlayerOptionWrapper[] = [];
 
@@ -326,7 +331,7 @@ function getOptionsForStorableResource(
     player: PlayerState,
     locationType: ResourceLocationType | undefined
 ): ResourceActionOption[] {
-    let {playedCards: cards} = player;
+    let cards = getPlayedCards(player);
     const {resource, amount} = resourceAndAmount;
     const isVariable = amount === VariableAmount.USER_CHOICE;
 
@@ -342,8 +347,9 @@ function getOptionsForStorableResource(
             cards = [originalCard];
             break;
         case ResourceLocationType.LAST_PLAYED_CARD: {
+            const playedCards = getPlayedCards(player);
             // don't use the filtered list, because it's explicitly the last card played
-            const lastPlayedCard = player.playedCards[player.playedCards.length - 1];
+            const lastPlayedCard = playedCards[playedCards.length - 1];
             cards = [];
             if (lastPlayedCard.storedResourceType === resourceAndAmount.resource) {
                 cards = [lastPlayedCard];
@@ -373,7 +379,8 @@ function getOptionsForStorableResource(
             break;
     }
 
-    return cards.map(card => {
+    return cards.map(serializedCard => {
+        const card = getCard(serializedCard);
         let maxAmount: number;
         if (actionType === 'gainResource') {
             maxAmount = amount as number;
@@ -486,7 +493,7 @@ function getOptionsForRegularResource(
     ];
 }
 
-export function amountAndResource(quantity: number, resource: Resource) {
+export function quantityAndResource(quantity: number, resource: Resource) {
     const isPluralizable =
         resource !== Resource.HEAT &&
         resource !== Resource.ENERGY &&
@@ -538,41 +545,49 @@ function AskUserToConfirmResourceActionDetails({
         actionType
     );
 
+    const fullCard = getCard(card);
+
     return (
-        <AskUserToMakeChoice card={card} playedCard={playedCard}>
-            {playerOptionWrappers.map(playerOptionWrapper => {
-                const shouldShowWarningMessage =
-                    !playerOptionWrapper.options.some(option => option.isVariable) &&
-                    playerOptionWrapper.player === player &&
-                    isNegativeAction &&
-                    (playerOptionWrappers.length > 1 ||
-                        (playerOptionWrappers.length === 1 &&
-                            actionType === 'removeResource' &&
-                            card.removeResourceSourceType &&
-                            card.removeResourceSourceType !== ResourceLocationType.THIS_CARD &&
-                            card.removeResourceSourceType !==
-                                ResourceLocationType.ANY_CARD_OWNED_BY_YOU));
-                return (
-                    <PlayerOption
-                        showWarning={shouldShowWarningMessage}
-                        key={playerOptionWrapper.player.username}
-                    >
-                        <h4>{playerOptionWrapper.title}</h4>
-                        {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
-                        <Flex>
-                            {playerOptionWrapper.options.map((option, index) => {
-                                return (
-                                    <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
-                                        <OptionComponent apiClient={apiClient} option={option} />
-                                    </Box>
-                                );
-                            })}
-                        </Flex>
-                    </PlayerOption>
-                );
-            })}
+        <>
+            <AskUserToMakeChoice card={card} playedCard={playedCard}>
+                {playerOptionWrappers.map(playerOptionWrapper => {
+                    const shouldShowWarningMessage =
+                        !playerOptionWrapper.options.some(option => option.isVariable) &&
+                        playerOptionWrapper.player === player &&
+                        isNegativeAction &&
+                        (playerOptionWrappers.length > 1 ||
+                            (playerOptionWrappers.length === 1 &&
+                                actionType === 'removeResource' &&
+                                fullCard.removeResourceSourceType &&
+                                fullCard.removeResourceSourceType !==
+                                    ResourceLocationType.THIS_CARD &&
+                                fullCard.removeResourceSourceType !==
+                                    ResourceLocationType.ANY_CARD_OWNED_BY_YOU));
+                    return (
+                        <PlayerOption
+                            showWarning={shouldShowWarningMessage}
+                            key={playerOptionWrapper.player.username}
+                        >
+                            <h4>{playerOptionWrapper.title}</h4>
+                            {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
+                            <Flex>
+                                {playerOptionWrapper.options.map((option, index) => {
+                                    return (
+                                        <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
+                                            <OptionComponent
+                                                apiClient={apiClient}
+                                                option={option}
+                                            />
+                                        </Box>
+                                    );
+                                })}
+                            </Flex>
+                        </PlayerOption>
+                    );
+                })}
+            </AskUserToMakeChoice>
             {shouldShowSkip && <button onClick={handleSkip}>Skip</button>}
-        </AskUserToMakeChoice>
+        </>
     );
 }
 

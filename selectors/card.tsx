@@ -10,9 +10,10 @@ import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
+import {getPlayedCards} from './get-played-cards';
 
 export function getAllPlayedCards(player: PlayerState) {
-    return player.playedCards;
+    return getPlayedCards(player);
 }
 
 export function getCardVictoryPoints(
@@ -31,11 +32,11 @@ export function getCardVictoryPoints(
 }
 
 export function getAllPlayedCardsExcludingLast(player: PlayerState) {
-    return player.playedCards.slice(0, player.playedCards.length - 1);
+    return getPlayedCards(player).slice(0, getPlayedCards(player).length - 1);
 }
 
 export function getLastPlayedCard(player: PlayerState) {
-    return player.playedCards[player.playedCards.length - 1];
+    return getPlayedCards(player)[getPlayedCards(player).length - 1];
 }
 
 export function getAllPlayedCardsWithTagThatHoldResource(
@@ -43,7 +44,7 @@ export function getAllPlayedCardsWithTagThatHoldResource(
     tag: Tag,
     resource: StorableResource
 ) {
-    return player.playedCards.filter(card => {
+    return getPlayedCards(player).filter(card => {
         return (
             card.storedResourceType &&
             card.storedResourceType === resource &&
@@ -53,7 +54,7 @@ export function getAllPlayedCardsWithTagThatHoldResource(
 }
 
 export function getAllPlayedCardsWithNonZeroStorableResource(player: PlayerState) {
-    return player.playedCards.filter(card => card.storedResourceAmount);
+    return getPlayedCards(player).filter(card => card.storedResourceAmount);
 }
 
 export function getAllPlayedCardsThatHoldResource(
@@ -62,7 +63,7 @@ export function getAllPlayedCardsThatHoldResource(
     resource: Resource
 ) {
     let cards: Card[] = [];
-    for (const card of player.playedCards) {
+    for (const card of getPlayedCards(player)) {
         if (
             currentPlayer.index !== player.index &&
             card.name === 'Protected Habitats' &&

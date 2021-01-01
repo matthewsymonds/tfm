@@ -9,6 +9,7 @@ import {Card} from 'models/card';
 import {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
+import {getPlayedCards} from 'selectors/get-played-cards';
 import styled from 'styled-components';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 
@@ -24,7 +25,7 @@ export function getOptionsForDuplicateProduction(
     player: PlayerState,
     state: GameState
 ): DuplicateProductionOption[] {
-    const candidates: Card[] = player.playedCards
+    const candidates: Card[] = getPlayedCards(player)
         .filter(card => card.type !== CardType.EVENT)
         .filter(card => card.tags.includes(tag))
         .filter(card => {

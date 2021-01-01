@@ -1,5 +1,6 @@
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
+import {getPlayedCards} from './get-played-cards';
 
 export function getForcedActionsForPlayer(state: GameState, playerIndex: number) {
     const player = state.players.find(p => p.index === playerIndex);
@@ -8,7 +9,7 @@ export function getForcedActionsForPlayer(state: GameState, playerIndex: number)
 
 export function getTagCountsByName(player: PlayerState) {
     const tagCountsByName: Array<[Tag, number]> = [];
-    for (const card of player.playedCards) {
+    for (const card of getPlayedCards(player)) {
         for (const tag of card.tags) {
             let tagCount = tagCountsByName.find(tagCount => tagCount[0] === tag);
             if (!tagCount) {

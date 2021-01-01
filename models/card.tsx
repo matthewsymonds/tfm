@@ -218,6 +218,12 @@ export const doesCardHaveDiscounts = (card: Card) => {
 
 export const cards = cardConfigs.map(config => new Card(config));
 
+export const cardMap: {[name: string]: Card} = {};
+
+for (const card of cards) {
+    cardMap[card.name] = card;
+}
+
 // Used as a filler in censored state.
 export const dummyCard = new Card({
     deck: Deck.BASIC,

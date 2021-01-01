@@ -1,15 +1,16 @@
 import {Card as CardComponent, CardContext} from 'components/card/Card';
-import {Card as CardModel} from 'models/card';
 import React from 'react';
+import {getCard} from 'selectors/get-card';
+import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 
 interface CardSelectorProps {
     min?: number;
     max: number;
-    onSelect: (cards: CardModel[]) => void;
-    options: CardModel[];
+    onSelect: (cards: SerializedCard[]) => void;
+    options: SerializedCard[];
     orientation: string;
-    selectedCards: CardModel[];
+    selectedCards: SerializedCard[];
     budget?: number;
     className?: string;
 }
@@ -48,7 +49,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     const canAfford = budget === undefined || budget >= (numSelected + 1) * 3;
     const canSelect = canAfford && (selectedCards.length < max || mustSelectOne);
 
-    const handleSelect = (card: CardModel) => {
+    const handleSelect = (card: SerializedCard) => {
         let newSelectedCards = [...selectedCards];
         const index = selectedCards.findIndex(selectedCard => selectedCard.name === card.name);
         if (index < 0) {
@@ -87,7 +88,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                         >
                             <CardComponent
                                 cardContext={CardContext.SELECT_TO_BUY}
-                                card={option}
+                                card={getCard(option)}
                                 isSelected={selected}
                             />
                         </CardWrapper>

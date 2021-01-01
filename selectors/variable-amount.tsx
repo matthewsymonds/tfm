@@ -6,18 +6,21 @@ import {VariableAmount} from 'constants/variable-amount';
 import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
+import {SerializedCard} from 'state-serialization';
 import {
     findCellWithTile,
     getAdjacentCellsForCell,
     getCellsWithCities,
     getCellsWithCitiesOnMars,
 } from './board';
+import {getCard} from './get-card';
+import {getPlayedCards} from './get-played-cards';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (
         state: GameState,
         player: PlayerState,
-        card: Card | undefined
+        card: SerializedCard | undefined
     ) => number;
 };
 
@@ -26,11 +29,11 @@ export function getTags(player: PlayerState): Tag[] {
 }
 
 function getNonEventCards(player: PlayerState): Card[] {
-    return player.playedCards.filter(card => card.type !== CardType.EVENT);
+    return getPlayedCards(player).filter(card => card.type !== CardType.EVENT);
 }
 
-export function getEventCards(player: PlayerState): Card[] {
-    return player.playedCards.filter(card => card.type === CardType.EVENT);
+export function getEventCards(player: PlayerState): SerializedCard[] {
+    return getPlayedCards(player).filter(card => card.type === CardType.EVENT);
 }
 
 export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
@@ -43,11 +46,11 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         state.pendingVariableAmount! * 3,
     [VariableAmount.ALL_EVENTS]: (state: GameState) => {
         return state.players.flatMap(player => {
-            return player.playedCards.filter(card => card.tags.includes(Tag.EVENT));
+            return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT));
         }).length;
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return player.playedCards.filter(
+        return getPlayedCards(player).filter(
             card => card.type !== CardType.EVENT && card.tags.length === 0
         ).length;
     },
@@ -185,7 +188,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.REVEALED_CARD_MICROBE]: (state: GameState) => {
         const {revealedCards} = state.common;
-        const [card] = revealedCards;
+        const card = getCard(revealedCards[0]);
         return card.tags.includes(Tag.MICROBE) ? 1 : 0;
     },
     [VariableAmount.THIRD_ALL_CITIES]: (state: GameState, player: PlayerState) => {

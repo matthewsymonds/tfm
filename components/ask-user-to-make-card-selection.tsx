@@ -8,16 +8,17 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {Card} from 'models/card';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
+import {SerializedCard} from 'state-serialization';
 import {Box, Flex} from './box';
 
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
-    const [selectedCards, setSelectedCards] = useState<Card[]>([]);
+    const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
     const dispatch = useDispatch();
     const apiClient = new ApiClient(dispatch);
     const state = useTypedSelector(state => state);
@@ -80,7 +81,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     }
 
     const shouldDisableConfirmCardSelection = !actionGuard.canConfirmCardSelection(
-        selectedCards,
+        selectedCards.map(getCard),
         state
     );
 
@@ -113,7 +114,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                 <Flex margin="8px" key={draftedCard.name}>
                                     <CardComponent
                                         cardContext={CardContext.SELECT_TO_BUY}
-                                        card={draftedCard}
+                                        card={getCard(draftedCard)}
                                     />
                                 </Flex>
                             ))}
