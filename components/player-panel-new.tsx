@@ -1,23 +1,17 @@
 import {Flex} from 'components/box';
-import {getCardTitleColorForType} from 'components/card/CardTitle';
 import {PlayerIcon} from 'components/icons/player';
 import {TagIcon} from 'components/icons/tag';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {PlayerResourceBoard} from 'components/resource';
-import TexturedCard from 'components/textured-card';
-import {colors} from 'components/ui';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
-import {getCard} from 'selectors/get-card';
 import {getTagCountsByName} from 'selectors/player';
-import {SerializedCard, SerializedPlayerState} from 'state-serialization';
+import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
-import {usePopper} from 'react-popper';
-import {Card as CardModel} from 'models/card';
-import {LiveCard as LiveCardComponent} from 'components/card/Card';
+import PlayerPlayedCards from 'components/player-played-cards';
 
 const CorporationHeader = styled.h2`
     display: flex;
@@ -121,79 +115,6 @@ function PlayerTagCounts({player}: {player: SerializedPlayerState}) {
                 );
             })}
         </Flex>
-    );
-}
-
-function PlayerPlayedCards({player}: {player: SerializedPlayerState}) {
-    const [hoveredCard, setHoveredCard] = useState<null | CardModel>(null);
-    const popperElement = useRef<HTMLDivElement>(null);
-    const referenceElement = useRef<HTMLDivElement>(null);
-    const {styles, attributes, forceUpdate} = usePopper(
-        referenceElement.current,
-        popperElement.current,
-        {
-            placement: 'right-start',
-        }
-    );
-
-    function _setHoveredCard(cardOrNull: null | CardModel) {
-        setHoveredCard(cardOrNull);
-        setTimeout(() => {
-            forceUpdate?.();
-        }, 0);
-    }
-
-    return (
-        <Flex flexWrap="wrap" onMouseLeave={() => _setHoveredCard(null)} ref={referenceElement}>
-            {player.playedCards.map((card, index) => (
-                <div key={index} onMouseEnter={() => _setHoveredCard(getCard(card))}>
-                    <CardToken key={index} card={card} />
-                </div>
-            ))}
-            <div
-                ref={popperElement}
-                style={{
-                    ...styles.popper,
-                    zIndex: 10,
-                    display: hoveredCard ? 'initial' : 'none',
-                }}
-                {...attributes.popper}
-            >
-                {hoveredCard && <LiveCardComponent card={hoveredCard} />}
-            </div>
-        </Flex>
-    );
-}
-
-const CardTokenTitleBar = styled.div<{bgColor: string}>`
-    position: relative;
-    display: flex;
-    align-items: center;
-    top: 10px;
-    padding: 0 3px;
-    height: 20px;
-    background-color: ${props => props.bgColor};
-    cursor: default;
-`;
-
-function CardToken({card: serializedCard}: {card: SerializedCard}) {
-    const card = getCard(serializedCard);
-
-    return (
-        <TexturedCard height={40} width={50} style={{margin: '0 2px 2px 0'}} borderRadius={2}>
-            <CardTokenTitleBar className="display" bgColor={getCardTitleColorForType(card.type)}>
-                <span
-                    style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        color: 'white',
-                        fontSize: '9px',
-                    }}
-                >
-                    {card.name}
-                </span>
-            </CardTokenTitleBar>
-        </TexturedCard>
     );
 }
 

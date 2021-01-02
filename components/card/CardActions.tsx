@@ -21,6 +21,7 @@ import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -174,42 +175,18 @@ export const CardActions = ({
     card,
     cardOwner,
     cardContext,
-    apiClient,
     useCardName,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
-    apiClient: ApiClient;
     useCardName?: boolean;
 }) => {
     if (!card.action) {
         return null;
     }
-    const isSyncing = useTypedSelector(state => state.syncing);
-    const activeRound = useTypedSelector(state => isActiveRound(state));
-
-    const loggedInPlayer = useLoggedInPlayer();
-    const isOwnedByLoggedInPlayer =
-        (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
     const action = card.action;
-
-    function renderArrow() {
-        return <TextWithMargin>{'=>'}</TextWithMargin>;
-    }
-
-    function playAction(action: Action, payment?: PropertyCounter<Resource>) {
-        if (cardContext !== CardContext.PLAYED_CARD) {
-            return;
-        }
-        if (card.action?.choice) {
-            const choiceIndex = card.action.choice.indexOf(action);
-            return apiClient.playCardActionAsync({parent: card, choiceIndex, payment});
-        }
-        apiClient.playCardActionAsync({parent: card, payment});
-    }
-
     const actions = [...(action.choice ? action.choice : [action])];
     return (
         <ActionsWrapper>
@@ -226,43 +203,89 @@ export const CardActions = ({
                 </ActionText>
             )}
             {actions.map((action, index) => {
-                const [canPlay, disabledReason] = useTypedSelector(state =>
-                    useActionGuard().canPlayCardAction(action, state, card)
-                );
-                let tooltipText: string | null = null;
-                if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {
-                    if (isOwnedByLoggedInPlayer) {
-                        tooltipText = canPlay ? null : disabledReason;
-                    } else {
-                        tooltipText = canPlay
-                            ? `${cardOwner?.corporation?.name} can play this.`
-                            : `${cardOwner?.corporation?.name} cannot play: ${disabledReason}.`;
-                    }
-                }
-                return (
-                    <React.Fragment key={index}>
-                        {index > 0 && <TextWithMargin>OR</TextWithMargin>}
-                        <ActionContainer
-                            cardContext={cardContext}
-                            action={action}
-                            playAction={playAction}
-                            canPlay={canPlay}
-                            tooltipText={tooltipText}
-                            loggedInPlayer={loggedInPlayer}
-                            isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
-                        >
-                            <Flex alignItems="center" justifyContent="center" margin="4px">
-                                {renderLeftSideOfArrow(action, card)}
-                                {renderArrow()}
-                                {renderRightSideOfArrow(action, card)}
-                            </Flex>
-                        </ActionContainer>
-                    </React.Fragment>
-                );
+                <CardAction
+                    key={index}
+                    action={action}
+                    index={index}
+                    card={card}
+                    cardContext={cardContext}
+                    cardOwner={cardOwner}
+                />;
             })}
         </ActionsWrapper>
     );
 };
+
+function CardAction({
+    action,
+    index,
+    card,
+    cardContext,
+    cardOwner,
+}: {
+    action: Action;
+    index: number;
+    card: CardModel;
+    cardContext: CardContext;
+    cardOwner: SerializedPlayerState | undefined;
+}) {
+    const actionGuard = useActionGuard();
+    const apiClient = useApiClient();
+    const isSyncing = useTypedSelector(state => state.syncing);
+    const activeRound = useTypedSelector(state => isActiveRound(state));
+    const loggedInPlayer = useLoggedInPlayer();
+    const isOwnedByLoggedInPlayer =
+        (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
+
+    const [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card);
+    let tooltipText: string | null = null;
+
+    if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {
+        if (isOwnedByLoggedInPlayer) {
+            tooltipText = canPlay ? null : disabledReason;
+        } else {
+            tooltipText = canPlay
+                ? `${cardOwner?.corporation?.name} can play this.`
+                : `${cardOwner?.corporation?.name} cannot play: ${disabledReason}.`;
+        }
+    }
+
+    function playAction(action: Action, payment?: PropertyCounter<Resource>) {
+        if (cardContext !== CardContext.PLAYED_CARD) {
+            return;
+        }
+        if (card.action?.choice) {
+            const choiceIndex = card.action.choice.indexOf(action);
+            return apiClient.playCardActionAsync({parent: card, choiceIndex, payment});
+        }
+        apiClient.playCardActionAsync({parent: card, payment});
+    }
+
+    function renderArrow() {
+        return <TextWithMargin>{'=>'}</TextWithMargin>;
+    }
+
+    return (
+        <React.Fragment key={index}>
+            {index > 0 && <TextWithMargin>OR</TextWithMargin>}
+            <ActionContainer
+                cardContext={cardContext}
+                action={action}
+                playAction={playAction}
+                canPlay={canPlay}
+                tooltipText={tooltipText}
+                loggedInPlayer={loggedInPlayer}
+                isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
+            >
+                <Flex alignItems="center" justifyContent="center" margin="4px">
+                    {renderLeftSideOfArrow(action, card)}
+                    {renderArrow()}
+                    {renderRightSideOfArrow(action, card)}
+                </Flex>
+            </ActionContainer>
+        </React.Fragment>
+    );
+}
 
 function ActionContainer({
     cardContext,

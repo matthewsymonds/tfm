@@ -26,9 +26,8 @@ export function getMockState(): GameState {
                 return {
                     ...player,
                     pendingCardSelection: undefined,
-                    corporation:
-                        i === 0 ? {name: 'United Nations Mars Initiative'} : player.corporation,
-                    playedCards: cards.slice(i * 40, i * 40 + 40).map(c => ({name: c.name})),
+                    corporation: i === 0 ? {name: 'U.N.M.I.'} : player.corporation,
+                    playedCards: cards.slice(i * 20, i * 20 + 20).map(c => ({name: c.name})),
                     resources: {
                         ...player.resources,
                         [Resource.MEGACREDIT]: 10,

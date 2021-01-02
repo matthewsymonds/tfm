@@ -355,7 +355,11 @@ export class ActionGuard {
         return true;
     }
 
-    canPlayCardAction(action: Action, state: GameState, parent: Card): CanPlayAndReason {
+    canPlayCardAction(
+        action: Action,
+        parent: Card,
+        state: GameState = this.state
+    ): CanPlayAndReason {
         if (!this.canAffordActionCost(action)) {
             return [false, 'Cannot afford action cost'];
         }

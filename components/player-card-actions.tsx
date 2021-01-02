@@ -26,7 +26,6 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                                 card={card}
                                 cardOwner={player}
                                 cardContext={CardContext.PLAYED_CARD}
-                                apiClient={apiClient}
                                 useCardName
                             />
                         </Box>

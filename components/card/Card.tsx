@@ -81,12 +81,7 @@ const CardInner: React.FC<CardProps> = ({
             <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
             {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} />
-            <CardActions
-                card={card}
-                cardOwner={cardOwner}
-                cardContext={cardContext}
-                apiClient={apiClient}
-            />
+            <CardActions card={card} cardOwner={cardOwner} cardContext={cardContext} />
             <CardIconography card={card} />
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}
