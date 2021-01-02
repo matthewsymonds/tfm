@@ -1,5 +1,4 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
-import {getTextForStandardProject} from 'components/board/standard-projects';
 import {Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
 import {
@@ -180,6 +179,23 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
             return <GlobalParameterIcon parameter={Parameter.VENUS} size={22} />;
         default:
             throw spawnExhaustiveSwitchError(actionType);
+    }
+}
+
+export function getTextForStandardProject(standardProject: StandardProjectType) {
+    switch (standardProject) {
+        case StandardProjectType.SELL_PATENTS:
+            return 'Sell patents';
+        case StandardProjectType.POWER_PLANT:
+            return 'Power plant';
+        case StandardProjectType.ASTEROID:
+            return 'Asteroid';
+        case StandardProjectType.AQUIFER:
+            return 'Aquifer';
+        case StandardProjectType.GREENERY:
+            return 'Greenery';
+        case StandardProjectType.CITY:
+            return 'City';
     }
 }
 

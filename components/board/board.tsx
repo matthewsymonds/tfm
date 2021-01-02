@@ -1,6 +1,8 @@
 import AwardsNew from 'components/board/awards-new';
 import MilestonesNew from 'components/board/milestones-new';
 import StandardProjectsNew from 'components/board/standard-projects-new';
+import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box, Flex} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';

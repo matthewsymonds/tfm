@@ -5,6 +5,7 @@ import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import {colors} from 'components/ui';
 import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
@@ -39,7 +40,7 @@ export const ProductionWrapper = styled.div`
     justify-content: center;
     align-items: center;
     padding: ${PRODUCTION_PADDING}px;
-    background-color: brown;
+    background-color: ${colors.PRODUCTION_BG};
 `;
 const GroupedProductionWrapper = styled(ProductionWrapper)`
     padding: 0;

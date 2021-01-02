@@ -62,7 +62,6 @@ export const GlobalStyles = createGlobalStyle`
     }
     .active-round-outer {
         flex-direction: row;
-          align-items: center;
 
         @media (max-width: 1210px) {
           flex-direction: column;

@@ -21,7 +21,8 @@ export const colors = {
 
     // main content
     MAIN_BG: 'hsl(0, 0%, 22.4%)',
-    LIGHT_BG: 'hsl(0, 0%, 45%)',
+    LIGHT_BG: 'hsl(15, 20%, 40%)',
+    LIGHTEST_BG: 'hsl(15, 20%, 70%)',
 
     // panels
     PANEL_BORDER: '#999',
@@ -54,6 +55,7 @@ export const colors = {
 
     // resource colors
     MEGACREDIT: 'gold',
+    PRODUCTION_BG: 'hsl(25, 40%, 39%)',
 
     // cards
     CARD_EVENT: 'red',

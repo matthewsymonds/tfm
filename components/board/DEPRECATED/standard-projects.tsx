@@ -27,23 +27,6 @@ const Warning = styled.div`
     margin: 0 auto;
 `;
 
-export function getTextForStandardProject(standardProject: StandardProjectType) {
-    switch (standardProject) {
-        case StandardProjectType.SELL_PATENTS:
-            return 'Sell patents';
-        case StandardProjectType.POWER_PLANT:
-            return 'Power plant';
-        case StandardProjectType.ASTEROID:
-            return 'Asteroid';
-        case StandardProjectType.AQUIFER:
-            return 'Aquifer';
-        case StandardProjectType.GREENERY:
-            return 'Greenery';
-        case StandardProjectType.CITY:
-            return 'City';
-    }
-}
-
 function getCostForStandardProject(
     standardProjectAction: StandardProjectAction,
     player: PlayerState

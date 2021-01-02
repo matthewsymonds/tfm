@@ -1,7 +1,7 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
-import {getTextForAward} from 'components/board/awards';
-import {getTextForMilestone} from 'components/board/milestones';
-import {getTextForStandardProject} from 'components/board/standard-projects';
+import {getTextForAward} from 'components/board/board-actions/awards-new';
+import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
+import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
 import {CardType, Deck} from 'constants/card-types';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
@@ -100,7 +100,7 @@ function handleEnterActiveRound(state: GameState) {
             player.pendingCardSelection = undefined;
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
-        state.log.push('Turn 1');
+        state.log.push(`Generation ${state.common.generation}, turn 1`);
     }
 }
 

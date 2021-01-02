@@ -133,7 +133,7 @@ function MilestonePopover({
     );
 }
 
-function getTextForMilestone(milestone: Milestone) {
+export function getTextForMilestone(milestone: Milestone) {
     switch (milestone) {
         case Milestone.BUILDER:
             return 'Builder';

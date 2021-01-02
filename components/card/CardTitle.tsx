@@ -3,7 +3,7 @@ import {CardType} from 'constants/card-types';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
-function getCardTitleColorForType(type: CardType) {
+export function getCardTitleColorForType(type: CardType) {
     switch (type) {
         case CardType.ACTIVE:
             return colors.CARD_ACTIVE;

@@ -3,7 +3,6 @@ import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selec
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerHand} from 'components/player-hand';
-import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
@@ -17,12 +16,10 @@ import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
-import Awards from './board/awards';
 import {Board} from './board/board';
-import Milestones from './board/milestones';
-import StandardProjects from './board/standard-projects';
 import {Flex} from './box';
 import {EndOfGame} from './end-of-game';
+import PlayerPanel from 'components/player-panel-new';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -53,19 +50,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
-
-    function renderSelectedActionSet() {
-        const selectedActionSet = actionSets[selectedActionSetIndex];
-        if (selectedActionSet === 'Milestones') {
-            return <Milestones />;
-        } else if (selectedActionSet === 'Awards') {
-            return <Awards />;
-        } else if (selectedActionSet === 'Standard Projects') {
-            return <StandardProjects />;
-        } else {
-            throw new Error('Unrecognized action set');
-        }
-    }
 
     return (
         <React.Fragment>
@@ -134,17 +118,22 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 <Flex flex="none">
                     <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
                 </Flex>
-                <Flex className="active-round-outer" padding="16px" flex="auto" overflow="auto">
+                <Flex
+                    className="active-round-outer"
+                    padding="16px"
+                    flex="auto"
+                    overflow="auto"
+                    alignItems="stretch"
+                >
                     <Flex
                         className="active-round-left"
                         flexDirection="column"
                         flex="auto"
                         marginRight="4px"
                     >
-                        <PlayerPanel
-                            selectedPlayerIndex={selectedPlayerIndex}
-                            setSelectedPlayerIndex={setSelectedPlayerIndex}
-                        />
+                        {state.players.map(player => (
+                            <PlayerPanel player={player} />
+                        ))}
                     </Flex>
 
                     <Flex className="active-round-right" flexDirection="column" marginRight="4px">

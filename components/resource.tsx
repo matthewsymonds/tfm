@@ -1,69 +1,122 @@
+import {ApiClient} from 'api-client';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
+import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
 import {Pane} from 'evergreen-ui';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
+import {AppContext} from 'context/app-context';
+import {useContext} from 'react';
+import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
-import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
-import styled from 'styled-components';
-import {ConversionButton} from './conversion-button';
+import styled, {keyframes} from 'styled-components';
 
-const ResourceBoardCellBase = styled.div`
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    font-size: 12px;
-    background-color: ${colors.RESOURCE_COUNTER_BG};
-    margin: 2px;
-
-    .row {
-        display: flex;
+const plantBgCycle = keyframes`
+    0% {
+        background-color: ${colors.LIGHTEST_BG};
     }
-
-    .amount,
-    .production {
-        display: inline-flex;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: auto;
-        padding: 2px;
-        width: 22px;
+    40% {
+        background-color: ${colors.PARAMETERS[Parameter.OXYGEN]};
     }
-
-    .amount {
-        color: ${colors.TEXT_DARK_1};
+    60% {
+        background-color: ${colors.PARAMETERS[Parameter.OXYGEN]};
     }
-
-    .production {
-        background: #f5923b;
+    100% {
+        background-color: ${colors.LIGHTEST_BG};
     }
 `;
 
-export const InlineResourceIcon = styled(ResourceIcon)`
-    display: inline-flex;
-    flex-shrink: 0;
-    margin: 0;
-    height: 20px;
-    width: 20px;
-    font-size: 16px;
+const heatBgCycle = keyframes`
+    0% {
+        background-color: ${colors.LIGHTEST_BG};
+    }
+    40% {
+        background-color: ${colors.PARAMETERS[Parameter.TEMPERATURE]};
+    }
+    60% {
+        background-color: ${colors.PARAMETERS[Parameter.TEMPERATURE]};
+    }
+    100% {
+        background-color: ${colors.LIGHTEST_BG};
+    }
+`;
+
+const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean}>`
+    display: grid;
+    grid-template-columns: repeat(3, 24px);
+    grid-template-rows: 24px;
+    align-items: center;
+    margin: 4px 4px 0px 0;
+    font-size: 14px;
+    background-color: ${colors.LIGHTEST_BG};
     border: 1px solid #222;
+    cursor: default;
+
+    &.canDoPlantConversion {
+        animation: ${plantBgCycle} 4s ease-in-out infinite;
+        animation-delay: 2s;
+        cursor: pointer;
+    }
+
+    &.canDoHeatConversion {
+        animation: ${heatBgCycle} 4s ease-in-out infinite;
+        cursor: pointer;
+    }
 `;
 
 export type ResourceBoardCellProps = {
     resource: Resource;
     amount: number;
     production: number;
+    handleOnClick?: () => void;
+    showConversionAnimation?: boolean;
 };
 
-export const ResourceBoardCell = ({amount, production, resource}: ResourceBoardCellProps) => {
+export const ResourceBoardCell = ({
+    amount,
+    production,
+    resource,
+    showConversionAnimation,
+    handleOnClick,
+}: ResourceBoardCellProps) => {
+    let className = 'display';
+    if (showConversionAnimation) {
+        if (resource === Resource.PLANT) className += ' canDoPlantConversion';
+        if (resource === Resource.HEAT) className += ' canDoHeatConversion';
+    }
+
     return (
-        <ResourceBoardCellBase>
-            <InlineResourceIcon name={resource} />
-            <div className="amount">{amount}</div>
-            <div className="production">{production}</div>
+        <ResourceBoardCellBase className={className} onClick={handleOnClick}>
+            <Flex
+                alignSelf="stretch"
+                alignItems="center"
+                justifyContent="center"
+                style={{gridArea: '0 / 0 / 0 / 1'}}
+            >
+                <ResourceIcon name={resource} size={16} />
+            </Flex>
+            <Flex
+                alignSelf="stretch"
+                alignItems="center"
+                justifyContent="center"
+                style={{gridArea: '0 / 1 / 0 / 2'}}
+            >
+                {amount}
+            </Flex>
+            <Flex
+                alignSelf="stretch"
+                alignItems="center"
+                justifyContent="center"
+                style={{gridArea: '0 / 2 / 0 / 3'}}
+                margin="2px"
+                background={colors.PRODUCTION_BG}
+            >
+                {production}
+            </Flex>
         </ResourceBoardCellBase>
     );
 };
@@ -93,7 +146,7 @@ export const PlayerResourceBoard = ({
     const actionGuard = useActionGuard();
 
     return (
-        <Pane display="flex" flexDirection="column">
+        <Flex flexDirection="column">
             <ResourceBoard>
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resource => {
@@ -110,50 +163,34 @@ export const PlayerResourceBoard = ({
                 <ResourceBoardRow>
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
                         const conversion = CONVERSIONS[resource];
-                        const [canDoConversion] = actionGuard.canDoConversion(conversion);
+                        let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
+                        let canDoConversionInSpiteOfUI = false;
+                        if (canDoConversion) {
+                            [
+                                canDoConversionInSpiteOfUI,
+                                reason,
+                            ] = actionGuard.canPlayActionInSpiteOfUI(conversion, state);
+                        }
 
-                        const canDoConversionInSpiteOfUI = useTypedSelector(state => {
-                            if (!conversion) {
-                                return false;
+                        function handleOnClick() {
+                            if (isLoggedInPlayer && canDoConversion) {
+                                apiClient.doConversionAsync({resource});
                             }
-
-                            return actionGuard.canPlayActionInSpiteOfUI(conversion, state)[0];
-                        });
-
-                        const quantityToRemove = useTypedSelector(state =>
-                            convertAmountToNumber(
-                                conversion?.removeResource[conversion.resourceToRemove] ?? 0,
-                                state,
-                                player
-                            )
-                        );
+                        }
 
                         return (
-                            <div key={resource}>
-                                <ResourceBoardCell
-                                    resource={resource}
-                                    amount={player.resources[resource]}
-                                    production={player.productions[resource]}
-                                />
-                                {isLoggedInPlayer &&
-                                quantityToRemove &&
-                                canDoConversionInSpiteOfUI &&
-                                (!plantConversionOnly || resource === Resource.PLANT) ? (
-                                    <ConversionButton
-                                        disabled={
-                                            !canDoConversion ||
-                                            actionGuard.shouldDisableValidGreeneryPlacementUI()
-                                        }
-                                        onClick={() => apiClient.doConversionAsync({resource})}
-                                    >
-                                        Convert {quantityToRemove}
-                                    </ConversionButton>
-                                ) : null}
-                            </div>
+                            <ResourceBoardCell
+                                key={resource}
+                                resource={resource}
+                                amount={player.resources[resource]}
+                                production={player.productions[resource]}
+                                showConversionAnimation={canDoConversionInSpiteOfUI}
+                                handleOnClick={handleOnClick}
+                            />
                         );
                     })}
                 </ResourceBoardRow>
             </ResourceBoard>
-        </Pane>
+        </Flex>
     );
 };

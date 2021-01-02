@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {GlobalStyles} from 'pages/_app';
 import {AppContext, appContext} from 'context/app-context';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 import {reducer} from '../reducer';
-import {getInitialState} from 'initial-state';
+import {getMockState} from 'utils/getMockState';
 import {Deck} from 'constants/card-types';
 
 export const parameters = {
@@ -23,12 +23,16 @@ const withGlobalStyles = (Story, context) => {
 const withAppContext = (Story, context) => {
     return (
         <AppContext.Provider value={appContext}>
-            <Story {...context} />
+            {(() => {
+                const context = useContext(AppContext);
+                context.setLoggedInPlayerIndex(0);
+                return <Story {...context} />;
+            })()}
         </AppContext.Provider>
     );
 };
 
-const store = createStore(reducer, getInitialState(['testUser'], {decks: [Deck.BASIC]}));
+const store = createStore(reducer, getMockState(['testUser'], {decks: [Deck.BASIC]}));
 const withReduxStore = (Story, context) => {
     return (
         <Provider store={store}>

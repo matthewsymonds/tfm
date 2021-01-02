@@ -1,4 +1,5 @@
 import {ResourceIcon} from 'components/icons/resource';
+import {colors} from 'components/ui';
 import {getResourceBorder, Resource} from 'constants/resource';
 import React from 'react';
 import styled from 'styled-components';
@@ -6,7 +7,7 @@ import styled from 'styled-components';
 export const PRODUCTION_PADDING = 6;
 
 const ProductionIconBase = styled.div<{size: number; paddingSize: number; margin: string | number}>`
-    background-color: brown;
+    background-color: ${colors.PRODUCTION_BG};
     display: flex;
     align-items: center;
     justify-content: center;
