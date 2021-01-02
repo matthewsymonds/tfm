@@ -61,7 +61,12 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                 const showTooltip = isFilledIn || !!bonus;
 
                 return (
-                    <GlobalParamStep isFilledIn={isFilledIn} bonus={!!bonus} color={color}>
+                    <GlobalParamStep
+                        key={value}
+                        isFilledIn={isFilledIn}
+                        bonus={!!bonus}
+                        color={color}
+                    >
                         <Tooltip
                             key={`${parameter}-${value}`}
                             sticky={true}
