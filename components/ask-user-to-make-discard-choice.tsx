@@ -1,9 +1,8 @@
-import {ApiClient} from 'api-client';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {VariableAmount} from 'constants/variable-amount';
+import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {PlayerState} from 'reducer';
 import {SerializedCard} from 'state-serialization';
 import {Flex} from './box';
@@ -11,8 +10,7 @@ import {Flex} from './box';
 export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
     const {card, amount, isFromSellPatents, playedCard} = player.pendingDiscard!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
+    const apiClient = useApiClient();
 
     let cardSelectionPrompt: string;
     let maxCardsToDiscard: number;

@@ -1,13 +1,12 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
 import {GameState, useTypedSelector} from 'reducer';
 import {awardToQuantity} from 'selectors/score';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
@@ -39,18 +38,17 @@ function getCostForAward(award: Award, state: GameState) {
 }
 
 function Awards() {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const player = context.getLoggedInPlayer(state);
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, player.username);
+    const player = useLoggedInPlayer();
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     function renderAwardButton(award: Award) {
         const isDisabled = !actionGuard.canFundAward(award)[0];
-        const isAwardFunded = state.common.fundedAwards.findIndex(a => a.award === award) > -1;
+        const isAwardFunded = useTypedSelector(
+            state => state.common.fundedAwards.findIndex(a => a.award === award) >= 0
+        );
         const text = getTextForAward(award);
-        const cost = getCostForAward(award, state);
+        const cost = useTypedSelector(state => getCostForAward(award, state));
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: cost}
         ) => {
@@ -82,33 +80,36 @@ function Awards() {
     return (
         <SharedActionsContainer>
             {Object.values(Award).map(award => {
-                const fundedAward = state.common.fundedAwards.find(a => a.award === award);
+                const fundedAwardCorporationName = useTypedSelector(state => {
+                    const fundedAward = state.common.fundedAwards.find(a => a.award === award);
+                    if (!fundedAward) return '';
+
+                    return state.players[fundedAward.fundedByPlayerIndex].corporation.name;
+                });
+
+                const quantities = useTypedSelector(state =>
+                    state.players.map(player => awardToQuantity[award](player, state))
+                );
+
                 return (
                     <React.Fragment key={award}>
                         <div>
                             {renderAwardButton(award)}
                             <Box marginLeft="10px">
-                                {state.players.map(player => {
-                                    const amount = awardToQuantity[award](player, state);
-                                    if (!amount) return null;
+                                {quantities.map(quantity => {
+                                    if (!quantity) return null;
                                     return (
                                         <Box key={player.index} textAlign="left" marginBottom="6px">
                                             <em>{player.corporation.name}:</em>
                                             <Box display="inline-block" marginLeft="6px">
-                                                {amount}
+                                                {quantity}
                                             </Box>
                                         </Box>
                                     );
                                 })}
-                                {fundedAward && (
+                                {fundedAwardCorporationName && (
                                     <Box>
-                                        <em>
-                                            Funded by{' '}
-                                            {
-                                                state.players[fundedAward.fundedByPlayerIndex]
-                                                    .corporation.name
-                                            }
-                                        </em>
+                                        <em>Funded by {fundedAwardCorporationName}</em>
                                     </Box>
                                 )}
                             </Box>

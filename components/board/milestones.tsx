@@ -1,13 +1,12 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box} from 'components/box';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
@@ -43,17 +42,15 @@ export function getTextForMilestone(milestone: Milestone) {
 }
 
 function Milestones() {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const player = context.getLoggedInPlayer(state);
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, player.username);
+    const player = useLoggedInPlayer();
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     function renderMilestoneButton(milestone: Milestone) {
         const isDisabled = !actionGuard.canClaimMilestone(milestone)[0];
-        const isMilestoneClaimed =
-            state.common.claimedMilestones.findIndex(m => m.milestone === milestone) > -1;
+        const isMilestoneClaimed = useTypedSelector(
+            state => state.common.claimedMilestones.findIndex(m => m.milestone === milestone) >= 0
+        );
         const text = getTextForMilestone(milestone);
         const handleConfirmPayment = (
             payment: PropertyCounter<Resource> = {[Resource.MEGACREDIT]: 8}
@@ -86,8 +83,20 @@ function Milestones() {
     return (
         <SharedActionsContainer>
             {Object.values(Milestone).map(milestone => {
-                const claimedMilestone = state.common.claimedMilestones.find(
-                    m => m.milestone === milestone
+                const milestoneClaimer = useTypedSelector(state => {
+                    const claimedMilestone = state.common.claimedMilestones.find(
+                        m => m.milestone === milestone
+                    );
+                    return (
+                        state.players[claimedMilestone?.claimedByPlayerIndex ?? -1]?.corporation
+                            .name ?? ''
+                    );
+                });
+
+                const quantities = useTypedSelector(state =>
+                    state.players.map(player =>
+                        milestoneQuantitySelectors[milestone](player, state)
+                    )
                 );
 
                 return (
@@ -95,30 +104,20 @@ function Milestones() {
                         <div>
                             {renderMilestoneButton(milestone)}
                             <Box marginLeft="10px">
-                                {state.players.map(player => {
-                                    const amount = milestoneQuantitySelectors[milestone](
-                                        player,
-                                        state
-                                    );
-                                    if (!amount) return null;
+                                {quantities.map(quantity => {
+                                    if (!quantity) return null;
                                     return (
                                         <Box key={player.index} textAlign="left" marginBottom="6px">
                                             <em>{player.corporation.name}:</em>
                                             <Box display="inline-block" marginLeft="6px">
-                                                {amount}
+                                                {quantity}
                                             </Box>
                                         </Box>
                                     );
                                 })}
-                                {claimedMilestone && (
+                                {milestoneClaimer && (
                                     <Box>
-                                        <em>
-                                            Claimed by{' '}
-                                            {
-                                                state.players[claimedMilestone.claimedByPlayerIndex]
-                                                    .corporation.name
-                                            }
-                                        </em>
+                                        <em>Claimed by {milestoneClaimer}</em>
                                     </Box>
                                 )}
                             </Box>

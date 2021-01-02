@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
@@ -11,17 +9,16 @@ import {colors} from 'components/ui';
 import {Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
-import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
 export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
         const [canPlay] = actionGuard.canClaimMilestone(milestone);
@@ -127,8 +124,7 @@ function MilestonePopover({
     milestone: Milestone;
     loggedInPlayer: PlayerState;
 }) {
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
 
     return (
@@ -193,21 +189,22 @@ function getRequirementTextForMilestone(milestone: Milestone) {
 }
 
 function MilestoneRankings({milestone}: {milestone: Milestone}) {
-    const state = useTypedSelector(state => state);
+    const players = useTypedSelector(state => state.players);
 
     return (
         <Flex flexDirection="column" width="100%">
             <Flex alignItems="center" marginBottom="8px" style={{fontSize: 14}}>
                 <span>{getRequirementTextForMilestone(milestone)}</span>
             </Flex>
-            {state.players.map(player => (
+            {players.map(player => {
+                const quantity = useTypedSelector(state =>
+                    milestoneQuantitySelectors[milestone](player, state)
+                );
                 <Flex alignItems="center" justifyContent="center">
                     <PlayerCorpAndIcon player={player} />
-                    <span style={{marginLeft: 20}}>
-                        {milestoneQuantitySelectors[milestone](player, state)}
-                    </span>
-                </Flex>
-            ))}
+                    <span style={{marginLeft: 20}}>{quantity}</span>
+                </Flex>;
+            })}
         </Flex>
     );
 }

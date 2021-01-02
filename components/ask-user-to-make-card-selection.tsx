@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {Card as CardComponent, CardContext} from 'components/card/Card';
@@ -8,8 +6,9 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
@@ -19,15 +18,10 @@ import {Box, Flex} from './box';
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const state = useTypedSelector(state => state);
-    const isDrafting =
-        state.common.gameStage === GameStage.DRAFTING && state.options.isDraftingEnabled;
+    const apiClient = useApiClient();
+    const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
 
-    const actionGuard = new ActionGuard(state, player.username);
-
-    const playerBudget = getMoney(state, player);
+    const playerBudget = useTypedSelector(state => getMoney(state, player));
     // TODO: Fix this for the expansion corps with different card prices
     const totalCostOfCards = selectedCards.length * 3;
     const remainingBudget = playerBudget - totalCostOfCards;
@@ -38,15 +32,18 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     let cardSelectionSubtitle: React.ReactNode = null;
     let maxCards: number;
     let minCards: number;
-
-    if (isDrafting) {
+    const passPlayer = useTypedSelector(state => {
         let passTargetIndex = state.common.generation % 2 ? player.index + 1 : player.index - 1;
         passTargetIndex = passTargetIndex < 0 ? state.players.length - 1 : passTargetIndex;
         passTargetIndex = passTargetIndex >= state.players.length ? 0 : passTargetIndex;
+        return state.players[passTargetIndex];
+    });
+
+    if (isDrafting) {
         cardSelectionPrompt = 'Draft 1 card';
         cardSelectionSubtitle = (
             <Box marginBottom="16px" marginLeft="8px">
-                Passing to <PlayerCorpAndIcon player={state.players[passTargetIndex]} />
+                Passing to <PlayerCorpAndIcon player={passPlayer} />
             </Box>
         );
         cardSelectionButtonText = `Draft ${selectedCards[0]?.name ?? 'card'}`;
@@ -80,9 +77,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         setSelectedCards([]);
     }
 
-    const shouldDisableConfirmCardSelection = !actionGuard.canConfirmCardSelection(
-        selectedCards.map(getCard),
-        state
+    const actionGuard = useActionGuard();
+
+    const shouldDisableConfirmCardSelection = useTypedSelector(
+        state => !actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
 
     // hide card selector while waiting on others to pick cards
@@ -90,9 +88,14 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         isDrafting &&
         pendingCardSelection.possibleCards.length + (pendingCardSelection.draftPicks?.length ?? 0) >
             4;
-    let passSourceIndex = state.common.generation % 2 ? player.index - 1 : player.index + 1;
-    passSourceIndex = passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
-    passSourceIndex = passSourceIndex >= state.players.length ? 0 : passSourceIndex;
+
+    const passSourcePlayer = useTypedSelector(state => {
+        let passSourceIndex = state.common.generation % 2 ? player.index - 1 : player.index + 1;
+        passSourceIndex = passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
+        passSourceIndex = passSourceIndex >= state.players.length ? 0 : passSourceIndex;
+        return state.players[passSourceIndex];
+    });
+
     const usePaymentPopover =
         pendingCardSelection.isBuyingCards &&
         player.corporation.name === 'Helion' &&
@@ -106,8 +109,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     <Flex flexDirection="column" marginRight="100px">
                         <h3 style={{marginBottom: 4, marginLeft: 8}}>Drafted cards</h3>
                         <Box marginBottom="16px" marginLeft="8px">
-                            Receiving from{' '}
-                            <PlayerCorpAndIcon player={state.players[passSourceIndex]} />
+                            Receiving from <PlayerCorpAndIcon player={passSourcePlayer} />
                         </Box>
                         <Flex>
                             {pendingCardSelection.draftPicks.map(draftedCard => (

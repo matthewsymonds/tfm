@@ -23,10 +23,10 @@ import {
 } from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {AppContext} from 'context/app-context';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card} from 'models/card';
-import React, {useContext, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
 import {getCard} from 'selectors/get-card';
@@ -100,7 +100,7 @@ function getPlayersToConsider(
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
             const neighbors = getAdjacentCellsForCell(
                 state,
-                state.common.mostRecentTilePlacementCell!
+                state.common.mostRecentTilePlacementCell
             );
             const playerIndices = neighbors.map(cell => cell?.tile?.ownerPlayerIndex);
             return players.filter(player => playerIndices.includes(player.index));
@@ -524,12 +524,11 @@ function AskUserToConfirmResourceActionDetails({
     player,
     resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard},
 }: Props) {
-    const state = useTypedSelector(state => state);
+    const playerOptionWrappers: PlayerOptionWrapper[] = useTypedSelector(state =>
+        getPlayerOptionWrappers(state, player)
+    );
 
-    const playerOptionWrappers: PlayerOptionWrapper[] = getPlayerOptionWrappers(state, player);
-
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
+    const apiClient = useApiClient();
 
     const handleSkip = () => {
         apiClient.skipChooseResourceActionDetailsAsync();
@@ -598,9 +597,7 @@ function OptionComponent({
     option: ResourceActionOption;
     apiClient: ApiClient;
 }) {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const player = context.getLoggedInPlayer(state);
+    const player = useLoggedInPlayer();
 
     function handleClick() {
         apiClient.completeChooseResourceActionDetailsAsync({

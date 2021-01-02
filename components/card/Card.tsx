@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {CardActions} from 'components/card/CardActions';
 import {CardContextButton} from 'components/card/CardContextButton';
@@ -13,10 +11,11 @@ import {CardText} from 'components/card/CardText';
 import {CardTitleBar} from 'components/card/CardTitle';
 import {CardVictoryPoints} from 'components/card/CardVictoryPoints';
 import TexturedCard from 'components/textured-card';
-import {AppContext} from 'context/app-context';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {useMemo} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 
@@ -55,22 +54,19 @@ const MainCardText = styled(CardText)`
     margin: 4px;
 `;
 
-export const Card: React.FC<CardProps> = ({
+const CardInner: React.FC<CardProps> = ({
     card,
     cardContext = CardContext.NONE,
     cardOwner,
     isSelected,
     borderWidth,
 }) => {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const dispatch = useDispatch();
-    const loggedInPlayer = context.getLoggedInPlayer(state);
-    const actionGuard = new ActionGuard(
-        state,
-        cardOwner?.username ?? loggedInPlayer?.username ?? state.players[0].username // fallback to first player for storybook
+    const firstPlayerUsername = useTypedSelector(state => state.players[0].username);
+    const loggedInPlayer = useLoggedInPlayer();
+    const actionGuard = useActionGuard(
+        cardOwner?.username ?? loggedInPlayer?.username ?? firstPlayerUsername // fallback to first player for storybook
     );
-    const apiClient = new ApiClient(dispatch);
+    const apiClient = useApiClient();
 
     return (
         <TexturedCard
@@ -90,7 +86,6 @@ export const Card: React.FC<CardProps> = ({
                 cardOwner={cardOwner}
                 cardContext={cardContext}
                 apiClient={apiClient}
-                actionGuard={actionGuard}
             />
             <CardIconography card={card} />
             <CardVictoryPoints card={card} />
@@ -106,4 +101,11 @@ export const Card: React.FC<CardProps> = ({
         </TexturedCard>
     );
 };
-``;
+
+export const Card: React.FC<CardProps> = props => {
+    const logLength = useTypedSelector(state => state.log.length);
+
+    const memoizedCard = useMemo(() => <CardInner {...props} />, [logLength, props.isSelected]);
+
+    return <React.Fragment>{memoizedCard}</React.Fragment>;
+};

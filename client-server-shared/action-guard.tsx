@@ -31,7 +31,7 @@ import {getTags} from 'selectors/variable-amount';
 type CanPlayAndReason = [boolean, string];
 
 export class ActionGuard {
-    constructor(private readonly state: GameState, private readonly username: string) {
+    constructor(public state: GameState, private readonly username: string) {
         this.state = state;
         this.username = username;
     }

@@ -14,7 +14,6 @@ export default function Game(props) {
     const store = useStore();
     const router = useRouter();
     const dispatch = useDispatch();
-
     const context = useContext(AppContext);
 
     const handleRetrievedGame = game => {

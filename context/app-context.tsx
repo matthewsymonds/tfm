@@ -3,10 +3,6 @@ import {GameState, PlayerState} from 'reducer';
 
 let loggedInPlayerIndex = -1;
 
-export function getLoggedInPlayerIndex(): number {
-    return loggedInPlayerIndex;
-}
-
 export function getLoggedInPlayer(state: GameState): PlayerState {
     return state.players[loggedInPlayerIndex];
 }

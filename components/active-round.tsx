@@ -1,4 +1,3 @@
-import {ApiClient} from 'api-client';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
@@ -9,8 +8,8 @@ import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
 import {GameStage} from 'constants/game';
+import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -34,7 +33,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     /**
      * Hooks
      */
-    const dispatch = useDispatch();
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
     const actionSets = ['Standard Projects', 'Milestones', 'Awards'];
     const [selectedActionSetIndex, setSelectedActionSetIndex] = useState(0);
@@ -44,9 +42,11 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     /**
      * Derived state
      */
-    const state = useTypedSelector(state => state);
-    const isPlayerMakingDecision = getIsPlayerMakingDecision(state, loggedInPlayer);
-    const apiClient = new ApiClient(dispatch);
+    const isPlayerMakingDecision = useTypedSelector(state =>
+        getIsPlayerMakingDecision(state, loggedInPlayer)
+    );
+    const revealedCards = useTypedSelector(state => state.common.revealedCards);
+    const apiClient = useApiClient();
 
     /**
      * Event handlers
@@ -110,14 +110,14 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     }
                                 />
                             )}
-                            {state.common.revealedCards.length > 0 && (
+                            {revealedCards.length > 0 && (
                                 <Flex flexDirection="column">
                                     <p>
-                                        Card{state.common.revealedCards.length > 1 ? 's' : ''}{' '}
-                                        revealed & discarded:
+                                        Card{revealedCards.length > 1 ? 's' : ''} revealed &
+                                        discarded:
                                     </p>
                                     <Flex>
-                                        {state.common.revealedCards.map((card, index) => {
+                                        {revealedCards.map((card, index) => {
                                             return (
                                                 <CardComponent key={index} card={getCard(card)} />
                                             );

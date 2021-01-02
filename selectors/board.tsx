@@ -11,8 +11,8 @@ import {
 } from 'constants/board';
 import {GameState, PlayerState} from 'reducer';
 
-export function getAdjacentCellsForCell(state: GameState, cell: Cell) {
-    if (!cell.coords) {
+export function getAdjacentCellsForCell(state: GameState, cell: Cell | undefined) {
+    if (!cell?.coords) {
         return [];
     }
     const [rowIndex, cellIndex] = cell.coords;

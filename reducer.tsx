@@ -6,7 +6,7 @@ import {CardType, Deck} from 'constants/card-types';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
-import {TypedUseSelectorHook, useSelector} from 'react-redux';
+import {shallowEqual, TypedUseSelectorHook, useSelector} from 'react-redux';
 import {AnyAction} from 'redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getCard} from 'selectors/get-card';
@@ -1114,4 +1114,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
     });
 };
 
-export const useTypedSelector: TypedUseSelectorHook<GameState> = useSelector;
+const equalityFn = shallowEqual;
+
+export const useTypedSelector: TypedUseSelectorHook<GameState> = selector =>
+    useSelector(selector, equalityFn);

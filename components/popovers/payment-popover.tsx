@@ -4,11 +4,10 @@ import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {AppContext} from 'context/app-context';
 import {Pane, Popover, Position} from 'evergreen-ui';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card} from 'models/card';
-import React, {useContext, useState} from 'react';
-import {useTypedSelector} from 'reducer';
+import React, {useState} from 'react';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import styled from 'styled-components';
 
@@ -137,17 +136,11 @@ export default function PaymentPopover({
     cost,
     shouldHide,
 }: PaymentPopoverProps) {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const player = context.getLoggedInPlayer(state);
+    const player = useLoggedInPlayer();
     const {resources, exchangeRates} = player;
-    let actionCost;
+    let actionCost = cost || 0;
     if (card) {
         actionCost = getDiscountedCardCost(card, player);
-    } else if (typeof cost === 'number') {
-        actionCost = cost;
-    } else {
-        throw new Error('Unrecognized cost for card payment popover');
     }
     const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], actionCost || 0));
     const [numSteel, setNumSteel] = useState(0);

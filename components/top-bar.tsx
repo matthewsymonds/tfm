@@ -1,15 +1,14 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
-import {AppContext} from 'context/app-context';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useRouter} from 'next/router';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import React from 'react';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {PlayersOrder} from './players-order';
@@ -41,12 +40,6 @@ type TopBarProps = {
 };
 
 export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
-    /**
-     * Hooks
-     */
-    const state = useTypedSelector(state => state);
-    const context = useContext(AppContext);
-    const dispatch = useDispatch();
     const router = useRouter();
 
     /**
@@ -61,7 +54,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     /**
      * Derived state
      */
-    const loggedInPlayer = context.getLoggedInPlayer(state);
+    const loggedInPlayer = useLoggedInPlayer();
     const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
@@ -81,13 +74,13 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
             ? colors.NAV_BG_PASSED
             : colors.NAV_BG_WAITING;
 
-    const apiClient = new ApiClient(dispatch);
+    const apiClient = useApiClient();
 
     const roundText = isGreeneryPlacement
         ? 'Greenery Placement'
         : `Generation ${generation}, Turn ${turn}`;
 
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const actionGuard = useActionGuard();
 
     const greeneryPlacementText = actionGuard.canDoConversion(CONVERSIONS[Resource.PLANT])[0]
         ? 'You may place a greenery.'

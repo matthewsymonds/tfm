@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
@@ -11,31 +9,44 @@ import {colors} from 'components/ui';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
-import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
 export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
-    const awardConfigsByAward = Object.values(Award).reduce((acc, award) => {
-        const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
-        let fundedByPlayer;
-        if (isFunded) {
-            const {fundedByPlayerIndex} = state.common.fundedAwards.find(fa => fa.award === award)!;
-            fundedByPlayer = state.players[fundedByPlayerIndex];
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+    const awardConfigsByAward = useTypedSelector(
+        state =>
+            Object.values(Award).reduce((acc, award) => {
+                const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
+                let fundedByPlayer;
+                if (isFunded) {
+                    const {fundedByPlayerIndex} = state.common.fundedAwards.find(
+                        fa => fa.award === award
+                    )!;
+                    fundedByPlayer = state.players[fundedByPlayerIndex];
+                }
+                acc[award] = {
+                    isFunded,
+                    cost: getCostForAward(award, state),
+                    fundedByPlayer,
+                };
+                return acc;
+            }, {}),
+        (prev, next) => {
+            // Brief equality check.
+            for (const award in prev) {
+                if (prev[award].fundedByPlayer !== next[award].fundedByPlayer) {
+                    return false;
+                }
+            }
+            return true;
         }
-        acc[award] = {
-            isFunded,
-            cost: getCostForAward(award, state),
-            fundedByPlayer,
-        };
-        return acc;
-    }, {});
+    );
 
     const fundAward = (award: Award, payment?: PropertyCounter<Resource>) => {
         const [canPlay] = actionGuard.canFundAward(award);
@@ -147,7 +158,6 @@ const ErrorText = styled.span`
 
 function AwardPopover({
     award,
-    loggedInPlayer,
     cost,
     isFunded,
     fundedByPlayer,
@@ -158,8 +168,7 @@ function AwardPopover({
     isFunded: boolean;
     fundedByPlayer?: PlayerState;
 }) {
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canFundAward(award);
 
     return (
@@ -206,19 +215,20 @@ function AwardPopover({
 }
 
 function AwardRankings({award}: {award: Award}) {
-    const state = useTypedSelector(state => state);
+    const players = useTypedSelector(state => state.players);
 
     return (
         <Flex flexDirection="column" width="100%">
             <Flex alignItems="center" marginBottom="8px" style={{fontSize: 14}}>
                 <span>{getRequirementTextForAward(award)}</span>
             </Flex>
-            {state.players.map(player => (
+            {players.map(player => {
+                const quantity = useTypedSelector(state => awardToQuantity[award](player, state));
                 <Flex alignItems="center" justifyContent="center">
                     <PlayerCorpAndIcon player={player} />
-                    <span style={{marginLeft: 20}}>{awardToQuantity[award](player, state)}</span>
-                </Flex>
-            ))}
+                    <span style={{marginLeft: 20}}>{quantity}</span>
+                </Flex>;
+            })}
         </Flex>
     );
 }

@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {getTextForStandardProject} from 'components/board/standard-projects';
 import {Flex} from 'components/box';
@@ -28,17 +26,16 @@ import {
     StandardProjectType,
 } from 'constants/standard-project';
 import {VariableAmount} from 'constants/variable-amount';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
-import {useDispatch} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {PlayerState} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
 export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
@@ -153,8 +150,7 @@ function StandardProjectTooltip({
     action: StandardProjectAction;
     loggedInPlayer: PlayerState;
 }) {
-    const state = useTypedSelector(state => state);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const actionGuard = useActionGuard();
     const cost = getCostForStandardProject(action, loggedInPlayer);
     const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
 

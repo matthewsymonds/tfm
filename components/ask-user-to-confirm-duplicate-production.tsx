@@ -1,13 +1,12 @@
-import {ApiClient} from 'api-client';
 import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {Card as CardComponent} from 'components/card/Card';
 import {Action} from 'constants/action';
 import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
+import {useApiClient} from 'hooks/use-api-client';
 import {Card} from 'models/card';
 import {useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import styled from 'styled-components';
@@ -66,13 +65,10 @@ const CardWrapper = styled.div``;
 export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     const {pendingDuplicateProduction} = player;
     const {tag, card} = pendingDuplicateProduction!;
-    const state = useTypedSelector(state => state);
-    const options = getOptionsForDuplicateProduction(tag, player, state);
+    const options = useTypedSelector(state => getOptionsForDuplicateProduction(tag, player, state));
     const [selectedIndex, setSelectedIndex] = useState<null | number>(options.length ? 0 : null);
 
-    const dispatch = useDispatch();
-
-    const apiClient = new ApiClient(dispatch);
+    const apiClient = useApiClient();
 
     const handleSkip = () => {
         apiClient.skipChooseDuplicateProductionAsync();

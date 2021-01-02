@@ -1,20 +1,18 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
+import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
-import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const {card, playedCard, choice} = player.pendingChoice!;
-    const state = useTypedSelector(state => state);
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, player.username);
+    const apiClient = useApiClient();
     const parent = getCard(card);
     const choiceButtons = choice.map((action, index) => {
-        const [canPlay, reason] = actionGuard.canPlayActionInSpiteOfUI(action, state, parent);
+        const [canPlay, reason] = useTypedSelector(state =>
+            canPlayActionInSpiteOfUI(action, state, player, parent)
+        );
         return (
             <React.Fragment key={index}>
                 <button

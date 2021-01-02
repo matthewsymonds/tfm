@@ -5,8 +5,8 @@ import {PlayerIcon} from 'components/icons/player';
 import {PlayerPanelSection} from 'components/player-panel-section';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {GameStage} from 'constants/game';
-import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
@@ -41,6 +41,8 @@ const CorporationSelector = ({
     player: PlayerState;
     isLoggedInPlayer: boolean;
 }) => {
+    // Player's corporation is client side only until selection is finalized.
+    const dispatch = useDispatch();
     if (!isLoggedInPlayer) {
         if (player.action) {
             return <div>{player.username} is ready to play.</div>;
@@ -57,8 +59,6 @@ const CorporationSelector = ({
             </div>
         );
     }
-
-    const dispatch = useDispatch();
 
     return (
         <>
@@ -83,26 +83,16 @@ type PlayerPanelProps = {
 
 export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: PlayerPanelProps) => {
     /**
-     * State (todo: use selectors everywhere instead)
-     */
-    const state = useTypedSelector(state => state);
-
-    /**
-     * Hooks
-     */
-    const context = useContext(AppContext);
-
-    /**
      * State selectors
      */
     const players = useTypedSelector(state => state.players);
+    const selectedPlayer = players[selectedPlayerIndex];
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
     /**
      * Derived state
      */
-    const loggedInPlayer = context.getLoggedInPlayer(state);
-    const selectedPlayer = players.find(p => p.index === selectedPlayerIndex)!;
+    const loggedInPlayer = useLoggedInPlayer();
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const terraformRating = selectedPlayer.terraformRating;
     const sections: Array<PlayerPanelSection> = ['Board & Hand', 'Card Actions', 'Played Cards'];

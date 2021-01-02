@@ -1,13 +1,10 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
-import {AppContext} from 'context/app-context';
 import {Pane} from 'evergreen-ui';
-import {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
@@ -92,12 +89,8 @@ export const PlayerResourceBoard = ({
     isLoggedInPlayer,
     plantConversionOnly,
 }: PlayerResourceBoardProps) => {
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, player.username);
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     return (
         <Pane display="flex" flexDirection="column">
@@ -118,13 +111,22 @@ export const PlayerResourceBoard = ({
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
                         const conversion = CONVERSIONS[resource];
                         const [canDoConversion] = actionGuard.canDoConversion(conversion);
-                        let canDoConversionInSpiteOfUI = false;
-                        if (conversion) {
-                            [canDoConversionInSpiteOfUI] = actionGuard.canPlayActionInSpiteOfUI(
-                                conversion,
-                                state
-                            );
-                        }
+
+                        const canDoConversionInSpiteOfUI = useTypedSelector(state => {
+                            if (!conversion) {
+                                return false;
+                            }
+
+                            return actionGuard.canPlayActionInSpiteOfUI(conversion, state)[0];
+                        });
+
+                        const quantityToRemove = useTypedSelector(state =>
+                            convertAmountToNumber(
+                                conversion?.removeResource[conversion.resourceToRemove] ?? 0,
+                                state,
+                                player
+                            )
+                        );
 
                         return (
                             <div key={resource}>
@@ -134,6 +136,7 @@ export const PlayerResourceBoard = ({
                                     production={player.productions[resource]}
                                 />
                                 {isLoggedInPlayer &&
+                                quantityToRemove &&
                                 canDoConversionInSpiteOfUI &&
                                 (!plantConversionOnly || resource === Resource.PLANT) ? (
                                     <ConversionButton
@@ -143,12 +146,7 @@ export const PlayerResourceBoard = ({
                                         }
                                         onClick={() => apiClient.doConversionAsync({resource})}
                                     >
-                                        Convert{' '}
-                                        {convertAmountToNumber(
-                                            conversion.removeResource[conversion.resourceToRemove],
-                                            state,
-                                            player
-                                        )}
+                                        Convert {quantityToRemove}
                                     </ConversionButton>
                                 ) : null}
                             </div>

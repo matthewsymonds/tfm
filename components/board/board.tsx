@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import AwardsNew from 'components/board/awards-new';
 import MilestonesNew from 'components/board/milestones-new';
 import StandardProjectsNew from 'components/board/standard-projects-new';
@@ -8,9 +6,10 @@ import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
 import {Deck} from 'constants/card-types';
-import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import styled from 'styled-components';
@@ -50,21 +49,24 @@ const Row = styled.div`
 `;
 
 export const Board = () => {
-    const context = useContext(AppContext);
-
     const board = useTypedSelector(state => state.common.board);
-
-    const state = useTypedSelector(state => state);
-    const loggedInPlayer = context.getLoggedInPlayer(state);
+    const loggedInPlayer = useLoggedInPlayer();
 
     const {pendingTilePlacement} = loggedInPlayer;
     const validPlacements = useTypedSelector(state =>
         getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
     );
 
-    const dispatch = useDispatch();
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, loggedInPlayer.username);
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+
+    const showVenus = useTypedSelector(
+        state => state.options.decks.includes(Deck.VENUS),
+        // Never updates
+        () => true
+    );
+
+    const parameters = useTypedSelector(state => state.common.parameters);
 
     function handleClick(cell: CellModel) {
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {
@@ -107,10 +109,7 @@ export const Board = () => {
                     </BoardInner>
                 </Circle>
             </Box>
-            <GlobalParams
-                parameters={state.common.parameters}
-                showVenus={state.options.decks.includes(Deck.VENUS)}
-            />
+            <GlobalParams parameters={parameters} showVenus={showVenus} />
             <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
             <MilestonesNew loggedInPlayer={loggedInPlayer} />
             <AwardsNew loggedInPlayer={loggedInPlayer} />

@@ -8,7 +8,7 @@ type PlayerHandProps = {
     player: PlayerState;
 };
 
-export const PlayerHand = ({player}: PlayerHandProps) => {
+const PlayerHandInner = ({player}: PlayerHandProps) => {
     const cardInfos = player.cards.map(card => {
         return {
             card: getCard(card),
@@ -18,3 +18,7 @@ export const PlayerHand = ({player}: PlayerHandProps) => {
     });
     return <CardHand cardInfos={cardInfos} />;
 };
+
+export const PlayerHand = React.memo(PlayerHandInner, (prevProps, nextProps) => {
+    return prevProps.player.cards.length === nextProps.player.cards.length;
+});

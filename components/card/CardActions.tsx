@@ -1,5 +1,4 @@
 import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Box, Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
@@ -21,9 +20,10 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {AppContext} from 'context/app-context';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
-import React, {useContext} from 'react';
+import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isActiveRound} from 'selectors/is-active-round';
@@ -175,25 +175,21 @@ export const CardActions = ({
     cardOwner,
     cardContext,
     apiClient,
-    actionGuard,
     useCardName,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
     apiClient: ApiClient;
-    actionGuard: ActionGuard;
     useCardName?: boolean;
 }) => {
     if (!card.action) {
         return null;
     }
-    const state = useTypedSelector(state => state);
     const isSyncing = useTypedSelector(state => state.syncing);
     const activeRound = useTypedSelector(state => isActiveRound(state));
 
-    const appContext = useContext(AppContext);
-    const loggedInPlayer = appContext.getLoggedInPlayer(state) ?? null;
+    const loggedInPlayer = useLoggedInPlayer();
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
@@ -230,10 +226,8 @@ export const CardActions = ({
                 </ActionText>
             )}
             {actions.map((action, index) => {
-                const [canPlay, disabledReason] = actionGuard.canPlayCardAction(
-                    action,
-                    state,
-                    card
+                const [canPlay, disabledReason] = useTypedSelector(state =>
+                    useActionGuard().canPlayCardAction(action, state, card)
                 );
                 let tooltipText: string | null = null;
                 if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {

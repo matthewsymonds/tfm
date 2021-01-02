@@ -1,5 +1,3 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {MAX_PARAMETERS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
@@ -9,9 +7,10 @@ import {
     standardProjectActions,
     StandardProjectType,
 } from 'constants/standard-project';
-import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
-import {useDispatch} from 'react-redux';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
 import {GameState, getNumOceans, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
@@ -80,13 +79,10 @@ function getWarning(isDisabled: boolean, state: GameState, standardProject: Stan
 }
 
 export default function StandardProjects() {
-    const dispatch = useDispatch();
-    const context = useContext(AppContext);
-    const state = useTypedSelector(state => state);
-    const player = context.getLoggedInPlayer(state);
+    const player = useLoggedInPlayer();
 
-    const apiClient = new ApiClient(dispatch);
-    const actionGuard = new ActionGuard(state, player.username);
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
 
     function renderStandardProjectButton(standardProject: StandardProjectAction) {
         const isDisabled = useTypedSelector(
@@ -104,7 +100,7 @@ export default function StandardProjects() {
             apiClient.playStandardProjectAsync({payment, standardProjectAction: standardProject});
         };
 
-        const warning = getWarning(isDisabled, state, standardProject);
+        const warning = useTypedSelector(state => getWarning(isDisabled, state, standardProject));
 
         if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0 && cost) {
             return (
