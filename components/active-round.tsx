@@ -2,7 +2,6 @@ import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confir
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
 import {Card as CardComponent} from 'components/card/Card';
-import {LogPanel} from 'components/log-panel';
 import {PlayerHand} from 'components/player-hand';
 import {PlayerPanel} from 'components/player-panel';
 import {TopBar} from 'components/top-bar';
@@ -22,7 +21,7 @@ import Awards from './board/awards';
 import {Board} from './board/board';
 import Milestones from './board/milestones';
 import StandardProjects from './board/standard-projects';
-import {Box, Flex, PanelWithTabs} from './box';
+import {Flex} from './box';
 import {EndOfGame} from './end-of-game';
 
 const PromptTitle = styled.h3`
@@ -34,8 +33,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
      * Hooks
      */
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
-    const actionSets = ['Standard Projects', 'Milestones', 'Awards'];
-    const [selectedActionSetIndex, setSelectedActionSetIndex] = useState(0);
 
     const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
 
@@ -150,22 +147,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         />
                     </Flex>
 
-                    <Flex className="active-round-middle" flexDirection="column" marginRight="4px">
+                    <Flex className="active-round-right" flexDirection="column" marginRight="4px">
                         <Board />
-                    </Flex>
-
-                    <Flex className="active-round-right" flexDirection="column" marginLeft="4px">
-                        <Box marginTop="8px">
-                            <PanelWithTabs
-                                setSelectedTabIndex={setSelectedActionSetIndex}
-                                selectedTabIndex={selectedActionSetIndex}
-                                tabs={actionSets}
-                                tabType="action-set"
-                            >
-                                {renderSelectedActionSet()}
-                            </PanelWithTabs>
-                            <LogPanel />
-                        </Box>
                     </Flex>
                 </Flex>
             </Flex>

@@ -1,7 +1,7 @@
 import AwardsNew from 'components/board/awards-new';
 import MilestonesNew from 'components/board/milestones-new';
 import StandardProjectsNew from 'components/board/standard-projects-new';
-import {Box} from 'components/box';
+import {Box, Flex} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
@@ -15,19 +15,6 @@ import {getValidPlacementsForRequirement} from 'selectors/board';
 import styled from 'styled-components';
 import {Cell} from './cell';
 import OffMarsCities from './off-mars-cities';
-
-const BoardOuter = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-`;
-
-const BoardInner = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex; 1;
-`;
 
 const Circle = styled.div`
     border-radius: 50%;
@@ -75,7 +62,14 @@ export const Board = () => {
         apiClient.completePlaceTileAsync({cell});
     }
     return (
-        <BoardOuter>
+        <Flex justifyContent="flex-end" alignItems="flex-start">
+            <Flex flexDirection="column" alignItems="flex-end">
+                <div style={{width: 75}}>
+                    <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
+                </div>
+                <MilestonesNew loggedInPlayer={loggedInPlayer} />
+                <AwardsNew loggedInPlayer={loggedInPlayer} />
+            </Flex>
             <Box position="relative">
                 <OffMarsCities
                     board={board}
@@ -83,7 +77,7 @@ export const Board = () => {
                     handleClick={handleClick}
                 />
                 <Circle>
-                    <BoardInner>
+                    <Flex flexDirection="column">
                         {board.map((row, outerIndex) => (
                             <Row key={outerIndex}>
                                 {row.map(
@@ -106,13 +100,10 @@ export const Board = () => {
                                 )}
                             </Row>
                         ))}
-                    </BoardInner>
+                    </Flex>
                 </Circle>
             </Box>
             <GlobalParams parameters={parameters} showVenus={showVenus} />
-            <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
-            <MilestonesNew loggedInPlayer={loggedInPlayer} />
-            <AwardsNew loggedInPlayer={loggedInPlayer} />
-        </BoardOuter>
+        </Flex>
     );
 };

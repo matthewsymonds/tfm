@@ -16,6 +16,16 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
+const AwardHeader = styled.div`
+    margin: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    opacity: 0.3;
+`;
+
 export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
@@ -56,65 +66,37 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     };
 
     return (
-        <ActionListWithPopovers<Award>
-            id="awards"
-            actions={Object.values(Award)}
-            ActionComponent={({action}) => (
-                <AwardBadge
-                    award={action}
-                    fundAward={fundAward}
-                    loggedInPlayer={loggedInPlayer}
-                    cost={awardConfigsByAward[action].cost}
-                    isFunded={awardConfigsByAward[action].isFunded}
-                />
-            )}
-            ActionPopoverComponent={({action}) => (
-                <AwardPopover
-                    award={action}
-                    loggedInPlayer={loggedInPlayer}
-                    cost={awardConfigsByAward[action].cost}
-                    isFunded={awardConfigsByAward[action].isFunded}
-                    fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
-                />
-            )}
-        />
+        <Flex flexDirection="column" alignItems="flex-end">
+            <AwardHeader className="display">Awards</AwardHeader>
+
+            <ActionListWithPopovers<Award>
+                actions={Object.values(Award)}
+                ActionComponent={({action}) => (
+                    <AwardBadge
+                        award={action}
+                        fundAward={fundAward}
+                        loggedInPlayer={loggedInPlayer}
+                        cost={awardConfigsByAward[action].cost}
+                        isFunded={awardConfigsByAward[action].isFunded}
+                    />
+                )}
+                ActionPopoverComponent={({action}) => (
+                    <AwardPopover
+                        award={action}
+                        loggedInPlayer={loggedInPlayer}
+                        cost={awardConfigsByAward[action].cost}
+                        isFunded={awardConfigsByAward[action].isFunded}
+                        fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
+                    />
+                )}
+            />
+        </Flex>
     );
 }
 
 const AwardBadgeContainer = styled.div`
     padding: 4px;
     color: white;
-`;
-
-const HoverMask = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    > * {
-        transition: opacity 350ms;
-        opacity: 1;
-    }
-
-    &:hover > * {
-        opacity: 0;
-    }
-
-    &:after {
-        content: '';
-        opacity: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 350ms;
-    }
-
-    &:hover:after {
-        content: 'Fund';
-        opacity: 1;
-    }
 `;
 
 function AwardBadge({
@@ -144,9 +126,7 @@ function AwardBadge({
                     !showPaymentPopover && fundAward(award, {[Resource.MEGACREDIT]: cost});
                 }}
             >
-                <HoverMask>
-                    <span>{getTextForAward(award)}</span>
-                </HoverMask>
+                <span>{getTextForAward(award)}</span>
             </AwardBadgeContainer>
         </PaymentPopover>
     );
@@ -268,10 +248,10 @@ function getRequirementTextForAward(award: Award) {
 }
 
 function getCostForAward(award: Award, state: GameState) {
-    const fundedIndex = state.common.fundedAwards.findIndex(claim => claim.award === award);
+    const fundedIndex = state.common.fundedAwards.findIndex(config => config.award === award);
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];
     } else {
-        return [8, 14, 20][state.common.fundedAwards.length];
+        return [8, 14, 20, 20][state.common.fundedAwards.length];
     }
 }

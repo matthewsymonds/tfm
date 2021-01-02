@@ -16,6 +16,16 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
+const MilestoneHeader = styled.div`
+    margin: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    opacity: 0.3;
+`;
+
 export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
@@ -28,57 +38,28 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     };
 
     return (
-        <ActionListWithPopovers<Milestone>
-            id="milestones"
-            actions={Object.values(Milestone)}
-            ActionComponent={({action}) => (
-                <MilestoneBadge
-                    milestone={action}
-                    claimMilestone={claimMilestone}
-                    loggedInPlayer={loggedInPlayer}
-                />
-            )}
-            ActionPopoverComponent={({action}) => (
-                <MilestonePopover milestone={action} loggedInPlayer={loggedInPlayer} />
-            )}
-        />
+        <Flex flexDirection="column" alignItems="flex-end">
+            <MilestoneHeader className="display">Milestones</MilestoneHeader>
+            <ActionListWithPopovers<Milestone>
+                actions={Object.values(Milestone)}
+                ActionComponent={({action}) => (
+                    <MilestoneBadge
+                        milestone={action}
+                        claimMilestone={claimMilestone}
+                        loggedInPlayer={loggedInPlayer}
+                    />
+                )}
+                ActionPopoverComponent={({action}) => (
+                    <MilestonePopover milestone={action} loggedInPlayer={loggedInPlayer} />
+                )}
+            />
+        </Flex>
     );
 }
 
 const MilestoneBadgeContainer = styled.div`
     padding: 4px;
     color: white;
-`;
-
-const HoverMask = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    > * {
-        transition: opacity 350ms;
-        opacity: 1;
-    }
-
-    &:hover > * {
-        opacity: 0;
-    }
-
-    &:after {
-        content: '';
-        opacity: 0;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 350ms;
-    }
-
-    &:hover:after {
-        content: 'Claim';
-        opacity: 1;
-    }
 `;
 
 function MilestoneBadge({
@@ -105,9 +86,7 @@ function MilestoneBadge({
                     !showPaymentPopover && claimMilestone(milestone);
                 }}
             >
-                <HoverMask>
-                    <span>{getTextForMilestone(milestone)}</span>
-                </HoverMask>
+                <span>{getTextForMilestone(milestone)}</span>
             </MilestoneBadgeContainer>
         </PaymentPopover>
     );

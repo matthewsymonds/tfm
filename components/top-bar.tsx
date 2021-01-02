@@ -1,4 +1,6 @@
+import {ActionLog} from 'components/action-log';
 import {Flex} from 'components/box';
+import Button from 'components/controls/button';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
@@ -22,13 +24,6 @@ const TopBarBase = styled.div`
     padding: 0 8px;
     color: #dddddd;
     background-color: ${props => props.color};
-`;
-
-const ActionBarButton = styled.button`
-    display: inline;
-    margin-left: 8px;
-    min-width: 0px;
-    padding: 6px 8px;
 `;
 
 const RoundText = styled.span`
@@ -118,9 +113,9 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                     isLoggedInPlayersTurn &&
                     isActiveRound &&
                     !(actionGuard.shouldDisableUI() || isPlayerMakingDecision) && (
-                        <ActionBarButton onClick={() => apiClient.skipActionAsync()}>
+                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 4px">
                             {action === 2 ? 'End turn' : 'Pass'}
-                        </ActionBarButton>
+                        </Button>
                     )}
                 {isLoggedInPlayersTurn &&
                     isGreeneryPlacement &&
@@ -128,15 +123,18 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                         actionGuard.shouldDisableValidGreeneryPlacementUI() ||
                         isPlayerMakingDecision
                     ) && (
-                        <ActionBarButton onClick={() => apiClient.skipActionAsync()}>
+                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 4px">
                             End greenery placement
-                        </ActionBarButton>
+                        </Button>
                     )}
             </Flex>
             <Flex alignItems="center" justifyContent="flex-end">
+                <ActionLog />
                 <PlayersOrder />
                 <RoundText>{roundText}</RoundText>
-                <ActionBarButton onClick={() => router.push('/')}>Home</ActionBarButton>
+                <Button onClick={() => router.push('/')} margin="0 0 0 4px">
+                    Home
+                </Button>
             </Flex>
         </TopBarBase>
     );

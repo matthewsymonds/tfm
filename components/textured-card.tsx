@@ -5,14 +5,7 @@ import {Flex} from './box';
 
 const BORDER_RADIUS = 10;
 
-const CardContainer = styled.div<{
-    height?: number;
-    width?: number;
-    bgColor: string;
-    isSelected?: boolean;
-    borderRadius: number;
-    borderWidth: number;
-}>`
+const CardContainer = styled.div<TexturedCardProps>`
     width: ${props => (props.width ? `${props.width}px` : 'initial')};
     height: ${props => (props.height ? `${props.height}px` : 'initial')};
     border-radius: ${props => props.borderRadius}px;
@@ -53,15 +46,7 @@ const CardTexture = styled.div<{borderRadius: number}>`
     }
 `;
 
-export default function TexturedCard({
-    children,
-    height,
-    width,
-    bgColor = 'hsl(15, 70%, 50%)',
-    isSelected,
-    borderRadius = 10,
-    borderWidth = 2,
-}: {
+type TexturedCardProps = {
     children: React.ReactNode;
     height?: number;
     width?: number;
@@ -69,21 +54,51 @@ export default function TexturedCard({
     bgColor?: string;
     borderRadius?: number;
     borderWidth?: number;
-}) {
-    return (
-        <CardContainer
-            borderRadius={borderRadius}
-            borderWidth={borderWidth}
-            height={height}
-            width={width}
-            bgColor={bgColor}
-            isSelected={isSelected}
-        >
-            <CardTexture borderRadius={borderRadius}>
-                <Flex position="relative" height="100%" flexDirection="column">
-                    {children}
-                </Flex>
-            </CardTexture>
-        </CardContainer>
-    );
-}
+    style?: React.CSSProperties;
+};
+
+const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
+    (
+        {
+            children,
+            height,
+            width,
+            bgColor = 'hsl(15, 70%, 50%)',
+            isSelected,
+            borderRadius = 10,
+            borderWidth = 2,
+            style,
+        }: {
+            children: React.ReactNode;
+            height?: number;
+            width?: number;
+            isSelected?: boolean;
+            bgColor?: string;
+            borderRadius?: number;
+            borderWidth?: number;
+            style?: React.CSSProperties;
+        },
+        ref
+    ) => {
+        return (
+            <CardContainer
+                ref={ref}
+                borderRadius={borderRadius}
+                borderWidth={borderWidth}
+                height={height}
+                width={width}
+                bgColor={bgColor}
+                isSelected={isSelected}
+                style={style}
+            >
+                <CardTexture borderRadius={borderRadius}>
+                    <Flex position="relative" height="100%" flexDirection="column">
+                        {children}
+                    </Flex>
+                </CardTexture>
+            </CardContainer>
+        );
+    }
+);
+
+export default TexturedCard;

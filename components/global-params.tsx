@@ -1,4 +1,5 @@
-import {getParameterName, GlobalParameters, Parameter} from 'constants/board';
+import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {GlobalParameters, Parameter} from 'constants/board';
 import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {Tooltip} from 'react-tippy';
@@ -7,42 +8,28 @@ import {Flex} from './box';
 import {ColoredTooltip} from './colored-tooltip';
 import {colors} from './ui';
 
-const GlobalParamsBase = styled.div`
-    width: 100%;
-    margin-top: 8px;
-`;
-
-const GlobalParamRow = styled.div`
+const GlobalParamColumn = styled.div`
     display: flex;
-    margin-bottom: 2px;
-    flex-direction: row;
-`;
-
-const GlobalParamName = styled.span`
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 90px;
-    color: white;
-    letter-spacing: 0.1em;
-    font-size: 10px;
-    margin-right: 2px;
+    flex-direction: column;
+    margin: 0 2px;
 `;
 
 const GlobalParamStep = styled.div<{isFilledIn: boolean; color: string; bonus: boolean}>`
+    flex-basis: 100%;
     border-radius: 2px;
     border: 1px solid #b5b5b5;
+    border-width: ${props => (props.isFilledIn ? '2px' : '1px')};
     padding: 2px 0;
-    margin-left: 2px;
+    margin: 2px 0;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
+    cursor: default;
     color: white;
     font-weight: 500;
     background-color: ${props => props.color};
-    opacity: ${props => (props.isFilledIn ? 1 : props.bonus ? 0.65 : 0.4)};
+    opacity: ${props => (props.isFilledIn ? 1 : props.bonus ? 0.65 : 0.3)};
 `;
 
 type GlobalParamValueProps = {
@@ -59,39 +46,39 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     steps.push(MAX_PARAMETERS[parameter]);
 
     return (
-        <Flex justifyContent="space-between" flex="auto">
+        <Flex
+            flexDirection="column-reverse"
+            alignItems="stretch"
+            justifyContent="stretch"
+            flex="auto"
+        >
             {steps.map(value => {
                 const isFilledIn = currentValue === value;
                 // Takes logged in player index, but we don't need that.
                 const bonus = PARAMETER_BONUSES[parameter][value]?.(0);
                 const color = colors.PARAMETERS[parameter];
-                // Where's the water?
-                const stepElement = (
-                    <GlobalParamStep isFilledIn={isFilledIn} bonus={!!bonus} color={color}>
-                        {value}
-                    </GlobalParamStep>
-                );
 
                 const showTooltip = isFilledIn || !!bonus;
 
                 return (
-                    <Tooltip
-                        key={`${parameter}-${value}`}
-                        style={{flexBasis: '100%'}}
-                        sticky={true}
-                        animation="fade"
-                        html={
-                            showTooltip ? (
-                                <ColoredTooltip color={color}>
-                                    {isFilledIn ? 'Current value' : bonus!.name}
-                                </ColoredTooltip>
-                            ) : (
-                                <div />
-                            )
-                        }
-                    >
-                        {stepElement}
-                    </Tooltip>
+                    <GlobalParamStep isFilledIn={isFilledIn} bonus={!!bonus} color={color}>
+                        <Tooltip
+                            key={`${parameter}-${value}`}
+                            sticky={true}
+                            animation="fade"
+                            html={
+                                showTooltip ? (
+                                    <ColoredTooltip color={color}>
+                                        {isFilledIn ? 'Current value' : bonus!.name}
+                                    </ColoredTooltip>
+                                ) : (
+                                    <div />
+                                )
+                            }
+                        >
+                            {value}
+                        </Tooltip>
+                    </GlobalParamStep>
                 );
             })}
         </Flex>
@@ -105,20 +92,20 @@ type GlobalParamsProps = {
 
 export default function GlobalParams(props: GlobalParamsProps) {
     return (
-        <GlobalParamsBase>
+        <Flex margin="0 2px">
             {Object.keys(props.parameters)
                 .filter(parameter => parameter !== Parameter.VENUS || props.showVenus)
                 .map(parameter => (
-                    <GlobalParamRow key={parameter as Parameter}>
-                        <GlobalParamName>
-                            {getParameterName(parameter as Parameter)}
-                        </GlobalParamName>
+                    <GlobalParamColumn key={parameter as Parameter}>
                         <GlobalParamValue
                             parameter={parameter as Parameter}
                             currentValue={props.parameters[parameter]}
                         />
-                    </GlobalParamRow>
+                        <Flex alignItems="center" justifyContent="center" height="40px">
+                            <GlobalParameterIcon parameter={parameter as Parameter} size={24} />
+                        </Flex>
+                    </GlobalParamColumn>
                 ))}
-        </GlobalParamsBase>
+        </Flex>
     );
 }

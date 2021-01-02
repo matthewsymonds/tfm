@@ -39,15 +39,15 @@ export const colors = {
 
     // mars board
     PARAMETERS: {
-        [Parameter.TEMPERATURE]: 'red',
-        [Parameter.OXYGEN]: 'green',
-        [Parameter.OCEAN]: 'blue',
+        [Parameter.TEMPERATURE]: 'hsl(11, 72%, 33%)',
+        [Parameter.OXYGEN]: 'hsl(131,43%,32%)',
+        [Parameter.OCEAN]: 'hsl(243, 59%, 44%)',
         [Parameter.VENUS]: 'orange',
     },
 
     // player colors
     PLAYER_COLOR_RED: 'hsl(345, 40%, 40%)',
-    PLAYER_COLOR_GREEN: 'hsl(124.8, 30.4%, 40.6%)',
+    PLAYER_COLOR_GREEN: 'hsl(125, 30%, 41%)',
     PLAYER_COLOR_BLUE: 'hsl(220, 40%, 50%)',
     PLAYER_COLOR_YELLOW: 'hsl(50, 60%, 60%)',
     PLAYER_COLOR_GRAY: 'hsl(233.1, 11.6%, 43.9%)',
