@@ -527,7 +527,11 @@ export class ActionGuard {
         return false;
     }
 
-    canPlayActionInSpiteOfUI(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
+    canPlayActionInSpiteOfUI(
+        action: Action,
+        state: GameState = this.state,
+        parent?: Card
+    ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }

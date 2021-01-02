@@ -109,3 +109,7 @@ export const Card: React.FC<CardProps> = props => {
 
     return <React.Fragment>{memoizedCard}</React.Fragment>;
 };
+
+export const LiveCard: React.FC<CardProps> = props => {
+    return <CardInner {...props} />;
+};

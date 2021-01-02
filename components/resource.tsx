@@ -1,18 +1,12 @@
-import {ApiClient} from 'api-client';
-import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource';
-import {Pane} from 'evergreen-ui';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import {AppContext} from 'context/app-context';
-import {useContext} from 'react';
-import {useDispatch} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {PlayerState} from 'reducer';
 import styled, {keyframes} from 'styled-components';
 
 const plantBgCycle = keyframes`
@@ -59,11 +53,13 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean}>`
     &.canDoPlantConversion {
         animation: ${plantBgCycle} 4s ease-in-out infinite;
         animation-delay: 2s;
-        cursor: pointer;
     }
 
     &.canDoHeatConversion {
         animation: ${heatBgCycle} 4s ease-in-out infinite;
+    }
+
+    &.activePlayer {
         cursor: pointer;
     }
 `;
@@ -74,6 +70,7 @@ export type ResourceBoardCellProps = {
     production: number;
     handleOnClick?: () => void;
     showConversionAnimation?: boolean;
+    isLoggedInPlayer?: boolean;
 };
 
 export const ResourceBoardCell = ({
@@ -82,11 +79,13 @@ export const ResourceBoardCell = ({
     resource,
     showConversionAnimation,
     handleOnClick,
+    isLoggedInPlayer,
 }: ResourceBoardCellProps) => {
     let className = 'display';
     if (showConversionAnimation) {
         if (resource === Resource.PLANT) className += ' canDoPlantConversion';
         if (resource === Resource.HEAT) className += ' canDoHeatConversion';
+        if (isLoggedInPlayer) className += ' activePlayer';
     }
 
     return (
@@ -143,7 +142,7 @@ export const PlayerResourceBoard = ({
     plantConversionOnly,
 }: PlayerResourceBoardProps) => {
     const apiClient = useApiClient();
-    const actionGuard = useActionGuard();
+    const actionGuard = useActionGuard(player.username);
 
     return (
         <Flex flexDirection="column">
@@ -169,7 +168,7 @@ export const PlayerResourceBoard = ({
                             [
                                 canDoConversionInSpiteOfUI,
                                 reason,
-                            ] = actionGuard.canPlayActionInSpiteOfUI(conversion, state);
+                            ] = actionGuard.canPlayActionInSpiteOfUI(conversion);
                         }
 
                         function handleOnClick() {
@@ -185,6 +184,7 @@ export const PlayerResourceBoard = ({
                                 amount={player.resources[resource]}
                                 production={player.productions[resource]}
                                 showConversionAnimation={canDoConversionInSpiteOfUI}
+                                isLoggedInPlayer={isLoggedInPlayer}
                                 handleOnClick={handleOnClick}
                             />
                         );

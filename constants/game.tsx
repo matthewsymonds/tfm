@@ -41,10 +41,6 @@ export const MinimumProductions = {
     [Resource.HEAT]: 0,
 };
 
-export const PLAYER_COLORS = [
-    colors.PLAYER_COLOR_RED,
-    colors.PLAYER_COLOR_GREEN,
-    colors.PLAYER_COLOR_BLUE,
-    colors.PLAYER_COLOR_YELLOW,
-    colors.PLAYER_COLOR_GRAY,
-];
+export const PLAYER_COLORS = Object.values(colors.PLAYER_COLORS);
+
+export const PLAYER_BG_COLORS = Object.values(colors.PLAYER_BG_COLORS);

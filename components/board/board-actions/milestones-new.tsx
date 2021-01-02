@@ -179,10 +179,17 @@ function MilestoneRankings({milestone}: {milestone: Milestone}) {
                 const quantity = useTypedSelector(state =>
                     milestoneQuantitySelectors[milestone](player, state)
                 );
-                <Flex alignItems="center" justifyContent="center">
-                    <PlayerCorpAndIcon player={player} />
-                    <span style={{marginLeft: 20}}>{quantity}</span>
-                </Flex>;
+                return (
+                    <Flex
+                        key={player.index}
+                        alignItems="center"
+                        justifyContent="space-between"
+                        margin="4px 8px"
+                    >
+                        <PlayerCorpAndIcon player={player} />
+                        <span style={{marginLeft: 20, fontWeight: 600}}>{quantity}</span>
+                    </Flex>
+                );
             })}
         </Flex>
     );

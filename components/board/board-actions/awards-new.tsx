@@ -196,7 +196,6 @@ function AwardPopover({
 
 function AwardRankings({award}: {award: Award}) {
     const players = useTypedSelector(state => state.players);
-
     return (
         <Flex flexDirection="column" width="100%">
             <Flex alignItems="center" marginBottom="8px" style={{fontSize: 14}}>
@@ -204,10 +203,17 @@ function AwardRankings({award}: {award: Award}) {
             </Flex>
             {players.map(player => {
                 const quantity = useTypedSelector(state => awardToQuantity[award](player, state));
-                <Flex alignItems="center" justifyContent="center">
-                    <PlayerCorpAndIcon player={player} />
-                    <span style={{marginLeft: 20}}>{quantity}</span>
-                </Flex>;
+                return (
+                    <Flex
+                        key={player.index}
+                        alignItems="center"
+                        justifyContent="space-between"
+                        margin="4px 8px"
+                    >
+                        <PlayerCorpAndIcon player={player} />
+                        <span style={{marginLeft: 20, fontWeight: 600}}>{quantity}</span>
+                    </Flex>
+                );
             })}
         </Flex>
     );

@@ -13,9 +13,11 @@ const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}
     height: ${CARD_HEIGHT}px;
     position: fixed;
     bottom: 0;
-    transform: translateY(${props => (props.shouldHoist ? '60px' : '200px')});
+    transform: translateY(
+        ${props => (props.shouldShow ? (props.shouldHoist ? '60px' : '200px') : '500px')}
+    );
     opacity: ${props => (props.shouldShow ? 1 : 0)};
-    transition: transform 0.5s, opacity 0.2s;
+    transition: transform ease-in-out 0.5s, opacity 0.2s;
     z-index: 2; /* HACK because of tile name tags */
 
     // disable pointer events so we don't disable the clicks on the bottom part of the screen. when

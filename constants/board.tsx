@@ -75,30 +75,6 @@ export enum PlacementRequirement {
     VOLCANIC = 'placementVolcanic',
 }
 
-export const getTileBgColor = (type: TileType) => {
-    switch (type) {
-        case TileType.CITY:
-            return 'gray';
-        case TileType.GREENERY:
-            return 'green';
-        case TileType.OCEAN:
-            return '#3987c9';
-        case TileType.LAVA_FLOW:
-            return '#ff2222';
-        case TileType.OTHER:
-            return 'brown';
-        case TileType.NATURAL_PRESERVE:
-            return 'pink';
-        case TileType.MINING_AREA:
-        case TileType.MINING_RIGHTS:
-            return 'brown';
-        case TileType.COMMERCIAL_DISTRICT:
-            return '#777';
-        default:
-            return 'white';
-    }
-};
-
 export const getTileIcon = (type: TileType) => {
     switch (type) {
         case TileType.CAPITAL:

@@ -29,9 +29,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     /**
      * Hooks
      */
-    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayerIndex);
-
-    const loggedInPlayer = useTypedSelector(state => state.players[loggedInPlayerIndex]);
+    const players = useTypedSelector(state => state.players);
+    const loggedInPlayer = players[loggedInPlayerIndex];
 
     /**
      * Derived state
@@ -57,7 +56,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 {isPlayerMakingDecision && (
                     <ActionBar>
                         <ActionBarRow>
-                            {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
+                            {/* {gameStage === GameStage.END_OF_GAME && <EndOfGame />} */}
                             {loggedInPlayer.pendingChoice && (
                                 <AskUserToMakeActionChoice player={loggedInPlayer} />
                             )}
@@ -120,23 +119,21 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 </Flex>
                 <Flex
                     className="active-round-outer"
-                    padding="16px"
+                    padding="8px"
                     flex="auto"
                     overflow="auto"
                     alignItems="stretch"
+                    justifyContent="flex-end"
                 >
-                    <Flex
-                        className="active-round-left"
-                        flexDirection="column"
-                        flex="auto"
-                        marginRight="4px"
-                    >
-                        {state.players.map(player => (
-                            <PlayerPanel player={player} />
+                    <Flex flexDirection="column" alignItems="stretch" marginRight="4px">
+                        {players.map((player, index) => (
+                            <Flex key={index} marginTop={index > 0 ? '4px' : 'initial'}>
+                                <PlayerPanel player={player} />
+                            </Flex>
                         ))}
                     </Flex>
 
-                    <Flex className="active-round-right" flexDirection="column" marginRight="4px">
+                    <Flex className="active-round-right" flexDirection="column">
                         <Board />
                     </Flex>
                 </Flex>

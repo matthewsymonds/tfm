@@ -1,11 +1,18 @@
+import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {getInitialState} from 'initial-state';
 import {cards} from 'models/card';
-import {GameOptions, GameState} from 'reducer';
+import {GameState} from 'reducer';
 
-export function getMockState(players: string[], options: GameOptions): GameState {
-    let initialState = getInitialState(players, options);
+export function getMockState(): GameState {
+    let initialState = getInitialState(
+        ['Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5'],
+        {
+            decks: [Deck.BASIC],
+            isDraftingEnabled: false,
+        }
+    );
 
     initialState = {
         ...initialState,
@@ -15,25 +22,24 @@ export function getMockState(players: string[], options: GameOptions): GameState
             gameStage: GameStage.ACTIVE_ROUND,
         },
         players: [
-            ...initialState.players.map(player => {
-                if (player.index === 0) {
-                    return {
-                        ...player,
-                        pendingCardSelection: null,
-                        playedCards: cards.slice(0, 10).map(c => ({name: c.name})),
-                        resources: {
-                            ...player.resources,
-                            [Resource.MEGACREDIT]: 10,
-                            [Resource.PLANT]: 10,
-                            [Resource.ENERGY]: 10,
-                        },
-                        productions: {
-                            ...player.productions,
-                            [Resource.MEGACREDIT]: 10,
-                        },
-                    };
-                }
-                return player;
+            ...initialState.players.map((player, i) => {
+                return {
+                    ...player,
+                    pendingCardSelection: undefined,
+                    corporation:
+                        i === 0 ? {name: 'United Nations Mars Initiative'} : player.corporation,
+                    playedCards: cards.slice(i * 40, i * 40 + 40).map(c => ({name: c.name})),
+                    resources: {
+                        ...player.resources,
+                        [Resource.MEGACREDIT]: 10,
+                        [Resource.PLANT]: 10,
+                        [Resource.ENERGY]: 10,
+                    },
+                    productions: {
+                        ...player.productions,
+                        [Resource.MEGACREDIT]: 10,
+                    },
+                };
             }),
         ],
     };

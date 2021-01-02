@@ -20,9 +20,9 @@ export const colors = {
     NAV_BG_PASSED: '#63667d',
 
     // main content
-    MAIN_BG: 'hsl(0, 0%, 22.4%)',
-    LIGHT_BG: 'hsl(15, 20%, 40%)',
-    LIGHTEST_BG: 'hsl(15, 20%, 70%)',
+    MAIN_BG: 'hsl(0, 0%, 16%)',
+    LIGHT_BG: 'hsl(15, 10%, 40%)',
+    LIGHTEST_BG: 'hsl(15, 10%, 70%)',
 
     // panels
     PANEL_BORDER: '#999',
@@ -47,11 +47,20 @@ export const colors = {
     },
 
     // player colors
-    PLAYER_COLOR_RED: 'hsl(345, 40%, 40%)',
-    PLAYER_COLOR_GREEN: 'hsl(125, 30%, 41%)',
-    PLAYER_COLOR_BLUE: 'hsl(220, 40%, 50%)',
-    PLAYER_COLOR_YELLOW: 'hsl(50, 60%, 60%)',
-    PLAYER_COLOR_GRAY: 'hsl(233.1, 11.6%, 43.9%)',
+    PLAYER_COLORS: {
+        PLAYER_COLOR_RED: 'hsl(345, 40%, 40%)',
+        PLAYER_COLOR_GREEN: 'hsl(125, 30%, 41%)',
+        PLAYER_COLOR_BLUE: 'hsl(220, 40%, 50%)',
+        PLAYER_COLOR_YELLOW: 'hsl(39,76%,50%)',
+        PLAYER_COLOR_GRAY: 'hsl(230, 12%, 45%)',
+    },
+    PLAYER_BG_COLORS: {
+        PLAYER_BG_COLOR_RED: 'hsl(345, 10%, 40%)',
+        PLAYER_BG_COLOR_GREEN: 'hsl(125, 10%, 41%)',
+        PLAYER_BG_COLOR_BLUE: 'hsl(220, 10%, 50%)',
+        PLAYER_BG_COLOR_YELLOW: 'hsl(39,26%,60%)',
+        PLAYER_BG_COLOR_GRAY: 'hsl(230, 5%, 50%)',
+    },
 
     // resource colors
     MEGACREDIT: 'gold',

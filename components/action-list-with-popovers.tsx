@@ -1,5 +1,5 @@
 import {colors} from 'components/ui';
-import {useRef, useState} from 'react';
+import {useLayoutEffect, useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import styled from 'styled-components';
 
@@ -29,17 +29,28 @@ export default function ActionListWithPopovers<T>({
     const [selectedAction, setSelectedAction] = useState<T | null>(null);
     const referenceElement = useRef<HTMLDivElement>(null);
     const popperElement = useRef<HTMLDivElement>(null);
-    const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
-        placement: 'right-start',
-        modifiers: [
-            {
-                name: 'offset',
-                options: {
-                    offset: [0, 10],
+    const {styles, attributes, forceUpdate} = usePopper(
+        referenceElement.current,
+        popperElement.current,
+        {
+            placement: 'right-start',
+            modifiers: [
+                {
+                    name: 'offset',
+                    options: {
+                        offset: [0, 10],
+                    },
                 },
-            },
-        ],
-    });
+            ],
+        }
+    );
+
+    function _setSelectedAction(actionOrNull: T | null) {
+        setSelectedAction(actionOrNull);
+        setTimeout(() => {
+            forceUpdate?.();
+        }, 0);
+    }
 
     return (
         <OuterWrapper
@@ -52,24 +63,22 @@ export default function ActionListWithPopovers<T>({
                     <ActionButton<T>
                         key={index}
                         action={action}
-                        setSelectedAction={setSelectedAction}
+                        setSelectedAction={_setSelectedAction}
                         ActionComponent={ActionComponent}
                     />
                 );
             })}
-            {selectedAction && (
-                <div
-                    ref={popperElement}
-                    style={{
-                        ...styles.popper,
-                        zIndex: 10,
-                        display: selectedAction ? 'initial' : 'none',
-                    }}
-                    {...attributes.popper}
-                >
-                    <ActionPopoverComponent action={selectedAction} />
-                </div>
-            )}
+            <div
+                ref={popperElement}
+                style={{
+                    ...styles.popper,
+                    zIndex: 10,
+                    display: selectedAction ? 'initial' : 'none',
+                }}
+                {...attributes.popper}
+            >
+                {selectedAction && <ActionPopoverComponent action={selectedAction} />}
+            </div>
         </OuterWrapper>
     );
 }

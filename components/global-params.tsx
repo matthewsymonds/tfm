@@ -64,7 +64,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                     <GlobalParamStep
                         key={value}
                         isFilledIn={isFilledIn}
-                        bonus={!!bonus}
+                        bonus={!!bonus && currentValue < value}
                         color={color}
                     >
                         <Tooltip
@@ -97,7 +97,7 @@ type GlobalParamsProps = {
 
 export default function GlobalParams(props: GlobalParamsProps) {
     return (
-        <Flex margin="0 2px">
+        <Flex margin="0 0 0 4px">
             {Object.keys(props.parameters)
                 .filter(parameter => parameter !== Parameter.VENUS || props.showVenus)
                 .map(parameter => (

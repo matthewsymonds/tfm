@@ -14,9 +14,9 @@ const PlayerHandBase = styled.div`
 export const PlayerPlayedCards = ({player}: {player: PlayerState}) => {
     return (
         <PlayerHandBase>
-            {getPlayedCards(player).map(card => {
+            {getPlayedCards(player).map((card, index) => {
                 return (
-                    <div style={{margin: 4}}>
+                    <div style={{margin: 4}} key={index}>
                         <CardComponent
                             card={card}
                             key={card.name}

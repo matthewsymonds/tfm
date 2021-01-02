@@ -33,6 +33,9 @@ interface BoxProps {
     background: string;
     border: string;
     borderRadius: string;
+    borderWidth: string;
+    borderStyle: string;
+    borderColor: string;
     zIndex: number;
     fontSize: string;
     alignSelf: string;
@@ -80,6 +83,9 @@ export const Box = styled.div<Partial<BoxProps>>`
     background: ${props => props.background};
     border: ${props => props.border};
     border-radius: ${props => props.borderRadius};
+    border-width: ${props => props.borderWidth};
+    border-color: ${props => props.borderColor};
+    border-style: ${props => props.borderStyle};
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
     align-self: ${props => props.alignSelf};

@@ -9,10 +9,14 @@ export default {
 } as Meta;
 
 const Template: Story<{}> = args => {
-    const player = useTypedSelector(state => state.players[0]);
+    const players = useTypedSelector(state => state.players);
     return (
         <div style={{height: 1000}}>
-            <PlayerPanel player={player} />
+            {players.map((player, i) => (
+                <div style={{margin: 8}} key={i}>
+                    <PlayerPanel player={player} />
+                </div>
+            ))}
         </div>
     );
 };
