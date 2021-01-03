@@ -1,4 +1,4 @@
-import {PlayerPlayedCards} from 'components/player-played-cards';
+import PlayerPlayedCards from 'components/player-played-cards';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useState} from 'react';

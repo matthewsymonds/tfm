@@ -34,7 +34,7 @@ const TerraformRating = styled.span`
     }
 `;
 
-const CorporationSelector = ({
+export const CorporationSelector = ({
     player,
     isLoggedInPlayer,
 }: {

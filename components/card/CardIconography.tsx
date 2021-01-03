@@ -321,9 +321,6 @@ export function ChangeResourceIconography({
                     justifyContent="center"
                     alignItems="center"
                     marginLeft={i > 0 ? '4px' : 'initial'}
-                    style={{
-                        backgroundColor: opts.isProduction ? 'brown' : 'initial',
-                    }}
                 >
                     {customElement}
                     {multiplierElement && (

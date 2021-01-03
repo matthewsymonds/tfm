@@ -1,6 +1,7 @@
 import {Flex} from 'components/box';
 import {PlayerIcon} from 'components/icons/player';
 import {TagIcon} from 'components/icons/tag';
+import PlayerPlayedCards from 'components/player-played-cards';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {PlayerResourceBoard} from 'components/resource';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
@@ -11,7 +12,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
-import PlayerPlayedCards from 'components/player-played-cards';
+import {CorporationSelector} from './player-panel';
 
 const CorporationHeader = styled.h2`
     display: flex;
@@ -75,6 +76,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
      */
     const loggedInPlayer = context.getLoggedInPlayer(state);
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
+    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const terraformRating = player.terraformRating;
 
     return (
@@ -95,6 +97,12 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
             />
             <PlayerTagCounts player={player} />
             <PlayerPlayedCards player={player} />
+            {isCorporationSelection ? (
+                <CorporationSelector
+                    player={player}
+                    isLoggedInPlayer={player.index === loggedInPlayer.index}
+                />
+            ) : null}
         </OuterWrapper>
     );
 };
