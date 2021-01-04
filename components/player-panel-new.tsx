@@ -71,6 +71,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     const state = useTypedSelector(state => state);
     const playerPanelRef = useRef<HTMLDivElement>(null);
     const [filteredTags, setFilteredTags] = useState([...Object.values(Tag)]);
+    const [areAllTagsEnabled, setAreAllTagsEnabled] = useState(true);
 
     /**
      * Hooks
@@ -126,20 +127,23 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
             {playerCardsElement}
 
             {!isCorporationSelection && (
-                <PlayerTagCounts
-                    player={player}
-                    filteredTags={filteredTags}
-                    setFilteredTags={setFilteredTags}
-                />
+                <React.Fragment>
+                    <PlayerTagCounts
+                        player={player}
+                        filteredTags={filteredTags}
+                        setFilteredTags={setFilteredTags}
+                        setAreAllTagsEnabled={setAreAllTagsEnabled}
+                    />
+                    <PlayerPlayedCards
+                        player={player}
+                        playerPanelRef={playerPanelRef}
+                        filteredTags={filteredTags}
+                        areAllTagsEnabled={areAllTagsEnabled}
+                    />
+                </React.Fragment>
             )}
-            {!isCorporationSelection && (
-                <PlayerPlayedCards
-                    player={player}
-                    playerPanelRef={playerPanelRef}
-                    filteredTags={filteredTags}
-                />
-            )}
-            <Flex marginTop={'12px'} background={colors.LIGHT_2} width="100%" flexWrap="wrap">
+
+            <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
                 <PlayerCardActions player={player} />
             </Flex>
             {isCorporationSelection ? (
@@ -191,10 +195,12 @@ function PlayerTagCounts({
     player,
     filteredTags,
     setFilteredTags,
+    setAreAllTagsEnabled,
 }: {
     player: SerializedPlayerState;
     filteredTags: Array<Tag>;
     setFilteredTags: (tags: Array<Tag>) => void;
+    setAreAllTagsEnabled: (areAllTagsEnabled: boolean) => void;
 }) {
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
     const allTags = tagCountsByName.map(([t]) => t);
@@ -217,6 +223,7 @@ function PlayerTagCounts({
                     setFilteredTags([...filteredTags, tag]);
                 }
             }
+            setAreAllTagsEnabled(allTags.length === filteredTags.length);
         },
         [filteredTags.length, tagCountsByName.length]
     );

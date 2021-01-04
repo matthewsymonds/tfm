@@ -17,16 +17,20 @@ function PlayerPlayedCards({
     player,
     playerPanelRef,
     filteredTags,
+    areAllTagsEnabled,
 }: {
     player: SerializedPlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
     filteredTags: Array<Tag>;
+    areAllTagsEnabled: boolean;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
-    const filteredCards = player.playedCards.filter(card => {
-        const hydratedCard = getCard(card);
-        return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
-    });
+    const filteredCards = areAllTagsEnabled
+        ? player.playedCards
+        : player.playedCards.filter(card => {
+              const hydratedCard = getCard(card);
+              return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
+          });
     const hoveredCard = hoveredCardIndex === null ? null : getCard(filteredCards[hoveredCardIndex]);
     const popperElement = useRef<HTMLDivElement>(null);
     const {styles, attributes, forceUpdate} = usePopper(
