@@ -58,6 +58,12 @@ const OuterWrapper = styled(Flex)`
     border-style: solid;
 `;
 
+const CardsInHandMessage = styled.div`
+    padding-top: 8px;
+    color: #ccc;
+    font-size: 11px;
+`;
+
 const PlayerPanel = ({player}: PlayerPanelProps) => {
     /**
      * State (todo: use selectors everywhere instead)
@@ -81,8 +87,21 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
      */
     const loggedInPlayer = context.getLoggedInPlayer(state);
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
+    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isBetweenRounds =
+        gameStage === GameStage.BUY_OR_DISCARD || gameStage === GameStage.DRAFTING;
     const terraformRating = player.terraformRating;
+
+    const numCards = player.cards.length;
+
+    const playerCardsElement = isActiveRound ? (
+        <CardsInHandMessage>Cards in hand: {numCards}</CardsInHandMessage>
+    ) : isBetweenRounds ? (
+        <CardsInHandMessage>
+            Cards in hand at the end of last round: {player.previousCardsInHand ?? 0}
+        </CardsInHandMessage>
+    ) : null;
 
     return (
         <OuterWrapper
@@ -104,6 +123,8 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 plantConversionOnly={isGreeneryPlacement}
                 isLoggedInPlayer={player.index === loggedInPlayer.index}
             />
+            {playerCardsElement}
+
             {!isCorporationSelection && (
                 <PlayerTagCounts
                     player={player}
