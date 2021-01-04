@@ -1,6 +1,6 @@
 import {Hexagon} from 'components/board/hexagon';
-import {getTileIcon, Parameter, TileType} from 'constants/board';
 import {colors} from 'components/ui';
+import {getTileIcon, Parameter, TileType} from 'constants/board';
 import React from 'react';
 
 export const TileIcon = ({

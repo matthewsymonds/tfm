@@ -3,11 +3,11 @@ import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selec
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerHand} from 'components/player-hand';
+import PlayerPanel from 'components/player-panel-new';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
-import {GameStage} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useState} from 'react';
+import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -18,8 +18,6 @@ import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-prod
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {Board} from './board/board';
 import {Flex} from './box';
-import {EndOfGame} from './end-of-game';
-import PlayerPanel from 'components/player-panel-new';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;

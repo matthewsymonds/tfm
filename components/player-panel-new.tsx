@@ -9,7 +9,7 @@ import {colors} from 'components/ui';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
-import React, {useContext, useRef, useState, useCallback} from 'react';
+import React, {useCallback, useContext, useRef, useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
