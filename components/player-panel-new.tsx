@@ -204,7 +204,7 @@ function PlayerTagCounts({
             >
                 <span>All</span>
             </AllButton>
-            <Flex>
+            <Flex flexWrap="wrap">
                 {tagCountsByName.map(tagCount => {
                     const [tag, count] = tagCount;
                     return (

@@ -6,6 +6,7 @@ import {PlayerHand} from 'components/player-hand';
 import PlayerPanel from 'components/player-panel-new';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
+import {GameStage} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
@@ -18,6 +19,7 @@ import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-prod
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {Board} from './board/board';
 import {Flex} from './box';
+import {EndOfGame} from './end-of-game';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -54,7 +56,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 {isPlayerMakingDecision && (
                     <ActionBar>
                         <ActionBarRow>
-                            {/* {gameStage === GameStage.END_OF_GAME && <EndOfGame />} */}
+                            {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                             {loggedInPlayer.pendingChoice && (
                                 <AskUserToMakeActionChoice player={loggedInPlayer} />
                             )}

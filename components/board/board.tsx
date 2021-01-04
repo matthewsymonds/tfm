@@ -48,7 +48,7 @@ export const Board = () => {
     const actionGuard = useActionGuard();
 
     const showVenus = useTypedSelector(
-        state => state.options.decks.includes(Deck.VENUS),
+        state => state.options?.decks.includes(Deck.VENUS),
         // Never updates
         () => true
     );

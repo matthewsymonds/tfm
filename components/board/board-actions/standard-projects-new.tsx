@@ -1,5 +1,5 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
-import {Flex, Box} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
 import {
     GainResourceIconography,
