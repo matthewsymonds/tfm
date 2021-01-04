@@ -10,6 +10,7 @@ import React from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {colors} from './ui';
 
 const CorporationHeader = styled.h2`
     display: flex;
@@ -34,6 +35,10 @@ const TerraformRating = styled.span`
     }
 `;
 
+const BaseText = styled.div`
+    color: ${colors.LIGHT_2};
+`;
+
 export const CorporationSelector = ({
     player,
     isLoggedInPlayer,
@@ -45,18 +50,18 @@ export const CorporationSelector = ({
     const dispatch = useDispatch();
     if (!isLoggedInPlayer) {
         if (player.action) {
-            return <div>{player.username} is ready to play.</div>;
+            return <BaseText>{player.username} is ready to play.</BaseText>;
         } else {
-            return <div>{player.username} is choosing a corporation and cards.</div>;
+            return <BaseText>{player.username} is choosing a corporation and cards.</BaseText>;
         }
     }
 
     const {possibleCorporations, pendingCardSelection: isBuyingCards, corporation} = player;
     if (!isBuyingCards) {
         return (
-            <div>
+            <BaseText>
                 {player.username} has chosen {corporation.name}.
-            </div>
+            </BaseText>
         );
     }
 
@@ -70,7 +75,13 @@ export const CorporationSelector = ({
                 options={possibleCorporations}
                 orientation="vertical"
             >
-                <h3>Select a corporation:</h3>
+                <h3
+                    style={{
+                        color: colors.LIGHT_2,
+                    }}
+                >
+                    Select a corporation:
+                </h3>
             </CardSelector>
         </>
     );
