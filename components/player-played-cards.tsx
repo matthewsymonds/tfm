@@ -19,12 +19,10 @@ function PlayerPlayedCards({
     player,
     playerPanelRef,
     filteredTags,
-    areAllTagsEnabled,
 }: {
     player: SerializedPlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
     filteredTags: Array<Tag>;
-    areAllTagsEnabled: boolean;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
