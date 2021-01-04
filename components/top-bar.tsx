@@ -84,6 +84,9 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     return (
         <TopBarBase color={topBarColor}>
             <Flex alignItems="center" justifyContent="center">
+                <Flex alignItems="center" marginRight="8px">
+                    <PlayerCorpAndIcon player={loggedInPlayer} color="white" />
+                </Flex>
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
                 {isEndOfGame && <span>The game has ended.</span>}
                 {!isActiveRound &&
@@ -113,7 +116,7 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                     isLoggedInPlayersTurn &&
                     isActiveRound &&
                     !(actionGuard.shouldDisableUI() || isPlayerMakingDecision) && (
-                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 4px">
+                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
                             {action === 2 ? 'End turn' : 'Pass'}
                         </Button>
                     )}
@@ -132,9 +135,6 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 <ActionLog />
                 <PlayersOrder />
                 <RoundText>{roundText}</RoundText>
-                <Flex alignItems="center" margin="0 4px">
-                    <PlayerCorpAndIcon player={loggedInPlayer} color="white" />
-                </Flex>
                 <Button onClick={() => router.push('/')} margin="0 0 0 4px">
                     Home
                 </Button>
