@@ -23,8 +23,11 @@ function PlayerPlayedCards({
     filteredTags: Array<Tag>;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
-    const hoveredCard =
-        hoveredCardIndex === null ? null : getCard(player.playedCards[hoveredCardIndex]);
+    const filteredCards = player.playedCards.filter(card => {
+        const hydratedCard = getCard(card);
+        return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
+    });
+    const hoveredCard = hoveredCardIndex === null ? null : getCard(filteredCards[hoveredCardIndex]);
     const popperElement = useRef<HTMLDivElement>(null);
     const {styles, attributes, forceUpdate} = usePopper(
         playerPanelRef.current,
@@ -41,10 +44,6 @@ function PlayerPlayedCards({
         }, 0);
     }
 
-    const filteredCards = player.playedCards.filter(card => {
-        const hydratedCard = getCard(card);
-        return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
-    });
     let requiredOverlapAmountPx: number; // may be negative
     if (filteredCards.length === 0 || filteredCards.length === 1) {
         requiredOverlapAmountPx = 0;
@@ -96,7 +95,7 @@ function PlayerPlayedCards({
             >
                 {filteredCards.map((card, index) => (
                     <div
-                        key={index}
+                        key={card.name}
                         style={{
                             position: 'absolute',
                             transform: `${getCardPosition(index)}`,
@@ -106,7 +105,7 @@ function PlayerPlayedCards({
                         }}
                         onMouseEnter={() => _setHoveredCardIndex(index)}
                     >
-                        <CardToken key={index} card={card} />
+                        <CardToken card={card} />
                     </div>
                 ))}
             </div>

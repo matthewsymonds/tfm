@@ -14,6 +14,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
+import {PlayerCardActions} from './player-card-actions';
 import {CorporationSelector} from './player-panel';
 
 const CorporationHeader = styled.h2`
@@ -113,6 +114,9 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 playerPanelRef={playerPanelRef}
                 filteredTags={filteredTags}
             />
+            <Flex marginTop={'12px'} background={colors.LIGHT_2} width="100%" flexWrap="wrap">
+                <PlayerCardActions player={player} />
+            </Flex>
             {isCorporationSelection ? (
                 <CorporationSelector
                     player={player}
@@ -123,10 +127,11 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     );
 };
 
-const TagButton = styled(BlankButton)<{isSelected: boolean}>`
+const TagButton = styled(BlankButton)<{isSelected: boolean; allSelected: boolean}>`
     border-radius: 9999px; // pill
     padding: 4px;
-    background-color: 'inherit';
+    background-color: ${props =>
+        !props.allSelected && props.isSelected ? colors.CARD_BORDER_1 : 'inherit'};
     opacity: ${props => (props.isSelected ? 1 : 0.4)};
     cursor: default;
     transition: opacity 150ms;
@@ -167,10 +172,11 @@ function PlayerTagCounts({
     setFilteredTags: (tags: Array<Tag>) => void;
 }) {
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
+    const allTags = tagCountsByName.map(([t]) => t);
+    const everythingIsSelected = allTags.every(t => filteredTags.includes(t)) && allTags.length > 1;
     const toggleTag = useCallback(
         tag => {
-            const allTags = tagCountsByName.map(([t]) => t);
-            if (allTags.every(t => filteredTags.includes(t)) && allTags.length > 1) {
+            if (everythingIsSelected) {
                 // If everything is selected and user clicks a tag, assume they
                 // want to filter to see JUST that tag
                 setFilteredTags([tag]);
@@ -187,7 +193,7 @@ function PlayerTagCounts({
                 }
             }
         },
-        [filteredTags, tagCountsByName]
+        [filteredTags.length, tagCountsByName.length]
     );
 
     return (
@@ -200,6 +206,7 @@ function PlayerTagCounts({
                             key={tag}
                             onClick={() => toggleTag(tag)}
                             isSelected={filteredTags.includes(tag)}
+                            allSelected={everythingIsSelected}
                             style={{marginRight: 4}}
                         >
                             <Flex justifyContent="center" alignItems="center">

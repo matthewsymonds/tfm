@@ -1,4 +1,3 @@
-import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {PlayerState} from 'reducer';
 import {getPlayedCards} from 'selectors/get-played-cards';
@@ -7,8 +6,6 @@ import {CardContext} from './card/Card';
 import {CardActions} from './card/CardActions';
 
 export const PlayerCardActions = ({player}: {player: PlayerState}) => {
-    const apiClient = useApiClient();
-
     return (
         <React.Fragment>
             {getPlayedCards(player)
@@ -18,8 +15,8 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                         <Box
                             key={`card-actions-${card.name}`}
                             width="fit-content"
+                            margin="4px"
                             border="1px solid #aaa"
-                            marginBottom="6px"
                             borderRadius="3px"
                         >
                             <CardActions

@@ -50,13 +50,11 @@ export const PlayerTagCounter = ({player}: PlayerTagCounterProps) => {
         <Flex display="flex" flexDirection="row">
             {eventCount > 0 && (
                 <Flex marginRight="8px">
-                    {/* FIX ME */}
                     <TagIcon name={Tag.EVENT} size={24} />: {eventCount}
                 </Flex>
             )}
             {Object.keys(tagCountsByTagName).map(tag => (
                 <Flex key={tag} marginRight="8px">
-                    {/* FIX ME */}
                     <TagIcon name={Tag.EVENT} size={24} />: {tagCountsByTagName[tag]}
                 </Flex>
             ))}

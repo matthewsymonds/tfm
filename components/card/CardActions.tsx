@@ -203,14 +203,16 @@ export const CardActions = ({
                 </ActionText>
             )}
             {actions.map((action, index) => {
-                <CardAction
-                    key={index}
-                    action={action}
-                    index={index}
-                    card={card}
-                    cardContext={cardContext}
-                    cardOwner={cardOwner}
-                />;
+                return (
+                    <CardAction
+                        key={index}
+                        action={action}
+                        index={index}
+                        card={card}
+                        cardContext={cardContext}
+                        cardOwner={cardOwner}
+                    />
+                );
             })}
         </ActionsWrapper>
     );
