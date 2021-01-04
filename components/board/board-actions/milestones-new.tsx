@@ -2,7 +2,7 @@ import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
-import {PlayerCorpAndIcon} from 'components/icons/player';
+import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
@@ -17,11 +17,10 @@ import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
 const MilestoneHeader = styled.div`
-    margin: 4px;
+    margin: 4px 2px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 13px;
-    font-weight: 600;
     color: ${colors.GOLD};
 `;
 
@@ -30,6 +29,12 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     const actionGuard = useActionGuard();
     const canPlay = milestone => actionGuard.canClaimMilestone(milestone)[0];
     const isClaimed = milestone => actionGuard.isMilestoneClaimed(milestone);
+    const claimedMilestones = useTypedSelector(state =>
+        state.common.claimedMilestones.map(cm => ({
+            ...cm,
+            claimedByPlayer: state.players[cm.claimedByPlayerIndex],
+        }))
+    );
 
     const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
         if (canPlay(milestone)) {
@@ -38,7 +43,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     };
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end">
+        <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
                 actions={Object.values(Milestone)}
@@ -52,13 +57,24 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
                         isClaimed={isClaimed(action)}
                     />
                 )}
-                ActionPopoverComponent={({action}) => <MilestonePopover milestone={action} />}
+                ActionPopoverComponent={({action}) => (
+                    <MilestonePopover
+                        milestone={action}
+                        isClaimed={isClaimed(action)}
+                        claimedByPlayer={
+                            claimedMilestones.find(cm => cm.milestone === action)
+                                ?.claimedByPlayer ?? null
+                        }
+                    />
+                )}
             />
         </Flex>
     );
 }
 
 const MilestoneBadgeContainer = styled.div<{canClaim: boolean; isClaimed: boolean}>`
+    display: flex;
+    align-items: center;
     padding: 4px;
     color: white;
     opacity: ${props => (props.canClaim || props.isClaimed ? 1 : 0.5)};
@@ -78,6 +94,11 @@ function MilestoneBadge({
     canClaim: boolean;
     isClaimed: boolean;
 }) {
+    const claimedByPlayerIndex =
+        useTypedSelector(state =>
+            state.common.claimedMilestones.find(cm => cm.milestone === milestone)
+        )?.claimedByPlayerIndex ?? null;
+
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
 
@@ -95,6 +116,11 @@ function MilestoneBadge({
                     !showPaymentPopover && claimMilestone(milestone);
                 }}
             >
+                {claimedByPlayerIndex !== null && (
+                    <div style={{marginRight: 4}}>
+                        <PlayerIcon playerIndex={claimedByPlayerIndex} size={10} />
+                    </div>
+                )}
                 <span>{getTextForMilestone(milestone)}</span>
             </MilestoneBadgeContainer>
         </PaymentPopover>
@@ -105,7 +131,15 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function MilestonePopover({milestone}: {milestone: Milestone}) {
+function MilestonePopover({
+    milestone,
+    isClaimed,
+    claimedByPlayer,
+}: {
+    milestone: Milestone;
+    isClaimed: boolean;
+    claimedByPlayer: PlayerState | null;
+}) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
 
@@ -115,11 +149,23 @@ function MilestonePopover({milestone}: {milestone: Milestone}) {
                 <GenericCardTitleBar bgColor={'#d67500'}>
                     {getTextForMilestone(milestone)}
                 </GenericCardTitleBar>
-                <GenericCardCost cost={8} />
+                {isClaimed ? <GenericCardCost cost="-" /> : <GenericCardCost cost={8} />}
                 <Flex alignItems="center" margin="4px" marginBottom="8px" fontSize="13px">
                     <MilestoneRankings milestone={milestone} />
                 </Flex>
-                {!canPlay && reason && (
+                {claimedByPlayer && (
+                    <Flex
+                        alignItems="center"
+                        justifyContent="center"
+                        margin="4px"
+                        marginBottom="8px"
+                        fontSize="15px"
+                    >
+                        <span style={{marginRight: 2}}>Claimed by</span>
+                        <PlayerCorpAndIcon player={claimedByPlayer} />
+                    </Flex>
+                )}
+                {!canPlay && reason && !isClaimed && (
                     <Flex
                         margin="8px"
                         flexDirection="column"

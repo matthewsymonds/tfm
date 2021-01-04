@@ -8,7 +8,7 @@ const OuterWrapper = styled.div`
     height: 100%;
     flex-direction: column;
     align-items: stretch;
-    margin: 0 2px;
+    margin: 0px;
 `;
 
 export default function ActionListWithPopovers<T>({
@@ -117,6 +117,7 @@ const StylizedActionWrapper = styled.div<{emphasizeOnHover: boolean}>`
     margin-bottom: 4px;
     user-select: none;
     cursor: ${props => (props.emphasizeOnHover ? 'pointer' : 'auto')};
+    opacity: ${props => (props.emphasizeOnHover ? 1 : 0.5)};
 
     &:before {
         content: '';
