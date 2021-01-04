@@ -23,7 +23,6 @@ function PlayerPlayedCards({
     const hoveredCard =
         hoveredCardIndex === null ? null : getCard(player.playedCards[hoveredCardIndex]);
     const popperElement = useRef<HTMLDivElement>(null);
-    // const referenceElement = useRef<HTMLDivElement>(null);
     const {styles, attributes, forceUpdate} = usePopper(
         playerPanelRef.current,
         popperElement.current,
