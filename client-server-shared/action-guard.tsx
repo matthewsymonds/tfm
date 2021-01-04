@@ -14,6 +14,7 @@ import {Resource} from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
+import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
@@ -202,7 +203,26 @@ export class ActionGuard {
     }
 
     canSkipAction(): CanPlayAndReason {
-        return [!this.shouldDisableValidGreeneryPlacementUI(), 'Cannot skip action right now'];
+        const {state} = this;
+        const player = this._getPlayerToConsider();
+
+        if (!player.action || state.common.currentPlayerIndex !== player.index) {
+            return [false, 'It is not your turn right now'];
+        }
+        if (getIsPlayerMakingDecision(state, player)) {
+            return [false, 'Player cannot skip while making decision'];
+        }
+        const {gameStage} = state.common;
+        if (gameStage === GameStage.ACTIVE_ROUND) {
+            if (this.shouldDisableUI()) {
+                return [false, 'Cannot play game right now'];
+            }
+            return [true, 'Good to go'];
+        }
+        if (gameStage === GameStage.GREENERY_PLACEMENT) {
+            return [true, 'Good to go'];
+        }
+        return [false, 'Cannot skip action right now'];
     }
 
     canAffordActionCost(action: Action) {
@@ -248,20 +268,18 @@ export class ActionGuard {
 
     canDoConversion(conversion: Conversion | undefined): CanPlayAndReason {
         if (!conversion) return [false, 'No conversion available'];
+        return this.canPlayAction(conversion, this.state);
+    }
+
+    canDoConversionInSpiteOfUI(conversion: Conversion): CanPlayAndReason {
         const {state} = this;
-        const gameStage = state.common.gameStage;
+        const {gameStage} = state.common;
         if (gameStage === GameStage.GREENERY_PLACEMENT) {
             if (conversion.resourceToRemove !== Resource.PLANT) {
                 return [false, 'May only convert plants in greenery placement phase'];
             }
-
-            if (this.shouldDisableValidGreeneryPlacementUI()) {
-                return [false, 'Cannot do conversion right now'];
-            }
-
-            return this.canPlayActionInSpiteOfUI(conversion, state);
         }
-        return this.canPlayAction(conversion, state);
+        return this.canPlayActionInSpiteOfUI(conversion, state);
     }
 
     getDiscountedCardCost(card: Card) {
@@ -514,22 +532,6 @@ export class ActionGuard {
             return true;
         }
         if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return true;
-        }
-        if (getIsPlayerMakingDecision(state, player)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    shouldDisableValidGreeneryPlacementUI(state: GameState = this.state) {
-        const {gameStage} = state.common;
-        const player = this._getPlayerToConsider();
-        if (player.index !== state.common.currentPlayerIndex) {
-            return true;
-        }
-        if (gameStage !== GameStage.ACTIVE_ROUND && gameStage !== GameStage.GREENERY_PLACEMENT) {
             return true;
         }
         if (getIsPlayerMakingDecision(state, player)) {

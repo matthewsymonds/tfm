@@ -1,3 +1,4 @@
+import {BlankButton} from 'components/blank-button';
 import {Flex} from 'components/box';
 import {PlayerIcon} from 'components/icons/player';
 import {TagIcon} from 'components/icons/tag';
@@ -8,7 +9,7 @@ import {colors} from 'components/ui';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
-import React, {useContext, useRef} from 'react';
+import React, {useContext, useRef, useState, useCallback} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
@@ -62,6 +63,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
      */
     const state = useTypedSelector(state => state);
     const playerPanelRef = useRef<HTMLDivElement>(null);
+    const [filteredTags, setFilteredTags] = useState([...Object.values(Tag)]);
 
     /**
      * Hooks
@@ -101,8 +103,16 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 plantConversionOnly={isGreeneryPlacement}
                 isLoggedInPlayer={player.index === loggedInPlayer.index}
             />
-            <PlayerTagCounts player={player} />
-            <PlayerPlayedCards player={player} playerPanelRef={playerPanelRef} />
+            <PlayerTagCounts
+                player={player}
+                filteredTags={filteredTags}
+                setFilteredTags={setFilteredTags}
+            />
+            <PlayerPlayedCards
+                player={player}
+                playerPanelRef={playerPanelRef}
+                filteredTags={filteredTags}
+            />
             {isCorporationSelection ? (
                 <CorporationSelector
                     player={player}
@@ -113,21 +123,103 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     );
 };
 
-function PlayerTagCounts({player}: {player: SerializedPlayerState}) {
-    const tagCountsByName = getTagCountsByName(player);
+const TagButton = styled(BlankButton)<{isSelected: boolean}>`
+    border-radius: 9999px; // pill
+    padding: 4px;
+    background-color: 'inherit';
+    opacity: ${props => (props.isSelected ? 1 : 0.4)};
+    cursor: default;
+    transition: opacity 150ms;
+
+    &:hover {
+        background-color: ${colors.CARD_BORDER_1};
+        opacity: ${props => (props.isSelected ? 1 : 0.8)};
+    }
+`;
+
+const AllButton = styled(BlankButton)<{isEnabled}>`
+    border-radius: 9999px; // pill
+    color: white;
+    font-size: 12px;
+    color: white;
+    opacity: ${props => (props.isEnabled ? 1 : 0.4)};
+    transition: opacity 150ms;
+    padding: 2px 6px;
+    cursor: default;
+
+    &:active {
+        opacity: 1;
+    }
+
+    &:hover {
+        background-color: ${colors.CARD_BORDER_1};
+        opacity: ${props => (props.isEnabled ? 1 : 0.8)};
+    }
+`;
+
+function PlayerTagCounts({
+    player,
+    filteredTags,
+    setFilteredTags,
+}: {
+    player: SerializedPlayerState;
+    filteredTags: Array<Tag>;
+    setFilteredTags: (tags: Array<Tag>) => void;
+}) {
+    const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
+    const toggleTag = useCallback(
+        tag => {
+            const allTags = tagCountsByName.map(([t]) => t);
+            if (allTags.every(t => filteredTags.includes(t)) && allTags.length > 1) {
+                // If everything is selected and user clicks a tag, assume they
+                // want to filter to see JUST that tag
+                setFilteredTags([tag]);
+            } else if (filteredTags.length === 1 && filteredTags[0] === tag) {
+                // if only one tag is selected and user clicks it again, assume they
+                // want to go back to all
+                setFilteredTags(allTags);
+            } else {
+                // Otherwise, just toggle the tag state
+                if (filteredTags.includes(tag)) {
+                    setFilteredTags(filteredTags.filter(t => t !== tag));
+                } else {
+                    setFilteredTags([...filteredTags, tag]);
+                }
+            }
+        },
+        [filteredTags, tagCountsByName]
+    );
+
     return (
-        <Flex margin="4px 0">
-            {tagCountsByName.map(tagCount => {
-                const [tag, count] = tagCount;
-                return (
-                    <Flex key={tag} justifyContent="center" alignItems="center" marginRight="8px">
-                        <TagIcon size={24} margin={4} name={tag as Tag} />
-                        <span className="display" style={{color: 'white'}}>
-                            {count}
-                        </span>
-                    </Flex>
-                );
-            })}
+        <Flex margin="4px 0" alignItems="center">
+            <Flex>
+                {tagCountsByName.map(tagCount => {
+                    const [tag, count] = tagCount;
+                    return (
+                        <TagButton
+                            key={tag}
+                            onClick={() => toggleTag(tag)}
+                            isSelected={filteredTags.includes(tag)}
+                            style={{marginRight: 4}}
+                        >
+                            <Flex justifyContent="center" alignItems="center">
+                                <TagIcon size={24} name={tag as Tag} />
+                                <span className="display" style={{color: 'white', marginLeft: 2}}>
+                                    {count}
+                                </span>
+                            </Flex>
+                        </TagButton>
+                    );
+                })}
+            </Flex>
+            <Flex alignItems="flex-start" flexDirection="column">
+                <AllButton
+                    onClick={() => setFilteredTags(tagCountsByName.map(([t]) => t))}
+                    isEnabled={tagCountsByName.every(([tag]) => filteredTags.includes(tag))}
+                >
+                    <span>All</span>
+                </AllButton>
+            </Flex>
         </Flex>
     );
 }

@@ -39,7 +39,7 @@ const heatBgCycle = keyframes`
     }
 `;
 
-const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean}>`
+const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointerCursor?: boolean}>`
     display: grid;
     grid-template-columns: repeat(3, 24px);
     grid-template-rows: 24px;
@@ -48,7 +48,7 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean}>`
     font-size: 14px;
     background-color: ${colors.LIGHTEST_BG};
     border: 1px solid #222;
-    cursor: default;
+    cursor: ${props => (props.showPointerCursor ? 'pointer' : 'default')};
 
     &.canDoPlantConversion {
         animation: ${plantBgCycle} 4s ease-in-out infinite;
@@ -58,10 +58,6 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean}>`
     &.canDoHeatConversion {
         animation: ${heatBgCycle} 4s ease-in-out infinite;
     }
-
-    &.activePlayer {
-        cursor: pointer;
-    }
 `;
 
 export type ResourceBoardCellProps = {
@@ -70,6 +66,7 @@ export type ResourceBoardCellProps = {
     production: number;
     handleOnClick?: () => void;
     showConversionAnimation?: boolean;
+    showPointerCursor?: boolean;
     isLoggedInPlayer?: boolean;
 };
 
@@ -78,18 +75,21 @@ export const ResourceBoardCell = ({
     production,
     resource,
     showConversionAnimation,
+    showPointerCursor,
     handleOnClick,
-    isLoggedInPlayer,
 }: ResourceBoardCellProps) => {
     let className = 'display';
     if (showConversionAnimation) {
         if (resource === Resource.PLANT) className += ' canDoPlantConversion';
         if (resource === Resource.HEAT) className += ' canDoHeatConversion';
-        if (isLoggedInPlayer) className += ' activePlayer';
     }
 
     return (
-        <ResourceBoardCellBase className={className} onClick={handleOnClick}>
+        <ResourceBoardCellBase
+            className={className}
+            onClick={handleOnClick}
+            showPointerCursor={showPointerCursor}
+        >
             <Flex
                 alignSelf="stretch"
                 alignItems="center"
@@ -164,11 +164,11 @@ export const PlayerResourceBoard = ({
                         const conversion = CONVERSIONS[resource];
                         let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
                         let canDoConversionInSpiteOfUI = false;
-                        if (canDoConversion) {
+                        if (conversion) {
                             [
                                 canDoConversionInSpiteOfUI,
                                 reason,
-                            ] = actionGuard.canPlayActionInSpiteOfUI(conversion);
+                            ] = actionGuard.canDoConversionInSpiteOfUI(conversion);
                         }
 
                         function handleOnClick() {
@@ -183,8 +183,8 @@ export const PlayerResourceBoard = ({
                                 resource={resource}
                                 amount={player.resources[resource]}
                                 production={player.productions[resource]}
+                                showPointerCursor={canDoConversion && isLoggedInPlayer}
                                 showConversionAnimation={canDoConversionInSpiteOfUI}
-                                isLoggedInPlayer={isLoggedInPlayer}
                                 handleOnClick={handleOnClick}
                             />
                         );

@@ -1,6 +1,7 @@
 import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {getCardTitleColorForType} from 'components/card/CardTitle';
 import TexturedCard from 'components/textured-card';
+import {Tag} from 'constants/tag';
 import React, {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import {getCard} from 'selectors/get-card';
@@ -15,9 +16,11 @@ const LANE_WIDTH = 400;
 function PlayerPlayedCards({
     player,
     playerPanelRef,
+    filteredTags,
 }: {
     player: SerializedPlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
+    filteredTags: Array<Tag>;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
     const hoveredCard =
@@ -38,17 +41,23 @@ function PlayerPlayedCards({
         }, 0);
     }
 
-    const cards = player.playedCards;
+    const filteredCards = player.playedCards.filter(card => {
+        const hydratedCard = getCard(card);
+        return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
+    });
     let requiredOverlapAmountPx: number; // may be negative
-    if (cards.length === 0 || cards.length === 1) {
+    if (filteredCards.length === 0 || filteredCards.length === 1) {
         requiredOverlapAmountPx = 0;
     } else {
-        requiredOverlapAmountPx = Math.max(cards.length * ACTUAL_CARD_TOKEN_WIDTH - LANE_WIDTH, 0);
+        requiredOverlapAmountPx = Math.max(
+            filteredCards.length * ACTUAL_CARD_TOKEN_WIDTH - LANE_WIDTH,
+            0
+        );
     }
 
     function getCardPosition(index: number) {
         let xOffset;
-        const requiredOverlapPerCard = requiredOverlapAmountPx / (cards.length - 1);
+        const requiredOverlapPerCard = requiredOverlapAmountPx / (filteredCards.length - 1);
 
         if (requiredOverlapAmountPx > 0) {
             // cards are overlapping
@@ -85,7 +94,7 @@ function PlayerPlayedCards({
                     overflow: 'hidden',
                 }}
             >
-                {player.playedCards.map((card, index) => (
+                {filteredCards.map((card, index) => (
                     <div
                         key={index}
                         style={{
