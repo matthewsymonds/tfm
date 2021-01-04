@@ -250,14 +250,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         let mostRecentlyPlayedCard: SerializedCard;
 
         function handleDrawCards(numCards: number) {
-            const cardsFromDeck = draft.common.deck.splice(0, numCards);
-            if (cardsFromDeck.length < numCards) {
+            const cards = draft.common.deck.splice(0, numCards);
+            const numCardsShort = numCards - cards.length;
+            if (numCardsShort) {
+                // Make new deck out of discard pile.
                 draft.common.deck = shuffle(draft.common.discardPile);
-                cardsFromDeck.push(...draft.common.deck.splice(0, numCards - cardsFromDeck.length));
                 draft.common.discardPile = [];
+
+                // Draw more cards from new deck.
+                cards.push(...draft.common.deck.splice(0, numCards));
             }
 
-            return cardsFromDeck;
+            return cards;
         }
 
         const handleGainResource = (resource: Resource, amount: Amount) => {
