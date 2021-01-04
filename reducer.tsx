@@ -552,16 +552,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.pendingResourceActionDetails = undefined;
 
-            const {card, resource, amount} = payload;
+            const {resource, amount} = payload;
 
             const targetCard = draft.players
                 .flatMap(player => player.playedCards)
-                .find(playedCard => playedCard.name === card.name);
+                .find(playedCard => playedCard.name === payload.card.name);
 
             if (!targetCard) {
-                throw new Error(`Target card ${card.name} not found in played cards`);
+                throw new Error(`Target card ${payload.card.name} not found in played cards`);
             }
-            if (targetCard.storedResourceType !== resource) {
+            const card = getCard(targetCard);
+            if (card.storedResourceType !== resource) {
                 throw new Error('Card does not store that type of resource');
             }
             if (
@@ -649,17 +650,20 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.pendingResourceActionDetails = undefined;
-            const {card, amount} = payload;
-            const draftCard = player.playedCards.find(c => c.name === card.name);
+            const draftCard = player.playedCards.find(c => c.name === payload.card.name);
             if (!draftCard) {
                 throw new Error('Card should exist to gain storable resources to');
             }
-            const quantity = convertAmountToNumber(amount, state, player);
+            const card = getCard(draftCard);
+            if (!card.storedResourceType) {
+                throw new Error('Cannot store resources on this card');
+            }
+            const quantity = convertAmountToNumber(payload.amount, state, player);
             draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
             draft.log.push(
                 `${corporationName} added ${quantityAndResource(
                     quantity,
-                    draftCard.storedResourceType!
+                    card.storedResourceType
                 )} to ${draftCard.name}`
             );
         }

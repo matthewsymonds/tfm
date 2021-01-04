@@ -10,6 +10,7 @@ import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
+import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
 
 export function getAllPlayedCards(player: PlayerState) {
@@ -100,7 +101,11 @@ export function getAllowedCardsForResourceAction({
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
             return getAllPlayedCardsThatHoldResource(player, player, resource);
         case ResourceLocationType.THIS_CARD:
-            return thisCard ? [thisCard] : [];
+            return thisCard
+                ? [player.playedCards.find(card => card.name === thisCard.name)]
+                      .filter(Boolean)
+                      .map(getCard)
+                : [];
         case ResourceLocationType.LAST_PLAYED_CARD: {
             const lastPlayedCard = getLastPlayedCard(player);
             if (
