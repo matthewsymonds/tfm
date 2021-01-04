@@ -132,6 +132,9 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 <ActionLog />
                 <PlayersOrder />
                 <RoundText>{roundText}</RoundText>
+                <Flex alignItems="center" margin="0 4px">
+                    <PlayerCorpAndIcon player={loggedInPlayer} color="white" />
+                </Flex>
                 <Button onClick={() => router.push('/')} margin="0 0 0 4px">
                     Home
                 </Button>
