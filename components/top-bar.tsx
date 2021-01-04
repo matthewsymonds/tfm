@@ -112,24 +112,15 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
                 {isLoggedInPlayersTurn && isGreeneryPlacement && (
                     <span>{greeneryPlacementText}</span>
                 )}
-                {loggedInPlayer.action > 0 &&
-                    isLoggedInPlayersTurn &&
-                    isActiveRound &&
-                    !(actionGuard.shouldDisableUI() || isPlayerMakingDecision) && (
-                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
-                            {action === 2 ? 'End turn' : 'Pass'}
-                        </Button>
-                    )}
-                {isLoggedInPlayersTurn &&
-                    isGreeneryPlacement &&
-                    !(
-                        actionGuard.shouldDisableValidGreeneryPlacementUI() ||
-                        isPlayerMakingDecision
-                    ) && (
-                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 4px">
-                            End greenery placement
-                        </Button>
-                    )}
+                {actionGuard.canSkipAction()[0] && (
+                    <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
+                        {isGreeneryPlacement
+                            ? 'End greenery placement'
+                            : action === 2
+                            ? 'End turn'
+                            : 'Pass'}
+                    </Button>
+                )}
             </Flex>
             <Flex alignItems="center" justifyContent="flex-end">
                 <ActionLog />
