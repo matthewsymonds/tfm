@@ -17,7 +17,7 @@ import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
 const AwardHeader = styled.div`
-    margin: 4px;
+    margin: 4px 2px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 13px;
