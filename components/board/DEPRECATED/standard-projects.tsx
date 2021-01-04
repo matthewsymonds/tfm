@@ -13,6 +13,7 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {GameState, getNumOceans, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {getTextForStandardProject} from '../board-actions/standard-projects-new';
 import {SharedActionRow, SharedActionsContainer} from './shared-actions';
 
 const Warning = styled.div`

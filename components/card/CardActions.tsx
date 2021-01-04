@@ -1,4 +1,3 @@
-import {ApiClient} from 'api-client';
 import {Box, Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
@@ -28,6 +27,7 @@ import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isActiveRound} from 'selectors/is-active-round';
+import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
 const ActionText = styled(CardText)`

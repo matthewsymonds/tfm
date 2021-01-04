@@ -97,7 +97,7 @@ function ActionButton<T>({
         action: T;
     }>;
     setSelectedAction: (action: T) => void;
-    emphasizeOnHover?: boolean;
+    emphasizeOnHover: boolean;
 }) {
     return (
         <StylizedActionWrapper

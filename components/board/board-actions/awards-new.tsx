@@ -78,11 +78,10 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
                     <AwardBadge
                         award={action}
                         fundAward={fundAward}
-                        canFund={canPlay}
-                        isFunded={isFunded}
+                        canFund={canPlay(action)}
+                        isFunded={isFunded(action)}
                         loggedInPlayer={loggedInPlayer}
                         cost={awardConfigsByAward[action].cost}
-                        isFunded={awardConfigsByAward[action].isFunded}
                     />
                 )}
                 ActionPopoverComponent={({action}) => (
@@ -90,7 +89,7 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
                         award={action}
                         loggedInPlayer={loggedInPlayer}
                         cost={awardConfigsByAward[action].cost}
-                        isFunded={awardConfigsByAward[action].isFunded}
+                        isFunded={isFunded(action)}
                         fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
                     />
                 )}
@@ -120,7 +119,6 @@ function AwardBadge({
     isFunded: boolean;
     loggedInPlayer: PlayerState;
     cost: number;
-    isFunded: boolean;
 }) {
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
