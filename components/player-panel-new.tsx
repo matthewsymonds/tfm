@@ -71,7 +71,6 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     const state = useTypedSelector(state => state);
     const playerPanelRef = useRef<HTMLDivElement>(null);
     const [filteredTags, setFilteredTags] = useState([...Object.values(Tag)]);
-    const [areAllTagsEnabled, setAreAllTagsEnabled] = useState(true);
 
     /**
      * Hooks
@@ -132,13 +131,11 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                         player={player}
                         filteredTags={filteredTags}
                         setFilteredTags={setFilteredTags}
-                        setAreAllTagsEnabled={setAreAllTagsEnabled}
                     />
                     <PlayerPlayedCards
                         player={player}
                         playerPanelRef={playerPanelRef}
                         filteredTags={filteredTags}
-                        areAllTagsEnabled={areAllTagsEnabled}
                     />
                 </React.Fragment>
             )}
@@ -195,19 +192,17 @@ function PlayerTagCounts({
     player,
     filteredTags,
     setFilteredTags,
-    setAreAllTagsEnabled,
 }: {
     player: SerializedPlayerState;
     filteredTags: Array<Tag>;
     setFilteredTags: (tags: Array<Tag>) => void;
-    setAreAllTagsEnabled: (areAllTagsEnabled: boolean) => void;
 }) {
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
     const allTags = tagCountsByName.map(([t]) => t);
-    const everythingIsSelected = allTags.every(t => filteredTags.includes(t)) && allTags.length > 1;
+    const allTagsEnabled = allTags.every(t => filteredTags.includes(t)) && allTags.length > 1;
     const toggleTag = useCallback(
         tag => {
-            if (everythingIsSelected) {
+            if (allTagsEnabled) {
                 // If everything is selected and user clicks a tag, assume they
                 // want to filter to see JUST that tag
                 setFilteredTags([tag]);
@@ -223,7 +218,6 @@ function PlayerTagCounts({
                     setFilteredTags([...filteredTags, tag]);
                 }
             }
-            setAreAllTagsEnabled(allTags.length === filteredTags.length);
         },
         [filteredTags.length, tagCountsByName.length]
     );
@@ -244,7 +238,7 @@ function PlayerTagCounts({
                             key={tag}
                             onClick={() => toggleTag(tag)}
                             isSelected={filteredTags.includes(tag)}
-                            allSelected={everythingIsSelected}
+                            allSelected={allTagsEnabled}
                             style={{marginRight: 4}}
                         >
                             <Flex justifyContent="center" alignItems="center">

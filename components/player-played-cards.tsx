@@ -4,7 +4,9 @@ import TexturedCard from 'components/textured-card';
 import {Tag} from 'constants/tag';
 import React, {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
+import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
+import {getTagCountsByName} from 'selectors/player';
 import {SerializedCard, SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
@@ -25,7 +27,9 @@ function PlayerPlayedCards({
     areAllTagsEnabled: boolean;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
-    const filteredCards = areAllTagsEnabled
+    const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
+    const allTags = tagCountsByName.map(([t]) => t);
+    const filteredCards = allTags.every(t => filteredTags.includes(t))
         ? player.playedCards
         : player.playedCards.filter(card => {
               const hydratedCard = getCard(card);
