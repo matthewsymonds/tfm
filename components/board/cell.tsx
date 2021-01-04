@@ -1,10 +1,10 @@
 import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
+import {getTileBgColor} from 'components/icons/tile';
 import {Square} from 'components/square';
 import {Cell as CellModel, CellType, getTileIcon, TileType} from 'constants/board';
 import {PLAYER_COLORS} from 'constants/game';
 import {Resource} from 'constants/resource';
-import {getTileBgColor} from 'components/icons/tile';
 import React from 'react';
 import styled from 'styled-components';
 import {Hexagon} from './hexagon';
