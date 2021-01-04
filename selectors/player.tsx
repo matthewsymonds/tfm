@@ -11,6 +11,9 @@ export function getTagCountsByName(player: PlayerState) {
     const tagCountsByName: Array<[Tag, number]> = [];
     for (const card of getPlayedCards(player)) {
         for (const tag of card.tags) {
+            if (card.tags.includes(Tag.EVENT) && tag !== Tag.EVENT) {
+                continue;
+            }
             let tagCount = tagCountsByName.find(tagCount => tagCount[0] === tag);
             if (!tagCount) {
                 tagCount = [tag, 0];
