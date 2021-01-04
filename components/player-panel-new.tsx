@@ -4,6 +4,7 @@ import {TagIcon} from 'components/icons/tag';
 import PlayerPlayedCards from 'components/player-played-cards';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {PlayerResourceBoard} from 'components/resource';
+import {colors} from 'components/ui';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
@@ -26,7 +27,7 @@ const CorporationHeader = styled.h2`
 const TerraformRating = styled.span`
     display: inline-flex;
     cursor: pointer;
-    color: #f5923b;
+    color: ${colors.GOLD};
     margin-left: 8px;
     &:hover {
         opacity: 0.75;

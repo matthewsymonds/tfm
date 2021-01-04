@@ -22,8 +22,7 @@ const AwardHeader = styled.div`
     letter-spacing: 0.1em;
     font-size: 13px;
     font-weight: 600;
-    color: white;
-    opacity: 0.5;
+    color: ${colors.GOLD};
 `;
 
 export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {

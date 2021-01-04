@@ -3,9 +3,8 @@ import {getCardTitleColorForType} from 'components/card/CardTitle';
 import TexturedCard from 'components/textured-card';
 import React, {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
-import {PlayerState} from 'reducer';
 import {getCard} from 'selectors/get-card';
-import {SerializedCard} from 'state-serialization';
+import {SerializedCard, SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
 const CARD_TOKEN_WIDTH = 50;
@@ -17,7 +16,7 @@ function PlayerPlayedCards({
     player,
     playerPanelRef,
 }: {
-    player: PlayerState;
+    player: SerializedPlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);

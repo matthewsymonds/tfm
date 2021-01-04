@@ -1,4 +1,3 @@
-import PlayerPlayedCards from 'components/player-played-cards';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useState} from 'react';
@@ -108,7 +107,7 @@ export const PlayerPanelSection = ({
             case 'Card Actions':
                 return <PlayerCardActions player={player} />;
             case 'Played Cards':
-                return <PlayerPlayedCards player={player} />;
+                return null;
 
             default:
                 throw spawnExhaustiveSwitchError(section);
