@@ -80,3 +80,7 @@ export const colors = {
     CARD_VP_BG: 'hsl(15, 60%, 50%)',
     CARD_STORED_RESOURCES_BG: 'hsl(230, 60%, 75%)',
 };
+
+export const zIndices = {
+    CARD: 20,
+};

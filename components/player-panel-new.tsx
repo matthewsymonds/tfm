@@ -7,7 +7,7 @@ import {PlayerResourceBoard} from 'components/resource';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {Tag} from 'constants/tag';
 import {AppContext} from 'context/app-context';
-import React, {useContext} from 'react';
+import React, {useContext, useRef} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
@@ -60,6 +60,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
      * State (todo: use selectors everywhere instead)
      */
     const state = useTypedSelector(state => state);
+    const playerPanelRef = useRef<HTMLDivElement>(null);
 
     /**
      * Hooks
@@ -80,7 +81,11 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     const terraformRating = player.terraformRating;
 
     return (
-        <OuterWrapper borderColor={PLAYER_COLORS[player.index]} id={`player-board-${player.index}`}>
+        <OuterWrapper
+            ref={playerPanelRef}
+            borderColor={PLAYER_COLORS[player.index]}
+            id={`player-board-${player.index}`}
+        >
             <CorporationHeader className="display">
                 <Flex alignItems="center">
                     <PlayerIcon size={16} playerIndex={player.index} />
@@ -96,7 +101,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 isLoggedInPlayer={player.index === loggedInPlayer.index}
             />
             <PlayerTagCounts player={player} />
-            <PlayerPlayedCards player={player} />
+            <PlayerPlayedCards player={player} playerPanelRef={playerPanelRef} />
             {isCorporationSelection ? (
                 <CorporationSelector
                     player={player}

@@ -1,4 +1,5 @@
 import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
+import {zIndices} from 'components/ui';
 import {usePrevious} from 'hooks/use-previous';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef, useState} from 'react';
@@ -165,7 +166,7 @@ export function CardHand({
                                       transition: 'transform 0.5s',
                                       transformOrigin: 'center',
                                       pointerEvents: 'initial',
-                                      zIndex: 99999,
+                                      zIndex: zIndices.CARD,
                                   }}
                                   onMouseEnter={() => onMouseEnter(cardIndex)}
                               >
