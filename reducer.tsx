@@ -36,7 +36,6 @@ import {
     discardCards,
     discardRevealedCards,
     draftCard,
-    drawCards,
     fundAward,
     gainResource,
     gainStorableResource,
@@ -261,7 +260,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 cards.push(...draft.common.deck.splice(0, numCards));
             }
 
-            return cards;
+            return cards.map(card => ({name: card.name}));
         }
 
         const handleGainResource = (resource: Resource, amount: Amount) => {
@@ -378,10 +377,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
         if (revealAndDiscardTopCards.match(action)) {
             const {payload} = action;
-            player = getPlayer(draft, payload);
 
-            // Step 1. Reveal the cards to the player so they can see them.
-            const numCardsToReveal = convertAmountToNumber(payload.amount, state, player);
+            // Step 1. Reveal the cards to the players so they can see them.
+            const numCardsToReveal = payload.amount;
             draft.common.revealedCards = handleDrawCards(numCardsToReveal);
             draft.log.push('Revealed ', draft.common.revealedCards.map(c => c.name).join(', '));
         }
@@ -440,17 +438,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.cards = player.cards.filter(
                 playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
             );
-        }
-
-        if (drawCards.match(action)) {
-            const {payload} = action;
-            player = getPlayer(draft, payload);
-
-            draft.log.push(
-                `${corporationName} drew ${payload.numCards} ${cardsPlural(payload.numCards)}`
-            );
-
-            player.cards.push(...handleDrawCards(payload.numCards));
         }
 
         if (addForcedActionToPlayer.match(action)) {

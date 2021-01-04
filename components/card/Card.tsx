@@ -100,7 +100,11 @@ const CardInner: React.FC<CardProps> = ({
 export const Card: React.FC<CardProps> = props => {
     const logLength = useTypedSelector(state => state.log.length);
 
-    const memoizedCard = useMemo(() => <CardInner {...props} />, [logLength, props.isSelected]);
+    const memoizedCard = useMemo(() => <CardInner {...props} />, [
+        logLength,
+        props.isSelected,
+        props.card.name,
+    ]);
 
     return <React.Fragment>{memoizedCard}</React.Fragment>;
 };

@@ -18,7 +18,7 @@ export const setCorporation = withMatcher((corporation: SerializedCard, playerIn
 }));
 
 const REVEAL_AND_DISCARD_TOP_CARDS = 'REVEAL_AND_DISCARD_TOP_CARDS';
-export const revealAndDiscardTopCards = withMatcher((amount: Amount, playerIndex: number) => ({
+export const revealAndDiscardTopCards = withMatcher((amount: number, playerIndex: number) => ({
     type: REVEAL_AND_DISCARD_TOP_CARDS,
     payload: {amount, playerIndex},
 }));
@@ -39,12 +39,6 @@ const SET_CARDS = 'SET_CARDS';
 export const setCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
     type: SET_CARDS,
     payload: {cards, playerIndex},
-}));
-
-const DRAW_CARDS = 'DRAW_CARDS';
-export const drawCards = withMatcher((numCards: number, playerIndex: number) => ({
-    type: DRAW_CARDS,
-    payload: {numCards, playerIndex},
 }));
 
 const PAY_FOR_CARDS = 'PAY_FOR_CARDS';

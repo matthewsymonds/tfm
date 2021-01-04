@@ -1,6 +1,6 @@
 import {
     askUserToPlaceTile,
-    drawCards,
+    gainResource,
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
@@ -47,7 +47,10 @@ function getTemperatureBonuses() {
 function getVenusBonuses() {
     const venusBonuses: Array<PlayerIndexCallBack> = [];
 
-    venusBonuses[8] = (playerIndex: number) => ({...drawCards(1, playerIndex), name: 'Draw card'});
+    venusBonuses[8] = (playerIndex: number) => ({
+        ...gainResource(Resource.CARD, 1, playerIndex),
+        name: 'Draw card',
+    });
     venusBonuses[16] = (playerIndex: number) => ({
         ...increaseTerraformRating(1, playerIndex),
         name: 'Increase your terraform rating 1 step',

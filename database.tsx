@@ -14,6 +14,8 @@ const uniqueNameSchema = {
     validate: /^[a-zA-Z0-9_-]*$/,
 };
 
+const sessions: {[token: string]: {username: string}} = {};
+
 const schema = mongoose.Schema;
 
 export const db = mongoose.connect(process.env.MONGODB_URI, {
@@ -127,14 +129,20 @@ export async function retrieveSession(req, res) {
         return;
     }
 
-    const session = await sessionsModel.findOne({
-        token,
-    });
+    let session = sessions[token];
+
+    if (!session) {
+        session = await sessionsModel.findOne({
+            token,
+        });
+    }
 
     if (!session) {
         handleRedirect(req, res);
         return;
     }
+
+    sessions[token] = session;
 
     return session;
 }
