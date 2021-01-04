@@ -35,13 +35,14 @@ import spawnExhaustiveSwitchError from 'utils';
 export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
+    const canPlay = standardProjectAction =>
+        actionGuard.canPlayStandardProject(standardProjectAction)[0];
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
         payment: PropertyCounter<Resource>
     ) => {
-        const [canPlay] = actionGuard.canPlayStandardProject(standardProjectAction);
-        if (canPlay) {
+        if (canPlay(standardProjectAction)) {
             apiClient.playStandardProjectAsync({payment, standardProjectAction});
         }
     };
@@ -49,6 +50,7 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
     return (
         <ActionListWithPopovers<StandardProjectAction>
             actions={standardProjectActions}
+            emphasizeOnHover={canPlay}
             style={{
                 display: 'flex',
                 flexDirection: 'row',

@@ -23,7 +23,7 @@ const AwardHeader = styled.div`
     font-size: 13px;
     font-weight: 600;
     color: white;
-    opacity: 0.3;
+    opacity: 0.5;
 `;
 
 export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
@@ -58,9 +58,11 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
         }
     );
 
+    const canPlay = award => actionGuard.canFundAward(award)[0];
+    const isFunded = award => actionGuard.isAwardFunded(award);
+
     const fundAward = (award: Award, payment?: PropertyCounter<Resource>) => {
-        const [canPlay] = actionGuard.canFundAward(award);
-        if (canPlay) {
+        if (canPlay(award)) {
             apiClient.fundAwardAsync({award, payment});
         }
     };
@@ -71,10 +73,13 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
 
             <ActionListWithPopovers<Award>
                 actions={Object.values(Award)}
+                emphasizeOnHover={canPlay}
                 ActionComponent={({action}) => (
                     <AwardBadge
                         award={action}
                         fundAward={fundAward}
+                        canFund={canPlay}
+                        isFunded={isFunded}
                         loggedInPlayer={loggedInPlayer}
                         cost={awardConfigsByAward[action].cost}
                         isFunded={awardConfigsByAward[action].isFunded}
@@ -94,19 +99,25 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     );
 }
 
-const AwardBadgeContainer = styled.div`
+const AwardBadgeContainer = styled.div<{canFund: boolean; isFunded: boolean}>`
     padding: 4px;
     color: white;
+    opacity: ${props => (props.canFund || props.isFunded ? 1 : 0.5)};
+    font-style: ${props => (props.isFunded ? 'italic' : 'normal')};
 `;
 
 function AwardBadge({
     award,
     fundAward,
+    canFund,
+    isFunded,
     loggedInPlayer,
     cost,
 }: {
     award: Award;
     fundAward: (action: Award | null, payment?: PropertyCounter<Resource>) => void;
+    canFund: boolean;
+    isFunded: boolean;
     loggedInPlayer: PlayerState;
     cost: number;
     isFunded: boolean;
@@ -122,6 +133,8 @@ function AwardBadge({
         >
             <AwardBadgeContainer
                 className="display"
+                canFund={canFund}
+                isFunded={isFunded}
                 onClick={() => {
                     !showPaymentPopover && fundAward(award, {[Resource.MEGACREDIT]: cost});
                 }}

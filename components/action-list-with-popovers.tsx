@@ -1,5 +1,5 @@
 import {colors} from 'components/ui';
-import {useLayoutEffect, useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import styled from 'styled-components';
 
@@ -16,6 +16,7 @@ export default function ActionListWithPopovers<T>({
     ActionComponent,
     ActionPopoverComponent,
     style,
+    emphasizeOnHover,
 }: {
     actions: Array<T>;
     ActionComponent: React.FunctionComponent<{
@@ -25,6 +26,7 @@ export default function ActionListWithPopovers<T>({
         action: T;
     }>;
     style?: React.CSSProperties;
+    emphasizeOnHover: (t: T) => boolean;
 }) {
     const [selectedAction, setSelectedAction] = useState<T | null>(null);
     const referenceElement = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ export default function ActionListWithPopovers<T>({
                     <ActionButton<T>
                         key={index}
                         action={action}
+                        emphasizeOnHover={emphasizeOnHover(action)}
                         setSelectedAction={_setSelectedAction}
                         ActionComponent={ActionComponent}
                     />
@@ -87,29 +90,33 @@ function ActionButton<T>({
     action,
     ActionComponent,
     setSelectedAction,
+    emphasizeOnHover,
 }: {
     action: T;
     ActionComponent: React.FunctionComponent<{
         action: T;
     }>;
     setSelectedAction: (action: T) => void;
+    emphasizeOnHover?: boolean;
 }) {
     return (
-        <StylizedActionWrapper onMouseEnter={() => setSelectedAction(action)}>
+        <StylizedActionWrapper
+            emphasizeOnHover={emphasizeOnHover}
+            onMouseEnter={() => setSelectedAction(action)}
+        >
             <ActionComponent action={action} />
         </StylizedActionWrapper>
     );
 }
 
-const StylizedActionWrapper = styled.div`
+const StylizedActionWrapper = styled.div<{emphasizeOnHover: boolean}>`
     display: flex;
     position: relative;
     align-items: center;
     justify-content: flex-end;
-    cursor: default;
     margin-bottom: 4px;
     user-select: none;
-    cursor: pointer;
+    cursor: ${props => (props.emphasizeOnHover ? 'pointer' : 'auto')};
 
     &:before {
         content: '';
@@ -123,6 +130,7 @@ const StylizedActionWrapper = styled.div`
 
     &:hover:before {
         background-color: ${colors.LIGHT_BG};
-        box-shadow: rgb(0 0 0 / 1) 4px 6px 6px -1px;
+        box-shadow: ${props =>
+            props.emphasizeOnHover ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px' : 'none'};
     }
 `;

@@ -23,16 +23,17 @@ const MilestoneHeader = styled.div`
     font-size: 13px;
     font-weight: 600;
     color: white;
-    opacity: 0.3;
+    opacity: 0.5;
 `;
 
 export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
+    const canPlay = milestone => actionGuard.canClaimMilestone(milestone)[0];
+    const isClaimed = milestone => actionGuard.isMilestoneClaimed(milestone);
 
     const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
-        const [canPlay] = actionGuard.canClaimMilestone(milestone);
-        if (canPlay) {
+        if (canPlay(milestone)) {
             apiClient.claimMilestoneAsync({milestone, payment: payment ?? {}});
         }
     };
@@ -42,34 +43,41 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
                 actions={Object.values(Milestone)}
+                emphasizeOnHover={canPlay}
                 ActionComponent={({action}) => (
                     <MilestoneBadge
                         milestone={action}
                         claimMilestone={claimMilestone}
                         loggedInPlayer={loggedInPlayer}
+                        canClaim={canPlay(action)}
+                        isClaimed={isClaimed(action)}
                     />
                 )}
-                ActionPopoverComponent={({action}) => (
-                    <MilestonePopover milestone={action} loggedInPlayer={loggedInPlayer} />
-                )}
+                ActionPopoverComponent={({action}) => <MilestonePopover milestone={action} />}
             />
         </Flex>
     );
 }
 
-const MilestoneBadgeContainer = styled.div`
+const MilestoneBadgeContainer = styled.div<{canClaim: boolean; isClaimed: boolean}>`
     padding: 4px;
     color: white;
+    opacity: ${props => (props.canClaim || props.isClaimed ? 1 : 0.5)};
+    font-style: ${props => (props.isClaimed ? 'italic' : 'normal')};
 `;
 
 function MilestoneBadge({
     milestone,
     claimMilestone,
     loggedInPlayer,
+    canClaim,
+    isClaimed,
 }: {
     milestone: Milestone;
     claimMilestone: (action: Milestone | null, payment?: PropertyCounter<Resource>) => void;
     loggedInPlayer: PlayerState;
+    canClaim: boolean;
+    isClaimed: boolean;
 }) {
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
@@ -82,6 +90,8 @@ function MilestoneBadge({
         >
             <MilestoneBadgeContainer
                 className="display"
+                canClaim={canClaim}
+                isClaimed={isClaimed}
                 onClick={() => {
                     !showPaymentPopover && claimMilestone(milestone);
                 }}
@@ -96,13 +106,7 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function MilestonePopover({
-    milestone,
-    loggedInPlayer,
-}: {
-    milestone: Milestone;
-    loggedInPlayer: PlayerState;
-}) {
+function MilestonePopover({milestone}: {milestone: Milestone}) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
 

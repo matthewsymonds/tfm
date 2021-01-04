@@ -147,7 +147,7 @@ export class ActionGuard {
             return [false, '3 milestones already claimed'];
         }
 
-        if (state.common.claimedMilestones.find(claim => claim.milestone === milestone)) {
+        if (this.isMilestoneClaimed(milestone)) {
             return [false, 'Milestone already claimed'];
         }
 
@@ -167,6 +167,10 @@ export class ActionGuard {
         ];
     }
 
+    isMilestoneClaimed(milestone: Milestone): boolean {
+        return this.state.common.claimedMilestones.some(claim => claim.milestone === milestone);
+    }
+
     canFundAward(award: Award): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {state} = this;
@@ -181,7 +185,7 @@ export class ActionGuard {
         if (state.common.fundedAwards.length === 3) {
             return [false, 'No more awards available'];
         }
-        if (state.common.fundedAwards.find(claim => claim.award === award)) {
+        if (this.isAwardFunded(award)) {
             return [false, 'Award has already been funded'];
         }
 
@@ -191,6 +195,10 @@ export class ActionGuard {
         const megacredits = player.resources[Resource.MEGACREDIT];
         const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
         return [cost <= megacredits + heat, 'Cannot afford to fund award'];
+    }
+
+    isAwardFunded(award: Award) {
+        return this.state.common.fundedAwards.some(claim => claim.award === award);
     }
 
     canSkipAction(): CanPlayAndReason {
