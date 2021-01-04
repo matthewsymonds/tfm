@@ -1,11 +1,12 @@
-import React, {useRef, useState} from 'react';
-import {usePopper} from 'react-popper';
-import {getCard} from 'selectors/get-card';
-import {SerializedCard, SerializedPlayerState} from 'state-serialization';
-import styled from 'styled-components';
 import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {getCardTitleColorForType} from 'components/card/CardTitle';
 import TexturedCard from 'components/textured-card';
+import React, {useRef, useState} from 'react';
+import {usePopper} from 'react-popper';
+import {PlayerState} from 'reducer';
+import {getCard} from 'selectors/get-card';
+import {SerializedCard} from 'state-serialization';
+import styled from 'styled-components';
 
 const CARD_TOKEN_WIDTH = 50;
 const ACTUAL_CARD_TOKEN_WIDTH = 56; // thicc borders
@@ -16,7 +17,7 @@ function PlayerPlayedCards({
     player,
     playerPanelRef,
 }: {
-    player: SerializedPlayerState;
+    player: PlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
