@@ -104,16 +104,20 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 plantConversionOnly={isGreeneryPlacement}
                 isLoggedInPlayer={player.index === loggedInPlayer.index}
             />
-            <PlayerTagCounts
-                player={player}
-                filteredTags={filteredTags}
-                setFilteredTags={setFilteredTags}
-            />
-            <PlayerPlayedCards
-                player={player}
-                playerPanelRef={playerPanelRef}
-                filteredTags={filteredTags}
-            />
+            {!isCorporationSelection && (
+                <PlayerTagCounts
+                    player={player}
+                    filteredTags={filteredTags}
+                    setFilteredTags={setFilteredTags}
+                />
+            )}
+            {!isCorporationSelection && (
+                <PlayerPlayedCards
+                    player={player}
+                    playerPanelRef={playerPanelRef}
+                    filteredTags={filteredTags}
+                />
+            )}
             <Flex marginTop={'12px'} background={colors.LIGHT_2} width="100%" flexWrap="wrap">
                 <PlayerCardActions player={player} />
             </Flex>
