@@ -163,7 +163,7 @@ export class ActionGuard {
 
         return [
             milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone],
-            'Has not met milestone',
+            'Milestone not reached',
         ];
     }
 

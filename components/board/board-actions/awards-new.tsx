@@ -2,7 +2,7 @@ import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Flex} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
-import {PlayerCorpAndIcon} from 'components/icons/player';
+import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
@@ -17,11 +17,10 @@ import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
 const AwardHeader = styled.div`
-    margin: 4px;
+    margin: 4px 2px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-size: 13px;
-    font-weight: 600;
     color: ${colors.GOLD};
 `;
 
@@ -67,12 +66,13 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     };
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end">
+        <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
             <AwardHeader className="display">Awards</AwardHeader>
 
             <ActionListWithPopovers<Award>
                 actions={Object.values(Award)}
                 emphasizeOnHover={canPlay}
+                isVertical={true}
                 ActionComponent={({action}) => (
                     <AwardBadge
                         award={action}
@@ -98,6 +98,8 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
 }
 
 const AwardBadgeContainer = styled.div<{canFund: boolean; isFunded: boolean}>`
+    display: flex;
+    align-items: center;
     padding: 4px;
     color: white;
     opacity: ${props => (props.canFund || props.isFunded ? 1 : 0.5)};
@@ -119,6 +121,9 @@ function AwardBadge({
     loggedInPlayer: PlayerState;
     cost: number;
 }) {
+    const fundedByPlayerIndex =
+        useTypedSelector(state => state.common.fundedAwards.find(fa => fa.award === award))
+            ?.fundedByPlayerIndex ?? null;
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
 
@@ -136,6 +141,11 @@ function AwardBadge({
                     !showPaymentPopover && fundAward(award, {[Resource.MEGACREDIT]: cost});
                 }}
             >
+                {fundedByPlayerIndex !== null && (
+                    <div style={{marginRight: 4}}>
+                        <PlayerIcon playerIndex={fundedByPlayerIndex} size={10} />
+                    </div>
+                )}
                 <span>{getTextForAward(award)}</span>
             </AwardBadgeContainer>
         </PaymentPopover>

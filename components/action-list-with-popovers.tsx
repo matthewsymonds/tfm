@@ -8,7 +8,7 @@ const OuterWrapper = styled.div`
     height: 100%;
     flex-direction: column;
     align-items: stretch;
-    margin: 0 2px;
+    margin: 0px;
 `;
 
 export default function ActionListWithPopovers<T>({
@@ -17,6 +17,7 @@ export default function ActionListWithPopovers<T>({
     ActionPopoverComponent,
     style,
     emphasizeOnHover,
+    isVertical,
 }: {
     actions: Array<T>;
     ActionComponent: React.FunctionComponent<{
@@ -27,6 +28,7 @@ export default function ActionListWithPopovers<T>({
     }>;
     style?: React.CSSProperties;
     emphasizeOnHover: (t: T) => boolean;
+    isVertical: boolean;
 }) {
     const [selectedAction, setSelectedAction] = useState<T | null>(null);
     const referenceElement = useRef<HTMLDivElement>(null);
@@ -35,7 +37,7 @@ export default function ActionListWithPopovers<T>({
         referenceElement.current,
         popperElement.current,
         {
-            placement: 'right-start',
+            placement: isVertical ? 'left-start' : 'top',
             modifiers: [
                 {
                     name: 'offset',
@@ -67,6 +69,7 @@ export default function ActionListWithPopovers<T>({
                         action={action}
                         emphasizeOnHover={emphasizeOnHover(action)}
                         setSelectedAction={_setSelectedAction}
+                        isVertical={isVertical}
                         ActionComponent={ActionComponent}
                     />
                 );
@@ -91,6 +94,7 @@ function ActionButton<T>({
     ActionComponent,
     setSelectedAction,
     emphasizeOnHover,
+    isVertical,
 }: {
     action: T;
     ActionComponent: React.FunctionComponent<{
@@ -98,25 +102,28 @@ function ActionButton<T>({
     }>;
     setSelectedAction: (action: T) => void;
     emphasizeOnHover: boolean;
+    isVertical: boolean;
 }) {
     return (
         <StylizedActionWrapper
             emphasizeOnHover={emphasizeOnHover}
             onMouseEnter={() => setSelectedAction(action)}
+            isVertical={isVertical}
         >
             <ActionComponent action={action} />
         </StylizedActionWrapper>
     );
 }
 
-const StylizedActionWrapper = styled.div<{emphasizeOnHover: boolean}>`
+const StylizedActionWrapper = styled.div<{emphasizeOnHover: boolean; isVertical: boolean}>`
     display: flex;
     position: relative;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 4px;
+    ${props => (props.isVertical ? 'margin-bottom: 4px;' : 'margin-right: 4px;')}
     user-select: none;
     cursor: ${props => (props.emphasizeOnHover ? 'pointer' : 'auto')};
+    opacity: ${props => (props.emphasizeOnHover ? 1 : 0.5)};
 
     &:before {
         content: '';

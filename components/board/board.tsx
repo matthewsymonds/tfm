@@ -63,47 +63,49 @@ export const Board = () => {
     }
     return (
         <Flex justifyContent="flex-end" alignItems="flex-start">
-            <Flex flexDirection="column" alignItems="flex-end">
-                <div style={{width: 75}}>
-                    <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
-                </div>
+            <GlobalParams parameters={parameters} showVenus={showVenus} />
+
+            <Flex flexDirection="column" alignItems="center">
+                <Box position="relative">
+                    <OffMarsCities
+                        board={board}
+                        validPlacements={validPlacements}
+                        handleClick={handleClick}
+                    />
+                    <Circle>
+                        <Flex flexDirection="column">
+                            {board.map((row, outerIndex) => (
+                                <Row key={outerIndex}>
+                                    {row.map(
+                                        (cell, index) =>
+                                            cellHelpers.onMars(cell) && (
+                                                <div
+                                                    key={`${outerIndex}-${index}`}
+                                                    style={{
+                                                        position: 'relative',
+                                                        margin: `0 ${HEX_PADDING}px`,
+                                                    }}
+                                                    onClick={() => handleClick(cell)}
+                                                >
+                                                    <Cell
+                                                        cell={cell}
+                                                        selectable={validPlacements.includes(cell)}
+                                                    />
+                                                </div>
+                                            )
+                                    )}
+                                </Row>
+                            ))}
+                        </Flex>
+                    </Circle>
+                </Box>
+                <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
+            </Flex>
+
+            <Flex flexDirection="column" alignItems="flex-end" alignSelf="center">
                 <MilestonesNew loggedInPlayer={loggedInPlayer} />
                 <AwardsNew loggedInPlayer={loggedInPlayer} />
             </Flex>
-            <Box position="relative">
-                <OffMarsCities
-                    board={board}
-                    validPlacements={validPlacements}
-                    handleClick={handleClick}
-                />
-                <Circle>
-                    <Flex flexDirection="column">
-                        {board.map((row, outerIndex) => (
-                            <Row key={outerIndex}>
-                                {row.map(
-                                    (cell, index) =>
-                                        cellHelpers.onMars(cell) && (
-                                            <div
-                                                key={`${outerIndex}-${index}`}
-                                                style={{
-                                                    position: 'relative',
-                                                    margin: `0 ${HEX_PADDING}px`,
-                                                }}
-                                                onClick={() => handleClick(cell)}
-                                            >
-                                                <Cell
-                                                    cell={cell}
-                                                    selectable={validPlacements.includes(cell)}
-                                                />
-                                            </div>
-                                        )
-                                )}
-                            </Row>
-                        ))}
-                    </Flex>
-                </Circle>
-            </Box>
-            <GlobalParams parameters={parameters} showVenus={showVenus} />
         </Flex>
     );
 };

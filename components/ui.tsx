@@ -21,8 +21,8 @@ export const colors = {
 
     // main content
     MAIN_BG: 'hsl(0, 0%, 16%)',
-    LIGHT_BG: 'hsl(15, 10%, 40%)',
-    LIGHTEST_BG: 'hsl(15, 10%, 70%)',
+    LIGHT_BG: 'hsl(15, 5%, 40%)',
+    LIGHTEST_BG: 'hsl(15, 5%, 70%)',
 
     // panels
     PANEL_BORDER: '#999',

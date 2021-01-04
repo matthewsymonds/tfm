@@ -48,7 +48,7 @@ type PlayerPanelProps = {
 const OuterWrapper = styled(Flex)`
     flex-direction: column;
     justify-content: stretch;
-    align-items: flex-end;
+    align-items: flex-start;
     padding: 8px;
     /* background: hsl(0, 0%, 20%); */
     width: 400px;
@@ -198,6 +198,12 @@ function PlayerTagCounts({
 
     return (
         <Flex margin="4px 0" alignItems="center">
+            <AllButton
+                onClick={() => setFilteredTags(tagCountsByName.map(([t]) => t))}
+                isEnabled={tagCountsByName.every(([tag]) => filteredTags.includes(tag))}
+            >
+                <span>All</span>
+            </AllButton>
             <Flex>
                 {tagCountsByName.map(tagCount => {
                     const [tag, count] = tagCount;
@@ -218,14 +224,6 @@ function PlayerTagCounts({
                         </TagButton>
                     );
                 })}
-            </Flex>
-            <Flex alignItems="flex-start" flexDirection="column">
-                <AllButton
-                    onClick={() => setFilteredTags(tagCountsByName.map(([t]) => t))}
-                    isEnabled={tagCountsByName.every(([tag]) => filteredTags.includes(tag))}
-                >
-                    <span>All</span>
-                </AllButton>
             </Flex>
         </Flex>
     );

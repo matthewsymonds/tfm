@@ -97,7 +97,7 @@ type GlobalParamsProps = {
 
 export default function GlobalParams(props: GlobalParamsProps) {
     return (
-        <Flex margin="0 0 0 4px">
+        <Flex margin="0 4px 0 0">
             {Object.keys(props.parameters)
                 .filter(parameter => parameter !== Parameter.VENUS || props.showVenus)
                 .map(parameter => (
