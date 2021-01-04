@@ -80,7 +80,7 @@ function PlayerPlayedCards({
             xOffset = index * (ACTUAL_CARD_TOKEN_WIDTH + 2); // 2 is for spacing
         }
 
-        return `translateX(${LANE_WIDTH - ACTUAL_CARD_TOKEN_WIDTH - xOffset}px)`;
+        return `translateX(${xOffset}px)`;
     }
 
     return (

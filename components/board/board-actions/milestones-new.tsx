@@ -48,6 +48,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
             <ActionListWithPopovers<Milestone>
                 actions={Object.values(Milestone)}
                 emphasizeOnHover={canPlay}
+                isVertical={true}
                 ActionComponent={({action}) => (
                     <MilestoneBadge
                         milestone={action}

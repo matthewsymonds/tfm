@@ -72,6 +72,7 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
             <ActionListWithPopovers<Award>
                 actions={Object.values(Award)}
                 emphasizeOnHover={canPlay}
+                isVertical={true}
                 ActionComponent={({action}) => (
                     <AwardBadge
                         award={action}

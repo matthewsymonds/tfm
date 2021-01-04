@@ -1,5 +1,5 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
-import {Flex} from 'components/box';
+import {Flex, Box} from 'components/box';
 import {GenericCardCost} from 'components/card/CardCost';
 import {
     GainResourceIconography,
@@ -48,26 +48,31 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
     };
 
     return (
-        <ActionListWithPopovers<StandardProjectAction>
-            actions={standardProjectActions}
-            emphasizeOnHover={canPlay}
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-end',
-            }}
-            ActionComponent={({action}) => (
-                <StandardProject
-                    action={action}
-                    playStandardProjectAction={playStandardProjectAction}
-                    loggedInPlayer={loggedInPlayer}
-                />
-            )}
-            ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
-                <StandardProjectTooltip action={action} loggedInPlayer={loggedInPlayer} />
-            )}
-        />
+        <Flex marginTop="8px">
+            <ActionListWithPopovers<StandardProjectAction>
+                actions={standardProjectActions}
+                emphasizeOnHover={canPlay}
+                isVertical={false}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    justifyContent: 'flex-end',
+                }}
+                ActionComponent={({action}) => (
+                    <Box padding="4px">
+                        <StandardProject
+                            action={action}
+                            playStandardProjectAction={playStandardProjectAction}
+                            loggedInPlayer={loggedInPlayer}
+                        />
+                    </Box>
+                )}
+                ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
+                    <StandardProjectTooltip action={action} loggedInPlayer={loggedInPlayer} />
+                )}
+            />
+        </Flex>
     );
 }
 
