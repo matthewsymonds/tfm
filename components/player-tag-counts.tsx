@@ -51,7 +51,7 @@ export enum TagFilterMode {
 }
 
 export type TagFilterConfig = {
-    tagFilterMode: TagFilterMode;
+    filterMode: TagFilterMode;
     filteredTags: Array<Tag>;
 };
 
@@ -66,37 +66,37 @@ function PlayerTagCounts({
 }) {
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
 
-    const {tagFilterMode, filteredTags} = tagFilterConfig;
+    const {filterMode, filteredTags} = tagFilterConfig;
     const toggleTag = useCallback(
         tag => {
-            if (tagFilterMode === TagFilterMode.ALL) {
+            if (filterMode === TagFilterMode.ALL) {
                 // if there's only one tag, don't do anything
                 if (tagCountsByName.length === 1) return;
                 // If everything is selected and user clicks a tag, assume they
                 // want to filter to see JUST that tag
-                setTagFilterConfig({tagFilterMode: TagFilterMode.SUBSET, filteredTags: [tag]});
+                setTagFilterConfig({filterMode: TagFilterMode.SUBSET, filteredTags: [tag]});
             } else if (filteredTags.length === 1 && filteredTags[0] === tag) {
                 // if only one tag is selected and user clicks it again, assume they
                 // want to go back to all
-                setTagFilterConfig({tagFilterMode: TagFilterMode.ALL, filteredTags: []});
+                setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []});
             } else {
                 // Otherwise, just toggle the tag state
                 if (filteredTags.includes(tag)) {
                     setTagFilterConfig({
-                        tagFilterMode: TagFilterMode.SUBSET,
+                        filterMode: TagFilterMode.SUBSET,
                         filteredTags: filteredTags.filter(t => t !== tag),
                     });
                 } else {
                     if (filteredTags.length + 1 === tagCountsByName.length) {
                         // if they've selected all the tags, go back to all mode
                         setTagFilterConfig({
-                            tagFilterMode: TagFilterMode.ALL,
+                            filterMode: TagFilterMode.ALL,
                             filteredTags: [],
                         });
                     } else {
                         // otherwise, stay in subset mode
                         setTagFilterConfig({
-                            tagFilterMode: TagFilterMode.SUBSET,
+                            filterMode: TagFilterMode.SUBSET,
                             filteredTags: [...filteredTags, tag],
                         });
                     }
@@ -110,9 +110,9 @@ function PlayerTagCounts({
         <Flex margin="4px 0" alignItems="center">
             <AllButton
                 onClick={() =>
-                    setTagFilterConfig({tagFilterMode: TagFilterMode.ALL, filteredTags: []})
+                    setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []})
                 }
-                isEnabled={tagFilterMode === TagFilterMode.ALL}
+                isEnabled={filterMode === TagFilterMode.ALL}
             >
                 <span>All</span>
             </AllButton>
@@ -124,7 +124,7 @@ function PlayerTagCounts({
                             key={tag}
                             onClick={() => toggleTag(tag)}
                             isSelected={filteredTags.includes(tag)}
-                            allSelected={tagFilterMode === TagFilterMode.ALL}
+                            allSelected={filterMode === TagFilterMode.ALL}
                             style={{marginRight: 4}}
                         >
                             <Flex justifyContent="center" alignItems="center">

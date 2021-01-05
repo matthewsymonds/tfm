@@ -15,7 +15,7 @@ import styled from 'styled-components';
 const CARD_TOKEN_WIDTH = 50;
 const ACTUAL_CARD_TOKEN_WIDTH = 56; // thicc borders
 const CARD_TOKEN_HEIGHT = 40;
-const LANE_WIDTH = 400;
+const LANE_WIDTH = 250;
 
 function PlayerPlayedCards({
     player,
@@ -27,10 +27,10 @@ function PlayerPlayedCards({
     tagFilterConfig: TagFilterConfig;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
-    const {tagFilterMode, filteredTags} = tagFilterConfig;
+    const {filterMode, filteredTags} = tagFilterConfig;
     const loggedInPlayer = useLoggedInPlayer();
     const filteredCards =
-        tagFilterMode === TagFilterMode.ALL
+        filterMode === TagFilterMode.ALL
             ? player.playedCards
             : player.playedCards.filter(card => {
                   const hydratedCard = getCard(card);
