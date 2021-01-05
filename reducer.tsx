@@ -216,7 +216,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // increment the state changes tally if on server.
         if (setIsSyncing.match(action)) {
             draft.syncing = true;
-            draft.numChanges = (state.numChanges ?? 0) + 1;
         }
 
         let player: PlayerState;

@@ -72,7 +72,6 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
         },
         players: [] as PlayerState[],
         options,
-        numChanges: 0,
     };
 
     for (const player of players) {

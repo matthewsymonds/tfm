@@ -11,9 +11,9 @@ import {useTypedSelector} from 'reducer';
 
 export default function Game(props) {
     const {game, session} = props;
-    const store = useStore();
     const router = useRouter();
     const dispatch = useDispatch();
+    const store = useStore();
     const context = useContext(AppContext);
 
     const handleRetrievedGame = game => {
@@ -103,14 +103,9 @@ export default function Game(props) {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
-        const oldState = store.getState();
-        const oldNumChanges = oldState?.numChanges ?? 0;
-        const newNumChanges = result?.state?.numChanges ?? 0;
-        if (!oldState.syncing && oldNumChanges <= newNumChanges) {
-            // Make sure both:
-            // 1) that we are not syncing (ie, playing an action), which would mean
-            //    we are about to get a more up to date state.
-            // 2) that this state we got is newer than the state we already have.
+        if (!store.getState().syncing) {
+            // Make sure that we are not syncing (ie, playing an action),
+            // which would mean we are about to get a more up to date state.
             handleRetrievedGame(result);
         }
     };
