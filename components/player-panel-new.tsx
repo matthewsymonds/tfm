@@ -118,11 +118,13 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                     <TerraformRating>{terraformRating} TR</TerraformRating>
                 </ScorePopover>
             </CorporationHeader>
-            <PlayerResourceBoard
-                player={player}
-                plantConversionOnly={isGreeneryPlacement}
-                isLoggedInPlayer={player.index === loggedInPlayer.index}
-            />
+            {!isCorporationSelection && (
+                <PlayerResourceBoard
+                    player={player}
+                    plantConversionOnly={isGreeneryPlacement}
+                    isLoggedInPlayer={player.index === loggedInPlayer.index}
+                />
+            )}
             {playerCardsElement}
 
             {!isCorporationSelection && (

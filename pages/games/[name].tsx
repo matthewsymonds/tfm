@@ -35,12 +35,16 @@ export default function Game(props) {
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);
     const numPlayers = useTypedSelector(state => state?.players?.length ?? 0);
-    const pendingCardSelection = useTypedSelector(
-        state => state.players[currentPlayerIndex]?.pendingCardSelection
+
+    const getPendingCardSelection = state =>
+        state.players[loggedInPlayerIndex]?.pendingCardSelection;
+
+    const draftPicks = useTypedSelector(state => getPendingCardSelection(state)?.draftPicks ?? []);
+    const possibleCards = useTypedSelector(
+        state => getPendingCardSelection(state)?.possibleCards ?? []
     );
-    const draftPicks = pendingCardSelection?.draftPicks ?? [];
-    const possibleCards = pendingCardSelection?.possibleCards ?? [];
-    const isWaiting = draftPicks.length + possibleCards.length === 5;
+    const isWaitingInDraft = draftPicks.length + possibleCards.length === 5;
+    const isSyncing = useTypedSelector(state => state.syncing);
 
     useEffect(() => {
         // Do not sync if you're the only one who can play!
@@ -50,7 +54,8 @@ export default function Game(props) {
                 gameStage !== GameStage.DRAFTING &&
                 currentPlayerIndex == loggedInPlayerIndex) ||
             numPlayers === 1 ||
-            gameStage === GameStage.END_OF_GAME
+            gameStage === GameStage.END_OF_GAME ||
+            isSyncing
         ) {
             // Don't retrieve server state while only you can play!
             // Can lead the game to de-sync:
@@ -62,11 +67,15 @@ export default function Game(props) {
             return;
         }
         // Only sync in draft stage if you're waiting for other players.
-        if (gameStage === GameStage.DRAFTING && !isWaiting) {
+        if (gameStage === GameStage.DRAFTING && !isWaitingInDraft) {
             return;
         }
         // Only sync if you're ready to play.
-        if (gameStage === GameStage.BUY_OR_DISCARD && possibleCards.length) {
+        if (
+            (gameStage === GameStage.BUY_OR_DISCARD ||
+                gameStage === GameStage.CORPORATION_SELECTION) &&
+            possibleCards.length
+        ) {
             return;
         }
         const interval = setInterval(() => {
@@ -76,7 +85,14 @@ export default function Game(props) {
         return () => {
             clearInterval(interval);
         };
-    }, [gameStage, loggedInPlayerIndex, currentPlayerIndex]);
+    }, [
+        gameStage,
+        loggedInPlayerIndex,
+        currentPlayerIndex,
+        isWaitingInDraft,
+        isSyncing,
+        possibleCards.length,
+    ]);
 
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;

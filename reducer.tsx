@@ -178,7 +178,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = ['Mining Area', 'Mining Rights'];
+const bonusNames: string[] = [];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;

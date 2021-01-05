@@ -2,6 +2,7 @@ import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {getCardTitleColorForType} from 'components/card/CardTitle';
 import TexturedCard from 'components/textured-card';
 import {Tag} from 'constants/tag';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import {useTypedSelector} from 'reducer';
@@ -27,10 +28,20 @@ function PlayerPlayedCards({
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
     const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
     const allTags = tagCountsByName.map(([t]) => t);
+    const loggedInPlayer = useLoggedInPlayer();
     const filteredCards = allTags.every(t => filteredTags.includes(t))
         ? player.playedCards
         : player.playedCards.filter(card => {
               const hydratedCard = getCard(card);
+              // Make sure event cards are only listed for opponents if
+              // an event tag filter is clicked.
+              if (
+                  hydratedCard.tags.includes(Tag.EVENT) &&
+                  !filteredTags.includes(Tag.EVENT) &&
+                  player.index !== loggedInPlayer.index
+              ) {
+                  return false;
+              }
               return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
           });
     const hoveredCard = hoveredCardIndex === null ? null : getCard(filteredCards[hoveredCardIndex]);
@@ -101,7 +112,7 @@ function PlayerPlayedCards({
             >
                 {filteredCards.map((card, index) => (
                     <div
-                        key={card.name}
+                        key={card.name + index}
                         style={{
                             position: 'absolute',
                             transform: `${getCardPosition(index)}`,

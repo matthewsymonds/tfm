@@ -8,7 +8,9 @@ import {Pane, Popover, Position} from 'evergreen-ui';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card} from 'models/card';
 import React, {useState} from 'react';
+import {useTypedSelector} from 'reducer';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
+import {getMoney} from 'selectors/get-money';
 import styled from 'styled-components';
 
 const PaymentPopoverBase = styled.div`
@@ -137,12 +139,13 @@ export default function PaymentPopover({
     shouldHide,
 }: PaymentPopoverProps) {
     const player = useLoggedInPlayer();
+    const playerMoney = useTypedSelector(state => getMoney(state, player));
     const {resources, exchangeRates} = player;
     let actionCost = cost || 0;
     if (card) {
         actionCost = getDiscountedCardCost(card, player);
     }
-    const [numMC, setNumMC] = useState(Math.min(resources[Resource.MEGACREDIT], actionCost || 0));
+    const [numMC, setNumMC] = useState(Math.min(playerMoney, actionCost || 0));
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
@@ -164,7 +167,7 @@ export default function PaymentPopover({
                     const remainingValue =
                         actionCost - runningTotalWithoutMegacredits + titaniumValue;
                     setNumTitanium(numTitanium - 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.STEEL:
@@ -172,14 +175,14 @@ export default function PaymentPopover({
                     const steelValue = exchangeRates[Resource.STEEL];
                     const remainingValue = actionCost - runningTotalWithoutMegacredits + steelValue;
                     setNumSteel(numSteel - 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.HEAT:
                 if (numHeat > 0) {
                     const remainingValue = actionCost - runningTotalWithoutMegacredits + 1;
                     setNumHeat(numHeat - 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
         }
@@ -192,7 +195,7 @@ export default function PaymentPopover({
         switch (resource) {
             case Resource.MEGACREDIT:
                 if (runningTotal >= actionCost) return;
-                const proposedValue = Math.min(numMC + 1, resources[Resource.MEGACREDIT]);
+                const proposedValue = Math.min(numMC + 1, playerMoney);
                 setNumMC(proposedValue);
                 return;
             case Resource.TITANIUM:
@@ -202,7 +205,7 @@ export default function PaymentPopover({
                     const remainingValue =
                         actionCost - runningTotalWithoutMegacredits - titaniumValue;
                     setNumTitanium(numTitanium + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.STEEL:
@@ -211,7 +214,7 @@ export default function PaymentPopover({
                     const steelValue = exchangeRates[Resource.STEEL];
                     const remainingValue = actionCost - runningTotalWithoutMegacredits - steelValue;
                     setNumSteel(numSteel + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.HEAT:
@@ -219,7 +222,7 @@ export default function PaymentPopover({
                 if (numHeat < resources[Resource.HEAT]) {
                     const remainingValue = actionCost - runningTotalWithoutMegacredits - 1;
                     setNumHeat(numHeat + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, resources[Resource.MEGACREDIT])));
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
         }
@@ -263,11 +266,11 @@ export default function PaymentPopover({
                         </span>
                     </PaymentPopoverSummaryRow>
                     <div className="payment-rows">
-                        {resources[Resource.MEGACREDIT] > 0 && (
+                        {playerMoney > 0 && (
                             <PaymentPopoverRow
                                 resource={Resource.MEGACREDIT}
                                 currentQuantity={numMC}
-                                availableQuantity={resources[Resource.MEGACREDIT]}
+                                availableQuantity={playerMoney}
                                 handleIncrease={handleIncrease}
                                 handleDecrease={handleDecrease}
                             />
