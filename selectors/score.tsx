@@ -30,7 +30,7 @@ export function getMilestoneScore(state: GameState, playerIndex: number) {
     return (
         state.common.claimedMilestones.filter(
             claimedMilestone => claimedMilestone.claimedByPlayerIndex === playerIndex
-        ).length * 8
+        ).length * 5
     );
 }
 
