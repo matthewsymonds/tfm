@@ -621,8 +621,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             } else if (amount > draftSourceCard.storedResourceAmount) {
                 throw new Error('Trying to take too many resources');
             } else if (
-                resource !== draftSourceCard.storedResourceType ||
-                draftSourceCard.storedResourceType !== draftTargetCard.storedResourceType
+                resource !== getCard(draftSourceCard).storedResourceType ||
+                getCard(draftSourceCard).storedResourceType !==
+                    getCard(draftTargetCard).storedResourceType
             ) {
                 throw new Error("Resource type doesn't match");
             }
