@@ -72,7 +72,6 @@ export type SerializedState = Omit<Omit<BaseGameState, 'common'>, 'players'> & {
 
 export type SerializedCard = {
     name: string;
-    storedResourceType?: Resource;
     lastRoundUsedAction?: number;
     storedResourceAmount?: number;
     increaseProductionResult?: Resource;
