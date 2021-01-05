@@ -761,8 +761,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {payment, milestone} = payload;
-            for (const resource in payment ?? {[Resource.MEGACREDIT]: 8}) {
-                player.resources[resource] -= payment[resource];
+            const resources = payment ?? {[Resource.MEGACREDIT]: 8};
+            for (const resource in resources) {
+                player.resources[resource] -= resources[resource];
             }
             draft.common.claimedMilestones.push({
                 claimedByPlayerIndex: player.index,

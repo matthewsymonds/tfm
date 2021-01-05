@@ -38,7 +38,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
 
     const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
         if (canPlay(milestone)) {
-            apiClient.claimMilestoneAsync({milestone, payment: payment ?? {}});
+            apiClient.claimMilestoneAsync({milestone, payment});
         }
     };
 
