@@ -1,5 +1,6 @@
 import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {getCardTitleColorForType} from 'components/card/CardTitle';
+import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import TexturedCard from 'components/textured-card';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -19,31 +20,31 @@ const LANE_WIDTH = 400;
 function PlayerPlayedCards({
     player,
     playerPanelRef,
-    filteredTags,
+    tagFilterConfig,
 }: {
     player: SerializedPlayerState;
     playerPanelRef: React.RefObject<HTMLDivElement>;
-    filteredTags: Array<Tag>;
+    tagFilterConfig: TagFilterConfig;
 }) {
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
-    const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
-    const allTags = tagCountsByName.map(([t]) => t);
+    const {tagFilterMode, filteredTags} = tagFilterConfig;
     const loggedInPlayer = useLoggedInPlayer();
-    const filteredCards = allTags.every(t => filteredTags.includes(t))
-        ? player.playedCards
-        : player.playedCards.filter(card => {
-              const hydratedCard = getCard(card);
-              // Make sure event cards are only listed for opponents if
-              // an event tag filter is clicked.
-              if (
-                  hydratedCard.tags.includes(Tag.EVENT) &&
-                  !filteredTags.includes(Tag.EVENT) &&
-                  player.index !== loggedInPlayer.index
-              ) {
-                  return false;
-              }
-              return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
-          });
+    const filteredCards =
+        tagFilterMode === TagFilterMode.ALL
+            ? player.playedCards
+            : player.playedCards.filter(card => {
+                  const hydratedCard = getCard(card);
+                  // Make sure event cards are only listed for opponents if
+                  // an event tag filter is clicked.
+                  if (
+                      hydratedCard.tags.includes(Tag.EVENT) &&
+                      !filteredTags.includes(Tag.EVENT) &&
+                      player.index !== loggedInPlayer.index
+                  ) {
+                      return false;
+                  }
+                  return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
+              });
     const hoveredCard = hoveredCardIndex === null ? null : getCard(filteredCards[hoveredCardIndex]);
     const popperElement = useRef<HTMLDivElement>(null);
     const {styles, attributes, forceUpdate} = usePopper(

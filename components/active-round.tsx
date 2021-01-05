@@ -122,12 +122,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     padding="8px"
                     flex="auto"
                     overflow="auto"
-                    alignItems="stretch"
-                    justifyContent="flex-end"
+                    alignItems="flex-start"
+                    justifyContent="center"
                 >
-                    <Flex flexDirection="column" alignItems="stretch" marginRight="4px">
+                    <Flex flexWrap="wrap" justifyContent="center" marginRight="4px">
                         {players.map((player, index) => (
-                            <Flex key={index} marginTop={index > 0 ? '4px' : 'initial'}>
+                            <Flex key={index} margin="2px">
                                 <PlayerPanel player={player} />
                             </Flex>
                         ))}

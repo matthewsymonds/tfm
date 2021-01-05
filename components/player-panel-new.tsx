@@ -3,6 +3,7 @@ import {Flex} from 'components/box';
 import {PlayerIcon} from 'components/icons/player';
 import {TagIcon} from 'components/icons/tag';
 import PlayerPlayedCards from 'components/player-played-cards';
+import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {PlayerResourceBoard} from 'components/resource';
 import {colors} from 'components/ui';
@@ -51,8 +52,8 @@ const OuterWrapper = styled(Flex)`
     align-items: flex-start;
     padding: 8px;
     /* background: hsl(0, 0%, 20%); */
-    width: 400px;
-    max-width: 400px;
+    width: 250px;
+    max-width: 250px;
     border-color: ${props => props.borderColor};
     border-width: 4px;
     border-style: solid;
@@ -70,7 +71,10 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
      */
     const state = useTypedSelector(state => state);
     const playerPanelRef = useRef<HTMLDivElement>(null);
-    const [filteredTags, setFilteredTags] = useState([...Object.values(Tag)]);
+    const [tagFilterConfig, setTagFilterConfig] = useState<TagFilterConfig>({
+        filterMode: TagFilterMode.ALL,
+        filteredTags: [],
+    });
 
     /**
      * Hooks
@@ -131,13 +135,13 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 <React.Fragment>
                     <PlayerTagCounts
                         player={player}
-                        filteredTags={filteredTags}
-                        setFilteredTags={setFilteredTags}
+                        tagFilterConfig={tagFilterConfig}
+                        setTagFilterConfig={setTagFilterConfig}
                     />
                     <PlayerPlayedCards
                         player={player}
                         playerPanelRef={playerPanelRef}
-                        filteredTags={filteredTags}
+                        tagFilterConfig={tagFilterConfig}
                     />
                 </React.Fragment>
             )}
@@ -154,107 +158,5 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
         </OuterWrapper>
     );
 };
-
-const TagButton = styled(BlankButton)<{isSelected: boolean; allSelected: boolean}>`
-    border-radius: 9999px; // pill
-    padding: 4px;
-    background-color: ${props =>
-        !props.allSelected && props.isSelected ? colors.CARD_BORDER_1 : 'inherit'};
-    opacity: ${props => (props.isSelected ? 1 : 0.4)};
-    cursor: default;
-    transition: opacity 150ms;
-
-    &:hover {
-        background-color: ${colors.CARD_BORDER_1};
-        opacity: ${props => (props.isSelected ? 1 : 0.8)};
-    }
-`;
-
-const AllButton = styled(BlankButton)<{isEnabled}>`
-    border-radius: 9999px; // pill
-    color: white;
-    font-size: 12px;
-    color: white;
-    opacity: ${props => (props.isEnabled ? 1 : 0.4)};
-    transition: opacity 150ms;
-    padding: 2px 6px;
-    cursor: default;
-
-    &:active {
-        opacity: 1;
-    }
-
-    &:hover {
-        background-color: ${colors.CARD_BORDER_1};
-        opacity: ${props => (props.isEnabled ? 1 : 0.8)};
-    }
-`;
-
-function PlayerTagCounts({
-    player,
-    filteredTags,
-    setFilteredTags,
-}: {
-    player: SerializedPlayerState;
-    filteredTags: Array<Tag>;
-    setFilteredTags: (tags: Array<Tag>) => void;
-}) {
-    const tagCountsByName = useTypedSelector(() => getTagCountsByName(player));
-    const allTags = tagCountsByName.map(([t]) => t);
-    const allTagsEnabled = allTags.every(t => filteredTags.includes(t)) && allTags.length > 1;
-    const toggleTag = useCallback(
-        tag => {
-            if (allTagsEnabled) {
-                // If everything is selected and user clicks a tag, assume they
-                // want to filter to see JUST that tag
-                setFilteredTags([tag]);
-            } else if (filteredTags.length === 1 && filteredTags[0] === tag) {
-                // if only one tag is selected and user clicks it again, assume they
-                // want to go back to all
-                setFilteredTags(allTags);
-            } else {
-                // Otherwise, just toggle the tag state
-                if (filteredTags.includes(tag)) {
-                    setFilteredTags(filteredTags.filter(t => t !== tag));
-                } else {
-                    setFilteredTags([...filteredTags, tag]);
-                }
-            }
-        },
-        [filteredTags.length, tagCountsByName.length]
-    );
-
-    return (
-        <Flex margin="4px 0" alignItems="center">
-            <AllButton
-                onClick={() => setFilteredTags(tagCountsByName.map(([t]) => t))}
-                isEnabled={tagCountsByName.every(([tag]) => filteredTags.includes(tag))}
-            >
-                <span>All</span>
-            </AllButton>
-            <Flex flexWrap="wrap">
-                {tagCountsByName.map(tagCount => {
-                    const [tag, count] = tagCount;
-                    return (
-                        <TagButton
-                            key={tag}
-                            onClick={() => toggleTag(tag)}
-                            isSelected={filteredTags.includes(tag)}
-                            allSelected={allTagsEnabled}
-                            style={{marginRight: 4}}
-                        >
-                            <Flex justifyContent="center" alignItems="center">
-                                <TagIcon size={24} name={tag as Tag} />
-                                <span className="display" style={{color: 'white', marginLeft: 2}}>
-                                    {count}
-                                </span>
-                            </Flex>
-                        </TagButton>
-                    );
-                })}
-            </Flex>
-        </Flex>
-    );
-}
 
 export default PlayerPanel;
