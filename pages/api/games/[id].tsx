@@ -21,7 +21,7 @@ export default async (req, res) => {
 
     switch (req.method.toUpperCase()) {
         case 'GET':
-            res.setHeader('cache-control', 'no-cache no-store');
+            res.setHeader('cache-control', 'no-cache');
             res.json({
                 state: censorGameState(game.state, sessionResult.username),
             });
