@@ -35,6 +35,12 @@ export default function Game(props) {
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);
     const numPlayers = useTypedSelector(state => state?.players?.length ?? 0);
+    const pendingCardSelection = useTypedSelector(
+        state => state.players[currentPlayerIndex]?.pendingCardSelection
+    );
+    const draftPicks = pendingCardSelection?.draftPicks ?? [];
+    const possibleCards = pendingCardSelection?.possibleCards ?? [];
+    const isWaiting = draftPicks.length + possibleCards.length === 5;
 
     useEffect(() => {
         // Do not sync if you're the only one who can play!
@@ -53,6 +59,14 @@ export default function Game(props) {
             // c) b completes
             // d) a completes, jerking the UI back in time
             // Simply avoid these tricky race condition scenarios whenever possible.
+            return;
+        }
+        // Only sync in draft stage if you're waiting for other players.
+        if (gameStage === GameStage.DRAFTING && !isWaiting) {
+            return;
+        }
+        // Only sync if you're ready to play.
+        if (gameStage === GameStage.BUY_OR_DISCARD && possibleCards.length) {
             return;
         }
         const interval = setInterval(() => {
