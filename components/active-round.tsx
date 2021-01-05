@@ -115,7 +115,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     </ActionBar>
                 )}
                 <Flex flex="none">
-                    <TopBar isPlayerMakingDecision={isPlayerMakingDecision} />
+                    <TopBar loggedInPlayer={loggedInPlayer} />
                 </Flex>
                 <Flex
                     className="active-round-outer"

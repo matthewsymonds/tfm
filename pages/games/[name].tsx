@@ -26,10 +26,15 @@ export default function Game(props) {
     useEffect(() => {
         handleRetrievedGame(game);
     }, []);
-
     const loggedInPlayerIndex = game.state.players.findIndex(
         player => player.username === session.username
     );
+    if (loggedInPlayerIndex < 0) {
+        useEffect(() => {
+            router.push('/');
+        }, []);
+        return null;
+    }
     context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);

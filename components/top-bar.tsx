@@ -8,10 +8,9 @@ import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useRouter} from 'next/router';
 import React from 'react';
-import {useTypedSelector} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {PlayersOrder} from './players-order';
 
@@ -31,10 +30,10 @@ const RoundText = styled.span`
 `;
 
 type TopBarProps = {
-    isPlayerMakingDecision: boolean;
+    loggedInPlayer: PlayerState;
 };
 
-export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
+export const TopBar = ({loggedInPlayer}: TopBarProps) => {
     const router = useRouter();
 
     /**
@@ -49,7 +48,6 @@ export const TopBar = ({isPlayerMakingDecision}: TopBarProps) => {
     /**
      * Derived state
      */
-    const loggedInPlayer = useLoggedInPlayer();
     const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
