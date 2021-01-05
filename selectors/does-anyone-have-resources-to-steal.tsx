@@ -2,6 +2,7 @@ import {Action} from 'constants/action';
 import {PROTECTED_HABITAT_RESOURCE, Resource} from 'constants/resource';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
+import {getCard} from 'selectors/get-card';
 import {getAppropriatePlayerForAction} from './get-appropriate-player-for-action';
 
 export function doesAnyoneHaveResourcesToSteal(
@@ -26,10 +27,14 @@ export function doesAnyoneHaveResourcesToSteal(
                 }
             }
             for (const playedCard of player.playedCards) {
-                if (playedCard.name === 'Pets') {
+                const hydratedCard = getCard(playedCard);
+                if (hydratedCard.name === 'Pets') {
                     continue;
                 }
-                if (playedCard.storedResourceType === resource && playedCard.storedResourceAmount) {
+                if (
+                    hydratedCard.storedResourceType === resource &&
+                    hydratedCard.storedResourceAmount
+                ) {
                     return true;
                 }
             }
