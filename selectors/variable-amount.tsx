@@ -59,6 +59,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT]: (state: GameState) => {
         const commercialDistrict = findCellWithTile(state, TileType.COMMERCIAL_DISTRICT);
+        if (!commercialDistrict) {
+            return 0;
+        }
         return getAdjacentCellsForCell(state, commercialDistrict).filter(cell => {
             return cell.tile?.type === TileType.CITY;
         }).length;
@@ -68,6 +71,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.OCEANS_ADJACENT_TO_CAPITAL]: (state: GameState) => {
         const capital = findCellWithTile(state, TileType.CAPITAL);
+        if (!capital) {
+            return 0;
+        }
         return getAdjacentCellsForCell(state, capital).filter(cell => {
             return cell.tile?.type === TileType.OCEAN;
         }).length;
@@ -111,7 +117,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         player = getLoggedInPlayer(state)
     ) => {
         return state.players
-            .filter(p => p !== player)
+            .filter(p => p.index !== player.index)
             .flatMap(player => getTags(player))
             .filter(tag => tag === Tag.SPACE).length;
     },
