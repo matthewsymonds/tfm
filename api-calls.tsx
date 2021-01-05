@@ -19,7 +19,7 @@ export async function makePostCall(path: string, body: Object) {
 export async function makeGetCall(path: string) {
     const url = window.location.origin;
 
-    const result = await fetch(url + path);
+    const result = await fetch(url + path, {cache: 'no-store'});
 
     return await result.json();
 }
