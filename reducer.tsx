@@ -316,6 +316,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (!pendingCardSelection || !Array.isArray(pendingCardSelection?.draftPicks)) {
                 throw new Error('Drafting state is borked');
             }
+            if (
+                pendingCardSelection.draftPicks.length + pendingCardSelection.possibleCards.length >
+                4
+            ) {
+                // user has already drafted a card, return early. this shouldn't be possible but
+                // previously could happen if user spam-clicked the draft button ?
+                return;
+            }
+            if (!pendingCardSelection.possibleCards.map(c => c.name).includes(draftedCard.name)) {
+                throw new Error('Card not in possible list of cards to draft');
+            }
             pendingCardSelection.draftPicks.push(draftedCard);
 
             // check to see if this was the last person of the group to pick a card

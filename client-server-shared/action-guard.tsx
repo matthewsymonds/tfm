@@ -521,6 +521,10 @@ export class ActionGuard {
         return [options.length === 0, 'Cannot skip if at least one option available'];
     }
 
+    get isSyncing() {
+        return this.state.syncing;
+    }
+
     shouldDisableUI(state: GameState = this.state) {
         if (state.syncing) {
             return true;

@@ -79,9 +79,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     const actionGuard = useActionGuard();
 
-    const shouldDisableConfirmCardSelection = useTypedSelector(
-        state => !actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
+    const canConfirmCardSelection = useTypedSelector(state =>
+        actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
+    const shouldDisableConfirmCardSelection = !canConfirmCardSelection || actionGuard.isSyncing;
 
     // hide card selector while waiting on others to pick cards
     const isWaitingOnOthersToDraft =
@@ -157,7 +158,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         <PaymentPopover
                             cost={selectedCards.length * 3}
                             onConfirmPayment={payment => handleConfirmCardSelection(payment)}
-                            shouldHide={!usePaymentPopover}
+                            shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
                         >
                             <button
                                 disabled={shouldDisableConfirmCardSelection}
