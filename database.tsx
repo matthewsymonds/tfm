@@ -34,6 +34,10 @@ const gamesSchema = new schema({
         type: Date,
         default: Date.now,
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 export let gamesModel;

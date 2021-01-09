@@ -374,8 +374,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             (player.pendingCardSelection = {
                                 ...player.pendingCardSelection,
                                 possibleCards: [
-                                    ...player.pendingCardSelection?.possibleCards,
-                                    ...player.pendingCardSelection?.draftPicks,
+                                    ...(player.pendingCardSelection?.possibleCards ?? []),
+                                    ...(player.pendingCardSelection?.draftPicks ?? []),
                                 ],
                                 draftPicks: undefined,
                                 isBuyingCards: true,

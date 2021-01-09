@@ -113,18 +113,16 @@ export default async (req, res) => {
                 throw spawnExhaustiveSwitchError(type);
         }
         await actionHandler.handleForcedActionsIfNeededAsync(originalState);
+        game.queue = hydratedGame.queue;
+        game.state = hydratedGame.state;
+        game.updatedAt = Date.now();
+        await game.save();
+
         res.json({
             state: censorGameState(hydratedGame.state, username),
         });
-        game.queue = hydratedGame.queue;
-        game.state = hydratedGame.state;
     } catch (error) {
         res.status(404);
         res.json({error: error.message});
-    }
-    try {
-        await game.save();
-    } catch (error) {
-        // do nothing.
     }
 };
