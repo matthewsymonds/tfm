@@ -105,7 +105,7 @@ export const sessionsSchema = new schema({
     expiresAt: {
         type: Date,
         default: Date.now,
-        index: {expires: '10d'},
+        index: {expires: '100d'},
     },
 });
 
