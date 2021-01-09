@@ -10,4 +10,5 @@ export type BaseGameState = {
     players: Array<BasePlayerState>;
     log: string[];
     pendingVariableAmount?: number;
+    timestamp?: number;
 };

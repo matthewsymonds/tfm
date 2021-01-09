@@ -213,6 +213,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
     if (!state) return null;
 
     return produce(state, draft => {
+        draft.timestamp = Date.now();
         // increment the state changes tally if on server.
         if (setIsSyncing.match(action)) {
             draft.syncing = true;

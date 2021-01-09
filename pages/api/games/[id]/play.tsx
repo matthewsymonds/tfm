@@ -120,7 +120,6 @@ export default async (req, res) => {
         game.state = hydratedGame.state;
     } catch (error) {
         res.status(404);
-        res.status(404);
         res.json({error: error.message});
     }
     try {

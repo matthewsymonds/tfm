@@ -21,7 +21,15 @@ export default function Game(props) {
             router.push('/new-game');
             return;
         }
-        dispatch(setGame(game.state));
+        const existingTimestamp = store.getState().timestamp ?? 0;
+        const newTimestamp = game.state.timestamp ?? 0;
+        if (newTimestamp > existingTimestamp) {
+            // So...we've seen examples of the state going one step backward in time.
+            // We generally don't want that.
+            // While the root cause is being fleshed out and squashed,
+            // we can alleviate a lot of the pain with this check.
+            dispatch(setGame(game.state));
+        }
     };
     useEffect(() => {
         handleRetrievedGame(game);
