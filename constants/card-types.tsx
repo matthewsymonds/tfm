@@ -26,6 +26,12 @@ export type ExchangeRates = {
     [Resource.TITANIUM]?: number;
     [Resource.STEEL]?: number;
     [Resource.HEAT]?: number;
+    [Resource.FLOATER]?: number;
+};
+
+export type ConditionalPayment = {
+    tag: Tag;
+    rate: number;
 };
 
 export interface CardConfig extends Action {
@@ -59,6 +65,8 @@ export interface CardConfig extends Action {
     parameterRequirementAdjustments?: PropertyCounter<Parameter>;
     // e.g. Special Design
     temporaryParameterRequirementAdjustments?: PropertyCounter<Parameter>;
+
+    conditionalPayment?: ConditionalPayment;
 }
 
 type MinimumGlobalParameter = {

@@ -19,6 +19,7 @@ export default function NewGame(props) {
     const [numPlayers, updateNumPlayers] = useInput(2);
     const [isDraftingEnabled, setIsDraftingEnabled] = useState(true);
     const [isCorporateEraEnabled, setIsCorporateEraEnabled] = useState(true);
+    const [isVenusNextEnabled, setIsVenusNextEnabled] = useState(true);
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -58,6 +59,10 @@ export default function NewGame(props) {
         const decks: Deck[] = [Deck.BASIC];
         if (isCorporateEraEnabled) {
             decks.push(Deck.CORPORATE);
+            // Doesn't make much sense to play with expansions if corporate era is off.
+            if (isVenusNextEnabled) {
+                decks.push(Deck.VENUS);
+            }
         }
 
         const result = await makePostCall('/api/games', {
@@ -117,6 +122,15 @@ export default function NewGame(props) {
                             onChange={e => setIsDraftingEnabled(e.target.checked)}
                         />
                         Draft variant
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={!isCorporateEraEnabled}
+                            checked={isCorporateEraEnabled && isVenusNextEnabled}
+                            onChange={e => setIsVenusNextEnabled(e.target.checked)}
+                        />
+                        Venus Next
                     </label>
                 </Flex>
                 <Box marginTop="32px">

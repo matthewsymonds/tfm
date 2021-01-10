@@ -6,9 +6,7 @@ import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
-import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
-import {getTagCountsByName} from 'selectors/player';
 import {SerializedCard, SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 

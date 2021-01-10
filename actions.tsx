@@ -143,9 +143,9 @@ export const setPlantDiscount = withMatcher((plantDiscount: number, playerIndex:
 
 const APPLY_EXCHANGE_RATE_CHANGES = 'APPLY_EXCHANGE_RATE_CHANGES';
 export const applyExchangeRateChanges = withMatcher(
-    (exchangeRates: ExchangeRates, playerIndex: number) => ({
+    (cardName: string, exchangeRates: ExchangeRates, playerIndex: number) => ({
         type: APPLY_EXCHANGE_RATE_CHANGES,
-        payload: {exchangeRates, playerIndex},
+        payload: {cardName, exchangeRates, playerIndex},
     })
 );
 

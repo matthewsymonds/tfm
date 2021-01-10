@@ -307,9 +307,7 @@ export function ChangeResourceIconography({
                     );
                     break;
                 case VariableAmount.RESOURCES_ON_CARD:
-                    multiplierElement = (
-                        <ResourceIcon name={Resource.ANY_STORABLE_RESOURCE} size={16} />
-                    );
+                    multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
                     break;
                 default:
                     throw new Error('variable amount not supported: ' + amount);
@@ -438,7 +436,7 @@ export function RemoveResourceIconography({
     sourceType: ResourceLocationType | undefined;
     opts?: {isInline: boolean};
 }) {
-    const useRedBorder = sourceType && sourceType === ResourceLocationType.ANY_PLAYER;
+    const useRedBorder = sourceType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(sourceType);
     return (
         <ChangeResourceIconography
             changeResource={removeResource}
@@ -469,6 +467,13 @@ export function StealResourceIconography({
     );
 }
 
+const RED_BORDER_RESOURCE_LOCATION_TYPES = [
+    ResourceLocationType.ANY_CARD,
+    ResourceLocationType.ANY_PLAYER,
+    ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
+    ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
+];
+
 export function RemoveResourceOptionIconography({
     removeResourceOption,
     sourceType,
@@ -476,7 +481,7 @@ export function RemoveResourceOptionIconography({
     removeResourceOption: PropertyCounter<Resource>;
     sourceType?: ResourceLocationType | undefined;
 }) {
-    const useRedBorder = sourceType && sourceType === ResourceLocationType.ANY_PLAYER;
+    const useRedBorder = sourceType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(sourceType);
 
     return (
         <ChangeResourceOptionIconography
@@ -790,6 +795,7 @@ export const CardIconography = ({card}: {card: CardModel}) => {
                 <TilePlacementIconography tilePlacements={card.tilePlacements} />
                 <ProductionIconography card={card} />
             </Flex>
+            <IncreaseParameterIconography increaseParameter={card.increaseParameter} />
             <RemoveResourceIconography
                 removeResource={card.removeResource}
                 sourceType={card.removeResourceSourceType}
@@ -801,7 +807,6 @@ export const CardIconography = ({card}: {card: CardModel}) => {
             <GainResourceIconography gainResource={card.gainResource} />
             <GainResourceOptionIconography gainResourceOption={card.gainResourceOption} />
             <StealResourceIconography stealResource={card.stealResource} />
-            <IncreaseParameterIconography increaseParameter={card.increaseParameter} />
             <IncreaseTerraformRatingIconography
                 increaseTerraformRating={card.increaseTerraformRating}
             />

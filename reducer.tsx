@@ -178,7 +178,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Floating Habs'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -688,9 +688,15 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (payload.payment) {
                 for (const resource in payload.payment) {
                     player.resources[resource] -= payload.payment[resource];
+                    if (player.resources[resource] < 0) {
+                        throw new Error('Got negative resources while trying to pay for card');
+                    }
                 }
             } else {
                 player.resources[Resource.MEGACREDIT] -= cardCost;
+                if (player.resources[Resource.MEGACREDIT] < 0) {
+                    throw new Error('Got negative megacredits while trying to pay for card');
+                }
             }
             player.discounts.nextCardThisGeneration = 0;
             let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
@@ -993,6 +999,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {exchangeRates: exchangeRateDeltas} = payload;
 
             for (const resource in exchangeRateDeltas) {
+                player.exchangeRates[resource] = player.exchangeRates[resource] ?? 0;
                 player.exchangeRates[resource] += exchangeRateDeltas[resource];
             }
         }

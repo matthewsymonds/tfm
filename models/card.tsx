@@ -3,6 +3,7 @@ import {Parameter, TilePlacement} from 'constants/board';
 import {
     CardConfig,
     CardType,
+    ConditionalPayment,
     Deck,
     ExchangeRates,
     RequiredGlobalParameter,
@@ -107,6 +108,8 @@ export class Card {
     // Currently only relevant for: Phobolog, Advanced Alloys
     exchangeRates: ExchangeRates;
 
+    conditionalPayment?: ConditionalPayment;
+
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
 
@@ -192,6 +195,9 @@ export class Card {
         }
         if (this.storedResourceType) {
             this.storedResourceAmount = 0;
+        }
+        if (config.conditionalPayment) {
+            this.conditionalPayment = config.conditionalPayment;
         }
     }
 }

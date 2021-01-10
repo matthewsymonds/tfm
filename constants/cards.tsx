@@ -2877,7 +2877,6 @@ export const cardConfigs: CardConfig[] = [
         text:
             'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
         requiredTags: {[Tag.SCIENCE]: 3},
-        // TODO implement support for top level choices.
         choice: [
             {increaseParameter: {[Parameter.TEMPERATURE]: 2}, text: '+2 temperature'},
             {increaseParameter: {[Parameter.VENUS]: 2}, text: '+2 Venus'},
@@ -2889,7 +2888,6 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 1,
     },
     {
-        // TODO player with venus tag target type
         cost: 11,
         deck: Deck.VENUS,
         name: 'Comet for Venus',
@@ -2905,6 +2903,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Corroder Suits',
         text: 'Increase your MC production 2 steps. Add 1 resource to ANY VENUS CARD.',
+        gainResource: {[Resource.ANY_STORABLE_RESOURCE]: 1},
         gainResourceTargetType: ResourceLocationType.VENUS_CARD,
         increaseProduction: {[Resource.MEGACREDIT]: 2},
         tags: [Tag.VENUS],
@@ -2919,10 +2918,10 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 4},
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.TITANIUM]: 1},
-        // TODO tile placement
         tags: [Tag.CITY, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 3,
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.DAWN_CITY, true)],
     },
     {
         action: {
@@ -2955,8 +2954,6 @@ export const cardConfigs: CardConfig[] = [
                 'Add 1 floater to ANY card. Effect: When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
             gainResource: {[Resource.FLOATER]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
-            // removeResourceSourceType: ResourceLocationType.THIS_CARD,
-            // TODO effect
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -2964,6 +2961,10 @@ export const cardConfigs: CardConfig[] = [
         name: 'Dirigibles',
         tags: [Tag.VENUS],
         type: CardType.ACTIVE,
+        conditionalPayment: {
+            tag: Tag.VENUS,
+            rate: 3,
+        },
     },
     {
         action: {
@@ -3023,12 +3024,10 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.VENUS],
         type: CardType.ACTIVE,
-        // TODO add payment (helion) support to ask-user-to-make-action-choice for "Spend 2MC"
     },
     {
         action: {
             text:
-                // TODO add payment (helion) support to ask-user-to-make-action-choice for "Spend 2MC"
                 'Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
             choice: [
                 {
@@ -3104,6 +3103,7 @@ export const cardConfigs: CardConfig[] = [
         decreaseProduction: {
             [Resource.ENERGY]: 2,
         },
+        tilePlacements: [t(TileType.CITY)],
     },
     {
         cost: 11,
@@ -3201,7 +3201,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {
             [Resource.MEGACREDIT]: VariableAmount.EARTH_TAGS,
         },
-        // TODO reserved area for luna metropolis
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.LUNA_METROPOLIS, true)],
     },
     {
         cost: 8,
@@ -3230,6 +3230,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: 3,
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.MAXWELL_BASE, true)],
     },
     {
         cost: 5,
@@ -3361,6 +3362,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.THIRD_RESOURCES_ON_CARD,
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.STRATOPOLIS, true)],
     },
     {
         action: {
@@ -3479,6 +3481,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.VENUS]: 2},
         tags: [Tag.VENUS, Tag.VENUS],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         action: {text: 'Decrease your energy production 1 step to raise Venus 1 step.'},
@@ -3494,7 +3497,9 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
     },
     {
-        // venus: 1,
+        increaseParameter: {[Parameter.VENUS]: 1},
+        increaseProduction: {[Resource.PLANT]: 1},
+        gainResource: {[Resource.MICROBE]: 2},
         cost: 20,
         deck: Deck.VENUS,
         name: 'Venus Soil',
@@ -3566,12 +3571,18 @@ export const cardConfigs: CardConfig[] = [
             min: 16,
         },
         gainResourceTargetType: ResourceLocationType.VENUS_CARD,
+        gainResourceOption: {
+            [Resource.ANIMAL]: 1,
+            [Resource.MICROBE]: 1,
+        },
+        increaseParameter: {
+            [Parameter.VENUS]: 1,
+        },
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
     },
     {
-        // addsResourceToCards: Resource.FLOATER,
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Airliners',
@@ -4475,7 +4486,10 @@ export const cardConfigs: CardConfig[] = [
                 'Add a microbe to this card. Effect: When paying for a plant card, microbes here may be used as 2 MC each.',
             gainResource: {[Resource.MICROBE]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
-            // TODO effect
+        },
+        conditionalPayment: {
+            tag: Tag.PLANT,
+            rate: 2,
         },
         cost: 2,
         deck: Deck.PRELUDE,

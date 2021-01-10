@@ -54,6 +54,7 @@ export const Board = () => {
     );
 
     const parameters = useTypedSelector(state => state.common.parameters);
+    const venus = useTypedSelector(state => state.options.decks.includes(Deck.VENUS));
 
     function handleClick(cell: CellModel) {
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {
@@ -66,7 +67,7 @@ export const Board = () => {
             <GlobalParams parameters={parameters} showVenus={showVenus} />
 
             <Flex flexDirection="column" alignItems="center">
-                <Box position="relative">
+                <Box position="relative" paddingBottom={venus ? '75px' : '0px'}>
                     <OffMarsCities
                         board={board}
                         validPlacements={validPlacements}

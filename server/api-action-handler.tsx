@@ -159,7 +159,7 @@ export class ApiActionHandler implements GameActionHandler {
     }): Promise<void> {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
-        const [canPlay, reason] = this.actionGuard.canPlayCard(card, payment);
+        const [canPlay, reason] = this.actionGuard.canPlayCard(card);
 
         if (!canPlay) {
             throw new Error(reason);
@@ -203,7 +203,7 @@ export class ApiActionHandler implements GameActionHandler {
             )
         );
         this.queue.push(applyDiscounts(card.discounts, playerIndex));
-        this.queue.push(applyExchangeRateChanges(card.exchangeRates, playerIndex));
+        this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
 
         // 3. Play the action
         //     - action choices (done with priority)

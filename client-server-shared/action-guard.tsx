@@ -9,7 +9,6 @@ import {Award, Cell, Milestone} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
-import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
@@ -19,8 +18,10 @@ import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
 import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
+import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
+import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
@@ -40,11 +41,7 @@ export class ActionGuard {
         return this.state.players.find(player => player.username === this.username)!;
     }
 
-    canPlayCard(
-        card: Card,
-        // TODO check that the payment object as presented is something the user can afford
-        payment?: PropertyCounter<Resource>
-    ): CanPlayAndReason {
+    canPlayCard(card: Card): CanPlayAndReason {
         const {state} = this;
         const player = this._getPlayerToConsider();
         if (
@@ -100,6 +97,15 @@ export class ActionGuard {
 
         if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
             return [false, 'Cannot play card outside active round'];
+        }
+
+        for (const resource in card.requiredResources) {
+            if (
+                getPlayerResourceAmount(player, resource as Resource) <
+                card.requiredResources[resource]
+            ) {
+                return [false, 'Not enough of required resource'];
+            }
         }
 
         return [canPlay, reason];
@@ -260,6 +266,10 @@ export class ActionGuard {
         const playerIsHelion = player.corporation.name === 'Helion';
         if (playerIsHelion) {
             cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+        }
+        const conditionalPayment = getConditionalPaymentWithResourceInfo(player, card);
+        if (conditionalPayment) {
+            cost -= conditionalPayment.resourceAmount * conditionalPayment.rate;
         }
 
         return cost <= player.resources[Resource.MEGACREDIT];

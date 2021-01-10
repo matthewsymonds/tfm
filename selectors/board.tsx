@@ -229,6 +229,22 @@ export function getPossibleValidPlacementsForRequirement(
             return state.common.board
                 .flat()
                 .filter(cell => cell.specialLocation === SpecialLocation.GANYMEDE);
+        case PlacementRequirement.DAWN_CITY:
+            return state.common.board
+                .flat()
+                .filter(cell => cell.specialLocation === SpecialLocation.DAWN_CITY);
+        case PlacementRequirement.LUNA_METROPOLIS:
+            return state.common.board
+                .flat()
+                .filter(cell => cell.specialLocation === SpecialLocation.LUNA_METROPOLIS);
+        case PlacementRequirement.MAXWELL_BASE:
+            return state.common.board
+                .flat()
+                .filter(cell => cell.specialLocation === SpecialLocation.MAXWELL_BASE);
+        case PlacementRequirement.STRATOPOLIS:
+            return state.common.board
+                .flat()
+                .filter(cell => cell.specialLocation === SpecialLocation.STRATOPOLIS);
         default:
             throw new Error('case not handled');
     }

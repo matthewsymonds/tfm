@@ -105,11 +105,10 @@ function getPlayersToConsider(
             const playerIndices = neighbors.map(cell => cell?.tile?.ownerPlayerIndex);
             return players.filter(player => playerIndices.includes(player.index));
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
-            return players.filter(
-                player =>
-                    !!getPlayedCards(player)
-                        .flatMap(card => card.tags)
-                        .find(tag => tag === Tag.VENUS)
+            return players.filter(player =>
+                getPlayedCards(player)
+                    .flatMap(card => card.tags)
+                    .some(tag => tag === Tag.VENUS)
             );
         default:
             throw spawnExhaustiveSwitchError(locationType);
@@ -357,7 +356,9 @@ function getOptionsForStorableResource(
             break;
         }
         case ResourceLocationType.VENUS_CARD:
-            cards = cards.filter(card => card.tags.includes(Tag.VENUS));
+            cards = cards.filter(
+                card => card.tags.includes(Tag.VENUS) && !!card.storedResourceType
+            );
             break;
         case ResourceLocationType.JOVIAN_CARD:
             cards = cards.filter(card => card.tags.includes(Tag.JOVIAN));

@@ -34,11 +34,19 @@ export enum SpecialLocation {
     NOCTIS = 'noctis',
     PHOBOS = 'phobos',
     VOLCANIC = 'volcanic',
+    DAWN_CITY = 'dawnCity',
+    LUNA_METROPOLIS = 'lunaMetropolis',
+    MAXWELL_BASE = 'maxwellBase',
+    STRATOPOLIS = 'stratopolis',
 }
 export const RESERVED_LOCATIONS = [
     SpecialLocation.GANYMEDE,
     SpecialLocation.NOCTIS,
     SpecialLocation.PHOBOS,
+    SpecialLocation.DAWN_CITY,
+    SpecialLocation.LUNA_METROPOLIS,
+    SpecialLocation.MAXWELL_BASE,
+    SpecialLocation.STRATOPOLIS,
 ];
 
 export enum Milestone {
@@ -59,12 +67,15 @@ export enum Award {
 
 export enum PlacementRequirement {
     CITY = 'placementCity', // normal city requirement (not touching another city)
-    CITY_ADJACENT = 'placementCityAdjacemt', // e.g. industrial center
+    CITY_ADJACENT = 'placementCityAdjacent', // e.g. industrial center
+    DAWN_CITY = 'dawnCity',
     DOUBLE_CITY_ADJACENT = 'placementDoubleCityAdjacent', // e.g. urbanized area
     GANYMEDE = 'placementGanymede',
     GREENERY = 'placementGreenery', // normal greenery (next to existing city if possible)
     GREENERY_ADJACENT = 'placementGreeneryAdjacent',
     ISOLATED = 'placementIsolated',
+    LUNA_METROPOLIS = 'lunaMetropolis',
+    MAXWELL_BASE = 'maxwellBase',
     NOCTIS = 'placementNoctis',
     NON_RESERVED = 'placementNonReserved',
     NOT_RESERVED_FOR_OCEAN = 'placementNotReservedForOcean',
@@ -72,6 +83,7 @@ export enum PlacementRequirement {
     RESERVED_FOR_OCEAN = 'placementReservedForOcean',
     STEEL_OR_TITANIUM = 'placementSteelOrTitanium',
     STEEL_OR_TITANIUM_PLAYER_ADJACENT = 'placementSteelOrTitaniumPlayerAdjacent',
+    STRATOPOLIS = 'stratopolis',
     VOLCANIC = 'placementVolcanic',
 }
 
@@ -331,6 +343,10 @@ const INITIAL_BOARD_STATE: Cell[][] = [
 INITIAL_BOARD_STATE.push([
     offMars([], SpecialLocation.PHOBOS, 'Phobos'),
     offMars([], SpecialLocation.GANYMEDE, 'Ganymede'),
+    offMars([], SpecialLocation.DAWN_CITY, 'Dawn City'),
+    offMars([], SpecialLocation.LUNA_METROPOLIS, 'Luna Metropolis'),
+    offMars([], SpecialLocation.MAXWELL_BASE, 'Maxwell Base'),
+    offMars([], SpecialLocation.STRATOPOLIS, 'Stratopolis'),
 ]);
 
 INITIAL_BOARD_STATE.forEach((row, rowIndex) => {

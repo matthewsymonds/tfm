@@ -9,6 +9,7 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card} from 'models/card';
 import React, {useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
 import {getMoney} from 'selectors/get-money';
 import styled from 'styled-components';
@@ -140,6 +141,9 @@ export default function PaymentPopover({
 }: PaymentPopoverProps) {
     const player = useLoggedInPlayer();
     const playerMoney = useTypedSelector(state => getMoney(state, player));
+    const conditionalPayment = useTypedSelector(state =>
+        getConditionalPaymentWithResourceInfo(player, card)
+    );
     const {resources, exchangeRates} = player;
     let actionCost = cost || 0;
     if (card) {
@@ -149,6 +153,7 @@ export default function PaymentPopover({
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
+    const [numConditionalPayment, setNumConditionalPayment] = useState(0);
 
     if (shouldHide) {
         return <React.Fragment>{children}</React.Fragment>;
@@ -185,6 +190,15 @@ export default function PaymentPopover({
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
+            case conditionalPayment?.resourceType:
+                if (numConditionalPayment > 0) {
+                    const remainingValue =
+                        actionCost -
+                        runningTotalWithoutMegacredits +
+                        (conditionalPayment?.rate ?? 0);
+                    setNumConditionalPayment(numConditionalPayment - 1);
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
+                }
         }
     }
 
@@ -225,6 +239,14 @@ export default function PaymentPopover({
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
+            case conditionalPayment?.resourceType:
+                if (runningTotal >= actionCost && numMC === 0) return;
+                if (numConditionalPayment < (conditionalPayment?.resourceAmount ?? 0)) {
+                    const remainingValue = actionCost - runningTotalWithoutMegacredits - 1;
+                    setNumConditionalPayment(numConditionalPayment + 1);
+                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
+                }
+                return;
         }
     }
 
@@ -233,7 +255,8 @@ export default function PaymentPopover({
             numMC +
             numSteel * exchangeRates[Resource.STEEL] +
             numTitanium * exchangeRates[Resource.TITANIUM] +
-            numHeat * 1
+            numHeat * 1 +
+            numConditionalPayment * (conditionalPayment?.rate ?? 0)
         );
     }
 
@@ -241,7 +264,8 @@ export default function PaymentPopover({
         return (
             numSteel * exchangeRates[Resource.STEEL] +
             numTitanium * exchangeRates[Resource.TITANIUM] +
-            numHeat * 1
+            numHeat * 1 +
+            numConditionalPayment * (conditionalPayment?.rate ?? 0)
         );
     }
 
@@ -302,6 +326,15 @@ export default function PaymentPopover({
                                 resource={Resource.HEAT}
                                 currentQuantity={numHeat}
                                 availableQuantity={resources[Resource.HEAT]}
+                                handleIncrease={handleIncrease}
+                                handleDecrease={handleDecrease}
+                            />
+                        )}
+                        {conditionalPayment?.resourceAmount && (
+                            <PaymentPopoverRow
+                                resource={conditionalPayment.resourceType}
+                                currentQuantity={numConditionalPayment}
+                                availableQuantity={conditionalPayment.resourceAmount}
                                 handleIncrease={handleIncrease}
                                 handleDecrease={handleDecrease}
                             />

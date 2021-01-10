@@ -54,6 +54,7 @@
         "babel-loader": "^8.1.0",
         "babel-plugin-styled-components": "1.11.1",
         "next-images": "1.4.1",
+        "organize-imports-cli": "0.8.0",
         "patch-package": "6.2.2",
         "prettier": "2.1.1",
         "react-is": "^16.13.1",
