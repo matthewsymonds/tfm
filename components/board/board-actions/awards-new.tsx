@@ -13,6 +13,7 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
 
@@ -65,12 +66,18 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
         }
     };
 
+    let awards = Object.values(Award);
+    const venus = useTypedSelector(isPlayingVenus);
+    if (!venus) {
+        awards = awards.filter(award => award !== Award.VENUPHILE);
+    }
+
     return (
         <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
             <AwardHeader className="display">Awards</AwardHeader>
 
             <ActionListWithPopovers<Award>
-                actions={Object.values(Award)}
+                actions={awards}
                 emphasizeOnHover={canPlay}
                 isVertical={true}
                 ActionComponent={({action}) => (
@@ -251,6 +258,8 @@ export function getTextForAward(award: Award) {
             return 'Scientist';
         case Award.THERMALIST:
             return 'Thermalist';
+        case Award.VENUPHILE:
+            return 'Venuphile';
         default:
             throw new Error('Unrecognized award');
     }
@@ -268,6 +277,8 @@ function getRequirementTextForAward(award: Award) {
             return 'Player with the most science tags wins.';
         case Award.THERMALIST:
             return 'Player with the most heat resources wins.';
+        case Award.VENUPHILE:
+            return 'Player with the most Veus tags wins.';
         default:
             throw new Error('Unrecognized award');
     }

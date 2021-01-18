@@ -104,7 +104,7 @@ export const getResourceSymbol = (resource: Resource) => {
         case Resource.FIGHTER:
             return '🚀';
         case Resource.FLOATER:
-            return '☁️';
+            return '☂️';
         case Resource.HEAT:
             return '🔥';
         case Resource.MEGACREDIT:
@@ -174,7 +174,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.ENERGY:
             return 'white';
         case Resource.FLOATER:
-            return 'gray';
+            return 'black';
         case Resource.FIGHTER:
             return 'gray';
         case Resource.HEAT:

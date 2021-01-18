@@ -28,7 +28,8 @@ import {VariableAmount} from 'constants/variable-amount';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -47,10 +48,18 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
         }
     };
 
+    const venus = useTypedSelector(isPlayingVenus);
+
+    let actions = [...standardProjectActions];
+
+    if (!venus) {
+        actions = actions.filter(action => action.type !== StandardProjectType.VENUS);
+    }
+
     return (
         <Flex marginTop="8px">
             <ActionListWithPopovers<StandardProjectAction>
-                actions={standardProjectActions}
+                actions={actions}
                 emphasizeOnHover={canPlay}
                 isVertical={false}
                 style={{
@@ -203,6 +212,8 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
             return 'Greenery';
         case StandardProjectType.CITY:
             return 'City';
+        case StandardProjectType.VENUS:
+            return 'Venus';
     }
 }
 

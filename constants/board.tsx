@@ -55,6 +55,7 @@ export enum Milestone {
     GARDENER = 'gardener',
     BUILDER = 'builder',
     PLANNER = 'planner',
+    HOVERLORD = 'hoverlord',
 }
 
 export enum Award {
@@ -63,6 +64,7 @@ export enum Award {
     SCIENTIST = 'scientist',
     THERMALIST = 'thermalist',
     MINER = 'miner',
+    VENUPHILE = 'venuphile',
 }
 
 export enum PlacementRequirement {

@@ -46,6 +46,10 @@ export function getPlayerScienceTags(player: PlayerState) {
     return getTags(player).filter(tag => tag === Tag.SCIENCE).length;
 }
 
+export function getPlayerVenusTags(player: PlayerState) {
+    return getTags(player).filter(tag => tag === Tag.VENUS).length;
+}
+
 export function getPlayerSteelAndTitanium(player: PlayerState) {
     return player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM];
 }
@@ -57,6 +61,7 @@ export const awardToQuantity = {
     [Award.LANDLORD]: (player: PlayerState, state: GameState) =>
         getAllCellsOwnedByCurrentPlayer(state, player).length,
     [Award.MINER]: getPlayerSteelAndTitanium,
+    [Award.VENUPHILE]: getPlayerVenusTags,
 };
 
 export function getAwardScore(state: GameState, playerIndex: number) {

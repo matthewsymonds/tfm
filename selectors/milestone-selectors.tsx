@@ -1,6 +1,8 @@
 import {cellHelpers, Milestone} from 'constants/board';
+import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
+import {getPlayedCards} from './get-played-cards';
 import {getTags} from './variable-amount';
 
 function getPlayerCities(player: PlayerState, state: GameState) {
@@ -27,12 +29,20 @@ function getPlayerTerraformRating(player: PlayerState) {
     return player.terraformRating;
 }
 
+function getPlayerFloaterResources(player: PlayerState) {
+    return getPlayedCards(player)
+        .filter(card => card.storedResourceType === Resource.FLOATER)
+        .map(card => card.storedResourceAmount ?? 0)
+        .reduce((total, amount) => total + amount, 0);
+}
+
 export const milestoneQuantitySelectors = {
     [Milestone.MAYOR]: getPlayerCities,
     [Milestone.GARDENER]: getPlayerGreeneries,
     [Milestone.BUILDER]: getPlayerBuildingTags,
     [Milestone.PLANNER]: getPlayerCards,
     [Milestone.TERRAFORMER]: getPlayerTerraformRating,
+    [Milestone.HOVERLORD]: getPlayerFloaterResources,
 };
 
 export const minMilestoneQuantity = {
@@ -41,4 +51,5 @@ export const minMilestoneQuantity = {
     [Milestone.BUILDER]: 8,
     [Milestone.PLANNER]: 16,
     [Milestone.TERRAFORMER]: 35,
+    [Milestone.HOVERLORD]: 7,
 };

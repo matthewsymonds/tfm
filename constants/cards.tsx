@@ -2881,7 +2881,7 @@ export const cardConfigs: CardConfig[] = [
             {increaseParameter: {[Parameter.TEMPERATURE]: 2}, text: '+2 temperature'},
             {increaseParameter: {[Parameter.VENUS]: 2}, text: '+2 Venus'},
         ],
-        gainResource: {[Resource.FLOATER]: 3},
+        gainResource: {[Resource.FLOATER]: 2},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
@@ -4720,6 +4720,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Add a floater to ANY card.',
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+            gainResource: {[Resource.FLOATER]: 1},
         },
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,

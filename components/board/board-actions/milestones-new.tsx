@@ -13,6 +13,7 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
 
@@ -42,11 +43,17 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
         }
     };
 
+    let milestones = Object.values(Milestone);
+    const venus = useTypedSelector(isPlayingVenus);
+    if (!venus) {
+        milestones = milestones.filter(milestone => milestone !== Milestone.HOVERLORD);
+    }
+
     return (
         <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
-                actions={Object.values(Milestone)}
+                actions={milestones}
                 emphasizeOnHover={canPlay}
                 isVertical={true}
                 ActionComponent={({action}) => (
@@ -195,6 +202,8 @@ export function getTextForMilestone(milestone: Milestone) {
             return 'Terraformer';
         case Milestone.MAYOR:
             return 'Mayor';
+        case Milestone.HOVERLORD:
+            return 'Hoverlord';
         default:
             throw new Error('Unrecognized milestone');
     }
@@ -212,6 +221,8 @@ function getRequirementTextForMilestone(milestone: Milestone) {
             return 'Requires 35 terraform rating';
         case Milestone.MAYOR:
             return 'Requires 3 cities';
+        case Milestone.HOVERLORD:
+            return 'Requires 7 floaters';
         default:
             throw new Error('Unrecognized milestone');
     }

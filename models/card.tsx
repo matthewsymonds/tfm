@@ -112,6 +112,7 @@ export class Card {
 
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
+    choice: Action[];
 
     constructor(config: CardConfig) {
         // Hack to fix compile bug
@@ -199,6 +200,7 @@ export class Card {
         if (config.conditionalPayment) {
             this.conditionalPayment = config.conditionalPayment;
         }
+        this.choice = config.choice || [];
     }
 }
 

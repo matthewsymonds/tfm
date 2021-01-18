@@ -5,13 +5,13 @@ import {Box, Flex} from 'components/box';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
-import {Deck} from 'constants/card-types';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import {Cell} from './cell';
 import OffMarsCities from './off-mars-cities';
@@ -47,14 +47,8 @@ export const Board = () => {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
 
-    const showVenus = useTypedSelector(
-        state => state.options?.decks.includes(Deck.VENUS),
-        // Never updates
-        () => true
-    );
-
     const parameters = useTypedSelector(state => state.common.parameters);
-    const venus = useTypedSelector(state => state.options.decks.includes(Deck.VENUS));
+    const venus = useTypedSelector(isPlayingVenus);
 
     function handleClick(cell: CellModel) {
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {
@@ -64,7 +58,7 @@ export const Board = () => {
     }
     return (
         <Flex justifyContent="flex-end" alignItems="flex-start">
-            <GlobalParams parameters={parameters} showVenus={showVenus} />
+            <GlobalParams parameters={parameters} />
 
             <Flex flexDirection="column" alignItems="center">
                 <Box position="relative" paddingBottom={venus ? '75px' : '0px'}>

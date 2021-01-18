@@ -93,4 +93,10 @@ export const standardProjectActions: StandardProjectAction[] = [
             },
         ],
     },
+    {
+        actionType: ActionType.STANDARD_PROJECT,
+        type: StandardProjectType.VENUS,
+        cost: 15,
+        increaseParameter: {[Parameter.VENUS]: 1},
+    },
 ];

@@ -3,6 +3,8 @@ import {GlobalParameters, Parameter} from 'constants/board';
 import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {Tooltip} from 'react-tippy';
+import {useTypedSelector} from 'reducer';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import {Flex} from './box';
 import {ColoredTooltip} from './colored-tooltip';
@@ -92,14 +94,14 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
 
 type GlobalParamsProps = {
     parameters: GlobalParameters;
-    showVenus: boolean;
 };
 
 export default function GlobalParams(props: GlobalParamsProps) {
+    const venus = useTypedSelector(isPlayingVenus);
     return (
         <Flex margin="0 4px 0 0">
             {Object.keys(props.parameters)
-                .filter(parameter => parameter !== Parameter.VENUS || props.showVenus)
+                .filter(parameter => parameter !== Parameter.VENUS || venus)
                 .map(parameter => (
                     <GlobalParamColumn key={parameter as Parameter}>
                         <GlobalParamValue

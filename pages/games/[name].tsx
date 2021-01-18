@@ -131,7 +131,7 @@ Game.getInitialProps = async ctx => {
 
     try {
         const response = await fetch(getGamePath(isServer, query, headers), {
-            headers,
+            headers: {...headers, 'cache-control': 'no-store'},
         });
 
         const game = await response.json();

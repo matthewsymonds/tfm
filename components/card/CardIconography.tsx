@@ -788,33 +788,81 @@ function TemporaryAdjustmentIconography({
     return <React.Fragment>{elements}</React.Fragment>;
 }
 
-export const CardIconography = ({card}: {card: CardModel}) => {
+function ChoiceIconography({choice}: {choice: Action[]}) {
+    const elements: Array<React.ReactNode> = [];
+    for (const action of choice) {
+        elements.push(<CardIconography card={action} />);
+        if (action !== choice[choice.length - 1]) {
+            elements.push(<TextWithMargin>or</TextWithMargin>);
+        }
+    }
+
+    return (
+        <Flex alignItems="center" marginBottom="8px">
+            {elements}
+        </Flex>
+    );
+}
+
+export const CardIconography = ({card}: {card: Action | CardModel}) => {
+    const {
+        tilePlacements,
+        increaseParameter,
+        removeResource,
+        removeResourceSourceType,
+        removeResourceOption,
+        gainResource,
+        gainResourceOption,
+        stealResource,
+        increaseTerraformRating,
+    } = card;
+    // This bad code can be alleviated by moving temporaryParameterRequirementAdjustments
+    // to the base action type (it currently only exists on cards).
+    const temporaryParameterRequirementAdjustments =
+        'temporaryParameterRequirementAdjustments' in card
+            ? card.temporaryParameterRequirementAdjustments
+            : null;
+    const choice = 'choice' in card ? card.choice : null;
+
     return (
         <Flex flexDirection="column" alignItems="center" position="relative">
             <Flex justifyContent="space-evenly" width="100%">
-                <TilePlacementIconography tilePlacements={card.tilePlacements} />
+                {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
                 <ProductionIconography card={card} />
             </Flex>
-            <IncreaseParameterIconography increaseParameter={card.increaseParameter} />
-            <RemoveResourceIconography
-                removeResource={card.removeResource}
-                sourceType={card.removeResourceSourceType}
-            />
-            <RemoveResourceOptionIconography
-                removeResourceOption={card.removeResourceOption}
-                sourceType={card.removeResourceSourceType}
-            />
-            <GainResourceIconography gainResource={card.gainResource} />
-            <GainResourceOptionIconography gainResourceOption={card.gainResourceOption} />
-            <StealResourceIconography stealResource={card.stealResource} />
-            <IncreaseTerraformRatingIconography
-                increaseTerraformRating={card.increaseTerraformRating}
-            />
-            <TemporaryAdjustmentIconography
-                temporaryParameterRequirementAdjustments={
-                    card.temporaryParameterRequirementAdjustments
-                }
-            />
+            {increaseParameter && (
+                <IncreaseParameterIconography increaseParameter={increaseParameter} />
+            )}
+            {choice && <ChoiceIconography choice={choice} />}
+            {removeResource && (
+                <RemoveResourceIconography
+                    removeResource={removeResource}
+                    sourceType={removeResourceSourceType}
+                />
+            )}
+            {removeResourceOption && (
+                <RemoveResourceOptionIconography
+                    removeResourceOption={removeResourceOption}
+                    sourceType={removeResourceSourceType}
+                />
+            )}
+            {gainResource && <GainResourceIconography gainResource={gainResource} />}
+            {gainResourceOption && (
+                <GainResourceOptionIconography gainResourceOption={gainResourceOption} />
+            )}
+            {stealResource && <StealResourceIconography stealResource={stealResource} />}
+            {increaseTerraformRating ? (
+                <IncreaseTerraformRatingIconography
+                    increaseTerraformRating={increaseTerraformRating}
+                />
+            ) : null}
+            {temporaryParameterRequirementAdjustments && (
+                <TemporaryAdjustmentIconography
+                    temporaryParameterRequirementAdjustments={
+                        temporaryParameterRequirementAdjustments
+                    }
+                />
+            )}
         </Flex>
     );
 };
