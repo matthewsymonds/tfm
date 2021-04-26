@@ -1065,6 +1065,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         }
                         if (playersWhoCanPlaceGreenery.length > 0) {
                             draft.log.push('Greenery Placement');
+                            const [{index}] = playersWhoCanPlaceGreenery;
+                            common.currentPlayerIndex = index;
+                            common.firstPlayerIndex = index;
                             common.gameStage = GameStage.GREENERY_PLACEMENT;
                         } else {
                             common.gameStage = GameStage.END_OF_GAME;

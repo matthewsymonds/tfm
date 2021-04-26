@@ -544,7 +544,7 @@ export class ActionGuard {
         if (player.index !== state.common.currentPlayerIndex) {
             return true;
         }
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
+        if (gameStage !== GameStage.ACTIVE_ROUND && gameStage !== GameStage.GREENERY_PLACEMENT) {
             return true;
         }
         if (getIsPlayerMakingDecision(state, player)) {
