@@ -790,10 +790,11 @@ function TemporaryAdjustmentIconography({
 
 function ChoiceIconography({choice}: {choice: Action[]}) {
     const elements: Array<React.ReactNode> = [];
+    let index = 0;
     for (const action of choice) {
-        elements.push(<CardIconography card={action} />);
+        elements.push(<CardIconography key={index++} card={action} />);
         if (action !== choice[choice.length - 1]) {
-            elements.push(<TextWithMargin>or</TextWithMargin>);
+            elements.push(<TextWithMargin key={index++}>or</TextWithMargin>);
         }
     }
 
