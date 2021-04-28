@@ -3,6 +3,7 @@ import {getTextForAward} from 'components/board/board-actions/awards-new';
 import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
 import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
 import {CardType, Deck} from 'constants/card-types';
+import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
@@ -54,6 +55,7 @@ import {
     removeResource,
     removeStorableResource,
     revealAndDiscardTopCards,
+    revealTakeAndDiscard,
     setCards,
     setCorporation,
     setGame,
@@ -278,6 +280,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (isStorableResource(resource)) {
                 return;
             }
+            if (resource === Resource.MOST_RECENT_PRODUCTION_INCREASE) {
+                resource = player.mostRecentProductionIncrease || resource;
+            }
             player.resources[resource] += quantity;
             draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
         };
@@ -393,6 +398,46 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const numCardsToReveal = payload.amount;
             draft.common.revealedCards = handleDrawCards(numCardsToReveal);
             draft.log.push('Revealed ', draft.common.revealedCards.map(c => c.name).join(', '));
+        }
+
+        if (revealTakeAndDiscard.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            for (const criterion in payload.revealTakeAndDiscard) {
+                const amount = convertAmountToNumber(
+                    payload.revealTakeAndDiscard[criterion],
+                    state,
+                    player
+                );
+                const matchingCards: SerializedCard[] = [];
+                const notMatchingCards: SerializedCard[] = [];
+                const revealedCards: SerializedCard[] = [];
+
+                const selector = CARD_SELECTION_CRITERIA_SELECTORS[criterion];
+
+                let card: SerializedCard | undefined;
+
+                while (draft.common.deck.length > 0 && matchingCards.length < amount) {
+                    card = draft.common.deck.shift();
+                    if (card) {
+                        revealedCards.push(card);
+                        if (selector(card)) {
+                            matchingCards.push(card);
+                        } else {
+                            notMatchingCards.push(card);
+                        }
+                    }
+                }
+
+                draft.log.push(`Revealed ${revealedCards.map(c => c.name).join(', ')}`);
+                draft.log.push(
+                    `${corporationName} took ${matchingCards
+                        .map(c => c.name)
+                        .join(', ')} into hand and discarded the rest.`
+                );
+                player.cards.push(...matchingCards);
+                draft.common.discardPile.push(...notMatchingCards);
+            }
         }
 
         if (discardRevealedCards.match(action)) {
@@ -524,6 +569,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 card.increaseProductionResult = payload.resource;
             }
             if (increase) {
+                player.mostRecentProductionIncrease = payload.resource;
+                player.mostRecentProductionIncreaseQuantity = increase;
                 draft.log.push(
                     `${corporationName} increased their ${getResourceName(
                         payload.resource

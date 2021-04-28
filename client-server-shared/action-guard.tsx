@@ -18,6 +18,7 @@ import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
 import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
+import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
@@ -28,6 +29,7 @@ import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
 import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {getTags} from 'selectors/variable-amount';
+import {SerializedPlayerState} from 'state-serialization';
 
 type CanPlayAndReason = [boolean, string];
 
@@ -393,6 +395,7 @@ export class ActionGuard {
     canPlayCardAction(
         action: Action,
         parent: Card,
+        player: SerializedPlayerState | undefined,
         state: GameState = this.state
     ): CanPlayAndReason {
         if (!this.canAffordActionCost(action)) {
@@ -401,6 +404,26 @@ export class ActionGuard {
 
         if (parent.lastRoundUsedAction === state.common.generation) {
             return [false, 'Already used this generation'];
+        }
+
+        if (player && action.useBlueCardActionAlreadyUsedThisGeneration) {
+            const candidates = player.playedCards.filter(card => {
+                const fullCard = getCard(card);
+                if (!fullCard.action) {
+                    // Card does not have an action to replay.
+                    return false;
+                }
+                if (card.lastRoundUsedAction !== state.common.generation) {
+                    // Haven't used this card's action this round, so cannot "re-use" it.
+                    return false;
+                }
+
+                // Finally, check, if we can replay the action.
+                return this.canPlayAction(fullCard.action, state, fullCard);
+            });
+            if (candidates.length === 0) {
+                return [false, 'No actions can be replayed.'];
+            }
         }
 
         return this.canPlayAction(action, state, parent);

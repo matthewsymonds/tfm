@@ -34,7 +34,9 @@ export enum VariableAmount {
     HALF_BUILDING_TAGS = 'halfBuildingTags',
     THREE_IF_ONE_OR_MORE_RESOURCES = 'threeIfOneOrMoreResources',
     FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE = 'fourIfThreePlantTagsElseOne',
+    THREE_IF_THREE_VENUS_TAGS_ELSE_ONE = 'threeIfThreeVenusTagsElseOne',
     THIRD_ALL_CITIES = 'thirdAllCities',
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
     PLANT_CONVERSION_AMOUNT = 'plantConversionAmount',
+    MOST_RECENT_PRODUCTION_INCREASE = 'variableAmountMostRecentProductionIncrease',
 }

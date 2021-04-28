@@ -35,11 +35,13 @@ import {
     removeResource,
     removeStorableResource,
     revealAndDiscardTopCards,
+    revealTakeAndDiscard,
     setCards,
     setCorporation,
     setPlantDiscount,
     skipAction,
     skipChoice,
+    askUserToUseBlueCardActionAlreadyUsedThisGeneration,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -63,9 +65,11 @@ import {
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
+import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
+import {FullStackedChartIcon} from 'evergreen-ui';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
 import {AnyAction} from 'redux';
@@ -87,6 +91,7 @@ export interface EffectEvent {
     placedTile?: TileType;
     cell?: Cell;
     tags?: Tag[];
+    increaseProduction?: {resource: Resource; amount: Amount};
 }
 
 type PlayActionParams = {
@@ -214,6 +219,7 @@ export class ApiActionHandler implements GameActionHandler {
         // Get the resources/production/cards first.
         // Trigger effects after.
         this.playActionBenefits({...playActionParams, withPriority: true});
+        this.discardCards(playActionParams);
         // Finally, pay the costs.
         this.playActionCosts(playActionParams);
 
@@ -239,6 +245,10 @@ export class ApiActionHandler implements GameActionHandler {
             },
             card
         );
+    }
+
+    private triggerEffectsFromIncreaseProduction(resource: Resource, amount: Amount) {
+        this.triggerEffects({increaseProduction: {resource, amount}});
     }
 
     private triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell) {
@@ -720,10 +730,39 @@ export class ApiActionHandler implements GameActionHandler {
         withPriority,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
+        const player = this.getLoggedInPlayer();
         const items: Array<AnyAction> = [];
         for (const tilePlacement of action?.tilePlacements ?? []) {
             items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
+
+        if (action.useBlueCardActionAlreadyUsedThisGeneration) {
+            const choice: Action[] = [];
+            for (const playedCard of player.playedCards) {
+                const fullCard = getCard(playedCard);
+                const fullCardChoices: Action[] = [];
+                if (
+                    fullCard.action &&
+                    !fullCard.action.useBlueCardActionAlreadyUsedThisGeneration &&
+                    fullCard.lastRoundUsedAction === state.common.generation
+                ) {
+                    if (fullCard.action.choice) {
+                        fullCardChoices.push(...fullCard.action.choice);
+                    } else {
+                        fullCardChoices.push(fullCard.action);
+                    }
+                    for (const action of fullCardChoices) {
+                        // hack for viron.
+                        action.parentName = playedCard.name;
+                    }
+                    choice.push(...fullCardChoices);
+                }
+            }
+            if (choice.length > 0) {
+                items.push(askUserToMakeActionChoice(choice, parent, playedCard, playerIndex));
+            }
+        }
+
         const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
 
         // NOTE: This logic means stealResource really behaves more like
@@ -773,6 +812,10 @@ export class ApiActionHandler implements GameActionHandler {
                     playerIndex
                 )
             );
+            this.triggerEffectsFromIncreaseProduction(
+                production as Resource,
+                action.increaseProduction[production]
+            );
         }
 
         if (action.increaseProductionOption !== undefined) {
@@ -816,6 +859,23 @@ export class ApiActionHandler implements GameActionHandler {
                     action.gainResourceTargetType
                 )
             );
+        }
+
+        for (const resource in action.opponentsGainResource) {
+            for (const opponent of state.players) {
+                if (opponent.index === playerIndex) {
+                    // This is only for opponents.
+                    continue;
+                }
+
+                items.push(
+                    this.createInitialGainResourceAction(
+                        resource as Resource,
+                        action.opponentsGainResource[resource],
+                        opponent.index
+                    )
+                );
+            }
         }
 
         if (Object.keys(action.gainResourceOption ?? {}).length > 0) {
@@ -890,10 +950,32 @@ export class ApiActionHandler implements GameActionHandler {
         if (action.plantDiscount) {
             items.push(setPlantDiscount(action.plantDiscount, playerIndex));
         }
+
+        if (action.revealTakeAndDiscard) {
+            items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
+        }
+
         if (withPriority) {
             this.queue.unshift(...items);
         } else {
             this.queue.push(...items);
+        }
+    }
+
+    private discardCards({action, parent, playedCard, thisPlayerIndex}: PlayActionParams) {
+        const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
+        const numCardsToDiscard = action.removeResource?.[Resource.CARD] ?? 0;
+
+        if (numCardsToDiscard) {
+            this.queue.unshift(
+                askUserToDiscardCards(
+                    playerIndex,
+                    numCardsToDiscard,
+                    parent,
+                    playedCard,
+                    action?.actionType === ActionType.STANDARD_PROJECT
+                )
+            );
         }
     }
 
@@ -935,11 +1017,13 @@ export class ApiActionHandler implements GameActionHandler {
             );
         }
 
-        if (action.choice) {
+        if (action.choice && action.choice.length > 0) {
             items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
         }
 
         for (const resource in action.removeResource) {
+            // Must remove card resources (discard) before anything else happens.
+            if (resource === Resource.CARD) continue;
             items.push(
                 this.createInitialRemoveResourceAction(
                     resource as Resource,
@@ -972,6 +1056,7 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     private playAction(playActionParams: PlayActionParams) {
+        this.discardCards(playActionParams);
         this.playActionCosts(playActionParams);
         this.playActionBenefits(playActionParams);
     }
@@ -1058,18 +1143,6 @@ export class ApiActionHandler implements GameActionHandler {
         const requiresLocationChoice =
             locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
         const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
-
-        const requiresDiscard = resource === Resource.CARD;
-
-        if (requiresDiscard) {
-            return askUserToDiscardCards(
-                playerIndex,
-                amount,
-                parent,
-                playedCard,
-                action?.actionType === ActionType.STANDARD_PROJECT
-            );
-        }
 
         if (requiresAmountChoice || requiresLocationChoice) {
             return askUserToChooseResourceActionDetails({
@@ -1183,6 +1256,10 @@ function getActionsFromEffect(
     if (trigger.cost) {
         if ((event.cost || 0) < trigger.cost) return [];
         return [effectAction];
+    }
+
+    if (trigger.increaseProduction) {
+        if (!event.increaseProduction) return [];
     }
 
     const eventTags = event.tags || [];

@@ -239,7 +239,7 @@ function CardAction({
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
-    const [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card);
+    const [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card, cardOwner);
     let tooltipText: string | null = null;
 
     if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {

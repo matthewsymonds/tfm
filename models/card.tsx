@@ -55,6 +55,8 @@ export class Card {
     // ====================================================
     /** e.g. "Gain 12 heat" */
     gainResource: PropertyCounter<Resource>;
+    /** e.g. Sponsored Academies */
+    opponentsGainResource: PropertyCounter<Resource>;
     /** e.g. "Gain 5 plants, or add 4 animals to ANOTHER card" */
     gainResourceOption: PropertyCounter<Resource>;
     /** e.g. "Remove 5 MC" */
@@ -131,7 +133,7 @@ export class Card {
 
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;
-        this.requiredResources = config.requiredResources || config.removeResource || {};
+        this.requiredResources = config.requiredResources || {};
         this.minColonies = config.minColonies;
         this.maxColonies = config.maxColonies;
         this.minTerraformRating = config.minTerraformRating;
@@ -140,6 +142,7 @@ export class Card {
 
         // Resource & production implications
         this.gainResource = config.gainResource || {};
+        this.opponentsGainResource = config.opponentsGainResource || {};
         this.gainResourceOption = config.gainResourceOption || {};
         this.gainResourceTargetType = config.gainResourceTargetType;
         this.lookAtCards = config.lookAtCards;

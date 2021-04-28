@@ -190,6 +190,18 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
 
         return 1;
     },
+    [VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE]: (
+        state: GameState,
+        player: PlayerState
+    ) => {
+        const numVenusTags = getTags(player).filter(tag => tag === Tag.VENUS).length;
+
+        if (numVenusTags >= 3) {
+            return 3;
+        }
+
+        return 1;
+    },
     [VariableAmount.REVEALED_CARD_MICROBE]: (state: GameState) => {
         const {revealedCards} = state.common;
         const card = getCard(revealedCards[0]);
@@ -197,5 +209,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.THIRD_ALL_CITIES]: (state: GameState, player: PlayerState) => {
         return Math.floor(getCellsWithCities(state, player).length / 3);
+    },
+    [VariableAmount.MOST_RECENT_PRODUCTION_INCREASE]: (state: GameState, player: PlayerState) => {
+        return player.mostRecentProductionIncreaseQuantity || 0;
     },
 };

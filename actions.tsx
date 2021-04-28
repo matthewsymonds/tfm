@@ -1,5 +1,6 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {ExchangeRates} from 'constants/card-types';
+import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {Tag} from 'constants/tag';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount} from './constants/action';
@@ -22,6 +23,17 @@ export const revealAndDiscardTopCards = withMatcher((amount: number, playerIndex
     type: REVEAL_AND_DISCARD_TOP_CARDS,
     payload: {amount, playerIndex},
 }));
+
+const REVEAL_TAKE_AND_DISCARD = 'REVEAL_TAKE_AND_DISCARD';
+export const revealTakeAndDiscard = withMatcher(
+    (revealTakeAndDiscard: PropertyCounter<CardSelectionCriteria>, playerIndex: number) => ({
+        type: REVEAL_TAKE_AND_DISCARD,
+        payload: {
+            revealTakeAndDiscard,
+            playerIndex,
+        },
+    })
+);
 
 const DISCARD_REVEALED_CARDS = 'DISCARD_REVEALED_CARDS';
 export const discardRevealedCards = withMatcher(() => ({
@@ -414,6 +426,24 @@ export const removeForcedActionFromPlayer = withMatcher(
             playerIndex,
             forcedAction,
         },
+    })
+);
+
+const ASK_USER_TO_USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION =
+    'ASK_USER_TO_USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION';
+export const askUserToUseBlueCardActionAlreadyUsedThisGeneration = withMatcher(
+    (playerIndex: number) => ({
+        type: ASK_USER_TO_USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
+        payload: {playerIndex},
+    })
+);
+
+const USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION =
+    'USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION';
+export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher(
+    (playerIndex: number, choiceIndex: number) => ({
+        type: USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
+        payload: {playerIndex, choiceIndex},
     })
 );
 

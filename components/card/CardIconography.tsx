@@ -183,6 +183,23 @@ export function ChangeResourceIconography({
                         </Flex>
                     );
                     break;
+                case VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE:
+                    customElement = (
+                        <Flex flexDirection="column" alignItems="center">
+                            <Flex alignItems="center" marginBottom="8px">
+                                <ResourceIcon name={Resource.CARD} size={16} />
+                                <TextWithMargin>OR</TextWithMargin>
+                            </Flex>
+                            <Flex alignItems="center" justifyContent="center">
+                                <TextWithMargin>3</TextWithMargin>
+                                <TagIcon name={Tag.VENUS} size={16} />
+                                <TextWithMargin>:</TextWithMargin>
+                                <TextWithMargin>3</TextWithMargin>{' '}
+                                <ResourceIcon name={Resource.CARD} size={16} />
+                            </Flex>
+                        </Flex>
+                    );
+                    break;
                 case VariableAmount.EARTH_TAGS:
                     multiplierElement = <TagIcon name={Tag.EARTH} size={16} />;
                     break;
@@ -308,6 +325,11 @@ export function ChangeResourceIconography({
                     break;
                 case VariableAmount.RESOURCES_ON_CARD:
                     multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
+                    break;
+                case VariableAmount.MOST_RECENT_PRODUCTION_INCREASE:
+                    customElement = (
+                        <ResourceIcon name={Resource.MOST_RECENT_PRODUCTION_INCREASE} size={16} />
+                    );
                     break;
                 default:
                     throw new Error('variable amount not supported: ' + amount);

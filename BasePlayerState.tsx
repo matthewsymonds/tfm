@@ -64,4 +64,6 @@ export type BasePlayerState = {
 
     parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
+    mostRecentProductionIncrease?: Resource;
+    mostRecentProductionIncreaseQuantity?: number;
 };

@@ -3,6 +3,7 @@ import {CardConfig, CardType, Deck} from './card-types';
 import {Resource, ResourceLocationType} from './resource';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
+import {CardSelectionCriteria} from './reveal-take-and-discard';
 
 export const cardConfigs: CardConfig[] = [
     {
@@ -3080,7 +3081,6 @@ export const cardConfigs: CardConfig[] = [
         increaseParameter: {[Parameter.VENUS]: 1},
     },
     {
-        // venus: 3,
         cost: 27,
         deck: Deck.VENUS,
         name: 'Giant Solar Shade',
@@ -3125,6 +3125,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
+        gainResource: {[Resource.CARD]: VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE},
     },
     {
         cost: 5,
@@ -3137,6 +3138,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.TITANIUM]: 1},
     },
     {
         action: {
@@ -3227,6 +3229,7 @@ export const cardConfigs: CardConfig[] = [
             type: Parameter.VENUS,
             min: 12,
         },
+        decreaseProduction: {[Resource.ENERGY]: 1},
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: 3,
@@ -3240,9 +3243,9 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1, [Tag.JOVIAN]: 1},
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.STEEL]: 2},
     },
     {
-        // venus: 1,
         cost: 7,
         deck: Deck.VENUS,
         name: 'Neutralizer Factory',
@@ -3250,6 +3253,9 @@ export const cardConfigs: CardConfig[] = [
         requiredGlobalParameter: {
             type: Parameter.VENUS,
             min: 10,
+        },
+        increaseParameter: {
+            [Parameter.VENUS]: 1,
         },
         tags: [Tag.VENUS],
         type: CardType.AUTOMATED,
@@ -3265,16 +3271,20 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
     },
     {
-        // venus: 2,
         cost: 26,
         deck: Deck.VENUS,
         name: 'Orbital Reflectors',
         text: 'Raise Venus 2 steps. Increase your heat production 2 steps.',
         tags: [Tag.SPACE, Tag.VENUS],
         type: CardType.AUTOMATED,
+        increaseParameter: {
+            [Parameter.VENUS]: 1,
+        },
+        increaseProduction: {
+            [Resource.HEAT]: 2,
+        },
     },
     {
-        // TODO add payment support to ask user to make action choice (helion)
         action: {
             choice: [
                 {
@@ -3346,11 +3356,15 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        removeResource: {[Resource.CARD]: 1},
+        gainResource: {[Resource.CARD]: 3},
+        opponentsGainResource: {[Resource.CARD]: 1},
     },
     {
         action: {
             text: 'Add 2 floaters to ANY VENUS CARD.',
             gainResourceTargetType: ResourceLocationType.VENUS_CARD,
+            gainResource: {[Resource.FLOATER]: 2},
         },
         cost: 22,
         deck: Deck.VENUS,
@@ -3445,12 +3459,24 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         minTerraformRating: 25,
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
     },
     {
         action: {
             text:
                 'Add 1 microbe to ANY VENUS CARD, or spend 2 microbes here to raise Venus 1 step.',
-            gainResourceTargetType: ResourceLocationType.VENUS_CARD,
+            choice: [
+                {
+                    text: '+1 microbe',
+                    gainResource: {[Resource.MICROBE]: 1},
+                    gainResourceTargetType: ResourceLocationType.VENUS_CARD,
+                },
+                {
+                    removeResource: {[Resource.MICROBE]: 2},
+                    removeResourceSourceType: ResourceLocationType.THIS_CARD,
+                    increaseParameter: {[Parameter.VENUS]: 1},
+                },
+            ],
         },
         cost: 9,
         deck: Deck.VENUS,
@@ -3465,7 +3491,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
     },
     {
-        // venus: 1,
+        increaseParameter: {[Parameter.VENUS]: 1},
         cost: 9,
         deck: Deck.VENUS,
         name: 'Water to Venus',
@@ -3484,7 +3510,11 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
-        action: {text: 'Decrease your energy production 1 step to raise Venus 1 step.'},
+        action: {
+            text: 'Decrease your energy production 1 step to raise Venus 1 step.',
+            decreaseProduction: {[Resource.ENERGY]: 1},
+            increaseParameter: {[Parameter.VENUS]: 1},
+        },
         cost: 7,
         deck: Deck.VENUS,
         name: 'Venus Magnetizer',
@@ -3560,7 +3590,6 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
     },
     {
-        // venus: 1,
         cost: 13,
         deck: Deck.VENUS,
         name: 'Venusian Plants',
@@ -3593,6 +3622,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        gainResource: {[Resource.FLOATER]: 2},
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         cost: 0,
@@ -3633,6 +3664,8 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.FLOATER,
         name: 'Atmo Collectors',
         text: 'Add 2 floaters to ANY card.',
+        gainResource: {[Resource.FLOATER]: 2},
+        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tags: [],
         type: CardType.ACTIVE,
     },
@@ -3727,6 +3760,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Floater Technology',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
+        gainResource: {[Resource.FLOATER]: 1},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
@@ -4698,7 +4732,7 @@ export const cardConfigs: CardConfig[] = [
             increaseTerraformRating: 1,
         },
         deck: Deck.BASIC,
-        name: 'U.N.M.I.',
+        name: 'UNMI',
         text: 'United Nations Mars Initiative. You start with 40 MC.',
         tags: [Tag.EARTH],
         type: CardType.CORPORATION,
@@ -4730,17 +4764,29 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.VENUS],
         type: CardType.CORPORATION,
         victoryPoints: VariableAmount.THIRD_RESOURCES_ON_CARD,
+        forcedAction: {
+            revealTakeAndDiscard: {[CardSelectionCriteria.FLOATER_ICON]: 2},
+        },
     },
     {
         effect: {
             text:
-                'Effect: For each step you increase the production of a resource, including this, you also gain that ',
+                'Effect: For each step you increase the production of a resource, including this, you also gain that resource',
+            trigger: {increaseProduction: true},
+            action: {
+                gainResource: {
+                    [Resource.MOST_RECENT_PRODUCTION_INCREASE]:
+                        VariableAmount.MOST_RECENT_PRODUCTION_INCREASE,
+                },
+            },
         },
         deck: Deck.VENUS,
         name: 'Manutech',
         text: 'You start with 1 steel production and 35 MC.',
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
+        increaseProduction: {[Resource.STEEL]: 1},
+        gainResource: {[Resource.MEGACREDIT]: 35},
     },
     {
         effect: {
@@ -4755,16 +4801,22 @@ export const cardConfigs: CardConfig[] = [
         parameterRequirementAdjustments: {
             [Parameter.VENUS]: 2,
         },
+        gainResource: {[Resource.MEGACREDIT]: 50},
+        forcedAction: {
+            revealTakeAndDiscard: {[CardSelectionCriteria.VENUS_TAG]: 3},
+        },
     },
     {
         action: {
             text: 'Use a blue card action that has already been used this generation.',
+            useBlueCardActionAlreadyUsedThisGeneration: true,
         },
         deck: Deck.VENUS,
         name: 'Viron',
         text: 'You start with 48 MC.',
         tags: [Tag.MICROBE],
         type: CardType.CORPORATION,
+        gainResource: {[Resource.MEGACREDIT]: 48},
     },
     {
         effect: {text: 'Effect: When you play a building tag, you pay 2 MC less for it.'},

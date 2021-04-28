@@ -1,6 +1,7 @@
 import {Parameter, TilePlacement} from './board';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
+import {CardSelectionCriteria} from './reveal-take-and-discard';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
@@ -41,7 +42,7 @@ export interface Action {
     removeResourceOption?: ResourceCounter;
     stealResource?: ResourceCounter;
     increaseProduction?: ResourceCounter;
-    increaseProductionOption?: PropertyCounter<Resource>;
+    increaseProductionOption?: ResourceCounter;
     duplicateProduction?: Tag;
     decreaseProduction?: ResourceCounter;
     decreaseAnyProduction?: ResourceCounter;
@@ -61,4 +62,13 @@ export interface Action {
 
     // Lets you convert plants to greeneries for x less than usual (Ecoline)
     plantDiscount?: number;
+
+    // For sponsored academies
+    opponentsGainResource?: ResourceCounter;
+
+    revealTakeAndDiscard?: PropertyCounter<CardSelectionCriteria>;
+
+    // For viron
+    useBlueCardActionAlreadyUsedThisGeneration?: boolean;
+    parentName?: string;
 }

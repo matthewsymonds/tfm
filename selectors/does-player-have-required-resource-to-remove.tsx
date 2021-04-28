@@ -64,7 +64,10 @@ export function doesPlayerHaveRequiredResourcesToRemove(
 
         let playerAmount: number;
         if (resource === Resource.CARD) {
-            playerAmount = player.cards.length;
+            // If we're playing a card which requires a discard,
+            // then by the time we play it there will be one fewer card in hand.
+            // Otherwise, if it's an action or effect the card has already been played.
+            playerAmount = action instanceof Card ? player.cards.length - 1 : player.cards.length;
         } else {
             playerAmount = player.resources[resource];
         }

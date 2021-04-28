@@ -13,6 +13,8 @@ import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Card as CardModel, doesCardHaveDiscounts} from 'models/card';
 import React from 'react';
+import {useTypedSelector} from 'reducer';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 
 const EffectText = styled(CardText)``;
@@ -38,6 +40,7 @@ const IconizedText = styled.div`
 `;
 
 export const CardEffects = ({card}: {card: CardModel}) => {
+    const venus = useTypedSelector(isPlayingVenus);
     if (card.effects.length < 1) {
         return null;
     }
@@ -181,9 +184,19 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
-        if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
+        let parameterRequirementAdjustments = Object.keys(
+            card.parameterRequirementAdjustments
+        ) as Parameter[];
+
+        if (!venus) {
+            parameterRequirementAdjustments = parameterRequirementAdjustments.filter(
+                parameter => parameter !== Parameter.VENUS
+            );
+        }
+
+        if (parameterRequirementAdjustments.length > 0) {
             const elements: Array<React.ReactNode> = [];
-            [Parameter.OCEAN, Parameter.OXYGEN, Parameter.TEMPERATURE].map((parameter, index) => {
+            parameterRequirementAdjustments.map((parameter, index) => {
                 if (index > 0) {
                     elements.push(<TextWithMargin>/</TextWithMargin>);
                 }

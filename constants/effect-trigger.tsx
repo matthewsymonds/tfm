@@ -11,6 +11,8 @@ export interface EffectTrigger {
     // To trigger the effect, action's cost must be greater than or equal to this number
     cost?: number;
     increaseParameter?: Parameter;
+    // When any of the player's productions are increased (manutech)
+    increaseProduction?: boolean;
     onMars?: boolean;
     // Tags will be processed one-by-one (Research triggers science tags twice).
     tags?: Tag[];
