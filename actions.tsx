@@ -440,12 +440,10 @@ export const askUserToUseBlueCardActionAlreadyUsedThisGeneration = withMatcher(
 
 const USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION =
     'USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION';
-export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher(
-    (playerIndex: number, choiceIndex: number) => ({
-        type: USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
-        payload: {playerIndex, choiceIndex},
-    })
-);
+export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher((playerIndex: number) => ({
+    type: USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
+    payload: {playerIndex},
+}));
 
 // Client side action that disables UI while waiting for a response from the server.
 const SET_IS_SYNCING = 'SET_IS_SYNCING';

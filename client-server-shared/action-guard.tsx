@@ -398,11 +398,51 @@ export class ActionGuard {
         player: SerializedPlayerState | undefined,
         state: GameState = this.state
     ): CanPlayAndReason {
+        const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
+            action,
+            parent,
+            player,
+            state
+        );
+        if (!canPlayCardActionPrologue[0]) {
+            return canPlayCardActionPrologue;
+        }
+
+        return this.canPlayAction(action, state, parent);
+    }
+
+    canPlayCardActionInSpiteOfUI(
+        action: Action,
+        parent: Card,
+        player: SerializedPlayerState | undefined,
+        state: GameState = this.state
+    ): CanPlayAndReason {
+        const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
+            action,
+            parent,
+            player,
+            state
+        );
+        if (!canPlayCardActionPrologue[0]) {
+            return canPlayCardActionPrologue;
+        }
+        return this.canPlayActionInSpiteOfUI(action, state, parent);
+    }
+
+    private canPlayCardActionPrologue(
+        action: Action,
+        parent: Card,
+        player: SerializedPlayerState | undefined,
+        state: GameState = this.state
+    ): CanPlayAndReason {
         if (!this.canAffordActionCost(action)) {
             return [false, 'Cannot afford action cost'];
         }
 
-        if (parent.lastRoundUsedAction === state.common.generation) {
+        if (
+            parent.lastRoundUsedAction === state.common.generation &&
+            !player?.pendingActionReplay
+        ) {
             return [false, 'Already used this generation'];
         }
 
@@ -419,14 +459,13 @@ export class ActionGuard {
                 }
 
                 // Finally, check, if we can replay the action.
-                return this.canPlayAction(fullCard.action, state, fullCard);
+                return this.canPlayAction(fullCard.action, state, fullCard)[0];
             });
             if (candidates.length === 0) {
                 return [false, 'No actions can be replayed.'];
             }
         }
-
-        return this.canPlayAction(action, state, parent);
+        return [true, 'Good to go'];
     }
 
     canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {

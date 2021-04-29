@@ -11,6 +11,7 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
             loggedInPlayer.pendingResourceActionDetails ||
             loggedInPlayer.pendingChoice ||
             loggedInPlayer.pendingDuplicateProduction ||
+            loggedInPlayer.pendingActionReplay ||
             state.common.gameStage === GameStage.END_OF_GAME ||
             loggedInPlayer.pendingDiscard;
 

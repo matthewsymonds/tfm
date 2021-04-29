@@ -75,5 +75,16 @@ export function doesPlayerHaveRequiredResourcesToRemove(
         return playerAmount >= requiredAmount;
     }
 
+    if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
+        for (const resource in action.removeResourceOption) {
+            // Resource option only implemented for standard resources.
+            if (player.resources[resource] >= action.removeResourceOption[resource]) {
+                return true;
+            }
+        }
+        // Did not find a resource the player could provide to fulfill the option (e.g. Electro Catapult).
+        return false;
+    }
+
     return true;
 }

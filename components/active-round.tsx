@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
+import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {Board} from './board/board';
 import {Flex} from './box';
 import {EndOfGame} from './end-of-game';
@@ -59,6 +60,11 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                             {loggedInPlayer.pendingChoice && (
                                 <AskUserToMakeActionChoice player={loggedInPlayer} />
+                            )}
+                            {loggedInPlayer.pendingActionReplay && (
+                                <AskUserToUseBlueCardActionAlreadyUsedThisGeneration
+                                    player={loggedInPlayer}
+                                />
                             )}
                             {loggedInPlayer.pendingDuplicateProduction && (
                                 <AskUserToDuplicateProduction player={loggedInPlayer} />

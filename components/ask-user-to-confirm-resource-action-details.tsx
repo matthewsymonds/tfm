@@ -607,10 +607,14 @@ function OptionComponent({
         });
     }
 
-    const max =
-        option.actionType === 'decreaseProduction'
-            ? player.productions[option.resource]
-            : player.resources[option.resource];
+    let max = player.resources[option.resource];
+    if (option.actionType === 'decreaseProduction') {
+        max = player.productions[option.resource];
+    }
+
+    if (option.card && isStorableResource(option.resource)) {
+        max = option.card.storedResourceAmount;
+    }
 
     const [variableAmount, setVariableAmount] = useState(Math.min(1, max));
 

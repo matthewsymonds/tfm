@@ -61,6 +61,7 @@ export type BasePlayerState = {
     discounts: Discounts;
     plantDiscount?: number;
     pendingChoice?: PendingChoice;
+    pendingActionReplay?: boolean;
 
     parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;

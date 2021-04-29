@@ -70,5 +70,4 @@ export interface Action {
 
     // For viron
     useBlueCardActionAlreadyUsedThisGeneration?: boolean;
-    parentName?: string;
 }

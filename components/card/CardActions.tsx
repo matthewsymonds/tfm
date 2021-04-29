@@ -176,11 +176,13 @@ export const CardActions = ({
     cardOwner,
     cardContext,
     useCardName,
+    canPlayInSpiteOfUI,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
     useCardName?: boolean;
+    canPlayInSpiteOfUI?: boolean;
 }) => {
     if (!card.action) {
         return null;
@@ -211,6 +213,7 @@ export const CardActions = ({
                         card={card}
                         cardContext={cardContext}
                         cardOwner={cardOwner}
+                        canPlayInSpiteOfUI
                     />
                 );
             })}
@@ -224,12 +227,14 @@ function CardAction({
     card,
     cardContext,
     cardOwner,
+    canPlayInSpiteOfUI,
 }: {
     action: Action;
     index: number;
     card: CardModel;
     cardContext: CardContext;
     cardOwner: SerializedPlayerState | undefined;
+    canPlayInSpiteOfUI?: boolean;
 }) {
     const actionGuard = useActionGuard();
     const apiClient = useApiClient();
@@ -239,7 +244,10 @@ function CardAction({
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
-    const [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card, cardOwner);
+    const [canPlay, disabledReason] = (canPlayInSpiteOfUI
+        ? actionGuard.canPlayCardActionInSpiteOfUI
+        : actionGuard.canPlayCardAction
+    ).bind(actionGuard)(action, card, cardOwner);
     let tooltipText: string | null = null;
 
     if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {

@@ -1,9 +1,9 @@
 import {Parameter, PlacementRequirement, t, TileType} from './board';
 import {CardConfig, CardType, Deck} from './card-types';
 import {Resource, ResourceLocationType} from './resource';
+import {CardSelectionCriteria} from './reveal-take-and-discard';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
-import {CardSelectionCriteria} from './reveal-take-and-discard';
 
 export const cardConfigs: CardConfig[] = [
     {
@@ -3278,7 +3278,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE, Tag.VENUS],
         type: CardType.AUTOMATED,
         increaseParameter: {
-            [Parameter.VENUS]: 1,
+            [Parameter.VENUS]: 2,
         },
         increaseProduction: {
             [Resource.HEAT]: 2,
@@ -3322,6 +3322,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Sister Planet Support',
         text: 'Requires Venus and Earth tag. Increase your MC production 3 steps.',
         requiredTags: {[Tag.VENUS]: 1, [Tag.EARTH]: 1},
+        increaseProduction: {[Resource.MEGACREDIT]: 3},
         tags: [Tag.EARTH, Tag.VENUS],
         type: CardType.AUTOMATED,
     },

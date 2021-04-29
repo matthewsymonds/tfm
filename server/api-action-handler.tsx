@@ -10,6 +10,7 @@ import {
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
+    askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
     completeAction,
     decreaseProduction,
@@ -41,7 +42,7 @@ import {
     setPlantDiscount,
     skipAction,
     skipChoice,
-    askUserToUseBlueCardActionAlreadyUsedThisGeneration,
+    useBlueCardActionAlreadyUsedThisGeneration,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -65,11 +66,9 @@ import {
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
-import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {FullStackedChartIcon} from 'evergreen-ui';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
 import {AnyAction} from 'redux';
@@ -311,9 +310,16 @@ export class ApiActionHandler implements GameActionHandler {
         const player = this.getLoggedInPlayer();
         let action = parent.action;
         let isChoiceAction = false;
+        const {pendingActionReplay} = player;
+        const lastRoundUsedAction = player.playedCards.find(card => card.name === parent.name)!
+            .lastRoundUsedAction;
 
-        if (parent.lastRoundUsedAction === this.state.common.generation) {
+        if (lastRoundUsedAction === this.state.common.generation && !pendingActionReplay) {
             throw new Error('Already used action this round');
+        }
+
+        if (lastRoundUsedAction !== this.state.common.generation && pendingActionReplay) {
+            throw new Error('Can only replay an action you have already played');
         }
 
         if (choiceIndex !== undefined) {
@@ -334,7 +340,7 @@ export class ApiActionHandler implements GameActionHandler {
         let canPlay: boolean;
         let reason: string;
 
-        if (isChoiceAction) {
+        if (isChoiceAction || pendingActionReplay) {
             [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(action, state, parent);
         } else {
             [canPlay, reason] = this.actionGuard.canPlayAction(action, state, parent);
@@ -366,8 +372,15 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (isChoiceAction) {
             this.queue.unshift(makeActionChoice(this.loggedInPlayerIndex));
-        } else {
+        } else if (!action.useBlueCardActionAlreadyUsedThisGeneration) {
             this.queue.push(completeAction(this.loggedInPlayerIndex));
+        }
+
+        if (pendingActionReplay) {
+            // Resolve the ask user to use blue card action call.
+            this.queue.unshift(
+                useBlueCardActionAlreadyUsedThisGeneration(this.loggedInPlayerIndex)
+            );
         }
 
         this.processQueue();
@@ -737,30 +750,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
-            const choice: Action[] = [];
-            for (const playedCard of player.playedCards) {
-                const fullCard = getCard(playedCard);
-                const fullCardChoices: Action[] = [];
-                if (
-                    fullCard.action &&
-                    !fullCard.action.useBlueCardActionAlreadyUsedThisGeneration &&
-                    fullCard.lastRoundUsedAction === state.common.generation
-                ) {
-                    if (fullCard.action.choice) {
-                        fullCardChoices.push(...fullCard.action.choice);
-                    } else {
-                        fullCardChoices.push(fullCard.action);
-                    }
-                    for (const action of fullCardChoices) {
-                        // hack for viron.
-                        action.parentName = playedCard.name;
-                    }
-                    choice.push(...fullCardChoices);
-                }
-            }
-            if (choice.length > 0) {
-                items.push(askUserToMakeActionChoice(choice, parent, playedCard, playerIndex));
-            }
+            items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
         }
 
         const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];

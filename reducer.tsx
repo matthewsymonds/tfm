@@ -31,6 +31,7 @@ import {
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
+    askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
     completeAction,
     decreaseProduction,
@@ -65,6 +66,7 @@ import {
     skipChoice,
     stealResource,
     stealStorableResource,
+    useBlueCardActionAlreadyUsedThisGeneration,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {Cell, getParameterName, Parameter, TileType} from './constants/board';
@@ -933,6 +935,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 playedCard => playedCard.name === payload.card.name
             )!;
             player.pendingChoice = {choice, card, playedCard};
+        }
+
+        if (askUserToUseBlueCardActionAlreadyUsedThisGeneration.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingActionReplay = true;
+        }
+
+        if (useBlueCardActionAlreadyUsedThisGeneration.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingActionReplay = undefined;
         }
 
         if (makeActionChoice.match(action)) {
