@@ -4757,6 +4757,7 @@ export const cardConfigs: CardConfig[] = [
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
             gainResource: {[Resource.FLOATER]: 1},
         },
+        gainResource: {[Resource.MEGACREDIT]: 42},
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
         name: 'Celestic',
@@ -4773,13 +4774,6 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: For each step you increase the production of a resource, including this, you also gain that resource',
-            trigger: {increaseProduction: true},
-            action: {
-                gainResource: {
-                    [Resource.MOST_RECENT_PRODUCTION_INCREASE]:
-                        VariableAmount.MOST_RECENT_PRODUCTION_INCREASE,
-                },
-            },
         },
         deck: Deck.VENUS,
         name: 'Manutech',
@@ -4788,6 +4782,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
         increaseProduction: {[Resource.STEEL]: 1},
         gainResource: {[Resource.MEGACREDIT]: 35},
+        gainResourceWhenIncreaseProduction: 1,
     },
     {
         effect: {

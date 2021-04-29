@@ -69,12 +69,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     }
 
     async function handleConfirmCardSelection(payment?: PropertyCounter<Resource>) {
+        setSelectedCards([]);
         await apiClient.confirmCardSelectionAsync({
             selectedCards,
             corporation: player.corporation,
             payment,
         });
-        setSelectedCards([]);
     }
 
     const actionGuard = useActionGuard();

@@ -20,7 +20,6 @@ export enum Resource {
     TITANIUM = 'resourceTitanium',
     ASTEROID = 'asteroid',
     ANY_STORABLE_RESOURCE = 'anyStorableResource',
-    MOST_RECENT_PRODUCTION_INCREASE = ' resourceMostRecentProductionIncrease',
 }
 
 export const PROTECTED_HABITAT_RESOURCE = [Resource.PLANT, Resource.ANIMAL, Resource.MICROBE];
@@ -122,7 +121,6 @@ export const getResourceSymbol = (resource: Resource) => {
         case Resource.TITANIUM:
             return '☆';
         case Resource.ANY_STORABLE_RESOURCE:
-        case Resource.MOST_RECENT_PRODUCTION_INCREASE:
             return '📦';
     }
 };
@@ -158,7 +156,6 @@ export const getResourceName = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'titanium';
         case Resource.ANY_STORABLE_RESOURCE:
-        case Resource.MOST_RECENT_PRODUCTION_INCREASE:
             return 'resource';
         default:
             throw new Error('unrecognized resource');
@@ -196,7 +193,6 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
-        case Resource.MOST_RECENT_PRODUCTION_INCREASE:
             return 'black';
         default:
             throw spawnExhaustiveSwitchError(resource);
@@ -234,7 +230,6 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'black';
         case Resource.ANY_STORABLE_RESOURCE:
-        case Resource.MOST_RECENT_PRODUCTION_INCREASE:
             return 'white';
         default:
             throw spawnExhaustiveSwitchError(resource);

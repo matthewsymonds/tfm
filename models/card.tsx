@@ -59,6 +59,8 @@ export class Card {
     opponentsGainResource: PropertyCounter<Resource>;
     /** e.g. "Gain 5 plants, or add 4 animals to ANOTHER card" */
     gainResourceOption: PropertyCounter<Resource>;
+    /** e.g. Manutech */
+    gainResourceWhenIncreaseProduction?: number;
     /** e.g. "Remove 5 MC" */
     /** e.g. "Remove up to 5 plants from any player" */
     removeResource: PropertyCounter<Resource>;
@@ -203,6 +205,7 @@ export class Card {
         if (config.conditionalPayment) {
             this.conditionalPayment = config.conditionalPayment;
         }
+        this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
         this.choice = config.choice || [];
     }
 }

@@ -40,6 +40,7 @@ import {
     draftCard,
     fundAward,
     gainResource,
+    gainResourceWhenIncreaseProduction,
     gainStorableResource,
     increaseParameter,
     increaseProduction,
@@ -281,9 +282,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             if (isStorableResource(resource)) {
                 return;
-            }
-            if (resource === Resource.MOST_RECENT_PRODUCTION_INCREASE) {
-                resource = player.mostRecentProductionIncrease || resource;
             }
             player.resources[resource] += quantity;
             draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
@@ -571,14 +569,26 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 card.increaseProductionResult = payload.resource;
             }
             if (increase) {
-                player.mostRecentProductionIncrease = payload.resource;
-                player.mostRecentProductionIncreaseQuantity = increase;
                 draft.log.push(
                     `${corporationName} increased their ${getResourceName(
                         payload.resource
                     )} production ${increase} ${stepsPlural(increase)}`
                 );
+                if (player.gainResourceWhenIncreaseProduction) {
+                    handleGainResource(
+                        payload.resource,
+                        increase * player.gainResourceWhenIncreaseProduction
+                    );
+                }
             }
+        }
+
+        if (gainResourceWhenIncreaseProduction.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.gainResourceWhenIncreaseProduction =
+                player.gainResourceWhenIncreaseProduction || 0;
+            player.gainResourceWhenIncreaseProduction += 1;
         }
 
         if (removeResource.match(action)) {

@@ -19,6 +19,7 @@ import {
     draftCard,
     fundAward as fundAwardAction,
     gainResource,
+    gainResourceWhenIncreaseProduction,
     gainStorableResource,
     increaseParameter,
     increaseProduction,
@@ -244,10 +245,6 @@ export class ApiActionHandler implements GameActionHandler {
             },
             card
         );
-    }
-
-    private triggerEffectsFromIncreaseProduction(resource: Resource, amount: Amount) {
-        this.triggerEffects({increaseProduction: {resource, amount}});
     }
 
     private triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell) {
@@ -743,7 +740,6 @@ export class ApiActionHandler implements GameActionHandler {
         withPriority,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
-        const player = this.getLoggedInPlayer();
         const items: Array<AnyAction> = [];
         for (const tilePlacement of action?.tilePlacements ?? []) {
             items.push(askUserToPlaceTile(tilePlacement, playerIndex));
@@ -794,6 +790,10 @@ export class ApiActionHandler implements GameActionHandler {
             );
         }
 
+        if (action.gainResourceWhenIncreaseProduction) {
+            items.push(gainResourceWhenIncreaseProduction(playerIndex));
+        }
+
         for (const production in action.increaseProduction) {
             items.push(
                 increaseProduction(
@@ -801,10 +801,6 @@ export class ApiActionHandler implements GameActionHandler {
                     action.increaseProduction[production],
                     playerIndex
                 )
-            );
-            this.triggerEffectsFromIncreaseProduction(
-                production as Resource,
-                action.increaseProduction[production]
             );
         }
 
@@ -1246,10 +1242,6 @@ function getActionsFromEffect(
     if (trigger.cost) {
         if ((event.cost || 0) < trigger.cost) return [];
         return [effectAction];
-    }
-
-    if (trigger.increaseProduction) {
-        if (!event.increaseProduction) return [];
     }
 
     const eventTags = event.tags || [];

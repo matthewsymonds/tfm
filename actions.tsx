@@ -445,6 +445,12 @@ export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher((playerInd
     payload: {playerIndex},
 }));
 
+const GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION = 'GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION';
+export const gainResourceWhenIncreaseProduction = withMatcher((playerIndex: number) => ({
+    type: GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION,
+    payload: {playerIndex},
+}));
+
 // Client side action that disables UI while waiting for a response from the server.
 const SET_IS_SYNCING = 'SET_IS_SYNCING';
 export const setIsSyncing = withMatcher(() => ({

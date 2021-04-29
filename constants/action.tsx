@@ -68,6 +68,9 @@ export interface Action {
 
     revealTakeAndDiscard?: PropertyCounter<CardSelectionCriteria>;
 
+    // For manutech
+    gainResourceWhenIncreaseProduction?: number;
+
     // For viron
     useBlueCardActionAlreadyUsedThisGeneration?: boolean;
 }

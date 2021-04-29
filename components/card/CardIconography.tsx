@@ -326,11 +326,6 @@ export function ChangeResourceIconography({
                 case VariableAmount.RESOURCES_ON_CARD:
                     multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
                     break;
-                case VariableAmount.MOST_RECENT_PRODUCTION_INCREASE:
-                    customElement = (
-                        <ResourceIcon name={Resource.MOST_RECENT_PRODUCTION_INCREASE} size={16} />
-                    );
-                    break;
                 default:
                     throw new Error('variable amount not supported: ' + amount);
             }

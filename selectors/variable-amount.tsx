@@ -210,7 +210,4 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.THIRD_ALL_CITIES]: (state: GameState, player: PlayerState) => {
         return Math.floor(getCellsWithCities(state, player).length / 3);
     },
-    [VariableAmount.MOST_RECENT_PRODUCTION_INCREASE]: (state: GameState, player: PlayerState) => {
-        return player.mostRecentProductionIncreaseQuantity || 0;
-    },
 };
