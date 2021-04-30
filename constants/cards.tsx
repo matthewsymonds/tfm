@@ -3033,7 +3033,7 @@ export const cardConfigs: CardConfig[] = [
             choice: [
                 {
                     cost: 2,
-                    gainResource: {[Resource.FLOATER]: 2},
+                    gainResource: {[Resource.FLOATER]: 1},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-2 Megacredits, +1 floater',
                 },
