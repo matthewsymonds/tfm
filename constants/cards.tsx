@@ -3147,7 +3147,7 @@ export const cardConfigs: CardConfig[] = [
             choice: [
                 {
                     removeResource: {[Resource.TITANIUM]: 1},
-                    gainResource: {[Resource.FLOATER]: 1},
+                    gainResource: {[Resource.FLOATER]: 2},
                     gainResourceTargetType: ResourceLocationType.THIS_CARD,
                     text: '-1 Titanium, +2 floaters',
                 },
