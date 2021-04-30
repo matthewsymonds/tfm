@@ -10,7 +10,7 @@ export interface EffectTrigger {
     anyPlayer?: boolean;
     // To trigger the effect, action's cost must be greater than or equal to this number
     cost?: number;
-    increaseParameter?: Parameter;
+    increasedParameter?: Parameter;
     onMars?: boolean;
     // Tags will be processed one-by-one (Research triggers science tags twice).
     tags?: Tag[];

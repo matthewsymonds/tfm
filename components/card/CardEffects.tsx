@@ -169,8 +169,8 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                     <ResourceIcon name={Resource.CARD} size={16} margin="0px 0px 0px 4px" />
                 </React.Fragment>
             );
-        } else if (trigger?.increaseParameter) {
-            return <GlobalParameterIcon parameter={trigger?.increaseParameter} size={16} />;
+        } else if (trigger?.increasedParameter) {
+            return <GlobalParameterIcon parameter={trigger?.increasedParameter} size={16} />;
         } else if (trigger?.standardProject) {
             // todo: Make this look nicer
             return <IconizedText>STANDARD PROJECTS</IconizedText>;

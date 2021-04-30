@@ -4742,7 +4742,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text: 'Effect: Whenever Venus is terraformed 1 step, you gain 2 MC.',
-            trigger: {increaseParameter: Parameter.VENUS},
+            trigger: {increasedParameter: Parameter.VENUS},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
         },
         deck: Deck.VENUS,
@@ -4750,6 +4750,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 47 MC and 1 plant production.',
         tags: [Tag.PLANT, Tag.VENUS],
         type: CardType.CORPORATION,
+        gainResource: {[Resource.MEGACREDIT]: 47},
+        increaseProduction: {[Resource.PLANT]: 1},
     },
     {
         action: {

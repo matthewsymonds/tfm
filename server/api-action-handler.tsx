@@ -91,7 +91,7 @@ export interface EffectEvent {
     placedTile?: TileType;
     cell?: Cell;
     tags?: Tag[];
-    increaseProduction?: {resource: Resource; amount: Amount};
+    increasedParameter?: Parameter;
 }
 
 type PlayActionParams = {
@@ -245,6 +245,12 @@ export class ApiActionHandler implements GameActionHandler {
             },
             card
         );
+    }
+
+    private triggerEffectsFromIncreasedParameter(parameter: Parameter) {
+        this.triggerEffects({
+            increasedParameter: parameter,
+        });
     }
 
     private triggerEffectsFromTilePlacement(placedTile: TileType, cell: Cell) {
@@ -903,6 +909,7 @@ export class ApiActionHandler implements GameActionHandler {
                 items.push(increaseParameter(parameter as Parameter, amount, playerIndex));
                 // Check every step along the way for bonuses!
                 for (let i = 1; i <= amount; i++) {
+                    this.triggerEffectsFromIncreasedParameter(parameter);
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
                     const newLevel =
@@ -912,7 +919,7 @@ export class ApiActionHandler implements GameActionHandler {
                         continue;
                     }
                     const bonus = getBonus(playerIndex);
-                    const {type, payload} = bonus;
+                    const {payload} = bonus;
                     if (increaseParameter.match(bonus)) {
                         // combine the bonus parameter increase with the rest of the parameter increases.
                         // That way an oxygen can trigger a temperature which triggers an
@@ -1235,6 +1242,12 @@ function getActionsFromEffect(
 
     if (trigger.standardProject) {
         if (!event.standardProject) return [];
+
+        return [effectAction];
+    }
+
+    if (trigger.increasedParameter) {
+        if (event.increasedParameter !== trigger.increasedParameter) return [];
 
         return [effectAction];
     }
