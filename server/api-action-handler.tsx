@@ -747,6 +747,18 @@ export class ApiActionHandler implements GameActionHandler {
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
+        for (const resource in action.gainResource) {
+            items.push(
+                this.createInitialGainResourceAction(
+                    resource as Resource,
+                    action.gainResource[resource],
+                    playerIndex,
+                    parent,
+                    playedCard,
+                    action.gainResourceTargetType
+                )
+            );
+        }
         for (const tilePlacement of action?.tilePlacements ?? []) {
             items.push(askUserToPlaceTile(tilePlacement, playerIndex));
         }
@@ -837,19 +849,6 @@ export class ApiActionHandler implements GameActionHandler {
                     playerIndex,
                     card: action as Card,
                 })
-            );
-        }
-
-        for (const resource in action.gainResource) {
-            items.push(
-                this.createInitialGainResourceAction(
-                    resource as Resource,
-                    action.gainResource[resource],
-                    playerIndex,
-                    parent,
-                    playedCard,
-                    action.gainResourceTargetType
-                )
             );
         }
 
