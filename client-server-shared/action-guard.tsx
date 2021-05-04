@@ -86,7 +86,7 @@ export class ActionGuard {
         const {requiredProduction} = card;
 
         if (requiredProduction && player.productions[requiredProduction] < 1) {
-            return [false, 'Required production not met.'];
+            return [false, 'Required production not met'];
         }
 
         if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
@@ -462,7 +462,7 @@ export class ActionGuard {
                 return this.canPlayAction(fullCard.action, state, fullCard)[0];
             });
             if (candidates.length === 0) {
-                return [false, 'No actions can be replayed.'];
+                return [false, 'No actions can be replayed'];
             }
         }
         return [true, 'Good to go'];
@@ -472,9 +472,9 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
             if (state.common.currentPlayerIndex === player.index) {
-                return [false, 'Cannot play action before finalizing other choices.'];
+                return [false, 'Cannot play action before finalizing other choices'];
             }
-            return [false, 'Cannot play out of turn.'];
+            return [false, 'Cannot play out of turn'];
         }
 
         return this.canPlayActionInSpiteOfUI(action, state, parent);
