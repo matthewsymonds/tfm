@@ -213,7 +213,7 @@ export const CardActions = ({
                         card={card}
                         cardContext={cardContext}
                         cardOwner={cardOwner}
-                        canPlayInSpiteOfUI
+                        canPlayInSpiteOfUI={canPlayInSpiteOfUI}
                     />
                 );
             })}
@@ -236,11 +236,12 @@ function CardAction({
     cardOwner: SerializedPlayerState | undefined;
     canPlayInSpiteOfUI?: boolean;
 }) {
-    const actionGuard = useActionGuard();
     const apiClient = useApiClient();
     const isSyncing = useTypedSelector(state => state.syncing);
     const activeRound = useTypedSelector(state => isActiveRound(state));
     const loggedInPlayer = useLoggedInPlayer();
+    const actionGuard = useActionGuard(cardOwner?.username ?? loggedInPlayer.username);
+
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
