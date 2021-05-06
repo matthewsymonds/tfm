@@ -317,6 +317,7 @@ function ActionContainer({
     loggedInPlayer: PlayerState | null;
     children: React.ReactNode;
 }) {
+    const playedCard = cardContext === CardContext.PLAYED_CARD;
     const doesActionRequireUserInput =
         action.acceptedPayment ||
         (loggedInPlayer?.corporation.name === 'Helion' &&
@@ -325,7 +326,7 @@ function ActionContainer({
     if (
         canPlay &&
         isOwnedByLoggedInPlayer &&
-        cardContext === CardContext.PLAYED_CARD &&
+        playedCard &&
         action.cost &&
         doesActionRequireUserInput
     ) {
@@ -340,7 +341,7 @@ function ActionContainer({
         );
     }
 
-    if (tooltipText && cardContext === CardContext.PLAYED_CARD) {
+    if (tooltipText && playedCard) {
         return (
             <Tooltip
                 sticky={true}
@@ -358,7 +359,7 @@ function ActionContainer({
     }
 
     return (
-        <ActionContainerBase disabled={!canPlay} onClick={() => playAction(action)}>
+        <ActionContainerBase disabled={!canPlay || !playedCard} onClick={() => playAction(action)}>
             {children}
         </ActionContainerBase>
     );
