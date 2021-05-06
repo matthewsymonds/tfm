@@ -26,7 +26,7 @@ export function getMockState(): GameState {
                 return {
                     ...player,
                     pendingCardSelection: undefined,
-                    corporation: i === 0 ? {name: 'U.N.M.I.'} : player.corporation,
+                    corporation: i === 0 ? {name: 'UNMI'} : player.corporation,
                     playedCards: cards.slice(i * 20, i * 20 + 20).map(c => ({name: c.name})),
                     resources: {
                         ...player.resources,

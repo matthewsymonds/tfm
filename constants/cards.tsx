@@ -3589,6 +3589,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.MICROBE, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
+        storedResourceType: Resource.MICROBE,
     },
     {
         cost: 13,
