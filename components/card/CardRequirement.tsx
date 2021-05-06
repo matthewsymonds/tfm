@@ -33,7 +33,7 @@ function getCardRequirementText(card: CardModel) {
     let text: string | null = null;
     if (card.requiredGlobalParameter) {
         text = String(card.requiredGlobalParameter.min ?? card.requiredGlobalParameter.max);
-        if (card.requiredGlobalParameter.type === Parameter.OXYGEN) {
+        if ([Parameter.OXYGEN, Parameter.VENUS].includes(card.requiredGlobalParameter.type)) {
             text += '%';
         }
     } else if (card.requiredProduction !== undefined) {
