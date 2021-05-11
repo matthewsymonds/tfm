@@ -32,7 +32,11 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
     }
 
     async function handleConfirmCardSelection() {
-        await apiClient.confirmCardSelectionAsync({selectedCards, corporation: player.corporation});
+        await apiClient.confirmCardSelectionAsync({
+            selectedCards,
+            corporation: player.corporation,
+            selectedPreludes: [],
+        });
         setSelectedCards([]);
     }
 

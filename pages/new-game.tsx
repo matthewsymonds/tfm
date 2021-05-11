@@ -20,6 +20,7 @@ export default function NewGame(props) {
     const [isDraftingEnabled, setIsDraftingEnabled] = useState(true);
     const [isCorporateEraEnabled, setIsCorporateEraEnabled] = useState(true);
     const [isVenusNextEnabled, setIsVenusNextEnabled] = useState(true);
+    const [isPreludeEnabled, setIsPreludeEnabled] = useState(true);
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -62,6 +63,9 @@ export default function NewGame(props) {
             // Doesn't make much sense to play with expansions if corporate era is off.
             if (isVenusNextEnabled) {
                 decks.push(Deck.VENUS);
+            }
+            if (isPreludeEnabled) {
+                decks.push(Deck.PRELUDE);
             }
         }
 
@@ -131,6 +135,15 @@ export default function NewGame(props) {
                             onChange={e => setIsVenusNextEnabled(e.target.checked)}
                         />
                         Venus Next
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={!isCorporateEraEnabled}
+                            checked={isCorporateEraEnabled && isPreludeEnabled}
+                            onChange={e => setIsPreludeEnabled(e.target.checked)}
+                        />
+                        Prelude
                     </label>
                 </Flex>
                 <Box marginTop="32px">

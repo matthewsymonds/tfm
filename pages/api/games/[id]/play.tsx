@@ -90,12 +90,13 @@ export default async (req, res) => {
                 await actionHandler.skipChooseResourceActionDetailsAsync();
                 break;
             case ApiActionType.API_CONFIRM_CARD_SELECTION:
-                const {cards, payment, corporation} = payload;
+                const {cards, payment, corporation, preludes} = payload;
                 if (cards.length > 10) {
                     throw new Error('trying to select too many cards');
                 }
                 await actionHandler.confirmCardSelectionAsync({
                     selectedCards: cards,
+                    selectedPreludes: preludes,
                     corporation,
                     payment,
                 });
@@ -108,6 +109,9 @@ export default async (req, res) => {
                 break;
             case ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION:
                 await actionHandler.skipChooseDuplicateProductionAsync();
+                break;
+            case ApiActionType.API_INCREASE_LOWEST_PRODUCTION_ASYNC:
+                await actionHandler.increaseLowestProductionAsync(payload);
                 break;
             default:
                 throw spawnExhaustiveSwitchError(type);

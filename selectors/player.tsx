@@ -4,6 +4,7 @@ import {getPlayedCards} from './get-played-cards';
 
 export function getForcedActionsForPlayer(state: GameState, playerIndex: number) {
     const player = state.players.find(p => p.index === playerIndex);
+    if (player?.preludes?.length ?? 0 > 0) return [];
     return player?.forcedActions ?? [];
 }
 

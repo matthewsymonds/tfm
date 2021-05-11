@@ -7,6 +7,7 @@ export type BaseCommonState = {
     playerIndexOrderForGeneration: number[];
     deck: Card[];
     discardPile: Card[];
+    preludes: Card[];
     revealedCards: Card[];
     gameStage: GameStage;
     generation: number;

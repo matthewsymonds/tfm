@@ -1,6 +1,6 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {Tag} from 'constants/tag';
-import {Action, Amount} from './constants/action';
+import {Action, Amount, PlayCardParams} from './constants/action';
 import {Parameter, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {NumericPropertyCounter} from './constants/property-counter';
@@ -27,6 +27,8 @@ export type BasePlayerState = {
         tag: Tag;
         card: Card;
     };
+    // Vitor
+    fundAward?: boolean;
     // e.g. Sell patents, mars university, etc.
     pendingDiscard?: {
         amount: Amount;
@@ -43,6 +45,8 @@ export type BasePlayerState = {
         // During drafting, cards selected thus far are stored here
         draftPicks?: Card[];
     };
+    // e.g. "Play a card from hand, ignoring global requirements"
+    pendingPlayCardFromHand?: PlayCardParams;
 
     previousCardsInHand?: number;
     forcedActions: Array<Action>;
@@ -50,6 +54,8 @@ export type BasePlayerState = {
     possibleCorporations: Card[];
     cards: Card[];
     playedCards: Card[];
+    preludes: Card[];
+    possiblePreludes: Card[];
     resources: Resources;
 
     productions: Resources;
@@ -66,4 +72,5 @@ export type BasePlayerState = {
     parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     gainResourceWhenIncreaseProduction?: number;
+    pendingIncreaseLowestProduction?: number;
 };

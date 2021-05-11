@@ -13,4 +13,5 @@ export enum ApiActionType {
     API_CONTINUE_AFTER_REVEALING_CARDS = 'apiContinueAfterRevealingCards',
     API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION = 'apiCompleteChooseDuplicateProduction',
     API_SKIP_CHOOSE_DUPLICATE_PRODUCTION = 'apiSkipChooseDuplicateProduction',
+    API_INCREASE_LOWEST_PRODUCTION_ASYNC = 'apiIncreaseLowestProductionAsync',
 }

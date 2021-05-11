@@ -20,22 +20,29 @@ import {
     SerializedState,
 } from 'state-serialization';
 import {
+    addCards,
     addForcedActionToPlayer,
     addParameterRequirementAdjustments,
     announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
+    askUserToChoosePrelude,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToDuplicateProduction,
+    askUserToFundAward,
+    askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
+    askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
     completeAction,
+    completeIncreaseLowestProduction,
     decreaseProduction,
     discardCards,
+    discardPreludes,
     discardRevealedCards,
     draftCard,
     fundAward,
@@ -58,11 +65,11 @@ import {
     removeStorableResource,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
-    setCards,
     setCorporation,
     setGame,
     setIsSyncing,
     setPlantDiscount,
+    setPreludes,
     skipAction,
     skipChoice,
     stealResource,
@@ -193,7 +200,7 @@ function getPlayer(thisDraft: GameState, payload: {playerIndex: number}): Player
     return thisDraft.players[payload.playerIndex]!;
 }
 
-function getMostRecentlyPlayedCard(player: PlayerState) {
+export function getMostRecentlyPlayedCard(player: PlayerState) {
     return player.playedCards[player.playedCards.length - 1];
 }
 
@@ -469,11 +476,39 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             };
         }
 
-        if (setCards.match(action)) {
+        if (addCards.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.cards = payload.cards;
+            player.cards.push(...payload.cards);
             player.pendingCardSelection = undefined;
+        }
+
+        if (setPreludes.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.preludes = payload.preludes;
+            player.possiblePreludes = [];
+        }
+
+        if (askUserToChoosePrelude.match(action)) {
+            // In this situation, the player gets to play 1 prelude out of payload.amount preludes.
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.preludes = draft.common.preludes.splice(0, payload.amount);
+            player.choosePrelude = true;
+        }
+
+        if (discardPreludes.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            // Preludes you can't play don't go into discard pile, they just disappear.
+            player.preludes = [];
+        }
+
+        if (askUserToFundAward.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.fundAward = true;
         }
 
         if (discardCards.match(action)) {
@@ -581,6 +616,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 }
             }
+        }
+
+        if (askUserToIncreaseLowestProduction.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingIncreaseLowestProduction = payload.amount;
         }
 
         if (gainResourceWhenIncreaseProduction.match(action)) {
@@ -757,8 +798,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     throw new Error('Got negative megacredits while trying to pay for card');
                 }
             }
-            player.discounts.nextCardThisGeneration = 0;
             let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
+
+            player.discounts.nextCardThisGeneration = 0;
+
             let details: string[] = [];
             for (const resource in payload.payment) {
                 if (payload.payment[resource]) {
@@ -864,6 +907,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 award: award,
             });
             draft.log.push(`${corporationName} funded ${getTextForAward(payload.award)} award`);
+            player.fundAward = undefined;
         }
 
         if (moveCardFromHandToPlayArea.match(action)) {
@@ -876,6 +920,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (card.type === CardType.CORPORATION) {
                 player.possibleCorporations = [];
                 draft.log.push(`${player.username} chose ${payload.card.name}`);
+            }
+            if (card.type === CardType.PRELUDE) {
+                player.preludes = player.preludes.filter(c => c.name !== payload.card.name);
+                draft.log.push(`${corporationName} played Prelude ${card.name}`);
+            }
+            if (player.pendingPlayCardFromHand) {
+                player.pendingPlayCardFromHand = undefined;
             }
         }
 
@@ -951,6 +1002,15 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.pendingActionReplay = true;
+        }
+
+        if (askUserToPlayCardFromHand.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingPlayCardFromHand = payload.playCardParams;
+            if (payload.playCardParams.discount) {
+                player.discounts.nextCardThisGeneration = payload.playCardParams.discount;
+            }
         }
 
         if (useBlueCardActionAlreadyUsedThisGeneration.match(action)) {
@@ -1098,12 +1158,27 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (skipAction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
+            if (player.pendingPlayCardFromHand) {
+                if (player.pendingPlayCardFromHand.discount) {
+                    player.discounts.nextCardThisGeneration = 0;
+                }
+                player.pendingPlayCardFromHand = undefined;
+                if (player.preludes.length === 0) {
+                    handleChangeCurrentPlayer(state, draft);
+                }
+            }
             const previous = player.action;
-            player.action = 1;
+            const isPrelude = player.preludes.length > 0;
+            if (!isPrelude) {
+                player.action = 1;
+            }
             // Did the player just skip on their first action?
             // Or is this greenery phase?
             // If so, they're out for the rest of the round.
-            if (previous === 1 || common.gameStage === GameStage.GREENERY_PLACEMENT) {
+            if (
+                !isPrelude &&
+                (previous === 1 || common.gameStage === GameStage.GREENERY_PLACEMENT)
+            ) {
                 draft.log.push(`${corporationName} passed`);
 
                 player.action = 0;
@@ -1185,6 +1260,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 draft.log.push(`${corporationName} skipped their 2nd action`);
                 handleChangeCurrentPlayer(state, draft);
             }
+        }
+
+        if (completeIncreaseLowestProduction.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingIncreaseLowestProduction = undefined;
         }
 
         if (completeAction.match(action)) {

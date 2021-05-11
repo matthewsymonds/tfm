@@ -47,6 +47,7 @@ const dict = {
     [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray'],
     [Tag.SPACE]: ['✴️', 'white', 'black', '', 'space-icon'],
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
+    [Tag.WILD]: ['?', 'black', '#fefefe'],
     x: ['x', 'white', 'white'],
 };
 

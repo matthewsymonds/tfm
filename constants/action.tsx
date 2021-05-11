@@ -30,6 +30,11 @@ export type LookAtCardsConfig = {
     buyCards?: boolean;
 };
 
+export type PlayCardParams = {
+    ignoreGlobalRequirements?: boolean;
+    discount?: number;
+};
+
 export interface Action {
     text?: string;
     cost?: number;
@@ -73,4 +78,13 @@ export interface Action {
 
     // For viron
     useBlueCardActionAlreadyUsedThisGeneration?: boolean;
+
+    // for robinson industries
+    increaseLowestProduction?: number;
+
+    // See Valley Trust
+    choosePrelude?: number;
+
+    // Vitor
+    fundAward?: boolean;
 }

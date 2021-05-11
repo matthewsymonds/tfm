@@ -1,20 +1,27 @@
 import {
+    addCards,
     addForcedActionToPlayer,
     addParameterRequirementAdjustments,
     announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
+    askUserToChoosePrelude,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToDuplicateProduction,
+    askUserToFundAward,
+    askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceTile,
+    askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
     completeAction,
+    completeIncreaseLowestProduction,
     decreaseProduction,
     discardCards,
+    discardPreludes,
     discardRevealedCards,
     draftCard,
     fundAward as fundAwardAction,
@@ -38,9 +45,9 @@ import {
     removeStorableResource,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
-    setCards,
     setCorporation,
     setPlantDiscount,
+    setPreludes,
     skipAction,
     skipChoice,
     useBlueCardActionAlreadyUsedThisGeneration,
@@ -52,6 +59,7 @@ import {
     getAction,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
+import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
 import {Action, ActionType, Amount, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
@@ -74,6 +82,7 @@ import {Card} from 'models/card';
 import {GameState, PlayerState, reducer} from 'reducer';
 import {AnyAction} from 'redux';
 import {getCard} from 'selectors/get-card';
+import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import {SerializedCard} from 'state-serialization';
@@ -92,6 +101,8 @@ export interface EffectEvent {
     cell?: Cell;
     tags?: Tag[];
     increasedParameter?: Parameter;
+    name?: string;
+    victoryPoints?: Amount;
 }
 
 type PlayActionParams = {
@@ -138,8 +149,12 @@ export class ApiActionHandler implements GameActionHandler {
         const gameStage = this.getGameStage();
         if (
             originalState.common.currentPlayerIndex === currentPlayerIndex &&
-            gameStage === originalState.common.gameStage
+            gameStage !== GameStage.ACTIVE_ROUND
         ) {
+            return;
+        }
+
+        if (getIsPlayerMakingDecision(state, this.getLoggedInPlayer())) {
             return;
         }
 
@@ -164,6 +179,8 @@ export class ApiActionHandler implements GameActionHandler {
     }): Promise<void> {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
+        const loggedInPlayer = this.getLoggedInPlayer();
+
         const [canPlay, reason] = this.actionGuard.canPlayCard(card);
 
         if (!canPlay) {
@@ -208,6 +225,9 @@ export class ApiActionHandler implements GameActionHandler {
             )
         );
         this.queue.push(applyDiscounts(card.discounts, playerIndex));
+        if (card.playCard) {
+            this.queue.push(askUserToPlayCardFromHand(card.playCard, playerIndex));
+        }
         this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
 
         // 3. Play the action
@@ -227,9 +247,15 @@ export class ApiActionHandler implements GameActionHandler {
             this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
         }
 
+        const isEphemeralPrelude = card.type === CardType.PRELUDE && loggedInPlayer.choosePrelude;
+
+        if (isEphemeralPrelude) {
+            this.queue.push(setPreludes([], playerIndex));
+        }
+
         // Don't call `completeAction` for corporations, because we use `player.action` as a proxy
         // for players being ready to start round 1, and don't want to increment it.
-        if (card.type !== CardType.CORPORATION) {
+        if (card.type !== CardType.CORPORATION && !card.playCard && !isEphemeralPrelude) {
             this.queue.push(completeAction(playerIndex));
         }
 
@@ -237,11 +263,13 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     private triggerEffectsFromPlayedCard(card: Card) {
-        const {cost, tags} = card;
+        const {cost, tags, victoryPoints, name} = card;
         this.triggerEffects(
             {
                 cost: cost || 0,
                 tags,
+                victoryPoints,
+                name,
             },
             card
         );
@@ -420,10 +448,12 @@ export class ApiActionHandler implements GameActionHandler {
 
     async confirmCardSelectionAsync({
         selectedCards,
+        selectedPreludes,
         corporation,
         payment,
     }: {
         selectedCards: SerializedCard[];
+        selectedPreludes: SerializedCard[];
         corporation: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }) {
@@ -443,7 +473,8 @@ export class ApiActionHandler implements GameActionHandler {
         const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
             selectedCards.map(getCard),
             state,
-            getCard(corporation)
+            getCard(corporation),
+            selectedPreludes.map(getCard)
         );
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
@@ -469,7 +500,8 @@ export class ApiActionHandler implements GameActionHandler {
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
                 await this.playCardAsync({serializedCard: corporation});
                 this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
-                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
+                this.queue.push(setPreludes(selectedPreludes, loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
                         possibleCards.filter(
@@ -488,7 +520,7 @@ export class ApiActionHandler implements GameActionHandler {
             }
             case GameStage.BUY_OR_DISCARD: {
                 this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
-                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
                         possibleCards.filter(
@@ -505,7 +537,7 @@ export class ApiActionHandler implements GameActionHandler {
                 if (isBuyingCards) {
                     this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 }
-                this.queue.push(setCards(cards.concat(selectedCards), loggedInPlayerIndex));
+                this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
                         possibleCards.filter(
@@ -611,9 +643,14 @@ export class ApiActionHandler implements GameActionHandler {
             throw new Error(reason);
         }
 
-        const playerIndex = this.getLoggedInPlayerIndex();
-        this.queue.push(fundAwardAction(award, payment, playerIndex));
-        this.queue.push(completeAction(playerIndex));
+        const player = this.getLoggedInPlayer();
+        if (player.fundAward) {
+            this.queue.unshift(fundAwardAction(award, payment, player.index));
+        } else {
+            this.queue.push(fundAwardAction(award, payment, player.index));
+            this.queue.push(completeAction(player.index));
+        }
+
         this.processQueue();
     }
 
@@ -640,6 +677,14 @@ export class ApiActionHandler implements GameActionHandler {
         }
 
         this.queue.unshift(skipAction(this.loggedInPlayerIndex));
+        const player = this.getLoggedInPlayer();
+        const playablePreludes = player.preludes.filter(prelude => {
+            const card = getCard(prelude);
+            return this.actionGuard.canPlayCard(card)[0];
+        });
+        if (playablePreludes.length === 0) {
+            this.queue.push(discardPreludes(this.loggedInPlayerIndex));
+        }
         this.processQueue();
     }
 
@@ -737,6 +782,23 @@ export class ApiActionHandler implements GameActionHandler {
         selectedCards: Array<Card>;
     }): Promise<void> {}
 
+    async increaseLowestProductionAsync({production}: {production: Resource}): Promise<void> {
+        const player = this.getLoggedInPlayer();
+        if (!player.pendingIncreaseLowestProduction) {
+            throw new Error('Cannot increase lowest production right now');
+        }
+        const lowestProductions = getLowestProductions(player);
+        if (!lowestProductions.includes(production)) {
+            throw new Error('This production is not one of the lowest');
+        }
+
+        this.queue.unshift(
+            increaseProduction(production, player.pendingIncreaseLowestProduction, player.index),
+            completeIncreaseLowestProduction(player.index)
+        );
+        this.processQueue();
+    }
+
     private playActionBenefits({
         action,
         state,
@@ -765,6 +827,14 @@ export class ApiActionHandler implements GameActionHandler {
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
             items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
+        }
+
+        if (action.choosePrelude) {
+            items.push(askUserToChoosePrelude(action.choosePrelude, playerIndex));
+        }
+
+        if (action.fundAward) {
+            items.push(askUserToFundAward(playerIndex));
         }
 
         const stealResourceResourceAndAmounts: Array<ResourceAndAmount> = [];
@@ -820,6 +890,22 @@ export class ApiActionHandler implements GameActionHandler {
                     playerIndex
                 )
             );
+        }
+        if (action.increaseLowestProduction) {
+            const lowestProductions = getLowestProductions(this.getLoggedInPlayer());
+            if (lowestProductions.length === 1) {
+                items.push(
+                    increaseProduction(
+                        lowestProductions[0],
+                        action.increaseLowestProduction,
+                        playerIndex
+                    )
+                );
+            } else {
+                items.push(
+                    askUserToIncreaseLowestProduction(action.increaseLowestProduction, playerIndex)
+                );
+            }
         }
 
         if (action.increaseProductionOption !== undefined) {
@@ -1237,6 +1323,19 @@ function getActionsFromEffect(
         const bonus = event.cell?.bonus || [];
         if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
         return [effectAction];
+    }
+
+    if (trigger.nonNegativeVictoryPointsIcon) {
+        // Special case (technically has a non-negative VP icon on it)
+        if (event.name === 'Vitor') return [effectAction];
+        if (event.victoryPoints) {
+            // Check if icon is non-negative (or variable)
+            if (typeof event.victoryPoints === 'number') {
+                return event.victoryPoints >= 0 ? [effectAction] : [];
+            }
+            return [effectAction];
+        }
+        return [];
     }
 
     if (trigger.standardProject) {

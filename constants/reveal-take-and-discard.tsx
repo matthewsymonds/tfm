@@ -6,6 +6,8 @@ import {Tag} from './tag';
 export enum CardSelectionCriteria {
     FLOATER_ICON = 'cardSelectionCriteriaFloaterIcon',
     VENUS_TAG = 'cardSelectionCriteriaVenusTag',
+    PLANT_TAG = 'cardSelectionCriteriaPlantTag',
+    SPACE_TAG = 'cardSelectionCriteriaSpaceTag',
 }
 
 export const CARD_SELECTION_CRITERIA_SELECTORS = {
@@ -29,5 +31,13 @@ export const CARD_SELECTION_CRITERIA_SELECTORS = {
     [CardSelectionCriteria.VENUS_TAG]: (serializedCard: SerializedCard): boolean => {
         const card = getCard(serializedCard);
         return card.tags.includes(Tag.VENUS);
+    },
+    [CardSelectionCriteria.PLANT_TAG]: (serializedCard: SerializedCard): boolean => {
+        const card = getCard(serializedCard);
+        return card.tags.includes(Tag.PLANT);
+    },
+    [CardSelectionCriteria.SPACE_TAG]: (serializedCard: SerializedCard): boolean => {
+        const card = getCard(serializedCard);
+        return card.tags.includes(Tag.SPACE);
     },
 };

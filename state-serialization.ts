@@ -12,11 +12,12 @@ import {Card, cardMap, cards, dummyCard} from './models/card';
 
 export type SerializedCommonState = Omit<
     BaseCommonState,
-    'deck' | 'discardPile' | 'revealedCards'
+    'deck' | 'discardPile' | 'revealedCards' | 'preludes'
 > & {
     deck: SerializedCard[];
     discardPile: SerializedCard[];
     revealedCards: SerializedCard[];
+    preludes: SerializedCard[];
 };
 
 export type SerializedPlayerState = Omit<
@@ -25,6 +26,8 @@ export type SerializedPlayerState = Omit<
     | 'possibleCorporations'
     | 'cards'
     | 'playedCards'
+    | 'preludes'
+    | 'possiblePreludes'
     | 'pendingCardSelection'
     | 'pendingDiscard'
     | 'pendingResourceActionDetails'
@@ -41,6 +44,9 @@ export type SerializedPlayerState = Omit<
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
     playedCards: SerializedCard[];
+    preludes: SerializedCard[];
+    choosePrelude?: boolean;
+    possiblePreludes: SerializedCard[];
     pendingResourceActionDetails?: {
         actionType: ResourceActionType;
         resourceAndAmounts: Array<{resource: Resource; amount: Amount}>;
@@ -107,9 +113,10 @@ export const censorGameState = (readonlyState: SerializedState, username: string
     return produce(readonlyState, state => {
         state.common.deck = [];
         state.common.discardPile = [];
+        state.common.preludes = [];
         if (state.common.gameStage === GameStage.END_OF_GAME) {
             // No need to censor the game state anymore.
-            // Out of performance concern, still don't include deck or discard.
+            // Out of performance concern, still don't include deck, preludes, or discard.
             return state;
         }
         for (const player of state.players) {
@@ -129,6 +136,8 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                 : undefined),
                 (player.cards = Array(player.cards.length));
             player.possibleCorporations = Array(player.possibleCorporations.length);
+            player.possiblePreludes = Array(player.possiblePreludes.length);
+            player.preludes = Array(player.preludes.length);
 
             if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
                 player.corporation = {name: ''};

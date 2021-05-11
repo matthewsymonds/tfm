@@ -1,4 +1,4 @@
-import {Action, ActionType, Amount, LookAtCardsConfig} from 'constants/action';
+import {Action, ActionType, Amount, LookAtCardsConfig, PlayCardParams} from 'constants/action';
 import {Parameter, TilePlacement} from 'constants/board';
 import {
     CardConfig,
@@ -14,6 +14,7 @@ import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceLocationType} from 'constants/resource';
+import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {Tag} from 'constants/tag';
 
 export class Card {
@@ -90,6 +91,9 @@ export class Card {
     /** e.g. "Look at the top 3 cards. Take one into hand and discard the other two" */
     lookAtCards?: LookAtCardsConfig;
 
+    /** e.g. Prelude Acquired Space Agency */
+    revealTakeAndDiscard?: PropertyCounter<CardSelectionCriteria>;
+
     // ====================================================
     // Card effects, actions, and held resources
     // ====================================================
@@ -117,6 +121,7 @@ export class Card {
     parameterRequirementAdjustments: PropertyCounter<Parameter>;
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
     choice: Action[];
+    playCard?: PlayCardParams;
 
     constructor(config: CardConfig) {
         // Hack to fix compile bug
@@ -205,8 +210,13 @@ export class Card {
         if (config.conditionalPayment) {
             this.conditionalPayment = config.conditionalPayment;
         }
+        if (config.revealTakeAndDiscard) {
+            this.revealTakeAndDiscard = config.revealTakeAndDiscard;
+        }
         this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
         this.choice = config.choice || [];
+
+        this.playCard = config.playCard;
     }
 }
 

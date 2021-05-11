@@ -4237,6 +4237,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production 4 steps. Gain 3 MC.',
         tags: [Tag.EARTH],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
+        gainResource: {[Resource.MEGACREDIT]: 3},
     },
     {
         deck: Deck.PRELUDE,
@@ -4244,6 +4246,9 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place an ocean tile. Increase your energy production 2 steps. Remove 3 MC.',
         tags: [Tag.POWER],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.OCEAN)],
+        increaseProduction: {[Resource.ENERGY]: 2},
+        removeResource: {[Resource.MEGACREDIT]: 3},
     },
     {
         deck: Deck.PRELUDE,
@@ -4251,6 +4256,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your plant production and energy production 1 step each. Gain 2 plants.',
         tags: [Tag.MICROBE],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.PLANT]: 1, [Resource.ENERGY]: 1},
+        gainResource: {[Resource.PLANT]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4258,6 +4265,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your plant production 1 step. Draw 3 cards.',
         tags: [Tag.SCIENCE],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.PLANT]: 1},
+        gainResource: {[Resource.CARD]: 3},
     },
     {
         deck: Deck.PRELUDE,
@@ -4265,6 +4274,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Decrease your MC production 1 step. Increase your plant production 2 steps.',
         tags: [Tag.PLANT],
         type: CardType.PRELUDE,
+        decreaseProduction: {[Resource.MEGACREDIT]: 2},
+        increaseProduction: {[Resource.PLANT]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4272,6 +4283,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production 6 steps. Remove 6 MC.',
         tags: [Tag.EARTH],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.MEGACREDIT]: 6},
+        removeResource: {[Resource.MEGACREDIT]: 6},
     },
     {
         deck: Deck.PRELUDE,
@@ -4279,6 +4292,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your plant production 1 step. Increase your MC production 2 steps.',
         tags: [Tag.BUILDING, Tag.PLANT],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.PLANT]: 1, [Resource.MEGACREDIT]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4286,6 +4300,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 21 MC.',
         tags: [],
         type: CardType.PRELUDE,
+        gainResource: {[Resource.MEGACREDIT]: 21},
     },
     {
         deck: Deck.PRELUDE,
@@ -4293,6 +4308,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a city tile. Increase your plant production 1 step.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.CITY)],
+        increaseProduction: {[Resource.PLANT]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4301,6 +4318,8 @@ export const cardConfigs: CardConfig[] = [
             'Increase your plant production 1 step. Play a card from Hand, ignoring global requirements',
         tags: [Tag.MICROBE, Tag.PLANT],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.PLANT]: 1},
+        playCard: {ignoreGlobalRequirements: true},
     },
     {
         deck: Deck.PRELUDE,
@@ -4308,6 +4327,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Play a card from hand, reducing its costs by 25 MC',
         tags: [],
         type: CardType.PRELUDE,
+        playCard: {discount: 25},
     },
     {
         deck: Deck.PRELUDE,
@@ -4316,6 +4336,8 @@ export const cardConfigs: CardConfig[] = [
             'Place a greenery tile and increase oxygen 1 step. Reveal cards from the deck until you have revealed 2 plant-tag cards. Take these into your hand, and discard the rest.',
         tags: [Tag.PLANT],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.GREENERY)],
+        revealTakeAndDiscard: {[CardSelectionCriteria.PLANT_TAG]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4323,6 +4345,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your titanium production 2 steps. Remove 5 MC.',
         tags: [Tag.JOVIAN],
         type: CardType.PRELUDE,
+        removeResource: {[Resource.MEGACREDIT]: 5},
+        increaseProduction: {[Resource.TITANIUM]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4330,6 +4354,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 2 ocean tiles.',
         tags: [],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
     },
     {
         deck: Deck.PRELUDE,
@@ -4337,6 +4362,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise temperature 3 steps. Remove 5 MC.',
         tags: [],
         type: CardType.PRELUDE,
+        increaseParameter: {[Parameter.TEMPERATURE]: 3},
+        removeResource: {[Resource.MEGACREDIT]: 5},
     },
     {
         deck: Deck.PRELUDE,
@@ -4344,6 +4371,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your titanium production 1 step. Draw 1 card.',
         tags: [Tag.JOVIAN, Tag.SCIENCE],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.TITANIUM]: 1},
+        gainResource: {[Resource.CARD]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4351,6 +4380,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Decrease your MC production 2 steps. Gain 30 MC.',
         tags: [],
         type: CardType.PRELUDE,
+        decreaseProduction: {[Resource.MEGACREDIT]: 2},
+        gainResource: {[Resource.MEGACREDIT]: 30},
     },
     {
         deck: Deck.PRELUDE,
@@ -4358,6 +4389,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your energy production and steel production 1 step each. Gain 6 MC.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.ENERGY]: 1, [Resource.STEEL]: 1},
+        gainResource: {[Resource.MEGACREDIT]: 6},
     },
     {
         deck: Deck.PRELUDE,
@@ -4365,6 +4398,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise temperature 1 step. Gain 4 titanium, and 4 steel.',
         tags: [],
         type: CardType.PRELUDE,
+        increaseParameter: {[Parameter.TEMPERATURE]: 1},
+        gainResource: {[Resource.TITANIUM]: 4, [Resource.STEEL]: 4},
     },
     {
         deck: Deck.PRELUDE,
@@ -4372,6 +4407,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production, steel production, and titanium production 1 step each.',
         tags: [],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.MEGACREDIT]: 1, [Resource.STEEL]: 1, [Resource.TITANIUM]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4379,13 +4415,17 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your steel production 2 steps. Gain 4 steel.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.STEEL]: 2},
+        gainResource: {[Resource.STEEL]: 4},
     },
     {
         deck: Deck.PRELUDE,
         name: 'Mohole',
-        text: 'Increse your heat production 3 steps. Gain 3 heat.',
+        text: 'Increase your heat production 3 steps. Gain 3 heat.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.HEAT]: 3},
+        gainResource: {[Resource.HEAT]: 3},
     },
     {
         deck: Deck.PRELUDE,
@@ -4394,9 +4434,12 @@ export const cardConfigs: CardConfig[] = [
             'Increase your steel production 1 step, and your heat production 2 steps. Gain 2 heat.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.STEEL]: 1, [Resource.HEAT]: 2},
     },
     {
         increaseTerraformRating: 1,
+        increaseProduction: {[Resource.PLANT]: 1},
+        gainResource: {[Resource.MEGACREDIT]: 5},
         deck: Deck.PRELUDE,
         name: 'Nitrogen Shipment',
         text:
@@ -4410,6 +4453,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your titanium production 1 step. Gain 4 titanium.',
         tags: [Tag.SPACE],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.TITANIUM]: 1},
+        gainResource: {[Resource.TITANIUM]: 4},
     },
     {
         deck: Deck.PRELUDE,
@@ -4417,6 +4462,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 1 ocean tile. Increase your heat production 2 steps.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.OCEAN)],
+        increaseProduction: {[Resource.HEAT]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4424,14 +4471,17 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your energy production 3 steps.',
         tags: [Tag.POWER],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.ENERGY]: 3},
     },
     {
         deck: Deck.PRELUDE,
         name: 'Research Network',
         text:
             'Draw 3 cards, and increase your MC production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.',
-        tags: [],
+        tags: [Tag.WILD],
         type: CardType.PRELUDE,
+        gainResource: {[Resource.CARD]: 3},
+        increaseProduction: {[Resource.MEGACREDIT]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4439,6 +4489,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a city tile. Increase your MC production 2 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.PRELUDE,
+        tilePlacements: [t(TileType.CITY)],
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         deck: Deck.PRELUDE,
@@ -4446,14 +4498,18 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise oxygen 2 steps. Gain 5 steel.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
+        increaseParameter: {[Parameter.OXYGEN]: 2},
+        gainResource: {[Resource.STEEL]: 5},
     },
     {
         deck: Deck.PRELUDE,
         name: 'Society Support',
         text:
-            'Decrease your MC production  1 step. Increase your plant production, energy production, and heat production 1 step each.',
+            'Decrease your MC production 1 step. Increase your plant production, energy production, and heat production 1 step each.',
         tags: [],
         type: CardType.PRELUDE,
+        decreaseProduction: {[Resource.MEGACREDIT]: 1},
+        increaseProduction: {[Resource.PLANT]: 1, [Resource.ENERGY]: 1, [Resource.HEAT]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4461,21 +4517,25 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your energy production 2 steps. Gain 4 steel.',
         tags: [Tag.POWER],
         type: CardType.PRELUDE,
+        increaseProduction: {[Resource.ENERGY]: 2},
+        gainResource: {[Resource.STEEL]: 4},
     },
     {
         deck: Deck.PRELUDE,
         name: 'Supply Drop',
-        text: 'Gain 3 titanium, 8 steeel, and 3 plants.',
+        text: 'Gain 3 titanium, 8 steel, and 3 plants.',
         tags: [],
         type: CardType.PRELUDE,
+        gainResource: {[Resource.TITANIUM]: 3, [Resource.STEEL]: 8, [Resource.ENERGY]: 3},
     },
     {
-        increaseTerraformRating: 3,
         deck: Deck.PRELUDE,
         name: 'UNMI Contractor',
         text: 'Raise your terraform rating 3 steps. Draw 1 card.',
         tags: [Tag.VENUS],
         type: CardType.PRELUDE,
+        increaseTerraformRating: 3,
+        gainResource: {[Resource.CARD]: 1},
     },
     {
         deck: Deck.PRELUDE,
@@ -4484,6 +4544,8 @@ export const cardConfigs: CardConfig[] = [
             'Gain 6 titanium. Reveal cards from the deck until you have revealed 2 space cards. Take those into hand, and discard the rest.',
         tags: [],
         type: CardType.PRELUDE,
+        revealTakeAndDiscard: {[CardSelectionCriteria.SPACE_TAG]: 2},
+        gainResource: {[Resource.TITANIUM]: 6},
     },
     {
         cost: 10,
@@ -4493,6 +4555,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        increaseProduction: {[Resource.STEEL]: 1},
     },
     {
         cost: 15,
@@ -4502,6 +4565,9 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your energy production 1 step. Increase your MC production 2 steps. Place a city tile ON A VOLCANIC AREA, same as Lava Flows, regardless of adjacent cities.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
+        decreaseProduction: {[Resource.ENERGY]: 1},
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.VOLCANIC, true)],
     },
     {
         cost: 9,
@@ -4515,6 +4581,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
         victoryPoints: 1,
+        gainResource: {[Resource.CARD]: 2},
     },
     {
         action: {
@@ -4545,7 +4612,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Research Coordination',
         text:
             'After being played, when you perform an action, the wild tag counts as any tag of your choice.',
-        tags: [],
+        tags: [Tag.WILD],
         type: CardType.AUTOMATED,
     },
     {
@@ -4556,6 +4623,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        gainResource: {[Resource.CARD]: 1},
     },
     {
         cost: 12,
@@ -4565,6 +4633,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.EARTH]: 2},
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
     },
     {
         effect: {
@@ -4825,6 +4894,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,
         discounts: {tags: {[Tag.BUILDING]: 2}},
+        gainResource: {[Resource.MEGACREDIT]: 44},
+        increaseProduction: {[Resource.MEGACREDIT]: 3},
     },
     {
         effect: {
@@ -4837,39 +4908,54 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 38 MC and 1 titanium production.',
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.CORPORATION,
+        gainResource: {[Resource.MEGACREDIT]: 38},
+        increaseProduction: {[Resource.TITANIUM]: 1},
     },
     {
         action: {
             text: 'Spend 4 MC to increase (one of) your LOWEST PRODUCTION 1 step.',
             cost: 4,
-            // TODO - implement this logic
+            increaseLowestProduction: 1,
         },
         deck: Deck.PRELUDE,
         name: 'Robinson Industries',
         text: 'You start with 47 MC.',
+        gainResource: {[Resource.MEGACREDIT]: 47},
         tags: [],
         type: CardType.CORPORATION,
     },
     {
-        effect: {text: 'Effect: When you play a science tag, you pay 2 MC less for it.'},
+        effect: {
+            text: 'Effect: When you play a science tag, you pay 2 MC less for it.',
+        },
         deck: Deck.PRELUDE,
         name: 'Valley Trust',
         text:
             'You start with 37 MC. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two.',
+        forcedAction: {
+            choosePrelude: 3,
+        },
         tags: [Tag.EARTH],
         type: CardType.CORPORATION,
         discounts: {tags: {[Tag.SCIENCE]: 2}},
+        gainResource: {[Resource.MEGACREDIT]: 37},
     },
     {
         effect: {
             text:
                 'Effect: When you play a card with a NON-NEGATIVE VP icon, including this, gain 3 MC.',
+            trigger: {nonNegativeVictoryPointsIcon: true},
+            action: {gainResource: {[Resource.MEGACREDIT]: 3}},
         },
         deck: Deck.PRELUDE,
         name: 'Vitor',
         text: 'You start with 45 MC. As your first action, fund an award for free.',
         tags: [Tag.EARTH],
         type: CardType.CORPORATION,
+        forcedAction: {
+            fundAward: true,
+        },
+        gainResource: {[Resource.MEGACREDIT]: 45},
     },
     {
         effect: {

@@ -22,4 +22,7 @@ export interface EffectTrigger {
     steelOrTitaniumPlacementBonus?: boolean;
 
     placedTile?: TileType;
+
+    // Vitor
+    nonNegativeVictoryPointsIcon?: boolean;
 }

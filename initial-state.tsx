@@ -1,5 +1,5 @@
 import {INITIAL_BOARD_STATE} from './constants/board';
-import {CardType} from './constants/card-types';
+import {CardType, Deck} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {Resource} from './constants/resource';
@@ -32,7 +32,7 @@ function DEV_corporationOverrides() {
 
 function sampleCards(cards: Card[], num: number) {
     const result: Card[] = [];
-    for (let i = 0; i < num; i++) {
+    for (let i = result.length; i < num; i++) {
         const card = cards.shift();
         if (!card) {
             throw new Error('Out of cards to sample');
@@ -49,9 +49,14 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
 
     const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
 
-    const deck = possibleCards.filter(card => card.type !== CardType.CORPORATION);
+    const deck = possibleCards.filter(
+        card => card.type !== CardType.CORPORATION && card.type !== CardType.PRELUDE
+    );
+    const preludes = possibleCards.filter(card => card.type === CardType.PRELUDE);
 
     options.isDraftingEnabled = options.isDraftingEnabled && players.length > 1;
+
+    const isPreludeEnabled = options.decks.includes(Deck.PRELUDE);
 
     const base = {
         log: ['Generation 1'] as string[],
@@ -63,6 +68,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             generation: 1,
             turn: 1,
             deck,
+            preludes,
             parameters: MIN_PARAMETERS,
             board: INITIAL_BOARD_STATE,
             currentPlayerIndex: 0,
@@ -94,6 +100,8 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             cards: [],
             forcedActions: [],
             playedCards: [],
+            preludes: [],
+            possiblePreludes: sampleCards(preludes, isPreludeEnabled ? 4 : 0),
             resources: initialResources(),
             productions: initialResources(Number(options.decks.length === 1)),
             parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),

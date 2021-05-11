@@ -3,7 +3,7 @@ import {ExchangeRates} from 'constants/card-types';
 import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {Tag} from 'constants/tag';
 import {SerializedCard} from 'state-serialization';
-import {Action, Amount} from './constants/action';
+import {Action, Amount, PlayCardParams} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {PropertyCounter} from './constants/property-counter';
@@ -47,10 +47,34 @@ export const discardCards = withMatcher((cards: SerializedCard[], playerIndex: n
     payload: {cards, playerIndex},
 }));
 
-const SET_CARDS = 'SET_CARDS';
-export const setCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
-    type: SET_CARDS,
+const ADD_CARDS = 'ADD_CARDS';
+export const addCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
+    type: ADD_CARDS,
     payload: {cards, playerIndex},
+}));
+
+const SET_PRELUDES = 'SET_PRELUDES';
+export const setPreludes = withMatcher((preludes: SerializedCard[], playerIndex: number) => ({
+    type: SET_PRELUDES,
+    payload: {playerIndex, preludes},
+}));
+
+const ASK_USER_TO_CHOOSE_PRELUDE = 'ASK_USER_TO_CHOOSE_PRELUDE';
+export const askUserToChoosePrelude = withMatcher((amount: number, playerIndex: number) => ({
+    type: ASK_USER_TO_CHOOSE_PRELUDE,
+    payload: {playerIndex, amount},
+}));
+
+const DISCARD_PRELUDES = 'DISCARD_PRELUDES';
+export const discardPreludes = withMatcher((playerIndex: number) => ({
+    type: DISCARD_PRELUDES,
+    payload: {playerIndex},
+}));
+
+const ASK_USER_TO_FUND_AWARD = 'ASK_USER_TO_FUND_AWARD';
+export const askUserToFundAward = withMatcher((playerIndex: number) => ({
+    type: ASK_USER_TO_FUND_AWARD,
+    payload: {playerIndex},
 }));
 
 const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
@@ -87,6 +111,20 @@ export const increaseProduction = withMatcher(
         payload: {resource, amount, playerIndex},
     })
 );
+
+const ASK_USER_TO_INCREASE_LOWEST_PRODUCTION = 'ASK_USER_TO_INCREASE_LOWEST_PRODUCTION';
+export const askUserToIncreaseLowestProduction = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: ASK_USER_TO_INCREASE_LOWEST_PRODUCTION,
+        payload: {amount, playerIndex},
+    })
+);
+
+const COMPLETE_INCREASE_LOWEST_PRODUCTION = 'COMPLETE_INCREASE_LOWEST_PRODUCTION';
+export const completeIncreaseLowestProduction = withMatcher((playerIndex: number) => ({
+    type: COMPLETE_INCREASE_LOWEST_PRODUCTION,
+    payload: {playerIndex},
+}));
 
 const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = withMatcher(
@@ -451,6 +489,14 @@ export const gainResourceWhenIncreaseProduction = withMatcher((playerIndex: numb
     payload: {playerIndex},
 }));
 
+const ASK_USER_TO_PLAY_CARD_FROM_HAND = 'ASK_USER_TO_PLAY_CARD_FROM_HAND';
+export const askUserToPlayCardFromHand = withMatcher(
+    (playCardParams: PlayCardParams, playerIndex: number) => ({
+        type: ASK_USER_TO_PLAY_CARD_FROM_HAND,
+        payload: {playerIndex, playCardParams},
+    })
+);
+
 // Client side action that disables UI while waiting for a response from the server.
 const SET_IS_SYNCING = 'SET_IS_SYNCING';
 export const setIsSyncing = withMatcher(() => ({
@@ -466,4 +512,7 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_DISCARD_CARDS,
     ASK_USER_TO_MAKE_ACTION_CHOICE,
     ASK_USER_TO_DUPLICATE_PRODUCTION,
+    ASK_USER_TO_INCREASE_LOWEST_PRODUCTION,
+    ASK_USER_TO_CHOOSE_PRELUDE,
+    ASK_USER_TO_FUND_AWARD,
 ];

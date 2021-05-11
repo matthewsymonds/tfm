@@ -59,10 +59,15 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
 
     const canPlay = award => actionGuard.canFundAward(award)[0];
     const isFunded = award => actionGuard.isAwardFunded(award);
+    const isFree = loggedInPlayer.fundAward;
 
     const fundAward = (award: Award, payment?: PropertyCounter<Resource>) => {
         if (canPlay(award)) {
-            apiClient.fundAwardAsync({award, payment});
+            if (isFree) {
+                apiClient.fundAwardAsync({award, payment: {}});
+            } else {
+                apiClient.fundAwardAsync({award, payment});
+            }
         }
     };
 
@@ -87,14 +92,14 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
                         canFund={canPlay(action)}
                         isFunded={isFunded(action)}
                         loggedInPlayer={loggedInPlayer}
-                        cost={awardConfigsByAward[action].cost}
+                        cost={isFree ? 0 : awardConfigsByAward[action].cost}
                     />
                 )}
                 ActionPopoverComponent={({action}) => (
                     <AwardPopover
                         award={action}
                         loggedInPlayer={loggedInPlayer}
-                        cost={awardConfigsByAward[action].cost}
+                        cost={isFree ? 0 : awardConfigsByAward[action].cost}
                         isFunded={isFunded(action)}
                         fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
                     />
@@ -132,7 +137,9 @@ function AwardBadge({
         useTypedSelector(state => state.common.fundedAwards.find(fa => fa.award === award))
             ?.fundedByPlayerIndex ?? null;
     const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
+        loggedInPlayer.corporation.name === 'Helion' &&
+        loggedInPlayer.resources[Resource.HEAT] > 0 &&
+        !loggedInPlayer.fundAward;
 
     return (
         <PaymentPopover

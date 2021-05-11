@@ -5,13 +5,17 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
     try {
         const pendingActions =
             state.common.revealedCards.length > 0 ||
-            loggedInPlayer.forcedActions.length > 0 ||
             loggedInPlayer.pendingTilePlacement ||
             loggedInPlayer.pendingCardSelection ||
             loggedInPlayer.pendingResourceActionDetails ||
             loggedInPlayer.pendingChoice ||
+            loggedInPlayer.fundAward ||
             loggedInPlayer.pendingDuplicateProduction ||
+            loggedInPlayer.pendingIncreaseLowestProduction ||
             loggedInPlayer.pendingActionReplay ||
+            loggedInPlayer.pendingPlayCardFromHand ||
+            (loggedInPlayer.preludes.length > 0 &&
+                state.common.currentPlayerIndex === loggedInPlayer.index) ||
             state.common.gameStage === GameStage.END_OF_GAME ||
             loggedInPlayer.pendingDiscard;
 

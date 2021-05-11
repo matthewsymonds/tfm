@@ -18,6 +18,9 @@ import {Box, Flex} from './box';
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
+    const {possiblePreludes} = player;
+    const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
+
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
 
@@ -72,6 +75,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         setSelectedCards([]);
         await apiClient.confirmCardSelectionAsync({
             selectedCards,
+            selectedPreludes,
             corporation: player.corporation,
             payment,
         });
@@ -82,7 +86,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const canConfirmCardSelection = useTypedSelector(state =>
         actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
-    const shouldDisableConfirmCardSelection = !canConfirmCardSelection || actionGuard.isSyncing;
+    const shouldDisableDueToPreludes =
+        player.possiblePreludes.length > 0 && selectedPreludes.length !== 2;
+    const shouldDisableConfirmCardSelection =
+        !canConfirmCardSelection || actionGuard.isSyncing || shouldDisableDueToPreludes;
 
     // hide card selector while waiting on others to pick cards
     const isWaitingOnOthersToDraft =
@@ -100,76 +107,97 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const usePaymentPopover =
         pendingCardSelection.isBuyingCards &&
         player.corporation.name === 'Helion' &&
+        player.resources[Resource.HEAT] > 0 &&
         selectedCards.length;
 
     return (
-        <AskUserToMakeChoice>
-            {isDrafting &&
-                pendingCardSelection.draftPicks &&
-                pendingCardSelection.draftPicks.length > 0 && (
-                    <Flex flexDirection="column" marginRight="100px">
-                        <h3 style={{marginBottom: 4, marginLeft: 8}}>Drafted cards</h3>
-                        <Box marginBottom="16px" marginLeft="8px">
-                            Receiving from <PlayerCorpAndIcon player={passSourcePlayer} />
-                        </Box>
-                        <Flex>
-                            {pendingCardSelection.draftPicks.map(draftedCard => (
-                                <Flex margin="8px" key={draftedCard.name}>
-                                    <CardComponent
-                                        cardContext={CardContext.SELECT_TO_BUY}
-                                        card={getCard(draftedCard)}
-                                    />
-                                </Flex>
-                            ))}
+        <div>
+            <AskUserToMakeChoice>
+                {isDrafting &&
+                    pendingCardSelection.draftPicks &&
+                    pendingCardSelection.draftPicks.length > 0 && (
+                        <Flex flexDirection="column" marginRight="100px">
+                            <h3 style={{marginBottom: 4, marginLeft: 8}}>Drafted cards</h3>
+                            <Box marginBottom="16px" marginLeft="8px">
+                                Receiving from <PlayerCorpAndIcon player={passSourcePlayer} />
+                            </Box>
+                            <Flex>
+                                {pendingCardSelection.draftPicks.map(draftedCard => (
+                                    <Flex margin="8px" key={draftedCard.name}>
+                                        <CardComponent
+                                            cardContext={CardContext.SELECT_TO_BUY}
+                                            card={getCard(draftedCard)}
+                                        />
+                                    </Flex>
+                                ))}
+                            </Flex>
+                        </Flex>
+                    )}
+                {isWaitingOnOthersToDraft ? (
+                    <Flex alignItems="center" justifyContent="center">
+                        Waiting on other players to draft...
+                    </Flex>
+                ) : (
+                    <Flex flexDirection="column" width="100%">
+                        <CardSelector
+                            max={maxCards}
+                            min={minCards}
+                            selectedCards={selectedCards}
+                            onSelect={cards => {
+                                if (
+                                    !pendingCardSelection.isBuyingCards ||
+                                    cards.length * 3 <= playerBudget
+                                ) {
+                                    setSelectedCards(cards);
+                                }
+                            }}
+                            options={pendingCardSelection.possibleCards}
+                            orientation="vertical"
+                        >
+                            <h3
+                                style={{
+                                    marginBottom: cardSelectionSubtitle ? 4 : 'initial',
+                                }}
+                            >
+                                {cardSelectionPrompt}
+                            </h3>
+                            {cardSelectionSubtitle}
+                        </CardSelector>
+                        <Flex justifyContent="center" zIndex={40}>
+                            <PaymentPopover
+                                cost={selectedCards.length * 3}
+                                onConfirmPayment={payment => handleConfirmCardSelection(payment)}
+                                shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
+                            >
+                                <button
+                                    disabled={shouldDisableConfirmCardSelection}
+                                    onClick={() =>
+                                        !usePaymentPopover && handleConfirmCardSelection()
+                                    }
+                                >
+                                    {cardSelectionButtonText}
+                                </button>
+                            </PaymentPopover>
                         </Flex>
                     </Flex>
                 )}
-            {isWaitingOnOthersToDraft ? (
-                <Flex alignItems="center" justifyContent="center">
-                    Waiting on other players to draft...
-                </Flex>
-            ) : (
+            </AskUserToMakeChoice>
+            {player.possiblePreludes.length > 0 && (
                 <Flex flexDirection="column" width="100%">
                     <CardSelector
-                        max={maxCards}
-                        min={minCards}
-                        selectedCards={selectedCards}
+                        max={2}
+                        min={2}
+                        orientation="horizontal"
+                        selectedCards={selectedPreludes}
                         onSelect={cards => {
-                            if (
-                                !pendingCardSelection.isBuyingCards ||
-                                cards.length * 3 <= playerBudget
-                            ) {
-                                setSelectedCards(cards);
-                            }
+                            setSelectedPreludes(cards);
                         }}
-                        options={pendingCardSelection.possibleCards}
-                        orientation="vertical"
+                        options={possiblePreludes}
                     >
-                        <h3
-                            style={{
-                                marginBottom: cardSelectionSubtitle ? 4 : 'initial',
-                            }}
-                        >
-                            {cardSelectionPrompt}
-                        </h3>
-                        {cardSelectionSubtitle}
+                        <div>Please select 2 prelude cards.</div>
                     </CardSelector>
-                    <Flex justifyContent="center" zIndex={40}>
-                        <PaymentPopover
-                            cost={selectedCards.length * 3}
-                            onConfirmPayment={payment => handleConfirmCardSelection(payment)}
-                            shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
-                        >
-                            <button
-                                disabled={shouldDisableConfirmCardSelection}
-                                onClick={() => !usePaymentPopover && handleConfirmCardSelection()}
-                            >
-                                {cardSelectionButtonText}
-                            </button>
-                        </PaymentPopover>
-                    </Flex>
                 </Flex>
             )}
-        </AskUserToMakeChoice>
+        </div>
     );
 }

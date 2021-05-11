@@ -16,7 +16,11 @@ import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision
 import styled from 'styled-components';
 import {ActionBar, ActionBarRow} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
+import {AskUserToFundAward} from './ask-user-to-fund-award';
+import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
+import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
+import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {Board} from './board/board';
 import {Flex} from './box';
@@ -32,6 +36,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
      */
     const players = useTypedSelector(state => state.players);
     const loggedInPlayer = players[loggedInPlayerIndex];
+    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
 
     /**
      * Derived state
@@ -66,14 +71,29 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                     player={loggedInPlayer}
                                 />
                             )}
+                            {loggedInPlayer.pendingPlayCardFromHand && (
+                                <AskUserToPlayCardFromHand player={loggedInPlayer} />
+                            )}
                             {loggedInPlayer.pendingDuplicateProduction && (
                                 <AskUserToDuplicateProduction player={loggedInPlayer} />
+                            )}
+                            {loggedInPlayer.pendingIncreaseLowestProduction && (
+                                <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
                             )}
                             {loggedInPlayer.pendingDiscard && (
                                 <AskUserToMakeDiscardChoice player={loggedInPlayer} />
                             )}
                             {loggedInPlayer.pendingCardSelection && (
                                 <AskUserToMakeCardSelection player={loggedInPlayer} />
+                            )}
+                            {loggedInPlayer.preludes.length > 0 &&
+                                currentPlayerIndex === loggedInPlayer.index &&
+                                !loggedInPlayer.pendingPlayCardFromHand &&
+                                !loggedInPlayer.pendingTilePlacement && (
+                                    <AskUserToPlayPrelude player={loggedInPlayer} />
+                                )}
+                            {loggedInPlayer.fundAward && (
+                                <AskUserToFundAward player={loggedInPlayer} />
                             )}
                             {loggedInPlayer.pendingTilePlacement &&
                                 (loggedInPlayer.pendingTilePlacement.type ===

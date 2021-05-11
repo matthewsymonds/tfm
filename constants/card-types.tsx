@@ -1,4 +1,4 @@
-import {Action, Amount} from './action';
+import {Action, Amount, PlayCardParams} from './action';
 import {Parameter, TileType} from './board';
 import {CardDiscounts, TagDiscounts} from './discounts';
 import {Effect} from './effect';
@@ -67,6 +67,8 @@ export interface CardConfig extends Action {
     temporaryParameterRequirementAdjustments?: PropertyCounter<Parameter>;
 
     conditionalPayment?: ConditionalPayment;
+    // e.g. "Play a card from hand, ignoring global requirements"
+    playCard?: PlayCardParams;
 }
 
 type MinimumGlobalParameter = {

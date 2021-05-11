@@ -132,6 +132,10 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
     }
 
+    async skipPlayCardFromHandAsync() {
+        await this.makeApiCall(ApiActionType.API_SKIP_ACTION, {});
+    }
+
     async completeLookAtCardsAsync({
         selectedCards,
     }: {
@@ -168,15 +172,18 @@ export class ApiClient implements GameActionHandler {
 
     async confirmCardSelectionAsync({
         selectedCards,
+        selectedPreludes,
         corporation,
         payment,
     }: {
         selectedCards: Array<SerializedCard>;
+        selectedPreludes: Array<SerializedCard>;
         corporation: SerializedCard;
         payment?: PropertyCounter<Resource>;
     }): Promise<void> {
         const payload = {
             cards: selectedCards.map(card => ({name: card.name})),
+            preludes: selectedPreludes.map(card => ({name: card.name})),
             corporation: {name: corporation.name},
             payment,
         };
@@ -196,5 +203,10 @@ export class ApiClient implements GameActionHandler {
     async skipChooseDuplicateProductionAsync() {
         const payload = {};
         await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION, payload);
+    }
+
+    async increaseLowestProductionAsync({production}: {production: Resource}) {
+        const payload = {production};
+        await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION_ASYNC, payload);
     }
 }

@@ -41,7 +41,7 @@ export const CardCost = ({
     loggedInPlayer: PlayerState;
     cardContext: CardContext;
 }) => {
-    if (card.type === CardType.CORPORATION) {
+    if (card.type === CardType.CORPORATION || card.type === CardType.PRELUDE) {
         return null;
     }
     let discountedCost;
@@ -61,11 +61,11 @@ export const GenericCardCost = ({
 }) => {
     return (
         <CardCostBase>
-            {originalCost && originalCost !== cost && (
+            {originalCost && originalCost !== cost ? (
                 <OriginalCost>
                     <s>{originalCost}</s>
                 </OriginalCost>
-            )}
+            ) : null}
             {cost}
         </CardCostBase>
     );

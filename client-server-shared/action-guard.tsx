@@ -6,7 +6,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
 import {Award, Cell, Milestone} from 'constants/board';
-import {CardType} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource';
@@ -22,6 +22,7 @@ import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getMoney} from 'selectors/get-money';
+import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
@@ -46,9 +47,17 @@ export class ActionGuard {
     canPlayCard(card: Card): CanPlayAndReason {
         const {state} = this;
         const player = this._getPlayerToConsider();
+        const isPrelude =
+            card.type === CardType.PRELUDE &&
+            player.preludes.map(prelude => prelude.name).includes(card.name);
+
+        if (isPrelude && !this.canPlayPrelude(card, player, state)) {
+            return [false, 'Cannot play prelude'];
+        }
         if (
             !this.canPlayCorporation(card) &&
-            !player.cards.some(playerCard => playerCard.name === card.name)
+            !player.cards.some(playerCard => playerCard.name === card.name) &&
+            !isPrelude
         ) {
             return [false, 'User cannot play this card at this time'];
         }
@@ -58,7 +67,12 @@ export class ActionGuard {
         ) {
             return [true, 'Good to go'];
         }
-        const [canPlay, reason] = this.canPlayAction(card, state);
+        // If the user has been prompted "play a card from hand"
+        // Then they should be able to play a card even though the rest of the UI is disabled!
+        const [canPlay, reason] = (player.pendingPlayCardFromHand || isPrelude
+            ? this.canPlayActionInSpiteOfUI
+            : this.canPlayAction
+        ).bind(this)(card, state);
 
         if (!canPlay) {
             return [canPlay, reason];
@@ -71,7 +85,10 @@ export class ActionGuard {
             return [false, 'Required tags not met'];
         }
 
-        if (!this.canPlayWithGlobalParameters(card)) {
+        const ignoreGlobalRequirements =
+            player?.pendingPlayCardFromHand?.ignoreGlobalRequirements ?? false;
+
+        if (!ignoreGlobalRequirements && !this.canPlayWithGlobalParameters(card)) {
             return [false, 'Global parameters not met'];
         }
 
@@ -183,11 +200,15 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
-        if (this.shouldDisableUI()) return [false, 'Cannot fund award right now'];
-
         if (!isActiveRound(state)) {
             return [false, 'Cannot fund award when it is not active round'];
         }
+
+        if (player.fundAward && state.common.currentPlayerIndex === player.index) {
+            return [true, 'Can fund an award'];
+        }
+
+        if (this.shouldDisableUI()) return [false, 'Cannot fund award right now'];
 
         // Is it available?
         if (state.common.fundedAwards.length === 3) {
@@ -215,6 +236,15 @@ export class ActionGuard {
 
         if (!player.action || state.common.currentPlayerIndex !== player.index) {
             return [false, 'It is not your turn right now'];
+        }
+        if (player.pendingPlayCardFromHand && getPlayableCards(player, this).length === 0) {
+            return [true, 'Has no cards to play'];
+        }
+        if (
+            player.preludes?.length > 0 &&
+            player.preludes?.every(preludeCard => !this.canPlayCard(getCard(preludeCard))[0])
+        ) {
+            return [true, 'Out of playable prelude cards'];
         }
         if (getIsPlayerMakingDecision(state, player)) {
             return [false, 'Player cannot skip while making decision'];
@@ -625,7 +655,12 @@ export class ActionGuard {
         return canPlayActionInSpiteOfUI(action, state, player, parent);
     }
 
-    canConfirmCardSelection(selectedCards: Array<Card>, state: GameState, corporation?: Card) {
+    canConfirmCardSelection(
+        selectedCards: Array<Card>,
+        state: GameState,
+        corporation?: Card,
+        selectedPreludes?: Card[]
+    ) {
         const loggedInPlayer = this._getPlayerToConsider();
         const numCards = selectedCards.length;
 
@@ -669,6 +704,9 @@ export class ActionGuard {
             return false;
         }
 
+        if (selectedPreludes && !this.arePreludesCorrect(selectedPreludes)) {
+            return false;
+        }
         return true;
     }
 
@@ -678,6 +716,44 @@ export class ActionGuard {
         return possibleCorporations.some(
             possibleCorporation => possibleCorporation.name === card.name
         );
+    }
+
+    private arePreludesCorrect(selectedPreludes: Card[]) {
+        const {state} = this;
+        const loggedInPlayer = this._getPlayerToConsider();
+
+        if (
+            !selectedPreludes.every(prelude =>
+                loggedInPlayer.possiblePreludes.some(
+                    possiblePrelude => possiblePrelude.name === prelude.name
+                )
+            )
+        ) {
+            return false;
+        }
+        let expectedLength = 0;
+        if (
+            state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+            state.options.decks.includes(Deck.PRELUDE)
+        ) {
+            expectedLength = 2;
+        }
+        if (selectedPreludes.length !== expectedLength) {
+            return false;
+        }
+        return true;
+    }
+
+    private canPlayPrelude(card: Card, player: PlayerState, state: GameState): boolean {
+        if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+            return false;
+        }
+
+        if (!player.preludes.map(prelude => prelude.name).includes(card.name)) {
+            return false;
+        }
+
+        return true;
     }
 }
 
