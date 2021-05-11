@@ -14,6 +14,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
+import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
 
 export const InlineText = styled.span`
@@ -156,8 +157,6 @@ export function ChangeResourceIconography({
                 case VariableAmount.ALL_EVENTS:
                     multiplierElement = <TagIcon name={Tag.EVENT} size={16} />;
                     break;
-                case VariableAmount.JOVIAN_TAGS:
-                    multiplierElement = <TagIcon name={Tag.JOVIAN} size={16} />;
                     break;
                 case VariableAmount.ALL_COLONIES:
                     multiplierElement = <ColonyIcon size={16} />;
@@ -200,8 +199,6 @@ export function ChangeResourceIconography({
                         </Flex>
                     );
                     break;
-                case VariableAmount.EARTH_TAGS:
-                    multiplierElement = <TagIcon name={Tag.EARTH} size={16} />;
                     break;
                 case VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS:
                 case VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS:
@@ -226,20 +223,9 @@ export function ChangeResourceIconography({
                 case VariableAmount.OPPONENTS_SPACE_TAGS:
                     multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
                     break;
-                case VariableAmount.POWER_TAGS:
-                    multiplierElement = <TagIcon name={Tag.POWER} size={16} />;
                     break;
                 case VariableAmount.THIRD_RESOURCES_ON_CARD:
                     multiplierElement = <ColonyIcon size={16} />;
-                    break;
-                case VariableAmount.PLANT_TAGS:
-                    multiplierElement = <TagIcon name={Tag.PLANT} size={16} />;
-                    break;
-                case VariableAmount.SPACE_TAGS:
-                    multiplierElement = <TagIcon name={Tag.SPACE} size={16} />;
-                    break;
-                case VariableAmount.VENUS_TAGS:
-                    multiplierElement = <TagIcon name={Tag.VENUS} size={16} />;
                     break;
                 case VariableAmount.CITIES_ON_MARS:
                     multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
@@ -247,22 +233,6 @@ export function ChangeResourceIconography({
                 case VariableAmount.CARDS_WITHOUT_TAGS:
                     // @ts-ignore
                     multiplierElement = <TagIcon name="x" size={16} />;
-                    break;
-                case VariableAmount.HALF_MICROBE_TAGS:
-                    multiplierElement = (
-                        <React.Fragment>
-                            <InlineText>2</InlineText>
-                            <TagIcon name={Tag.MICROBE} size={16} />
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.HALF_BUILDING_TAGS:
-                    multiplierElement = (
-                        <React.Fragment>
-                            <InlineText>2</InlineText>
-                            <TagIcon name={Tag.BUILDING} size={16} />
-                        </React.Fragment>
-                    );
                     break;
                 case VariableAmount.VENUS_AND_EARTH_TAGS:
                     multiplierElement = (
@@ -327,7 +297,18 @@ export function ChangeResourceIconography({
                     multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
                     break;
                 default:
-                    throw new Error('variable amount not supported: ' + amount);
+                    if (amount && isTagAmount(amount)) {
+                        multiplierElement = (
+                            <React.Fragment>
+                                {amount.dividedBy ? (
+                                    <InlineText>{amount.dividedBy}</InlineText>
+                                ) : null}
+                                <TagIcon name={amount.tag} size={16} />
+                            </React.Fragment>
+                        );
+                    } else {
+                        throw new Error('variable amount not supported: ' + amount);
+                    }
             }
 
             elements.push(
@@ -760,12 +741,15 @@ function IncreaseTerraformRatingIconography({
         }
         return null;
     } else {
-        if (increaseTerraformRating === VariableAmount.JOVIAN_TAGS) {
+        if (isTagAmount(increaseTerraformRating)) {
             return (
                 <IconographyRow className="increase-terraform-rating">
                     <TerraformRatingIcon size={16} />
                     <InlineText>/</InlineText>
-                    <TagIcon name={Tag.JOVIAN} size={16} />
+                    {increaseTerraformRating.dividedBy ? (
+                        <InlineText>{increaseTerraformRating.dividedBy}</InlineText>
+                    ) : null}
+                    <TagIcon name={increaseTerraformRating.tag} size={16} />
                 </IconographyRow>
             );
         } else {

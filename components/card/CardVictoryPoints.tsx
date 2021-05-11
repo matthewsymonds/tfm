@@ -6,10 +6,10 @@ import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
-import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
+import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
 
 const Circle = styled.div`
@@ -92,13 +92,6 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                         <InlineText>*</InlineText>
                     </CenteredText>
                 );
-            case VariableAmount.JOVIAN_TAGS:
-                return (
-                    <CenteredText>
-                        <InlineText>1/</InlineText>
-                        <TagIcon name={Tag.JOVIAN} size={16} />
-                    </CenteredText>
-                );
             case VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT:
                 return (
                     <CenteredText>
@@ -122,6 +115,17 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                     </CenteredText>
                 );
             default:
+                if (card.victoryPoints && isTagAmount(card.victoryPoints)) {
+                    return (
+                        <CenteredText>
+                            <InlineText>1/</InlineText>
+                            {card.victoryPoints.dividedBy ? (
+                                <InlineText>{card.victoryPoints.dividedBy}</InlineText>
+                            ) : null}
+                            <TagIcon name={card.victoryPoints.tag} size={16} />
+                        </CenteredText>
+                    );
+                }
                 throw new Error(`Unsupported variable amount victory points ${card.victoryPoints}`);
         }
     }

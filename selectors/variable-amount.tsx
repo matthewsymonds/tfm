@@ -94,23 +94,13 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const mining = findCellWithTile(state, TileType.MINING_RIGHTS);
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
-    [VariableAmount.EARTH_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.EARTH).length;
-    },
-    [VariableAmount.HALF_BUILDING_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return Math.floor(getTags(player).filter(tag => tag === Tag.BUILDING).length / 2);
-    },
     [VariableAmount.VENUS_AND_EARTH_TAGS]: (
         state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
-        return getTags(player).filter(tag => tag === Tag.EARTH || tag === Tag.VENUS).length;
-    },
-    [VariableAmount.POWER_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.POWER).length;
-    },
-    [VariableAmount.PLANT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.PLANT).length;
+        return getTags(player).filter(
+            tag => tag === Tag.EARTH || tag === Tag.VENUS || tag === Tag.WILD
+        ).length;
     },
     [VariableAmount.OPPONENTS_SPACE_TAGS]: (
         state: GameState,
@@ -120,18 +110,6 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             .filter(p => p.index !== player.index)
             .flatMap(player => getTags(player))
             .filter(tag => tag === Tag.SPACE).length;
-    },
-    [VariableAmount.VENUS_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.VENUS).length;
-    },
-    [VariableAmount.SPACE_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.SPACE).length;
-    },
-    [VariableAmount.JOVIAN_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getTags(player).filter(tag => tag === Tag.JOVIAN).length;
-    },
-    [VariableAmount.HALF_MICROBE_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return Math.floor(getTags(player).filter(tag => tag === Tag.MICROBE).length / 2);
     },
     [VariableAmount.PLANT_CONVERSION_AMOUNT]: (
         state: GameState,
@@ -182,7 +160,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return 0;
     },
     [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: GameState, player: PlayerState) => {
-        const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT).length;
+        const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT || tag === Tag.WILD)
+            .length;
 
         if (numPlantTags >= 3) {
             return 4;
@@ -194,7 +173,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         state: GameState,
         player: PlayerState
     ) => {
-        const numVenusTags = getTags(player).filter(tag => tag === Tag.VENUS).length;
+        const numVenusTags = getTags(player).filter(tag => tag === Tag.VENUS || tag === Tag.WILD)
+            .length;
 
         if (numVenusTags >= 3) {
             return 3;

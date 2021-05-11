@@ -176,7 +176,7 @@ export const cardConfigs: CardConfig[] = [
         text: '1 VP for each Jovian tag you have.',
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.ACTIVE,
-        victoryPoints: VariableAmount.JOVIAN_TAGS,
+        victoryPoints: {tag: Tag.JOVIAN},
     },
     {
         action: {
@@ -706,7 +706,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.EARTH_TAGS,
+            [Resource.MEGACREDIT]: {tag: Tag.EARTH},
         },
     },
     {
@@ -1111,7 +1111,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CITY, PlacementRequirement.GANYMEDE, true)],
-        victoryPoints: VariableAmount.JOVIAN_TAGS,
+        victoryPoints: {tag: Tag.JOVIAN},
     },
     {
         cost: 24,
@@ -1230,7 +1230,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.TITANIUM]: 2, [Resource.MEGACREDIT]: 2},
-        victoryPoints: VariableAmount.JOVIAN_TAGS,
+        victoryPoints: {tag: Tag.JOVIAN},
     },
     {
         cost: 10,
@@ -1350,7 +1350,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.ENERGY]: VariableAmount.POWER_TAGS,
+            [Resource.ENERGY]: {tag: Tag.POWER},
         },
     },
     {
@@ -1716,7 +1716,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.PLANT]: VariableAmount.HALF_MICROBE_TAGS,
+            [Resource.PLANT]: {tag: Tag.MICROBE, dividedBy: 2},
         },
     },
     {
@@ -1822,7 +1822,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.EARTH_TAGS,
+            [Resource.MEGACREDIT]: {tag: Tag.EARTH},
         },
     },
     {
@@ -1972,7 +1972,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.MICROBE],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.PLANT]: VariableAmount.PLANT_TAGS,
+            [Resource.PLANT]: {tag: Tag.PLANT},
         },
     },
     {
@@ -2327,7 +2327,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.SPACE_TAGS,
+            [Resource.MEGACREDIT]: {tag: Tag.SPACE},
         },
     },
     {
@@ -2627,7 +2627,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        increaseTerraformRating: VariableAmount.JOVIAN_TAGS,
+        increaseTerraformRating: {tag: Tag.JOVIAN},
     },
     {
         cost: 31,
@@ -2745,7 +2745,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        increaseProduction: {[Resource.MEGACREDIT]: VariableAmount.HALF_BUILDING_TAGS},
+        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 2}},
     },
     {
         action: {text: 'Draw 2 cards.', gainResource: {[Resource.CARD]: 2}},
@@ -3114,7 +3114,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
         gainResource: {
-            [Resource.FLOATER]: VariableAmount.JOVIAN_TAGS,
+            [Resource.FLOATER]: {tag: Tag.JOVIAN},
         },
     },
     {
@@ -3201,7 +3201,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 2,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.EARTH_TAGS,
+            [Resource.MEGACREDIT]: {tag: Tag.EARTH},
         },
         tilePlacements: [t(TileType.CITY, PlacementRequirement.LUNA_METROPOLIS, true)],
     },
@@ -3415,7 +3415,7 @@ export const cardConfigs: CardConfig[] = [
         },
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.VENUS_TAGS,
+            [Resource.MEGACREDIT]: {tag: Tag.VENUS},
         },
     },
     {

@@ -30,6 +30,13 @@ function DEV_corporationOverrides() {
     });
 }
 
+function DEV_preludeOverides() {
+    const cardOverrides: Array<string> = [];
+    return cards.filter(card => {
+        return cardOverrides.includes(card.name) && card.type === CardType.PRELUDE;
+    });
+}
+
 function sampleCards(cards: Card[], num: number) {
     const result: Card[] = [];
     for (let i = result.length; i < num; i++) {
@@ -101,7 +108,9 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             forcedActions: [],
             playedCards: [],
             preludes: [],
-            possiblePreludes: sampleCards(preludes, isPreludeEnabled ? 4 : 0),
+            possiblePreludes: sampleCards(preludes, isPreludeEnabled ? 4 : 0).concat(
+                DEV_preludeOverides()
+            ),
             resources: initialResources(),
             productions: initialResources(Number(options.decks.length === 1)),
             parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),

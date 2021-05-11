@@ -13,3 +13,8 @@ export enum Tag {
     VENUS = 'tagVenus',
     WILD = 'tagWild',
 }
+
+export type TagAmount = {
+    tag: Tag;
+    dividedBy?: number;
+};

@@ -342,15 +342,21 @@ export class ActionGuard {
 
     doesPlayerHaveRequiredTags(card: Card) {
         const player = this._getPlayerToConsider();
+        const playerTags = getTags(player);
+        let remainingWildTags = playerTags.filter(tag => tag === Tag.WILD).length;
 
         for (const tag in card.requiredTags) {
             const requiredAmount = card.requiredTags[tag];
 
-            const playerTags = getTags(player);
-
-            const isEnough = playerTags.filter(t => t === tag).length >= requiredAmount;
-
-            if (!isEnough) return false;
+            let numberOfRequiredTag = playerTags.filter(t => t === tag).length;
+            // While we are short of a tag, allocate wild tags to make up difference.
+            while (numberOfRequiredTag < requiredAmount && remainingWildTags) {
+                numberOfRequiredTag += 1;
+                remainingWildTags -= 1;
+            }
+            if (numberOfRequiredTag < requiredAmount) {
+                return false;
+            }
         }
 
         return true;

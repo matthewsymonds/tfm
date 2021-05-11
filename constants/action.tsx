@@ -2,7 +2,7 @@ import {Parameter, TilePlacement} from './board';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
 import {CardSelectionCriteria} from './reveal-take-and-discard';
-import {Tag} from './tag';
+import {Tag, TagAmount} from './tag';
 import {VariableAmount} from './variable-amount';
 
 type ResourceCounter = PropertyCounter<Resource>;
@@ -16,7 +16,7 @@ type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parame
 // This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.
 export type ParameterCounter = NumericPropertyCounter<ParameterExcludingOcean>;
 
-export type Amount = number | VariableAmount;
+export type Amount = number | VariableAmount | TagAmount;
 
 export enum ActionType {
     CARD = 'card',

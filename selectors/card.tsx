@@ -8,10 +8,11 @@ import {
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
-import {VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
+import {isTagAmount} from './is-tag-amount';
 
 export function getAllPlayedCards(player: PlayerState) {
     return getPlayedCards(player);
@@ -25,6 +26,12 @@ export function getCardVictoryPoints(
 ) {
     if (!amount) return 0;
     if (typeof amount === 'number') return amount;
+    if (isTagAmount(amount)) {
+        const tags = getTags(player);
+        // Wild tags do not count here.
+        const matchingTags = tags.filter(tag => tag === amount.tag);
+        return Math.floor(matchingTags.length / (amount.dividedBy ?? 1));
+    }
 
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!selector) return 0;
