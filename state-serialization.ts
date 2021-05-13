@@ -136,8 +136,8 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                 : undefined),
                 (player.cards = Array(player.cards.length));
             player.possibleCorporations = Array(player.possibleCorporations.length);
-            player.possiblePreludes = Array(player.possiblePreludes.length);
-            player.preludes = Array(player.preludes.length);
+            player.possiblePreludes = Array(player.possiblePreludes?.length ?? 0);
+            player.preludes = Array(player.preludes?.length ?? 0);
 
             if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
                 player.corporation = {name: ''};
