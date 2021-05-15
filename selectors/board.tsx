@@ -3,12 +3,12 @@ import {
     CellAttribute,
     cellHelpers,
     CellType,
+    hasCity,
     PlacementRequirement,
     RESERVED_LOCATIONS,
     SpecialLocation,
     TilePlacement,
     TileType,
-    hasCity,
 } from 'constants/board';
 import {GameState, PlayerState} from 'reducer';
 

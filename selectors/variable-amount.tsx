@@ -1,4 +1,4 @@
-import {TileType} from 'constants/board';
+import {hasCity, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
@@ -13,7 +13,6 @@ import {
     getCellsWithCities,
     getCellsWithCitiesOnMars,
 } from './board';
-import {hasCity} from 'constants/board';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
 
