@@ -18,6 +18,9 @@ export function getAdjacentCellsForCell(state: GameState, cell: Cell | undefined
     }
     const [rowIndex, cellIndex] = cell.coords;
 
+    // Ganymede, etc. live on row 9 and have no neighbors.
+    if (rowIndex === 9) return [];
+
     let neighborCoords: [number, number][] = [];
     if (rowIndex < 4) {
         // top half of board
