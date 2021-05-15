@@ -4,10 +4,10 @@ import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
+import {CardLink} from './card/CardLink';
 
 export const ChoiceWrapper = styled.div`
     display: flex;
-    overflow-y: hidden;
     width: 100%;
 `;
 
@@ -19,42 +19,30 @@ export function AskUserToMakeChoice(props: {
     const {children} = props;
     const card = props.card ? getCard(props.card) : undefined;
     const playedCard = props.playedCard ? getCard(props.playedCard) : undefined;
-    let cardDetails;
+    let triggerDetails;
     if (playedCard && card) {
-        cardDetails = (
-            <>
-                <Box marginRight="32px">
-                    <h3>You played</h3>
-                    <CardComponent card={playedCard} cardContext={CardContext.DISPLAY_ONLY} />
-                </Box>
-                <Box marginRight="32px">
-                    <h3>which triggered</h3>
-                    <CardComponent card={card} cardContext={CardContext.DISPLAY_ONLY} />
-                </Box>
-            </>
+        triggerDetails = (
+            <Box margin="0 8px 8px 8px" display="flex" alignItems="center">
+                <span>You played</span>
+                <CardLink card={playedCard} />
+                <span>which triggered</span>
+                <CardLink card={card} />
+            </Box>
         );
     } else if (card) {
-        cardDetails = (
-            <Box marginRight="32px">
+        triggerDetails = (
+            <Box marginBottom="0 8px 8px 8px" display="flex" alignItems="center">
                 <h3>You played</h3>
-                <CardComponent card={card} />
+                <CardLink card={card} />
             </Box>
         );
     } else {
-        cardDetails = null;
+        triggerDetails = null;
     }
     return (
-        <Flex
-            width="fit-content"
-            marginTop="16px"
-            flexWrap="wrap"
-            justifyContent="space-around"
-            overflowY="Auto"
-        >
-            {cardDetails}
-            <Flex flexDirection="column" width="fit-content">
-                <ChoiceWrapper>{children}</ChoiceWrapper>
-            </Flex>
+        <Flex width="100%" flexDirection="column">
+            {triggerDetails}
+            <ChoiceWrapper>{children}</ChoiceWrapper>
         </Flex>
     );
 }

@@ -68,11 +68,11 @@ export const colors = {
 
     // cards
     CARD_EVENT: 'red',
-    CARD_ACTIVE: 'hsl(230, 60%, 50%)',
-    CARD_AUTOMATED: 'green',
-    CARD_CORPORATION: 'black',
-    CARD_PRELUDE: 'tan',
-    CARD_BG: '#f6d0b1',
+    CARD_ACTIVE: 'hsl(230, 70%, 50%)',
+    CARD_AUTOMATED: 'hsl(126, 50%, 30%)',
+    CARD_CORPORATION: 'hsl(0, 0%, 30%)',
+    CARD_PRELUDE: 'hsl(30 35% 60%)',
+    CARD_BG: 'hsl(30 80% 80%)',
     CARD_BORDER_1: 'hsl(0, 0%, 41%)',
     CARD_BORDER_2: 'hsl(260, 4%, 17%)',
     CARD_MAX_REQUIREMENT_BG: '#ff8383',

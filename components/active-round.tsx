@@ -14,7 +14,7 @@ import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import styled from 'styled-components';
-import {ActionBar, ActionBarRow} from './action-bar';
+import {ActionBar} from './action-bar';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
@@ -61,83 +61,73 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
             <Flex flexDirection="column">
                 {isPlayerMakingDecision && (
                     <ActionBar>
-                        <ActionBarRow>
-                            {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
-                            {loggedInPlayer.pendingChoice && (
-                                <AskUserToMakeActionChoice player={loggedInPlayer} />
+                        {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
+                        {loggedInPlayer.pendingChoice && (
+                            <AskUserToMakeActionChoice player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingActionReplay && (
+                            <AskUserToUseBlueCardActionAlreadyUsedThisGeneration
+                                player={loggedInPlayer}
+                            />
+                        )}
+                        {loggedInPlayer.pendingPlayCardFromHand && (
+                            <AskUserToPlayCardFromHand player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingDuplicateProduction && (
+                            <AskUserToDuplicateProduction player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingIncreaseLowestProduction && (
+                            <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingDiscard && (
+                            <AskUserToMakeDiscardChoice player={loggedInPlayer} />
+                        )}
+                        {loggedInPlayer.pendingCardSelection && (
+                            <AskUserToMakeCardSelection player={loggedInPlayer} />
+                        )}
+                        {(loggedInPlayer?.preludes?.length ?? 0) > 0 &&
+                            currentPlayerIndex === loggedInPlayer.index &&
+                            !loggedInPlayer.pendingPlayCardFromHand &&
+                            !loggedInPlayer.pendingTilePlacement && (
+                                <AskUserToPlayPrelude player={loggedInPlayer} />
                             )}
-                            {loggedInPlayer.pendingActionReplay && (
-                                <AskUserToUseBlueCardActionAlreadyUsedThisGeneration
-                                    player={loggedInPlayer}
-                                />
-                            )}
-                            {loggedInPlayer.pendingPlayCardFromHand && (
-                                <AskUserToPlayCardFromHand player={loggedInPlayer} />
-                            )}
-                            {loggedInPlayer.pendingDuplicateProduction && (
-                                <AskUserToDuplicateProduction player={loggedInPlayer} />
-                            )}
-                            {loggedInPlayer.pendingIncreaseLowestProduction && (
-                                <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
-                            )}
-                            {loggedInPlayer.pendingDiscard && (
-                                <AskUserToMakeDiscardChoice player={loggedInPlayer} />
-                            )}
-                            {loggedInPlayer.pendingCardSelection && (
-                                <AskUserToMakeCardSelection player={loggedInPlayer} />
-                            )}
-                            {(loggedInPlayer?.preludes?.length ?? 0) > 0 &&
-                                currentPlayerIndex === loggedInPlayer.index &&
-                                !loggedInPlayer.pendingPlayCardFromHand &&
-                                !loggedInPlayer.pendingTilePlacement && (
-                                    <AskUserToPlayPrelude player={loggedInPlayer} />
-                                )}
-                            {loggedInPlayer.fundAward && (
-                                <AskUserToFundAward player={loggedInPlayer} />
-                            )}
-                            {loggedInPlayer.pendingTilePlacement &&
-                                (loggedInPlayer.pendingTilePlacement.type ===
-                                TileType.LAND_CLAIM ? (
-                                    <PromptTitle>Claim an unreserved area.</PromptTitle>
-                                ) : (
-                                    <PromptTitle>
-                                        Place {aAnOrThe(loggedInPlayer.pendingTilePlacement.type)}{' '}
-                                        {getHumanReadableTileName(
-                                            loggedInPlayer.pendingTilePlacement.type
-                                        )}{' '}
-                                        tile.
-                                    </PromptTitle>
-                                ))}
-                            {loggedInPlayer.pendingResourceActionDetails && (
-                                <AskUserToConfirmResourceActionDetails
-                                    player={loggedInPlayer}
-                                    resourceActionDetails={
-                                        loggedInPlayer.pendingResourceActionDetails
-                                    }
-                                />
-                            )}
-                            {revealedCards.length > 0 && (
-                                <Flex flexDirection="column">
-                                    <p>
-                                        Card{revealedCards.length > 1 ? 's' : ''} revealed &
-                                        discarded:
-                                    </p>
-                                    <Flex>
-                                        {revealedCards.map((card, index) => {
-                                            return (
-                                                <CardComponent key={index} card={getCard(card)} />
-                                            );
-                                        })}
-                                    </Flex>
-                                    <button
-                                        style={{margin: '8px 0'}}
-                                        onClick={continueAfterRevealingCards}
-                                    >
-                                        Continue
-                                    </button>
+                        {loggedInPlayer.fundAward && <AskUserToFundAward player={loggedInPlayer} />}
+                        {loggedInPlayer.pendingTilePlacement &&
+                            (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
+                                <PromptTitle>Claim an unreserved area.</PromptTitle>
+                            ) : (
+                                <PromptTitle>
+                                    Place {aAnOrThe(loggedInPlayer.pendingTilePlacement.type)}{' '}
+                                    {getHumanReadableTileName(
+                                        loggedInPlayer.pendingTilePlacement.type
+                                    )}{' '}
+                                    tile.
+                                </PromptTitle>
+                            ))}
+                        {loggedInPlayer.pendingResourceActionDetails && (
+                            <AskUserToConfirmResourceActionDetails
+                                player={loggedInPlayer}
+                                resourceActionDetails={loggedInPlayer.pendingResourceActionDetails}
+                            />
+                        )}
+                        {revealedCards.length > 0 && (
+                            <Flex flexDirection="column">
+                                <p>
+                                    Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
+                                </p>
+                                <Flex>
+                                    {revealedCards.map((card, index) => {
+                                        return <CardComponent key={index} card={getCard(card)} />;
+                                    })}
                                 </Flex>
-                            )}
-                        </ActionBarRow>
+                                <button
+                                    style={{margin: '8px 0'}}
+                                    onClick={continueAfterRevealingCards}
+                                >
+                                    Continue
+                                </button>
+                            </Flex>
+                        )}
                     </ActionBar>
                 )}
                 <Flex flex="none">

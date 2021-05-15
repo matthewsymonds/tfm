@@ -50,10 +50,11 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
                     onSelect={cards => setSelectedCards(cards)}
                     options={player.cards}
                     orientation="vertical"
-                >
-                    <h3>{cardSelectionPrompt}</h3>
-                </CardSelector>
-                <Flex justifyContent="center">
+                    cardSelectorPrompt={
+                        <div style={{margin: '0 8px 8px 8px'}}>{cardSelectionPrompt}</div>
+                    }
+                />
+                <Flex justifyContent="center" marginTop="16px">
                     <button onClick={handleConfirmCardSelection}>
                         Discard {selectedCards.length} card{selectedCards.length === 1 ? '' : 's'}
                     </button>

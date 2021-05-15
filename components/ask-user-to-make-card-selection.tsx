@@ -1,3 +1,4 @@
+import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {Card as CardComponent, CardContext} from 'components/card/Card';
@@ -9,6 +10,7 @@ import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
+import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
@@ -18,9 +20,10 @@ import {Box, Flex} from './box';
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
-    const {possiblePreludes} = player;
+    const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
 
+    const dispatch = useDispatch();
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
 
@@ -112,6 +115,30 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     return (
         <div>
+            {possibleCorporations.length > 0 && (
+                <CardSelector
+                    min={1}
+                    max={1}
+                    selectedCards={[player.corporation]}
+                    onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
+                    options={possibleCorporations}
+                    orientation="vertical"
+                    cardSelectorPrompt={<Flex margin="0 8px">Select a corporation</Flex>}
+                />
+            )}
+            {possiblePreludes.length > 0 && (
+                <CardSelector
+                    max={2}
+                    min={2}
+                    orientation="horizontal"
+                    selectedCards={selectedPreludes}
+                    onSelect={cards => {
+                        setSelectedPreludes(cards);
+                    }}
+                    options={possiblePreludes}
+                    cardSelectorPrompt={<Flex margin="0 8px">Select 2 prelude cards</Flex>}
+                />
+            )}
             <AskUserToMakeChoice>
                 {isDrafting &&
                     pendingCardSelection.draftPicks &&
@@ -153,16 +180,13 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             }}
                             options={pendingCardSelection.possibleCards}
                             orientation="vertical"
-                        >
-                            <h3
-                                style={{
-                                    marginBottom: cardSelectionSubtitle ? 4 : 'initial',
-                                }}
-                            >
-                                {cardSelectionPrompt}
-                            </h3>
-                            {cardSelectionSubtitle}
-                        </CardSelector>
+                            cardSelectorPrompt={
+                                <React.Fragment>
+                                    <Flex margin="0 8px">{cardSelectionPrompt}</Flex>
+                                    {cardSelectionSubtitle}
+                                </React.Fragment>
+                            }
+                        />
                         <Flex justifyContent="center" zIndex={40}>
                             <PaymentPopover
                                 cost={selectedCards.length * 3}
@@ -182,22 +206,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
-            {player.possiblePreludes.length > 0 && (
-                <Flex flexDirection="column" width="100%">
-                    <CardSelector
-                        max={2}
-                        min={2}
-                        orientation="horizontal"
-                        selectedCards={selectedPreludes}
-                        onSelect={cards => {
-                            setSelectedPreludes(cards);
-                        }}
-                        options={possiblePreludes}
-                    >
-                        <div>Please select 2 prelude cards.</div>
-                    </CardSelector>
-                </Flex>
-            )}
         </div>
     );
 }
