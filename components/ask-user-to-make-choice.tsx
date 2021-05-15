@@ -44,7 +44,13 @@ export function AskUserToMakeChoice(props: {
         cardDetails = null;
     }
     return (
-        <Flex width="fit-content" marginTop="16px" flexWrap="wrap" justifyContent="space-around">
+        <Flex
+            width="fit-content"
+            marginTop="16px"
+            flexWrap="wrap"
+            justifyContent="space-around"
+            overflowY="Auto"
+        >
             {cardDetails}
             <Flex flexDirection="column" width="fit-content">
                 <ChoiceWrapper>{children}</ChoiceWrapper>
