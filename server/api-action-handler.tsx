@@ -809,6 +809,10 @@ export class ApiActionHandler implements GameActionHandler {
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
+        // Must happen first (search for life "gains resource" based on discarded card)
+        if (action.revealAndDiscardTopCards) {
+            items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards, playerIndex));
+        }
         for (const resource in action.gainResource) {
             items.push(
                 this.createInitialGainResourceAction(
@@ -861,10 +865,6 @@ export class ApiActionHandler implements GameActionHandler {
                     playerIndex,
                 })
             );
-        }
-
-        if (action.revealAndDiscardTopCards) {
-            items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards, playerIndex));
         }
 
         if (action.lookAtCards) {
@@ -1313,8 +1313,12 @@ function getActionsFromEffect(
     if (!trigger.anyPlayer && player.index !== currentPlayerIndex) return [];
 
     if (trigger.placedTile) {
-        if (event.placedTile !== trigger.placedTile) return [];
         if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
+        // Special case! Capital is a city.
+        if (trigger.placedTile === TileType.CITY && event.placedTile === TileType.CAPITAL) {
+            return [effectAction];
+        }
+        if (event.placedTile !== trigger.placedTile) return [];
 
         return [effectAction];
     }

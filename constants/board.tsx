@@ -1,3 +1,4 @@
+import {hasCity} from 'selectors/has-city';
 import {Resource} from './resource';
 
 export const HEX_RADIUS = 25;
@@ -208,7 +209,7 @@ export const cellHelpers = {
     },
 
     containsCity(cell: Cell): boolean {
-        return cell.tile?.type === TileType.CITY || cell.tile?.type === TileType.CAPITAL;
+        return hasCity(cell);
     },
 
     containsGreenery(cell: Cell): boolean {

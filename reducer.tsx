@@ -404,7 +404,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             // Step 1. Reveal the cards to the players so they can see them.
             const numCardsToReveal = payload.amount;
             draft.common.revealedCards = handleDrawCards(numCardsToReveal);
-            draft.log.push('Revealed ', draft.common.revealedCards.map(c => c.name).join(', '));
+            draft.log.push(`Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
+        }
+
+        if (discardRevealedCards.match(action)) {
+            // Step 2. Discard the revealed cards.
+            draft.common.discardPile.push(...draft.common.revealedCards);
+            draft.log.push(`Discarded ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
+            draft.common.revealedCards = [];
         }
 
         if (revealTakeAndDiscard.match(action)) {
@@ -445,13 +452,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 player.cards.push(...matchingCards);
                 draft.common.discardPile.push(...notMatchingCards);
             }
-        }
-
-        if (discardRevealedCards.match(action)) {
-            // Step 2. Discard the revealed cards.
-            draft.common.discardPile.push(...draft.common.revealedCards);
-            draft.log.push('Discarded ', draft.common.revealedCards.map(c => c.name).join(', '));
-            draft.common.revealedCards = [];
         }
 
         if (askUserToDiscardCards.match(action)) {
@@ -771,13 +771,15 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 throw new Error('Cannot store resources on this card');
             }
             const quantity = convertAmountToNumber(payload.amount, state, player);
-            draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
-            draft.log.push(
-                `${corporationName} added ${quantityAndResource(
-                    quantity,
-                    card.storedResourceType
-                )} to ${draftCard.name}`
-            );
+            if (quantity) {
+                draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
+                draft.log.push(
+                    `${corporationName} added ${quantityAndResource(
+                        quantity,
+                        card.storedResourceType
+                    )} to ${draftCard.name}`
+                );
+            }
         }
 
         if (payToPlayCard.match(action)) {

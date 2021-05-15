@@ -5,7 +5,7 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
-import {Award, Cell, Milestone} from 'constants/board';
+import {Award, Cell, Milestone, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
@@ -413,11 +413,18 @@ export class ActionGuard {
 
         for (const placement of card.requiredTilePlacements) {
             const match = tiles.find(tile => {
-                if (placement.currentPlayer && tile && tile.ownerPlayerIndex !== player.index) {
+                if (!tile) return false;
+
+                if (placement.currentPlayer && tile.ownerPlayerIndex !== player.index) {
                     return false;
                 }
 
-                return tile && tile.type === placement.type;
+                // Special case! Capital is a city.
+                if (tile.type === TileType.CAPITAL && placement.type === TileType.CITY) {
+                    return true;
+                }
+
+                return tile.type === placement.type;
             });
 
             if (!match) return false;

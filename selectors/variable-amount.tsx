@@ -15,6 +15,7 @@ import {
 } from './board';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
+import {hasCity} from './has-city';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (
@@ -62,9 +63,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         if (!commercialDistrict) {
             return 0;
         }
-        return getAdjacentCellsForCell(state, commercialDistrict).filter(cell => {
-            return cell.tile?.type === TileType.CITY;
-        }).length;
+        return getAdjacentCellsForCell(state, commercialDistrict).filter(hasCity).length;
     },
     [VariableAmount.CITY_TILES_IN_PLAY]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getCellsWithCities(state, player).length;

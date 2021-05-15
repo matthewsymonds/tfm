@@ -10,6 +10,7 @@ import {
     TileType,
 } from 'constants/board';
 import {GameState, PlayerState} from 'reducer';
+import {hasCity} from 'selectors/has-city';
 
 export function getAdjacentCellsForCell(state: GameState, cell: Cell | undefined) {
     if (!cell?.coords) {
@@ -95,7 +96,7 @@ function getAvailableCellsOnMars(state: GameState, player: PlayerState) {
 }
 
 export function getCellsWithCitiesOnMars(state: GameState) {
-    return getAllCellsOnMars(state).filter(cell => cell.tile?.type === TileType.CITY);
+    return getAllCellsOnMars(state).filter(hasCity);
 }
 
 function getAllCellsOnMars(state: GameState) {
@@ -104,7 +105,7 @@ function getAllCellsOnMars(state: GameState) {
 
 export function getCellsWithCities(state: GameState, player: PlayerState) {
     const lastRow = state.common.board[state.common.board.length - 1];
-    const citiesOnLastRow = lastRow.filter(cell => cell.tile?.type === TileType.CITY);
+    const citiesOnLastRow = lastRow.filter(hasCity);
     return [...getCellsWithCitiesOnMars(state), ...citiesOnLastRow];
 }
 
