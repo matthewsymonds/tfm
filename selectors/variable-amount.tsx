@@ -13,9 +13,9 @@ import {
     getCellsWithCities,
     getCellsWithCitiesOnMars,
 } from './board';
+import {hasCity} from 'constants/board';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
-import {hasCity} from './has-city';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (

@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 const ActionBarBase = styled.div`
     background: #fdfdfd;
-    position: fixed;
     top: 0;
     left: 0;
     &.bottom {
@@ -26,6 +25,7 @@ export const ActionBarRow = styled.div`
     }
 `;
 
+// TODO: Delete
 const ActionBarDisplace = styled(ActionBarBase)`
     position: relative;
     &.bottom {
@@ -48,7 +48,6 @@ export const ActionBarDivider = styled.hr`
 
 export const ActionBar = props => (
     <>
-        <ActionBarDisplace {...props} />
         <ActionBarBase {...props} />
     </>
 );

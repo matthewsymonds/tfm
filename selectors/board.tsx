@@ -8,9 +8,9 @@ import {
     SpecialLocation,
     TilePlacement,
     TileType,
+    hasCity,
 } from 'constants/board';
 import {GameState, PlayerState} from 'reducer';
-import {hasCity} from 'selectors/has-city';
 
 export function getAdjacentCellsForCell(state: GameState, cell: Cell | undefined) {
     if (!cell?.coords) {

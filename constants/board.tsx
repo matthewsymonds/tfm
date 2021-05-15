@@ -1,4 +1,3 @@
-import {hasCity} from 'selectors/has-city';
 import {Resource} from './resource';
 
 export const HEX_RADIUS = 25;
@@ -198,6 +197,12 @@ export type Cell = {
     specialLocation?: SpecialLocation;
     specialName?: string;
 };
+
+const VALID_CITY_TYPES: Array<TileType | undefined> = [TileType.CITY, TileType.CAPITAL];
+
+export function hasCity(cell: Cell): boolean {
+    return VALID_CITY_TYPES.includes(cell?.tile?.type);
+}
 
 export const cellHelpers = {
     onMars(cell: Cell): boolean {

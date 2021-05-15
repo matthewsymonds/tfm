@@ -86,7 +86,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             {loggedInPlayer.pendingCardSelection && (
                                 <AskUserToMakeCardSelection player={loggedInPlayer} />
                             )}
-                            {loggedInPlayer.preludes.length > 0 &&
+                            {(loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                                 currentPlayerIndex === loggedInPlayer.index &&
                                 !loggedInPlayer.pendingPlayCardFromHand &&
                                 !loggedInPlayer.pendingTilePlacement && (
