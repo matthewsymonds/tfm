@@ -4,6 +4,7 @@ import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Flex} from './box';
+import {colors} from './ui';
 
 export function getLowestProductions(player: PlayerState): Resource[] {
     const lowestProductionValue = Math.min(...Object.values(player.productions));
@@ -14,6 +15,7 @@ export function getLowestProductions(player: PlayerState): Resource[] {
 
 const ProductionButton = styled.button`
     margin-left: 4px;
+    margin-bottom: 4px;
 `;
 
 export function AskUserToIncreaseLowestProduction({player}: {player: PlayerState}) {
@@ -21,8 +23,10 @@ export function AskUserToIncreaseLowestProduction({player}: {player: PlayerState
     const apiClient = useApiClient();
     return (
         <Flex flexDirection="column">
-            <h2>Please increase a production:</h2>
-            <Flex>
+            <span style={{marginBottom: 16, color: colors.TEXT_LIGHT_1}}>
+                Please increase a production
+            </span>
+            <Flex flexWrap="wrap">
                 {lowestProductions.map(resource => (
                     <ProductionButton
                         key={resource}
@@ -30,7 +34,7 @@ export function AskUserToIncreaseLowestProduction({player}: {player: PlayerState
                             apiClient.increaseLowestProductionAsync({production: resource})
                         }
                     >
-                        {getResourceName(resource)}
+                        {getResourceName(resource, true)}
                     </ProductionButton>
                 ))}
             </Flex>

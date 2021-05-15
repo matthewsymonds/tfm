@@ -1,6 +1,8 @@
+import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
-import {Card as CardComponent, CardContext} from 'components/card/Card';
+import {Card as CardModel} from 'models/card';
+import {Card as CardComponent, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
@@ -8,19 +10,49 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
+import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import {Box, Flex} from './box';
+import {colors} from './ui';
+import styled from 'styled-components';
+
+const HoverToPreviewPlaceholderBase = styled.div`
+    width: ${CARD_WIDTH}px;
+    height: ${CARD_HEIGHT}px;
+    display: flex;
+    border: 2px solid black;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    border-style: solid;
+    border-radius: 8px;
+    background-color: hsla(0, 0%, 100%, 0.2);
+    border-top-color: ${colors.CARD_BORDER_1};
+    border-left-color: ${colors.CARD_BORDER_1};
+    border-bottom-color: ${colors.CARD_BORDER_2};
+    border-right-color: ${colors.CARD_BORDER_2};
+`;
+
+function HoverToPreviewPlaceholder() {
+    return (
+        <HoverToPreviewPlaceholderBase>
+            <div style={{padding: 16}}>Hover over card names to preview</div>
+        </HoverToPreviewPlaceholderBase>
+    );
+}
 
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
-    const {possiblePreludes} = player;
+    const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
+    const [cardToPreview, setCardToPreview] = useState<null | CardModel>();
 
+    const dispatch = useDispatch();
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
 
@@ -29,7 +61,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const totalCostOfCards = selectedCards.length * 3;
     const remainingBudget = playerBudget - totalCostOfCards;
 
-    const cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
+    let cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
     let cardSelectionPrompt: string | React.ReactNode;
     let cardSelectionButtonText: string;
     let cardSelectionSubtitle: React.ReactNode = null;
@@ -56,8 +88,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         // buying cards
         const numCards =
             pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
+        let selectedCardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
+        let cardOrCards = `card${numCards === 1 ? '' : 's'}`;
         cardSelectionPrompt = `Select up to ${numCards} ${cardOrCards} to buy (${remainingBudget} MC remaining)`;
-        cardSelectionButtonText = `Buy ${selectedCards.length} ${cardOrCards}`;
+        cardSelectionButtonText = `Buy ${selectedCards.length} ${selectedCardOrCards}`;
         maxCards = pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
         minCards = pendingCardSelection.numCardsToTake ?? 0;
     } else if (pendingCardSelection.numCardsToTake) {
@@ -111,7 +145,40 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         selectedCards.length;
 
     return (
-        <div>
+        <div style={{color: colors.TEXT_LIGHT_1}}>
+            <Flex justifyContent="center" marginBottom="16px">
+                {cardToPreview ? (
+                    <CardComponent card={cardToPreview} />
+                ) : (
+                    <HoverToPreviewPlaceholder />
+                )}
+            </Flex>
+            {possibleCorporations.length > 0 && (
+                <CardSelector
+                    min={1}
+                    max={1}
+                    selectedCards={[player.corporation]}
+                    onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
+                    options={possibleCorporations}
+                    orientation="vertical"
+                    cardSelectorPrompt={<Flex margin="0 8px">Select a corporation</Flex>}
+                    setCardToPreview={setCardToPreview}
+                />
+            )}
+            {possiblePreludes?.length > 0 && (
+                <CardSelector
+                    max={2}
+                    min={2}
+                    orientation="horizontal"
+                    selectedCards={selectedPreludes}
+                    onSelect={cards => {
+                        setSelectedPreludes(cards);
+                    }}
+                    options={possiblePreludes}
+                    cardSelectorPrompt={<Flex margin="0 8px">Select 2 prelude cards</Flex>}
+                    setCardToPreview={setCardToPreview}
+                />
+            )}
             <AskUserToMakeChoice>
                 {isDrafting &&
                     pendingCardSelection.draftPicks &&
@@ -153,17 +220,15 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             }}
                             options={pendingCardSelection.possibleCards}
                             orientation="vertical"
-                        >
-                            <h3
-                                style={{
-                                    marginBottom: cardSelectionSubtitle ? 4 : 'initial',
-                                }}
-                            >
-                                {cardSelectionPrompt}
-                            </h3>
-                            {cardSelectionSubtitle}
-                        </CardSelector>
-                        <Flex justifyContent="center" zIndex={40}>
+                            cardSelectorPrompt={
+                                <React.Fragment>
+                                    <Flex margin="0 8px">{cardSelectionPrompt}</Flex>
+                                    {cardSelectionSubtitle}
+                                </React.Fragment>
+                            }
+                            setCardToPreview={setCardToPreview}
+                        />
+                        <Flex justifyContent="center" zIndex={40} marginTop="8px">
                             <PaymentPopover
                                 cost={selectedCards.length * 3}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
@@ -182,22 +247,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
-            {player.possiblePreludes?.length > 0 && (
-                <Flex flexDirection="column" width="100%">
-                    <CardSelector
-                        max={2}
-                        min={2}
-                        orientation="horizontal"
-                        selectedCards={selectedPreludes}
-                        onSelect={cards => {
-                            setSelectedPreludes(cards);
-                        }}
-                        options={possiblePreludes}
-                    >
-                        <div>Please select 2 prelude cards.</div>
-                    </CardSelector>
-                </Flex>
-            )}
         </div>
     );
 }

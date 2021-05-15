@@ -39,52 +39,12 @@ const BaseText = styled.div`
     color: ${colors.LIGHT_2};
 `;
 
-export const CorporationSelector = ({
-    player,
-    isLoggedInPlayer,
-}: {
-    player: PlayerState;
-    isLoggedInPlayer: boolean;
-}) => {
-    // Player's corporation is client side only until selection is finalized.
-    const dispatch = useDispatch();
-    if (!isLoggedInPlayer) {
-        if (player.action) {
-            return <BaseText>{player.username} is ready to play.</BaseText>;
-        } else {
-            return <BaseText>{player.username} is choosing a corporation and cards.</BaseText>;
-        }
+export const CorporationSelector = ({player}: {player: PlayerState}) => {
+    if (player.action) {
+        return <BaseText>{player.username} is ready to play.</BaseText>;
+    } else {
+        return <BaseText>{player.username} is choosing a corporation and cards.</BaseText>;
     }
-
-    const {possibleCorporations, pendingCardSelection: isBuyingCards, corporation} = player;
-    if (!isBuyingCards) {
-        return (
-            <BaseText>
-                {player.username} has chosen {corporation.name}.
-            </BaseText>
-        );
-    }
-
-    return (
-        <>
-            <CardSelector
-                min={1}
-                max={1}
-                selectedCards={[corporation]}
-                onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
-                options={possibleCorporations}
-                orientation="vertical"
-            >
-                <h3
-                    style={{
-                        color: colors.LIGHT_2,
-                    }}
-                >
-                    Select a corporation:
-                </h3>
-            </CardSelector>
-        </>
-    );
 };
 
 type PlayerPanelProps = {
@@ -142,10 +102,7 @@ export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: Playe
                         </ScorePopover>
                     </CorporationHeader>
                     {isCorporationSelection ? (
-                        <CorporationSelector
-                            player={selectedPlayer}
-                            isLoggedInPlayer={selectedPlayer.index === loggedInPlayer.index}
-                        />
+                        <CorporationSelector player={selectedPlayer} />
                     ) : (
                         sections.map(section => (
                             <PlayerPanelSection

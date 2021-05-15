@@ -25,10 +25,6 @@ const TopBarBase = styled.div`
     background-color: ${props => props.color};
 `;
 
-const RoundText = styled.span`
-    font-size: 13px;
-`;
-
 type TopBarProps = {
     loggedInPlayer: PlayerState;
 };
@@ -51,7 +47,6 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
     const {action, index: loggedInPlayerIndex} = loggedInPlayer;
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isDrafting = gameStage === GameStage.DRAFTING;
     const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
@@ -71,7 +66,7 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
 
     const roundText = isGreeneryPlacement
         ? 'Greenery Placement'
-        : `Generation ${generation}, Turn ${turn}`;
+        : `Gen ${generation}, Turn ${turn}`;
 
     const actionGuard = useActionGuard();
 
@@ -91,9 +86,7 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
                     !isEndOfGame &&
                     !isGreeneryPlacement &&
                     !hasPendingCardSelection && <span>Waiting to start generation.</span>}
-                {isCorporationSelection && hasPendingCardSelection && (
-                    <span>Please choose your corporation and cards.</span>
-                )}
+
                 {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && (
                     <span>Please choose your cards.</span>
                 )}
@@ -123,7 +116,7 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
             <Flex alignItems="center" justifyContent="flex-end">
                 <ActionLog />
                 <PlayersOrder />
-                <RoundText>{roundText}</RoundText>
+                <span className="ellipsis">{roundText}</span>
                 <Button onClick={() => router.push('/')} margin="0 0 0 4px">
                     Home
                 </Button>

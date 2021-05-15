@@ -23,7 +23,11 @@ export const GlobalStyles = createGlobalStyle`
         overscroll-behavior: none;
     }
     html, body, #__next, #__next > div {
-      min-height: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
     }
     #__next > div {
       display: flex;
@@ -66,6 +70,11 @@ export const GlobalStyles = createGlobalStyle`
         @media (max-width: 1210px) {
           flex-direction: column;
       }
+    }
+    .ellipsis {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 `;
 

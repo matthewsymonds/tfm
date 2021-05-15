@@ -8,7 +8,10 @@ import {Flex} from './box';
 
 export const AskUserToPlayCardFromHand = ({player}: {player: PlayerState}) => {
     const mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
-    const playCardParams = player.pendingPlayCardFromHand!;
+    const playCardParams = player.pendingPlayCardFromHand! ?? {
+        ignoreGlobalRequirements: true,
+        discount: 0,
+    };
     const {ignoreGlobalRequirements, discount} = playCardParams;
     const actionGuard = useActionGuard(player.username);
     const apiClient = useApiClient();

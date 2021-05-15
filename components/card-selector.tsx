@@ -1,8 +1,12 @@
 import {Card as CardComponent, CardContext} from 'components/card/Card';
-import React from 'react';
+import {Card as CardModel} from 'models/card';
+import React, {useEffect, useRef, useState} from 'react';
+import {usePopper} from 'react-popper';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
+import {Flex} from './box';
+import {CardToggleToken} from './card/CardToken';
 
 interface CardSelectorProps {
     min?: number;
@@ -11,35 +15,22 @@ interface CardSelectorProps {
     options: SerializedCard[];
     orientation: string;
     selectedCards: SerializedCard[];
+    setCardToPreview: (cardOrNull: null | CardModel) => void;
+    cardSelectorPrompt?: React.ReactNode;
     budget?: number;
     className?: string;
 }
 
 const CardSelectorBase = styled.div<{orientation: string}>`
+    margin: 0 4px;
     display: flex;
-    align-items: stretch;
-    justify-content: center;
     flex-wrap: wrap;
-    height: 100%;
-    max-height: 340px;
-    overflow-y: auto;
-    margin-bottom: 8px;
 `;
 
 const CardSelectorOuter = styled.div`
-    margin: 0 auto;
-    width: fit-content;
-    max-width: 906px;
-`;
-
-const CardSelectorChildren = styled.div`
-    margin: 8px;
-    margin-top: 0px;
-`;
-
-const CardWrapper = styled.div`
-    margin: 8px;
-    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
@@ -67,7 +58,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
 
     return (
         <CardSelectorOuter className={className}>
-            <CardSelectorChildren>{props.children}</CardSelectorChildren>
+            {props.cardSelectorPrompt}
             <CardSelectorBase orientation={orientation}>
                 {options.map((option, key) => {
                     const selected = selectedCards.some(card => card.name === option.name);
@@ -76,22 +67,24 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                     const cannotUnselect = selected && numSelected === 1 && min === 1;
 
                     const disabled = cannotSelect || cannotUnselect;
+                    const card = getCard(option);
                     return (
-                        <CardWrapper
-                            onClick={() => {
-                                if (disabled) {
-                                    return;
-                                }
-                                handleSelect(option);
-                            }}
+                        <Flex
+                            margin="4px"
                             key={key}
+                            onMouseEnter={() => props.setCardToPreview(card)}
+                            onMouseLeave={() => props.setCardToPreview(null)}
                         >
-                            <CardComponent
-                                cardContext={CardContext.SELECT_TO_BUY}
-                                card={getCard(option)}
+                            <CardToggleToken
+                                margin="0"
+                                card={card}
                                 isSelected={selected}
+                                disabled={disabled}
+                                onClick={() => {
+                                    handleSelect(option);
+                                }}
                             />
-                        </CardWrapper>
+                        </Flex>
                     );
                 })}
             </CardSelectorBase>

@@ -39,6 +39,7 @@ interface BoxProps {
     zIndex: number;
     fontSize: string;
     alignSelf: string;
+    alignItems: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -89,6 +90,7 @@ export const Box = styled.div<Partial<BoxProps>>`
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
     align-self: ${props => props.alignSelf};
+    align-items: ${props => props.alignItems};
 `;
 
 export const Flex = styled(Box)<Partial<FlexProps>>`

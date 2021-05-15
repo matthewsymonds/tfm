@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {Flex} from './box';
 
 const CardContainer = styled.div<TexturedCardProps>`
+    color: ${colors.TEXT_DARK_1};
     width: ${props => (props.width ? `${props.width}px` : 'initial')};
     min-width: ${props => (props.width ? `${props.width}px` : 'initial')};
     height: ${props => (props.height ? `${props.height}px` : 'initial')};
