@@ -6,6 +6,7 @@ import {getPlayedCards} from 'selectors/get-played-cards';
 import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
 import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
+import {colors} from './ui';
 
 const EndOfGameBase = styled.div`
     display: flex;
@@ -94,7 +95,7 @@ export function EndOfGame() {
 
     return (
         <EndOfGameBase>
-            <h2>
+            <h2 style={{color: colors.TEXT_LIGHT_1}}>
                 Game over. {winner.player.corporation.name} ({winner.player.username}) wins!
             </h2>
             <AllScoresContainer numPlayers={playerScoreInfos.length}>

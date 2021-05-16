@@ -1,10 +1,12 @@
 import {Card as CardComponent, CardContext} from 'components/card/Card';
-import React from 'react';
+import {Card as CardModel} from 'models/card';
+import React, {useEffect, useRef, useState} from 'react';
+import {usePopper} from 'react-popper';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Flex} from './box';
-import {CardLink} from './card/CardLink';
+import {CardToken} from './card/CardToken';
 
 interface CardSelectorProps {
     min?: number;
@@ -13,6 +15,7 @@ interface CardSelectorProps {
     options: SerializedCard[];
     orientation: string;
     selectedCards: SerializedCard[];
+    setCardToPreview: (cardOrNull: null | CardModel) => void;
     cardSelectorPrompt?: React.ReactNode;
     budget?: number;
     className?: string;
@@ -21,17 +24,13 @@ interface CardSelectorProps {
 const CardSelectorBase = styled.div<{orientation: string}>`
     margin: 0 4px;
     display: flex;
+    flex-wrap: wrap;
 `;
 
 const CardSelectorOuter = styled.div`
     display: flex;
     flex-direction: column;
     margin-bottom: 8px;
-`;
-
-const CardWrapper = styled.div`
-    margin: 8px;
-    cursor: pointer;
 `;
 
 export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
@@ -68,38 +67,24 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                     const cannotUnselect = selected && numSelected === 1 && min === 1;
 
                     const disabled = cannotSelect || cannotUnselect;
+                    const card = getCard(option);
                     return (
-                        <Flex margin="4px" key={key}>
-                            <CardLink
+                        <Flex
+                            margin="4px"
+                            key={key}
+                            onMouseEnter={() => props.setCardToPreview(card)}
+                        >
+                            <CardToken
                                 margin="0"
-                                card={getCard(option)}
+                                card={card}
                                 isSelected={selected}
+                                disabled={disabled}
                                 onClick={() => {
-                                    if (disabled) {
-                                        return;
-                                    }
                                     handleSelect(option);
                                 }}
                             />
                         </Flex>
                     );
-                    // return (
-                    //     <CardWrapper
-                    //         onClick={() => {
-                    //             if (disabled) {
-                    //                 return;
-                    //             }
-                    //             handleSelect(option);
-                    //         }}
-                    //         key={key}
-                    //     >
-                    //         <CardComponent
-                    //             cardContext={CardContext.SELECT_TO_BUY}
-                    //             card={getCard(option)}
-                    //             isSelected={selected}
-                    //         />
-                    //     </CardWrapper>
-                    // );
                 })}
             </CardSelectorBase>
         </CardSelectorOuter>

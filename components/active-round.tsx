@@ -14,7 +14,7 @@ import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import styled from 'styled-components';
-import {ActionBar} from './action-bar';
+import {ActionOverlay} from './action-overlay';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
@@ -58,9 +58,18 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     return (
         <React.Fragment>
-            <Flex flexDirection="column">
+            <Flex
+                flexDirection="column"
+                flex="auto"
+                overflow="hidden"
+                position="relative"
+                bottom="0px"
+            >
+                <Flex flex="none">
+                    <TopBar loggedInPlayer={loggedInPlayer} />
+                </Flex>
                 {isPlayerMakingDecision && (
-                    <ActionBar>
+                    <ActionOverlay>
                         {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                         {loggedInPlayer.pendingChoice && (
                             <AskUserToMakeActionChoice player={loggedInPlayer} />
@@ -128,11 +137,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                 </button>
                             </Flex>
                         )}
-                    </ActionBar>
+                    </ActionOverlay>
                 )}
-                <Flex flex="none">
-                    <TopBar loggedInPlayer={loggedInPlayer} />
-                </Flex>
                 <Flex
                     className="active-round-outer"
                     padding="8px"

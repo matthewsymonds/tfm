@@ -9,14 +9,15 @@ import {Tooltip} from 'react-tippy';
 import React, {useRef} from 'react';
 import {Flex} from 'components/box';
 
-type CardLinkProps = {
+type CardTokenProps = {
     card: CardModel;
     onClick?: () => void;
     isSelected?: boolean;
     margin?: string;
+    disabled?: boolean;
 };
 
-const CardLinkText = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
+const CardTokenText = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
     font-weight: 700;
     color: ${props => props.cardStyle.color};
     display: inline-flex;
@@ -34,21 +35,25 @@ const CardLinkText = styled.div<{cardStyle: React.CSSProperties; margin?: string
     }
 `;
 
-const CardLinkTokenToggle = styled.label<{
+const CardTokenToggle = styled.label<{
     cardStyle: React.CSSProperties;
     margin?: string;
     isSelected?: boolean;
 }>`
-    font-weight: 700;
-    color: ${props => props.cardStyle.color};
+    color: ${colors.CARD_TEXT};
     display: inline-flex;
     white-space: nowrap;
     margin: ${props => props.margin ?? '0 4px'};
-
     padding: 4px;
-    opacity: ${props => (props.isSelected ? 1 : 0.5)};
+    opacity: ${props => (props.isSelected ? 1 : 0.4)};
     border-radius: 4px;
-    background-color: ${props => props.cardStyle.backgroundColor};
+    background-color: ${props => {
+        let color = new Color(props.cardStyle.color);
+        if (!props.isSelected) {
+            return color.darken(0.2).desaturate(0.2).toString();
+        }
+        return color.toString();
+    }};
     cursor: default;
     transition: all 0.1s;
 `;
@@ -89,7 +94,7 @@ function getStyleForCardType(cardType: CardType) {
         case CardType.PRELUDE:
             return {
                 backgroundColor: '#fbeddd',
-                textColor: colors.CARD_PRELUDE,
+                color: colors.CARD_PRELUDE,
             };
         default:
             throw spawnExhaustiveSwitchError(cardType);
@@ -107,43 +112,35 @@ export function useComponentId() {
     return `${idRef.current}`;
 }
 
-export const CardLink = ({card, onClick, isSelected, margin}: CardLinkProps) => {
+export const CardToken = ({card, onClick, isSelected, margin, disabled}: CardTokenProps) => {
     const id = useComponentId();
     const cardStyle = getStyleForCardType(card.type);
     return (
-        <Tooltip
-            // options
-            position="bottom-start"
-            // @ts-expect-error space-separated triggers is kosher
-            trigger="mouseenter click"
-            useContext={true}
-            offset={2}
-            tag="span"
-            html={
-                <Flex marginTop="2px">
-                    {/* HACK: the `distance` prop doesnt seem to work for tooltip */}
-                    <CardComponent card={card} cardContext={CardContext.DISPLAY_ONLY} />
-                </Flex>
-            }
-        >
+        <React.Fragment>
             {onClick ? (
                 <React.Fragment>
-                    <HiddenInput id={id} type="checkbox" value={card.name} />
-                    <CardLinkTokenToggle
+                    <HiddenInput
+                        id={id}
+                        type="checkbox"
+                        value={card.name}
+                        checked={isSelected}
+                        onChange={onClick}
+                        disabled={disabled}
+                    />
+                    <CardTokenToggle
                         htmlFor={id}
-                        onClick={onClick}
                         cardStyle={cardStyle}
                         isSelected={isSelected}
                         margin={margin}
                     >
                         {card.name}
-                    </CardLinkTokenToggle>
+                    </CardTokenToggle>
                 </React.Fragment>
             ) : (
-                <CardLinkText cardStyle={cardStyle} margin={margin}>
+                <CardTokenText cardStyle={cardStyle} margin={margin}>
                     {card.name}
-                </CardLinkText>
+                </CardTokenText>
             )}
-        </Tooltip>
+        </React.Fragment>
     );
 };

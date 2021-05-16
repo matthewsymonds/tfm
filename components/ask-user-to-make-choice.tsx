@@ -4,7 +4,8 @@ import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {CardLink} from './card/CardLink';
+import {CardToken} from './card/CardToken';
+import {colors} from './ui';
 
 export const ChoiceWrapper = styled.div`
     display: flex;
@@ -24,23 +25,23 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box margin="0 8px 8px 8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardLink card={playedCard} />
+                <CardToken card={playedCard} />
                 <span>which triggered</span>
-                <CardLink card={card} />
+                <CardToken card={card} />
             </Box>
         );
     } else if (card) {
         triggerDetails = (
             <Box marginBottom="0 8px 8px 8px" display="flex" alignItems="center">
                 <h3>You played</h3>
-                <CardLink card={card} />
+                <CardToken card={card} />
             </Box>
         );
     } else {
         triggerDetails = null;
     }
     return (
-        <Flex width="100%" flexDirection="column">
+        <Flex width="100%" flexDirection="column" style={{color: colors.TEXT_LIGHT_1}}>
             {triggerDetails}
             <ChoiceWrapper>{children}</ChoiceWrapper>
         </Flex>

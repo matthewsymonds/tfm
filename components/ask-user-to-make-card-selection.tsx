@@ -1,6 +1,7 @@
 import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
+import {Card as CardModel} from 'models/card';
 import {Card as CardComponent, CardContext} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
@@ -9,19 +10,27 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import {Box, Flex} from './box';
+import {colors} from './ui';
 
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
+    const [cardToPreview, setCardToPreview] = useState<null | CardModel>(
+        getCard(
+            possibleCorporations?.[0] ??
+                possiblePreludes?.[0] ??
+                pendingCardSelection.possibleCards?.[0]
+        )
+    );
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
@@ -32,7 +41,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const totalCostOfCards = selectedCards.length * 3;
     const remainingBudget = playerBudget - totalCostOfCards;
 
-    const cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
+    let cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
     let cardSelectionPrompt: string | React.ReactNode;
     let cardSelectionButtonText: string;
     let cardSelectionSubtitle: React.ReactNode = null;
@@ -59,6 +68,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         // buying cards
         const numCards =
             pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
+        let cardOrCards = `card${numCards === 1 ? '' : 's'}`;
         cardSelectionPrompt = `Select up to ${numCards} ${cardOrCards} to buy (${remainingBudget} MC remaining)`;
         cardSelectionButtonText = `Buy ${selectedCards.length} ${cardOrCards}`;
         maxCards = pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
@@ -114,7 +124,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         selectedCards.length;
 
     return (
-        <div>
+        <div style={{color: colors.TEXT_LIGHT_1}}>
+            <Flex justifyContent="center" marginTop="-8px">
+                {cardToPreview && <CardComponent card={cardToPreview} />}
+            </Flex>
             {possibleCorporations.length > 0 && (
                 <CardSelector
                     min={1}
@@ -124,6 +137,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     options={possibleCorporations}
                     orientation="vertical"
                     cardSelectorPrompt={<Flex margin="0 8px">Select a corporation</Flex>}
+                    setCardToPreview={setCardToPreview}
                 />
             )}
             {possiblePreludes.length > 0 && (
@@ -137,6 +151,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     }}
                     options={possiblePreludes}
                     cardSelectorPrompt={<Flex margin="0 8px">Select 2 prelude cards</Flex>}
+                    setCardToPreview={setCardToPreview}
                 />
             )}
             <AskUserToMakeChoice>
@@ -186,6 +201,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                     {cardSelectionSubtitle}
                                 </React.Fragment>
                             }
+                            setCardToPreview={setCardToPreview}
                         />
                         <Flex justifyContent="center" zIndex={40}>
                             <PaymentPopover
