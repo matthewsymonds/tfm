@@ -1165,12 +1165,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     player.discounts.nextCardThisGeneration = 0;
                 }
                 player.pendingPlayCardFromHand = undefined;
-                if (player.preludes.length === 0) {
+                if ((player.preludes?.length ?? 0) === 0) {
                     handleChangeCurrentPlayer(state, draft);
                 }
             }
             const previous = player.action;
-            const isPrelude = player.preludes.length > 0;
+            const isPrelude = player.preludes?.length ?? 0 > 0;
             if (!isPrelude) {
                 player.action = 1;
             }

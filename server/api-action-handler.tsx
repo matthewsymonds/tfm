@@ -678,10 +678,11 @@ export class ApiActionHandler implements GameActionHandler {
 
         this.queue.unshift(skipAction(this.loggedInPlayerIndex));
         const player = this.getLoggedInPlayer();
-        const playablePreludes = player.preludes.filter(prelude => {
-            const card = getCard(prelude);
-            return this.actionGuard.canPlayCard(card)[0];
-        });
+        const playablePreludes =
+            player.preludes?.filter(prelude => {
+                const card = getCard(prelude);
+                return this.actionGuard.canPlayCard(card)[0];
+            }) ?? [];
         if (playablePreludes.length === 0) {
             this.queue.push(discardPreludes(this.loggedInPlayerIndex));
         }
