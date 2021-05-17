@@ -3721,6 +3721,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 4,
+        increaseProduction: {[Resource.TITANIUM]: 3},
     },
     {
         cost: 21,
@@ -3735,6 +3736,7 @@ export const cardConfigs: CardConfig[] = [
             [Resource.PLANT]: VariableAmount.COLONIES,
         },
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        gainResource: {[Resource.ANIMAL]: 1, [Resource.MICROBE]: 2},
     },
     {
         cost: 3,
@@ -3744,6 +3746,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         increaseProduction: {
+            // TODO fix
             [Resource.MEGACREDIT]: VariableAmount.THIRD_RESOURCES_ON_CARD,
         },
     },
@@ -3755,6 +3758,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SCIENCE],
         type: CardType.EVENT,
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        gainResource: {[Resource.FLOATER]: 2},
     },
     {
         cost: 7,
@@ -3762,8 +3766,11 @@ export const cardConfigs: CardConfig[] = [
         name: 'Floater Technology',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        gainResource: {[Resource.FLOATER]: 1},
-        gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        action: {
+            gainResource: {[Resource.FLOATER]: 1},
+            gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+            text: 'Add 1 floater to ANOTHER card',
+        },
     },
     {
         cost: 15,
@@ -3773,6 +3780,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        // TODO fix (must be opponents)
+        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN}},
     },
     {
         cost: 3,
@@ -3783,6 +3792,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        gainResource: {[Resource.MEGACREDIT]: 4},
     },
     {
         cost: 23,
@@ -3800,6 +3811,9 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.JOVIAN]: 2},
         tags: [Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
+        gainResource: {[Resource.HEAT]: 12},
+        removeResource: {[Resource.PLANT]: 2},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         cost: 12,
@@ -3814,6 +3828,8 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Spend 1 titanium to add 2 floaters here.',
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
+            removeResource: {[Resource.TITANIUM]: 1},
+            gainResource: {[Resource.FLOATER]: 2},
         },
         cost: 20,
         deck: Deck.COLONIES,
@@ -3826,11 +3842,20 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        gainResource: {[Resource.FLOATER]: 2},
     },
     {
         action: {
             text: 'Add 1 floater to a JOVIAN CARD, or gain 1 MC for every floater here (Max 4).',
             gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+            // todo: add max 4
+            choice: [
+                {
+                    gainResource: {[Resource.FLOATER]: 1},
+                    gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+                },
+                {gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD}},
+            ],
         },
         cost: 9,
         deck: Deck.COLONIES,
@@ -3850,6 +3875,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.EARTH]: 3},
         tags: [Tag.EARTH, Tag.EARTH],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         cost: 19,
@@ -3858,15 +3884,24 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your plant production 2 steps, or increase your MC production 5 steps.',
         tags: [Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED,
+        choice: [
+            {
+                increaseProduction: {[Resource.PLANT]: 2},
+            },
+            {
+                increaseProduction: {[Resource.MEGACREDIT]: 5},
+            },
+        ],
     },
     {
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Lunar Mining',
         text:
-            'Increase your titanium production. 1 step for every 2 Earth tags you have in play, including this.',
+            'Increase your titanium production 1 step for every 2 Earth tags you have in play, including this.',
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.TITANIUM]: {tag: Tag.EARTH, dividedBy: 2}},
     },
     {
         cost: 1,
@@ -3894,6 +3929,7 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.ANIMAL,
         name: 'Martian Zoo',
         text: 'Requires 2 city tiles in play.',
+        requiredTilePlacements: [{type: TileType.CITY}, {type: TileType.CITY}],
         tags: [Tag.ANIMAL, Tag.BUILDING],
         type: CardType.ACTIVE,
         victoryPoints: 1,
@@ -3905,6 +3941,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your titanium production 1 step. Place a colony.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.TITANIUM]: 1},
     },
     {
         cost: 5,
@@ -3913,6 +3950,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Decrese your MC production 2 steps. Place a colony.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
+        decreaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         cost: 11,
@@ -3923,6 +3961,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         gainResource: {
+            // Todo change to ALL_COLONIES_AND_CITIES
             [Resource.MEGACREDIT]: VariableAmount.ALL_COLONIES,
         },
     },
@@ -3993,6 +4032,7 @@ export const cardConfigs: CardConfig[] = [
         storedResourceType: Resource.FLOATER,
         text: 'Requires 3 science tags. Draw 2 cards.',
         requiredTags: {[Tag.SCIENCE]: 3},
+        gainResource: {[Resource.CARD]: 2},
         tags: [Tag.JOVIAN, Tag.SCIENCE],
         type: CardType.ACTIVE,
         victoryPoints: 2,
@@ -4020,6 +4060,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a colony. MAY BE PLACED WHERE YOU ALREADY HAVE A COLONY. Draw 2 cards.',
         tags: [Tag.SCIENCE, Tag.SPACE],
         type: CardType.AUTOMATED,
+        gainResource: {[Resource.MEGACREDIT]: 2},
     },
     {
         effect: {text: 'Effect: When you trade, you pay 1 less resource for it.'},
@@ -4050,6 +4091,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT, Tag.SCIENCE, Tag.SPACE],
         type: CardType.EVENT,
         victoryPoints: 1,
+        // TODO ensure Solar Probe science tag is added to count
+        gainResource: {[Resource.CARD]: {tag: Tag.SCIENCE, dividedBy: 3}},
     },
     {
         cost: 23,
@@ -4058,6 +4101,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your heat production 5 steps.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
+        increaseProduction: {[Resource.HEAT]: 5},
     },
     {
         cost: 22,
@@ -4090,6 +4134,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production 2 steps.',
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         action: {
@@ -5015,7 +5060,8 @@ export const cardConfigs: CardConfig[] = [
             text:
                 'Add 1 floater to ANY card. Effect: Floaters on this card may be used as 2 heat each',
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
-            removeResourceSourceType: ResourceLocationType.THIS_CARD,
+            gainResource: {[Resource.FLOATER]: 1},
+            // todo conditional exchange into heat???
         },
         deck: Deck.COLONIES,
         storedResourceType: Resource.FLOATER,
