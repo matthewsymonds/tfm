@@ -87,7 +87,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
     const shouldDisableDueToPreludes =
-        player.possiblePreludes.length > 0 && selectedPreludes.length !== 2;
+        player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2;
     const shouldDisableConfirmCardSelection =
         !canConfirmCardSelection || actionGuard.isSyncing || shouldDisableDueToPreludes;
 
@@ -182,7 +182,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
-            {player.possiblePreludes.length > 0 && (
+            {player.possiblePreludes?.length > 0 && (
                 <Flex flexDirection="column" width="100%">
                     <CardSelector
                         max={2}
