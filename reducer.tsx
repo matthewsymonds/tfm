@@ -269,7 +269,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 draft.common.discardPile = [];
 
                 // Draw more cards from new deck.
-                cards.push(...draft.common.deck.splice(0, numCards));
+                cards.push(...draft.common.deck.splice(0, numCardsShort));
             }
 
             return cards.map(card => ({name: card.name}));
