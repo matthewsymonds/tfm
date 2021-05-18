@@ -233,7 +233,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                         <Flex alignItems="center">
                                             <PlayerIcon size={16} playerIndex={player.index} />
                                             <span style={{marginLeft: 8}}>
-                                                {player.corporation.name}
+                                                {player.corporation.name || player.username}
                                             </span>
                                         </Flex>
                                         <ScorePopover playerIndex={player.index}>
