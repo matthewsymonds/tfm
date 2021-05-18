@@ -82,24 +82,24 @@ export function getAwardScore(state: GameState, playerIndex: number) {
             .sort((a, b) => b.quantity - a.quantity);
 
         // assign points
-        let currentQuantity = awardScores[0].quantity;
-        let currentPointValue = 5;
-        for (const awardScore of awardScores) {
-            if (awardScore.quantity === 0) continue;
-            if (awardScore.quantity === currentQuantity) {
-                awardScore.score = currentPointValue;
-            } else if (awardScore.quantity < currentQuantity) {
-                currentQuantity = awardScore.quantity;
-                if ((currentPointValue = 5)) {
-                    currentPointValue = 2;
-                } else if ((currentPointValue = 2)) {
-                    currentPointValue = 0;
-                }
-                awardScore.score = currentPointValue;
-            } else {
-                throw new Error('Sorting error when calculating award score');
-            }
+        const firstPlaceQuantity = awardScores[0].quantity;
+        if (firstPlaceQuantity === 0) {
+            return;
         }
+        const numWinners = awardScores.filter(a => a.quantity === firstPlaceQuantity).length;
+        const secondPlaceQuantity = awardScores
+            .map(a => (a.quantity === firstPlaceQuantity ? 0 : a.quantity))
+            .sort((a, b) => b - a)[0];
+        const shouldScoreSecondPlace = numWinners === 1 && state.players.length > 2;
+        awardScores.forEach(awardScore => {
+            if (awardScore.quantity === firstPlaceQuantity) {
+                awardScore.score = 5;
+            }
+            if (awardScore.quantity === secondPlaceQuantity && shouldScoreSecondPlace) {
+                awardScore.score = 2;
+            }
+        });
+
         const awardScore = awardScores.find(a => a.playerIndex === playerIndex);
         if (!awardScore) {
             throw new Error('could not find player when calculating award score');
