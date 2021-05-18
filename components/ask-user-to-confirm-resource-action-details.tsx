@@ -29,6 +29,7 @@ import {Card} from 'models/card';
 import React, {useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getAdjacentCellsForCell} from 'selectors/board';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getCard} from 'selectors/get-card';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {deserializeCard, serializeCard, SerializedCard} from 'state-serialization';
@@ -214,7 +215,8 @@ export function getPlayerOptionWrappers(
                 resourceAndAmount,
                 card,
                 playerToConsider,
-                locationType
+                locationType,
+                state
             );
 
             if (actionType !== 'gainResource') {
@@ -254,7 +256,8 @@ function getOptions(
     resourceAndAmount: ResourceAndAmount,
     card: Card,
     player: PlayerState,
-    locationType: ResourceLocationType | undefined
+    locationType: ResourceLocationType | undefined,
+    state: GameState
 ): ResourceActionOption[] {
     if (actionType === 'decreaseProduction') {
         return getOptionsForDecreaseProduction(resourceAndAmount, player);
@@ -266,7 +269,8 @@ function getOptions(
             resourceAndAmount,
             card,
             player,
-            locationType
+            locationType,
+            state
         );
     } else {
         return getOptionsForRegularResource(actionType, resourceAndAmount, player);
@@ -328,7 +332,8 @@ function getOptionsForStorableResource(
     resourceAndAmount: ResourceAndAmount,
     originalCard: Card,
     player: PlayerState,
-    locationType: ResourceLocationType | undefined
+    locationType: ResourceLocationType | undefined,
+    state: GameState
 ): ResourceActionOption[] {
     let cards = getPlayedCards(player);
     const {resource, amount} = resourceAndAmount;
@@ -384,7 +389,7 @@ function getOptionsForStorableResource(
         const card = getCard(serializedCard);
         let maxAmount: number;
         if (actionType === 'gainResource') {
-            maxAmount = amount as number;
+            maxAmount = convertAmountToNumber(amount, state, player, card);
         } else {
             if (isVariable) {
                 maxAmount = card.storedResourceAmount || 0;
