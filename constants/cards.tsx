@@ -3336,6 +3336,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        gainResource: {[Resource.CARD]: 2},
     },
     {
         increaseParameter: {[Parameter.VENUS]: 2},
