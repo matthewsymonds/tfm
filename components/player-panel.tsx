@@ -91,12 +91,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
             <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
                 <PlayerCardActions player={player} />
             </Flex>
-            {isCorporationSelection ? (
-                <CorporationSelector
-                    player={player}
-                    isLoggedInPlayer={player.index === loggedInPlayer.index}
-                />
-            ) : null}
+            {isCorporationSelection ? <CorporationSelector player={player} /> : null}
         </OuterWrapper>
     );
 };

@@ -66,10 +66,13 @@ export const GlobalStyles = createGlobalStyle`
     }
     .active-round-outer {
         flex-direction: row;
+        justify-content: center;
 
         @media (max-width: 1210px) {
           flex-direction: column;
-      }
+          justify-content: initial;
+          align-items: center;
+        }
     }
     .ellipsis {
         white-space: nowrap;
