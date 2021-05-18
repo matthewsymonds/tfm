@@ -3219,6 +3219,7 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Add 1 resource to ANOTHER VENUS CARD.',
             gainResourceTargetType: ResourceLocationType.VENUS_CARD,
+            gainResource: {[Resource.ANY_STORABLE_RESOURCE]: 1},
         },
         cost: 18,
         deck: Deck.VENUS,
