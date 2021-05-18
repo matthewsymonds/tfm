@@ -2,7 +2,7 @@ import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {Card as CardModel} from 'models/card';
-import {Card as CardComponent, CardContext} from 'components/card/Card';
+import {Card as CardComponent, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
@@ -18,19 +18,39 @@ import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import {Box, Flex} from './box';
 import {colors} from './ui';
+import styled from 'styled-components';
+
+const HoverToPreviewPlaceholderBase = styled.div`
+    width: ${CARD_WIDTH}px;
+    height: ${CARD_HEIGHT}px;
+    display: flex;
+    border: 2px solid black;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    border-style: solid;
+    border-radius: 8px;
+    background-color: hsla(0, 0%, 100%, 0.2);
+    border-top-color: ${colors.CARD_BORDER_1};
+    border-left-color: ${colors.CARD_BORDER_1};
+    border-bottom-color: ${colors.CARD_BORDER_2};
+    border-right-color: ${colors.CARD_BORDER_2};
+`;
+
+function HoverToPreviewPlaceholder() {
+    return (
+        <HoverToPreviewPlaceholderBase>
+            <div style={{padding: 16}}>Hover over card names to preview</div>
+        </HoverToPreviewPlaceholderBase>
+    );
+}
 
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
-    const [cardToPreview, setCardToPreview] = useState<null | CardModel>(
-        getCard(
-            possibleCorporations?.[0] ??
-                possiblePreludes?.[0] ??
-                pendingCardSelection.possibleCards?.[0]
-        )
-    );
+    const [cardToPreview, setCardToPreview] = useState<null | CardModel>();
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
@@ -68,9 +88,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         // buying cards
         const numCards =
             pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
+        let selectedCardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
         let cardOrCards = `card${numCards === 1 ? '' : 's'}`;
         cardSelectionPrompt = `Select up to ${numCards} ${cardOrCards} to buy (${remainingBudget} MC remaining)`;
-        cardSelectionButtonText = `Buy ${selectedCards.length} ${cardOrCards}`;
+        cardSelectionButtonText = `Buy ${selectedCards.length} ${selectedCardOrCards}`;
         maxCards = pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
         minCards = pendingCardSelection.numCardsToTake ?? 0;
     } else if (pendingCardSelection.numCardsToTake) {
@@ -125,8 +146,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     return (
         <div style={{color: colors.TEXT_LIGHT_1}}>
-            <Flex justifyContent="center" marginTop="-8px">
-                {cardToPreview && <CardComponent card={cardToPreview} />}
+            <Flex justifyContent="center" marginBottom="16px">
+                {cardToPreview ? (
+                    <CardComponent card={cardToPreview} />
+                ) : (
+                    <HoverToPreviewPlaceholder />
+                )}
             </Flex>
             {possibleCorporations.length > 0 && (
                 <CardSelector
@@ -203,7 +228,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             }
                             setCardToPreview={setCardToPreview}
                         />
-                        <Flex justifyContent="center" zIndex={40}>
+                        <Flex justifyContent="center" zIndex={40} marginTop="8px">
                             <PaymentPopover
                                 cost={selectedCards.length * 3}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}

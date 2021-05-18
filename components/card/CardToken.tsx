@@ -6,36 +6,36 @@ import {Card as CardComponent, CardContext} from 'components/card/Card';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {Tooltip} from 'react-tippy';
-import React, {useRef} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Flex} from 'components/box';
+import {usePopper} from 'react-popper';
 
-type CardTokenProps = {
+type SharedCardTokenProps = {
     card: CardModel;
+    margin?: string;
+};
+type CardToggleTokenProps = SharedCardTokenProps & {
     onClick?: () => void;
     isSelected?: boolean;
-    margin?: string;
     disabled?: boolean;
 };
+type CardTextTokenProps = SharedCardTokenProps;
 
-const CardTokenText = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
-    font-weight: 700;
+const CardTextTokenBase = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
     color: ${props => props.cardStyle.color};
     display: inline-flex;
+    font-weight: 700;
+    font-size: 1.1em;
     margin: ${props => props.margin ?? '0 4px'};
-    padding: 2px;
-    border-radius: 4px;
-    background-color: ${props => props.cardStyle.backgroundColor};
     cursor: default;
     transition: all 0.1s;
     &:hover {
-        background-color: ${props =>
-            new Color(props.cardStyle.backgroundColor).darken(0.2).toString()};
-        color: ${props => new Color(props.cardStyle.color).darken(0.5).saturate(0.5).toString()};
+        color: ${props => new Color(props.cardStyle.color).darken(0.2).saturate(0.5).toString()};
         opacity: 1;
     }
 `;
 
-const CardTokenToggle = styled.label<{
+const CardToggleTokenLabel = styled.label<{
     cardStyle: React.CSSProperties;
     margin?: string;
     isSelected?: boolean;
@@ -58,7 +58,7 @@ const CardTokenToggle = styled.label<{
     transition: all 0.1s;
 `;
 
-const HiddenInput = styled.input`
+const CardToggleTokenHiddenInput = styled.input`
     border: 0;
     clip: rect(0 0 0 0);
     height: 1px;
@@ -73,27 +73,22 @@ function getStyleForCardType(cardType: CardType) {
     switch (cardType) {
         case CardType.ACTIVE:
             return {
-                backgroundColor: '#e4eaf7',
                 color: colors.CARD_ACTIVE,
             };
         case CardType.AUTOMATED:
             return {
-                backgroundColor: '#ddf3db',
                 color: colors.CARD_AUTOMATED,
             };
         case CardType.CORPORATION:
             return {
-                backgroundColor: '#efefef',
-                color: colors.CARD_CORPORATION,
+                color: 'white',
             };
         case CardType.EVENT:
             return {
-                backgroundColor: '#f1cece',
                 color: colors.CARD_EVENT,
             };
         case CardType.PRELUDE:
             return {
-                backgroundColor: '#fbeddd',
                 color: colors.CARD_PRELUDE,
             };
         default:
@@ -112,35 +107,56 @@ export function useComponentId() {
     return `${idRef.current}`;
 }
 
-export const CardToken = ({card, onClick, isSelected, margin, disabled}: CardTokenProps) => {
+export const CardToggleToken = ({
+    card,
+    onClick,
+    isSelected,
+    margin,
+    disabled,
+}: CardToggleTokenProps) => {
     const id = useComponentId();
     const cardStyle = getStyleForCardType(card.type);
     return (
         <React.Fragment>
-            {onClick ? (
-                <React.Fragment>
-                    <HiddenInput
-                        id={id}
-                        type="checkbox"
-                        value={card.name}
-                        checked={isSelected}
-                        onChange={onClick}
-                        disabled={disabled}
-                    />
-                    <CardTokenToggle
-                        htmlFor={id}
-                        cardStyle={cardStyle}
-                        isSelected={isSelected}
-                        margin={margin}
-                    >
-                        {card.name}
-                    </CardTokenToggle>
-                </React.Fragment>
-            ) : (
-                <CardTokenText cardStyle={cardStyle} margin={margin}>
-                    {card.name}
-                </CardTokenText>
-            )}
+            <CardToggleTokenHiddenInput
+                id={id}
+                type="checkbox"
+                value={card.name}
+                checked={isSelected}
+                onChange={onClick}
+                disabled={disabled}
+            />
+            <CardToggleTokenLabel
+                htmlFor={id}
+                cardStyle={cardStyle}
+                isSelected={isSelected}
+                margin={margin}
+            >
+                {card.name}
+            </CardToggleTokenLabel>
         </React.Fragment>
+    );
+};
+
+export const CardTextToken = ({card, margin}: CardTextTokenProps) => {
+    const [isHovering, setIsHovering] = useState(false);
+    const cardStyle = getStyleForCardType(card.type);
+
+    return (
+        <Flex position="relative">
+            <CardTextTokenBase
+                cardStyle={cardStyle}
+                margin={margin}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            >
+                {card.name}
+            </CardTextTokenBase>
+            {isHovering && (
+                <Flex position="absolute" zIndex={10} style={{top: '24px'}}>
+                    <CardComponent card={card} />
+                </Flex>
+            )}
+        </Flex>
     );
 };

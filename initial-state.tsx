@@ -17,7 +17,7 @@ export function shuffle<T>(array: T[]) {
 }
 
 function DEV_cardOverrides() {
-    const cardOverrides: Array<string> = ["Mars University", "Search For Life"];
+    const cardOverrides: Array<string> = [];
     return cards.filter(card => {
         return cardOverrides.includes(card.name);
     });

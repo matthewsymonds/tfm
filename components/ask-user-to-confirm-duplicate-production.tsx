@@ -82,8 +82,9 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
 
     return (
         <AskUserToMakeChoice card={card}>
-            <Flex>
-                <Flex marginRight="8px">
+            <Flex flexDirection="column">
+                <em style={{marginBottom: 4}}>Select a card to duplicate production</em>
+                <Flex margin="0 8px 8px 0" flexWrap="wrap">
                     {options.map((option, index) => {
                         return (
                             <CardWrapper
@@ -101,15 +102,19 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
                         );
                     })}
                 </Flex>
-                <div>
+                <Flex alignItems="center" marginTop="16px" justifyContent="center">
                     <button
                         onClick={() => handleConfirmDuplicateProduction(selectedIndex as number)}
                         disabled={typeof selectedIndex !== 'number'}
                     >
                         Confirm production duplication
                     </button>
-                    {showSkip && <button onClick={handleSkip}>Skip</button>}
-                </div>
+                    {showSkip && (
+                        <button style={{marginLeft: 8}} onClick={handleSkip}>
+                            Skip
+                        </button>
+                    )}
+                </Flex>
             </Flex>
         </AskUserToMakeChoice>
     );

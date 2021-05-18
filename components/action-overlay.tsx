@@ -8,10 +8,12 @@ import {colors} from './ui';
 
 const ActionBar = styled.div`
     height: 36px;
+    min-height: 36px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 8px;
+    background-color: hsla(0, 0%, 100%, 0.2);
     color: ${colors.TEXT_LIGHT_1};
 `;
 
@@ -43,10 +45,17 @@ const ActionOverlayToggleButton = styled(BlankButton)`
     letter-spacing: 0.05em;
     text-transform: uppercase;
     font-size: 12px;
+    font-weight: 700;
 `;
 
-export const ActionOverlay = props => {
-    const [isVisible, setIsVisible] = useState(true);
+type ActionOverlayProps = {
+    showBoardFirst: boolean;
+    actionBarPromptText?: string | null;
+    children: React.ReactNode;
+};
+
+export const ActionOverlay = (props: ActionOverlayProps) => {
+    const [isVisible, setIsVisible] = useState(!props.showBoardFirst);
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
     let promptText: string | null;

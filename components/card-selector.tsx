@@ -6,7 +6,7 @@ import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Flex} from './box';
-import {CardToken} from './card/CardToken';
+import {CardToggleToken} from './card/CardToken';
 
 interface CardSelectorProps {
     min?: number;
@@ -73,8 +73,9 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                             margin="4px"
                             key={key}
                             onMouseEnter={() => props.setCardToPreview(card)}
+                            onMouseLeave={() => props.setCardToPreview(null)}
                         >
-                            <CardToken
+                            <CardToggleToken
                                 margin="0"
                                 card={card}
                                 isSelected={selected}

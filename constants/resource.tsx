@@ -125,41 +125,60 @@ export const getResourceSymbol = (resource: Resource) => {
     }
 };
 
-export const getResourceName = (resource: Resource) => {
+export const getResourceName = (resource: Resource, shouldCapitalize: boolean = false) => {
+    let resourceName: string;
     switch (resource) {
         case Resource.ANIMAL:
-            return 'animal';
+            resourceName = 'animal';
+            break;
         case Resource.ASTEROID:
-            return 'asteroid resource';
+            resourceName = 'asteroid resource';
+            break;
         case Resource.CAMP:
-            return 'camp';
+            resourceName = 'camp';
+            break;
         case Resource.CARD:
-            return 'card';
+            resourceName = 'card';
+            break;
         case Resource.ENERGY:
-            return 'energy';
+            resourceName = 'energy';
+            break;
         case Resource.FIGHTER:
-            return 'fighter resource';
+            resourceName = 'fighter resource';
+            break;
         case Resource.FLOATER:
-            return 'floater';
+            resourceName = 'floater';
+            break;
         case Resource.HEAT:
-            return 'heat';
+            resourceName = 'heat';
+            break;
         case Resource.MEGACREDIT:
-            return 'megacredit';
+            resourceName = 'megacredit';
+            break;
         case Resource.MICROBE:
-            return 'microbe';
+            resourceName = 'microbe';
+            break;
         case Resource.PLANT:
-            return 'plant';
+            resourceName = 'plant';
+            break;
         case Resource.SCIENCE:
-            return 'science resource';
+            resourceName = 'science resource';
+            break;
         case Resource.STEEL:
-            return 'steel';
+            resourceName = 'steel';
+            break;
         case Resource.TITANIUM:
-            return 'titanium';
+            resourceName = 'titanium';
+            break;
         case Resource.ANY_STORABLE_RESOURCE:
-            return 'resource';
+            resourceName = 'resource';
+            break;
         default:
             throw new Error('unrecognized resource');
     }
+    return shouldCapitalize
+        ? `${resourceName[0].toUpperCase()}${resourceName.slice(1)}`
+        : resourceName;
 };
 
 export const getResourceColor = (resource: Resource) => {

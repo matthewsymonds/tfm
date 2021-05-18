@@ -4,6 +4,7 @@ import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
+import {Flex} from './box';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const {card, playedCard, choice} = player.pendingChoice!;
@@ -14,7 +15,7 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
             canPlayActionInSpiteOfUI(action, state, player, parent)
         );
         return (
-            <React.Fragment key={index}>
+            <Flex key={index} marginBottom="16px">
                 <button
                     disabled={!canPlay}
                     onClick={() => {
@@ -26,13 +27,13 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
                 >
                     {action.text}
                 </button>
-                {!canPlay && <em>{reason}</em>}
-            </React.Fragment>
+                {!canPlay && <em style={{marginLeft: 4}}>{reason}</em>}
+            </Flex>
         );
     });
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
-            {choiceButtons}
+            <Flex flexDirection="column">{choiceButtons}</Flex>
         </AskUserToMakeChoice>
     );
 }

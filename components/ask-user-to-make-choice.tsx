@@ -4,37 +4,41 @@ import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {CardToken} from './card/CardToken';
+import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
 
-export const ChoiceWrapper = styled.div`
+export const ChoiceWrapper = styled.div<{orientation: 'horizontal' | 'vertical'}>`
     display: flex;
     width: 100%;
+    margin-top: 16px;
+    flex-direction: ${props => (props.orientation === 'horizontal' ? 'row' : 'column')};
+    flex-wrap: wrap;
 `;
 
 export function AskUserToMakeChoice(props: {
     card?: SerializedCard;
     playedCard?: SerializedCard;
     children: ReactNode;
+    orientation?: 'horizontal' | 'vertical';
 }) {
-    const {children} = props;
+    const {children, orientation = 'horizontal'} = props;
     const card = props.card ? getCard(props.card) : undefined;
     const playedCard = props.playedCard ? getCard(props.playedCard) : undefined;
     let triggerDetails;
     if (playedCard && card) {
         triggerDetails = (
-            <Box margin="0 8px 8px 8px" display="flex" alignItems="center">
+            <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardToken card={playedCard} />
+                <CardTextToken card={playedCard} />
                 <span>which triggered</span>
-                <CardToken card={card} />
+                <CardTextToken card={card} />
             </Box>
         );
     } else if (card) {
         triggerDetails = (
-            <Box marginBottom="0 8px 8px 8px" display="flex" alignItems="center">
-                <h3>You played</h3>
-                <CardToken card={card} />
+            <Box marginBottom="8px" display="flex" alignItems="center">
+                <span>You played</span>
+                <CardTextToken card={card} />
             </Box>
         );
     } else {
@@ -43,7 +47,7 @@ export function AskUserToMakeChoice(props: {
     return (
         <Flex width="100%" flexDirection="column" style={{color: colors.TEXT_LIGHT_1}}>
             {triggerDetails}
-            <ChoiceWrapper>{children}</ChoiceWrapper>
+            <ChoiceWrapper orientation={orientation}>{children}</ChoiceWrapper>
         </Flex>
     );
 }

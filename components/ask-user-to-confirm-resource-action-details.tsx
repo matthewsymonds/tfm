@@ -35,6 +35,8 @@ import {deserializeCard, serializeCard, SerializedCard} from 'state-serializatio
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
+import {PlayerCorpAndIcon} from './icons/player';
+import {colors} from './ui';
 
 export type ResourceActionType =
     | 'removeResource'
@@ -59,14 +61,6 @@ type Props = {
         locationType?: ResourceLocationType;
     };
 };
-
-const Red = styled.div`
-    font-weight: bold;
-    color: maroon;
-    text-align: center;
-    padding: 4px;
-    border: 2px solid black;
-`;
 
 function getPlayersToConsider(
     player: PlayerState,
@@ -194,7 +188,9 @@ export function getPlayerOptionWrappers(
 
     for (const playerToConsider of playersToConsider) {
         const playerOptionWrapper: PlayerOptionWrapper = {
-            title: `${playerToConsider.corporation.name} (${playerToConsider.username})`,
+            title: `${playerToConsider.corporation.name} (${
+                playerToConsider.username === player.username ? 'YOU' : playerToConsider.username
+            })`,
             options: [],
             player: playerToConsider,
         };
@@ -549,7 +545,7 @@ function AskUserToConfirmResourceActionDetails({
 
     return (
         <>
-            <AskUserToMakeChoice card={card} playedCard={playedCard}>
+            <AskUserToMakeChoice card={card} playedCard={playedCard} orientation="vertical">
                 {playerOptionWrappers.map(playerOptionWrapper => {
                     const shouldShowWarningMessage =
                         !playerOptionWrapper.options.some(option => option.isVariable) &&
@@ -568,8 +564,30 @@ function AskUserToConfirmResourceActionDetails({
                             showWarning={shouldShowWarningMessage}
                             key={playerOptionWrapper.player.username}
                         >
-                            <h4>{playerOptionWrapper.title}</h4>
-                            {shouldShowWarningMessage ? <Red>Warning: This is you!</Red> : null}
+                            <Flex
+                                marginBottom="4px"
+                                style={{
+                                    fontWeight: 700,
+                                    fontSize: '1.1em',
+                                }}
+                            >
+                                <PlayerCorpAndIcon
+                                    player={playerOptionWrapper.player}
+                                    includeUsername={true}
+                                    color={colors.TEXT_LIGHT_1}
+                                />
+                            </Flex>
+                            {shouldShowWarningMessage && (
+                                <span
+                                    style={{
+                                        fontStyle: 'italic',
+                                        fontSize: '0.85em',
+                                        marginBottom: 4,
+                                    }}
+                                >
+                                    Warning: This is you!
+                                </span>
+                            )}
                             <Flex>
                                 {playerOptionWrapper.options.map((option, index) => {
                                     return (
@@ -762,12 +780,10 @@ export function getAction(
 
 type WarningProp = {showWarning?: boolean};
 
-const PlayerOption = styled.li<WarningProp>`
-    display: block;
-    padding: 8px;
-    margin-bottom: 8px;
-    border-radius: 3px;
-    border: ${props => (props.showWarning ? '2px solid maroon' : '1px solid #ccc')};
+const PlayerOption = styled.div<WarningProp>`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
 `;
 
 export default AskUserToConfirmResourceActionDetails;

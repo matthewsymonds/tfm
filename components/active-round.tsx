@@ -6,6 +6,7 @@ import {PlayerHand} from 'components/player-hand';
 import PlayerPanel from 'components/player-panel-new';
 import {TopBar} from 'components/top-bar';
 import {TileType} from 'constants/board';
+import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
@@ -56,6 +57,28 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
 
+    const showBoardFirstInActionPrompt =
+        isPlayerMakingDecision &&
+        (loggedInPlayer.pendingPlayCardFromHand || loggedInPlayer.pendingTilePlacement);
+    let actionBarPromptText: string | null;
+    if (gameStage === GameStage.CORPORATION_SELECTION) {
+        actionBarPromptText = 'Choose your corporation and starting cards';
+    } else if (gameStage === GameStage.END_OF_GAME) {
+        actionBarPromptText = null;
+    } else if (loggedInPlayer.pendingPlayCardFromHand) {
+        actionBarPromptText = 'Play a card from hand';
+    } else if (loggedInPlayer.pendingTilePlacement) {
+        if (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM) {
+            actionBarPromptText = 'Claim an unreserved area.';
+        } else {
+            actionBarPromptText = `Place ${aAnOrThe(
+                loggedInPlayer.pendingTilePlacement.type
+            )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile.`;
+        }
+    } else {
+        actionBarPromptText = 'Complete your action';
+    }
+
     return (
         <React.Fragment>
             <Flex
@@ -69,7 +92,10 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     <TopBar loggedInPlayer={loggedInPlayer} />
                 </Flex>
                 {isPlayerMakingDecision && (
-                    <ActionOverlay>
+                    <ActionOverlay
+                        showBoardFirst={!!showBoardFirstInActionPrompt}
+                        actionBarPromptText={actionBarPromptText}
+                    >
                         {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                         {loggedInPlayer.pendingChoice && (
                             <AskUserToMakeActionChoice player={loggedInPlayer} />
@@ -97,22 +123,18 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         {(loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                             currentPlayerIndex === loggedInPlayer.index &&
                             !loggedInPlayer.pendingPlayCardFromHand &&
-                            !loggedInPlayer.pendingTilePlacement && (
-                                <AskUserToPlayPrelude player={loggedInPlayer} />
-                            )}
+                            !loggedInPlayer.pendingTilePlacement &&
+                            players.every(
+                                player =>
+                                    (player.preludes?.length ?? 0) > 0 ||
+                                    player.playedCards?.filter(
+                                        c => getCard(c).type === CardType.PRELUDE
+                                    )
+                            ) && <AskUserToPlayPrelude player={loggedInPlayer} />}
                         {loggedInPlayer.fundAward && <AskUserToFundAward player={loggedInPlayer} />}
-                        {loggedInPlayer.pendingTilePlacement &&
-                            (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM ? (
-                                <PromptTitle>Claim an unreserved area.</PromptTitle>
-                            ) : (
-                                <PromptTitle>
-                                    Place {aAnOrThe(loggedInPlayer.pendingTilePlacement.type)}{' '}
-                                    {getHumanReadableTileName(
-                                        loggedInPlayer.pendingTilePlacement.type
-                                    )}{' '}
-                                    tile.
-                                </PromptTitle>
-                            ))}
+                        {loggedInPlayer.pendingTilePlacement && (
+                            <PromptTitle>{actionBarPromptText}</PromptTitle>
+                        )}
                         {loggedInPlayer.pendingResourceActionDetails && (
                             <AskUserToConfirmResourceActionDetails
                                 player={loggedInPlayer}
@@ -121,20 +143,17 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         )}
                         {revealedCards.length > 0 && (
                             <Flex flexDirection="column">
-                                <p>
+                                <span style={{marginBottom: 16}}>
                                     Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
-                                </p>
-                                <Flex>
+                                </span>
+                                <Flex flexWrap="wrap">
                                     {revealedCards.map((card, index) => {
                                         return <CardComponent key={index} card={getCard(card)} />;
                                     })}
                                 </Flex>
-                                <button
-                                    style={{margin: '8px 0'}}
-                                    onClick={continueAfterRevealingCards}
-                                >
-                                    Continue
-                                </button>
+                                <Flex justifyContent="center" marginTop="16px">
+                                    <button onClick={continueAfterRevealingCards}>Continue</button>
+                                </Flex>
                             </Flex>
                         )}
                     </ActionOverlay>
@@ -145,7 +164,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     flex="auto"
                     overflow="auto"
                     alignItems="flex-start"
-                    justifyContent="center"
                 >
                     <Flex flexWrap="wrap" justifyContent="center" marginRight="4px">
                         {players.map((player, index) => (
