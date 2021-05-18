@@ -1,5 +1,5 @@
 import {Meta, Story} from '@storybook/react';
-import PlayerPanel from 'components/player-panel-new';
+import PlayerPanel from 'components/player-panel';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 

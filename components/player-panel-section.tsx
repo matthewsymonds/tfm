@@ -80,11 +80,7 @@ export const PlayerPanelSection = ({
             case 'Board & Hand':
                 return (
                     <>
-                        <PlayerResourceBoard
-                            plantConversionOnly={isGreeneryPlacement}
-                            player={player}
-                            isLoggedInPlayer={isLoggedInPlayer}
-                        />
+                        <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
                         {playerCardsElement}
                         <Flex margin="4px 0">
                             {tagCountsByTagName.map(tagCount => {

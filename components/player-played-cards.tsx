@@ -1,10 +1,11 @@
+import {Flex} from 'components/box';
 import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {getCardTitleColorForType} from 'components/card/CardTitle';
 import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import TexturedCard from 'components/textured-card';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard, SerializedPlayerState} from 'state-serialization';
@@ -13,7 +14,6 @@ import styled from 'styled-components';
 const CARD_TOKEN_WIDTH = 50;
 const ACTUAL_CARD_TOKEN_WIDTH = 56; // thicc borders
 const CARD_TOKEN_HEIGHT = 40;
-const LANE_WIDTH = 250;
 
 function PlayerPlayedCards({
     player,
@@ -27,6 +27,7 @@ function PlayerPlayedCards({
     const [hoveredCardIndex, setHoveredCardIndex] = useState<null | number>(null);
     const {filterMode, filteredTags} = tagFilterConfig;
     const loggedInPlayer = useLoggedInPlayer();
+    const containerRef = useRef<HTMLDivElement>(null);
     const filteredCards =
         filterMode === TagFilterMode.ALL
             ? player.playedCards
@@ -60,15 +61,21 @@ function PlayerPlayedCards({
         }, 0);
     }
 
-    let requiredOverlapAmountPx: number; // may be negative
-    if (filteredCards.length === 0 || filteredCards.length === 1) {
-        requiredOverlapAmountPx = 0;
-    } else {
-        requiredOverlapAmountPx = Math.max(
-            filteredCards.length * ACTUAL_CARD_TOKEN_WIDTH - LANE_WIDTH,
-            0
-        );
-    }
+    const [requiredOverlapAmountPx, setRequiredOverlapAmountPx] = useState(0);
+
+    useEffect(() => {
+        let requiredOverlapAmountPx: number; // may be negative
+        if (filteredCards.length === 0 || filteredCards.length === 1) {
+            requiredOverlapAmountPx = 0;
+        } else {
+            requiredOverlapAmountPx = Math.max(
+                filteredCards.length * ACTUAL_CARD_TOKEN_WIDTH -
+                    (containerRef.current?.offsetWidth ?? 0),
+                0
+            );
+            setRequiredOverlapAmountPx(requiredOverlapAmountPx);
+        }
+    }, [containerRef.current, filteredCards.length]);
 
     function getCardPosition(index: number) {
         let xOffset;
@@ -99,32 +106,14 @@ function PlayerPlayedCards({
     }
 
     return (
-        <div style={{width: '100%'}}>
-            <div
-                onMouseLeave={() => _setHoveredCardIndex(null)}
-                style={{
-                    height: CARD_TOKEN_HEIGHT + 2,
-                    position: 'relative',
-                    width: '100%',
-                    overflow: 'hidden',
-                }}
-            >
+        <div style={{width: '100%'}} ref={containerRef}>
+            <Flex flexWrap="wrap" onMouseLeave={() => _setHoveredCardIndex(null)}>
                 {filteredCards.map((card, index) => (
-                    <div
-                        key={card.name + index}
-                        style={{
-                            position: 'absolute',
-                            transform: `${getCardPosition(index)}`,
-                            transition: 'transform 0.5s',
-                            transformOrigin: 'center',
-                            pointerEvents: 'initial',
-                        }}
-                        onMouseEnter={() => _setHoveredCardIndex(index)}
-                    >
+                    <div key={card.name + index} onMouseEnter={() => _setHoveredCardIndex(index)}>
                         <CardToken card={card} />
                     </div>
                 ))}
-            </div>
+            </Flex>
             <div
                 ref={popperElement}
                 style={{

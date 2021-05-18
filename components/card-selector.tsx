@@ -1,7 +1,5 @@
-import {Card as CardComponent, CardContext} from 'components/card/Card';
 import {Card as CardModel} from 'models/card';
-import React, {useEffect, useRef, useState} from 'react';
-import {usePopper} from 'react-popper';
+import React from 'react';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';

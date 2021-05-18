@@ -3,10 +3,11 @@ import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
+import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled, {keyframes} from 'styled-components';
 
 const plantBgCycle = keyframes`
@@ -133,16 +134,13 @@ export const ResourceBoard = styled.div`
 type PlayerResourceBoardProps = {
     player: PlayerState;
     isLoggedInPlayer: boolean;
-    plantConversionOnly?: boolean;
 };
 
-export const PlayerResourceBoard = ({
-    player,
-    isLoggedInPlayer,
-    plantConversionOnly,
-}: PlayerResourceBoardProps) => {
+export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBoardProps) => {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard(player.username);
+
+    const isEndOfGame = useTypedSelector(state => state.common.gameStage === GameStage.END_OF_GAME);
 
     return (
         <Flex flexDirection="column">
@@ -184,7 +182,7 @@ export const PlayerResourceBoard = ({
                                 amount={player.resources[resource]}
                                 production={player.productions[resource]}
                                 showPointerCursor={canDoConversion && isLoggedInPlayer}
-                                showConversionAnimation={canDoConversionInSpiteOfUI}
+                                showConversionAnimation={canDoConversionInSpiteOfUI && !isEndOfGame}
                                 handleOnClick={handleOnClick}
                             />
                         );

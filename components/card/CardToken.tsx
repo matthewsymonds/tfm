@@ -1,14 +1,12 @@
+import Color from 'color';
+import {Flex} from 'components/box';
+import {Card as CardComponent} from 'components/card/Card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
-import Color from 'color';
 import {Card as CardModel} from 'models/card';
-import {Card as CardComponent, CardContext} from 'components/card/Card';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {Tooltip} from 'react-tippy';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Flex} from 'components/box';
-import {usePopper} from 'react-popper';
 
 type SharedCardTokenProps = {
     card: CardModel;
@@ -81,7 +79,7 @@ function getStyleForCardType(cardType: CardType) {
             };
         case CardType.CORPORATION:
             return {
-                color: 'white',
+                color: 'black',
             };
         case CardType.EVENT:
             return {

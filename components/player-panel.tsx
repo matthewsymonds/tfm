@@ -1,120 +1,104 @@
-import {setCorporation} from 'actions';
-import {Flex, PanelWithTabs} from 'components/box';
-import {CardSelector} from 'components/card-selector';
-import {PlayerIcon} from 'components/icons/player';
-import {PlayerPanelSection} from 'components/player-panel-section';
-import {ScorePopover} from 'components/popovers/score-popover';
+import {Flex} from 'components/box';
+import PlayerPlayedCards from 'components/player-played-cards';
+import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
+import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
-import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React from 'react';
-import {useDispatch} from 'react-redux';
+import {AppContext} from 'context/app-context';
+import React, {useContext, useRef, useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {colors} from './ui';
-
-const CorporationHeader = styled.h2`
-    display: flex;
-    width: 100%;
-    margin: 0 0 16px;
-    align-items: center;
-    color: #fff;
-`;
-
-const TerraformRating = styled.span`
-    display: inline-flex;
-    cursor: pointer;
-    color: #f5923b;
-    margin-left: 8px;
-    &:hover {
-        opacity: 0.75;
-        border: none;
-        background: none !important;
-    }
-    &:active {
-        opacity: 1;
-    }
-`;
-
-const BaseText = styled.div`
-    color: ${colors.LIGHT_2};
-`;
-
-export const CorporationSelector = ({player}: {player: PlayerState}) => {
-    if (player.action) {
-        return <BaseText>{player.username} is ready to play.</BaseText>;
-    } else {
-        return <BaseText>{player.username} is choosing a corporation and cards.</BaseText>;
-    }
-};
+import {CorporationSelector} from './corporation-selector';
+import {PlayerCardActions} from './player-card-actions';
 
 type PlayerPanelProps = {
-    selectedPlayerIndex: number;
-    setSelectedPlayerIndex: (index: number) => void;
+    player: PlayerState;
 };
 
-export const PlayerPanel = ({selectedPlayerIndex, setSelectedPlayerIndex}: PlayerPanelProps) => {
+const OuterWrapper = styled(Flex)`
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: flex-start;
+    padding: 8px;
+    /* background: hsl(0, 0%, 20%); */
+    width: 100%;
+`;
+
+const CardsInHandMessage = styled.div`
+    padding-top: 8px;
+    color: #ccc;
+    font-size: 11px;
+`;
+
+const PlayerPanel = ({player}: PlayerPanelProps) => {
+    /**
+     * State (todo: use selectors everywhere instead)
+     */
+    const state = useTypedSelector(state => state);
+    const playerPanelRef = useRef<HTMLDivElement>(null);
+    const [tagFilterConfig, setTagFilterConfig] = useState<TagFilterConfig>({
+        filterMode: TagFilterMode.ALL,
+        filteredTags: [],
+    });
+
+    /**
+     * Hooks
+     */
+    const context = useContext(AppContext);
+
     /**
      * State selectors
      */
-    const players = useTypedSelector(state => state.players);
-    const selectedPlayer = players[selectedPlayerIndex];
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
 
     /**
      * Derived state
      */
-    const loggedInPlayer = useLoggedInPlayer();
+    const loggedInPlayer = context.getLoggedInPlayer(state);
+    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
-    const terraformRating = selectedPlayer.terraformRating;
-    const sections: Array<PlayerPanelSection> = ['Board & Hand', 'Card Actions', 'Played Cards'];
+    const isBetweenRounds =
+        gameStage === GameStage.BUY_OR_DISCARD || gameStage === GameStage.DRAFTING;
+
+    const numCards = player.cards.length;
+
+    const playerCardsElement = isActiveRound ? (
+        <CardsInHandMessage>Cards in hand: {numCards}</CardsInHandMessage>
+    ) : isBetweenRounds ? (
+        <CardsInHandMessage>
+            Cards in hand at the end of last round: {player.previousCardsInHand ?? 0}
+        </CardsInHandMessage>
+    ) : null;
 
     return (
-        <Flex flexDirection="column" justifyContent="stretch">
-            <PanelWithTabs
-                tabs={players.map(p => {
-                    const displayName =
-                        gameStage !== GameStage.CORPORATION_SELECTION
-                            ? p.corporation.name
-                            : p.username;
+        <OuterWrapper ref={playerPanelRef} id={`player-board-${player.index}`}>
+            {playerCardsElement}
 
-                    return (
-                        <Flex justifyContent="center" alignItems="center">
-                            <PlayerIcon size={12} playerIndex={p.index} />
-                            <span style={{marginLeft: 4}}>{displayName}</span>
-                            {p === loggedInPlayer && <span style={{marginLeft: 4}}>(you)</span>}
-                        </Flex>
-                    );
-                })}
-                tabType="player"
-                selectedTabIndex={selectedPlayerIndex}
-                setSelectedTabIndex={setSelectedPlayerIndex}
-            >
-                <Flex flexDirection="column">
-                    <CorporationHeader>
-                        <PlayerIcon size={16} playerIndex={selectedPlayer.index} />
-                        <span style={{marginLeft: 8}}>
-                            {isCorporationSelection
-                                ? selectedPlayer.username
-                                : selectedPlayer.corporation.name}
-                        </span>
-                        <ScorePopover playerIndex={selectedPlayer.index}>
-                            <TerraformRating>{terraformRating} TR</TerraformRating>
-                        </ScorePopover>
-                    </CorporationHeader>
-                    {isCorporationSelection ? (
-                        <CorporationSelector player={selectedPlayer} />
-                    ) : (
-                        sections.map(section => (
-                            <PlayerPanelSection
-                                section={section}
-                                key={section}
-                                player={selectedPlayer}
-                                isLoggedInPlayer={selectedPlayer.index === loggedInPlayer.index}
-                            />
-                        ))
-                    )}
-                </Flex>
-            </PanelWithTabs>
-        </Flex>
+            {!isCorporationSelection && (
+                <React.Fragment>
+                    <PlayerTagCounts
+                        player={player}
+                        tagFilterConfig={tagFilterConfig}
+                        setTagFilterConfig={setTagFilterConfig}
+                    />
+                    <PlayerPlayedCards
+                        player={player}
+                        playerPanelRef={playerPanelRef}
+                        tagFilterConfig={tagFilterConfig}
+                    />
+                </React.Fragment>
+            )}
+
+            <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
+                <PlayerCardActions player={player} />
+            </Flex>
+            {isCorporationSelection ? (
+                <CorporationSelector
+                    player={player}
+                    isLoggedInPlayer={player.index === loggedInPlayer.index}
+                />
+            ) : null}
+        </OuterWrapper>
     );
 };
+
+export default PlayerPanel;

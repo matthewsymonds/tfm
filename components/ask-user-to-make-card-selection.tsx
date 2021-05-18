@@ -1,7 +1,6 @@
 import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
-import {Card as CardModel} from 'models/card';
 import {Card as CardComponent, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
@@ -10,15 +9,16 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useRef, useState} from 'react';
+import {Card as CardModel} from 'models/card';
+import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
+import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {colors} from './ui';
-import styled from 'styled-components';
 
 const HoverToPreviewPlaceholderBase = styled.div`
     width: ${CARD_WIDTH}px;

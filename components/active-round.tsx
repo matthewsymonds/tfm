@@ -2,14 +2,18 @@ import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confir
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
 import {Card as CardComponent} from 'components/card/Card';
+import {PlayerIcon} from 'components/icons/player';
 import {PlayerHand} from 'components/player-hand';
-import PlayerPanel from 'components/player-panel-new';
+import PlayerPanel from 'components/player-panel';
+import {ScorePopover} from 'components/popovers/score-popover';
+import {PlayerResourceBoard} from 'components/resource';
 import {TopBar} from 'components/top-bar';
+import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {GameStage} from 'constants/game';
+import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
-import React from 'react';
+import React, {useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -31,6 +35,41 @@ const PromptTitle = styled.h3`
     margin-top: 16px;
 `;
 
+const CorporationHeader = styled.h2`
+    display: inline-flex;
+    justify-content: start;
+    width: 100%;
+    align-items: center;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 4px;
+    margin-top: 0px;
+`;
+
+const CorporationHeaderOuter = styled.div<{selected: boolean}>`
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 8px;
+    background: ${props => (props.selected ? 'hsla(0, 0%, 100%, 0.2)' : 'transparent')};
+`;
+
+const TerraformRating = styled.span`
+    display: inline-flex;
+    cursor: pointer;
+    color: ${colors.GOLD};
+    margin-left: 8px;
+    &:hover {
+        opacity: 0.75;
+        border: none;
+        background: none !important;
+    }
+    &:active {
+        opacity: 1;
+    }
+`;
+
 export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}) => {
     /**
      * Hooks
@@ -38,6 +77,10 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const players = useTypedSelector(state => state.players);
     const loggedInPlayer = players[loggedInPlayerIndex];
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+
+    const isCorporationSelection = useTypedSelector(
+        state => state.common.gameStage === GameStage.CORPORATION_SELECTION
+    );
 
     /**
      * Derived state
@@ -56,6 +99,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     }
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
+    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
 
     const showBoardFirstInActionPrompt =
         isPlayerMakingDecision &&
@@ -159,18 +203,59 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     </ActionOverlay>
                 )}
                 <Flex
-                    className="active-round-outer"
                     padding="8px"
+                    className="active-round-outer"
                     flex="auto"
                     overflow="auto"
                     alignItems="flex-start"
                 >
-                    <Flex flexWrap="wrap" justifyContent="center" marginRight="4px">
-                        {players.map((player, index) => (
-                            <Flex key={index} margin="2px">
-                                <PlayerPanel player={player} />
+                    <Flex
+                        flexDirection="column"
+                        background="#333"
+                        marginRight="8px"
+                        marginBottom="8px"
+                        borderRadius="4px"
+                        paddingTop="4px"
+                        borderStyle="solid"
+                        borderColor={PLAYER_COLORS[selectedPlayerIndex]}
+                        borderWidth="3px"
+                    >
+                        <Flex flexWrap="wrap">
+                            {players.map((player, index) => (
+                                <CorporationHeaderOuter
+                                    selected={index === selectedPlayerIndex}
+                                    className="display"
+                                    key={index}
+                                >
+                                    <CorporationHeader
+                                        onClick={() => setSelectedPlayerIndex(index)}
+                                    >
+                                        <Flex alignItems="center">
+                                            <PlayerIcon size={16} playerIndex={player.index} />
+                                            <span style={{marginLeft: 8}}>
+                                                {player.corporation.name}
+                                            </span>
+                                        </Flex>
+                                        <ScorePopover playerIndex={player.index}>
+                                            <TerraformRating>
+                                                {player.terraformRating} TR
+                                            </TerraformRating>
+                                        </ScorePopover>
+                                    </CorporationHeader>
+                                    {!isCorporationSelection && (
+                                        <PlayerResourceBoard
+                                            player={player}
+                                            isLoggedInPlayer={player.index === loggedInPlayer.index}
+                                        />
+                                    )}
+                                </CorporationHeaderOuter>
+                            ))}
+                        </Flex>
+                        <Flex flexWrap="wrap" justifyContent="center" marginRight="4px">
+                            <Flex margin="2px">
+                                <PlayerPanel player={players[selectedPlayerIndex]} />
                             </Flex>
-                        ))}
+                        </Flex>
                     </Flex>
 
                     <Flex className="active-round-right" flexDirection="column">

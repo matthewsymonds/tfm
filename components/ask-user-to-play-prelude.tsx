@@ -52,7 +52,7 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
 
     return (
         <>
-            <h2>
+            <h2 style={{color: '#eee'}}>
                 {player.choosePrelude
                     ? 'Please choose the prelude you would like to play.'
                     : 'Please play your preludes.'}

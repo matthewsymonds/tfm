@@ -1,9 +1,9 @@
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
+import {Card as CardComponent} from 'components/card/Card';
 import {VariableAmount} from 'constants/variable-amount';
 import {useApiClient} from 'hooks/use-api-client';
 import {Card as CardModel} from 'models/card';
-import {Card as CardComponent} from 'components/card/Card';
 import React, {useState} from 'react';
 import {PlayerState} from 'reducer';
 import {SerializedCard} from 'state-serialization';
