@@ -305,7 +305,10 @@ function getOptionsForDecreaseProduction(
         // insulation-specific
         maxAmount = player.productions[resource];
     } else {
-        maxAmount = Math.min(player.productions[resource], amount as number);
+        maxAmount = Math.min(
+            player.productions[resource] - MinimumProductions[resource],
+            amount as number
+        );
     }
 
     const isVariable = amount === VariableAmount.USER_CHOICE_MIN_ZERO;
