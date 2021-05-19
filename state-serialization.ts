@@ -124,7 +124,7 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                 continue;
             }
 
-            (player.pendingCardSelection = player.pendingCardSelection
+            player.pendingCardSelection = player.pendingCardSelection
                 ? {
                       possibleCards: Array(player.pendingCardSelection.possibleCards.length),
                       draftPicks: player.pendingCardSelection.draftPicks
@@ -133,8 +133,8 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                       numCardsToTake: player.pendingCardSelection.numCardsToTake,
                       isBuyingCards: player.pendingCardSelection.isBuyingCards,
                   }
-                : undefined),
-                (player.cards = Array(player.cards.length));
+                : undefined;
+            player.cards = state.common.gameStage === GameStage.ACTIVE_ROUND ? Array(player.cards.length) : [];
             player.possibleCorporations = Array(player.possibleCorporations.length);
             player.possiblePreludes = Array(player.possiblePreludes?.length ?? 0);
             player.preludes = Array(player.preludes?.length ?? 0);
