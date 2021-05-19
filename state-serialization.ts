@@ -134,7 +134,12 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                       isBuyingCards: player.pendingCardSelection.isBuyingCards,
                   }
                 : undefined;
-            player.cards = state.common.gameStage === GameStage.ACTIVE_ROUND ? Array(player.cards.length) : [];
+            player.cards = Array(
+                state.common.gameStage === GameStage.ACTIVE_ROUND
+                    ? player.cards.length
+                    : // Don't reveal card selection info during draft/card selection
+                      player.previousCardsInHand ?? 0
+            );
             player.possibleCorporations = Array(player.possibleCorporations.length);
             player.possiblePreludes = Array(player.possiblePreludes?.length ?? 0);
             player.preludes = Array(player.preludes?.length ?? 0);
