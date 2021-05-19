@@ -13,6 +13,7 @@ import {Box, Flex} from 'components/box';
 import {ChangeResourceIconography} from 'components/card/CardIconography';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
+import {MinimumProductions} from 'constants/game';
 import {
     getResourceName,
     isStorableResource,
@@ -632,7 +633,7 @@ function OptionComponent({
 
     let max = player.resources[option.resource];
     if (option.actionType === 'decreaseProduction') {
-        max = player.productions[option.resource];
+        max = player.productions[option.resource] - MinimumProductions[option.resource];
     }
 
     if (option.card && isStorableResource(option.resource)) {
