@@ -103,7 +103,7 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
                 {isLoggedInPlayersTurn && isGreeneryPlacement && (
                     <span>{greeneryPlacementText}</span>
                 )}
-                {actionGuard.canSkipAction()[0] && (
+                {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
                     <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
                         {isGreeneryPlacement
                             ? 'End greenery placement'
