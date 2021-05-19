@@ -2997,7 +2997,7 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Add 1 microbe to ANY card.',
-            gainResource: {[Resource.FLOATER]: 1},
+            gainResource: {[Resource.MICROBE]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         cost: 3,
