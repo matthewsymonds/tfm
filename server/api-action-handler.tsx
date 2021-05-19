@@ -555,7 +555,7 @@ export class ApiActionHandler implements GameActionHandler {
     }
 
     async continueAfterRevealingCardsAsync() {
-        this.queue.push(discardRevealedCards());
+        this.queue.unshift(discardRevealedCards());
         this.processQueue();
     }
 
