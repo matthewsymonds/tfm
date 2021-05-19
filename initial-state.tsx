@@ -87,6 +87,8 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
         options,
     };
 
+    shuffle(players);
+
     for (const player of players) {
         const possibleCorporations = sampleCards(allCorporations, 2).concat(
             DEV_corporationOverrides()
