@@ -29,7 +29,7 @@ const ActionOverlayBase = styled.div<{isVisible: boolean}>`
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    overflow: auto;
     transition: all 0.3s;
 `;
 
