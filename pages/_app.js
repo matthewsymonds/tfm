@@ -90,6 +90,12 @@ export const GlobalStyles = createGlobalStyle`
             flex-shrink: 0;
         }
     }
+    .player-cards-and-tags {
+        align-self: flex-start;
+        @media (max-width: 1366px) {
+            align-self: center;
+        }
+    }
     .board-wrapper {
         @media (max-width: 1366px) {
             width: fit-content;
