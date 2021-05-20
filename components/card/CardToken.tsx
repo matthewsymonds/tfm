@@ -164,6 +164,7 @@ export const CardTextToken = ({
     const [ref, rect] = useRect();
 
     const showAbove = rect.top > 320;
+    const topRelativeToWindow = rect.top + window.scrollY;
 
     return (
         <Flex display="inline-flex">
@@ -189,7 +190,7 @@ export const CardTextToken = ({
                         position: 'absolute',
                         zIndex: 10,
                         left: Math.min(rect.left, window.innerWidth - 210),
-                        top: showAbove ? rect.top - 310 : rect.top + 30,
+                        top: showAbove ? topRelativeToWindow - 310 : topRelativeToWindow + 30,
                     }}
                 >
                     <LiveCardComponent card={card} />
