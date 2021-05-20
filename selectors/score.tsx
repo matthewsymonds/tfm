@@ -90,9 +90,9 @@ export function getAwardScore(state: GameState, playerIndex: number) {
         const secondPlaceQuantity = awardScores
             .map(a => (a.quantity === firstPlaceQuantity ? 0 : a.quantity))
             .sort((a, b) => b - a)[0];
-        const shouldScoreFirstPlace = firstPlaceQuantity >= 0;
+        const shouldScoreFirstPlace = firstPlaceQuantity > 0;
         const shouldScoreSecondPlace =
-            numWinners === 1 && state.players.length > 2 && secondPlaceQuantity >= 0;
+            numWinners === 1 && state.players.length > 2 && secondPlaceQuantity > 0;
         awardScores.forEach(awardScore => {
             if (awardScore.quantity === firstPlaceQuantity && shouldScoreFirstPlace) {
                 awardScore.score = 5;

@@ -28,16 +28,16 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken card={playedCard} />
+                <CardTextToken card={playedCard} showCardOnHover={true} />
                 <span>which triggered</span>
-                <CardTextToken card={card} />
+                <CardTextToken card={card} showCardOnHover={true} />
             </Box>
         );
     } else if (card) {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken card={card} />
+                <CardTextToken card={card} showCardOnHover={true} />
             </Box>
         );
     } else {
