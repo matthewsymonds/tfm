@@ -40,6 +40,9 @@ interface BoxProps {
     fontSize: string;
     alignSelf: string;
     alignItems: string;
+    float: string;
+    boxSizing: string;
+    flexShrink: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -91,6 +94,9 @@ export const Box = styled.div<Partial<BoxProps>>`
     font-size: ${props => props.fontSize};
     align-self: ${props => props.alignSelf};
     align-items: ${props => props.alignItems};
+    float: ${props => props.float};
+    box-sizing: ${props => props.boxSizing};
+    flex-shrink: ${props => props.flexShrink};
 `;
 
 export const Flex = styled(Box)<Partial<FlexProps>>`

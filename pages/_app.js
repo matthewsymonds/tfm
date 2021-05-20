@@ -23,11 +23,6 @@ export const GlobalStyles = createGlobalStyle`
         overscroll-behavior: none;
     }
     html, body, #__next, #__next > div {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
     }
     #__next > div {
       display: flex;
@@ -68,10 +63,37 @@ export const GlobalStyles = createGlobalStyle`
         flex-direction: row;
         justify-content: center;
 
-        @media (max-width: 1210px) {
-          flex-direction: column;
+        @media (max-width: 1366px) {
+          flex-direction: column-reverse;
           justify-content: initial;
           align-items: center;
+          padding-top: 16px;
+          padding-bottom: 110px;
+        }
+    }
+    .active-round-right {
+        padding-right: 8px;
+        @media (max-width: 1366px) {
+            padding-top: 16px;
+            padding-right: 0px;
+        }
+    }
+    .player-details {
+        flex-direction: row;
+        width: 100%;
+        @media (max-width: 1366px) {
+            flex-direction: column;
+            margin-right: 0px;
+            flex-shrink: 0;
+        }
+    }
+    .player-boards {
+        flex-direction: column;
+        justify-content: center;
+        @media (max-width: 1366px) {
+            flex-direction: row;
+            margin-left: auto;
+            margin-right: auto;
         }
     }
     .ellipsis {
