@@ -106,6 +106,7 @@ export const GlobalStyles = createGlobalStyle`
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
+            padding-left: 8px;
         }
     }
     .player-boards {
