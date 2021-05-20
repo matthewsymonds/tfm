@@ -224,10 +224,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                         selected={index === selectedPlayerIndex}
                                         className="display"
                                         key={index}
+                                        onClick={() => setSelectedPlayerIndex(index)}
                                     >
-                                        <CorporationHeader
-                                            onClick={() => setSelectedPlayerIndex(index)}
-                                        >
+                                        <CorporationHeader>
                                             <Flex alignItems="center">
                                                 <PlayerIcon size={16} playerIndex={player.index} />
                                                 <span style={{marginLeft: 8}}>

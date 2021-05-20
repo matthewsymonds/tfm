@@ -29,6 +29,9 @@ const AllButton = styled(BlankButton)<{isEnabled}>`
     color: white;
     font-size: 12px;
     color: white;
+    height: 32px;
+    min-width: 45px;
+    margin-right: 4px;
     opacity: ${props => (props.isEnabled ? 1 : 0.4)};
     transition: opacity 150ms;
     padding: 2px 6px;
@@ -38,6 +41,7 @@ const AllButton = styled(BlankButton)<{isEnabled}>`
         opacity: 1;
     }
 
+    background-color: ${props => (props.isEnabled ? colors.CARD_BORDER_1 : '')};
     &:hover {
         background-color: ${colors.CARD_BORDER_1};
         opacity: ${props => (props.isEnabled ? 1 : 0.8)};
@@ -46,6 +50,8 @@ const AllButton = styled(BlankButton)<{isEnabled}>`
 
 export enum TagFilterMode {
     ALL = 'all',
+    GREEN = 'green',
+    BLUE = 'blue',
     SUBSET = 'subset',
 }
 
@@ -68,7 +74,7 @@ function PlayerTagCounts({
     const {filterMode, filteredTags} = tagFilterConfig;
     const toggleTag = useCallback(
         tag => {
-            if (filterMode === TagFilterMode.ALL) {
+            if ([TagFilterMode.ALL, TagFilterMode.BLUE, TagFilterMode.GREEN].includes(filterMode)) {
                 // if there's only one tag, don't do anything
                 if (tagCountsByName.length === 1) return;
                 // If everything is selected and user clicks a tag, assume they
@@ -106,16 +112,34 @@ function PlayerTagCounts({
     );
 
     return (
-        <Flex margin="4px 0" alignItems="center">
-            <AllButton
-                onClick={() =>
-                    setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []})
-                }
-                isEnabled={filterMode === TagFilterMode.ALL}
-            >
-                <span>All</span>
-            </AllButton>
-            <Flex flexWrap="wrap">
+        <Flex margin="4px 0" alignItems="flex-start" justifyContent="space-between" width="100%">
+            <Flex>
+                <AllButton
+                    onClick={() =>
+                        setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []})
+                    }
+                    isEnabled={filterMode === TagFilterMode.ALL}
+                >
+                    <span>All</span>
+                </AllButton>
+                <AllButton
+                    onClick={() =>
+                        setTagFilterConfig({filterMode: TagFilterMode.BLUE, filteredTags: []})
+                    }
+                    isEnabled={filterMode === TagFilterMode.BLUE}
+                >
+                    <span>Blue</span>
+                </AllButton>
+                <AllButton
+                    onClick={() =>
+                        setTagFilterConfig({filterMode: TagFilterMode.GREEN, filteredTags: []})
+                    }
+                    isEnabled={filterMode === TagFilterMode.GREEN}
+                >
+                    <span>Green</span>
+                </AllButton>
+            </Flex>
+            <Flex flexWrap="wrap" flexDirection="row-reverse">
                 {tagCountsByName.map(tagCount => {
                     const [tag, count] = tagCount;
                     return (

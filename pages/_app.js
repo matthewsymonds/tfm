@@ -70,7 +70,7 @@ export const GlobalStyles = createGlobalStyle`
 
         @media (max-width: 1366px) {
           flex-direction: column-reverse;
-          justify-content: initial;
+          justify-content: flex-end;
           align-items: center;
           margin-bottom: 100px;
         }

@@ -1,10 +1,12 @@
 import Color from 'color';
 import {Flex} from 'components/box';
-import {Card as CardComponent} from 'components/card/Card';
+import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {Card as CardModel} from 'models/card';
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {usePopper} from 'react-popper';
+import {useRect} from 'react-use-rect';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -19,24 +21,32 @@ type CardToggleTokenProps = SharedCardTokenProps & {
 };
 type CardTextTokenProps = SharedCardTokenProps & {
     showCardOnHover: boolean;
+    variant?: 'pill' | 'text';
 };
 
-const CardTextTokenBase = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
-    color: ${props => props.cardStyle.color};
+const CardTextTokenBase = styled.div<{
+    cardStyle: {color: string};
+    margin?: string;
+    variant: 'pill' | 'text';
+}>`
+    background-color: ${props =>
+        props.variant === 'pill' ? props.cardStyle.color : 'transparent'};
+    color: ${props => (props.variant === 'pill' ? colors.TEXT_LIGHT_1 : props.cardStyle.color)};
+    border-radius: ${props => (props.variant === 'pill' ? '4px' : '0')};
+    padding: ${props => (props.variant === 'pill' ? '4px' : '0')};
     display: inline-flex;
-    font-weight: 700;
-    font-size: 1.1em;
     margin: ${props => props.margin ?? '0 4px'};
     cursor: default;
+    font-size: 0.8em;
     transition: all 0.1s;
+    opacity: 0.8;
     &:hover {
-        color: ${props => new Color(props.cardStyle.color).darken(0.2).saturate(0.5).toString()};
         opacity: 1;
     }
 `;
 
 const CardToggleTokenLabel = styled.label<{
-    cardStyle: React.CSSProperties;
+    cardStyle: {color: string};
     margin?: string;
     isSelected?: boolean;
 }>`
@@ -138,28 +148,52 @@ export const CardToggleToken = ({
     );
 };
 
-export const CardTextToken = ({card, margin, showCardOnHover}: CardTextTokenProps) => {
+export const CardTextToken = ({
+    card,
+    margin,
+    showCardOnHover,
+    variant = 'text',
+}: CardTextTokenProps) => {
     const [isHovering, setIsHovering] = useState(false);
     const cardStyle = getStyleForCardType(card.type);
 
+    const _setIsHovering = useCallback((isHovering: boolean) => {
+        setIsHovering(isHovering);
+    }, []);
+
+    const [ref, rect] = useRect();
+
+    const showAbove = rect.top > 320;
+
     return (
-        <Flex position="relative" display="inline-flex">
+        <Flex display="inline-flex">
             <CardTextTokenBase
+                ref={ref}
                 cardStyle={cardStyle}
                 margin={margin}
+                variant={variant}
                 {...(showCardOnHover
                     ? {
-                          onMouseEnter: () => setIsHovering(true),
-                          onMouseLeave: () => setIsHovering(false),
+                          onMouseEnter: () => _setIsHovering(true),
+                          onMouseLeave: () => {
+                              _setIsHovering(false);
+                          },
                       }
                     : {})}
             >
-                {card.name}
+                {card.name === '' ? 'EVENT' : card.name}
             </CardTextTokenBase>
             {isHovering && showCardOnHover && (
-                <Flex position="absolute" style={{top: '30px', left: '8px'}}>
-                    <CardComponent card={card} />
-                </Flex>
+                <div
+                    style={{
+                        position: 'absolute',
+                        zIndex: 10,
+                        left: Math.min(rect.left, window.innerWidth - 210),
+                        top: showAbove ? rect.top - 310 : rect.top + 30,
+                    }}
+                >
+                    <LiveCardComponent card={card} />
+                </div>
             )}
         </Flex>
     );

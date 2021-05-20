@@ -52,7 +52,7 @@ export function CardHand({
     const prevContainerWidth = usePrevious(containerWidth);
 
     // enforce at least a half CARD_WIDTH padding on each side (x2 = 1 CARD_WIDTH)
-    const maximumCardWidth = Math.max(0, containerWidth - CARD_WIDTH);
+    const maximumCardWidth = Math.max(0, containerWidth - CARD_WIDTH / 4);
 
     // ensure that cards are overlapping at least a little (e.g. when showing few cards
     // on a large screen, we don't want them super spaced out, but consolidated in middle)
