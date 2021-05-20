@@ -60,6 +60,15 @@ export default function Game(props) {
     const isSyncing = useTypedSelector(state => state.syncing);
 
     useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        // Sync when the user looks at an old tab
+        window.addEventListener('focus', retrieveGame);
+        return () => window.removeEventListener('focus', retrieveGame);
+    }, []);
+
+    useEffect(() => {
         // Do not sync if you're the only one who can play!
         if (
             (gameStage !== GameStage.CORPORATION_SELECTION &&

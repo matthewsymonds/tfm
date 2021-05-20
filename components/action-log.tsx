@@ -138,6 +138,7 @@ const LogEntryInner = ({
 
     corporationNames.forEach((corpName, index) => {
         let i = 0;
+        let key = 0;
         while (i < elements.length) {
             const stringOrElement = elements[i];
             if (typeof stringOrElement !== 'string') {
@@ -157,7 +158,7 @@ const LogEntryInner = ({
                     elements.splice(
                         i,
                         0,
-                        <Flex margin="0 4px" key={i}>
+                        <Flex margin="0 4px" key={entryIndex + corpName + key++}>
                             <PlayerCorpAndIcon player={players[index]} />
                         </Flex>
                     );
