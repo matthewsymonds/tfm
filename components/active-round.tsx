@@ -204,7 +204,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     </ActionOverlay>
                 )}
                 <Flex
-                    padding="8px"
+                    paddingTop="8px"
                     className="active-round-outer"
                     flex="auto"
                     overflow="auto"
