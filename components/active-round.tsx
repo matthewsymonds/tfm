@@ -128,9 +128,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         <React.Fragment>
             <Flex
                 flexDirection="column"
+                position="relative"
                 flex="auto"
                 overflow="hidden"
-                position="relative"
                 bottom="0px"
             >
                 <Flex flex="none">

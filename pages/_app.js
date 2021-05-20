@@ -23,6 +23,8 @@ export const GlobalStyles = createGlobalStyle`
         overscroll-behavior: none;
     }
     html, body, #__next, #__next > div {
+        height: fit-content;
+        min-height: 100%;
     }
     #__next > div {
       display: flex;
