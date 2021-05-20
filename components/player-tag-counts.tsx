@@ -112,7 +112,7 @@ function PlayerTagCounts({
     );
 
     return (
-        <Flex margin="4px 0" alignItems="flex-start" justifyContent="space-between" width="100%">
+        <Flex margin="4px 0" alignItems="center" justifyContent="space-between" width="100%">
             <Flex>
                 <AllButton
                     onClick={() =>
@@ -139,7 +139,7 @@ function PlayerTagCounts({
                     <span>Green</span>
                 </AllButton>
             </Flex>
-            <Flex flexWrap="wrap" flexDirection="row-reverse">
+            <Flex flexWrap="wrap" flexDirection="row">
                 {tagCountsByName.map(tagCount => {
                     const [tag, count] = tagCount;
                     return (
