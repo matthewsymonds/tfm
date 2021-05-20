@@ -18,7 +18,7 @@ function getPlayerGreeneries(player: PlayerState, state: GameState) {
 }
 
 function getPlayerBuildingTags(player: PlayerState) {
-    return getTags(player).filter(tag => tag === Tag.BUILDING).length;
+    return getTags(player).filter(tag => tag === Tag.BUILDING || tag === Tag.WILD).length;
 }
 
 function getPlayerCards(player: PlayerState) {
