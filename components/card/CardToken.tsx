@@ -181,7 +181,7 @@ export const CardTextToken = ({
                       }
                     : {})}
             >
-                {card.name === '' ? 'EVENT' : card.name}
+                {card.name === '' ? '[Event]' : card.name}
             </CardTextTokenBase>
             {isHovering && showCardOnHover && (
                 <div
