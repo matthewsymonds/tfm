@@ -124,11 +124,7 @@ function PlayerPlayedCards({
                 }}
                 {...attributes.popper}
             >
-                {
-                    <Box visibility={hoveredCard ? 'initial' : 'hidden'}>
-                        <LiveCardComponent card={hoveredCard ?? dummyCard} />
-                    </Box>
-                }
+                {hoveredCard && <LiveCardComponent card={hoveredCard ?? dummyCard} />}
             </div>
         </div>
     );

@@ -26,11 +26,11 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     }
 
     const preludesEls = (
-        <Flex justifyContent="center">
+        <Flex justifyContent="center" flexWrap="wrap">
             {player.preludes.map(prelude => {
                 const card = getCard(prelude);
                 return (
-                    <Box marginLeft="8px" key={card.name}>
+                    <Box marginRight="8px" marginBottom="8px" key={card.name}>
                         <Card card={card} cardContext={CardContext.SELECT_TO_PLAY} />
                     </Box>
                 );

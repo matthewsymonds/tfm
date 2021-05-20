@@ -18,6 +18,7 @@ import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
+import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
 
 const HoverToPreviewPlaceholderBase = styled.div`
@@ -51,6 +52,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
     const [cardToPreview, setCardToPreview] = useState<null | CardModel>();
+    const numPlayers = useTypedSelector(state => state.players.length);
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
@@ -77,9 +79,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     if (isDrafting) {
         cardSelectionPrompt = 'Draft 1 card';
         cardSelectionSubtitle = (
-            <Box marginBottom="16px" marginLeft="8px">
-                Passing to <PlayerCorpAndIcon player={passPlayer} />
-            </Box>
+            <Flex marginBottom="16px" marginLeft="8px" alignItems="center">
+                <span style={{marginRight: 4}}>Passing to</span>
+                <PlayerCorpAndIcon player={passPlayer} color={colors.TEXT_LIGHT_1} />
+            </Flex>
         );
         cardSelectionButtonText = `Draft ${selectedCards[0]?.name ?? 'card'}`;
         maxCards = 1;
@@ -144,15 +147,19 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         player.resources[Resource.HEAT] > 0 &&
         selectedCards.length;
 
+    const showPreviewBelow = isDrafting;
+
     return (
         <div style={{color: colors.TEXT_LIGHT_1}}>
-            <Flex justifyContent="center" marginBottom="16px">
-                {cardToPreview ? (
-                    <CardComponent card={cardToPreview} />
-                ) : (
-                    <HoverToPreviewPlaceholder />
-                )}
-            </Flex>
+            {!showPreviewBelow && (
+                <Flex justifyContent="center" marginBottom="16px">
+                    {cardToPreview ? (
+                        <CardComponent card={cardToPreview} />
+                    ) : (
+                        <HoverToPreviewPlaceholder />
+                    )}
+                </Flex>
+            )}
             {possibleCorporations.length > 0 && (
                 <CardSelector
                     min={1}
@@ -180,31 +187,70 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                 />
             )}
             <AskUserToMakeChoice>
-                {isDrafting &&
-                    pendingCardSelection.draftPicks &&
-                    pendingCardSelection.draftPicks.length > 0 && (
-                        <Flex flexDirection="column" marginRight="100px">
-                            <h3 style={{marginBottom: 4, marginLeft: 8}}>Drafted cards</h3>
-                            <Box marginBottom="16px" marginLeft="8px">
-                                Receiving from <PlayerCorpAndIcon player={passSourcePlayer} />
-                            </Box>
-                            <Flex>
-                                {pendingCardSelection.draftPicks.map(draftedCard => (
-                                    <Flex margin="8px" key={draftedCard.name}>
-                                        <CardComponent
-                                            cardContext={CardContext.SELECT_TO_BUY}
-                                            card={getCard(draftedCard)}
+                <Flex marginBottom="16" flexDirection="column">
+                    {isDrafting &&
+                        pendingCardSelection.draftPicks &&
+                        pendingCardSelection.draftPicks.length > 0 && (
+                            <Flex flexDirection="column">
+                                <span style={{fontSize: '1.1em', marginLeft: 8, fontWeight: 700}}>
+                                    Drafted cards
+                                </span>
+                                <Flex flexDirection="column" marginTop="8px">
+                                    {pendingCardSelection.draftPicks.map(draftedCard => (
+                                        <div
+                                            key={draftedCard.name}
+                                            onMouseEnter={() =>
+                                                setCardToPreview(getCard(draftedCard))
+                                            }
+                                            onMouseLeave={() => setCardToPreview(null)}
+                                        >
+                                            <div
+                                                style={{
+                                                    display: 'inline-block',
+                                                    margin: '0 0 0 16px',
+                                                    fontSize: '1.5em',
+                                                    lineHeight: '20px',
+                                                }}
+                                            >
+                                                •
+                                            </div>
+                                            <CardTextToken
+                                                showCardOnHover={false}
+                                                card={getCard(draftedCard)}
+                                                margin=" 4px 8px"
+                                            />
+                                        </div>
+                                    ))}
+                                </Flex>
+                            </Flex>
+                        )}
+                    {isWaitingOnOthersToDraft && (
+                        <Flex justifyContent="center" flexDirection="column">
+                            <em style={{margin: '16px 8px'}}>
+                                Waiting on other players to draft...
+                            </em>
+                            {numPlayers > 2 && (
+                                <React.Fragment>
+                                    <Flex alignItems="center" marginBottom="8px">
+                                        <span style={{marginRight: 4}}>Receiving from</span>
+                                        <PlayerCorpAndIcon
+                                            player={passSourcePlayer}
+                                            color={colors.TEXT_LIGHT_1}
                                         />
                                     </Flex>
-                                ))}
-                            </Flex>
+                                    <Flex alignItems="center">
+                                        <span style={{marginRight: 4}}>Passing to</span>
+                                        <PlayerCorpAndIcon
+                                            player={passPlayer}
+                                            color={colors.TEXT_LIGHT_1}
+                                        />
+                                    </Flex>
+                                </React.Fragment>
+                            )}
                         </Flex>
                     )}
-                {isWaitingOnOthersToDraft ? (
-                    <Flex alignItems="center" justifyContent="center">
-                        Waiting on other players to draft...
-                    </Flex>
-                ) : (
+                </Flex>
+                {!isWaitingOnOthersToDraft && (
                     <Flex flexDirection="column" width="100%">
                         <CardSelector
                             max={maxCards}
@@ -222,13 +268,15 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             orientation="vertical"
                             cardSelectorPrompt={
                                 <React.Fragment>
-                                    <Flex margin="0 8px">{cardSelectionPrompt}</Flex>
+                                    <Flex margin="8px" style={{fontSize: '1.1em', fontWeight: 700}}>
+                                        {cardSelectionPrompt}
+                                    </Flex>
                                     {cardSelectionSubtitle}
                                 </React.Fragment>
                             }
                             setCardToPreview={setCardToPreview}
                         />
-                        <Flex justifyContent="center" zIndex={40} marginTop="8px">
+                        <Flex justifyContent="center" zIndex={40} margin="8px 0 20px">
                             <PaymentPopover
                                 cost={selectedCards.length * 3}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
@@ -247,6 +295,15 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
+            {showPreviewBelow && (
+                <Flex justifyContent="center" marginBottom="16px">
+                    {cardToPreview ? (
+                        <CardComponent card={cardToPreview} />
+                    ) : (
+                        <HoverToPreviewPlaceholder />
+                    )}
+                </Flex>
+            )}
         </div>
     );
 }

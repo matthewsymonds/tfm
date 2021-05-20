@@ -17,7 +17,9 @@ type CardToggleTokenProps = SharedCardTokenProps & {
     isSelected?: boolean;
     disabled?: boolean;
 };
-type CardTextTokenProps = SharedCardTokenProps;
+type CardTextTokenProps = SharedCardTokenProps & {
+    showCardOnHover: boolean;
+};
 
 const CardTextTokenBase = styled.div<{cardStyle: React.CSSProperties; margin?: string}>`
     color: ${props => props.cardStyle.color};
@@ -136,22 +138,26 @@ export const CardToggleToken = ({
     );
 };
 
-export const CardTextToken = ({card, margin}: CardTextTokenProps) => {
+export const CardTextToken = ({card, margin, showCardOnHover}: CardTextTokenProps) => {
     const [isHovering, setIsHovering] = useState(false);
     const cardStyle = getStyleForCardType(card.type);
 
     return (
-        <Flex position="relative">
+        <Flex position="relative" display="inline-flex">
             <CardTextTokenBase
                 cardStyle={cardStyle}
                 margin={margin}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+                {...(showCardOnHover
+                    ? {
+                          onMouseEnter: () => setIsHovering(true),
+                          onMouseLeave: () => setIsHovering(false),
+                      }
+                    : {})}
             >
                 {card.name}
             </CardTextTokenBase>
-            {isHovering && (
-                <Flex position="absolute" zIndex={10} style={{top: '24px'}}>
+            {isHovering && showCardOnHover && (
+                <Flex position="absolute" style={{top: '30px', left: '8px'}}>
                     <CardComponent card={card} />
                 </Flex>
             )}

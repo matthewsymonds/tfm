@@ -1,6 +1,7 @@
 import Color from 'color';
 import {GameStage} from 'constants/game';
-import React, {useState} from 'react';
+import {usePrevious} from 'hooks/use-previous';
+import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
@@ -57,12 +58,28 @@ type ActionOverlayProps = {
 export const ActionOverlay = (props: ActionOverlayProps) => {
     const [isVisible, setIsVisible] = useState(!props.showBoardFirst);
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const prevShowBoardFirst = usePrevious(props.showBoardFirst);
+
+    useEffect(() => {
+        // If the overlay is already showing, and it leads to another pending action
+        // (e.g. placing a city tile from a prelude), we want to hide the overlay
+        // to let the user see the map. This does that.
+        if (
+            typeof prevShowBoardFirst === 'boolean' &&
+            !prevShowBoardFirst &&
+            props.showBoardFirst === true
+        ) {
+            setIsVisible(false);
+        }
+    }, [prevShowBoardFirst, props.showBoardFirst]);
 
     let promptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         promptText = 'Choose your corporation and starting cards';
     } else if (gameStage === GameStage.END_OF_GAME) {
         promptText = null;
+    } else if (props.actionBarPromptText) {
+        promptText = props.actionBarPromptText;
     } else {
         promptText = 'Complete your action';
     }
