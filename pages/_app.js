@@ -22,9 +22,12 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
-    html, body, #__next, #__next > div {
+    html {
+        min-height: 100vh;
+    }
+    body, #__next, #root, #__next > div {
         height: fit-content;
-        min-height: 100%;
+        min-height: 100vh;
     }
     #__next > div {
       display: flex;
