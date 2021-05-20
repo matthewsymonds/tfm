@@ -43,6 +43,7 @@ interface BoxProps {
     float: string;
     boxSizing: string;
     flexShrink: string;
+    visibility: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -97,6 +98,7 @@ export const Box = styled.div<Partial<BoxProps>>`
     float: ${props => props.float};
     box-sizing: ${props => props.boxSizing};
     flex-shrink: ${props => props.flexShrink};
+    visibility: ${props => props.visibility};
 `;
 
 export const Flex = styled(Box)<Partial<FlexProps>>`

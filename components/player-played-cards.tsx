@@ -5,11 +5,13 @@ import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import TexturedCard from 'components/textured-card';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {dummyCard} from 'models/card';
 import React, {useEffect, useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard, SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
+import {Box} from 'components/box';
 
 const CARD_TOKEN_WIDTH = 50;
 const ACTUAL_CARD_TOKEN_WIDTH = 56; // thicc borders
@@ -50,7 +52,7 @@ function PlayerPlayedCards({
         playerPanelRef.current,
         popperElement.current,
         {
-            placement: 'right-start',
+            placement: 'top-start',
         }
     );
 
@@ -122,7 +124,11 @@ function PlayerPlayedCards({
                 }}
                 {...attributes.popper}
             >
-                {hoveredCard && <LiveCardComponent card={hoveredCard} />}
+                {
+                    <Box visibility={hoveredCard ? 'initial' : 'hidden'}>
+                        <LiveCardComponent card={hoveredCard ?? dummyCard} />
+                    </Box>
+                }
             </div>
         </div>
     );
