@@ -261,10 +261,10 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             background="#333"
                             justifyContent="center"
                             overflowY="auto"
-                            alignSelf="flex-start"
+                            alignSelf="center"
                             width="fit-content"
-                            marginLeft="auto"
-                            marginRight="auto"
+                            marginLeft="8px"
+                            marginRight="8px"
                         >
                             <Flex margin="2px">
                                 <PlayerPanel player={players[selectedPlayerIndex]} />
