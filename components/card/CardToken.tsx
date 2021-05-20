@@ -164,7 +164,11 @@ export const CardTextToken = ({
     const [ref, rect] = useRect();
 
     const showAbove = rect.top > 320;
-    const topRelativeToWindow = rect.top + window.scrollY;
+    let windowScrollY = 0;
+    if (typeof window !== 'undefined') {
+        windowScrollY = window.scrollY;
+    }
+    const topRelativeToWindow = rect.top + windowScrollY;
 
     return (
         <Flex display="inline-flex">
