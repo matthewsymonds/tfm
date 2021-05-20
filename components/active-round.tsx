@@ -217,7 +217,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                         paddingTop="4px"
                         overflowX="hidden"
                     >
-                        <Box overflowX="auto" flexShrink="0">
+                        <Box overflowX="auto" flexShrink="0" marginBottom="16px">
                             <Flex className="player-boards" flexDirection="row" width="fit-content">
                                 {players.map((player, index) => (
                                     <CorporationHeaderOuter

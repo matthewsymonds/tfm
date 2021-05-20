@@ -67,8 +67,7 @@ export const GlobalStyles = createGlobalStyle`
           flex-direction: column-reverse;
           justify-content: initial;
           align-items: center;
-          padding-top: 16px;
-          padding-bottom: 110px;
+          margin-bottom: 100px;
         }
     }
     .active-round-right {

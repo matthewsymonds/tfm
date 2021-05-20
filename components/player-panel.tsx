@@ -24,7 +24,6 @@ const OuterWrapper = styled(Flex)`
 `;
 
 const CardsInHandMessage = styled.div`
-    padding-top: 8px;
     color: #ccc;
     font-size: 11px;
 `;
