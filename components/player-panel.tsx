@@ -3,8 +3,7 @@ import PlayerPlayedCards from 'components/player-played-cards';
 import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
-import {AppContext} from 'context/app-context';
-import React, {useContext, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {CorporationSelector} from './corporation-selector';
@@ -40,11 +39,6 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     });
 
     /**
-     * Hooks
-     */
-    const context = useContext(AppContext);
-
-    /**
      * State selectors
      */
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
@@ -52,7 +46,6 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     /**
      * Derived state
      */
-    const loggedInPlayer = context.getLoggedInPlayer(state);
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
     const isBetweenRounds =

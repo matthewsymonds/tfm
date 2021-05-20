@@ -19,7 +19,8 @@ import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import styled from 'styled-components';
-import {ActionOverlay} from './action-overlay';
+import {useIsomorphicLayoutEffect} from './action-log';
+import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
@@ -124,22 +125,33 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         actionBarPromptText = 'Complete your action';
     }
 
+    const [isActionOverlayVisible, setIsActionOverlayVisible] = useState(
+        !showBoardFirstInActionPrompt
+    );
+
+    useIsomorphicLayoutEffect(() => {
+        if (typeof document === 'undefined') return;
+        document.body.style.overflow =
+            isActionOverlayVisible && isPlayerMakingDecision ? 'hidden' : 'initial';
+    }, [isActionOverlayVisible && isPlayerMakingDecision]);
+
     return (
         <React.Fragment>
-            <Flex
-                flexDirection="column"
-                position="relative"
-                flex="auto"
-                overflow="hidden"
-                bottom="0px"
-            >
+            <Flex flexDirection="column" flex="auto" bottom="0px">
                 <Flex flex="none">
                     <TopBar loggedInPlayer={loggedInPlayer} />
                 </Flex>
                 {isPlayerMakingDecision && (
+                    <ActionOverlayTopBar
+                        setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
+                        promptText={actionBarPromptText ?? ''}
+                    ></ActionOverlayTopBar>
+                )}
+                {isPlayerMakingDecision && (
                     <ActionOverlay
-                        showBoardFirst={!!showBoardFirstInActionPrompt}
-                        actionBarPromptText={actionBarPromptText}
+                        isVisible={isActionOverlayVisible}
+                        setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
+                        promptText={actionBarPromptText ?? ''}
                     >
                         {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                         {loggedInPlayer.pendingChoice && (
@@ -207,7 +219,6 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     paddingTop="8px"
                     className="active-round-outer"
                     flex="auto"
-                    overflow="auto"
                     alignItems="flex-start"
                 >
                     <Flex

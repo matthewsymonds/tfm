@@ -22,12 +22,12 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
-    html {
-        min-height: 100vh;
+    html, body {
+        height: 100%;
     }
-    body, #__next, #root, #__next > div {
-        height: fit-content;
-        min-height: 100vh;
+    #__next, #root, #__next > div {
+        height: 100%;
+        min-height: 100%;
     }
     #__next > div {
       display: flex;
@@ -67,12 +67,12 @@ export const GlobalStyles = createGlobalStyle`
     .active-round-outer {
         flex-direction: row;
         justify-content: center;
+        padding-bottom: 100px;
 
         @media (max-width: 1366px) {
           flex-direction: column-reverse;
           justify-content: flex-end;
           align-items: center;
-          margin-bottom: 100px;
         }
     }
     .active-round-right {

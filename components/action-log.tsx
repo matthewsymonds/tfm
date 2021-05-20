@@ -68,7 +68,8 @@ export const LogPanelBase = styled(SwitchColors)`
     flex-direction: column-reverse;
 `;
 
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+export const useIsomorphicLayoutEffect =
+    typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 const LogPanel = () => {
     const log = useTypedSelector(state => state.log);
