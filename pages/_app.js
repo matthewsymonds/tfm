@@ -73,8 +73,12 @@ export const GlobalStyles = createGlobalStyle`
     .active-round-right {
         padding-right: 8px;
         @media (max-width: 1366px) {
+            width: 100%;
             padding-top: 16px;
             padding-right: 0px;
+            margin-left: auto;
+            margin-right: auto;
+            overflow-x: auto;
         }
     }
     .player-details {
@@ -84,6 +88,13 @@ export const GlobalStyles = createGlobalStyle`
             flex-direction: column;
             margin-right: 0px;
             flex-shrink: 0;
+        }
+    }
+    .board-wrapper {
+        @media (max-width: 1366px) {
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
     }
     .player-boards {

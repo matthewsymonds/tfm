@@ -273,7 +273,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     </Flex>
 
                     <Flex className="active-round-right" flexDirection="column">
-                        <Board />
+                        <Box className="board-wrapper">
+                            <Board />
+                        </Box>
                     </Flex>
                 </Flex>
             </Flex>
