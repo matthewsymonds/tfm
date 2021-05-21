@@ -2,8 +2,8 @@ import {Colony} from 'constants/colonies';
 import styled from 'styled-components';
 
 const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: boolean}>`
-    width: 250px;
-    height: 130px;
+    width: 200px;
+    height: 104px;
     display: flex;
     border-radius: 55px;
     background: gray;
@@ -20,8 +20,8 @@ const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: bool
 
 const ColonyTileInner = styled.div<{backgroundColor: string; reverseBackground?: boolean}>`
     content: '';
-    width: 244px;
-    height: 124px;
+    width: 196px;
+    height: 100px;
     left: 3px;
     background: radial-gradient(
         circle at center ${props => (props.reverseBackground ? 'right' : 'left')},
@@ -42,15 +42,15 @@ const ColonyTitle = styled.h2`
     justify-self: flex-start;
     text-transform: uppercase;
     text-align: left;
-    padding-top: 4px;
-    padding-left: 45px;
+    padding-top: 3px;
+    padding-left: 32px;
     margin-top: 0px;
     width: 100%;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
     box-shadow: 3px 1px 4px -5px #000000;
     background: linear-gradient(90deg, rgb(128 181 193 / 35%) 0%, rgba(0, 0, 0, 0) 55%);
     color: #111;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.2px;
 `;
 
 const ColonyPlanet = styled.div<{

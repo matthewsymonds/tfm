@@ -60,11 +60,8 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: '#cc9ad0',
         borderColor: '#61244b',
-        planetSize: 145,
-        planetPosition: {
-            right: 10,
-            top: -10,
-        },
+        planetSize: 116,
+        planetPosition: {right: 8, top: -10},
         backgroundColor: '#333',
     },
     {
@@ -80,11 +77,8 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: '#cbcade',
         borderColor: '#34375f',
-        planetSize: 30,
-        planetPosition: {
-            right: 50,
-            top: 30,
-        },
+        planetSize: 24,
+        planetPosition: {right: 40, top: 24},
         backgroundColor: '#333',
     },
     {
@@ -105,11 +99,8 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: 'moccasin',
         borderColor: 'gray',
-        planetSize: 20,
-        planetPosition: {
-            right: 25,
-            top: 25,
-        },
+        planetSize: 16,
+        planetPosition: {right: 20, top: 20},
         backgroundColor: 'moccasin',
     },
     {
@@ -133,11 +124,8 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: '#af7f76',
         borderColor: '#cabba2',
-        planetSize: 90,
-        planetPosition: {
-            right: 25,
-            top: 15,
-        },
+        planetSize: 72,
+        planetPosition: {right: 20, top: 12},
         backgroundColor: '#c1815b',
         reverseBackground: true,
     },
@@ -152,14 +140,10 @@ export const COLONIES: Colony[] = [
             increaseProduction: {[Resource.PLANT]: 1},
         }),
         colonies: [],
-
         planetColor: '#afa7a7',
         borderColor: '#3d4a43',
-        planetSize: 200,
-        planetPosition: {
-            right: 20,
-            top: -35,
-        },
+        planetSize: 160,
+        planetPosition: {right: 16, top: -35},
         backgroundColor: '#222',
     },
     {
@@ -175,11 +159,8 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: '#afcc7a',
         borderColor: '#ecead7',
-        planetSize: 120,
-        planetPosition: {
-            right: 10,
-            top: 10,
-        },
+        planetSize: 96,
+        planetPosition: {right: 8, top: 8},
         backgroundColor: '#a57664',
     },
     {
@@ -196,11 +177,8 @@ export const COLONIES: Colony[] = [
         planetColor: '#b7b3b3',
         borderColor: '#62a1e8',
         backgroundColor: '#4d70d6',
-        planetSize: 105,
-        planetPosition: {
-            right: 8,
-            top: 8,
-        },
+        planetSize: 84,
+        planetPosition: {right: 6, top: 6},
     },
     {
         name: 'Miranda',
@@ -246,11 +224,8 @@ export const COLONIES: Colony[] = [
         backgroundColor: '#b5b2b2',
         reverseBackground: true,
         borderColor: '#174256',
-        planetSize: 60,
-        planetPosition: {
-            right: 50,
-            top: 5,
-        },
+        planetSize: 48,
+        planetPosition: {right: 40, top: 4},
     },
     {
         name: 'Titan',
@@ -270,13 +245,10 @@ export const COLONIES: Colony[] = [
         colonies: [],
         planetColor: '#ab612e',
         backgroundColor: '#222',
-        borderColor: '#333',
-        planetSize: 200,
-        planetPosition: {
-            right: 15,
-            top: 0,
-        },
-        blur: 3,
+        borderColor: '#222',
+        planetSize: 160,
+        planetPosition: {right: 12, top: 0},
+        blur: 2,
     },
     {
         name: 'Triton',
@@ -291,16 +263,12 @@ export const COLONIES: Colony[] = [
         colonies: [],
         borderColor: '#5a2531',
         backgroundColor: '#222',
-        planetSize: 105,
+        planetSize: 84,
         planetColor: '#80768a',
-        planetPosition: {
-            right: 20,
-            top: 10,
-        },
+        planetPosition: {right: 16, top: 8},
         blur: 1,
     },
 ];
-
 export function getStartingColonies(numPlayers: number): SerializedColony[] {
     const colonies = shuffle([...COLONIES]);
     return sample(colonies, numPlayers === 2 ? 5 : numPlayers + 2).map(colony => ({
