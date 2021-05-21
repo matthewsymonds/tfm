@@ -94,6 +94,10 @@ export const GlobalStyles = createGlobalStyle`
             align-items: center;
             margin-right: 0px;
             flex-shrink: 0;
+
+            .player-boards-outer {
+                width: 100%
+            }
         }
     }
     .player-cards-and-tags {
