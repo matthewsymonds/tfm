@@ -1,3 +1,4 @@
+import {Colony} from 'constants/colonies';
 import {Award, Board, Cell, Milestone, Parameter} from './constants/board';
 import {GameStage} from './constants/game';
 import {Card} from './models/card';
@@ -25,4 +26,5 @@ export type BaseCommonState = {
     // Used for Flooding.
     mostRecentTilePlacementCell?: Cell;
     board: Board;
+    colonies?: Colony[];
 };

@@ -1,3 +1,5 @@
+import {sample, shuffle} from 'initial-state';
+import {serialize} from 'v8';
 import {Action} from './action';
 import {t, TileType} from './board';
 import {Resource, ResourceLocationType} from './resource';
@@ -10,9 +12,34 @@ export type Colony = {
     tradeIncome: Action[];
     // Indicates where you are on the tradeIncome track.
     // -1 initially for animals and other storable resources.
-    startingStep: number;
+    step: number;
     // What you get for establishing a colony (length 3)
     colonyPlacementBonus: Action[];
+    // Player indices
+    colonies: number[];
+    lastTrade?: Trade;
+    planetColor: string;
+    borderColor: string;
+    planetSize: number;
+    planetPosition: {
+        right: number;
+        top: number;
+    };
+    blur?: number;
+    reverseBackground?: boolean;
+    backgroundColor: string;
+};
+
+export type SerializedColony = {
+    name: string;
+    step: number;
+    colonies: number[];
+    lastTrade?: Trade;
+};
+
+type Trade = {
+    player: string;
+    round: number;
 };
 
 const STARTING_STEP = 1;
@@ -26,10 +53,19 @@ export const COLONIES: Colony[] = [
         tradeIncome: [0, 2, 3, 5, 7, 10, 13].map(quantity => ({
             gainResource: {[Resource.ENERGY]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             increaseProduction: {[Resource.ENERGY]: 1},
         }),
+        colonies: [],
+        planetColor: '#cc9ad0',
+        borderColor: '#61244b',
+        planetSize: 145,
+        planetPosition: {
+            right: 10,
+            top: -10,
+        },
+        backgroundColor: '#333',
     },
     {
         name: 'Ceres',
@@ -37,10 +73,19 @@ export const COLONIES: Colony[] = [
         tradeIncome: [1, 2, 3, 4, 6, 8, 10].map(quantity => ({
             gainResource: {[Resource.STEEL]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             increaseProduction: {[Resource.STEEL]: 1},
         }),
+        colonies: [],
+        planetColor: '#cbcade',
+        borderColor: '#34375f',
+        planetSize: 30,
+        planetPosition: {
+            right: 50,
+            top: 30,
+        },
+        backgroundColor: '#333',
     },
     {
         name: 'Enceladus',
@@ -52,11 +97,20 @@ export const COLONIES: Colony[] = [
             gainResource: {[Resource.MICROBE]: quantity},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         })),
-        startingStep: STARTING_STEP_STORABLE_RESOURCE_COLONY,
+        step: STARTING_STEP_STORABLE_RESOURCE_COLONY,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             gainResource: {[Resource.MICROBE]: 3},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         }),
+        colonies: [],
+        planetColor: 'moccasin',
+        borderColor: 'gray',
+        planetSize: 20,
+        planetPosition: {
+            right: 25,
+            top: 25,
+        },
+        backgroundColor: 'moccasin',
     },
     {
         name: 'Europa',
@@ -72,10 +126,20 @@ export const COLONIES: Colony[] = [
         ].map(resource => ({
             increaseProduction: {[resource]: 1},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             tilePlacements: [t(TileType.OCEAN)],
         }),
+        colonies: [],
+        planetColor: '#af7f76',
+        borderColor: '#cabba2',
+        planetSize: 90,
+        planetPosition: {
+            right: 25,
+            top: 15,
+        },
+        backgroundColor: '#c1815b',
+        reverseBackground: true,
     },
     {
         name: 'Ganymede',
@@ -83,10 +147,20 @@ export const COLONIES: Colony[] = [
         tradeIncome: [0, 1, 2, 3, 4, 5, 6].map(quantity => ({
             gainResource: {[Resource.PLANT]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             increaseProduction: {[Resource.PLANT]: 1},
         }),
+        colonies: [],
+
+        planetColor: '#afa7a7',
+        borderColor: '#3d4a43',
+        planetSize: 200,
+        planetPosition: {
+            right: 20,
+            top: -35,
+        },
+        backgroundColor: '#222',
     },
     {
         name: 'Io',
@@ -94,10 +168,19 @@ export const COLONIES: Colony[] = [
         tradeIncome: [2, 3, 4, 6, 8, 10, 13].map(quantity => ({
             gainResource: {[Resource.HEAT]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             increaseProduction: {[Resource.HEAT]: 1},
         }),
+        colonies: [],
+        planetColor: '#afcc7a',
+        borderColor: '#ecead7',
+        planetSize: 120,
+        planetPosition: {
+            right: 10,
+            top: 10,
+        },
+        backgroundColor: '#a57664',
     },
     {
         name: 'Luna',
@@ -105,10 +188,19 @@ export const COLONIES: Colony[] = [
         tradeIncome: [1, 2, 4, 7, 10, 13, 17].map(quantity => ({
             gainResource: {[Resource.MEGACREDIT]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             increaseProduction: {[Resource.MEGACREDIT]: 2},
         }),
+        colonies: [],
+        planetColor: '#b7b3b3',
+        borderColor: '#62a1e8',
+        backgroundColor: '#4d70d6',
+        planetSize: 105,
+        planetPosition: {
+            right: 8,
+            top: 8,
+        },
     },
     {
         name: 'Miranda',
@@ -119,11 +211,20 @@ export const COLONIES: Colony[] = [
             gainResource: {[Resource.ANIMAL]: quantity},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         })),
-        startingStep: STARTING_STEP_STORABLE_RESOURCE_COLONY,
+        step: STARTING_STEP_STORABLE_RESOURCE_COLONY,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             gainResource: {[Resource.ANIMAL]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         }),
+        colonies: [],
+        planetColor: 'lightgray',
+        borderColor: 'lightgray',
+        backgroundColor: '#4da7de',
+        planetSize: 18,
+        planetPosition: {
+            right: 40,
+            top: 40,
+        },
     },
     {
         name: 'Pluto',
@@ -135,11 +236,21 @@ export const COLONIES: Colony[] = [
             gainResource: {[Resource.ANIMAL]: quantity},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         })),
-        startingStep: STARTING_STEP_STORABLE_RESOURCE_COLONY,
+        step: STARTING_STEP_STORABLE_RESOURCE_COLONY,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             gainResource: {[Resource.ANIMAL]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         }),
+        colonies: [],
+        planetColor: '#845d5d',
+        backgroundColor: '#b5b2b2',
+        reverseBackground: true,
+        borderColor: '#174256',
+        planetSize: 60,
+        planetPosition: {
+            right: 50,
+            top: 5,
+        },
     },
     {
         name: 'Titan',
@@ -151,11 +262,21 @@ export const COLONIES: Colony[] = [
             gainResource: {[Resource.FLOATER]: quantity},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         })),
-        startingStep: STARTING_STEP_STORABLE_RESOURCE_COLONY,
+        step: STARTING_STEP_STORABLE_RESOURCE_COLONY,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             gainResource: {[Resource.FLOATER]: 3},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         }),
+        colonies: [],
+        planetColor: '#ab612e',
+        backgroundColor: '#222',
+        borderColor: '#333',
+        planetSize: 200,
+        planetPosition: {
+            right: 15,
+            top: 0,
+        },
+        blur: 3,
     },
     {
         name: 'Triton',
@@ -163,9 +284,41 @@ export const COLONIES: Colony[] = [
         tradeIncome: [0, 1, 1, 2, 3, 4, 5].map(quantity => ({
             gainResource: {[Resource.TITANIUM]: quantity},
         })),
-        startingStep: STARTING_STEP,
+        step: STARTING_STEP,
         colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
             gainResource: {[Resource.TITANIUM]: 3},
         }),
+        colonies: [],
+        borderColor: '#5a2531',
+        backgroundColor: '#222',
+        planetSize: 105,
+        planetColor: '#80768a',
+        planetPosition: {
+            right: 20,
+            top: 10,
+        },
+        blur: 1,
     },
 ];
+
+export function getStartingColonies(numPlayers: number): SerializedColony[] {
+    const colonies = shuffle([...COLONIES]);
+    return sample(colonies, numPlayers === 2 ? 5 : numPlayers + 2).map(colony => ({
+        name: colony.name,
+        step: colony.step,
+        colonies: [],
+    }));
+}
+
+const COLONIES_BY_NAME: {[name: string]: Colony} = {};
+for (const colony of COLONIES) {
+    COLONIES_BY_NAME[colony.name] = colony;
+}
+
+export function getColony(serializedColony: SerializedColony): Colony {
+    const colony = COLONIES_BY_NAME[serializedColony.name];
+    colony.colonies = serializedColony.colonies;
+    colony.step = serializedColony.step;
+    colony.lastTrade = serializedColony.lastTrade;
+    return colony;
+}

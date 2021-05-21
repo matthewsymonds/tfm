@@ -21,6 +21,7 @@ export default function NewGame(props) {
     const [isCorporateEraEnabled, setIsCorporateEraEnabled] = useState(true);
     const [isVenusNextEnabled, setIsVenusNextEnabled] = useState(true);
     const [isPreludeEnabled, setIsPreludeEnabled] = useState(true);
+    const [isColoniesEnabled, setIsColoniesEnabled] = useState(true);
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -66,6 +67,9 @@ export default function NewGame(props) {
             }
             if (isPreludeEnabled) {
                 decks.push(Deck.PRELUDE);
+            }
+            if (isColoniesEnabled) {
+                decks.push(Deck.COLONIES);
             }
         }
 
@@ -144,6 +148,15 @@ export default function NewGame(props) {
                             onChange={e => setIsPreludeEnabled(e.target.checked)}
                         />
                         Prelude
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={!isCorporateEraEnabled}
+                            checked={isCorporateEraEnabled && isColoniesEnabled}
+                            onChange={e => setIsColoniesEnabled(e.target.checked)}
+                        />
+                        Colonies
                     </label>
                 </Flex>
                 <Box marginTop="32px">

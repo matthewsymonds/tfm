@@ -30,6 +30,7 @@ import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {Board} from './board/board';
 import {Box, Flex} from './box';
+import {Colonies} from './colonies';
 import {EndOfGame} from './end-of-game';
 
 const PromptTitle = styled.h3`
@@ -221,65 +222,75 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     flex="auto"
                     alignItems="flex-start"
                 >
-                    <Flex
-                        className="player-details"
-                        marginRight="8px"
-                        marginBottom="8px"
-                        paddingTop="4px"
-                        overflowX="hidden"
-                    >
-                        <Box overflowX="auto" flexShrink="0" marginBottom="16px">
-                            <Flex className="player-boards" flexDirection="row" width="fit-content">
-                                {players.map((player, index) => (
-                                    <CorporationHeaderOuter
-                                        selected={index === selectedPlayerIndex}
-                                        className="display"
-                                        key={index}
-                                        onClick={() => setSelectedPlayerIndex(index)}
-                                    >
-                                        <CorporationHeader>
-                                            <Flex alignItems="center">
-                                                <PlayerIcon size={16} playerIndex={player.index} />
-                                                <span style={{marginLeft: 8}}>
-                                                    {player.corporation.name || player.username}
-                                                </span>
-                                            </Flex>
-                                            <ScorePopover playerIndex={player.index}>
-                                                <TerraformRating>
-                                                    {player.terraformRating} TR
-                                                </TerraformRating>
-                                            </ScorePopover>
-                                        </CorporationHeader>
-                                        {!isCorporationSelection && (
-                                            <PlayerResourceBoard
-                                                player={player}
-                                                isLoggedInPlayer={
-                                                    player.index === loggedInPlayer.index
-                                                }
-                                            />
-                                        )}
-                                    </CorporationHeaderOuter>
-                                ))}
-                            </Flex>
-                        </Box>
+                    <Flex className="active-round-left" flexDirection="column" width="100%">
                         <Flex
-                            borderColor={PLAYER_COLORS[selectedPlayerIndex]}
-                            borderRadius="4px"
-                            borderStyle="solid"
-                            borderWidth="3px"
-                            flexWrap="wrap"
-                            background="#333"
-                            justifyContent="center"
-                            overflowY="auto"
-                            className="player-cards-and-tags"
-                            width="fit-content"
-                            marginLeft="8px"
+                            className="player-details"
                             marginRight="8px"
+                            marginBottom="8px"
+                            paddingTop="4px"
+                            overflowX="hidden"
                         >
-                            <Flex margin="2px">
-                                <PlayerPanel player={players[selectedPlayerIndex]} />
+                            <Box overflowX="auto" flexShrink="0" marginBottom="16px">
+                                <Flex
+                                    className="player-boards"
+                                    flexDirection="row"
+                                    width="fit-content"
+                                >
+                                    {players.map((player, index) => (
+                                        <CorporationHeaderOuter
+                                            selected={index === selectedPlayerIndex}
+                                            className="display"
+                                            key={index}
+                                            onClick={() => setSelectedPlayerIndex(index)}
+                                        >
+                                            <CorporationHeader>
+                                                <Flex alignItems="center">
+                                                    <PlayerIcon
+                                                        size={16}
+                                                        playerIndex={player.index}
+                                                    />
+                                                    <span style={{marginLeft: 8}}>
+                                                        {player.corporation.name || player.username}
+                                                    </span>
+                                                </Flex>
+                                                <ScorePopover playerIndex={player.index}>
+                                                    <TerraformRating>
+                                                        {player.terraformRating} TR
+                                                    </TerraformRating>
+                                                </ScorePopover>
+                                            </CorporationHeader>
+                                            {!isCorporationSelection && (
+                                                <PlayerResourceBoard
+                                                    player={player}
+                                                    isLoggedInPlayer={
+                                                        player.index === loggedInPlayer.index
+                                                    }
+                                                />
+                                            )}
+                                        </CorporationHeaderOuter>
+                                    ))}
+                                </Flex>
+                            </Box>
+                            <Flex
+                                borderColor={PLAYER_COLORS[selectedPlayerIndex]}
+                                borderRadius="4px"
+                                borderStyle="solid"
+                                borderWidth="3px"
+                                flexWrap="wrap"
+                                background="#333"
+                                justifyContent="center"
+                                overflowY="auto"
+                                className="player-cards-and-tags"
+                                width="fit-content"
+                                marginLeft="8px"
+                                marginRight="8px"
+                            >
+                                <Flex margin="2px">
+                                    <PlayerPanel player={players[selectedPlayerIndex]} />
+                                </Flex>
                             </Flex>
                         </Flex>
+                        <Colonies />
                     </Flex>
 
                     <Flex className="active-round-right" flexDirection="column">

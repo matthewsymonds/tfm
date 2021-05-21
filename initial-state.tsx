@@ -1,10 +1,11 @@
+import {getStartingColonies} from 'constants/colonies';
 import {INITIAL_BOARD_STATE} from './constants/board';
 import {CardType, Deck} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {Resource} from './constants/resource';
 import {Tag} from './constants/tag';
-import {Card, cards} from './models/card';
+import {cards} from './models/card';
 import {GameOptions, GameState, PlayerState} from './reducer';
 
 export function shuffle<T>(array: T[]) {
@@ -37,8 +38,8 @@ function DEV_preludeOverides() {
     });
 }
 
-function sampleCards(cards: Card[], num: number) {
-    const result: Card[] = [];
+export function sample<T>(cards: T[], num: number) {
+    const result: T[] = [];
     for (let i = result.length; i < num; i++) {
         const card = cards.shift();
         if (!card) {
@@ -64,6 +65,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
     options.isDraftingEnabled = options.isDraftingEnabled && players.length > 1;
 
     const isPreludeEnabled = options.decks.includes(Deck.PRELUDE);
+    const isColoniesEnabled = options.decks.includes(Deck.COLONIES);
 
     const base = {
         log: ['Generation 1'] as string[],
@@ -82,6 +84,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             firstPlayerIndex: 0,
             claimedMilestones: [],
             fundedAwards: [],
+            colonies: isColoniesEnabled ? getStartingColonies(players.length) : [],
         },
         players: [] as PlayerState[],
         options,
@@ -90,9 +93,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
     shuffle(players);
 
     for (const player of players) {
-        const possibleCorporations = sampleCards(allCorporations, 2).concat(
-            DEV_corporationOverrides()
-        );
+        const possibleCorporations = sample(allCorporations, 2).concat(DEV_corporationOverrides());
 
         base.players.push({
             // 0 for card selection, 1 / 2 for active round
@@ -102,7 +103,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             terraformRating: 20,
             corporation: possibleCorporations[0],
             pendingCardSelection: {
-                possibleCards: sampleCards(deck, 10).concat(DEV_cardOverrides()),
+                possibleCards: sample(deck, 10).concat(DEV_cardOverrides()),
                 isBuyingCards: true,
             },
             possibleCorporations,
@@ -110,7 +111,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             forcedActions: [],
             playedCards: [],
             preludes: [],
-            possiblePreludes: sampleCards(preludes, isPreludeEnabled ? 4 : 0).concat(
+            possiblePreludes: sample(preludes, isPreludeEnabled ? 4 : 0).concat(
                 DEV_preludeOverides()
             ),
             resources: initialResources(),

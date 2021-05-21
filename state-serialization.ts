@@ -2,6 +2,7 @@ import {BaseCommonState} from 'BaseCommonState';
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {Action, Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
+import {SerializedColony} from 'constants/colonies';
 import {GameStage} from 'constants/game';
 import {Tag} from 'constants/tag';
 import produce from 'immer';
@@ -12,12 +13,13 @@ import {Card, cardMap, cards, dummyCard} from './models/card';
 
 export type SerializedCommonState = Omit<
     BaseCommonState,
-    'deck' | 'discardPile' | 'revealedCards' | 'preludes'
+    'deck' | 'discardPile' | 'revealedCards' | 'preludes' | 'colonies'
 > & {
     deck: SerializedCard[];
     discardPile: SerializedCard[];
     revealedCards: SerializedCard[];
     preludes: SerializedCard[];
+    colonies?: SerializedColony[];
 };
 
 export type SerializedPlayerState = Omit<
