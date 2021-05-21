@@ -278,13 +278,27 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                             key={index}
                                             onClick={() => setSelectedPlayerIndex(index)}
                                         >
+                                            {index === firstPlayerIndex && (
+                                                <FirstPlayerToken>1</FirstPlayerToken>
+                                            )}
                                             <CorporationHeader>
                                                 <Flex alignItems="center">
                                                     <PlayerIcon
                                                         size={16}
                                                         playerIndex={player.index}
                                                     />
-                                                    <span style={{marginLeft: 8}}>
+                                                    <span
+                                                        style={{
+                                                            marginLeft: 8,
+                                                            fontSize: getFontSizeForCorporation(
+                                                                player.corporation.name ||
+                                                                    player.username
+                                                            ),
+                                                        }}
+                                                        title={`${player.corporation.name ?? ''} (${
+                                                            player.username
+                                                        })`}
+                                                    >
                                                         {player.corporation.name || player.username}
                                                     </span>
                                                 </Flex>
