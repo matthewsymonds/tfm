@@ -11,7 +11,7 @@ export const BlankButton = styled.button<{
     text-decoration: none;
     background: ${props => props.bgColor ?? 'transparent'};
     color: ${props => props.textColor ?? 'black'};
-    font-family: sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
     cursor: pointer;
     text-align: center;

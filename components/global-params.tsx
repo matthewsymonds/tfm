@@ -1,3 +1,4 @@
+import {GameStage} from 'constants/game';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {GlobalParameters, Parameter} from 'constants/board';
 import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
@@ -97,22 +98,33 @@ type GlobalParamsProps = {
 };
 
 export default function GlobalParams(props: GlobalParamsProps) {
+    const generation = useTypedSelector(state => state.common.generation);
+    const turn = useTypedSelector(state => state.common.turn);
+    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
+    const roundText = isGreeneryPlacement
+        ? 'End of game Greenery placement'
+        : `Gen ${generation}, Turn ${turn}`;
+
     const venus = useTypedSelector(isPlayingVenus);
     return (
-        <Flex margin="0 4px 0 0">
-            {Object.keys(props.parameters)
-                .filter(parameter => parameter !== Parameter.VENUS || venus)
-                .map(parameter => (
-                    <GlobalParamColumn key={parameter as Parameter}>
-                        <GlobalParamValue
-                            parameter={parameter as Parameter}
-                            currentValue={props.parameters[parameter]}
-                        />
-                        <Flex alignItems="center" justifyContent="center" height="40px">
-                            <GlobalParameterIcon parameter={parameter as Parameter} size={24} />
-                        </Flex>
-                    </GlobalParamColumn>
-                ))}
+        <Flex margin="0 4px 0 0" flexDirection="column">
+            <Flex>
+                {Object.keys(props.parameters)
+                    .filter(parameter => parameter !== Parameter.VENUS || venus)
+                    .map(parameter => (
+                        <GlobalParamColumn key={parameter as Parameter}>
+                            <GlobalParamValue
+                                parameter={parameter as Parameter}
+                                currentValue={props.parameters[parameter]}
+                            />
+                            <Flex alignItems="center" justifyContent="center" height="40px">
+                                <GlobalParameterIcon parameter={parameter as Parameter} size={24} />
+                            </Flex>
+                        </GlobalParamColumn>
+                    ))}
+            </Flex>
+            <Flex className="textLight1">{roundText}</Flex>
         </Flex>
     );
 }

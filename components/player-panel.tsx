@@ -31,7 +31,6 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     /**
      * State (todo: use selectors everywhere instead)
      */
-    const state = useTypedSelector(state => state);
     const playerPanelRef = useRef<HTMLDivElement>(null);
     const [tagFilterConfig, setTagFilterConfig] = useState<TagFilterConfig>({
         filterMode: TagFilterMode.ALL,

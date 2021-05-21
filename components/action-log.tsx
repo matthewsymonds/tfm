@@ -9,6 +9,7 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {usePopper} from 'react-popper';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {BlankButton} from './blank-button';
 
 export const ActionLog = () => {
     const [isPopperVisible, setIsPopperVisible] = useState(false);
@@ -28,9 +29,13 @@ export const ActionLog = () => {
 
     return (
         <React.Fragment>
-            <Button ref={referenceElement} onClick={() => setIsPopperVisible(!isPopperVisible)}>
-                Log
-            </Button>
+            <BlankButton
+                ref={referenceElement}
+                onClick={() => setIsPopperVisible(!isPopperVisible)}
+                style={{marginRight: 4}}
+            >
+                📜
+            </BlankButton>
             <TexturedCard
                 ref={popperElement}
                 borderRadius={5}
@@ -159,9 +164,11 @@ const LogEntryInner = ({
                     elements.splice(
                         i,
                         0,
-                        <Flex margin="0 4px" key={entryIndex + corpName + key++}>
-                            <PlayerCorpAndIcon player={players[index]} />
-                        </Flex>
+                        <PlayerCorpAndIcon
+                            key={entryIndex + corpName + key++}
+                            player={players[index]}
+                            isInline={true}
+                        />
                     );
                     i++;
                     elements.splice(
@@ -179,15 +186,13 @@ const LogEntryInner = ({
     });
 
     return (
-        <Box padding="8px" key={'Log-entry-' + entryIndex}>
-            <Flex alignItems="flex-start">
-                {elements.map((el, index) => {
-                    if (typeof el === 'string') {
-                        return <span key={index}>{el}</span>;
-                    }
-                    return el;
-                })}
-            </Flex>
+        <Box padding="8px" key={'Log-entry-' + entryIndex} display="inline">
+            {elements.map((el, index) => {
+                if (typeof el === 'string') {
+                    return <span key={index}>{el}</span>;
+                }
+                return el;
+            })}
         </Box>
     );
 };

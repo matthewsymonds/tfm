@@ -51,7 +51,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
-    const [cardToPreview, setCardToPreview] = useState<null | CardModel>();
     const numPlayers = useTypedSelector(state => state.players.length);
 
     const dispatch = useDispatch();
@@ -151,15 +150,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     return (
         <div style={{color: colors.TEXT_LIGHT_1}}>
-            {!showPreviewBelow && (
-                <Flex justifyContent="center" marginBottom="16px">
-                    {cardToPreview ? (
-                        <CardComponent card={cardToPreview} />
-                    ) : (
-                        <HoverToPreviewPlaceholder />
-                    )}
-                </Flex>
-            )}
             {possibleCorporations.length > 0 && (
                 <CardSelector
                     min={1}
@@ -169,7 +159,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     options={possibleCorporations}
                     orientation="vertical"
                     cardSelectorPrompt={<Flex margin="0 8px">Select a corporation</Flex>}
-                    setCardToPreview={setCardToPreview}
                 />
             )}
             {possiblePreludes?.length > 0 && (
@@ -183,7 +172,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     }}
                     options={possiblePreludes}
                     cardSelectorPrompt={<Flex margin="0 8px">Select 2 prelude cards</Flex>}
-                    setCardToPreview={setCardToPreview}
                 />
             )}
             <AskUserToMakeChoice>
@@ -195,31 +183,16 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                 <span style={{fontSize: '1.1em', marginLeft: 8, fontWeight: 700}}>
                                     Drafted cards
                                 </span>
-                                <Flex flexDirection="column" marginTop="8px">
+                                <Flex flexWrap="wrap" margin="8px 8px 0 8px">
                                     {pendingCardSelection.draftPicks.map(draftedCard => (
-                                        <div
-                                            key={draftedCard.name}
-                                            onMouseEnter={() =>
-                                                setCardToPreview(getCard(draftedCard))
-                                            }
-                                            onMouseLeave={() => setCardToPreview(null)}
-                                        >
-                                            <div
-                                                style={{
-                                                    display: 'inline-block',
-                                                    margin: '0 0 0 16px',
-                                                    fontSize: '1.5em',
-                                                    lineHeight: '20px',
-                                                }}
-                                            >
-                                                •
-                                            </div>
-                                            <CardTextToken
-                                                showCardOnHover={false}
-                                                card={getCard(draftedCard)}
-                                                margin=" 4px 8px"
-                                            />
-                                        </div>
+                                        <CardTextToken
+                                            showCardOnHover={true}
+                                            card={getCard(draftedCard)}
+                                            margin="0 8px 8px 0"
+                                            style={{fontSize: '1em'}}
+                                            absoluteOffset={-68}
+                                            variant="pill"
+                                        />
                                     ))}
                                 </Flex>
                             </Flex>
@@ -274,9 +247,8 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                     {cardSelectionSubtitle}
                                 </React.Fragment>
                             }
-                            setCardToPreview={setCardToPreview}
                         />
-                        <Flex justifyContent="center" zIndex={40} margin="8px 0 20px">
+                        <Flex justifyContent="center" margin="8px 0 16px">
                             <PaymentPopover
                                 cost={selectedCards.length * 3}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
@@ -295,15 +267,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
-            {showPreviewBelow && (
-                <Flex justifyContent="center" marginBottom="16px">
-                    {cardToPreview ? (
-                        <CardComponent card={cardToPreview} />
-                    ) : (
-                        <HoverToPreviewPlaceholder />
-                    )}
-                </Flex>
-            )}
         </div>
     );
 }

@@ -27,9 +27,9 @@ export const colors = {
     // panels
     PANEL_BORDER: '#999',
 
-    // accordions inside of panel
-    ACCORDION_HEADER: '#bf5f3f',
-    ACCORDION_BG: '#FAE2CF',
+    // board color
+    DARK_ORANGE: '#bf5f3f',
+    LIGHT_ORANGE: '#cc7f65',
 
     // resource board
     RESOURCE_COUNTER_BG: '#f7f7f7',
