@@ -114,7 +114,7 @@ export class ActionGuard {
             return [false, 'Cannot play while selecting card(s) to discard'];
         }
 
-        if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+        if (!isActiveRound(state)) {
             return [false, 'Cannot play card outside active round'];
         }
 
@@ -174,6 +174,10 @@ export class ActionGuard {
 
         if (this.isMilestoneClaimed(milestone)) {
             return [false, 'Milestone already claimed'];
+        }
+
+        if (!isActiveRound(state)) {
+            return [false, 'Cannot claim milestone right now'];
         }
 
         // Can they afford it?
@@ -480,6 +484,10 @@ export class ActionGuard {
     ): CanPlayAndReason {
         if (!this.canAffordActionCost(action)) {
             return [false, 'Cannot afford action cost'];
+        }
+
+        if (!isActiveRound(state)) {
+            return [false, 'Cannot play card action outside active round'];
         }
 
         if (

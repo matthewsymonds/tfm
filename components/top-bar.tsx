@@ -70,7 +70,7 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
 
     return (
         <TopBarBase color={topBarColor}>
-            <Box display="inline" className="ellipsis">
+            <Flex className="ellipsis" alignItems="center" fontSize="14px">
                 {isLoggedInPlayerPassed && <span>You have passed.</span>}
                 {isEndOfGame && <span>The game has ended.</span>}
                 {!isActiveRound &&
@@ -96,14 +96,10 @@ export const TopBar = ({loggedInPlayer}: TopBarProps) => {
                 )}
                 {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
                     <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
-                        {isGreeneryPlacement
-                            ? 'End greenery placement'
-                            : action === 2
-                            ? 'Skip'
-                            : 'Pass'}
+                        {isGreeneryPlacement ? 'Pass' : action === 2 ? 'Skip' : 'Pass'}
                     </Button>
                 )}
-            </Box>
+            </Flex>
             <Flex alignItems="center" justifyContent="flex-end">
                 <ActionLog />
                 <BlankButton onClick={() => router.push('/')}>🏠</BlankButton>
