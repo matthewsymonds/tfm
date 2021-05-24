@@ -39,7 +39,7 @@ const PromptTitle = styled.h3`
 
 const CorporationHeader = styled.h2`
     display: inline-flex;
-    justify-content: start;
+    justify-content: space-between;
     width: 100%;
     align-items: center;
     color: #fff;
@@ -50,6 +50,7 @@ const CorporationHeader = styled.h2`
 
 const CorporationHeaderOuter = styled.div<{selected: boolean}>`
     display: inline-block;
+    position: relative;
     margin-left: 16px;
     margin-right: 16px;
     margin-top: 12px;
@@ -62,7 +63,7 @@ const TerraformRating = styled.span`
     display: inline-flex;
     cursor: pointer;
     color: ${colors.GOLD};
-    margin-left: 8px;
+    margin-left: 4px;
     &:hover {
         opacity: 0.75;
         border: none;
@@ -73,6 +74,38 @@ const TerraformRating = styled.span`
     }
 `;
 
+const FirstPlayerToken = styled.div`
+    position: absolute;
+    display: flex;
+    font-family: 'Open Sans', sans-serif;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+    color: #292929;
+    border-radius: 100%;
+    border: 1px solid #545454;
+    width: 20px;
+    height: 20px;
+    top: -10px;
+    right: -10px;
+    background-color: ${colors.LIGHT_ORANGE};
+`;
+
+function getFontSizeForCorporation(string) {
+    if (string.length > 24) {
+        return '0.65em';
+    } else if (string.length > 20) {
+        return '0.7em';
+    } else if (string.length > 15) {
+        return '0.8em';
+    } else if (string.length > 10) {
+        return '0.85em';
+    } else {
+        return '0.9em';
+    }
+}
+
 export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}) => {
     /**
      * Hooks
@@ -80,6 +113,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
     const players = useTypedSelector(state => state.players);
     const loggedInPlayer = players[loggedInPlayerIndex];
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+    const firstPlayerIndex = useTypedSelector(state => state.common.firstPlayerIndex);
 
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
@@ -146,14 +180,10 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                     <ActionOverlayTopBar
                         setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
                         promptText={actionBarPromptText ?? ''}
-                    ></ActionOverlayTopBar>
+                    />
                 )}
                 {isPlayerMakingDecision && (
-                    <ActionOverlay
-                        isVisible={isActionOverlayVisible}
-                        setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
-                        promptText={actionBarPromptText ?? ''}
-                    >
+                    <ActionOverlay isVisible={isActionOverlayVisible}>
                         {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                         {loggedInPlayer.pendingChoice && (
                             <AskUserToMakeActionChoice player={loggedInPlayer} />
@@ -230,7 +260,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                             paddingTop="4px"
                             overflowX="hidden"
                         >
-                            <Box overflowX="auto" flexShrink="0" marginBottom="16px">
+                            <Box
+                                className="player-boards-outer"
+                                overflowX="auto"
+                                flexShrink="0"
+                                marginBottom="16px"
+                            >
                                 <Flex
                                     className="player-boards"
                                     flexDirection="row"
@@ -243,13 +278,27 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                             key={index}
                                             onClick={() => setSelectedPlayerIndex(index)}
                                         >
+                                            {index === firstPlayerIndex && (
+                                                <FirstPlayerToken>1</FirstPlayerToken>
+                                            )}
                                             <CorporationHeader>
                                                 <Flex alignItems="center">
                                                     <PlayerIcon
                                                         size={16}
                                                         playerIndex={player.index}
                                                     />
-                                                    <span style={{marginLeft: 8}}>
+                                                    <span
+                                                        style={{
+                                                            marginLeft: 8,
+                                                            fontSize: getFontSizeForCorporation(
+                                                                player.corporation.name ||
+                                                                    player.username
+                                                            ),
+                                                        }}
+                                                        title={`${player.corporation.name ?? ''} (${
+                                                            player.username
+                                                        })`}
+                                                    >
                                                         {player.corporation.name || player.username}
                                                     </span>
                                                 </Flex>

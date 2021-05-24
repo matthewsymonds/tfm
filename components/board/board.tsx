@@ -20,7 +20,7 @@ const Circle = styled.div`
     border-radius: 50%;
     width: 450px;
     height: 450px;
-    background: ${colors.ACCORDION_HEADER};
+    background: ${colors.DARK_ORANGE};
     display: flex;
     justify-content: center;
     align-items: center;

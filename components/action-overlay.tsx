@@ -40,21 +40,16 @@ const ActionOverlayContent = styled.div<{isVisible: boolean}>`
 `;
 
 const ActionOverlayToggleButton = styled(BlankButton)`
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-size: 12px;
-    font-weight: 700;
+    font-family: 'Ubuntu Condensed', sans-serif;
 `;
 
 type ActionOverlayProps = {
     children: React.ReactNode;
-    promptText: string;
     isVisible: boolean;
-    setIsVisible: Function;
 };
 
 export const ActionOverlay = (props: ActionOverlayProps) => {
-    const {isVisible, setIsVisible, promptText} = props;
+    const {isVisible} = props;
     return (
         <ActionOverlayBase isVisible={isVisible}>
             <ActionOverlayContent isVisible={isVisible}>{props.children}</ActionOverlayContent>

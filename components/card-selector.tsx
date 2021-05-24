@@ -13,7 +13,6 @@ interface CardSelectorProps {
     options: SerializedCard[];
     orientation: string;
     selectedCards: SerializedCard[];
-    setCardToPreview: (cardOrNull: null | CardModel) => void;
     cardSelectorPrompt?: React.ReactNode;
     budget?: number;
     className?: string;
@@ -67,14 +66,11 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
                     const disabled = cannotSelect || cannotUnselect;
                     const card = getCard(option);
                     return (
-                        <Flex
-                            margin="4px"
-                            key={key}
-                            onMouseEnter={() => props.setCardToPreview(card)}
-                            onMouseLeave={() => props.setCardToPreview(null)}
-                        >
+                        <Flex margin="4px" key={key}>
                             <CardToggleToken
                                 margin="0"
+                                showCardOnHover={true}
+                                absoluteOffset={-68}
                                 card={card}
                                 isSelected={selected}
                                 disabled={disabled}

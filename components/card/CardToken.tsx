@@ -4,7 +4,7 @@ import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {Card as CardModel} from 'models/card';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {useRect} from 'react-use-rect';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
@@ -12,6 +12,8 @@ import spawnExhaustiveSwitchError from 'utils';
 type SharedCardTokenProps = {
     card: CardModel;
     margin?: string;
+    showCardOnHover?: boolean;
+    absoluteOffset?: number;
 };
 type CardToggleTokenProps = SharedCardTokenProps & {
     onClick?: () => void;
@@ -19,18 +21,17 @@ type CardToggleTokenProps = SharedCardTokenProps & {
     disabled?: boolean;
 };
 type CardTextTokenProps = SharedCardTokenProps & {
-    showCardOnHover: boolean;
+    style?: React.CSSProperties;
     variant?: 'pill' | 'text';
 };
 
 const CardTextTokenBase = styled.div<{
-    cardStyle: {color: string};
-    margin?: string;
+    color: string;
     variant: 'pill' | 'text';
+    margin?: string;
 }>`
-    background-color: ${props =>
-        props.variant === 'pill' ? props.cardStyle.color : 'transparent'};
-    color: ${props => (props.variant === 'pill' ? colors.TEXT_LIGHT_1 : props.cardStyle.color)};
+    background-color: ${props => (props.variant === 'pill' ? props.color : 'transparent')};
+    color: ${props => (props.variant === 'pill' ? 'white' : props.color)};
     border-radius: ${props => (props.variant === 'pill' ? '4px' : '0')};
     padding: ${props => (props.variant === 'pill' ? '4px' : '0')};
     display: inline-flex;
@@ -45,7 +46,7 @@ const CardTextTokenBase = styled.div<{
 `;
 
 const CardToggleTokenLabel = styled.label<{
-    cardStyle: {color: string};
+    color: string;
     margin?: string;
     isSelected?: boolean;
 }>`
@@ -57,7 +58,7 @@ const CardToggleTokenLabel = styled.label<{
     opacity: ${props => (props.isSelected ? 1 : 0.4)};
     border-radius: 4px;
     background-color: ${props => {
-        let color = new Color(props.cardStyle.color);
+        let color = new Color(props.color);
         if (!props.isSelected) {
             return color.darken(0.2).desaturate(0.2).toString();
         }
@@ -78,28 +79,18 @@ const CardToggleTokenHiddenInput = styled.input`
     width: 1px;
 `;
 
-function getStyleForCardType(cardType: CardType) {
+function getColorForCardType(cardType: CardType) {
     switch (cardType) {
         case CardType.ACTIVE:
-            return {
-                color: colors.CARD_ACTIVE,
-            };
+            return colors.CARD_ACTIVE;
         case CardType.AUTOMATED:
-            return {
-                color: colors.CARD_AUTOMATED,
-            };
+            return colors.CARD_AUTOMATED;
         case CardType.CORPORATION:
-            return {
-                color: 'black',
-            };
+            return 'black';
         case CardType.EVENT:
-            return {
-                color: colors.CARD_EVENT,
-            };
+            return colors.CARD_EVENT;
         case CardType.PRELUDE:
-            return {
-                color: colors.CARD_PRELUDE,
-            };
+            return colors.CARD_PRELUDE;
         default:
             throw spawnExhaustiveSwitchError(cardType);
     }
@@ -121,10 +112,15 @@ export const CardToggleToken = ({
     onClick,
     isSelected,
     margin,
+    showCardOnHover,
+    absoluteOffset,
     disabled,
 }: CardToggleTokenProps) => {
+    const [isHovering, setIsHovering] = useState(false);
     const id = useComponentId();
-    const cardStyle = getStyleForCardType(card.type);
+    const color = getColorForCardType(card.type);
+    const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
+
     return (
         <React.Fragment>
             <CardToggleTokenHiddenInput
@@ -137,50 +133,85 @@ export const CardToggleToken = ({
             />
             <CardToggleTokenLabel
                 htmlFor={id}
-                cardStyle={cardStyle}
+                ref={ref}
+                color={color}
                 isSelected={isSelected}
                 margin={margin}
+                {...(showCardOnHover
+                    ? {
+                          onMouseEnter: () => setIsHovering(true),
+                          onMouseLeave: () => {
+                              setIsHovering(false);
+                          },
+                      }
+                    : {})}
             >
                 {card.name}
             </CardToggleTokenLabel>
+            {isHovering && showCardOnHover && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        zIndex: 10,
+                        left,
+                        top,
+                    }}
+                >
+                    <LiveCardComponent card={card} />
+                </div>
+            )}
         </React.Fragment>
     );
 };
 
-export const CardTextToken = ({
-    card,
-    margin,
-    showCardOnHover,
-    variant = 'text',
-}: CardTextTokenProps) => {
-    const [isHovering, setIsHovering] = useState(false);
-    const cardStyle = getStyleForCardType(card.type);
-
-    const _setIsHovering = useCallback((isHovering: boolean) => {
-        setIsHovering(isHovering);
-    }, []);
-
+function useCardPositionOnHover(absoluteOffset) {
     const [ref, rect] = useRect();
-
     const showAbove = rect.top > 320;
     let windowScrollY = 0;
     if (typeof window !== 'undefined') {
         windowScrollY = window.scrollY;
     }
-    const topRelativeToWindow = rect.top + windowScrollY;
+    const topRelativeToWindow = rect.top + windowScrollY + (absoluteOffset ?? 0);
+    const top = showAbove ? topRelativeToWindow - 310 : topRelativeToWindow + 30;
+    let windowInnerWidth = 0;
+    if (typeof window !== 'undefined') {
+        windowInnerWidth = window.innerWidth;
+    }
+    const left = Math.min(rect.left, windowInnerWidth - 230);
+
+    return {
+        ref,
+        top,
+        left,
+    };
+}
+
+export const CardTextToken = ({
+    card,
+    margin,
+    showCardOnHover,
+    style,
+    absoluteOffset,
+    variant = 'text',
+}: CardTextTokenProps) => {
+    const [isHovering, setIsHovering] = useState(false);
+    const color = getColorForCardType(card.type);
+
+    const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
 
     return (
         <Flex display="inline-flex">
             <CardTextTokenBase
                 ref={ref}
-                cardStyle={cardStyle}
+                color={color}
                 margin={margin}
                 variant={variant}
+                style={style}
                 {...(showCardOnHover
                     ? {
-                          onMouseEnter: () => _setIsHovering(true),
+                          onMouseEnter: () => setIsHovering(true),
                           onMouseLeave: () => {
-                              _setIsHovering(false);
+                              setIsHovering(false);
                           },
                       }
                     : {})}
@@ -192,8 +223,8 @@ export const CardTextToken = ({
                     style={{
                         position: 'absolute',
                         zIndex: 10,
-                        left: Math.min(rect.left, window.innerWidth - 210),
-                        top: showAbove ? topRelativeToWindow - 310 : topRelativeToWindow + 30,
+                        left,
+                        top,
                     }}
                 >
                     <LiveCardComponent card={card} />

@@ -91,8 +91,13 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
         @media (max-width: 1366px) {
             flex-direction: column;
+            align-items: center;
             margin-right: 0px;
             flex-shrink: 0;
+
+            .player-boards-outer {
+                width: 100%
+            }
         }
     }
     .player-cards-and-tags {
@@ -122,6 +127,9 @@ export const GlobalStyles = createGlobalStyle`
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    .textLight1 {
+        color: ${colors.TEXT_LIGHT_1};
     }
 `;
 
@@ -214,7 +222,7 @@ class MyApp extends App {
                 <Head>
                     <title>TFM Online</title>
                     <link
-                        href="https://fonts.googleapis.com/css2?family=Roboto&family=Ubuntu+Condensed&display=swap"
+                        href="https://fonts.googleapis.com/css2?family=Roboto&family=Ubuntu+Condensed&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap"
                         rel="stylesheet"
                     />
                 </Head>
