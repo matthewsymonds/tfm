@@ -4574,7 +4574,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 3 titanium, 8 steel, and 3 plants.',
         tags: [],
         type: CardType.PRELUDE,
-        gainResource: {[Resource.TITANIUM]: 3, [Resource.STEEL]: 8, [Resource.ENERGY]: 3},
+        gainResource: {[Resource.TITANIUM]: 3, [Resource.STEEL]: 8, [Resource.PLANT]: 3},
     },
     {
         deck: Deck.PRELUDE,

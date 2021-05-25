@@ -1145,7 +1145,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             // We skip logging if the action has a cost b/c in that case we already have logged
             // e.g. "Corp X paid 2 to play Card Y's action" inside PAY_TO_PLAY_CARD_ACTION
             if (payload.shouldLog) {
-                draft.log.push(`${corporationName} played ${playedCard.name}'s action.`);
+                draft.log.push(`${corporationName} played ${playedCard.name}'s action`);
             }
         }
 
