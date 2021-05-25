@@ -163,17 +163,24 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         !showBoardFirstInActionPrompt
     );
 
+    const topBarRef = React.useRef<HTMLDivElement>(null);
+
     useIsomorphicLayoutEffect(() => {
         if (typeof document === 'undefined') return;
+        if (isActionOverlayVisible && isPlayerMakingDecision) {
+            window.requestAnimationFrame(() => {
+                topBarRef.current?.scrollIntoView();
+            });
+        }
         document.body.style.overflow =
             isActionOverlayVisible && isPlayerMakingDecision ? 'hidden' : 'initial';
-    }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay]);
+    }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay, topBarRef.current]);
 
     return (
         <React.Fragment>
             <Flex flexDirection="column" flex="auto" bottom="0px">
                 <Flex flex="none">
-                    <TopBar loggedInPlayer={loggedInPlayer} />
+                    <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 </Flex>
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
