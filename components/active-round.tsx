@@ -173,7 +173,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
             });
         }
         document.body.style.overflow =
-            isActionOverlayVisible && isPlayerMakingDecision ? 'hidden' : 'initial';
+            isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay ? 'hidden' : 'initial';
     }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay, topBarRef.current]);
 
     return (
