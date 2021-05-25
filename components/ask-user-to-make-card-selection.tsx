@@ -1,7 +1,7 @@
 import {setCorporation} from 'actions';
 import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
-import {Card as CardComponent, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
+import {CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
@@ -9,7 +9,6 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import {Card as CardModel} from 'models/card';
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';

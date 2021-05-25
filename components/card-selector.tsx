@@ -1,4 +1,3 @@
-import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';

@@ -4,7 +4,7 @@ import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {Card as CardModel} from 'models/card';
-import React, {useCallback, useLayoutEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useRect} from 'react-use-rect';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';

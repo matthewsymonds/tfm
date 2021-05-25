@@ -3743,6 +3743,7 @@ export const cardConfigs: CardConfig[] = [
     {
         cost: 3,
         deck: Deck.COLONIES,
+        // Make sure it gets picked up as a floater icon
         name: 'Floater Leasing',
         text: 'Increase your MC production 1 step per 3 floaters you have.',
         tags: [],

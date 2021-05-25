@@ -44,10 +44,6 @@ const withReduxStore = (Story, context) => {
 const withGoogleFonts = (Story, context) => {
     return (
         <React.Fragment>
-            <link
-                href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Ubuntu+Condensed&display=swap"
-                rel="stylesheet"
-            />
             <Story {...context} />
         </React.Fragment>
     );

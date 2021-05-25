@@ -1,7 +1,6 @@
-import {GameStage} from 'constants/game';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {GlobalParameters, Parameter} from 'constants/board';
-import {MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
+import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {Tooltip} from 'react-tippy';
 import {useTypedSelector} from 'reducer';

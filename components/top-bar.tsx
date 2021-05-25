@@ -1,5 +1,5 @@
 import {ActionLog} from 'components/action-log';
-import {Box, Flex} from 'components/box';
+import {Flex} from 'components/box';
 import Button from 'components/controls/button';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import {colors} from 'components/ui';

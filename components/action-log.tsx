@@ -1,5 +1,4 @@
-import {Box, Flex} from 'components/box';
-import Button from 'components/controls/button';
+import {Box} from 'components/box';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';

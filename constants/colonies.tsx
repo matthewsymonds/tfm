@@ -1,5 +1,4 @@
 import {sample, shuffle} from 'initial-state';
-import {serialize} from 'v8';
 import {Action} from './action';
 import {t, TileType} from './board';
 import {Resource, ResourceLocationType} from './resource';

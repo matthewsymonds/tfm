@@ -266,11 +266,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                                 flexShrink="0"
                                 marginBottom="16px"
                             >
-                                <Flex
-                                    className="player-boards"
-                                    flexDirection="row"
-                                    width="fit-content"
-                                >
+                                <Flex className="player-boards" width="fit-content">
                                     {players.map((player, index) => (
                                         <CorporationHeaderOuter
                                             selected={index === selectedPlayerIndex}
