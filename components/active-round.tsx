@@ -137,10 +137,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
-
-    const showBoardFirstInActionPrompt =
-        isPlayerMakingDecision &&
-        (loggedInPlayer.pendingPlayCardFromHand || loggedInPlayer.pendingTilePlacement);
+    const hideOverlay =
+        loggedInPlayer.pendingPlayCardFromHand || loggedInPlayer.pendingTilePlacement;
+    const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Choose your corporation and starting cards';
@@ -168,7 +167,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
         if (typeof document === 'undefined') return;
         document.body.style.overflow =
             isActionOverlayVisible && isPlayerMakingDecision ? 'hidden' : 'initial';
-    }, [isActionOverlayVisible && isPlayerMakingDecision]);
+    }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay]);
 
     return (
         <React.Fragment>
@@ -178,11 +177,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 </Flex>
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
+                        hideOverlay={!!hideOverlay}
                         setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
                         promptText={actionBarPromptText ?? ''}
                     />
                 )}
-                {isPlayerMakingDecision && (
+                {isPlayerMakingDecision && !hideOverlay && (
                     <ActionOverlay isVisible={isActionOverlayVisible}>
                         {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
                         {loggedInPlayer.pendingChoice && (

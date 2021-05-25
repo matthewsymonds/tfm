@@ -62,14 +62,21 @@ export const ActionOverlay = (props: ActionOverlayProps) => {
 export const ActionOverlayTopBar = ({
     promptText,
     setIsVisible,
+    hideOverlay,
 }: {
     promptText: string;
     setIsVisible: Function;
+    hideOverlay: boolean;
 }) => (
     <ActionBar>
         <span className="ellipsis">{promptText}</span>
-        <ActionOverlayToggleButton onClick={() => setIsVisible()} textColor={colors.TEXT_LIGHT_1}>
-            Toggle board
-        </ActionOverlayToggleButton>
+        {hideOverlay ? null : (
+            <ActionOverlayToggleButton
+                onClick={() => setIsVisible()}
+                textColor={colors.TEXT_LIGHT_1}
+            >
+                Toggle board
+            </ActionOverlayToggleButton>
+        )}
     </ActionBar>
 );
