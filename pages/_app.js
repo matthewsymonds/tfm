@@ -3,6 +3,7 @@ import {InputBox} from 'components/input-box';
 import {Mars} from 'components/mars';
 import {colors} from 'components/ui';
 import {AppContext, appContext} from 'context/app-context';
+import {FONTS} from 'fonts';
 import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
 import Head from 'next/head';
@@ -12,7 +13,6 @@ import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
-import {FONTS} from 'fonts';
 
 export const GlobalStyles = createGlobalStyle`
     body {

@@ -179,10 +179,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         pendingCardSelection.draftPicks &&
                         pendingCardSelection.draftPicks.length > 0 && (
                             <Flex flexDirection="column">
-                                <span style={{fontSize: '1.1em', marginLeft: 8, fontWeight: 700}}>
+                                <span style={{fontSize: '1.1em', fontWeight: 700}}>
                                     Drafted cards
                                 </span>
-                                <Flex flexWrap="wrap" margin="8px 8px 0 8px">
+                                <Flex flexWrap="wrap" marginBottom="8px" marginTop="8px">
                                     {pendingCardSelection.draftPicks.map(draftedCard => (
                                         <CardTextToken
                                             showCardOnHover={true}
@@ -198,26 +198,34 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         )}
                     {isWaitingOnOthersToDraft && (
                         <Flex justifyContent="center" flexDirection="column">
-                            <em style={{margin: '16px 8px'}}>
+                            <em style={{margin: '16px 0px'}}>
                                 Waiting on other players to draft...
                             </em>
                             {numPlayers > 2 && (
-                                <React.Fragment>
-                                    <Flex alignItems="center" marginBottom="8px">
-                                        <span style={{marginRight: 4}}>Receiving from</span>
-                                        <PlayerCorpAndIcon
-                                            player={passSourcePlayer}
-                                            color={colors.TEXT_LIGHT_1}
-                                        />
-                                    </Flex>
-                                    <Flex alignItems="center">
-                                        <span style={{marginRight: 4}}>Passing to</span>
-                                        <PlayerCorpAndIcon
-                                            player={passPlayer}
-                                            color={colors.TEXT_LIGHT_1}
-                                        />
-                                    </Flex>
-                                </React.Fragment>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span style={{marginRight: 4}}>Receiving from</span>
+                                        </td>
+                                        <td>
+                                            <PlayerCorpAndIcon
+                                                player={passSourcePlayer}
+                                                color={colors.TEXT_LIGHT_1}
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span style={{marginRight: 4}}>Passing to</span>
+                                        </td>
+                                        <td>
+                                            <PlayerCorpAndIcon
+                                                player={passPlayer}
+                                                color={colors.TEXT_LIGHT_1}
+                                            />
+                                        </td>
+                                    </tr>
+                                </table>
                             )}
                         </Flex>
                     )}

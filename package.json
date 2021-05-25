@@ -9,7 +9,7 @@
         "start": "next start",
         "prettier:base": "prettier --parser typescript",
         "prettier:check": "npm run prettier:base -- --list-different \"**/*.{ts,tsx}\"",
-        "prettier:write": "npm run organize-imports && npm run prettier:base -- --write \"**/*.{ts,tsx}\"",
+        "prettier:write": "npm run organize-imports && npm run prettier:base -- --write \"**/*.{js,ts,tsx}\" \"!.next\"",
         "organize-imports": "organize-imports-cli tsconfig.json",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
