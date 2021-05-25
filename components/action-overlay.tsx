@@ -33,10 +33,12 @@ const ActionOverlayBase = styled.div<{isVisible: boolean}>`
 
 const ActionOverlayContent = styled.div<{isVisible: boolean}>`
     flex: auto;
-    max-width: 600px;
+    width: 660px;
+    max-width: 100%;
     margin: 16px 8px;
     opacity: ${props => (props.isVisible ? 1 : 0)};
     transition: all 0.3s;
+    padding: 8px;
 `;
 
 const ActionOverlayToggleButton = styled(BlankButton)`
