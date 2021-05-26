@@ -1,21 +1,23 @@
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
-import {PRODUCTION_PADDING} from 'components/icons/production';
+import {ProductionIcon, PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {colors} from 'components/ui';
 import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
+import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {PropertyCounter} from 'constants/property-counter';
 import {getResourceBorder, Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {Card as CardModel} from 'models/card';
+import {Card, Card as CardModel} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
 
 export const InlineText = styled.span`
     margin: 3px 0;
@@ -237,8 +239,8 @@ export function ChangeResourceIconography({
                 case VariableAmount.VENUS_AND_EARTH_TAGS:
                     multiplierElement = (
                         <React.Fragment>
-                            <TagIcon name={Tag.VENUS} size={16} />;
-                            <TagIcon name={Tag.EARTH} size={16} />;
+                            <TagIcon name={Tag.VENUS} size={16} />
+                            <TagIcon name={Tag.EARTH} size={16} />
                         </React.Fragment>
                     );
                     break;
@@ -404,6 +406,22 @@ export function GainResourceIconography({
     return <ChangeResourceIconography changeResource={gainResource} opts={opts} />;
 }
 
+export function GainResourceWhenIncreaseProductionIconography() {
+    return (
+        <React.Fragment>
+            <ProductionIconography
+                card={{increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1}}}
+            />
+            <Colon />
+            <GainResourceIconography gainResource={{[Resource.ANY_STANDARD_RESOURCE]: 1}} />
+        </React.Fragment>
+    );
+}
+
+export function Colon() {
+    return <TextWithMargin>:</TextWithMargin>;
+}
+
 export function GainResourceOptionIconography({
     gainResourceOption,
     opts,
@@ -508,42 +526,6 @@ function TilePlacementIconography({tilePlacements}: {tilePlacements: Array<TileP
                 );
             })}
         </IconographyRow>
-    );
-}
-
-export function IncreaseProductionIconography({
-    increaseProduction,
-    opts,
-}: {
-    increaseProduction: PropertyCounter<Resource>;
-    opts?: {
-        shouldShowPlus?: boolean;
-    };
-}) {
-    return (
-        <ChangeResourceIconography
-            changeResource={increaseProduction}
-            opts={{...opts, isProduction: true}}
-        />
-    );
-}
-
-export function DecreaseProductionIconography({
-    decreaseProduction,
-    opts,
-}: {
-    decreaseProduction: PropertyCounter<Resource>;
-    opts?: {isInline?: boolean};
-}) {
-    return (
-        <ChangeResourceIconography
-            changeResource={decreaseProduction}
-            opts={{
-                isProduction: true,
-                isNegative: true,
-                isInline: opts?.isInline ?? false,
-            }}
-        />
     );
 }
 
@@ -760,6 +742,25 @@ function IncreaseTerraformRatingIconography({
     }
 }
 
+export function CardSelectionCriteriaIconography({
+    cardSelectionCriteria,
+}: {
+    cardSelectionCriteria: CardSelectionCriteria;
+}) {
+    switch (cardSelectionCriteria) {
+        case CardSelectionCriteria.FLOATER_ICON:
+            return <ResourceIcon name={Resource.FLOATER} />;
+        case CardSelectionCriteria.PLANT_TAG:
+            return <TagIcon name={Tag.PLANT} size={16} />;
+        case CardSelectionCriteria.SPACE_TAG:
+            return <TagIcon name={Tag.SPACE} size={16} />;
+        case CardSelectionCriteria.VENUS_TAG:
+            return <TagIcon name={Tag.VENUS} size={16} />;
+        default:
+            throw spawnExhaustiveSwitchError(cardSelectionCriteria);
+    }
+}
+
 function TemporaryAdjustmentIconography({
     temporaryParameterRequirementAdjustments,
 }: {
@@ -789,6 +790,29 @@ function TemporaryAdjustmentIconography({
     return <React.Fragment>{elements}</React.Fragment>;
 }
 
+function RevealTakeAndDiscardIconography({
+    revealTakeAndDiscard,
+}: {
+    revealTakeAndDiscard: PropertyCounter<CardSelectionCriteria>;
+}) {
+    return (
+        <React.Fragment>
+            {Object.entries(revealTakeAndDiscard).map(([cardSelectionCriteria, amount], index) => (
+                <IconographyRow key={index}>
+                    <GainResourceIconography
+                        opts={{isInline: true}}
+                        gainResource={{[Resource.CARD]: amount}}
+                    />
+                    <InlineText style={{marginLeft: 4}}>*</InlineText>
+                    <CardSelectionCriteriaIconography
+                        cardSelectionCriteria={cardSelectionCriteria as CardSelectionCriteria}
+                    />
+                </IconographyRow>
+            ))}
+        </React.Fragment>
+    );
+}
+
 function ChoiceIconography({choice}: {choice: Action[]}) {
     const elements: Array<React.ReactNode> = [];
     let index = 0;
@@ -806,6 +830,7 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     );
 }
 
+// TODO: this prop should really be called cardOrAction
 export const CardIconography = ({card}: {card: Action | CardModel}) => {
     const {
         tilePlacements,
@@ -817,6 +842,7 @@ export const CardIconography = ({card}: {card: Action | CardModel}) => {
         gainResourceOption,
         stealResource,
         increaseTerraformRating,
+        revealTakeAndDiscard,
     } = card;
     // This bad code can be alleviated by moving temporaryParameterRequirementAdjustments
     // to the base action type (it currently only exists on cards).
@@ -864,6 +890,12 @@ export const CardIconography = ({card}: {card: Action | CardModel}) => {
                         temporaryParameterRequirementAdjustments
                     }
                 />
+            )}
+            {revealTakeAndDiscard && (
+                <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
+            )}
+            {card instanceof CardModel && card.forcedAction && (
+                <CardIconography card={card.forcedAction} />
             )}
         </Flex>
     );

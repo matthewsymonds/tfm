@@ -1,7 +1,7 @@
 import {Amount} from './action';
 import {Parameter} from './board';
 import {Resource} from './resource';
-import {CardSelectionCriteria} from './reveal-take-and-discard';
+import {CardSelectionCriteria} from './card-selection-criteria';
 import {Tag} from './tag';
 
 /* Utility type that lets us represent a count, e.g.

@@ -1,5 +1,6 @@
 import {Action, ActionType, Amount, LookAtCardsConfig, PlayCardParams} from 'constants/action';
 import {Parameter, TilePlacement} from 'constants/board';
+import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {
     CardConfig,
     CardType,
@@ -14,7 +15,6 @@ import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource, ResourceLocationType} from 'constants/resource';
-import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {Tag} from 'constants/tag';
 
 export class Card {

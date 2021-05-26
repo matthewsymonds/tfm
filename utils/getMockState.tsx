@@ -3,12 +3,12 @@ import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource';
 import {getInitialState} from 'initial-state';
 import {cards} from 'models/card';
-import {GameState} from 'reducer';
+import {GameOptions, GameState} from 'reducer';
 
-export function getMockState(): GameState {
+export function getMockState(opts: GameOptions): GameState {
     let initialState = getInitialState(
         ['Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5'],
-        {
+        opts ?? {
             decks: [Deck.BASIC],
             isDraftingEnabled: false,
         }

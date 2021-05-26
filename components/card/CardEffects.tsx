@@ -1,6 +1,13 @@
+import {gainResourceWhenIncreaseProduction} from 'actions';
 import {Flex} from 'components/box';
 import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
-import {IconographyRow, InlineText, TextWithMargin} from 'components/card/CardIconography';
+import {
+    Colon,
+    GainResourceWhenIncreaseProductionIconography,
+    IconographyRow,
+    InlineText,
+    TextWithMargin,
+} from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ResourceIcon} from 'components/icons/resource';
@@ -47,10 +54,6 @@ export const CardEffects = ({card}: {card: CardModel}) => {
 
     const {effects} = card;
 
-    function renderColon(key: number = 0) {
-        return <TextWithMargin key={key}>:</TextWithMargin>;
-    }
-
     function renderDiscounts() {
         if (!card.discounts && !card.plantDiscount) {
             return null;
@@ -88,7 +91,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             );
         }
 
-        elements.push(renderColon(elements.length));
+        elements.push(<Colon />);
 
         if (card.discounts.card) {
             elements.push(
@@ -269,10 +272,14 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                             <React.Fragment>{renderExchangeRates()}</React.Fragment>
                         ) : doesCardHaveDiscounts(card) ? (
                             <React.Fragment>{renderDiscounts()}</React.Fragment>
+                        ) : card.gainResourceWhenIncreaseProduction ? (
+                            <React.Fragment>
+                                <GainResourceWhenIncreaseProductionIconography />
+                            </React.Fragment>
                         ) : (
                             <React.Fragment>
                                 {renderTrigger(effect.trigger)}
-                                {renderColon()}
+                                <Colon />
                                 {renderAction(effect.action)}
                             </React.Fragment>
                         )}

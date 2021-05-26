@@ -1,6 +1,6 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {ExchangeRates} from 'constants/card-types';
-import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
+import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {Tag} from 'constants/tag';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, PlayCardParams} from './constants/action';

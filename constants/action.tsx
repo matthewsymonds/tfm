@@ -1,7 +1,7 @@
 import {Parameter, TilePlacement} from './board';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {Resource, ResourceLocationType} from './resource';
-import {CardSelectionCriteria} from './reveal-take-and-discard';
+import {CardSelectionCriteria} from './card-selection-criteria';
 import {Tag, TagAmount} from './tag';
 import {VariableAmount} from './variable-amount';
 

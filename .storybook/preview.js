@@ -32,7 +32,7 @@ const withAppContext = (Story, context) => {
     );
 };
 
-const store = createStore(reducer, getMockState(['testUser'], {decks: [Deck.BASIC]}));
+const store = createStore(reducer, getMockState({decks: [Deck.BASIC, Deck.VENUS, Deck.PRELUDE]}));
 const withReduxStore = (Story, context) => {
     return (
         <Provider store={store}>

@@ -83,7 +83,7 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
     return (
         <TagBase
             color={tagProps.color}
-            size={size ?? 32}
+            size={size}
             background={tagProps.backgroundColor}
             showRedBorder={showRedBorder ?? null}
             margin={margin}
