@@ -1,5 +1,6 @@
 import {Meta, Story} from '@storybook/react';
 import {Card, CardContext} from 'components/card/Card';
+import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -12,7 +13,7 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            // .filter(c => c.name.length >= 25)
+            .filter(c => [Deck.VENUS, Deck.PRELUDE].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

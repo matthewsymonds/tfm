@@ -1,11 +1,11 @@
 import {Box, Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
-    DecreaseProductionIconography,
     GainResourceIconography,
     GainResourceOptionIconography,
     IncreaseParameterIconography,
-    IncreaseProductionIconography,
+    InlineText,
+    ProductionIconography,
     RemoveResourceIconography,
     RemoveResourceOptionIconography,
     StealResourceIconography,
@@ -16,6 +16,7 @@ import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
 import PaymentPopover from 'components/popovers/payment-popover';
+import { colors } from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -76,13 +77,21 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.increaseProduction) {
         elements.push(
-            <IncreaseProductionIconography increaseProduction={action.increaseProduction} />
+            <ProductionIconography card={{increaseProduction: action.increaseProduction}} />
+        );
+    }
+    if (action.increaseLowestProduction) {
+        elements.push(
+            <ProductionIconography card={{increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: action.increaseLowestProduction }}} />
         );
     }
     if (action.increaseParameter) {
         elements.push(
             <IncreaseParameterIconography increaseParameter={action.increaseParameter} />
         );
+    }
+    if (action.useBlueCardActionAlreadyUsedThisGeneration) {
+        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>=></InlineText>)
     }
     if (action.gainResource) {
         // if this action also has a remove, lets explicit mark the gain with a +
@@ -162,10 +171,7 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.decreaseProduction) {
         elements.push(
-            <DecreaseProductionIconography
-                decreaseProduction={action.decreaseProduction}
-                opts={{isInline: true}}
-            />
+            <ProductionIconography card={{decreaseProduction: action.decreaseProduction}} />
         );
     }
     return elements.map((element, i) => <React.Fragment key={i}>{element}</React.Fragment>);

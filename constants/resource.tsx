@@ -20,6 +20,7 @@ export enum Resource {
     TITANIUM = 'resourceTitanium',
     ASTEROID = 'asteroid',
     ANY_STORABLE_RESOURCE = 'anyStorableResource',
+    ANY_STANDARD_RESOURCE = 'anyStandardResource',
 }
 
 export const PROTECTED_HABITAT_RESOURCE = [Resource.PLANT, Resource.ANIMAL, Resource.MICROBE];
@@ -122,6 +123,10 @@ export const getResourceSymbol = (resource: Resource) => {
             return '☆';
         case Resource.ANY_STORABLE_RESOURCE:
             return '📦';
+        case Resource.ANY_STANDARD_RESOURCE:
+            return '?';
+        default:
+            throw spawnExhaustiveSwitchError(resource);
     }
 };
 
@@ -171,10 +176,11 @@ export const getResourceName = (resource: Resource, shouldCapitalize: boolean = 
             resourceName = 'titanium';
             break;
         case Resource.ANY_STORABLE_RESOURCE:
+        case Resource.ANY_STANDARD_RESOURCE:
             resourceName = 'resource';
             break;
         default:
-            throw new Error('unrecognized resource');
+            throw spawnExhaustiveSwitchError(resource);
     }
     return shouldCapitalize
         ? `${resourceName[0].toUpperCase()}${resourceName.slice(1)}`
@@ -212,6 +218,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
+        case Resource.ANY_STANDARD_RESOURCE:
             return 'black';
         default:
             throw spawnExhaustiveSwitchError(resource);
@@ -249,6 +256,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.TITANIUM:
             return 'black';
         case Resource.ANY_STORABLE_RESOURCE:
+        case Resource.ANY_STANDARD_RESOURCE:
             return 'white';
         default:
             throw spawnExhaustiveSwitchError(resource);

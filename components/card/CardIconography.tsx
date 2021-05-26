@@ -1,7 +1,7 @@
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
-import {PRODUCTION_PADDING} from 'components/icons/production';
+import {ProductionIcon, PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
@@ -237,8 +237,8 @@ export function ChangeResourceIconography({
                 case VariableAmount.VENUS_AND_EARTH_TAGS:
                     multiplierElement = (
                         <React.Fragment>
-                            <TagIcon name={Tag.VENUS} size={16} />;
-                            <TagIcon name={Tag.EARTH} size={16} />;
+                            <TagIcon name={Tag.VENUS} size={16} />
+                            <TagIcon name={Tag.EARTH} size={16} />
                         </React.Fragment>
                     );
                     break;
@@ -404,6 +404,22 @@ export function GainResourceIconography({
     return <ChangeResourceIconography changeResource={gainResource} opts={opts} />;
 }
 
+export function GainResourceWhenIncreaseProductionIconography() {
+    return (
+        <React.Fragment>
+            <ProductionIconography
+                card={{increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1}}}
+            />
+            <Colon />
+            <GainResourceIconography gainResource={{[Resource.ANY_STANDARD_RESOURCE]: 1}} />
+        </React.Fragment>
+    );
+}
+
+export function Colon() {
+    return <TextWithMargin>:</TextWithMargin>;
+}
+
 export function GainResourceOptionIconography({
     gainResourceOption,
     opts,
@@ -508,42 +524,6 @@ function TilePlacementIconography({tilePlacements}: {tilePlacements: Array<TileP
                 );
             })}
         </IconographyRow>
-    );
-}
-
-export function IncreaseProductionIconography({
-    increaseProduction,
-    opts,
-}: {
-    increaseProduction: PropertyCounter<Resource>;
-    opts?: {
-        shouldShowPlus?: boolean;
-    };
-}) {
-    return (
-        <ChangeResourceIconography
-            changeResource={increaseProduction}
-            opts={{...opts, isProduction: true}}
-        />
-    );
-}
-
-export function DecreaseProductionIconography({
-    decreaseProduction,
-    opts,
-}: {
-    decreaseProduction: PropertyCounter<Resource>;
-    opts?: {isInline?: boolean};
-}) {
-    return (
-        <ChangeResourceIconography
-            changeResource={decreaseProduction}
-            opts={{
-                isProduction: true,
-                isNegative: true,
-                isInline: opts?.isInline ?? false,
-            }}
-        />
     );
 }
 
