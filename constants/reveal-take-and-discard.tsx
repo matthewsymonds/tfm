@@ -1,14 +1,8 @@
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
+import {CardSelectionCriteria} from './card-selection-criteria';
 import {Resource} from './resource';
 import {Tag} from './tag';
-
-export enum CardSelectionCriteria {
-    FLOATER_ICON = 'cardSelectionCriteriaFloaterIcon',
-    VENUS_TAG = 'cardSelectionCriteriaVenusTag',
-    PLANT_TAG = 'cardSelectionCriteriaPlantTag',
-    SPACE_TAG = 'cardSelectionCriteriaSpaceTag',
-}
 
 export const CARD_SELECTION_CRITERIA_SELECTORS = {
     [CardSelectionCriteria.FLOATER_ICON]: (serializedCard: SerializedCard): boolean => {

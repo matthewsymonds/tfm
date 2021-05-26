@@ -13,7 +13,9 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            .filter(c => [Deck.VENUS, Deck.PRELUDE].includes(c.deck))
+            .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
+            // .filter(c => c.name === 'Experimental Forest')
+            // .filter(c => [Deck.VENUS, Deck.PRELUDE].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

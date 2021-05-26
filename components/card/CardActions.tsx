@@ -1,6 +1,7 @@
 import {Box, Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
+    CardSelectionCriteriaIconography,
     GainResourceIconography,
     GainResourceOptionIconography,
     IncreaseParameterIconography,
@@ -16,10 +17,11 @@ import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
 import PaymentPopover from 'components/popovers/payment-popover';
-import { colors } from 'components/ui';
+import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
+import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -82,7 +84,13 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.increaseLowestProduction) {
         elements.push(
-            <ProductionIconography card={{increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: action.increaseLowestProduction }}} />
+            <ProductionIconography
+                card={{
+                    increaseProduction: {
+                        [Resource.ANY_STANDARD_RESOURCE]: action.increaseLowestProduction,
+                    },
+                }}
+            />
         );
     }
     if (action.increaseParameter) {
@@ -91,7 +99,7 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
         );
     }
     if (action.useBlueCardActionAlreadyUsedThisGeneration) {
-        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>=></InlineText>)
+        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>=&gt;</InlineText>);
     }
     if (action.gainResource) {
         // if this action also has a remove, lets explicit mark the gain with a +
