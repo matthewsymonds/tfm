@@ -345,6 +345,7 @@ function ActionContainer({
         return (
             <Tooltip
                 sticky={true}
+                unmountHTMLWhenHide={true}
                 animation="fade"
                 html={<DisabledTooltip>{tooltipText}</DisabledTooltip>}
             >

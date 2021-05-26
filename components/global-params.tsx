@@ -73,6 +73,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                             key={`${parameter}-${value}`}
                             sticky={true}
                             animation="fade"
+                            unmountHTMLWhenHide={true}
                             html={
                                 showTooltip ? (
                                     <ColoredTooltip color={color}>

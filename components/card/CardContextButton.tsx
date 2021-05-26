@@ -51,6 +51,7 @@ export function CardContextButton({
                 if (!canPlay) {
                     buttonContent = (
                         <Tooltip
+                            unmountHTMLWhenHide={true}
                             sticky={true}
                             animation="fade"
                             html={

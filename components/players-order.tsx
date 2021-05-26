@@ -18,6 +18,7 @@ export function PlayersOrder() {
                 return (
                     <Tooltip
                         key={playerIndex}
+                        unmountHTMLWhenHide={true}
                         sticky={true}
                         animation="fade"
                         html={
