@@ -1,7 +1,6 @@
 import {Box, Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {
-    CardSelectionCriteriaIconography,
     GainResourceIconography,
     GainResourceOptionIconography,
     IncreaseParameterIconography,
@@ -21,7 +20,6 @@ import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
-import {CardSelectionCriteria} from 'constants/reveal-take-and-discard';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
