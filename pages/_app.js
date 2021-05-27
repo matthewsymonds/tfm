@@ -81,7 +81,6 @@ export const GlobalStyles = createGlobalStyle`
         padding-right: 8px;
         @media (max-width: 1366px) {
             width: 100%;
-            padding-top: 16px;
             padding-right: 0px;
             margin-left: auto;
             margin-right: auto;

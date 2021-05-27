@@ -109,6 +109,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const venus = useTypedSelector(isPlayingVenus);
     return (
         <Flex margin="0 4px 0 0" flexDirection="column">
+            <Flex className="textLight1" fontSize="12px" marginBottom="1px">{roundText}</Flex>
             <Flex>
                 {Object.keys(props.parameters)
                     .filter(parameter => parameter !== Parameter.VENUS || venus)
@@ -124,7 +125,6 @@ export default function GlobalParams(props: GlobalParamsProps) {
                         </GlobalParamColumn>
                     ))}
             </Flex>
-            <Flex className="textLight1">{roundText}</Flex>
         </Flex>
     );
 }
