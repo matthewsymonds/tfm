@@ -6,10 +6,6 @@ import absoluteUrl from 'next-absolute-url';
 import isEmail from 'validator/lib/isEmail';
 import jwt from 'jsonwebtoken';
 
-import cachegoose from 'cachegoose';
-
-cachegoose(mongoose);
-
 const uniqueNameSchema = {
     type: String,
     unique: true,

@@ -6,7 +6,6 @@ import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
 import {censorGameState} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
-import cachegoose from 'cachegoose';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -122,7 +121,6 @@ export default async (req, res) => {
         game.state = hydratedGame.state;
         game.updatedAt = Date.now();
         await game.save();
-        cachegoose.clearCache(id);
 
         res.json({
             state: censorGameState(hydratedGame.state, username),
