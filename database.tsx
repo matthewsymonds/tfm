@@ -5,12 +5,10 @@ import mongoose from 'mongoose';
 import absoluteUrl from 'next-absolute-url';
 import isEmail from 'validator/lib/isEmail';
 import jwt from 'jsonwebtoken';
-import mongooseCache from 'mongoose-cache';
 
-mongooseCache.install(mongoose, {
-    max: 500,
-    maxAge: 1000 * 60 * 2,
-});
+import cachegoose from 'cachegoose';
+
+cachegoose(mongoose);
 
 const uniqueNameSchema = {
     type: String,
