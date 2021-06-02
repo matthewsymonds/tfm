@@ -1,5 +1,10 @@
 import {appendSecurityCookieModifiers, retrieveSession, sessionsModel, usersModel} from 'database';
 import absoluteUrl from 'next-absolute-url';
+import jwt from 'jsonwebtoken';
+
+function generateAccessToken(payload: {username: string}): string {
+    return jwt.sign(payload, process.env.TOKEN_SECRET, {expiresIn: '365d'});
+}
 
 export default async (req, res) => {
     let session: typeof sessionsModel;
@@ -30,16 +35,10 @@ export default async (req, res) => {
                 return;
             }
 
-            session = new sessionsModel({
-                username,
-            });
-
-            await session.save();
-
             const theCookie = appendSecurityCookieModifiers(
                 req.secure,
                 absoluteUrl(req).host,
-                `session=${session.token}`
+                `session=${generateAccessToken({username})}`
             );
 
             res.writeHead(200, {
@@ -63,7 +62,10 @@ export default async (req, res) => {
             // Log out
             session = await retrieveSession(req, res);
             if (session) {
-                session.remove();
+                res.writeHead(200, {
+                    'Set-Cookie': '',
+                    'Content-Type': 'application/json',
+                });
             }
             return res.end();
         default:

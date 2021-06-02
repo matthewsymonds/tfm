@@ -2554,7 +2554,7 @@ export const cardConfigs: CardConfig[] = [
     {
         cost: 8,
         deck: Deck.BASIC,
-        name: 'Permafrost extraction',
+        name: 'Permafrost Extraction',
         text: 'Requires -8°C or warmer. Place 1 ocean tile.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,

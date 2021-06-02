@@ -4,6 +4,13 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import absoluteUrl from 'next-absolute-url';
 import isEmail from 'validator/lib/isEmail';
+import jwt from 'jsonwebtoken';
+import mongooseCache from 'mongoose-cache';
+
+mongooseCache.install(mongoose, {
+    max: 500,
+    maxAge: 1000 * 60 * 2,
+});
 
 const uniqueNameSchema = {
     type: String,
@@ -132,23 +139,17 @@ export async function retrieveSession(req, res) {
         handleRedirect(req, res);
         return;
     }
-
-    let session = sessions[token];
-
-    if (!session) {
-        session = await sessionsModel.findOne({
-            token,
-        });
-    }
-
-    if (!session) {
+    let payload: {username: string};
+    try {
+        payload = jwt.verify(token, process.env.TOKEN_SECRET as string);
+    } catch (error) {
         handleRedirect(req, res);
         return;
     }
-
-    sessions[token] = session;
-
-    return session;
+    if (!payload?.username) {
+        handleRedirect(req, res);
+    }
+    return payload;
 }
 
 export function appendSecurityCookieModifiers(
