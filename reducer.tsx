@@ -204,6 +204,75 @@ export function getMostRecentlyPlayedCard(player: PlayerState) {
     return player.playedCards[player.playedCards.length - 1];
 }
 
+function handleParameterIncrease(
+    draft: GameState,
+    player: PlayerState,
+    parameter: Parameter,
+    amount: number,
+    corporationName: string
+) {
+    const scale = PARAMETER_STEPS[parameter];
+    const increase = amount * scale;
+    const startingAmount = draft.common.parameters[parameter];
+    const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
+    const change = newAmount - startingAmount;
+    const userTerraformRatingChange = change / scale;
+    draft.common.parameters[parameter] = newAmount;
+    player.terraformRating += userTerraformRatingChange;
+    if (userTerraformRatingChange) {
+        player.terraformedThisGeneration = true;
+    }
+    if (change && parameter !== Parameter.OCEAN) {
+        draft.log.push(
+            `${corporationName} increased ${getParameterName(
+                parameter
+            )} ${userTerraformRatingChange} ${stepsPlural(userTerraformRatingChange)}`
+        );
+    }
+}
+
+let mostRecentlyPlayedCard: SerializedCard;
+
+function handleDrawCards(draft: GameState, numCards: number) {
+    const cards = draft.common.deck.splice(0, numCards);
+    const numCardsShort = numCards - cards.length;
+    if (numCardsShort) {
+        // Make new deck out of discard pile.
+        draft.common.deck = shuffle(draft.common.discardPile);
+        draft.common.discardPile = [];
+
+        // Draw more cards from new deck.
+        cards.push(...draft.common.deck.splice(0, numCardsShort));
+    }
+
+    return cards.map(card => ({name: card.name}));
+}
+
+const handleGainResource = (
+    player: PlayerState,
+    draft: GameState,
+    resource: Resource,
+    amount: Amount,
+    corporationName: string
+) => {
+    mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
+
+    const quantity = convertAmountToNumber(amount, draft, player, mostRecentlyPlayedCard);
+
+    if (resource === Resource.CARD) {
+        // Sometimes we list cards as a resource.
+        // handle as a draw action.
+        player.cards.push(...handleDrawCards(draft, quantity));
+        draft.log.push(`${corporationName} drew ${quantity} ${cardsPlural(quantity)}`);
+        return;
+    }
+    if (isStorableResource(resource)) {
+        return;
+    }
+    player.resources[resource] += quantity;
+    draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
+};
+
 export const reducer = (state: GameState | null = null, action: AnyAction) => {
     if (setGame.match(action)) {
         // A client-side action.
@@ -237,62 +306,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             draft.players[action.payload?.playerIndex ?? -1]?.corporation?.name ?? '';
 
         const {common} = draft;
-        function handleParameterIncrease(parameter: Parameter, amount: number) {
-            const scale = PARAMETER_STEPS[parameter];
-            const increase = amount * scale;
-            const startingAmount = draft.common.parameters[parameter];
-            const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
-            const change = newAmount - startingAmount;
-            const userTerraformRatingChange = change / scale;
-            draft.common.parameters[parameter] = newAmount;
-            player.terraformRating += userTerraformRatingChange;
-            if (userTerraformRatingChange) {
-                player.terraformedThisGeneration = true;
-            }
-            if (change && parameter !== Parameter.OCEAN) {
-                draft.log.push(
-                    `${corporationName} increased ${getParameterName(
-                        parameter
-                    )} ${userTerraformRatingChange} ${stepsPlural(userTerraformRatingChange)}`
-                );
-            }
-        }
-
-        let mostRecentlyPlayedCard: SerializedCard;
-
-        function handleDrawCards(numCards: number) {
-            const cards = draft.common.deck.splice(0, numCards);
-            const numCardsShort = numCards - cards.length;
-            if (numCardsShort) {
-                // Make new deck out of discard pile.
-                draft.common.deck = shuffle(draft.common.discardPile);
-                draft.common.discardPile = [];
-
-                // Draw more cards from new deck.
-                cards.push(...draft.common.deck.splice(0, numCardsShort));
-            }
-
-            return cards.map(card => ({name: card.name}));
-        }
-
-        const handleGainResource = (resource: Resource, amount: Amount) => {
-            mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
-
-            const quantity = convertAmountToNumber(amount, state, player, mostRecentlyPlayedCard);
-
-            if (resource === Resource.CARD) {
-                // Sometimes we list cards as a resource.
-                // handle as a draw action.
-                player.cards.push(...handleDrawCards(quantity));
-                draft.log.push(`${corporationName} drew ${quantity} ${cardsPlural(quantity)}`);
-                return;
-            }
-            if (isStorableResource(resource)) {
-                return;
-            }
-            player.resources[resource] += quantity;
-            draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
-        };
 
         if (setCorporation.match(action)) {
             const {payload} = action;
@@ -403,7 +416,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             // Step 1. Reveal the cards to the players so they can see them.
             const numCardsToReveal = payload.amount;
-            draft.common.revealedCards = handleDrawCards(numCardsToReveal);
+            draft.common.revealedCards = handleDrawCards(draft, numCardsToReveal);
             draft.log.push(`Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
         }
 
@@ -470,7 +483,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             player.pendingCardSelection = {
-                possibleCards: handleDrawCards(payload.amount),
+                possibleCards: handleDrawCards(draft, payload.amount),
                 numCardsToTake: payload.numCardsToTake ?? null,
                 isBuyingCards: payload.buyCards ?? false,
             };
@@ -611,8 +624,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 );
                 if (player.gainResourceWhenIncreaseProduction) {
                     handleGainResource(
+                        player,
+                        draft,
                         payload.resource,
-                        increase * player.gainResourceWhenIncreaseProduction
+                        increase * player.gainResourceWhenIncreaseProduction,
+                        corporationName
                     );
                 }
             }
@@ -755,7 +771,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.pendingResourceActionDetails = undefined;
-            handleGainResource(payload.resource, payload.amount);
+            handleGainResource(player, draft, payload.resource, payload.amount, corporationName);
         }
 
         if (gainStorableResource.match(action)) {
@@ -1065,7 +1081,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             const tilePlacementBonus = getTilePlacementBonus(payload.cell);
             for (const b of tilePlacementBonus) {
-                handleGainResource(b.resource, b.amount);
+                handleGainResource(player, draft, b.resource, b.amount, corporationName);
             }
             const megacreditIncreaseFromOceans =
                 getAdjacentCellsForCell(draft, payload.cell).filter(cell => {
@@ -1082,7 +1098,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {parameter, amount} = payload;
-            handleParameterIncrease(parameter, amount);
+            handleParameterIncrease(draft, player, parameter, amount, corporationName);
         }
 
         if (increaseTerraformRating.match(action)) {
@@ -1238,7 +1254,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
                         for (player of draft.players) {
                             player.pendingCardSelection = {
-                                possibleCards: handleDrawCards(4),
+                                possibleCards: handleDrawCards(draft, 4),
                                 isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
                                 draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
                             };

@@ -56,7 +56,7 @@ interface FlexProps extends BoxProps {
 }
 
 /* A flexible component to define styles inline */
-export const Box = styled.div<Partial<BoxProps>>`
+const BoxInternal = styled.div<Partial<BoxProps>>`
     /* Add more properties here as needed. */
     margin: ${props => props.margin};
     margin-top: ${props => props.marginTop};
@@ -101,7 +101,9 @@ export const Box = styled.div<Partial<BoxProps>>`
     visibility: ${props => props.visibility};
 `;
 
-export const Flex = styled(Box)<Partial<FlexProps>>`
+export const Box = React.memo(BoxInternal);
+
+const FlexInternal = styled(BoxInternal)<Partial<FlexProps>>`
     display: ${props => props.display ?? 'flex'};
     flex-direction: ${props => props.flexDirection};
     justify-content: ${props => props.justifyContent};
@@ -110,6 +112,8 @@ export const Flex = styled(Box)<Partial<FlexProps>>`
     flex-basis: ${props => props.flexBasis};
     flex-wrap: ${props => props.flexWrap};
 `;
+
+export const Flex = React.memo(FlexInternal);
 
 export const Panel = styled.div`
     margin-bottom: 16px;

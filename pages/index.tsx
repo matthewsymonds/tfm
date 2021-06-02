@@ -1,6 +1,5 @@
 import {SwitchColors} from 'components/action-log';
 import {Box, Flex} from 'components/box';
-import {Switcher} from 'components/switcher';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import styled from 'styled-components';
@@ -25,31 +24,29 @@ export default function Index(props) {
                 </Link>
             </Flex>
             {userGames.length > 0 && (
-                <Switcher tabs={['Games']}>
-                    <Box
-                        marginBottom="16px"
-                        background="#ddd"
-                        border="2px solid gray"
-                        maxHeight="400px"
-                        overflowY="auto"
-                    >
-                        <SwitchColors>
-                            {userGames.map(game => {
-                                return (
-                                    <Box key={'overview-' + game.name} padding="4px">
-                                        <Link href="/games/[name]" as={getGameLink(game.name)}>
-                                            <a>{game.name}</a>
-                                        </Link>
-                                        <div>
-                                            {game.players.length} player
-                                            {game.players.length !== 1 ? 's' : ''}
-                                        </div>
-                                    </Box>
-                                );
-                            })}
-                        </SwitchColors>
-                    </Box>
-                </Switcher>
+                <Box
+                    marginBottom="16px"
+                    background="#ddd"
+                    border="2px solid gray"
+                    maxHeight="400px"
+                    overflowY="auto"
+                >
+                    <SwitchColors>
+                        {userGames.map(game => {
+                            return (
+                                <Box key={'overview-' + game.name} padding="4px">
+                                    <Link href="/games/[name]" as={getGameLink(game.name)}>
+                                        <a>{game.name}</a>
+                                    </Link>
+                                    <div>
+                                        {game.players.length} player
+                                        {game.players.length !== 1 ? 's' : ''}
+                                    </div>
+                                </Box>
+                            );
+                        })}
+                    </SwitchColors>
+                </Box>
             )}
             <button onClick={() => goToNewGame()}>New game</button>
         </div>
