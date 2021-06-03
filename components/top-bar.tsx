@@ -80,7 +80,7 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                         !isGreeneryPlacement &&
                         !hasPendingCardSelection && <span>Waiting to start generation.</span>}
                     {syncing && <em>Saving...</em>}
-                    {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && (
+                    {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
                         <span>Please choose your cards.</span>
                     )}
                     {!syncing &&
