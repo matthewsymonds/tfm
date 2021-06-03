@@ -67,6 +67,7 @@ import {
     revealTakeAndDiscard,
     setCorporation,
     setGame,
+    setIsNotSyncing,
     setIsSyncing,
     setPlantDiscount,
     setPreludes,
@@ -298,6 +299,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // increment the state changes tally if on server.
         if (setIsSyncing.match(action)) {
             draft.syncing = true;
+        }
+
+        if (setIsNotSyncing.match(action)) {
+            draft.syncing = false;
         }
 
         let player: PlayerState;

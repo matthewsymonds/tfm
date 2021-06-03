@@ -648,8 +648,10 @@ export class ActionGuard {
         return this.state.syncing;
     }
 
+    public ignoreSyncing = false;
+
     shouldDisableUI(state: GameState = this.state) {
-        if (state.syncing) {
+        if (state.syncing && !this.ignoreSyncing) {
             return true;
         }
         const {gameStage} = state.common;

@@ -1,7 +1,7 @@
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
-import {ProductionIcon, PRODUCTION_PADDING} from 'components/icons/production';
+import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
@@ -13,7 +13,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {getResourceBorder, Resource, ResourceLocationType} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {Card, Card as CardModel} from 'models/card';
+import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';

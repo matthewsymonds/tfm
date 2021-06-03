@@ -1,7 +1,8 @@
-import {setGame, setIsSyncing} from 'actions';
+import {setGame, setIsNotSyncing, setIsSyncing} from 'actions';
 import {makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {playGame} from 'client-server-shared/play-game';
 import {
     ResourceActionOption,
     serializeResourceActionOption,
@@ -10,10 +11,39 @@ import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
+import {AnyAction, Store} from 'redux';
+import {ApiActionHandler} from 'server/api-action-handler';
+import {StateHydrator} from 'server/state-hydrator';
 import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
-    constructor(private readonly dispatch: Function) {}
+    actionHandler: ApiActionHandler;
+    stateHydrator: StateHydrator;
+    constructor(
+        private readonly dispatch: (action: AnyAction) => void,
+        private readonly username: string,
+        private readonly store: Store
+    ) {
+        const queue = [];
+        const game = {
+            queue: queue,
+            state: store.getState(),
+            players: store.getState().players.map(player => player.username),
+            name: this.getGameName(),
+        };
+        this.actionHandler = new ApiActionHandler(
+            game,
+            username,
+            dispatch,
+            /* ignoreSyncing = */ true
+        );
+        this.stateHydrator = new StateHydrator(game, username);
+
+        store.subscribe(() => {
+            const state = store.getState();
+            this.actionHandler.state = state;
+        });
+    }
     async playCardAsync({
         serializedCard,
         payment,
@@ -31,6 +61,8 @@ export class ApiClient implements GameActionHandler {
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
         this.dispatch(setIsSyncing());
+        playGame(type, payload, this.actionHandler, this.stateHydrator, this.actionHandler.state);
+
         try {
             const result = await makePostCall(this.getPath(), {type, payload});
             this.dispatch(setGame(result.state));
@@ -41,6 +73,7 @@ export class ApiClient implements GameActionHandler {
                 return await this.makeApiCall(type, payload, false);
             }
         }
+        this.dispatch(setIsNotSyncing());
     }
 
     private getPath(): string {

@@ -1,13 +1,13 @@
+import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
 import {
     StandardProjectAction,
     standardProjectActions,
     StandardProjectType,
 } from 'constants/standard-project';
 import {Card, cards} from 'models/card';
-import {ServerGameModel} from 'server/api-action-handler';
 
 export class StateHydrator {
-    constructor(public game: ServerGameModel, public username: string) {}
+    constructor(public game: WrappedGameModel, public username: string) {}
 
     getCard(name: string): Card {
         const card = cards.find(card => card.name === name);

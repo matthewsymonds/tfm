@@ -39,6 +39,7 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
         const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
         const gameStage = useTypedSelector(state => state?.common?.gameStage);
         const players = useTypedSelector(state => state?.players);
+        const syncing = useTypedSelector(state => state.syncing);
 
         /**
          * Derived state
@@ -78,13 +79,14 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                         !isEndOfGame &&
                         !isGreeneryPlacement &&
                         !hasPendingCardSelection && <span>Waiting to start generation.</span>}
-
+                    {syncing && <em>Saving...</em>}
                     {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && (
                         <span>Please choose your cards.</span>
                     )}
-                    {loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound && (
-                        <span>Action {action} of 2</span>
-                    )}
+                    {!syncing &&
+                        loggedInPlayer.action > 0 &&
+                        isLoggedInPlayersTurn &&
+                        isActiveRound && <span>Action {action} of 2</span>}
                     {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
                         <React.Fragment>
                             <span style={{marginRight: 4, color: 'white'}}>Waiting on</span>

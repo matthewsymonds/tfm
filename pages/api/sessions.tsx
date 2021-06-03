@@ -1,6 +1,6 @@
 import {appendSecurityCookieModifiers, retrieveSession, sessionsModel, usersModel} from 'database';
-import absoluteUrl from 'next-absolute-url';
 import jwt from 'jsonwebtoken';
+import absoluteUrl from 'next-absolute-url';
 
 function generateAccessToken(payload: {username: string}): string {
     return jwt.sign(payload, process.env.TOKEN_SECRET, {expiresIn: '365d'});

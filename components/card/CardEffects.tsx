@@ -1,4 +1,3 @@
-import {gainResourceWhenIncreaseProduction} from 'actions';
 import {Flex} from 'components/box';
 import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {

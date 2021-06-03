@@ -55,6 +55,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const dispatch = useDispatch();
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
+    const isSyncing = useTypedSelector(state => state.syncing);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
     // TODO: Fix this for the expansion corps with different card prices
@@ -104,6 +105,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         minCards = pendingCardSelection.numCardsToTake;
     } else {
         throw new Error('Unhandled scenario in ask user to make card selection');
+    }
+
+    if (isSyncing) {
+        cardSelectionPrompt = `Loading...`;
     }
 
     async function handleConfirmCardSelection(payment?: PropertyCounter<Resource>) {

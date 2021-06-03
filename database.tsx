@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import cookie from 'cookie';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import absoluteUrl from 'next-absolute-url';
 import isEmail from 'validator/lib/isEmail';
-import jwt from 'jsonwebtoken';
 
 const uniqueNameSchema = {
     type: String,

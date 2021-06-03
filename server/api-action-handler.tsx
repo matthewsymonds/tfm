@@ -53,7 +53,7 @@ import {
     useBlueCardActionAlreadyUsedThisGeneration,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     getAction,
@@ -87,13 +87,6 @@ import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import {SerializedCard} from 'state-serialization';
 
-export interface ServerGameModel {
-    state: GameState;
-    queue: Array<AnyAction>;
-    players: Array<string>;
-    name: string;
-}
-
 export interface EffectEvent {
     standardProject?: StandardProjectType;
     cost?: number;
@@ -114,13 +107,22 @@ type PlayActionParams = {
     withPriority?: boolean;
 };
 
-export class ApiActionHandler implements GameActionHandler {
+export class ApiActionHandler {
     private readonly actionGuard: ActionGuard;
-    constructor(public game: ServerGameModel, private readonly username: string) {
+    constructor(
+        public game: WrappedGameModel,
+        private readonly username: string,
+        dispatch?: (action: AnyAction) => void,
+        ignoreSyncing?: boolean
+    ) {
         this.loggedInPlayerIndex = this.game.state.players.findIndex(
             player => player.username === this.username
         );
         this.actionGuard = new ActionGuard(this.game.state, username);
+        this.actionGuard.ignoreSyncing = !!ignoreSyncing;
+        if (dispatch) {
+            this.dispatch = dispatch;
+        }
     }
 
     private loggedInPlayerIndex: number;
@@ -143,7 +145,12 @@ export class ApiActionHandler implements GameActionHandler {
         return this.game.state;
     }
 
-    async handleForcedActionsIfNeededAsync(originalState: GameState) {
+    set state(state: GameState) {
+        this.game.state = state;
+        this.actionGuard.state = state;
+    }
+
+    handleForcedActionsIfNeeded(originalState: GameState) {
         const {state} = this;
         const {currentPlayerIndex} = state.common;
         const gameStage = this.getGameStage();
@@ -170,13 +177,13 @@ export class ApiActionHandler implements GameActionHandler {
         }
     }
 
-    async playCardAsync({
+    playCard({
         serializedCard,
         payment,
     }: {
         serializedCard: SerializedCard;
         payment?: PropertyCounter<Resource>;
-    }): Promise<void> {
+    }) {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
         const loggedInPlayer = this.getLoggedInPlayer();
@@ -329,7 +336,7 @@ export class ApiActionHandler implements GameActionHandler {
         }
     }
 
-    async playCardActionAsync({
+    playCardAction({
         parent,
         payment,
         choiceIndex,
@@ -337,7 +344,7 @@ export class ApiActionHandler implements GameActionHandler {
         parent: Card;
         payment?: PropertyCounter<Resource>;
         choiceIndex?: number;
-    }): Promise<void> {
+    }) {
         const player = this.getLoggedInPlayer();
         let action = parent.action;
         let isChoiceAction = false;
@@ -417,13 +424,13 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async playStandardProjectAsync({
+    playStandardProject({
         standardProjectAction,
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
         payment: PropertyCounter<Resource>;
-    }): Promise<void> {
+    }) {
         const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
         if (!canPlay) {
@@ -446,7 +453,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async confirmCardSelectionAsync({
+    confirmCardSelection({
         selectedCards,
         selectedPreludes,
         corporation,
@@ -498,7 +505,7 @@ export class ApiActionHandler implements GameActionHandler {
                     throw new Error('Cannot play corporation');
                 }
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
-                await this.playCardAsync({serializedCard: corporation});
+                this.playCard({serializedCard: corporation});
                 this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
                 this.queue.push(setPreludes(selectedPreludes, loggedInPlayerIndex));
@@ -554,12 +561,12 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async continueAfterRevealingCardsAsync() {
+    continueAfterRevealingCards() {
         this.queue.unshift(discardRevealedCards());
         this.processQueue();
     }
 
-    async completeChooseDuplicateProductionAsync({index}: {index: number}) {
+    completeChooseDuplicateProduction({index}: {index: number}) {
         const player = this.getLoggedInPlayer();
         if (!player.pendingDuplicateProduction) {
             return [false, 'No pending duplicate production to choose'];
@@ -585,7 +592,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async skipChooseDuplicateProductionAsync() {
+    skipChooseDuplicateProduction() {
         const [
             canSkipChooseDuplicateProduction,
             reason,
@@ -611,13 +618,13 @@ export class ApiActionHandler implements GameActionHandler {
         });
     }
 
-    async claimMilestoneAsync({
+    claimMilestone({
         milestone,
         payment,
     }: {
         milestone: Milestone;
         payment: PropertyCounter<Resource>;
-    }): Promise<void> {
+    }) {
         const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
 
         if (!canPlay) {
@@ -630,13 +637,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async fundAwardAsync({
-        award,
-        payment,
-    }: {
-        award: Award;
-        payment: PropertyCounter<Resource>;
-    }): Promise<void> {
+    fundAward({award, payment}: {award: Award; payment: PropertyCounter<Resource>}) {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
         if (!canPlay) {
@@ -654,7 +655,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async doConversionAsync({resource}: {resource: Resource}): Promise<void> {
+    doConversion({resource}: {resource: Resource}) {
         const conversion = CONVERSIONS[resource];
         const [canPlay, reason] = this.actionGuard.canDoConversion(conversion);
         if (!canPlay) {
@@ -669,7 +670,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async skipActionAsync(): Promise<void> {
+    skipAction() {
         const [canSkip, reason] = this.actionGuard.canSkipAction();
 
         if (!canSkip) {
@@ -689,7 +690,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async completePlaceTileAsync({cell}: {cell: Cell}): Promise<void> {
+    completePlaceTile({cell}: {cell: Cell}) {
         const [canCompletePlaceTile, reason] = this.actionGuard.canCompletePlaceTile(cell);
 
         if (!canCompletePlaceTile) {
@@ -721,13 +722,13 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async completeChooseResourceActionDetailsAsync({
+    completeChooseResourceActionDetails({
         option,
         variableAmount,
     }: {
         option: ResourceActionOption;
         variableAmount: number;
-    }): Promise<void> {
+    }) {
         const [
             canCompleteChooseResourceActionDetails,
             reason,
@@ -743,7 +744,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async skipChooseResourceActionDetailsAsync(): Promise<void> {
+    skipChooseResourceActionDetails() {
         const [
             canSkipChooseResourceActionDetails,
             reason,
@@ -757,33 +758,7 @@ export class ApiActionHandler implements GameActionHandler {
         this.processQueue();
     }
 
-    async completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
-
-    async completeChooseDiscardCardsAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<Card>;
-    }): Promise<void> {}
-
-    async completeDuplicateProductionAsync({card}: {card: Card}): Promise<void> {}
-
-    async chooseCorporationAndStartingCardsAsync({
-        corporation,
-        selectedCards,
-    }: {
-        corporation: Card;
-        selectedCards: Array<Card>;
-    }): Promise<void> {}
-
-    async chooseCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void> {}
-
-    async chooseCardForDraftRoundAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<Card>;
-    }): Promise<void> {}
-
-    async increaseLowestProductionAsync({production}: {production: Resource}): Promise<void> {
+    increaseLowestProduction({production}: {production: Resource}) {
         const player = this.getLoggedInPlayer();
         if (!player.pendingIncreaseLowestProduction) {
             throw new Error('Cannot increase lowest production right now');

@@ -1,6 +1,6 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
-import {ExchangeRates} from 'constants/card-types';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
+import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, PlayCardParams} from './constants/action';
@@ -501,6 +501,13 @@ export const askUserToPlayCardFromHand = withMatcher(
 const SET_IS_SYNCING = 'SET_IS_SYNCING';
 export const setIsSyncing = withMatcher(() => ({
     type: SET_IS_SYNCING,
+    payload: {},
+}));
+
+// Client side action that disables UI while waiting for a response from the server.
+const SET_IS_NOT_SYNCING = 'SET_IS_NOT_SYNCING';
+export const setIsNotSyncing = withMatcher(() => ({
+    type: SET_IS_NOT_SYNCING,
     payload: {},
 }));
 
