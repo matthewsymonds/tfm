@@ -29,16 +29,18 @@ export default async (req, res) => {
         if (!game) throw new Error('Not found');
         if (!game.players.includes(username)) throw new Error('Not in this game!');
         const {type, payload}: {type: ApiActionType; payload} = req.body;
+        game.state.syncing = false;
+
         const hydratedGame = {
             queue: game.queue,
             state: game.state,
             players: game.players,
             name: game.name,
         };
+
         const originalState = hydratedGame.state;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         const stateHydrator = new StateHydrator(hydratedGame, username);
-
         playGame(type, payload, actionHandler, stateHydrator, originalState);
 
         game.queue = hydratedGame.queue;

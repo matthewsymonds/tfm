@@ -4580,7 +4580,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.PRELUDE,
         name: 'UNMI Contractor',
         text: 'Raise your terraform rating 3 steps. Draw 1 card.',
-        tags: [Tag.VENUS],
+        tags: [Tag.EARTH],
         type: CardType.PRELUDE,
         increaseTerraformRating: 3,
         gainResource: {[Resource.CARD]: 1},

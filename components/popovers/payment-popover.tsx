@@ -76,6 +76,7 @@ type PaymentPopoverRowProps = {
     availableQuantity: number;
     handleIncrease: (resource: Resource) => void;
     handleDecrease: (resource: Resource) => void;
+    numMC: number;
 };
 
 function PaymentPopoverRow({
@@ -84,6 +85,7 @@ function PaymentPopoverRow({
     availableQuantity,
     handleIncrease,
     handleDecrease,
+    numMC,
 }: PaymentPopoverRowProps) {
     return (
         <PaymentPopoverRowBase>
@@ -100,7 +102,7 @@ function PaymentPopoverRow({
                     </button>
                     <span>{currentQuantity}</span>
                     <button
-                        disabled={currentQuantity === availableQuantity}
+                        disabled={currentQuantity === availableQuantity || numMC === 0}
                         onClick={() => handleIncrease(resource)}
                     >
                         +
@@ -297,6 +299,7 @@ export default function PaymentPopover({
                                 availableQuantity={playerMoney}
                                 handleIncrease={handleIncrease}
                                 handleDecrease={handleDecrease}
+                                numMC={numMC}
                             />
                         )}
                         {(card?.tags.includes(Tag.BUILDING) ||
@@ -308,6 +311,7 @@ export default function PaymentPopover({
                                     availableQuantity={resources[Resource.STEEL]}
                                     handleIncrease={handleIncrease}
                                     handleDecrease={handleDecrease}
+                                    numMC={numMC}
                                 />
                             )}
                         {(card?.tags.includes(Tag.SPACE) ||
@@ -319,6 +323,7 @@ export default function PaymentPopover({
                                     availableQuantity={resources[Resource.TITANIUM]}
                                     handleIncrease={handleIncrease}
                                     handleDecrease={handleDecrease}
+                                    numMC={numMC}
                                 />
                             )}
                         {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
@@ -328,6 +333,7 @@ export default function PaymentPopover({
                                 availableQuantity={resources[Resource.HEAT]}
                                 handleIncrease={handleIncrease}
                                 handleDecrease={handleDecrease}
+                                numMC={numMC}
                             />
                         )}
                         {conditionalPayment?.resourceAmount && (
@@ -337,6 +343,7 @@ export default function PaymentPopover({
                                 availableQuantity={conditionalPayment.resourceAmount}
                                 handleIncrease={handleIncrease}
                                 handleDecrease={handleDecrease}
+                                numMC={numMC}
                             />
                         )}
                     </div>

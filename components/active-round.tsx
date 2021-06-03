@@ -137,8 +137,12 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
+    const syncing = useTypedSelector(state => state.syncing);
     const hideOverlay =
-        loggedInPlayer.pendingPlayCardFromHand || loggedInPlayer.pendingTilePlacement;
+        loggedInPlayer.pendingPlayCardFromHand ||
+        loggedInPlayer.pendingTilePlacement ||
+        syncing ||
+        loggedInPlayer.fundAward;
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
@@ -155,6 +159,8 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 loggedInPlayer.pendingTilePlacement.type
             )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile.`;
         }
+    } else if (loggedInPlayer.fundAward) {
+        actionBarPromptText = 'Fund an award for free';
     } else {
         actionBarPromptText = 'Complete your action';
     }
@@ -182,7 +188,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 <Flex flex="none">
                     <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 </Flex>
-                {isPlayerMakingDecision && (
+                {isPlayerMakingDecision && !syncing && (
                     <ActionOverlayTopBar
                         hideOverlay={!!hideOverlay}
                         setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}

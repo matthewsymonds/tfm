@@ -205,6 +205,12 @@ export function getMostRecentlyPlayedCard(player: PlayerState) {
     return player.playedCards[player.playedCards.length - 1];
 }
 
+function setSyncingTrueIfClient(draft: GameState) {
+    if (typeof window !== 'undefined') {
+        draft.syncing = true;
+    }
+}
+
 function handleParameterIncrease(
     draft: GameState,
     player: PlayerState,
@@ -245,6 +251,8 @@ function handleDrawCards(draft: GameState, numCards: number) {
         // Draw more cards from new deck.
         cards.push(...draft.common.deck.splice(0, numCardsShort));
     }
+
+    setSyncingTrueIfClient(draft);
 
     return cards.map(card => ({name: card.name}));
 }
@@ -412,6 +420,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             })
                     );
                     draft.common.gameStage = GameStage.BUY_OR_DISCARD;
+                    setSyncingTrueIfClient(draft);
                 }
             }
         }
@@ -492,6 +501,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 numCardsToTake: payload.numCardsToTake ?? null,
                 isBuyingCards: payload.buyCards ?? false,
             };
+            setSyncingTrueIfClient(draft);
         }
 
         if (addCards.match(action)) {
@@ -1263,6 +1273,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                                 isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
                                 draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
                             };
+                            setSyncingTrueIfClient(draft);
+
                             if (process.env.NODE_ENV === 'development') {
                                 const bonuses = draft.common.deck.filter(card =>
                                     bonusNames.includes(card.name)

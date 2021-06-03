@@ -1,4 +1,4 @@
-import {setGame, setIsNotSyncing, setIsSyncing} from 'actions';
+import {setGame, setIsNotSyncing} from 'actions';
 import {makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
@@ -59,21 +59,43 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);
     }
 
-    private async makeApiCall(type: ApiActionType, payload, retry = true) {
-        this.dispatch(setIsSyncing());
-        playGame(type, payload, this.actionHandler, this.stateHydrator, this.actionHandler.state);
+    private processingActions: Function[] = [];
 
-        try {
-            const result = await makePostCall(this.getPath(), {type, payload});
-            this.dispatch(setGame(result.state));
-        } catch (error) {
-            // TODO Gracefully fail and tell user to try again.
-            if (retry) {
-                // retry once.
-                return await this.makeApiCall(type, payload, false);
+    private async makeApiCall(type: ApiActionType, payload, retry = true) {
+        this.processingActions.push(async () => {
+            playGame(
+                type,
+                payload,
+                this.actionHandler,
+                this.stateHydrator,
+                this.actionHandler.state
+            );
+            try {
+                const result = await makePostCall(this.getPath(), {type, payload});
+                if (this.processingActions.length <= 1) {
+                    this.dispatch(setGame(result.state));
+                }
+            } catch (error) {
+                // TODO Gracefully fail and tell user to try again.
+                if (retry) {
+                    // retry once.
+                    return await this.makeApiCall(type, payload, false);
+                }
+            }
+            this.dispatch(setIsNotSyncing());
+        });
+
+        if (this.processingActions.length > 1) {
+            return;
+        }
+
+        while (this.processingActions.length > 0) {
+            const action = this.processingActions[0];
+            if (action) {
+                await action();
+                this.processingActions.shift();
             }
         }
-        this.dispatch(setIsNotSyncing());
     }
 
     private getPath(): string {

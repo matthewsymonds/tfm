@@ -141,7 +141,7 @@ export const removeStorableResource = withMatcher(
     })
 );
 
-const GAIN_RESOURCE = 'GAIN_RESOURCE';
+export const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = withMatcher(
     (resource: Resource, amount: Amount, playerIndex: number) => ({
         type: GAIN_RESOURCE,
