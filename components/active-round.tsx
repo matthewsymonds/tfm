@@ -13,7 +13,7 @@ import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useState} from 'react';
+import React, {ReactElement, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -44,8 +44,8 @@ const CorporationHeader = styled.h2`
     align-items: center;
     color: #fff;
     cursor: pointer;
-    margin-bottom: 4px;
     margin-top: 0px;
+    margin-bottom: 0px;
 `;
 
 const CorporationHeaderOuter = styled.div<{selected: boolean}>`
@@ -137,11 +137,9 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
-    const syncing = useTypedSelector(state => state.syncing);
     const hideOverlay =
         loggedInPlayer.pendingPlayCardFromHand ||
         loggedInPlayer.pendingTilePlacement ||
-        syncing ||
         loggedInPlayer.fundAward;
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
     let actionBarPromptText: string | null;
@@ -182,13 +180,85 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
             isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay ? 'hidden' : 'initial';
     }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay, topBarRef.current]);
 
+    let actionOverlayElement: ReactElement | null = null;
+    switch (true) {
+        case gameStage === GameStage.END_OF_GAME:
+            actionOverlayElement = <EndOfGame />;
+            break;
+        case !!loggedInPlayer.pendingChoice:
+            actionOverlayElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
+            break;
+        case loggedInPlayer.pendingActionReplay:
+            actionOverlayElement = (
+                <AskUserToUseBlueCardActionAlreadyUsedThisGeneration player={loggedInPlayer} />
+            );
+            break;
+        case loggedInPlayer.pendingPlayCardFromHand:
+            actionOverlayElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.pendingDuplicateProduction:
+            actionOverlayElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.pendingIncreaseLowestProduction:
+            actionOverlayElement = <AskUserToIncreaseLowestProduction player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.pendingDiscard:
+            actionOverlayElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.pendingCardSelection:
+            actionOverlayElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
+            break;
+        case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&
+            currentPlayerIndex === loggedInPlayer.index &&
+            !loggedInPlayer.pendingPlayCardFromHand &&
+            !loggedInPlayer.pendingTilePlacement &&
+            players.every(
+                player =>
+                    (player.preludes?.length ?? 0) > 0 ||
+                    player.playedCards?.filter(c => getCard(c).type === CardType.PRELUDE)
+            ):
+            actionOverlayElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.fundAward:
+            actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.pendingTilePlacement:
+            actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
+            break;
+        case !!loggedInPlayer.pendingResourceActionDetails:
+            actionOverlayElement = (
+                <AskUserToConfirmResourceActionDetails
+                    player={loggedInPlayer}
+                    resourceActionDetails={loggedInPlayer.pendingResourceActionDetails!}
+                />
+            );
+            break;
+        case revealedCards.length > 0:
+            actionOverlayElement = (
+                <Flex flexDirection="column">
+                    <span style={{marginBottom: 16}}>
+                        Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
+                    </span>
+                    <Flex flexWrap="wrap">
+                        {revealedCards.map((card, index) => {
+                            return <CardComponent key={index} card={getCard(card)} />;
+                        })}
+                    </Flex>
+                    <Flex justifyContent="center" marginTop="16px">
+                        <button onClick={continueAfterRevealingCards}>Continue</button>
+                    </Flex>
+                </Flex>
+            );
+            break;
+    }
+
     return (
         <React.Fragment>
             <Flex flexDirection="column" flex="auto" bottom="0px">
                 <Flex flex="none">
                     <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 </Flex>
-                {isPlayerMakingDecision && !syncing && (
+                {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
                         hideOverlay={!!hideOverlay}
                         setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
@@ -197,66 +267,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
                 )}
                 {isPlayerMakingDecision && !hideOverlay && (
                     <ActionOverlay isVisible={isActionOverlayVisible}>
-                        {gameStage === GameStage.END_OF_GAME && <EndOfGame />}
-                        {loggedInPlayer.pendingChoice && (
-                            <AskUserToMakeActionChoice player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingActionReplay && (
-                            <AskUserToUseBlueCardActionAlreadyUsedThisGeneration
-                                player={loggedInPlayer}
-                            />
-                        )}
-                        {loggedInPlayer.pendingPlayCardFromHand && (
-                            <AskUserToPlayCardFromHand player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingDuplicateProduction && (
-                            <AskUserToDuplicateProduction player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingIncreaseLowestProduction && (
-                            <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingDiscard && (
-                            <AskUserToMakeDiscardChoice player={loggedInPlayer} />
-                        )}
-                        {loggedInPlayer.pendingCardSelection && (
-                            <AskUserToMakeCardSelection player={loggedInPlayer} />
-                        )}
-                        {(loggedInPlayer?.preludes?.length ?? 0) > 0 &&
-                            currentPlayerIndex === loggedInPlayer.index &&
-                            !loggedInPlayer.pendingPlayCardFromHand &&
-                            !loggedInPlayer.pendingTilePlacement &&
-                            players.every(
-                                player =>
-                                    (player.preludes?.length ?? 0) > 0 ||
-                                    player.playedCards?.filter(
-                                        c => getCard(c).type === CardType.PRELUDE
-                                    )
-                            ) && <AskUserToPlayPrelude player={loggedInPlayer} />}
-                        {loggedInPlayer.fundAward && <AskUserToFundAward player={loggedInPlayer} />}
-                        {loggedInPlayer.pendingTilePlacement && (
-                            <PromptTitle>{actionBarPromptText}</PromptTitle>
-                        )}
-                        {loggedInPlayer.pendingResourceActionDetails && (
-                            <AskUserToConfirmResourceActionDetails
-                                player={loggedInPlayer}
-                                resourceActionDetails={loggedInPlayer.pendingResourceActionDetails}
-                            />
-                        )}
-                        {revealedCards.length > 0 && (
-                            <Flex flexDirection="column">
-                                <span style={{marginBottom: 16}}>
-                                    Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
-                                </span>
-                                <Flex flexWrap="wrap">
-                                    {revealedCards.map((card, index) => {
-                                        return <CardComponent key={index} card={getCard(card)} />;
-                                    })}
-                                </Flex>
-                                <Flex justifyContent="center" marginTop="16px">
-                                    <button onClick={continueAfterRevealingCards}>Continue</button>
-                                </Flex>
-                            </Flex>
-                        )}
+                        {actionOverlayElement}
                     </ActionOverlay>
                 )}
                 <Flex

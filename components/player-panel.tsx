@@ -62,7 +62,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
 
     return (
         <OuterWrapper ref={playerPanelRef} id={`player-board-${player.index}`}>
-            {playerCardsElement}
+            {!isCorporationSelection && playerCardsElement}
 
             {!isCorporationSelection && (
                 <React.Fragment>
@@ -79,9 +79,11 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                 </React.Fragment>
             )}
 
-            <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
-                <PlayerCardActions player={player} />
-            </Flex>
+            {!isCorporationSelection && (
+                <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
+                    <PlayerCardActions player={player} />
+                </Flex>
+            )}
             {isCorporationSelection ? <CorporationSelector player={player} /> : null}
         </OuterWrapper>
     );

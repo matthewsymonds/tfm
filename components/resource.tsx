@@ -143,7 +143,7 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
     const isEndOfGame = useTypedSelector(state => state.common.gameStage === GameStage.END_OF_GAME);
 
     return (
-        <Flex flexDirection="column">
+        <Flex flexDirection="column" marginTop="4px">
             <ResourceBoard>
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resource => {

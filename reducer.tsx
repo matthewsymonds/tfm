@@ -514,7 +514,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (setPreludes.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.preludes = payload.preludes;
+            player.preludes = payload.preludes.map(card => ({name: card.name}));
             player.possiblePreludes = [];
         }
 
