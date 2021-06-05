@@ -21,13 +21,13 @@ const ActionOverlayBase = styled.div<{isVisible: boolean}>`
     position: ${props => (props.isVisible ? 'absolute' : 'fixed')};
     margin-top: ${props => (props.isVisible ? '0' : `${document.body.scrollHeight}px`)};
     width: 100%;
-    height: 100%;
+    height: calc(100% - 72px);
     top: 72px;
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: auto;
+    overflow: visible;
     transition: all 0.3s;
 `;
 
@@ -35,10 +35,14 @@ const ActionOverlayContent = styled.div<{isVisible: boolean}>`
     flex: auto;
     width: 660px;
     max-width: 100%;
-    margin: 16px 8px;
+    margin: 0px 8px;
+    padding: 16px 0px;
     opacity: ${props => (props.isVisible ? 1 : 0)};
     transition: all 0.3s;
-    padding: 8px;
+    overflow-y: auto;
+    @media (max-width: 660px) {
+        padding: 8px 0px;
+    }
 `;
 
 const ActionOverlayToggleButton = styled(BlankButton)`
