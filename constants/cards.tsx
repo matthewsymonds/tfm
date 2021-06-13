@@ -3116,6 +3116,9 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {
             [Resource.FLOATER]: {tag: Tag.JOVIAN},
         },
+        increaseParameter: {
+            [Parameter.VENUS]: 1,
+        },
     },
     {
         cost: 17,
