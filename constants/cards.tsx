@@ -3383,6 +3383,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.THIRD_RESOURCES_ON_CARD,
         tilePlacements: [t(TileType.CITY, PlacementRequirement.STRATOPOLIS, true)],
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         action: {
