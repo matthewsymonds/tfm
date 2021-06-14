@@ -817,7 +817,7 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     const elements: Array<React.ReactNode> = [];
     let index = 0;
     for (const action of choice) {
-        elements.push(<CardIconography key={index++} card={action} />);
+        elements.push(<BaseActionIconography key={index++} card={action} />);
         if (action !== choice[choice.length - 1]) {
             elements.push(<TextWithMargin key={index++}>or</TextWithMargin>);
         }
@@ -830,8 +830,7 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     );
 }
 
-// TODO: this prop should really be called cardOrAction
-export const CardIconography = ({card}: {card: Action | CardModel}) => {
+export const BaseActionIconography = ({card}: {card: Action | CardModel}) => {
     const {
         tilePlacements,
         increaseParameter,
@@ -847,9 +846,7 @@ export const CardIconography = ({card}: {card: Action | CardModel}) => {
     // This bad code can be alleviated by moving temporaryParameterRequirementAdjustments
     // to the base action type (it currently only exists on cards).
     const temporaryParameterRequirementAdjustments =
-        'temporaryParameterRequirementAdjustments' in card
-            ? card.temporaryParameterRequirementAdjustments
-            : null;
+        card instanceof CardModel ? card.temporaryParameterRequirementAdjustments : null;
     const choice = 'choice' in card ? card.choice : null;
 
     return (
@@ -895,7 +892,7 @@ export const CardIconography = ({card}: {card: Action | CardModel}) => {
                 <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
             )}
             {card instanceof CardModel && card.forcedAction && (
-                <CardIconography card={card.forcedAction} />
+                <BaseActionIconography card={card.forcedAction} />
             )}
         </Flex>
     );

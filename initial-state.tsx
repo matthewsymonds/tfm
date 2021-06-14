@@ -55,12 +55,16 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
 
     shuffle(possibleCards);
 
-    const allCorporations = possibleCards.filter(card => card.type === CardType.CORPORATION);
+    const allCorporations = possibleCards
+        .filter(card => card.type === CardType.CORPORATION)
+        .map(card => ({name: card.name}));
 
-    const deck = possibleCards.filter(
-        card => card.type !== CardType.CORPORATION && card.type !== CardType.PRELUDE
-    );
-    const preludes = possibleCards.filter(card => card.type === CardType.PRELUDE);
+    const deck = possibleCards
+        .filter(card => card.type !== CardType.CORPORATION && card.type !== CardType.PRELUDE)
+        .map(card => ({name: card.name}));
+    const preludes = possibleCards
+        .filter(card => card.type === CardType.PRELUDE)
+        .map(card => ({name: card.name}));
 
     options.isDraftingEnabled = options.isDraftingEnabled && players.length > 1;
 

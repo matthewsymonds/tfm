@@ -238,10 +238,14 @@ export class ApiActionHandler {
         this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
 
         // 3. Play the action
+        //     - action steps
         //     - action choices (done with priority)
         //     - gaining/losing/stealing resources & production
         //     - tile pacements
         //     - discarding/drawing cards
+        for (const step of card.steps) {
+            this.playAction({state: this.state, action: step, parent: card});
+        }
         const playActionParams = {action: card, state: this.state, parent: card};
         // Get the resources/production/cards first.
         // Trigger effects after.

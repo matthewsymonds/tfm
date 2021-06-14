@@ -84,7 +84,7 @@ export async function playGame(
         case ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION:
             actionHandler.skipChooseDuplicateProduction();
             break;
-        case ApiActionType.API_INCREASE_LOWEST_PRODUCTION_ASYNC:
+        case ApiActionType.API_INCREASE_LOWEST_PRODUCTION:
             actionHandler.increaseLowestProduction(payload);
             break;
         default:

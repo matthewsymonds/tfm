@@ -33,6 +33,7 @@ export class Card {
     action?: Action;
     effects: Effect[] = [];
     requiredTilePlacements: RequiredTilePlacement[] = [];
+    steps: Action[] = [];
 
     // ====================================================
     // Requirements
@@ -193,6 +194,10 @@ export class Card {
         }
         if (config.effects) {
             this.effects.push(...config.effects);
+        }
+
+        if (config.steps) {
+            this.steps.push(...config.steps);
         }
 
         if (config.requiredTilePlacements) {

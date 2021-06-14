@@ -262,6 +262,6 @@ export class ApiClient implements GameActionHandler {
 
     async increaseLowestProductionAsync({production}: {production: Resource}) {
         const payload = {production};
-        await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION_ASYNC, payload);
+        await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION, payload);
     }
 }

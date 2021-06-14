@@ -5,6 +5,9 @@ import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
 import {censorGameState} from 'state-serialization';
 
+// This isn't perfect. But it's an attempted safeguard against spammed requests.
+let lock: {[gameName: string]: string[]} = {};
+
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
     if (!sessionResult) return;
@@ -25,11 +28,15 @@ export default async (req, res) => {
     const {username} = sessionResult;
 
     try {
+        if ((lock[id] ?? []).includes(username)) {
+            res.json({error: 'Game update in progress.'});
+        }
         game = await gamesModel.findOne({name: id});
         if (!game) throw new Error('Not found');
         if (!game.players.includes(username)) throw new Error('Not in this game!');
+        lock[game.name] ||= [];
+        lock[game.name].push(username);
         const {type, payload}: {type: ApiActionType; payload} = req.body;
-        game.state.syncing = false;
 
         const hydratedGame = {
             queue: game.queue,
@@ -47,6 +54,10 @@ export default async (req, res) => {
         game.state = hydratedGame.state;
         game.updatedAt = Date.now();
         await game.save();
+        lock[game.name] = lock[game.name].filter(name => name !== username);
+        if (lock[game.name].length === 0) {
+            delete lock[game.name];
+        }
 
         res.json({
             state: censorGameState(hydratedGame.state, username),

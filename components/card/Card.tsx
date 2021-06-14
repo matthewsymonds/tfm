@@ -3,7 +3,7 @@ import {CardActions} from 'components/card/CardActions';
 import {CardContextButton} from 'components/card/CardContextButton';
 import {CardCost} from 'components/card/CardCost';
 import {CardEffects} from 'components/card/CardEffects';
-import {CardIconography} from 'components/card/CardIconography';
+import {BaseActionIconography} from 'components/card/CardIconography';
 import {CardRequirement} from 'components/card/CardRequirement';
 import {CardStoredResources} from 'components/card/CardStoredResources';
 import {CardTags} from 'components/card/CardTags';
@@ -68,6 +68,8 @@ const CardInner: React.FC<CardProps> = ({
     );
     const apiClient = useApiClient();
 
+    const combinedStep = card.steps.reduce((acc, step) => ({...acc, ...step}), {});
+
     return (
         <TexturedCard
             isSelected={isSelected}
@@ -82,7 +84,8 @@ const CardInner: React.FC<CardProps> = ({
             {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} />
             <CardActions card={card} cardOwner={cardOwner} cardContext={cardContext} />
-            <CardIconography card={card} />
+            <BaseActionIconography card={card} />
+            <BaseActionIconography card={combinedStep} />
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}
             <CardContextButton

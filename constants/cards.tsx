@@ -2017,12 +2017,23 @@ export const cardConfigs: CardConfig[] = [
             'Decrease your heat production any number of steps and increase your MC production the same number of steps.',
         tags: [],
         type: CardType.AUTOMATED,
-        decreaseProduction: {
-            [Resource.HEAT]: VariableAmount.USER_CHOICE_MIN_ZERO,
-        },
-        increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE,
-        },
+        // Used to sequence the actions.
+        // The game engine plays card benefits (gain resource, increase production) before costs (lose resource, decrease production).
+        // This is in order to give the user access to resources they may need later in the action.
+        // However, for this card, the cost needs to come before the benefit in order for the game
+        // to understand how much megacredit production the user should get.
+        steps: [
+            {
+                decreaseProduction: {
+                    [Resource.HEAT]: VariableAmount.USER_CHOICE_MIN_ZERO,
+                },
+            },
+            {
+                increaseProduction: {
+                    [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE,
+                },
+            },
+        ],
     },
     {
         effect: {
