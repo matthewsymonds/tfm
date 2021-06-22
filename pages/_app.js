@@ -11,6 +11,7 @@ import {useRouter} from 'next/router';
 import platform from 'platform-detect';
 import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
+import 'react-toastify/dist/ReactToastify.css';
 import {makeStore} from 'store';
 import {createGlobalStyle} from 'styled-components';
 

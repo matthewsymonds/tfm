@@ -196,7 +196,7 @@ const LogEntryInner = ({
     );
 };
 
-const LogEntry = React.memo(LogEntryInner, logPropsAreEqual);
+export const LogEntry = React.memo(LogEntryInner, logPropsAreEqual);
 
 function logPropsAreEqual() {
     return true;

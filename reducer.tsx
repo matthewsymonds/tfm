@@ -547,11 +547,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (pendingDiscardAmount && isVariableAmount(pendingDiscardAmount)) {
                 draft.pendingVariableAmount = payload.cards.length;
             }
-            draft.log.push(
-                `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
-                    payload.cards.length
-                )}`
-            );
+            if (payload.cards.length) {
+                draft.log.push(
+                    `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
+                        payload.cards.length
+                    )}`
+                );
+            }
             player.pendingDiscard = undefined;
             draft.common.discardPile.push(...payload.cards);
             player.cards = player.cards.filter(

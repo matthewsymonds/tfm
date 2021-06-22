@@ -32,6 +32,7 @@ import {Board} from './board/board';
 import {Box, Flex} from './box';
 import {Colonies} from './colonies';
 import {EndOfGame} from './end-of-game';
+import {LogToast} from './log-toast';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -254,6 +255,7 @@ export const ActiveRound = ({loggedInPlayerIndex}: {loggedInPlayerIndex: number}
 
     return (
         <React.Fragment>
+            <LogToast />
             <Flex flexDirection="column" flex="auto" bottom="0px">
                 <Flex flex="none">
                     <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
