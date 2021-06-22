@@ -717,8 +717,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             draft.pendingVariableAmount = amount;
             targetCard.storedResourceAmount -= amount;
+            // If you do it to yourself, say "removed" instead of "lost"
+            const verb = corporationName === player.corporation.name ? 'removed' : 'lost';
             draft.log.push(
-                `${corporationName} lost ${quantityAndResource(payload.amount, resource)} from ${
+                `${corporationName} ${verb} ${quantityAndResource(payload.amount, resource)} from ${
                     targetCard.name
                 }`
             );
