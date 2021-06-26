@@ -180,9 +180,11 @@ export class ApiActionHandler {
     playCard({
         serializedCard,
         payment,
+        conditionalPayments,
     }: {
         serializedCard: SerializedCard;
         payment?: PropertyCounter<Resource>;
+        conditionalPayments?: number[];
     }) {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
@@ -202,7 +204,7 @@ export class ApiActionHandler {
         //      and included in `payment`
         //    - If no `payment` is defined, the reducer will defer to paying with MC
         if (card.cost) {
-            this.queue.push(payToPlayCard(card, playerIndex, payment));
+            this.queue.push(payToPlayCard(card, playerIndex, payment, conditionalPayments));
         }
 
         this.processQueue();

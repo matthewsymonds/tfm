@@ -11,6 +11,7 @@ import {shallowEqual, TypedUseSelectorHook, useSelector} from 'react-redux';
 import {AnyAction} from 'redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getCard} from 'selectors/get-card';
+import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {isVariableAmount} from 'selectors/is-variable-amount';
 import {
@@ -822,6 +823,48 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             const cardCost = getDiscountedCardCost(payload.card, player);
+            let details: string[] = [];
+
+            // Dirigibles
+            if (payload.conditionalPayments) {
+                const conditionalPayments = getConditionalPaymentWithResourceInfo(
+                    player,
+                    getCard(payload.card)
+                );
+                if (payload.conditionalPayments.length !== conditionalPayments.length) {
+                    throw new Error('Misformatted conditional payments array');
+                }
+                for (let i = 0; i < conditionalPayments.length; i++) {
+                    const cardWithResources = player.playedCards.find(
+                        card => card.name === conditionalPayments[i].name
+                    );
+                    if (!cardWithResources) {
+                        throw new Error(
+                            'Could not find card' +
+                                conditionalPayments[i].name +
+                                'for conditional payment'
+                        );
+                    } else {
+                        cardWithResources.storedResourceAmount =
+                            (cardWithResources.storedResourceAmount ?? 0) -
+                            payload.conditionalPayments[i];
+                        if (
+                            cardWithResources.storedResourceAmount < 0 ||
+                            isNaN(cardWithResources.storedResourceAmount)
+                        ) {
+                            throw new Error(
+                                'Got to negative resource amount for ' + cardWithResources.name
+                            );
+                        }
+                    }
+                    details.push(
+                        quantityAndResource(
+                            payload.conditionalPayments[i],
+                            conditionalPayments[i].resourceType
+                        )
+                    );
+                }
+            }
             if (payload.payment) {
                 for (const resource in payload.payment) {
                     player.resources[resource] -= payload.payment[resource];
@@ -839,7 +882,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.discounts.nextCardThisGeneration = 0;
 
-            let details: string[] = [];
             for (const resource in payload.payment) {
                 if (payload.payment[resource]) {
                     details.push(

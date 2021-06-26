@@ -204,10 +204,11 @@ export const payToPlayCard = withMatcher(
     (
         card: SerializedCard,
         playerIndex: number,
-        payment: PropertyCounter<Resource> | undefined
+        payment: PropertyCounter<Resource> | undefined,
+        conditionalPayments: number[] | undefined
     ) => ({
         type: PAY_TO_PLAY_CARD,
-        payload: {card, playerIndex, payment},
+        payload: {card, playerIndex, payment, conditionalPayments},
     })
 );
 

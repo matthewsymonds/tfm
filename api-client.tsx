@@ -47,13 +47,16 @@ export class ApiClient implements GameActionHandler {
     async playCardAsync({
         serializedCard,
         payment,
+        conditionalPayments,
     }: {
         serializedCard: SerializedCard;
         payment?: PropertyCounter<Resource>;
+        conditionalPayments?: number[];
     }): Promise<void> {
         const payload = {
             name: serializedCard.name,
             payment,
+            conditionalPayments,
         };
 
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);

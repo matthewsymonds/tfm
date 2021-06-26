@@ -304,8 +304,8 @@ export class ActionGuard {
             cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
         }
         const conditionalPayment = getConditionalPaymentWithResourceInfo(player, card);
-        if (conditionalPayment) {
-            cost -= conditionalPayment.resourceAmount * conditionalPayment.rate;
+        for (const payment of conditionalPayment) {
+            cost -= payment.resourceAmount * payment.rate;
         }
 
         return cost <= player.resources[Resource.MEGACREDIT];

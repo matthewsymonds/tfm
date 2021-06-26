@@ -18,7 +18,11 @@ export async function playGame(
     switch (type) {
         case ApiActionType.API_PLAY_CARD:
             card = stateHydrator.getCard(payload.name);
-            actionHandler.playCard({serializedCard: card, payment: payload.payment});
+            actionHandler.playCard({
+                serializedCard: card,
+                payment: payload.payment,
+                conditionalPayments: payload.conditionalPayments,
+            });
 
             break;
         case ApiActionType.API_PLAY_CARD_ACTION:

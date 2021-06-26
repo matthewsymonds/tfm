@@ -9,24 +9,28 @@ type ConditionalPaymentWithResourceInfo = {
     rate: number;
     resourceType: Resource;
     resourceAmount: number;
+    name: string;
 };
 
 export function getConditionalPaymentWithResourceInfo(
     player: SerializedPlayerState,
     card: Card | undefined
-): ConditionalPaymentWithResourceInfo | undefined {
-    const cardWithConditionalPayment = getPlayedCards(player).find(playedCard => {
-        const tag = playedCard.conditionalPayment?.tag;
-        const {storedResourceAmount} = playedCard;
-        if (tag && storedResourceAmount) {
-            return card?.tags.includes(tag) && storedResourceAmount;
+): ConditionalPaymentWithResourceInfo[] {
+    const result: ConditionalPaymentWithResourceInfo[] = [];
+    for (const playedCard of getPlayedCards(player)) {
+        const {conditionalPayment, storedResourceAmount, name} = playedCard;
+        if (conditionalPayment) {
+            const {tag} = conditionalPayment;
+            if (card?.tags.includes(tag) && storedResourceAmount) {
+                result.push({
+                    ...conditionalPayment,
+                    resourceType: playedCard.storedResourceType!,
+                    resourceAmount: storedResourceAmount,
+                    name,
+                });
+            }
         }
-    });
-    if (cardWithConditionalPayment?.conditionalPayment) {
-        return {
-            ...cardWithConditionalPayment.conditionalPayment,
-            resourceType: cardWithConditionalPayment?.storedResourceType!,
-            resourceAmount: cardWithConditionalPayment?.storedResourceAmount ?? 0,
-        };
     }
+
+    return result;
 }

@@ -32,8 +32,12 @@ export function CardContextButton({
     apiClient: ApiClient;
     loggedInPlayer: PlayerState;
 }) {
-    function playCard(payment?: PropertyCounter<Resource>) {
-        apiClient.playCardAsync({serializedCard: serializeCard(card), payment});
+    function playCard(payment?: PropertyCounter<Resource>, conditionalPayments?: number[]) {
+        apiClient.playCardAsync({
+            serializedCard: serializeCard(card),
+            payment,
+            conditionalPayments,
+        });
     }
 
     let buttonContent: React.ReactNode | null;

@@ -38,6 +38,7 @@ interface BoxProps {
     borderColor: string;
     zIndex: number;
     fontSize: string;
+    fontStyle: string;
     alignSelf: string;
     alignItems: string;
     float: string;
@@ -93,6 +94,7 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     border-style: ${props => props.borderStyle};
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
+    font-style: ${props => props.fontStyle};
     align-self: ${props => props.alignSelf};
     align-items: ${props => props.alignItems};
     float: ${props => props.float};
