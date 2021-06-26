@@ -192,7 +192,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Search For Life'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -432,7 +432,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             // Step 1. Reveal the cards to the players so they can see them.
             const numCardsToReveal = payload.amount;
             draft.common.revealedCards = handleDrawCards(draft, numCardsToReveal);
-            draft.log.push(`Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
+            if (
+                draft.common.revealedCards.every(card => !!card && !!card.name) &&
+                draft.common.revealedCards.length > 0
+            ) {
+                draft.log.push(
+                    `Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`
+                );
+            }
         }
 
         if (discardRevealedCards.match(action)) {
@@ -806,7 +813,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (!card.storedResourceType) {
                 throw new Error('Cannot store resources on this card');
             }
-            const quantity = convertAmountToNumber(payload.amount, state, player);
+            const quantity = convertAmountToNumber(payload.amount, draft, player);
             if (quantity) {
                 draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
                 draft.log.push(

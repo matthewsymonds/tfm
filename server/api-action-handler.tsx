@@ -568,7 +568,7 @@ export class ApiActionHandler {
     }
 
     continueAfterRevealingCards() {
-        this.queue.unshift(discardRevealedCards());
+        this.queue.push(discardRevealedCards());
         this.processQueue();
     }
 
