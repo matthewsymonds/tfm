@@ -14,7 +14,7 @@ import {StandardProjectAction, StandardProjectType} from 'constants/standard-pro
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
-import {GameState, PlayerState} from 'reducer';
+import {GameState, PlayerState, Resources} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
 import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
@@ -44,9 +44,15 @@ export class ActionGuard {
         return this.state.players.find(player => player.username === this.username)!;
     }
 
-    canPlayCard(card: Card): CanPlayAndReason {
+    canPlayCard(
+        card: Card,
+        player = this._getPlayerToConsider(),
+        payment: Resources = player.resources,
+        conditionalPayments: number[] = getConditionalPaymentWithResourceInfo(player, card).map(
+            payment => payment.resourceAmount
+        )
+    ): CanPlayAndReason {
         const {state} = this;
-        const player = this._getPlayerToConsider();
         const isPrelude =
             card.type === CardType.PRELUDE &&
             player.preludes.map(prelude => prelude.name).includes(card.name);
@@ -77,7 +83,12 @@ export class ActionGuard {
         if (!canPlay) {
             return [canPlay, reason];
         }
-        if (!this.canAffordCard(card)) {
+        // Check if the amount the user is trying to pay with is sufficient (or if they're cheating?).
+        const cappedConditionalPayments = getConditionalPaymentWithResourceInfo(player, card);
+        for (let i = 0; i < cappedConditionalPayments.length; i++) {
+            cappedConditionalPayments[i].resourceAmount = conditionalPayments[i];
+        }
+        if (!this.canAffordCard(card, player, payment, cappedConditionalPayments)) {
             return [false, 'Cannot afford to play'];
         }
 
@@ -285,30 +296,33 @@ export class ActionGuard {
         return cost <= player.resources[Resource.MEGACREDIT];
     }
 
-    canAffordCard(card: Card) {
-        const player = this._getPlayerToConsider();
+    canAffordCard(
+        card: Card,
+        player = this._getPlayerToConsider(),
+        payment = player.resources,
+        conditionalPayment = getConditionalPaymentWithResourceInfo(player, card)
+    ) {
         let cost = this.getDiscountedCardCost(card);
 
         const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
         if (isBuildingCard) {
-            cost -= player.exchangeRates[Resource.STEEL] * player.resources[Resource.STEEL];
+            cost -= player.exchangeRates[Resource.STEEL] * payment[Resource.STEEL];
         }
 
         const isSpaceCard = card.tags.some(tag => tag === Tag.SPACE);
         if (isSpaceCard) {
-            cost -= player.exchangeRates[Resource.TITANIUM] * player.resources[Resource.TITANIUM];
+            cost -= player.exchangeRates[Resource.TITANIUM] * payment[Resource.TITANIUM];
         }
 
         const playerIsHelion = player.corporation.name === 'Helion';
         if (playerIsHelion) {
-            cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+            cost -= player.exchangeRates[Resource.HEAT] * payment[Resource.HEAT];
         }
-        const conditionalPayment = getConditionalPaymentWithResourceInfo(player, card);
         for (const payment of conditionalPayment) {
             cost -= payment.resourceAmount * payment.rate;
         }
 
-        return cost <= player.resources[Resource.MEGACREDIT];
+        return cost <= payment[Resource.MEGACREDIT];
     }
 
     canDoConversion(conversion: Conversion | undefined): CanPlayAndReason {

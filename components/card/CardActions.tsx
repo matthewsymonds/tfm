@@ -331,7 +331,10 @@ function ActionContainer({
 }) {
     const playedCard = cardContext === CardContext.PLAYED_CARD;
     const doesActionRequireUserInput =
-        action.acceptedPayment ||
+        (action.acceptedPayment &&
+            action.acceptedPayment.some(
+                resource => (loggedInPlayer?.resources[resource] ?? 0) > 0
+            )) ||
         (loggedInPlayer?.corporation.name === 'Helion' &&
             loggedInPlayer?.resources[Resource.HEAT] > 0);
 

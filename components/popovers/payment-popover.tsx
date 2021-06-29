@@ -8,7 +8,7 @@ import {Tag} from 'constants/tag';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card} from 'models/card';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
@@ -182,15 +182,34 @@ export default function PaymentPopover({
         Array(conditionalPayment.length).fill(0)
     );
 
+    // Ensure the popover doesn't let you pay with resources you no longer have.
+    useEffect(() => {
+        handleDecrease(Resource.MEGACREDIT, numMC - playerMoney);
+        handleDecrease(Resource.STEEL, numSteel - resources[Resource.STEEL]);
+        handleDecrease(Resource.TITANIUM, numTitanium - resources[Resource.TITANIUM]);
+        handleDecrease(Resource.HEAT, numHeat - resources[Resource.HEAT]);
+        for (let i = 0; i < conditionalPayment.length; i++) {
+            const payment = conditionalPayment[i];
+            handleDecrease(payment.resourceType, numConditionalPayment[i] - payment.resourceAmount);
+        }
+    }, [
+        playerMoney,
+        resources[Resource.STEEL],
+        resources[Resource.TITANIUM],
+        resources[Resource.HEAT],
+        ...conditionalPayment.map(payment => payment.resourceAmount),
+    ]);
+
     if (shouldHide) {
         return <React.Fragment>{children}</React.Fragment>;
     }
 
-    function handleDecrease(resource: Resource) {
+    function handleDecrease(resource: Resource, quantity = 1) {
+        if (quantity <= 0) return;
         const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
         switch (resource) {
             case Resource.MEGACREDIT:
-                const proposedValue = Math.max(0, numMC - 1);
+                const proposedValue = Math.max(0, numMC - quantity);
                 setNumMC(proposedValue);
                 return;
             case Resource.TITANIUM:
@@ -198,7 +217,7 @@ export default function PaymentPopover({
                     const titaniumValue = exchangeRates[Resource.TITANIUM];
                     const remainingValue =
                         actionCost - runningTotalWithoutMegacredits + titaniumValue;
-                    setNumTitanium(numTitanium - 1);
+                    setNumTitanium(numTitanium - quantity);
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
@@ -206,14 +225,14 @@ export default function PaymentPopover({
                 if (numSteel > 0) {
                     const steelValue = exchangeRates[Resource.STEEL];
                     const remainingValue = actionCost - runningTotalWithoutMegacredits + steelValue;
-                    setNumSteel(numSteel - 1);
+                    setNumSteel(numSteel - quantity);
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.HEAT:
                 if (numHeat > 0) {
                     const remainingValue = actionCost - runningTotalWithoutMegacredits + 1;
-                    setNumHeat(numHeat - 1);
+                    setNumHeat(numHeat - quantity);
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
@@ -227,7 +246,7 @@ export default function PaymentPopover({
                     const remainingValue =
                         actionCost - runningTotalWithoutMegacredits + (payment?.rate ?? 0);
                     const newNumConditionalPayment = [...numConditionalPayment];
-                    newNumConditionalPayment[index] -= 1;
+                    newNumConditionalPayment[index] -= quantity;
                     setNumConditionalPayment(newNumConditionalPayment);
                     setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }

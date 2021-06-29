@@ -79,7 +79,7 @@ import {StandardProjectAction, StandardProjectType} from 'constants/standard-pro
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
-import {GameState, PlayerState, reducer} from 'reducer';
+import {GameState, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
 import {getCard} from 'selectors/get-card';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
@@ -183,14 +183,19 @@ export class ApiActionHandler {
         conditionalPayments,
     }: {
         serializedCard: SerializedCard;
-        payment?: PropertyCounter<Resource>;
+        payment?: Resources;
         conditionalPayments?: number[];
     }) {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
         const loggedInPlayer = this.getLoggedInPlayer();
 
-        const [canPlay, reason] = this.actionGuard.canPlayCard(card);
+        const [canPlay, reason] = this.actionGuard.canPlayCard(
+            card,
+            loggedInPlayer,
+            payment,
+            conditionalPayments
+        );
 
         if (!canPlay) {
             throw new Error(reason);
