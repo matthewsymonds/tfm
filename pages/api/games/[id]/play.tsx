@@ -48,7 +48,7 @@ export default async (req, res) => {
         const originalState = hydratedGame.state;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         const stateHydrator = new StateHydrator(hydratedGame, username);
-        playGame(type, payload, actionHandler, stateHydrator, originalState);
+        await playGame(type, payload, actionHandler, stateHydrator, originalState);
 
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;
@@ -63,6 +63,7 @@ export default async (req, res) => {
             state: censorGameState(hydratedGame.state, username),
         });
     } catch (error) {
+        delete lock[game.name];
         res.status(404);
         res.json({error: error.message});
     }

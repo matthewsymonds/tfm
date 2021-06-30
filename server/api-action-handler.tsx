@@ -353,7 +353,7 @@ export class ApiActionHandler {
         choiceIndex,
     }: {
         parent: Card;
-        payment?: PropertyCounter<Resource>;
+        payment?: Resources;
         choiceIndex?: number;
     }) {
         const player = this.getLoggedInPlayer();
@@ -390,9 +390,21 @@ export class ApiActionHandler {
         let reason: string;
 
         if (isChoiceAction || pendingActionReplay) {
-            [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(action, state, parent);
+            [canPlay, reason] = this.actionGuard.canPlayCardActionInSpiteOfUI(
+                action,
+                parent,
+                player,
+                state,
+                payment
+            );
         } else {
-            [canPlay, reason] = this.actionGuard.canPlayAction(action, state, parent);
+            [canPlay, reason] = this.actionGuard.canPlayCardAction(
+                action,
+                parent,
+                player,
+                state,
+                payment
+            );
         }
 
         if (!canPlay) {

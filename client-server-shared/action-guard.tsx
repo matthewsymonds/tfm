@@ -277,23 +277,25 @@ export class ActionGuard {
         return [false, 'Cannot skip action right now'];
     }
 
-    canAffordActionCost(action: Action) {
-        const player = this._getPlayerToConsider();
+    private canAffordActionCost(
+        action: Action,
+        player = this._getPlayerToConsider(),
+        payment = player.resources
+    ) {
         let {cost, acceptedPayment = []} = action;
         if (!cost) {
             return true;
         }
 
         for (const acceptedPaymentType of acceptedPayment) {
-            cost -=
-                player.exchangeRates[acceptedPaymentType] * player.resources[acceptedPaymentType];
+            cost -= player.exchangeRates[acceptedPaymentType] * payment[acceptedPaymentType];
         }
 
         if (player.corporation.name === 'Helion') {
-            cost -= player.exchangeRates[Resource.HEAT] * player.resources[Resource.HEAT];
+            cost -= player.exchangeRates[Resource.HEAT] * payment[Resource.HEAT];
         }
 
-        return cost <= player.resources[Resource.MEGACREDIT];
+        return cost <= payment[Resource.MEGACREDIT];
     }
 
     canAffordCard(
@@ -457,13 +459,15 @@ export class ActionGuard {
         action: Action,
         parent: Card,
         player: SerializedPlayerState | undefined,
-        state: GameState = this.state
+        state: GameState = this.state,
+        payment: Resources | undefined = player?.resources
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
             parent,
             player,
-            state
+            state,
+            payment
         );
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
@@ -476,13 +480,15 @@ export class ActionGuard {
         action: Action,
         parent: Card,
         player: SerializedPlayerState | undefined,
-        state: GameState = this.state
+        state: GameState = this.state,
+        payment: Resources | undefined = player?.resources
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
             parent,
             player,
-            state
+            state,
+            payment
         );
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
@@ -494,9 +500,10 @@ export class ActionGuard {
         action: Action,
         parent: Card,
         player: SerializedPlayerState | undefined,
-        state: GameState = this.state
+        state: GameState = this.state,
+        payment: Resources | undefined = player?.resources
     ): CanPlayAndReason {
-        if (!this.canAffordActionCost(action)) {
+        if (!this.canAffordActionCost(action, player, payment)) {
             return [false, 'Cannot afford action cost'];
         }
 

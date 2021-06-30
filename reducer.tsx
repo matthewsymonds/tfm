@@ -913,9 +913,19 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (payload.payment) {
                 for (const resource in payload.payment) {
                     player.resources[resource] -= payload.payment[resource];
+                    if (player.resources[resource] < 0) {
+                        throw new Error(
+                            'Went negative for resource ' +
+                                resource +
+                                ' when attempting to pay for action'
+                        );
+                    }
                 }
             } else {
                 player.resources[Resource.MEGACREDIT] -= actionCost ?? 0;
+                if (player.resources[Resource.MEGACREDIT] < 0) {
+                    throw new Error('Went negative megacredit attempting to pay for action');
+                }
             }
             player.discounts.nextCardThisGeneration = 0;
             let logMessage = `${corporationName} paid ${actionCost} to play ${payload.parentCard.name}'s action`;
