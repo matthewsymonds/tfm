@@ -7,6 +7,7 @@ import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {usePrevious} from 'hooks/use-previous';
 import {Card} from 'models/card';
 import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
@@ -181,8 +182,10 @@ export default function PaymentPopover({
         Array(conditionalPayment.length).fill(0)
     );
 
-    const numMC =
-        Math.min(playerMoney, actionCost || 0) - calculateRunningTotalWithoutMegacredits();
+    const numMC = Math.max(
+        0,
+        Math.min(playerMoney, actionCost || 0) - calculateRunningTotalWithoutMegacredits()
+    );
 
     // Ensure the popover doesn't let you pay with resources you no longer have.
     useEffect(() => {
@@ -199,6 +202,21 @@ export default function PaymentPopover({
         resources[Resource.HEAT],
         ...conditionalPayment.map(payment => payment.resourceAmount),
     ]);
+
+    const prevActionCost = usePrevious(actionCost);
+
+    useEffect(() => {
+        // If the action cost decreases (e.g. removing a picked card), reset the pickers so the player is not overpaying.
+        if (actionCost < (prevActionCost ?? 0)) {
+            handleDecrease(Resource.STEEL, numSteel);
+            handleDecrease(Resource.TITANIUM, numTitanium);
+            handleDecrease(Resource.HEAT, numHeat);
+            for (let i = 0; i < conditionalPayment.length; i++) {
+                const payment = conditionalPayment[i];
+                handleDecrease(payment.resourceType, numConditionalPayment[i]);
+            }
+        }
+    }, [actionCost, prevActionCost]);
 
     // Ensure when actionCost changes the payment popover reflects the cost change.
 
@@ -322,7 +340,7 @@ export default function PaymentPopover({
                         </span>
                     </PaymentPopoverSummaryRow>
                     <Box marginBottom="4px" fontSize="12px">
-                        With <em>{actionCost - runningTotalWithoutMegacredits} MC</em> and...
+                        With <em>{numMC} MC</em> and...
                     </Box>
                     <div className="payment-rows">
                         {(card?.tags.includes(Tag.BUILDING) ||
@@ -381,8 +399,7 @@ export default function PaymentPopover({
                         onClick={() => {
                             onConfirmPayment(
                                 {
-                                    [Resource.MEGACREDIT]:
-                                        actionCost - runningTotalWithoutMegacredits,
+                                    [Resource.MEGACREDIT]: numMC,
                                     [Resource.STEEL]: numSteel,
                                     [Resource.TITANIUM]: numTitanium,
                                     [Resource.HEAT]: numHeat,
