@@ -105,6 +105,8 @@ type PlayActionParams = {
     playedCard?: Card; // card that triggered action
     thisPlayerIndex?: number;
     withPriority?: boolean;
+    // Like with priority, but instead of "unshifting" onto queue it skips queue and dispatches items immediately.
+    playImmediately?: boolean;
 };
 
 export class ApiActionHandler {
@@ -322,6 +324,7 @@ export class ApiActionHandler {
                     playedCard,
                     thisPlayerIndex: thisPlayer.index,
                     withPriority: !!event.placedTile,
+                    playImmediately: !!playedCard,
                 });
             }
         }
@@ -329,9 +332,9 @@ export class ApiActionHandler {
 
     readonly executedItems: Array<AnyAction> = [];
 
-    private processQueue() {
-        while (this.queue.length > 0) {
-            const item = this.queue.shift()!;
+    private processQueue(items = this.queue) {
+        while (items.length > 0) {
+            const item = items.shift()!;
             this.executedItems.push(item);
             this.dispatch(item);
             if (this.shouldPause(item)) {
@@ -565,10 +568,10 @@ export class ApiActionHandler {
             }
             case GameStage.ACTIVE_ROUND: {
                 if (isBuyingCards) {
-                    this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
+                    this.dispatch(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 }
-                this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
-                this.queue.push(
+                this.dispatch(addCards(selectedCards, loggedInPlayerIndex));
+                this.dispatch(
                     discardCards(
                         possibleCards.filter(
                             card =>
@@ -805,6 +808,7 @@ export class ApiActionHandler {
         playedCard,
         thisPlayerIndex,
         withPriority,
+        playImmediately,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
@@ -1031,8 +1035,9 @@ export class ApiActionHandler {
         if (action.revealTakeAndDiscard) {
             items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
         }
-
-        if (withPriority) {
+        if (playImmediately) {
+            this.processQueue(items);
+        } else if (withPriority) {
             this.queue.unshift(...items);
         } else {
             this.queue.push(...items);
@@ -1062,6 +1067,7 @@ export class ApiActionHandler {
         playedCard,
         thisPlayerIndex,
         withPriority,
+        playImmediately,
     }: PlayActionParams) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
@@ -1124,8 +1130,9 @@ export class ApiActionHandler {
                 )
             );
         }
-
-        if (withPriority) {
+        if (playImmediately) {
+            this.processQueue(items);
+        } else if (withPriority) {
             this.queue.unshift(...items);
         } else {
             this.queue.push(...items);

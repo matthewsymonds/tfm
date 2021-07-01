@@ -97,7 +97,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         maxCards = pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
         minCards = pendingCardSelection.numCardsToTake ?? 0;
     } else if (pendingCardSelection.numCardsToTake) {
-        // taking cards, e.g. invention contest (look at 4, take 2)
+        // taking cards, e.g. Business Contacts (look at 4, take 2)
         const numCards = pendingCardSelection.numCardsToTake;
         cardSelectionPrompt = `Select ${numCards} ${numCards === 1 ? 'card' : 'cards'} to take`;
         cardSelectionButtonText = `Take ${numCards} ${cardOrCards}`;

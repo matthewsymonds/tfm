@@ -98,7 +98,7 @@ function PaymentPopoverRow({
         shouldDisableIncrease = true;
     }
 
-    if (numMC === 0 && resource !== Resource.MEGACREDIT && playerMoney > 0) {
+    if (numMC === 0 && playerMoney > 0) {
         shouldDisableIncrease = true;
     }
 
@@ -166,7 +166,7 @@ export default function PaymentPopover({
 }: PaymentPopoverProps) {
     const player = useLoggedInPlayer();
     const playerMoney = useTypedSelector(state => getMoney(state, player));
-    const conditionalPayment = useTypedSelector(state =>
+    const conditionalPayment = useTypedSelector(() =>
         getConditionalPaymentWithResourceInfo(player, card)
     );
     const {resources, exchangeRates} = player;
@@ -174,7 +174,6 @@ export default function PaymentPopover({
     if (card) {
         actionCost = getDiscountedCardCost(card, player);
     }
-    const [numMC, setNumMC] = useState(Math.min(playerMoney, actionCost || 0));
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
@@ -182,9 +181,11 @@ export default function PaymentPopover({
         Array(conditionalPayment.length).fill(0)
     );
 
+    const numMC =
+        Math.min(playerMoney, actionCost || 0) - calculateRunningTotalWithoutMegacredits();
+
     // Ensure the popover doesn't let you pay with resources you no longer have.
     useEffect(() => {
-        handleDecrease(Resource.MEGACREDIT, numMC - playerMoney);
         handleDecrease(Resource.STEEL, numSteel - resources[Resource.STEEL]);
         handleDecrease(Resource.TITANIUM, numTitanium - resources[Resource.TITANIUM]);
         handleDecrease(Resource.HEAT, numHeat - resources[Resource.HEAT]);
@@ -193,47 +194,36 @@ export default function PaymentPopover({
             handleDecrease(payment.resourceType, numConditionalPayment[i] - payment.resourceAmount);
         }
     }, [
-        playerMoney,
         resources[Resource.STEEL],
         resources[Resource.TITANIUM],
         resources[Resource.HEAT],
         ...conditionalPayment.map(payment => payment.resourceAmount),
     ]);
 
+    // Ensure when actionCost changes the payment popover reflects the cost change.
+
     if (shouldHide) {
         return <React.Fragment>{children}</React.Fragment>;
     }
 
+    const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
+
     function handleDecrease(resource: Resource, quantity = 1) {
         if (quantity <= 0) return;
-        const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
         switch (resource) {
-            case Resource.MEGACREDIT:
-                const proposedValue = Math.max(0, numMC - quantity);
-                setNumMC(proposedValue);
-                return;
             case Resource.TITANIUM:
                 if (numTitanium > 0) {
-                    const titaniumValue = exchangeRates[Resource.TITANIUM];
-                    const remainingValue =
-                        actionCost - runningTotalWithoutMegacredits + titaniumValue;
                     setNumTitanium(numTitanium - quantity);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.STEEL:
                 if (numSteel > 0) {
-                    const steelValue = exchangeRates[Resource.STEEL];
-                    const remainingValue = actionCost - runningTotalWithoutMegacredits + steelValue;
                     setNumSteel(numSteel - quantity);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.HEAT:
                 if (numHeat > 0) {
-                    const remainingValue = actionCost - runningTotalWithoutMegacredits + 1;
                     setNumHeat(numHeat - quantity);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             default:
@@ -243,51 +233,32 @@ export default function PaymentPopover({
                 );
                 const payment = conditionalPayment[index];
                 if (numConditionalPayment[index] > 0) {
-                    const remainingValue =
-                        actionCost - runningTotalWithoutMegacredits + (payment?.rate ?? 0);
                     const newNumConditionalPayment = [...numConditionalPayment];
                     newNumConditionalPayment[index] -= quantity;
                     setNumConditionalPayment(newNumConditionalPayment);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
         }
     }
 
     function handleIncrease(resource: Resource) {
         const runningTotal = calculateRunningTotal();
-        const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
-
         switch (resource) {
-            case Resource.MEGACREDIT:
-                if (runningTotal >= actionCost) return;
-                const proposedValue = Math.min(numMC + 1, playerMoney);
-                setNumMC(proposedValue);
-                return;
             case Resource.TITANIUM:
                 if (runningTotal >= actionCost && numMC === 0) return;
                 if (numTitanium < resources[Resource.TITANIUM]) {
-                    const titaniumValue = exchangeRates[Resource.TITANIUM];
-                    const remainingValue =
-                        actionCost - runningTotalWithoutMegacredits - titaniumValue;
                     setNumTitanium(numTitanium + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.STEEL:
                 if (runningTotal >= actionCost && numMC === 0) return;
                 if (numSteel < resources[Resource.STEEL]) {
-                    const steelValue = exchangeRates[Resource.STEEL];
-                    const remainingValue = actionCost - runningTotalWithoutMegacredits - steelValue;
                     setNumSteel(numSteel + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             case Resource.HEAT:
                 if (runningTotal >= actionCost && numMC === 0) return;
                 if (numHeat < resources[Resource.HEAT]) {
-                    const remainingValue = actionCost - runningTotalWithoutMegacredits - 1;
                     setNumHeat(numHeat + 1);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
             default:
@@ -297,12 +268,9 @@ export default function PaymentPopover({
                 if (runningTotal >= actionCost && numMC === 0) return;
                 const payment = conditionalPayment[index];
                 if (numConditionalPayment[index] < payment.resourceAmount) {
-                    const remainingValue =
-                        actionCost - runningTotalWithoutMegacredits - payment.rate;
                     const newNumConditionalPayment = [...numConditionalPayment];
                     newNumConditionalPayment[index] += 1;
                     setNumConditionalPayment(newNumConditionalPayment);
-                    setNumMC(Math.max(0, Math.min(remainingValue, playerMoney)));
                 }
                 return;
         }
@@ -353,18 +321,10 @@ export default function PaymentPopover({
                             </em>
                         </span>
                     </PaymentPopoverSummaryRow>
+                    <Box marginBottom="4px" fontSize="12px">
+                        With <em>{actionCost - runningTotalWithoutMegacredits} MC</em> and...
+                    </Box>
                     <div className="payment-rows">
-                        {playerMoney > 0 && (
-                            <PaymentPopoverRow
-                                resource={Resource.MEGACREDIT}
-                                currentQuantity={numMC}
-                                availableQuantity={playerMoney}
-                                handleIncrease={handleIncrease}
-                                handleDecrease={handleDecrease}
-                                numMC={numMC}
-                                playerMoney={playerMoney}
-                            />
-                        )}
                         {(card?.tags.includes(Tag.BUILDING) ||
                             action?.acceptedPayment?.includes(Resource.STEEL)) &&
                             resources[Resource.STEEL] > 0 && (
@@ -421,7 +381,8 @@ export default function PaymentPopover({
                         onClick={() => {
                             onConfirmPayment(
                                 {
-                                    [Resource.MEGACREDIT]: numMC,
+                                    [Resource.MEGACREDIT]:
+                                        actionCost - runningTotalWithoutMegacredits,
                                     [Resource.STEEL]: numSteel,
                                     [Resource.TITANIUM]: numTitanium,
                                     [Resource.HEAT]: numHeat,
