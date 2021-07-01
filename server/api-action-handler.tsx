@@ -106,7 +106,7 @@ type PlayActionParams = {
     thisPlayerIndex?: number;
     withPriority?: boolean;
     // Like with priority, but instead of "unshifting" onto queue it skips queue and dispatches items immediately.
-    playImmediately?: boolean;
+    playImmediatelyIfNoUserInputNeeded?: boolean;
 };
 
 export class ApiActionHandler {
@@ -219,14 +219,6 @@ export class ApiActionHandler {
         // Have to trigger effects from the card we just played.
         // Must be processed separatedly in case the card effects itself.
         // Must also happen after payment.
-        // However, it must be *before* other stuff happens.
-        // Why? Imagine you're Credicor and play Underground City.
-        // Credicor will give you 4 coins after affording the card.
-        // The board is Hellas.
-        // You place the city on the "place an ocean for 6 coins" spot.
-        // Now if you have 2 coins after paying for the card,
-        // you'll now have 6 coins and can afford the card.
-        // If the triggerEffects happened after city placement you could not.
         this.triggerEffectsFromPlayedCard(card);
 
         // 2. Apply effects that will affect future turns:
@@ -324,7 +316,10 @@ export class ApiActionHandler {
                     playedCard,
                     thisPlayerIndex: thisPlayer.index,
                     withPriority: !!event.placedTile,
-                    playImmediately: !!playedCard,
+                    // If the effect causes a choice that benefits from more information,
+                    // Then it's better to trigger after everything else.
+                    // Otherwise, grant the resources immediately.
+                    playImmediatelyIfNoUserInputNeeded: true,
                 });
             }
         }
@@ -801,15 +796,10 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    private playActionBenefits({
-        action,
-        state,
-        parent,
-        playedCard,
-        thisPlayerIndex,
-        withPriority,
-        playImmediately,
-    }: PlayActionParams) {
+    private playActionBenefits(
+        {action, state, parent, playedCard, thisPlayerIndex, withPriority}: PlayActionParams,
+        queue = this.queue
+    ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
         // Must happen first (search for life "gains resource" based on discarded card)
@@ -1035,21 +1025,22 @@ export class ApiActionHandler {
         if (action.revealTakeAndDiscard) {
             items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
         }
-        if (playImmediately) {
-            this.processQueue(items);
-        } else if (withPriority) {
-            this.queue.unshift(...items);
+        if (withPriority) {
+            queue.unshift(...items);
         } else {
-            this.queue.push(...items);
+            queue.push(...items);
         }
     }
 
-    private discardCards({action, parent, playedCard, thisPlayerIndex}: PlayActionParams) {
+    private discardCards(
+        {action, parent, playedCard, thisPlayerIndex}: PlayActionParams,
+        queue = this.queue
+    ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const numCardsToDiscard = action.removeResource?.[Resource.CARD] ?? 0;
 
         if (numCardsToDiscard) {
-            this.queue.unshift(
+            queue.unshift(
                 askUserToDiscardCards(
                     playerIndex,
                     numCardsToDiscard,
@@ -1061,14 +1052,10 @@ export class ApiActionHandler {
         }
     }
 
-    private playActionCosts({
-        action,
-        parent,
-        playedCard,
-        thisPlayerIndex,
-        withPriority,
-        playImmediately,
-    }: PlayActionParams) {
+    private playActionCosts(
+        {action, parent, playedCard, thisPlayerIndex, withPriority}: PlayActionParams,
+        queue = this.queue
+    ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
 
@@ -1130,19 +1117,28 @@ export class ApiActionHandler {
                 )
             );
         }
-        if (playImmediately) {
-            this.processQueue(items);
-        } else if (withPriority) {
-            this.queue.unshift(...items);
+        if (withPriority) {
+            queue.unshift(...items);
         } else {
-            this.queue.push(...items);
+            queue.push(...items);
         }
     }
 
     private playAction(playActionParams: PlayActionParams) {
-        this.discardCards(playActionParams);
-        this.playActionCosts(playActionParams);
-        this.playActionBenefits(playActionParams);
+        const items: AnyAction[] = [];
+        this.discardCards(playActionParams, items);
+        this.playActionCosts(playActionParams, items);
+        this.playActionBenefits(playActionParams, items);
+        if (
+            playActionParams.playImmediatelyIfNoUserInputNeeded &&
+            !items.some(item => this.shouldPause(item))
+        ) {
+            this.processQueue(items);
+        } else if (playActionParams.withPriority) {
+            this.queue.unshift(...items);
+        } else {
+            this.queue.push(...items);
+        }
     }
 
     private createDecreaseProductionAction(
