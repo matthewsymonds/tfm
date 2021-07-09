@@ -182,7 +182,10 @@ export default function PaymentPopover({
         Array(conditionalPayment.length).fill(0)
     );
 
-    const numMC = Math.min(playerMoney, Math.max(0, actionCost - calculateRunningTotalWithoutMegacredits()));
+    const numMC = Math.min(
+        playerMoney,
+        Math.max(0, actionCost - calculateRunningTotalWithoutMegacredits())
+    );
 
     // Ensure the popover doesn't let you pay with resources you no longer have.
     useEffect(() => {
