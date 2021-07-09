@@ -21,8 +21,8 @@ export class ApiClient implements GameActionHandler {
     stateHydrator: StateHydrator;
     constructor(
         private readonly dispatch: (action: AnyAction) => void,
-        private readonly username: string,
-        private readonly store: Store
+        username: string,
+        store: Store
     ) {
         const queue = [];
         const game = {

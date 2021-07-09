@@ -1,9 +1,8 @@
-import {Card} from 'models/card';
-import {GameState} from 'reducer';
+import {Action} from 'constants/action';
+import {PlayerState} from 'reducer';
 
-export function meetsTerraformRequirements(action, state: GameState, parent?: Card): boolean {
+export function meetsTerraformRequirements(action: Action, player: PlayerState): boolean {
     if (!action.requiresTerraformRatingIncrease) return true;
 
-    return !!state.players.find(player => player.corporation.name === parent?.name)!
-        .terraformedThisGeneration;
+    return !!player.terraformedThisGeneration;
 }

@@ -824,7 +824,7 @@ export function canPlayActionInSpiteOfUI(
         return [false, 'Cannot place tile'];
     }
 
-    if (!meetsTerraformRequirements(action, state, parent)) {
+    if (!meetsTerraformRequirements(action, player)) {
         return [false, 'Not yet terraformed this generation'];
     }
 

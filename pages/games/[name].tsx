@@ -34,14 +34,16 @@ export default function Game(props) {
     useEffect(() => {
         handleRetrievedGame(game);
     }, []);
-    const loggedInPlayerIndex = game.state.players.findIndex(
+    let loggedInPlayerIndex = game.state.players.findIndex(
         player => player.username === session.username
     );
-    if (loggedInPlayerIndex < 0) {
+    if (loggedInPlayerIndex < 0 && game.state.players.length !== 1) {
         useEffect(() => {
             router.push('/');
         }, []);
         return null;
+    } else if (loggedInPlayerIndex < 0) {
+        loggedInPlayerIndex = 0;
     }
     context.setLoggedInPlayerIndex(loggedInPlayerIndex);
 

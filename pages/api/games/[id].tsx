@@ -2,8 +2,6 @@ import {gamesModel, retrieveSession} from 'database';
 import {censorGameState} from 'state-serialization';
 
 export default async (req, res) => {
-    const sessionResult = await retrieveSession(req, res);
-    if (!sessionResult) return;
     let game;
 
     const {
@@ -19,11 +17,21 @@ export default async (req, res) => {
         return;
     }
 
+    let username: string;
+
+    if (game.state.players.length === 1) {
+        username = game.state.players[0].username;
+    } else {
+        const sessionResult = await retrieveSession(req, res);
+        if (!sessionResult) return;
+        username = sessionResult.username;
+    }
+
     switch (req.method.toUpperCase()) {
         case 'GET':
             res.setHeader('cache-control', 'no-cache');
             res.json({
-                state: censorGameState(game.state, sessionResult.username),
+                state: censorGameState(game.state, username),
             });
             return;
         default:
