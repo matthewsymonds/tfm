@@ -39,6 +39,7 @@ const gamesSchema = new schema({
         type: Date,
         default: Date.now,
     },
+    currentPlayer: {type: String, default: ''},
 });
 
 export let gamesModel;

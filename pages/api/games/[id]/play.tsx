@@ -1,5 +1,6 @@
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {playGame} from 'client-server-shared/play-game';
+import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
@@ -52,6 +53,10 @@ export default async (req, res) => {
 
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;
+        game.currentPlayer = game.state.players[game.state.common.currentPlayerIndex].username;
+        if (game.state.common.gameStage === GameStage.END_OF_GAME) {
+            game.currentPlayer = '';
+        }
         game.updatedAt = Date.now();
         await game.save();
         lock[game.name] = lock[game.name].filter(name => name !== username);
