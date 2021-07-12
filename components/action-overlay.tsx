@@ -21,8 +21,8 @@ const ActionOverlayBase = styled.div<{isVisible: boolean}>`
     position: ${props => (props.isVisible ? 'absolute' : 'fixed')};
     margin-top: ${props => (props.isVisible ? '0' : `${document.body.scrollHeight}px`)};
     width: 100%;
-    height: calc(100% - 72px);
-    top: 72px;
+    height: calc(100% - 84px);
+    top: 84px;
     z-index: 10;
     display: flex;
     flex-direction: column;

@@ -1,7 +1,7 @@
 import {ActionLog} from 'components/action-log';
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import Button from 'components/controls/button';
-import {PlayerCorpAndIcon} from 'components/icons/player';
+import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
@@ -14,15 +14,20 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
 
-const TopBarBase = styled.div`
+const TopBarBase = styled(Box)`
     display: flex;
     width: 100%;
-    height: 36px;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    padding: 0 8px;
-    color: #dddddd;
-    background-color: ${props => props.color};
+    color: #ddd;
+`;
+
+const CorporationName = styled(Flex)`
+    margin: 0;
+    font-size: 36px;
+    margin-right: 8px;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-weight: bold;
 `;
 
 type TopBarProps = {
@@ -66,48 +71,79 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
 
         const actionGuard = useActionGuard();
 
+        const color = `linear-gradient(to right, ${topBarColor}, rgba(255,255,255,0), rgba(255,255,255,0));`;
+
         const greeneryPlacementText = actionGuard.canDoConversion(CONVERSIONS[Resource.PLANT])[0]
             ? 'You may place a greenery.'
             : 'Cannot place any more greeneries.';
 
         return (
-            <TopBarBase color={topBarColor} ref={ref}>
-                <Flex className="ellipsis" alignItems="center" fontSize="14px">
-                    {isLoggedInPlayerPassed && <span>You have passed.</span>}
-                    {isEndOfGame && <span>The game has ended.</span>}
+            <TopBarBase
+                ref={ref}
+                borderWidth="2px"
+                borderImageSlice="1"
+                borderImageSource={color}
+                borderStyle="hidden hidden solid hidden"
+            >
+                <Flex
+                    alignItems="flex-end"
+                    flexShrink="0"
+                    padding="2px"
+                    marginRight="4px"
+                    overflow="hidden"
+                >
+                    <CorporationName>
+                        <PlayerIcon
+                            size={18}
+                            style={{
+                                marginRight: '8px',
+                                marginLeft: '6px',
+                                marginTop: 'auto',
+                                marginBottom: 'auto',
+                            }}
+                            playerIndex={loggedInPlayer.index}
+                        />
+                        {loggedInPlayer.corporation.name}
+                    </CorporationName>
+                </Flex>
+                <div className="ellipsis">
+                    {isLoggedInPlayerPassed && 'You have passed.'}
+                    {isEndOfGame && 'The game has ended.'}
                     {!isActiveRound &&
                         !isEndOfGame &&
                         !isGreeneryPlacement &&
-                        !hasPendingCardSelection && <span>Waiting to start generation.</span>}
+                        !hasPendingCardSelection &&
+                        'Waiting to start generation.'}
                     {syncing && <em>Saving...</em>}
                     {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
-                        <span>Please choose your cards.</span>
+                        <div>Please choose your cards.</div>
                     )}
                     {!syncing &&
                         loggedInPlayer.action > 0 &&
                         isLoggedInPlayersTurn &&
-                        isActiveRound && <span>Action {action} of 2</span>}
+                        isActiveRound &&
+                        <>Action {action} of 2</>}
                     {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
                         <React.Fragment>
-                            <span style={{marginRight: 4, color: 'white'}}>Waiting on</span>
+                            <div style={{marginRight: 4, color: 'white'}}>Waiting on</div>
                             <PlayerCorpAndIcon
                                 player={currentPlayer}
                                 color="white"
                                 isInline={true}
                             />
-                            <span style={{marginLeft: 0, color: 'white'}}>...</span>
+                            <div style={{marginLeft: 0, color: 'white'}}>...</div>
                         </React.Fragment>
                     )}
                     {isLoggedInPlayersTurn && isGreeneryPlacement && (
-                        <span>{greeneryPlacementText}</span>
+                        <div>{greeneryPlacementText}</div>
                     )}
                     {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
                         <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
                             {isGreeneryPlacement ? 'Pass' : action === 2 ? 'Skip' : 'Pass'}
                         </Button>
                     )}
-                </Flex>
-                <Flex alignItems="center" justifyContent="flex-end">
+                </div>
+                <Flex marginLeft="auto">
                     <ActionLog />
                     <BlankButton onClick={() => router.push('/')}>🏠</BlankButton>
                 </Flex>

@@ -36,6 +36,10 @@ interface BoxProps {
     borderWidth: string;
     borderStyle: string;
     borderColor: string;
+    borderTop: string;
+    borderBottom: string;
+    borderLeft: string;
+    borderRight: string;
     zIndex: number;
     fontSize: string;
     fontStyle: string;
@@ -45,6 +49,9 @@ interface BoxProps {
     boxSizing: string;
     flexShrink: string;
     visibility: string;
+    color: string;
+    borderImageSource: string;
+    borderImageSlice: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -92,6 +99,11 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     border-width: ${props => props.borderWidth};
     border-color: ${props => props.borderColor};
     border-style: ${props => props.borderStyle};
+    border-top: ${props => props.borderTop};
+    border-bottom: ${props => props.borderBottom};
+    border-left: ${props => props.borderLeft};
+    border-right: ${props => props.borderRight};
+
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
     font-style: ${props => props.fontStyle};
@@ -101,6 +113,10 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     box-sizing: ${props => props.boxSizing};
     flex-shrink: ${props => props.flexShrink};
     visibility: ${props => props.visibility};
+
+    color: ${props => props.color};
+    border-image-source: ${props => props.borderImageSource};
+    border-image-slice: ${props => props.borderImageSlice};
 `;
 
 export const Box = React.memo(BoxInternal);
