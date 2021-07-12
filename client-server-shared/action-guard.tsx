@@ -25,6 +25,7 @@ import {getMoney} from 'selectors/get-money';
 import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
+import { isPlayingVenus } from 'selectors/is-playing-venus';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
@@ -778,7 +779,7 @@ export class ActionGuard {
         let expectedLength = 0;
         if (
             state.common.gameStage === GameStage.CORPORATION_SELECTION &&
-            state.options.decks.includes(Deck.PRELUDE)
+            isPlayingVenus(state)
         ) {
             expectedLength = 2;
         }
