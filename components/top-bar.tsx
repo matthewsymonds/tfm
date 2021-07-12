@@ -25,7 +25,7 @@ const TopBarBase = styled(Box)`
 const CorporationName = styled(Flex)`
     margin: 0;
     font-size: 36px;
-    margin-right: 8px;
+    margin-right: 12px;
     font-family: 'Ubuntu Condensed', sans-serif;
     font-weight: bold;
 `;
@@ -85,64 +85,62 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                 borderImageSource={color}
                 borderStyle="hidden hidden solid hidden"
             >
-                <Flex
-                    alignItems="flex-end"
-                    flexShrink="0"
-                    padding="2px"
-                    marginRight="4px"
-                    overflow="hidden"
-                >
-                    <CorporationName>
-                        <PlayerIcon
-                            size={18}
-                            style={{
-                                marginRight: '8px',
-                                marginLeft: '6px',
-                                marginTop: 'auto',
-                                marginBottom: 'auto',
-                            }}
-                            playerIndex={loggedInPlayer.index}
-                        />
-                        {loggedInPlayer.corporation.name}
-                    </CorporationName>
+                <PlayerIcon
+                    size={18}
+                    style={{
+                        marginRight: '8px',
+                        marginLeft: '8px',
+                        marginTop: 'auto',
+                        marginBottom: 'auto',
+                    }}
+                    playerIndex={loggedInPlayer.index}
+                />
+                <Flex alignItems="center" padding="2px" marginRight="4px" flexWrap="wrap">
+                    <CorporationName>{loggedInPlayer.corporation.name}</CorporationName>
+                    <Box display="inline">
+                        {isLoggedInPlayerPassed && 'You have passed.'}
+                        {isEndOfGame && 'The game has ended.'}
+                        {!isActiveRound &&
+                            !isEndOfGame &&
+                            !isGreeneryPlacement &&
+                            !hasPendingCardSelection &&
+                            'Waiting to start generation.'}
+                        {syncing && <em>Saving...</em>}
+                        {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
+                            <div>Please choose your cards.</div>
+                        )}
+                        {!syncing &&
+                            loggedInPlayer.action > 0 &&
+                            isLoggedInPlayersTurn &&
+                            isActiveRound && <>Action {action} of 2</>}
+                        {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
+                            <React.Fragment>
+                                <Box
+                                    display="inline-block"
+                                    style={{marginRight: 4, color: 'white'}}
+                                >
+                                    Waiting on
+                                </Box>
+                                <PlayerCorpAndIcon
+                                    player={currentPlayer}
+                                    color="white"
+                                    isInline={true}
+                                />
+                                <Box display="inline-block" style={{marginLeft: 0, color: 'white'}}>
+                                    ...
+                                </Box>
+                            </React.Fragment>
+                        )}
+                        {isLoggedInPlayersTurn && isGreeneryPlacement && (
+                            <div>{greeneryPlacementText}</div>
+                        )}
+                        {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
+                            <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
+                                {isGreeneryPlacement ? 'Pass' : action === 2 ? 'Skip' : 'Pass'}
+                            </Button>
+                        )}
+                    </Box>
                 </Flex>
-                <div className="ellipsis">
-                    {isLoggedInPlayerPassed && 'You have passed.'}
-                    {isEndOfGame && 'The game has ended.'}
-                    {!isActiveRound &&
-                        !isEndOfGame &&
-                        !isGreeneryPlacement &&
-                        !hasPendingCardSelection &&
-                        'Waiting to start generation.'}
-                    {syncing && <em>Saving...</em>}
-                    {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
-                        <div>Please choose your cards.</div>
-                    )}
-                    {!syncing &&
-                        loggedInPlayer.action > 0 &&
-                        isLoggedInPlayersTurn &&
-                        isActiveRound &&
-                        <>Action {action} of 2</>}
-                    {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
-                        <React.Fragment>
-                            <div style={{marginRight: 4, color: 'white'}}>Waiting on</div>
-                            <PlayerCorpAndIcon
-                                player={currentPlayer}
-                                color="white"
-                                isInline={true}
-                            />
-                            <div style={{marginLeft: 0, color: 'white'}}>...</div>
-                        </React.Fragment>
-                    )}
-                    {isLoggedInPlayersTurn && isGreeneryPlacement && (
-                        <div>{greeneryPlacementText}</div>
-                    )}
-                    {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
-                        <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
-                            {isGreeneryPlacement ? 'Pass' : action === 2 ? 'Skip' : 'Pass'}
-                        </Button>
-                    )}
-                </div>
                 <Flex marginLeft="auto">
                     <ActionLog />
                     <BlankButton onClick={() => router.push('/')}>🏠</BlankButton>
