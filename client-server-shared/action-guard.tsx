@@ -6,7 +6,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
 import {Award, Cell, Milestone, TileType} from 'constants/board';
-import {CardType, Deck} from 'constants/card-types';
+import {CardType} from 'constants/card-types';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource';
@@ -25,7 +25,7 @@ import {getMoney} from 'selectors/get-money';
 import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
-import { isPlayingVenus } from 'selectors/is-playing-venus';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
@@ -777,10 +777,7 @@ export class ActionGuard {
             return false;
         }
         let expectedLength = 0;
-        if (
-            state.common.gameStage === GameStage.CORPORATION_SELECTION &&
-            isPlayingVenus(state)
-        ) {
+        if (state.common.gameStage === GameStage.CORPORATION_SELECTION && isPlayingVenus(state)) {
             expectedLength = 2;
         }
         if (selectedPreludes.length !== expectedLength) {

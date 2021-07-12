@@ -1,5 +1,4 @@
 import {gamesModel, retrieveSession} from 'database';
-import {getInitialState} from 'initial-state';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
