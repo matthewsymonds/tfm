@@ -25,6 +25,8 @@ export default async (req, res) => {
             } catch (error) {
                 games = [];
             }
+            // Ensure the results are fresh!
+            res.setHeader('cache-control', 'no-cache');
             return res.json({games});
         default:
             res.status(404);
