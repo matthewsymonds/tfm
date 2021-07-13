@@ -188,8 +188,14 @@ export const ActiveRound = ({
 
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
+    const {draftPicks = [], possibleCards = []} = loggedInPlayer?.pendingCardSelection ?? {
+        draftPicks: [],
+        possibleCards: [],
+    };
+    const isPickingCards = (draftPicks?.length ?? 0) + (possibleCards?.length ?? 0) === 4;
 
-    const playing = loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound;
+    const playing =
+        (loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound) || isPickingCards;
     const onlyOnePlayer = useTypedSelector(state => state.players.length === 1);
 
     const pathParts = window.location.pathname.split('/');

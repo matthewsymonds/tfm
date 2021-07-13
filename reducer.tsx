@@ -385,7 +385,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         throw new Error('Drafting state is borked for another player');
                     }
                     selection.possibleCards = selection.possibleCards.filter(card => {
-                        return !(selection.draftPicks ?? []).map(d => d.name).includes(card.name);
+                        return !(selection.draftPicks ?? []).map(d => d?.name).includes(card?.name);
                     });
                 });
                 const remainingPossibleCards = draft.players.map(
