@@ -5,22 +5,42 @@ import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
-import {useContext, useEffect} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 
+async function retrieveYourTurnGames(callback: Function) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    const apiPath = '/api/your-turn';
+
+    const result = await makeGetCall(apiPath);
+    if (result.games) {
+        callback(result);
+    }
+}
+
 export default function Game(props) {
     const {game, session} = props;
+    const {lastSeenLogItem} = game;
     const router = useRouter();
     const dispatch = useDispatch();
     const store = useStore();
     const context = useContext(AppContext);
+    useEffect(() => {
+        store.dispatch(setGame(game.state));
+        context.setLastSeenLogItem(lastSeenLogItem);
+    }, [location.pathname, lastSeenLogItem]);
+
+    const state = useTypedSelector(state => state);
 
     const handleRetrievedGame = game => {
         if (game.error) {
             router.push('/new-game');
             return;
         }
+        context.setLastSeenLogItem(game.lastSeenLogItem);
         const existingTimestamp = store.getState().timestamp ?? 0;
         const newTimestamp = game.state.timestamp ?? 0;
         if (newTimestamp > existingTimestamp) {
@@ -31,6 +51,12 @@ export default function Game(props) {
             dispatch(setGame(game.state));
         }
     };
+    function handleRetrievedYourTurnGames(result: {games: Array<{name: string}>}) {
+        setYourTurnGames(result.games.map(game => game.name));
+    }
+
+    const [yourTurnGames, setYourTurnGames] = useState<string[]>([]);
+
     useEffect(() => {
         handleRetrievedGame(game);
     }, []);
@@ -52,14 +78,14 @@ export default function Game(props) {
     const numPlayers = useTypedSelector(state => state?.players?.length ?? 0);
 
     const getPendingCardSelection = state =>
-        state.players[loggedInPlayerIndex]?.pendingCardSelection;
+        state?.players[loggedInPlayerIndex]?.pendingCardSelection;
 
     const draftPicks = useTypedSelector(state => getPendingCardSelection(state)?.draftPicks ?? []);
     const possibleCards = useTypedSelector(
         state => getPendingCardSelection(state)?.possibleCards ?? []
     );
     const isWaitingInDraft = draftPicks.length + possibleCards.length === 5;
-    const isSyncing = useTypedSelector(state => state.syncing);
+    const isSyncing = useTypedSelector(state => state?.syncing);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -118,6 +144,22 @@ export default function Game(props) {
         possibleCards.length,
     ]);
 
+    useEffect(() => {
+        if (yourTurnGames.length > 0) return;
+
+        const interval = setInterval(() => {
+            retrieveYourTurnGames(handleRetrievedYourTurnGames);
+        }, 10000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [yourTurnGames.length]);
+
+    useEffect(() => {
+        retrieveYourTurnGames(handleRetrievedYourTurnGames);
+    }, []);
+
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;
 
@@ -129,7 +171,9 @@ export default function Game(props) {
         }
     };
 
-    return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} />;
+    if (!state) return null;
+
+    return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} yourTurnGames={yourTurnGames} />;
 }
 
 Game.getInitialProps = async ctx => {
@@ -146,7 +190,6 @@ Game.getInitialProps = async ctx => {
         });
 
         const game = await response.json();
-        ctx.store.dispatch(setGame(game.state));
         return {game};
     } catch (error) {
         if (isServer) {

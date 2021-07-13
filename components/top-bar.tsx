@@ -77,6 +77,8 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
             ? 'You may place a greenery.'
             : 'Cannot place any more greeneries.';
 
+        const playing = loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound;
+
         return (
             <TopBarBase
                 ref={ref}
@@ -109,10 +111,7 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                         {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
                             <div>Please choose your cards.</div>
                         )}
-                        {!syncing &&
-                            loggedInPlayer.action > 0 &&
-                            isLoggedInPlayersTurn &&
-                            isActiveRound && <>Action {action} of 2</>}
+                        {!syncing && playing && <>Action {action} of 2</>}
                         {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
                             <React.Fragment>
                                 <Box

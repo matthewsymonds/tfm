@@ -40,6 +40,7 @@ const gamesSchema = new schema({
         default: Date.now,
     },
     currentPlayer: {type: String, default: ''},
+    lastSeenLogItem: {type: Array, default: []},
 });
 
 export let gamesModel;

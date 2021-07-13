@@ -30,8 +30,18 @@ export default async (req, res) => {
     switch (req.method.toUpperCase()) {
         case 'GET':
             res.setHeader('cache-control', 'no-cache');
+            const index = game.players.indexOf(username);
+            const {lastSeenLogItem = []} = game;
+            game.lastSeenLogItem ||= [];
+            if (game.lastSeenLogItem[index] !== game.state.log.length) {
+                game.lastSeenLogItem[index] = game.state.log.length;
+                try {
+                    await game.save();
+                } catch (error) {}
+            }
             res.json({
                 state: censorGameState(game.state, username),
+                lastSeenLogItem: lastSeenLogItem[index],
             });
             return;
         default:

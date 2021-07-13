@@ -58,6 +58,8 @@ export default async (req, res) => {
             game.currentPlayer = '';
         }
         game.updatedAt = Date.now();
+        game.lastSeenLogItem ||= [];
+        game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
         await game.save();
         lock[game.name] = lock[game.name].filter(name => name !== username);
         if (lock[game.name].length === 0) {

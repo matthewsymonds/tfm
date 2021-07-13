@@ -289,7 +289,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // Sets the game state returned from the server.
         const newState = action.payload.gameState;
         if (newState === null) {
-            return null;
+            return state;
         }
         // Exceptionally (hacky):
         // Corporation selection happens client-side, then is finalized on server.
