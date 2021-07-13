@@ -141,7 +141,7 @@ function InnerAppComponent({Component, pageProps, session}) {
     useEffect(() => {
         setPath(router.pathname);
     }, [router.pathname]);
-    if (path.includes('games')) {
+    if (router.pathname.includes('games')) {
         return <Component {...pageProps} session={session} />;
     }
     return (
