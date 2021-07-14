@@ -34,7 +34,7 @@ export default function Game(props) {
     }, [location.pathname, lastSeenLogItem]);
 
     const state = useTypedSelector(state => state);
-    const logLength = useTypedSelector(state => state.log.length);
+    const logLength = useTypedSelector(state => state?.log?.length);
 
     const handleRetrievedGame = game => {
         if (game.error) {
