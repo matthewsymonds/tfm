@@ -34,6 +34,7 @@ export default function Game(props) {
     }, [location.pathname, lastSeenLogItem]);
 
     const state = useTypedSelector(state => state);
+    const logLength = useTypedSelector(state => state.log.length);
 
     const handleRetrievedGame = game => {
         if (game.error) {
@@ -145,8 +146,6 @@ export default function Game(props) {
     ]);
 
     useEffect(() => {
-        if (yourTurnGames.length > 0) return;
-
         const interval = setInterval(() => {
             retrieveYourTurnGames(handleRetrievedYourTurnGames);
         }, 10000);
@@ -154,11 +153,11 @@ export default function Game(props) {
         return () => {
             clearInterval(interval);
         };
-    }, [yourTurnGames.length]);
+    }, []);
 
     useEffect(() => {
         retrieveYourTurnGames(handleRetrievedYourTurnGames);
-    }, []);
+    }, [logLength]);
 
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;

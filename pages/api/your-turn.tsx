@@ -1,6 +1,5 @@
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
-import {current} from 'immer';
 
 export default async (req, res) => {
     const sessionResult = await retrieveSession(req, res);
@@ -20,6 +19,7 @@ export default async (req, res) => {
                         $and: [
                             // Games with more than one player (player index 1 exists)
                             {'players.1': {$exists: true}},
+                            {'state.common.gameStage': {$not: {$eq: GameStage.END_OF_GAME}}},
                             {
                                 $or: [
                                     {
@@ -42,7 +42,6 @@ export default async (req, res) => {
                                     },
                                 ],
                             },
-                            {'state.common.gameStage': {$not: {$eq: GameStage.END_OF_GAME}}},
                         ],
                     },
                     {name: 1, state: 1}
