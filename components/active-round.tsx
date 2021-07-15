@@ -14,7 +14,7 @@ import {CardType} from 'constants/card-types';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import Link from 'next/link';
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -185,6 +185,21 @@ export const ActiveRound = ({
     );
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
+    const logLength = useTypedSelector(state => state.log.length);
+    const [topBarHeight, setTopBarHeight] = useState(0);
+
+    useLayoutEffect(() => {
+        if (topBarRef.current) {
+            setTopBarHeight(topBarRef.current.offsetHeight);
+        }
+        const handleResize = function (this: Window, event: UIEvent) {
+            if (topBarRef.current) {
+                setTopBarHeight(topBarRef.current.offsetHeight);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [window.innerWidth, topBarRef.current, logLength]);
 
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
@@ -300,9 +315,7 @@ export const ActiveRound = ({
         <React.Fragment>
             <LogToast />
             <Flex flexDirection="column" flex="auto" bottom="0px">
-                <Flex flex="none">
-                    <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
-                </Flex>
+                <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
                         hideOverlay={!!hideOverlay}
@@ -311,7 +324,7 @@ export const ActiveRound = ({
                     />
                 )}
                 {isPlayerMakingDecision && !hideOverlay && (
-                    <ActionOverlay isVisible={isActionOverlayVisible}>
+                    <ActionOverlay isVisible={isActionOverlayVisible} topBarHeight={topBarHeight}>
                         {actionOverlayElement}
                     </ActionOverlay>
                 )}

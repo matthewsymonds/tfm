@@ -15,14 +15,14 @@ const ActionBar = styled.div`
     color: ${colors.TEXT_LIGHT_1};
 `;
 
-const ActionOverlayBase = styled.div<{isVisible: boolean}>`
+const ActionOverlayBase = styled.div<{isVisible: boolean; topBarHeight: number}>`
     background-color: ${props =>
         new Color(colors.MAIN_BG).alpha(props.isVisible ? 0.98 : 0).toString()};
     position: ${props => (props.isVisible ? 'absolute' : 'fixed')};
     margin-top: ${props => (props.isVisible ? '0' : `${document.body.scrollHeight}px`)};
     width: 100%;
-    height: calc(100% - 84px);
-    top: 84px;
+    height: calc(100% - ${props => props.topBarHeight + 36}px);
+    top: ${props => props.topBarHeight + 36}px;
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -52,12 +52,13 @@ const ActionOverlayToggleButton = styled(BlankButton)`
 type ActionOverlayProps = {
     children: React.ReactNode;
     isVisible: boolean;
+    topBarHeight: number;
 };
 
 export const ActionOverlay = (props: ActionOverlayProps) => {
     const {isVisible} = props;
     return (
-        <ActionOverlayBase isVisible={isVisible}>
+        <ActionOverlayBase isVisible={isVisible} topBarHeight={props.topBarHeight ?? 48}>
             <ActionOverlayContent isVisible={isVisible}>{props.children}</ActionOverlayContent>
         </ActionOverlayBase>
     );
