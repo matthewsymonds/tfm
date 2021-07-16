@@ -328,11 +328,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.corporation = payload.corporation;
             const fullCard = getCard(payload.corporation);
             if (fullCard.cardCost) {
-                player.cardCost = getCard(payload.corporation).cardCost;
+                player.cardCost = fullCard.cardCost;
             } else {
                 player.cardCost = 3;
             }
-            player.cardCost = getCard(payload.corporation).cardCost;
         }
 
         if (payForCards.match(action)) {
