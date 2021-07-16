@@ -50,7 +50,7 @@ export function sample<T>(cards: T[], num: number) {
     return result;
 }
 
-export function getInitialState(players: string[], options: GameOptions): GameState {
+export function getInitialState(players: string[], options: GameOptions, name: string): GameState {
     const possibleCards = cards.filter(card => options.decks.includes(card.deck));
 
     shuffle(possibleCards);
@@ -72,6 +72,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
     const isColoniesEnabled = options.decks.includes(Deck.COLONIES);
 
     const base = {
+        name,
         log: ['Generation 1'] as string[],
         common: {
             playerIndexOrderForGeneration: [] as number[],

@@ -32,7 +32,7 @@ export default async (req, res) => {
             }
             game = new gamesModel();
             game.name = name;
-            game.state = getInitialState(players, options);
+            game.state = getInitialState(players, options, name);
             game.players = players;
             // TODO make configurable
             game.public = false;

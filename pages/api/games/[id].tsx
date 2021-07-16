@@ -39,6 +39,7 @@ export default async (req, res) => {
                     await game.save();
                 } catch (error) {}
             }
+            game.state.name = game.name;
             res.json({
                 state: censorGameState(game.state, username),
                 lastSeenLogItem: lastSeenLogItem[index],

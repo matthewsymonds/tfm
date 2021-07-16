@@ -49,6 +49,8 @@ export default async (req, res) => {
         const originalState = hydratedGame.state;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         const stateHydrator = new StateHydrator(hydratedGame, username);
+        hydratedGame.state.name = game.name;
+
         await playGame(type, payload, actionHandler, stateHydrator, originalState);
 
         game.queue = hydratedGame.queue;

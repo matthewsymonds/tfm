@@ -11,7 +11,8 @@ export function getMockState(opts: GameOptions): GameState {
         opts ?? {
             decks: [Deck.BASIC],
             isDraftingEnabled: false,
-        }
+        },
+        'my-game'
     );
 
     initialState = {

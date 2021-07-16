@@ -1,9 +1,9 @@
+import {getPath} from 'client-server-shared/get-path';
 import {SwitchColors} from 'components/action-log';
 import {Box, Flex} from 'components/box';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import styled from 'styled-components';
-import {PROTOCOL_HOST_DELIMITER} from './_app';
 
 const Username = styled.div``;
 
@@ -82,17 +82,5 @@ Index.getInitialProps = async ctx => {
 
 function getUserGamesPath(isServer, req, headers) {
     const path = '/api/games';
-    let url: string;
-    if (isServer) {
-        url = req.url;
-    } else {
-        url = window.location.href;
-    }
-    if (!isServer) {
-        return path;
-    }
-
-    const {host} = headers;
-    const protocol = /^localhost(:\d+)?$/.test(host) ? 'http' : 'https';
-    return protocol + PROTOCOL_HOST_DELIMITER + host + path;
+    return getPath(path, isServer, req, headers);
 }

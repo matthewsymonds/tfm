@@ -213,8 +213,7 @@ export const ActiveRound = ({
         (loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound) || isPickingCards;
     const onlyOnePlayer = useTypedSelector(state => state.players.length === 1);
 
-    const pathParts = window.location.pathname.split('/');
-    const currentGame = pathParts[pathParts.length - 1];
+    const currentGame = useTypedSelector(state => state.name);
 
     const yourTurnGamesFiltered = yourTurnGames.filter(game => game !== currentGame);
 

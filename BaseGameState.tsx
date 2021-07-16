@@ -11,4 +11,5 @@ export type BaseGameState = {
     log: string[];
     pendingVariableAmount?: number;
     timestamp?: number;
+    name: string;
 };

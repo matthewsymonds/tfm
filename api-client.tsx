@@ -22,7 +22,7 @@ export class ApiClient implements GameActionHandler {
     constructor(
         private readonly dispatch: (action: AnyAction) => void,
         username: string,
-        store: Store
+        private readonly store: Store
     ) {
         const queue = [];
         const game = {
@@ -108,8 +108,7 @@ export class ApiClient implements GameActionHandler {
     }
 
     private getGameName() {
-        const pathParts = window.location.pathname.split('/');
-        return pathParts[2];
+        return this.store.getState().name;
     }
 
     async playCardActionAsync({

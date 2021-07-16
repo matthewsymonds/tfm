@@ -1,9 +1,10 @@
 import {makePostCall} from 'api-calls';
+import {getPath} from 'client-server-shared/get-path';
 import {CenteredLink} from 'components/centered';
 import {Input, SubmitInput} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
 import {useInput} from 'hooks/use-input';
-import {useRouter} from 'next/dist/client/router';
+import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import {useCallback, useState} from 'react';
 
@@ -59,4 +60,32 @@ export default function Login() {
             </form>
         </>
     );
+}
+
+Login.getInitialProps = async ctx => {
+    const {isServer, req, res} = ctx;
+
+    const headers = isServer ? req.headers : {};
+    try {
+        const response = await fetch(getSessionPath(isServer, req, headers), {
+            headers,
+        });
+        const result = await response.json();
+        // If we get here, the user is logged in. Time to take them to the index!
+        if (isServer) {
+            res.writeHead(302, {
+                Location: '/',
+            });
+            res.end();
+        } else {
+            Router.push('/');
+        }
+    } catch (error) {
+        return {};
+    }
+};
+
+function getSessionPath(isServer, req, headers) {
+    const path = '/api/sessions';
+    return getPath(path, isServer, req, headers);
 }
