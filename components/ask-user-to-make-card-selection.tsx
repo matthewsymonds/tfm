@@ -58,8 +58,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const isSyncing = useTypedSelector(state => state.syncing);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
-    // TODO: Fix this for the expansion corps with different card prices
-    const totalCostOfCards = selectedCards.length * 3;
+    const totalCostOfCards = selectedCards.length * player.cardCost;
     const remainingBudget = playerBudget - totalCostOfCards;
 
     let cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
@@ -244,7 +243,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             onSelect={cards => {
                                 if (
                                     !pendingCardSelection.isBuyingCards ||
-                                    cards.length * 3 <= playerBudget
+                                    cards.length * player.cardCost <= playerBudget
                                 ) {
                                     setSelectedCards(cards);
                                 }
@@ -262,7 +261,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         />
                         <Flex justifyContent="center" margin="8px 0 16px">
                             <PaymentPopover
-                                cost={selectedCards.length * 3}
+                                cost={selectedCards.length * player.cardCost}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
                                 shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
                             >

@@ -131,7 +131,7 @@ export function ChangeResourceIconography({
                 ...(shouldShowNumericQuantity ? [amount] : []),
             ];
             let el = (
-                <Flex marginLeft={i > 0 ? '6px' : '0px'}>
+                <Flex marginLeft={i > 0 ? '6px' : '0px'} alignItems="center">
                     {prefixElements.length > 0 && (
                         <TextWithMargin margin="0 4px 0 0" fontSize="12px">
                             {prefixElements}
@@ -830,7 +830,17 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     );
 }
 
-export const BaseActionIconography = ({card}: {card: Action | CardModel}) => {
+export const BaseActionIconography = ({
+    card,
+    inline,
+    reverse,
+    shouldShowPlus,
+}: {
+    card: Action | CardModel;
+    inline?: boolean;
+    reverse?: boolean;
+    shouldShowPlus?: boolean;
+}) => {
     const {
         tilePlacements,
         increaseParameter,
@@ -850,7 +860,19 @@ export const BaseActionIconography = ({card}: {card: Action | CardModel}) => {
     const choice = 'choice' in card ? card.choice : null;
 
     return (
-        <Flex flexDirection="column" alignItems="center" position="relative">
+        <Flex
+            flexDirection={
+                inline && reverse
+                    ? 'row-reverse'
+                    : inline
+                    ? 'row'
+                    : reverse
+                    ? 'column-reverse'
+                    : 'column'
+            }
+            alignItems="center"
+            position="relative"
+        >
             <Flex justifyContent="space-evenly" width="100%">
                 {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
                 <ProductionIconography card={card} />
@@ -871,7 +893,9 @@ export const BaseActionIconography = ({card}: {card: Action | CardModel}) => {
                     sourceType={removeResourceSourceType}
                 />
             )}
-            {gainResource && <GainResourceIconography gainResource={gainResource} />}
+            {gainResource && (
+                <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
+            )}
             {gainResourceOption && (
                 <GainResourceOptionIconography gainResourceOption={gainResourceOption} />
             )}

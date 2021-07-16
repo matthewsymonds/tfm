@@ -5061,6 +5061,9 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 50 MC. Increase your MC production 5 steps. Gain 5 titanium.',
         tags: [],
         type: CardType.CORPORATION,
+        cardCost: 5,
+        increaseProduction: {[Resource.MEGACREDIT]: 5},
+        gainResource: {[Resource.MEGACREDIT]: 50, [Resource.TITANIUM]: 5},
     },
     {
         effect: {

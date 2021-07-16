@@ -52,6 +52,10 @@ interface BoxProps {
     color: string;
     borderImageSource: string;
     borderImageSlice: string;
+    transform: string;
+    transformOrigin: string;
+    boxShadow: string;
+    fontWeight: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -66,6 +70,8 @@ interface FlexProps extends BoxProps {
 /* A flexible component to define styles inline */
 const BoxInternal = styled.div<Partial<BoxProps>>`
     /* Add more properties here as needed. */
+    transform: ${props => props.transform};
+    transform-origin: ${props => props.transformOrigin};
     margin: ${props => props.margin};
     margin-top: ${props => props.marginTop};
     margin-bottom: ${props => props.marginBottom};
@@ -117,6 +123,8 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     color: ${props => props.color};
     border-image-source: ${props => props.borderImageSource};
     border-image-slice: ${props => props.borderImageSlice};
+    box-shadow: ${props => props.boxShadow};
+    font-weight: ${props => props.fontWeight};
 `;
 
 export const Box = React.memo(BoxInternal);

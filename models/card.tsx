@@ -124,6 +124,9 @@ export class Card {
     choice: Action[];
     playCard?: PlayCardParams;
 
+    // Polyphemos
+    cardCost?: number;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -202,6 +205,9 @@ export class Card {
 
         if (config.requiredTilePlacements) {
             this.requiredTilePlacements.push(...config.requiredTilePlacements);
+        }
+        if (config.cardCost) {
+            this.cardCost = config.cardCost;
         }
 
         this.action = config.action;

@@ -122,6 +122,7 @@ export function getInitialState(players: string[], options: GameOptions): GameSt
             productions: initialResources(Number(options.decks.length === 1)),
             parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
             temporaryParameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
+            cardCost: 3,
             exchangeRates: {
                 [Resource.STEEL]: 2,
                 [Resource.TITANIUM]: 3,

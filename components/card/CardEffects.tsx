@@ -45,6 +45,16 @@ const IconizedText = styled.div`
     width: min-content;
 `;
 
+function renderCardCost(cardCost: number) {
+    return (
+        <>
+            <ResourceIcon name={Resource.CARD} size={16} />
+            <>*</>
+            <Colon /> <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${cardCost}`} />
+        </>
+    );
+}
+
 export const CardEffects = ({card}: {card: CardModel}) => {
     const venus = useTypedSelector(isPlayingVenus);
     if (card.effects.length < 1) {
@@ -269,6 +279,8 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
                         {Object.keys(card.exchangeRates).length > 0 ? (
                             <React.Fragment>{renderExchangeRates()}</React.Fragment>
+                        ) : card.cardCost ? (
+                            renderCardCost(card.cardCost)
                         ) : doesCardHaveDiscounts(card) ? (
                             <React.Fragment>{renderDiscounts()}</React.Fragment>
                         ) : card.gainResourceWhenIncreaseProduction ? (

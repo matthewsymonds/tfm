@@ -326,6 +326,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             player.corporation = payload.corporation;
+            const fullCard = getCard(payload.corporation);
+            if (fullCard.cardCost) {
+                player.cardCost = getCard(payload.corporation).cardCost;
+            } else {
+                player.cardCost = 3;
+            }
+            player.cardCost = getCard(payload.corporation).cardCost;
         }
 
         if (payForCards.match(action)) {
@@ -338,7 +345,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     player.resources[resource] -= amount as number;
                 }
             } else {
-                player.resources[Resource.MEGACREDIT] -= numCards * 3;
+                player.resources[Resource.MEGACREDIT] -= numCards * (player.cardCost ?? 3);
             }
             if (player.resources[Resource.MEGACREDIT] < 0) {
                 throw new Error('Money went negative!');

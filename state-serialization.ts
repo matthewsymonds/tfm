@@ -37,6 +37,7 @@ export type SerializedPlayerState = Omit<
     | 'pendingChoice'
 > & {
     corporation: SerializedCard;
+    cardCost: number;
     pendingCardSelection?: {
         possibleCards: SerializedCard[];
         numCardsToTake?: number | null;

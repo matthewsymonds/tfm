@@ -106,7 +106,7 @@ export const getResourceSymbol = (resource: Resource) => {
         case Resource.FIGHTER:
             return '🚀';
         case Resource.FLOATER:
-            return '☂️';
+            return '☁️';
         case Resource.HEAT:
             return '🔥';
         case Resource.MEGACREDIT:
@@ -200,7 +200,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.ENERGY:
             return 'white';
         case Resource.FLOATER:
-            return 'black';
+            return 'white';
         case Resource.FIGHTER:
             return 'gray';
         case Resource.HEAT:
@@ -208,7 +208,7 @@ export const getResourceColor = (resource: Resource) => {
         case Resource.MEGACREDIT:
             return 'black';
         case Resource.MICROBE:
-            return 'green';
+            return 'darkgreen';
         case Resource.PLANT:
             return 'darkgreen';
         case Resource.SCIENCE:
@@ -238,7 +238,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.ENERGY:
             return 'purple';
         case Resource.FLOATER:
-            return 'red';
+            return '#dba102';
         case Resource.FIGHTER:
             return 'black';
         case Resource.HEAT:
@@ -246,7 +246,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.MEGACREDIT:
             return '#fbe21e';
         case Resource.MICROBE:
-            return 'white';
+            return 'lightgreen';
         case Resource.PLANT:
             return 'lightgreen';
         case Resource.SCIENCE:

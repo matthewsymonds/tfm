@@ -70,6 +70,8 @@ export interface CardConfig extends Action {
     conditionalPayment?: ConditionalPayment;
     // e.g. "Play a card from hand, ignoring global requirements"
     playCard?: PlayCardParams;
+    // Polyphemos (currently only supported on corporations)
+    cardCost?: number;
 }
 
 type MinimumGlobalParameter = {

@@ -1,3 +1,4 @@
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
@@ -33,7 +34,8 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
     const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
     const numSelected = selectedCards.length;
     const mustSelectOne = max === 1;
-    const canAfford = budget === undefined || budget >= (numSelected + 1) * 3;
+    const loggedInPlayer = useLoggedInPlayer();
+    const canAfford = budget === undefined || budget >= (numSelected + 1) * loggedInPlayer.cardCost;
     const canSelect = canAfford && (selectedCards.length < max || mustSelectOne);
 
     const handleSelect = (card: SerializedCard) => {
