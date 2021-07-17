@@ -29,9 +29,8 @@ import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
-import {Board} from './board/board';
+import {BoardSwitcher} from './board-switcher';
 import {Box, Flex} from './box';
-import {Colonies} from './colonies';
 import {EndOfGame} from './end-of-game';
 import {LogToast} from './log-toast';
 
@@ -424,12 +423,11 @@ export const ActiveRound = ({
                                 </Flex>
                             </Flex>
                         </Flex>
-                        <Colonies />
                     </Flex>
 
                     <Flex className="active-round-right" flexDirection="column">
                         <Box className="board-wrapper">
-                            <Board />
+                            <BoardSwitcher />
                         </Box>
                     </Flex>
                 </Flex>

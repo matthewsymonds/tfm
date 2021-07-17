@@ -1,7 +1,9 @@
+import {BoardSwitcherOption} from 'components/board-switcher';
 import AwardsNew from 'components/board/board-actions/awards-new';
 import MilestonesNew from 'components/board/board-actions/milestones-new';
 import StandardProjectsNew from 'components/board/board-actions/standard-projects-new';
 import {Box, Flex} from 'components/box';
+import {Colonies} from 'components/colonies';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
@@ -35,65 +37,17 @@ const Row = styled.div`
     margin-top: -${rowOffset}px;
 `;
 
-export const Board = () => {
-    const board = useTypedSelector(state => state.common.board);
+export const Board = ({option}: {option: BoardSwitcherOption}) => {
     const loggedInPlayer = useLoggedInPlayer();
 
-    const {pendingTilePlacement} = loggedInPlayer;
-    const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
-    );
-
-    const apiClient = useApiClient();
-    const actionGuard = useActionGuard();
-
     const parameters = useTypedSelector(state => state.common.parameters);
-    const venus = useTypedSelector(isPlayingVenus);
 
-    function handleClick(cell: CellModel) {
-        if (!actionGuard.canCompletePlaceTile(cell)[0]) {
-            return;
-        }
-        apiClient.completePlaceTileAsync({cell});
-    }
     return (
-        <Flex justifyContent="flex-end" alignItems="flex-start">
+        <Flex justifyContent="flex-end" alignItems="flex-start" width="100%">
             <GlobalParams parameters={parameters} />
 
-            <Flex flexDirection="column" alignItems="center">
-                <Box position="relative" paddingBottom={venus ? '75px' : '0px'}>
-                    <OffMarsCities
-                        board={board}
-                        validPlacements={validPlacements}
-                        handleClick={handleClick}
-                    />
-                    <Circle>
-                        <Flex flexDirection="column">
-                            {board.map((row, outerIndex) => (
-                                <Row key={outerIndex}>
-                                    {row.map(
-                                        (cell, index) =>
-                                            cellHelpers.onMars(cell) && (
-                                                <div
-                                                    key={`${outerIndex}-${index}`}
-                                                    style={{
-                                                        position: 'relative',
-                                                        margin: `0 ${HEX_PADDING}px`,
-                                                    }}
-                                                    onClick={() => handleClick(cell)}
-                                                >
-                                                    <Cell
-                                                        cell={cell}
-                                                        selectable={validPlacements.includes(cell)}
-                                                    />
-                                                </div>
-                                            )
-                                    )}
-                                </Row>
-                            ))}
-                        </Flex>
-                    </Circle>
-                </Box>
+            <Flex flexDirection="column" alignItems="center" flexGrow="1">
+                <BoardInner option={option} />
                 <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
             </Flex>
 
@@ -104,3 +58,64 @@ export const Board = () => {
         </Flex>
     );
 };
+
+export function BoardInner({option}: {option: BoardSwitcherOption}) {
+    const loggedInPlayer = useLoggedInPlayer();
+
+    const board = useTypedSelector(state => state.common.board);
+    const {pendingTilePlacement} = loggedInPlayer;
+    const validPlacements = useTypedSelector(state =>
+        getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
+    );
+
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+
+    const venus = useTypedSelector(isPlayingVenus);
+
+    function handleClick(cell: CellModel) {
+        if (!actionGuard.canCompletePlaceTile(cell)[0]) {
+            return;
+        }
+        apiClient.completePlaceTileAsync({cell});
+    }
+
+    if (option === BoardSwitcherOption.BOARD_SWITCHER_COLONIES) {
+        return <Colonies />;
+    }
+    return (
+        <Box position="relative" paddingBottom={venus ? '75px' : '0px'}>
+            <OffMarsCities
+                board={board}
+                validPlacements={validPlacements}
+                handleClick={handleClick}
+            />
+            <Circle>
+                <Flex flexDirection="column">
+                    {board.map((row, outerIndex) => (
+                        <Row key={outerIndex}>
+                            {row.map(
+                                (cell, index) =>
+                                    cellHelpers.onMars(cell) && (
+                                        <div
+                                            key={`${outerIndex}-${index}`}
+                                            style={{
+                                                position: 'relative',
+                                                margin: `0 ${HEX_PADDING}px`,
+                                            }}
+                                            onClick={() => handleClick(cell)}
+                                        >
+                                            <Cell
+                                                cell={cell}
+                                                selectable={validPlacements.includes(cell)}
+                                            />
+                                        </div>
+                                    )
+                            )}
+                        </Row>
+                    ))}
+                </Flex>
+            </Circle>
+        </Box>
+    );
+}

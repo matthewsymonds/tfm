@@ -12,6 +12,17 @@ type TradeIncomeResource = {
     tradeIncomeResources: Resource[];
 };
 
+export type AcceptedTradePayment = {
+    resource: Resource;
+    quantity: number;
+};
+
+export const ACCEPTED_TRADE_PAYMENT: AcceptedTradePayment[] = [
+    {resource: Resource.MEGACREDIT, quantity: 9},
+    {resource: Resource.ENERGY, quantity: 3},
+    {resource: Resource.TITANIUM, quantity: 3},
+];
+
 type TradeIncomeDisplay = TradeIncomeQuantity | TradeIncomeResource;
 
 export type Colony = {
@@ -46,6 +57,15 @@ export type SerializedColony = {
     colonies: number[];
     lastTrade?: Trade;
 };
+
+export function serializeColony(colony: Colony): SerializedColony {
+    return {
+        name: colony.name,
+        step: colony.step,
+        colonies: colony.colonies,
+        lastTrade: colony.lastTrade,
+    };
+}
 
 type Trade = {
     player: string;

@@ -30,6 +30,7 @@ import {meetsProductionRequirements} from 'selectors/meets-production-requiremen
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
 import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
+import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {getTags} from 'selectors/variable-amount';
 import {SerializedPlayerState} from 'state-serialization';
 
@@ -761,6 +762,48 @@ export class ActionGuard {
         return possibleCorporations.some(
             possibleCorporation => possibleCorporation.name === card.name
         );
+    }
+
+    canTrade(payment: Resource, name: string): CanPlayAndReason {
+        if (this.shouldDisableUI()) {
+            return [false, 'Cannot trade right now'];
+        }
+        const player = this._getPlayerToConsider();
+
+        const colony = this.state.common.colonies?.find(colony => colony.name === name);
+        if (!colony) {
+            return [false, `Colony ${name} is not in this game`];
+        }
+
+        const lastTrade = colony.lastTrade ?? {player: '', round: -1};
+        if (lastTrade.round === this.state.common.generation) {
+            return [false, 'Colony has already been traded with this generation'];
+        }
+
+        const validPayment = getValidTradePayment(player);
+
+        const withResource = validPayment.find(validPayment => validPayment.resource === payment);
+
+        if (!withResource) {
+            return [false, 'Cannot pay with that resource'];
+        }
+
+        if (withResource.quantity > player.resources[payment]) {
+            return [false, 'Cannot afford to trade with that resource'];
+        }
+
+        const deployedFleets = (this.state.common.colonies ?? []).filter(colony => {
+            const {lastTrade} = colony;
+            if (!lastTrade) return false;
+            if (lastTrade.round < this.state.common.generation) return false;
+            return lastTrade.player === player.username;
+        }).length;
+
+        if (deployedFleets === player.fleets) {
+            return [false, 'Player has deployed all their fleets this generation'];
+        }
+
+        return [true, 'Good to go'];
     }
 
     private arePreludesCorrect(selectedPreludes: Card[]) {

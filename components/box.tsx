@@ -56,15 +56,18 @@ interface BoxProps {
     transformOrigin: string;
     boxShadow: string;
     fontWeight: string;
+    cursor: string;
+    flexGrow: string;
+    flex: string;
+    flexBasis: string;
+    flexWrap: string;
 }
 
 interface FlexProps extends BoxProps {
     flexDirection: string;
     justifyContent: string;
-    flex: string;
+
     alignItems: string;
-    flexBasis: string;
-    flexWrap: string;
 }
 
 /* A flexible component to define styles inline */
@@ -125,6 +128,11 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     border-image-slice: ${props => props.borderImageSlice};
     box-shadow: ${props => props.boxShadow};
     font-weight: ${props => props.fontWeight};
+    cursor: ${props => props.cursor};
+    flex: ${props => props.flex};
+    flex-basis: ${props => props.flexBasis};
+    flex-wrap: ${props => props.flexWrap};
+    flex-grow: ${props => props.flexGrow};
 `;
 
 export const Box = React.memo(BoxInternal);
@@ -133,10 +141,7 @@ const FlexInternal = styled(BoxInternal)<Partial<FlexProps>>`
     display: ${props => props.display ?? 'flex'};
     flex-direction: ${props => props.flexDirection};
     justify-content: ${props => props.justifyContent};
-    flex: ${props => props.flex};
     align-items: ${props => props.alignItems};
-    flex-basis: ${props => props.flexBasis};
-    flex-wrap: ${props => props.flexWrap};
 `;
 
 export const Flex = React.memo(FlexInternal);

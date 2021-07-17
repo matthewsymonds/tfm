@@ -74,7 +74,7 @@ export type SerializedPlayerState = Omit<
     };
 };
 
-export type SerializedState = Omit<Omit<BaseGameState, 'common'>, 'players'> & {
+export type SerializedState = Omit<BaseGameState, 'common' | 'players'> & {
     common: SerializedCommonState;
     players: SerializedPlayerState[];
 };

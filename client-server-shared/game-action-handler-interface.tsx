@@ -82,4 +82,6 @@ export interface GameActionHandler {
     chooseCardForDraftRoundAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
 
     increaseLowestProductionAsync({production}: {production: Resource}): Promise<void>;
+
+    tradeAsync({payment, colony}: {payment: Resource; colony: string}): Promise<void>;
 }

@@ -34,6 +34,8 @@ import {
     makeActionChoice,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
+    moveColonyTileTrack,
+    moveFleet,
     PAUSE_ACTIONS,
     payForCards,
     payToPlayCard,
@@ -43,8 +45,10 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
+    returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
+    selectPlayerToReceiveColonyBonus,
     setCorporation,
     setPlantDiscount,
     setPreludes,
@@ -63,6 +67,7 @@ import {getLowestProductions} from 'components/ask-user-to-increase-lowest-produ
 import {Action, ActionType, Amount, ParameterCounter} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
+import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
@@ -85,6 +90,7 @@ import {getCard} from 'selectors/get-card';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
+import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {SerializedCard} from 'state-serialization';
 
 export interface EffectEvent {
@@ -793,6 +799,67 @@ export class ApiActionHandler {
             increaseProduction(production, player.pendingIncreaseLowestProduction, player.index),
             completeIncreaseLowestProduction(player.index)
         );
+        this.processQueue();
+    }
+
+    trade({payment, colony}: {payment: Resource; colony: string}) {
+        const [canTrade, reason] = this.actionGuard.canTrade(payment, colony);
+
+        if (!canTrade) {
+            throw new Error(reason);
+        }
+
+        const player = this.getLoggedInPlayer();
+
+        const validPayments = getValidTradePayment(player);
+        const validPayment = validPayments.find(validPayment => validPayment.resource === payment);
+        if (!validPayment) throw new Error('valid payment not found');
+
+        // First. Pay for trade
+        this.queue.push(
+            removeResource(validPayment.resource, validPayment.quantity, player.index, player.index)
+        );
+
+        const matchingColony = this.game.state.common.colonies?.find(
+            colonyState => colonyState.name === colony
+        );
+
+        if (!matchingColony) throw new Error('colony not found');
+        const fullColony = getColony(matchingColony);
+
+        const tradeIncome = fullColony.tradeIncome[matchingColony.step];
+        // Then receive trade income.
+        this.playAction({
+            action: tradeIncome,
+            state: this.game.state,
+        });
+        this.queue.push(moveFleet(colony, player.index));
+
+        this.queue.push(moveColonyTileTrack(colony, matchingColony.colonies.length));
+
+        // TODO make order customizable.
+        for (const playerIndex of matchingColony.colonies) {
+            this.queue.push(selectPlayerToReceiveColonyBonus(playerIndex));
+            this.playActionBenefits({
+                action: fullColony.colonyBonus,
+                state: this.game.state,
+                thisPlayerIndex: playerIndex,
+            });
+            this.playActionCosts({
+                action: fullColony.colonyBonus,
+                thisPlayerIndex: playerIndex,
+                state: this.game.state,
+            });
+            // Do discard last to match the Pluto flow (draw, then discard)
+            this.discardCards({
+                action: fullColony.colonyBonus,
+                thisPlayerIndex: playerIndex,
+                state: this.game.state,
+            });
+        }
+
+        this.queue.push(returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus(player.index));
+        this.queue.push(completeAction(player.index));
         this.processQueue();
     }
 

@@ -148,6 +148,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
                 nextCardThisGeneration: 0,
                 trade: 0,
             },
+            fleets: isColoniesEnabled ? 1 : 0,
         });
     }
 

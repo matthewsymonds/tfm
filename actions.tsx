@@ -512,6 +512,34 @@ export const setIsNotSyncing = withMatcher(() => ({
     payload: {},
 }));
 
+const MOVE_FLEET = 'MOVE_FLEET';
+export const moveFleet = withMatcher((colony: string, playerIndex: number) => ({
+    type: MOVE_FLEET,
+    payload: {colony, playerIndex},
+}));
+
+const SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS = 'SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS';
+export const selectPlayerToReceiveColonyBonus = withMatcher((opponentPlayerIndex: number) => ({
+    type: SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS,
+    payload: {opponentPlayerIndex},
+}));
+
+export const RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS =
+    'RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS';
+
+export const returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus = withMatcher(
+    (playerIndex: number) => ({
+        type: RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS,
+        payload: {playerIndex},
+    })
+);
+
+const MOVE_COLONY_TILE_TRACK = 'MOVE_COLONY_TILE_TRACK';
+export const moveColonyTileTrack = withMatcher((colony: string, location: number) => ({
+    type: MOVE_COLONY_TILE_TRACK,
+    payload: {colony, location},
+}));
+
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,

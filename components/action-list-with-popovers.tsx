@@ -74,17 +74,19 @@ export default function ActionListWithPopovers<T>({
                     />
                 );
             })}
-            <div
-                ref={popperElement}
-                style={{
-                    ...styles.popper,
-                    zIndex: 10,
-                    display: selectedAction ? 'initial' : 'none',
-                }}
-                {...attributes.popper}
-            >
-                {selectedAction && <ActionPopoverComponent action={selectedAction} />}
-            </div>
+            {selectedAction && (
+                <div
+                    ref={popperElement}
+                    {...attributes.popper}
+                    style={{
+                        ...styles.popper,
+                        zIndex: selectedAction ? 10 : -999,
+                        display: selectedAction ? 'initial' : 'none',
+                    }}
+                >
+                    <ActionPopoverComponent action={selectedAction} />
+                </div>
+            )}
         </OuterWrapper>
     );
 }

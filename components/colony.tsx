@@ -21,6 +21,7 @@ const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: bool
     height: 156px;
     display: flex;
     border-radius: 82px;
+    flex-shrink: 0;
     background: gray;
     margin: 8px;
     position: relative;
@@ -210,8 +211,6 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                             );
                         })}
                 </Flex>
-                {/* <div>Colony placement bonus:{JSON.stringify(colony.colonyPlacementBonus)}</div> */}
-                {/* <div>Trade income: {JSON.stringify(colony.tradeIncome)}</div> */}
             </ColonyTileInner>
         </ColonyBase>
     );

@@ -91,6 +91,9 @@ export async function playGame(
         case ApiActionType.API_INCREASE_LOWEST_PRODUCTION:
             actionHandler.increaseLowestProduction(payload);
             break;
+        case ApiActionType.API_TRADE:
+            actionHandler.trade(payload);
+            break;
         default:
             throw spawnExhaustiveSwitchError(type);
     }

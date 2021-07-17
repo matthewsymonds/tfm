@@ -109,8 +109,8 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .board-wrapper {
+        width: 681px;
         @media (max-width: 1366px) {
-            width: fit-content;
             margin-left: auto;
             margin-right: auto;
             padding-left: 8px;
