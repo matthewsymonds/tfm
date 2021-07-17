@@ -1,6 +1,6 @@
 import {colors} from 'components/ui';
 import {Deck} from 'constants/card-types';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {Board} from './board/board';
 import {Box, Flex} from './box';
@@ -18,6 +18,13 @@ export function BoardSwitcher() {
     const [option, setOption] = useState<BoardSwitcherOption>(
         BoardSwitcherOption.BOARD_SWITCHER_MARS
     );
+    const gameName = useTypedSelector(state => state.name);
+
+    // Reset board switcher on game change
+    useEffect(() => {
+        setOption(BoardSwitcherOption.BOARD_SWITCHER_MARS);
+    }, [gameName]);
+
     const isColoniesEnabled = useTypedSelector(state => state?.options?.decks ?? []).includes(
         Deck.COLONIES
     );
