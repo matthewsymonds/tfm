@@ -109,7 +109,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .board-wrapper {
-        width: 681px;
+        width: fit-content;
         @media (max-width: 1366px) {
             margin-left: auto;
             margin-right: auto;

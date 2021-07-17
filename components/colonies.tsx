@@ -85,7 +85,7 @@ export function Colonies() {
             height="525px"
             marginRight="8px"
             marginLeft="8px"
-            width="100%"
+            width="450px"
             alignItems="center"
         >
             <Flex
