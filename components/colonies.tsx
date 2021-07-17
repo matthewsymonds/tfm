@@ -83,39 +83,39 @@ export function Colonies() {
             overflow="auto"
             flexDirection="column"
             height="525px"
-            marginRight="8px"
-            marginLeft="8px"
             width="450px"
             alignItems="center"
         >
-            <Flex
-                className="display"
-                color="#ccc"
-                flexWrap="wrap"
-                marginBottom="8px"
-                marginLeft="4px"
-                marginRight="4px"
-                marginTop="16px"
-                style={{userSelect: 'none'}}
-            >
-                {switcherOptions}
-            </Flex>
-            {colonies
-                .filter((colony, index) => selectedColonies[index])
-                .map(colony => {
-                    if (tradePaymentElements.length > 0 && onlyOneColonySelected)
-                        return (
-                            <Box>
-                                <ColonyComponent colony={colony} key={colony.name} />
-                                {tradePaymentElements.length > 0 && onlyOneColonySelected ? (
-                                    <Flex color="#ccc" marginTop="8px" alignItems="center">
-                                        <Box marginRight="4px">Trade with {colony.name}:</Box>
-                                        {tradePaymentElements}
-                                    </Flex>
-                                ) : null}
-                            </Box>
-                        );
-                })}
+            <Box marginRight="8px" marginLeft="8px">
+                <Flex
+                    className="display"
+                    color="#ccc"
+                    flexWrap="wrap"
+                    marginBottom="8px"
+                    marginLeft="4px"
+                    marginRight="4px"
+                    marginTop="16px"
+                    style={{userSelect: 'none'}}
+                >
+                    {switcherOptions}
+                </Flex>
+                {colonies
+                    .filter((colony, index) => selectedColonies[index])
+                    .map(colony => {
+                        if (tradePaymentElements.length > 0 && onlyOneColonySelected)
+                            return (
+                                <Box>
+                                    <ColonyComponent colony={colony} key={colony.name} />
+                                    {tradePaymentElements.length > 0 && onlyOneColonySelected ? (
+                                        <Flex color="#ccc" marginTop="8px" alignItems="center">
+                                            <Box marginRight="4px">Trade with {colony.name}:</Box>
+                                            {tradePaymentElements}
+                                        </Flex>
+                                    ) : null}
+                                </Box>
+                            );
+                    })}
+            </Box>
         </Flex>
     );
 }
