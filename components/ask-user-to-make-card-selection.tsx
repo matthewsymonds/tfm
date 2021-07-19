@@ -58,7 +58,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const isSyncing = useTypedSelector(state => state.syncing);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
-    const totalCostOfCards = selectedCards.length * player.cardCost;
+    const totalCostOfCards = selectedCards.length * (player.cardCost ?? 3);
     const remainingBudget = playerBudget - totalCostOfCards;
 
     let cardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
@@ -243,7 +243,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             onSelect={cards => {
                                 if (
                                     !pendingCardSelection.isBuyingCards ||
-                                    cards.length * player.cardCost <= playerBudget
+                                    cards.length * (player.cardCost ?? 3) <= playerBudget
                                 ) {
                                     setSelectedCards(cards);
                                 }
@@ -261,7 +261,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         />
                         <Flex justifyContent="center" margin="8px 0 16px">
                             <PaymentPopover
-                                cost={selectedCards.length * player.cardCost}
+                                cost={selectedCards.length * (player.cardCost ?? 3)}
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
                                 shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
                             >
