@@ -3,6 +3,7 @@ import {getTextForAward} from 'components/board/board-actions/awards-new';
 import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
 import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
 import {CardType, Deck} from 'constants/card-types';
+import {getColony} from 'constants/colonies';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
@@ -56,6 +57,8 @@ import {
     makeActionChoice,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
+    moveColonyTileTrack,
+    moveFleet,
     payForCards,
     payToPlayCard,
     payToPlayCardAction,
@@ -64,8 +67,10 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
+    returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
+    selectPlayerToReceiveColonyBonus,
     setCorporation,
     setGame,
     setIsNotSyncing,
@@ -114,6 +119,12 @@ function handleEnterActiveRound(state: GameState) {
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
         state.log.push(`Generation ${state.common.generation}, turn 1`);
+
+        for (const colony of state.common.colonies ?? []) {
+            if (colony.step >= 0) {
+                colony.step += 1;
+            }
+        }
     }
 }
 
@@ -1030,6 +1041,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (player.pendingPlayCardFromHand) {
                 player.pendingPlayCardFromHand = undefined;
             }
+            if (card.storedResourceType) {
+                for (const colony of draft.common.colonies ?? []) {
+                    if (getColony(colony).offlineUntilResource === card.storedResourceType) {
+                        colony.step = 1;
+                    }
+                }
+            }
         }
 
         if (addParameterRequirementAdjustments.match(action)) {
@@ -1247,6 +1265,34 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (payload.shouldLog) {
                 draft.log.push(`${corporationName} played ${playedCard.name}'s action`);
             }
+        }
+
+        if (moveFleet.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            if (colony) {
+                colony.lastTrade = {
+                    player: player.username,
+                    round: draft.common.generation,
+                };
+            }
+        }
+
+        if (moveColonyTileTrack.match(action)) {
+            const {payload} = action;
+            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            if (colony) {
+                colony.step = payload.location;
+            }
+        }
+
+        if (selectPlayerToReceiveColonyBonus.match(action)) {
+            draft.common.currentPlayerIndex = action.payload.opponentPlayerIndex;
+        }
+
+        if (returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus.match(action)) {
+            draft.common.currentPlayerIndex = action.payload.playerIndex;
         }
 
         if (announceReadyToStartRound.match(action)) {

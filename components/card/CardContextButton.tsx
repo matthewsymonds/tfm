@@ -11,7 +11,6 @@ import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {isActiveRound} from 'selectors/is-active-round';
-import {serializeCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -34,7 +33,7 @@ export function CardContextButton({
 }) {
     function playCard(payment?: PropertyCounter<Resource>, conditionalPayments?: number[]) {
         apiClient.playCardAsync({
-            serializedCard: serializeCard(card),
+            serializedCard: {name: card.name},
             payment,
             conditionalPayments,
         });

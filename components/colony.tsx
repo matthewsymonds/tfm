@@ -1,9 +1,12 @@
 import {Action} from 'constants/action';
 import {Colony} from 'constants/colonies';
+import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import React from 'react';
+import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {Arrow} from './arrow';
 import {Box, Flex} from './box';
 import {BaseActionIconography} from './card/CardIconography';
 import {ResourceIcon} from './icons/resource';
@@ -15,6 +18,18 @@ const COLONY_PLACEMENT_BONUS_BORDER_STARTING_STEP =
 const COLONY_PLACEMENT_BONUS_BACKGROUND = 'rgba(255,255,255,.3)';
 const COLONY_PLACEMENT_BONUS_BACKGROUND_STARTING_STEP =
     'linear-gradient(to bottom, #ddd, rgba(80,80,80))';
+
+const Cube = styled.div<{color?: string}>`
+    background: ${props => props.color ?? '#444'};
+    border: 1px solid #ccc;
+    width: 28px;
+    height: 28px;
+    &:hover {
+        opacity: 0.1;
+    }
+    transition: opacity 0.3s;
+    position: absolute;
+`;
 
 const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: boolean}>`
     width: 300px;
@@ -95,11 +110,35 @@ const ColonyPlanet = styled.div<{
 `;
 
 export function ColonyComponent({colony}: {colony: Colony}) {
+    const tradeFleet = useTypedSelector(state => {
+        if (!colony.lastTrade) return null;
+
+        if (colony.lastTrade.round !== state.common.generation) {
+            return null;
+        }
+
+        const player = state.players.findIndex(
+            player => player.username === colony.lastTrade?.player
+        );
+
+        return (
+            <Box position="absolute" right="50px" top="5px" zIndex={4} transform="rotate(100deg)">
+                <Arrow
+                    lineHeight={40}
+                    lineWidth={10}
+                    pointHeight={25}
+                    pointWidth={22}
+                    color={PLAYER_COLORS[player]}
+                />
+            </Box>
+        );
+    });
     return (
         <ColonyBase
             backgroundColor={colony.borderColor}
             reverseBackground={colony.reverseBackground}
         >
+            {tradeFleet}
             <ColonyTileInner
                 backgroundColor={colony.backgroundColor}
                 reverseBackground={colony.reverseBackground}
@@ -147,7 +186,12 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                         .map((_, index) => colony.colonyPlacementBonus[index])
                         .map((placementBonus, index) => {
                             return (
-                                <Flex flexDirection="column" alignItems="center" key={index}>
+                                <Flex
+                                    flexDirection="column"
+                                    alignItems="center"
+                                    key={index}
+                                    position="relative"
+                                >
                                     <Flex
                                         alignItems="center"
                                         justifyContent="center"
@@ -181,6 +225,11 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                                         >
                                             {getPlacementBonuses(placementBonus)}
                                         </Flex>
+                                        {index === colony.step ? (
+                                            <Cube />
+                                        ) : colony.colonies[index] ? (
+                                            <Cube color={PLAYER_COLORS[colony.colonies[index]]} />
+                                        ) : null}
                                     </Flex>
                                     {'tradeIncomeQuantities' in colony ? (
                                         <h3

@@ -49,6 +49,8 @@ export type Colony = {
     blur?: number;
     reverseBackground?: boolean;
     backgroundColor: string;
+    offlineUntilResource?: Resource;
+    online?: boolean;
 } & TradeIncomeDisplay;
 
 export type SerializedColony = {
@@ -57,15 +59,6 @@ export type SerializedColony = {
     colonies: number[];
     lastTrade?: Trade;
 };
-
-export function serializeColony(colony: Colony): SerializedColony {
-    return {
-        name: colony.name,
-        step: colony.step,
-        colonies: colony.colonies,
-        lastTrade: colony.lastTrade,
-    };
-}
 
 type Trade = {
     player: string;
@@ -144,6 +137,7 @@ COLONIES.push({
     planetSize: 16,
     planetPosition: {right: 20, top: 20},
     backgroundColor: 'moccasin',
+    offlineUntilResource: Resource.MICROBE,
 });
 
 tradeIncomeQuantities = [
@@ -265,6 +259,7 @@ COLONIES.push({
         right: 40,
         top: 40,
     },
+    offlineUntilResource: Resource.ANIMAL,
 });
 
 tradeIncomeQuantities = [0, 1, 1, 2, 2, 3, 4];
@@ -279,7 +274,7 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.CARD]: quantity},
     })),
-    step: STARTING_STEP_STORABLE_RESOURCE_COLONY,
+    step: STARTING_STEP,
     colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
         gainResource: {[Resource.CARD]: 2},
     }),
@@ -317,6 +312,7 @@ COLONIES.push({
     planetSize: 160,
     planetPosition: {right: 12, top: 0},
     blur: 2,
+    offlineUntilResource: Resource.FLOATER,
 });
 
 tradeIncomeQuantities = [0, 1, 1, 2, 3, 4, 5];

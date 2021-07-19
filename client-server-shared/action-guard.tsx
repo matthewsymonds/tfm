@@ -775,9 +775,24 @@ export class ActionGuard {
             return [false, `Colony ${name} is not in this game`];
         }
 
+        if (colony.step < 0) {
+            // e.g. animals/microbes/floaters
+            return [false, 'Colony is not online'];
+        }
+
         const lastTrade = colony.lastTrade ?? {player: '', round: -1};
         if (lastTrade.round === this.state.common.generation) {
             return [false, 'Colony has already been traded with this generation'];
+        }
+
+        if (
+            (this.state.common.colonies ?? []).filter(
+                colony =>
+                    colony.lastTrade?.round === this.state.common.generation &&
+                    colony.lastTrade?.player === player.username
+            ).length >= player.fleets
+        ) {
+            return [false, 'Used all trade fleets this generation'];
         }
 
         const validPayment = getValidTradePayment(player);
@@ -800,7 +815,7 @@ export class ActionGuard {
         }).length;
 
         if (deployedFleets === player.fleets) {
-            return [false, 'Player has deployed all their fleets this generation'];
+            return [false, 'Already used all fleets this generation'];
         }
 
         return [true, 'Good to go'];

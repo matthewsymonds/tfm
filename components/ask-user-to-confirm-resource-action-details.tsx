@@ -33,7 +33,7 @@ import {getAdjacentCellsForCell} from 'selectors/board';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getCard} from 'selectors/get-card';
 import {getPlayedCards} from 'selectors/get-played-cards';
-import {deserializeCard, serializeCard, SerializedCard} from 'state-serialization';
+import {deserializeCard, SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
@@ -137,7 +137,7 @@ export function serializeResourceActionOption(
         resource: option.resource,
         isVariable: option.isVariable,
         actionType: option.actionType,
-        card: option.card ? serializeCard(option.card) : undefined,
+        card: option.card ? {name: option.card.name} : undefined,
         location: {
             type: option.location instanceof Card ? 'Card' : 'Player',
             name: option.location instanceof Card ? option.location.name : option.location.username,

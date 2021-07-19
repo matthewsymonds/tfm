@@ -2,6 +2,7 @@ import {Box, Flex} from 'components/box';
 import {BaseActionIconography} from 'components/card/CardIconography';
 import {ColonyComponent} from 'components/colony';
 import {AcceptedTradePayment, Colony, getColony} from 'constants/colonies';
+import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useState} from 'react';
@@ -50,6 +51,7 @@ export function Colonies() {
     const apiClient = useApiClient();
 
     const tradePayment = getValidTradePayment(loggedInPlayer);
+    const actionGuard = useActionGuard(loggedInPlayer.username);
 
     function tradeWithPayment(payment: AcceptedTradePayment, colony: Colony) {
         apiClient.tradeAsync({
@@ -58,15 +60,23 @@ export function Colonies() {
         });
     }
 
+    const firstSelectedColony = colonies[selectedColonies.indexOf(true)];
+
+    const [canTrade, reason] =
+        tradePayment.length === 0
+            ? [false, 'No valid payment']
+            : actionGuard.canTrade(tradePayment[0].resource, firstSelectedColony.name);
+
     const tradePaymentElements = tradePayment.map(payment => {
         return (
             <Box
-                cursor="pointer"
+                cursor={canTrade ? 'pointer' : 'auto'}
                 color="#333"
                 marginRight="4px"
+                key={payment.resource}
                 onClick={() => {
-                    const firstSelectedColony = selectedColonies.findIndex(a => a);
-                    tradeWithPayment(payment, colonies[firstSelectedColony]);
+                    if (!canTrade) return;
+                    tradeWithPayment(payment, firstSelectedColony);
                 }}
             >
                 <BaseActionIconography
@@ -77,6 +87,9 @@ export function Colonies() {
     });
 
     const onlyOneColonySelected = selectedColonies.filter(Boolean).length === 1;
+
+    const hasResourcesAndOneColonySelected =
+        tradePaymentElements.length > 0 && onlyOneColonySelected;
 
     return (
         <Flex
@@ -100,20 +113,23 @@ export function Colonies() {
                     {switcherOptions}
                 </Flex>
                 {colonies
-                    .filter((colony, index) => selectedColonies[index])
+                    .filter((_, index) => selectedColonies[index])
                     .map(colony => {
-                        if (tradePaymentElements.length > 0 && onlyOneColonySelected)
-                            return (
-                                <Box>
-                                    <ColonyComponent colony={colony} key={colony.name} />
-                                    {tradePaymentElements.length > 0 && onlyOneColonySelected ? (
-                                        <Flex color="#ccc" marginTop="8px" alignItems="center">
-                                            <Box marginRight="4px">Trade with {colony.name}:</Box>
-                                            {tradePaymentElements}
-                                        </Flex>
-                                    ) : null}
-                                </Box>
-                            );
+                        return (
+                            <Box key={colony.name}>
+                                <ColonyComponent colony={colony} />
+                                {hasResourcesAndOneColonySelected && canTrade ? (
+                                    <Flex color="#ccc" marginTop="8px" alignItems="center">
+                                        <Box marginRight="4px">Trade with {colony.name}:</Box>
+                                        {tradePaymentElements}
+                                    </Flex>
+                                ) : onlyOneColonySelected ? (
+                                    <Box color="#ccc">
+                                        <em>Cannot trade: {reason}</em>
+                                    </Box>
+                                ) : null}
+                            </Box>
+                        );
                     })}
             </Box>
         </Flex>

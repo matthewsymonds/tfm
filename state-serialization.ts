@@ -95,22 +95,6 @@ export function deserializeCard(serializedCard: SerializedCard): Card {
     return card;
 }
 
-export function serializeCard(card: Card): SerializedCard {
-    const result: SerializedCard = {
-        name: card.name,
-    };
-    if (card.storedResourceAmount) {
-        result.storedResourceAmount = card.storedResourceAmount;
-    }
-    if (card.lastRoundUsedAction) {
-        result.lastRoundUsedAction = card.lastRoundUsedAction;
-    }
-    if (card.increaseProductionResult) {
-        result.increaseProductionResult = card.increaseProductionResult;
-    }
-    return result;
-}
-
 // No cheating! This method hides private information.
 export const censorGameState = (readonlyState: SerializedState, username: string) => {
     return produce(readonlyState, state => {

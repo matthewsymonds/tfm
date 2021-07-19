@@ -527,7 +527,7 @@ export const selectPlayerToReceiveColonyBonus = withMatcher((opponentPlayerIndex
 export const RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS =
     'RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS';
 
-export const returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus = withMatcher(
+export const returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus = withMatcher(
     (playerIndex: number) => ({
         type: RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS,
         payload: {playerIndex},

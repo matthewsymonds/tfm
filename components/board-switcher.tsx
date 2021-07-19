@@ -47,6 +47,7 @@ export function BoardSwitcher() {
                 cursor="pointer"
                 padding="8px"
                 marginRight="8px"
+                marginTop="4px"
                 background="#333"
                 borderRadius="12px"
                 boxShadow={

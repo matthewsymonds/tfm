@@ -45,7 +45,7 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
-    returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus,
+    returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
     selectPlayerToReceiveColonyBonus,
@@ -858,7 +858,7 @@ export class ApiActionHandler {
             });
         }
 
-        this.queue.push(returnControlToCurrentPLayerAfterOpponentsReceiveColonyBonus(player.index));
+        this.queue.push(returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus(player.index));
         this.queue.push(completeAction(player.index));
         this.processQueue();
     }
