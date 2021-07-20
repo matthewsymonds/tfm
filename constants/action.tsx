@@ -1,3 +1,4 @@
+import {BuildColony} from 'actions';
 import {Parameter, TilePlacement} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
@@ -87,4 +88,6 @@ export interface Action {
 
     // Vitor
     fundAward?: boolean;
+
+    buildColony?: BuildColony;
 }

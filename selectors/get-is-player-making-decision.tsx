@@ -14,6 +14,7 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
             loggedInPlayer.pendingIncreaseLowestProduction ||
             loggedInPlayer.pendingActionReplay ||
             loggedInPlayer.pendingPlayCardFromHand ||
+            loggedInPlayer.buildColony ||
             ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                 state.common.currentPlayerIndex === loggedInPlayer.index &&
                 state.common.gameStage === GameStage.ACTIVE_ROUND) ||

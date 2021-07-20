@@ -2,6 +2,7 @@ import {Flex} from 'components/box';
 import PlayerPlayedCards from 'components/player-played-cards';
 import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
 import {colors} from 'components/ui';
+import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import React, {useRef, useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
@@ -37,6 +38,12 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
         filteredTags: [],
     });
 
+    const isColoniesEnabled = useTypedSelector(state =>
+        state.options?.decks.includes(Deck.COLONIES)
+    );
+
+    const fleets = isColoniesEnabled ? <div>Fleets: {player.fleets}</div> : null;
+
     /**
      * State selectors
      */
@@ -63,7 +70,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     return (
         <OuterWrapper ref={playerPanelRef} id={`player-board-${player.index}`}>
             {!isCorporationSelection && playerCardsElement}
-
+            {fleets}
             {!isCorporationSelection && (
                 <React.Fragment>
                     <PlayerTagCounts

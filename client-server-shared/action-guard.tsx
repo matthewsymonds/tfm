@@ -34,7 +34,7 @@ import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {getTags} from 'selectors/variable-amount';
 import {SerializedPlayerState} from 'state-serialization';
 
-type CanPlayAndReason = [boolean, string];
+export type CanPlayAndReason = [boolean, string];
 
 export class ActionGuard {
     constructor(public state: GameState, private readonly username: string) {

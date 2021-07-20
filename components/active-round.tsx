@@ -175,6 +175,8 @@ export const ActiveRound = ({
         }
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund an award for free';
+    } else if (loggedInPlayer.buildColony) {
+        actionBarPromptText = 'Build a colony';
     } else {
         actionBarPromptText = 'Complete your action';
     }

@@ -126,8 +126,8 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                 <Arrow
                     lineHeight={40}
                     lineWidth={10}
-                    pointHeight={25}
-                    pointWidth={22}
+                    pointHeight={24}
+                    pointWidth={12}
                     color={PLAYER_COLORS[player]}
                 />
             </Box>

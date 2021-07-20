@@ -20,7 +20,7 @@ export const LogToast = () => {
         .map(player => player.corporation.name);
 
     useEffect(() => {
-        if (lastSeenLogItem === log.length) {
+        if (lastSeenLogItem >= log.length) {
             return;
         }
 
@@ -28,21 +28,26 @@ export const LogToast = () => {
             return;
         }
 
+        const logItems = log
+            .slice(lastSeenLogItem - log.length)
+            .filter(entry => !entry.startsWith('Generation')); // Hack
+
+        if (logItems.join('').trim().length === 0) {
+            return;
+        }
+
         toast(
             <>
-                {log
-                    .slice(lastSeenLogItem - log.length)
-                    .filter(entry => !entry.startsWith('Generation')) // Hack
-                    .map((entry, entryIndex) => (
-                        <div key={`${entry}-${entryIndex}`}>
-                            <LogEntry
-                                entry={entry}
-                                entryIndex={entryIndex}
-                                players={players}
-                                corporationNames={corporationNames}
-                            />
-                        </div>
-                    ))}
+                {logItems.map((entry, entryIndex) => (
+                    <div key={`${entry}-${entryIndex}`}>
+                        <LogEntry
+                            entry={entry}
+                            entryIndex={entryIndex}
+                            players={players}
+                            corporationNames={corporationNames}
+                        />
+                    </div>
+                ))}
             </>
         );
         context.setLastSeenLogItem(log.length);

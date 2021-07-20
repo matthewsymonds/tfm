@@ -99,4 +99,10 @@ export const standardProjectActions: StandardProjectAction[] = [
         cost: 15,
         increaseParameter: {[Parameter.VENUS]: 1},
     },
+    {
+        actionType: ActionType.STANDARD_PROJECT,
+        type: StandardProjectType.COLONY,
+        cost: 17,
+        buildColony: {mayBeRepeatColony: false},
+    },
 ];

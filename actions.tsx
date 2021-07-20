@@ -540,6 +540,21 @@ export const moveColonyTileTrack = withMatcher((colony: string, location: number
     payload: {colony, location},
 }));
 
+const ASK_USER_TO_BUILD_COLONY = 'ASK_USER_TO_PLACE_COLONY';
+export type BuildColony = {mayBeRepeatColony: boolean};
+export const askUserToPlaceColony = withMatcher(
+    (buildColony: BuildColony, playerIndex: number) => ({
+        type: ASK_USER_TO_BUILD_COLONY,
+        payload: {buildColony, playerIndex},
+    })
+);
+
+const BUILD_COLONY = 'BUILD_COLONY';
+export const buildColony = withMatcher((colony: string, playerIndex: number) => ({
+    type: BUILD_COLONY,
+    payload: {colony, playerIndex},
+}));
+
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
@@ -551,4 +566,5 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_INCREASE_LOWEST_PRODUCTION,
     ASK_USER_TO_CHOOSE_PRELUDE,
     ASK_USER_TO_FUND_AWARD,
+    ASK_USER_TO_BUILD_COLONY,
 ];

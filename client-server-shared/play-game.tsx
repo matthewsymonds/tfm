@@ -94,6 +94,9 @@ export async function playGame(
         case ApiActionType.API_TRADE:
             actionHandler.trade(payload);
             break;
+        case ApiActionType.API_COMPLETE_BUILD_COLONY:
+            actionHandler.completeBuildColony(payload);
+            break;
         default:
             throw spawnExhaustiveSwitchError(type);
     }

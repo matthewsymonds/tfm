@@ -1,3 +1,4 @@
+import {BuildColony} from 'actions';
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {Tag} from 'constants/tag';
 import {Action, Amount, PlayCardParams} from './constants/action';
@@ -75,4 +76,6 @@ export type BasePlayerState = {
     pendingIncreaseLowestProduction?: number;
     // colonies
     fleets: number;
+
+    buildColony?: BuildColony;
 };

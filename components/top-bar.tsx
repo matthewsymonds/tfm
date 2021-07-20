@@ -37,6 +37,7 @@ type TopBarProps = {
 export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
     ({loggedInPlayer}: TopBarProps, ref) => {
         const router = useRouter();
+        const apiClient = useApiClient();
 
         /**
          * State selectors
@@ -66,8 +67,6 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                 : isLoggedInPlayerPassed
                 ? colors.NAV_BG_PASSED
                 : colors.NAV_BG_WAITING;
-
-        const apiClient = useApiClient();
 
         const actionGuard = useActionGuard();
 

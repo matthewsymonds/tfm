@@ -1,5 +1,5 @@
 import {setGame, setIsNotSyncing} from 'actions';
-import {makePostCall} from 'api-calls';
+import {makeGetCall, makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
 import {playGame} from 'client-server-shared/play-game';
@@ -62,19 +62,30 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);
     }
 
-    private processingActions: Function[] = [];
+    processingActions: Function[] = [];
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
+        const {actionCount} = this.store.getState();
+
+        playGame(
+            type,
+            payload,
+            this.actionHandler,
+            this.stateHydrator,
+            this.actionHandler.state
+        ).catch(async error => {
+            const apiPath = '/api' + window.location.pathname;
+
+            const result = await makeGetCall(apiPath);
+            this.dispatch(setGame(result.state));
+        });
         this.processingActions.push(async () => {
-            playGame(
-                type,
-                payload,
-                this.actionHandler,
-                this.stateHydrator,
-                this.actionHandler.state
-            );
             try {
-                const result = await makePostCall(this.getPath(), {type, payload});
+                const result = await makePostCall(this.getPath(), {
+                    type,
+                    payload,
+                    actionCount,
+                });
                 if (this.processingActions.length <= 1) {
                     this.dispatch(setGame(result.state));
                 }
@@ -270,5 +281,10 @@ export class ApiClient implements GameActionHandler {
     async tradeAsync({colony, payment}: {colony: string; payment: Resource}) {
         const payload = {colony, payment};
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
+    }
+
+    async completeBuildColonyAsync({colony}: {colony: string}) {
+        const payload = {colony};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_BUILD_COLONY, payload);
     }
 }

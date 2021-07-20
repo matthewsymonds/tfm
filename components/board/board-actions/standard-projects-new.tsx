@@ -17,6 +17,7 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Parameter, TileType} from 'constants/board';
+import {Deck} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {
@@ -49,11 +50,16 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
     };
 
     const venus = useTypedSelector(isPlayingVenus);
+    const colonies = useTypedSelector(state => state?.options?.decks.includes(Deck.COLONIES));
 
     let actions = [...standardProjectActions];
 
     if (!venus) {
         actions = actions.filter(action => action.type !== StandardProjectType.VENUS);
+    }
+
+    if (!colonies) {
+        actions = actions.filter(action => action.type !== StandardProjectType.COLONY);
     }
 
     return (

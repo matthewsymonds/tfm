@@ -12,4 +12,5 @@ export type BaseGameState = {
     pendingVariableAmount?: number;
     timestamp?: number;
     name: string;
+    actionCount?: number;
 };

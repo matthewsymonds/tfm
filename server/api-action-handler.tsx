@@ -13,9 +13,11 @@ import {
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
+    askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
+    buildColony,
     claimMilestone as claimMilestoneAction,
     completeAction,
     completeIncreaseLowestProduction,
@@ -86,6 +88,7 @@ import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
+import {canBuildColony} from 'selectors/can-build-colony';
 import {getCard} from 'selectors/get-card';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
@@ -863,6 +866,22 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
+    completeBuildColony({colony}: {colony: string}) {
+        const player = this.getLoggedInPlayer();
+        const fullColony = this.state.common.colonies?.find(
+            colonyObject => colonyObject.name === colony
+        );
+        if (!fullColony) {
+            throw new Error('Colony does not exist');
+        }
+        const [canBuild, reason] = canBuildColony(fullColony, player);
+        if (!canBuild) {
+            throw new Error(reason);
+        }
+        this.queue.unshift(buildColony(colony, player.index));
+        this.processQueue();
+    }
+
     private playActionBenefits(
         {action, state, parent, playedCard, thisPlayerIndex, withPriority}: PlayActionParams,
         queue = this.queue
@@ -1091,6 +1110,9 @@ export class ApiActionHandler {
 
         if (action.revealTakeAndDiscard) {
             items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
+        }
+        if (action.buildColony) {
+            items.push(askUserToPlaceColony(action.buildColony, playerIndex));
         }
         if (withPriority) {
             queue.unshift(...items);

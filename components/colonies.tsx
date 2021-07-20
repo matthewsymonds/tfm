@@ -7,6 +7,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import {canBuildColony} from 'selectors/can-build-colony';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {BOX_SHADOW_BASE} from './board-switcher';
 
@@ -115,9 +116,25 @@ export function Colonies() {
                 {colonies
                     .filter((_, index) => selectedColonies[index])
                     .map(colony => {
+                        const [canBuild, reason] = canBuildColony(colony, loggedInPlayer);
                         return (
                             <Box key={colony.name}>
                                 <ColonyComponent colony={colony} />
+                                {onlyOneColonySelected && loggedInPlayer.buildColony ? (
+                                    canBuild ? (
+                                        <button
+                                            onClick={() => {
+                                                apiClient.completeBuildColonyAsync({
+                                                    colony: colony.name,
+                                                });
+                                            }}
+                                        >
+                                            Build colony
+                                        </button>
+                                    ) : (
+                                        <div>Cannot build colony here: {reason}</div>
+                                    )
+                                ) : null}
                                 {hasResourcesAndOneColonySelected && canTrade ? (
                                     <Flex color="#ccc" marginTop="8px" alignItems="center">
                                         <Box marginRight="4px">Trade with {colony.name}:</Box>

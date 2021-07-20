@@ -31,13 +31,22 @@ export default async (req, res) => {
     try {
         if ((lock[id] ?? []).includes(username)) {
             res.json({error: 'Game update in progress.'});
+            return;
         }
         game = await gamesModel.findOne({name: id});
         if (!game) throw new Error('Not found');
         if (!game.players.includes(username)) throw new Error('Not in this game!');
         lock[game.name] ||= [];
         lock[game.name].push(username);
-        const {type, payload}: {type: ApiActionType; payload} = req.body;
+        const {
+            type,
+            payload,
+            actionCount,
+        }: {type: ApiActionType; payload; actionCount: number | undefined} = req.body;
+        if (typeof actionCount !== 'undefined' && game.state.actionCount !== actionCount) {
+            res.json({error: 'Client out of sync with server.'});
+            return;
+        }
 
         const hydratedGame = {
             queue: game.queue,

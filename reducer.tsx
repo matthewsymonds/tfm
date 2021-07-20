@@ -36,9 +36,11 @@ import {
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
+    askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
+    buildColony,
     claimMilestone,
     completeAction,
     completeIncreaseLowestProduction,
@@ -299,7 +301,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // A client-side action.
         // Sets the game state returned from the server.
         const newState = action.payload.gameState;
-        if (newState === null) {
+        if (newState == null) {
             return state;
         }
         // Exceptionally (hacky):
@@ -316,13 +318,16 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
     return produce(state, draft => {
         draft.timestamp = Date.now();
+
         // increment the state changes tally if on server.
         if (setIsSyncing.match(action)) {
             draft.syncing = true;
+            return;
         }
 
         if (setIsNotSyncing.match(action)) {
             draft.syncing = false;
+            return;
         }
 
         let player: PlayerState;
@@ -343,7 +348,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             } else {
                 player.cardCost = 3;
             }
+            return;
         }
+
+        draft.actionCount = (draft.actionCount ?? 0) + 1;
 
         if (payForCards.match(action)) {
             const {payload} = action;
@@ -1293,6 +1301,23 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
         if (returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus.match(action)) {
             draft.common.currentPlayerIndex = action.payload.playerIndex;
+        }
+
+        if (askUserToPlaceColony.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+
+            player.buildColony = payload.buildColony;
+        }
+
+        if (buildColony.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.buildColony = undefined;
+            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            if (colony) {
+                colony.colonies.push(player.index);
+            }
         }
 
         if (announceReadyToStartRound.match(action)) {

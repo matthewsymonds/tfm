@@ -3840,6 +3840,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a colony.',
         tags: [Tag.EARTH, Tag.EVENT, Tag.SPACE],
         type: CardType.EVENT,
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         increaseTerraformRating: 1,
@@ -3960,6 +3961,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.TITANIUM]: 1},
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         cost: 5,
@@ -3969,6 +3971,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.MEGACREDIT]: 2},
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         cost: 11,
@@ -4004,6 +4007,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         cost: 0,
@@ -4079,6 +4083,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE, Tag.SPACE],
         type: CardType.AUTOMATED,
         gainResource: {[Resource.MEGACREDIT]: 2},
+        buildColony: {mayBeRepeatColony: true},
     },
     {
         effect: {text: 'Effect: When you trade, you pay 1 less resource for it.'},
@@ -4139,6 +4144,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: VariableAmount.HALF_ALL_COLONIES,
+        buildColony: {mayBeRepeatColony: true},
     },
     {
         effect: {
@@ -4269,6 +4275,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a colony.',
         tags: [Tag.SPACE],
         type: CardType.ACTIVE,
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         cost: 6,
@@ -5075,6 +5082,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 45 MC. As your first action, place a colony.',
         tags: [],
         type: CardType.CORPORATION,
+        buildColony: {mayBeRepeatColony: false},
     },
     {
         action: {
