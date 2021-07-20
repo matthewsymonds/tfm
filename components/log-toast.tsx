@@ -1,18 +1,20 @@
 import {GameStage} from 'constants/game';
-import {AppContext} from 'context/app-context';
-import React, {useContext, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
 import {LogEntry} from './action-log';
 
-export const LogToast = () => {
+export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
     const log = useTypedSelector(state => state.log);
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
 
-    const context = useContext(AppContext);
-    const lastSeenLogItem = context.getLastSeenLogItem();
+    const [theLastSeenLogItem, setTheLastSeenLogItem] = useState(lastSeenLogItem);
+
+    useEffect(() => {
+        setTheLastSeenLogItem(lastSeenLogItem);
+    }, [lastSeenLogItem]);
 
     const players = useTypedSelector(state => state.players);
     const corporationNames = players
@@ -20,16 +22,16 @@ export const LogToast = () => {
         .map(player => player.corporation.name);
 
     useEffect(() => {
-        if (lastSeenLogItem >= log.length) {
+        if (theLastSeenLogItem == null) {
             return;
         }
 
-        if (!lastSeenLogItem) {
+        if (theLastSeenLogItem >= log.length) {
             return;
         }
 
         const logItems = log
-            .slice(lastSeenLogItem - log.length)
+            .slice(theLastSeenLogItem - log.length)
             .filter(entry => !entry.startsWith('Generation')); // Hack
 
         if (logItems.join('').trim().length === 0) {
@@ -50,8 +52,8 @@ export const LogToast = () => {
                 ))}
             </>
         );
-        context.setLastSeenLogItem(log.length);
-    }, [log.length, lastSeenLogItem]);
+        setTheLastSeenLogItem(log.length);
+    }, [log.length, theLastSeenLogItem]);
 
     if (isCorporationSelection) {
         return null;

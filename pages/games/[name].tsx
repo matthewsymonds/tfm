@@ -30,7 +30,6 @@ export default function Game(props) {
     const context = useContext(AppContext);
     useEffect(() => {
         store.dispatch(setGame(game.state));
-        context.setLastSeenLogItem(lastSeenLogItem);
     }, [location.pathname, lastSeenLogItem]);
 
     const state = useTypedSelector(state => state);
@@ -41,7 +40,6 @@ export default function Game(props) {
             router.push('/new-game');
             return;
         }
-        context.setLastSeenLogItem(game.lastSeenLogItem);
         const existingTimestamp = store.getState().timestamp ?? 0;
         const newTimestamp = game.state.timestamp ?? 0;
         if (newTimestamp > existingTimestamp) {
@@ -172,7 +170,13 @@ export default function Game(props) {
 
     if (!state) return null;
 
-    return <ActiveRound loggedInPlayerIndex={loggedInPlayerIndex} yourTurnGames={yourTurnGames} />;
+    return (
+        <ActiveRound
+            lastSeenLogItem={lastSeenLogItem}
+            loggedInPlayerIndex={loggedInPlayerIndex}
+            yourTurnGames={yourTurnGames}
+        />
+    );
 }
 
 Game.getInitialProps = async ctx => {

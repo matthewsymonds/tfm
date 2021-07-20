@@ -119,8 +119,10 @@ function getFontSizeForCorporation(string) {
 export const ActiveRound = ({
     loggedInPlayerIndex,
     yourTurnGames,
+    lastSeenLogItem,
 }: {
     loggedInPlayerIndex: number;
+    lastSeenLogItem: number;
     yourTurnGames: string[];
 }) => {
     /**
@@ -313,7 +315,7 @@ export const ActiveRound = ({
 
     return (
         <React.Fragment>
-            <LogToast />
+            <LogToast lastSeenLogItem={lastSeenLogItem} />
             <Flex flexDirection="column" flex="auto" bottom="0px">
                 <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 {isPlayerMakingDecision && (

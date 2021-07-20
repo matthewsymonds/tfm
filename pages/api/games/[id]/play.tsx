@@ -45,6 +45,7 @@ export default async (req, res) => {
         }: {type: ApiActionType; payload; actionCount: number | undefined} = req.body;
         if (typeof actionCount !== 'undefined' && game.state.actionCount !== actionCount) {
             res.json({error: 'Client out of sync with server.'});
+            purgeLock(lock, username, game.name);
             return;
         }
 
@@ -72,10 +73,7 @@ export default async (req, res) => {
         game.lastSeenLogItem ||= [];
         game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
         await game.save();
-        lock[game.name] = lock[game.name].filter(name => name !== username);
-        if (lock[game.name].length === 0) {
-            delete lock[game.name];
-        }
+        purgeLock(lock, username, game.name);
 
         res.json({
             state: censorGameState(hydratedGame.state, username),
@@ -86,3 +84,10 @@ export default async (req, res) => {
         res.json({error: error.message});
     }
 };
+
+function purgeLock(lock: {[gameName: string]: string[]}, username: string, gameName: string) {
+    lock[gameName] = lock[gameName].filter(name => name !== username);
+    if (lock[gameName].length === 0) {
+        delete lock[gameName];
+    }
+}
