@@ -220,6 +220,10 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
             return 'City';
         case StandardProjectType.VENUS:
             return 'Venus';
+        case StandardProjectType.COLONY:
+            return 'Colony';
+        default:
+            throw spawnExhaustiveSwitchError(standardProject);
     }
 }
 
@@ -257,7 +261,7 @@ function StandardProjectActionDescription({action}: {action: StandardProjectActi
                 </React.Fragment>
             );
         case StandardProjectType.COLONY:
-            return <React.Fragment>Build a colony.</React.Fragment>;
+            return <React.Fragment>Place a colony.</React.Fragment>;
         case StandardProjectType.VENUS:
             return <React.Fragment>Raise Venus 1 step.</React.Fragment>;
         default:

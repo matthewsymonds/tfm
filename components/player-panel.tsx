@@ -42,7 +42,9 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
         state.options?.decks.includes(Deck.COLONIES)
     );
 
-    const fleets = isColoniesEnabled ? <div>Fleets: {player.fleets}</div> : null;
+    const fleets = isColoniesEnabled ? (
+        <CardsInHandMessage>Fleets: {player.fleets}</CardsInHandMessage>
+    ) : null;
 
     /**
      * State selectors

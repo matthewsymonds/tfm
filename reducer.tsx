@@ -40,10 +40,12 @@ import {
     askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
+    askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
     completeAction,
     completeIncreaseLowestProduction,
+    completeTradeForFree,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -1096,7 +1098,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             const {actionType, resourceAndAmounts, locationType} = payload;
             const card = player.playedCards.find(
-                playerCard => playerCard.name === payload.card.name
+                playerCard => playerCard.name === payload.card?.name
             )!;
             const playedCard = player.playedCards.find(
                 playerPlayedCard => playerPlayedCard.name === payload.playedCard?.name
@@ -1321,9 +1323,24 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.placeColony = undefined;
             const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
             if (colony) {
+                if (colony.colonies.length === colony.step) {
+                    colony.step += 1;
+                }
                 colony.colonies.push(player.index);
                 draft.log.push(`${corporationName} placed a colony on ${colony.name}`);
             }
+        }
+
+        if (askUserToTradeForFree.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.tradeForFree = true;
+        }
+
+        if (completeTradeForFree.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.tradeForFree = undefined;
         }
 
         if (increaseColonyTileTrackRange.match(action)) {

@@ -80,11 +80,11 @@ export function ColonySwitcher({
 }
 
 export function Colonies() {
-    const colonies = useTypedSelector(state => state.common.colonies?.map(getColony));
+    const colonies = useTypedSelector(state => state.common.colonies?.map(getColony) ?? []);
 
     const [selectedColonies, setSelectedColonies] = useState<boolean[]>([true]);
 
-    if (!colonies) {
+    if (!colonies[0]) {
         return null;
     }
 
@@ -101,6 +101,13 @@ export function Colonies() {
     function tradeWithPayment(payment: AcceptedTradePayment, colony: Colony, tradeIncome: number) {
         apiClient.tradeAsync({
             payment: payment.resource,
+            colony: colony.name,
+            tradeIncome,
+        });
+    }
+
+    function tradeForFree(colony: Colony, tradeIncome: number) {
+        apiClient.tradeForFreeAsync({
             colony: colony.name,
             tradeIncome,
         });
@@ -149,36 +156,56 @@ export function Colonies() {
         setSelectedTradeIncome(firstSelectedColony.step);
     }, [firstSelectedColony.name]);
 
-    const tradeIncomeElements = eligibleTradeIncomes.map(index => {
+    const tradeIncomeElements = eligibleTradeIncomes.map((index, internalIndex) => {
         const tradeIncome = firstSelectedColony.tradeIncome[index];
+        if (!tradeIncome) return null;
+        const nextTradeIncome =
+            firstSelectedColony.tradeIncome[eligibleTradeIncomes[internalIndex + 1]];
+        // Filter duplicate options
+        if (nextTradeIncome && JSON.stringify(tradeIncome) === JSON.stringify(nextTradeIncome)) {
+            return null;
+        }
+
         const onClick = () => {
             setSelectedTradeIncome(index);
         };
 
         const selected = index === selectedTradeIncome;
 
-        const border = `1px solid ${selected ? '#333' : 'transparent'}`;
+        const border = `1px solid ${selected ? '#ccc' : 'transparent'}`;
 
         return (
             <Box
                 key={index + '-' + firstSelectedColony.name}
                 padding="1px"
-                color="#333"
+                color={tradeIncome.gainResource ? '#ccc' : '#333'}
                 cursor={canTrade && !selected ? 'pointer' : 'auto'}
                 onClick={onClick}
                 border={border}
             >
-                <BaseActionIconography card={tradeIncome} inline reverse shouldShowPlus />
+                <BaseActionIconography
+                    card={tradeIncome}
+                    inline
+                    reverse
+                    shouldShowPlus={!!tradeIncome.removeResource}
+                />
             </Box>
         );
     });
 
     const onlyOneColonySelected = selectedColonies.filter(Boolean).length === 1;
 
-    const hasResourcesAndOneColonySelected =
-        tradePaymentElements.length > 0 && onlyOneColonySelected;
+    const hasResources = tradePaymentElements.length > 0;
 
-    const [canBuild, canBuildReason] = canPlaceColony(firstSelectedColony, loggedInPlayer);
+    const [canBuild, canBuildReason] = canPlaceColony(
+        firstSelectedColony,
+        loggedInPlayer.index,
+        loggedInPlayer.placeColony
+    );
+
+    const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(
+        firstSelectedColony.name
+    );
 
     return (
         <Flex
@@ -190,25 +217,58 @@ export function Colonies() {
         >
             <Box marginRight="8px" marginLeft="8px" display="table">
                 {switcherOptions}
-                {onlyOneColonySelected && loggedInPlayer.placeColony ? (
-                    canBuild ? (
-                        <button
-                            onClick={() => {
-                                apiClient.completePlaceColonyAsync({
-                                    colony: firstSelectedColony.name,
-                                });
-                            }}
-                        >
-                            Build colony
-                        </button>
+                {!onlyOneColonySelected ? null : loggedInPlayer.tradeForFree ? (
+                    canTradeForFree ? (
+                        <Box color="#ccc" marginTop="8px">
+                            <Flex alignItems="center">
+                                <Box marginRight="4px">Trade with {firstSelectedColony.name}:</Box>
+                            </Flex>
+                            <Flex alignItems="center">
+                                <Box margin="4px">For:</Box>
+                                {tradeIncomeElements}
+                                <button
+                                    style={{
+                                        marginTop: 'auto',
+                                        marginBottom: 'auto',
+                                        marginLeft: '4px',
+                                    }}
+                                    onClick={() => {
+                                        const tradeIncome = selectedTradeIncome;
+                                        tradeForFree(firstSelectedColony, tradeIncome);
+                                    }}
+                                >
+                                    Confirm
+                                </button>
+                            </Flex>
+                        </Box>
                     ) : (
-                        <div>Cannot build colony here: {canBuildReason}</div>
+                        <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
+                            <em>{canTradeForFreeReason}</em>
+                        </Box>
                     )
-                ) : null}
-                {hasResourcesAndOneColonySelected && canTrade ? (
+                ) : loggedInPlayer.placeColony ? (
+                    canBuild ? (
+                        <Box marginTop="8px">
+                            <button
+                                onClick={() => {
+                                    apiClient.completePlaceColonyAsync({
+                                        colony: firstSelectedColony.name,
+                                    });
+                                }}
+                                style={{marginLeft: 'auto', marginRight: 'auto', display: 'block'}}
+                            >
+                                Build colony
+                            </button>
+                        </Box>
+                    ) : (
+                        <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
+                            <em>{canBuildReason}</em>
+                        </Box>
+                    )
+                ) : hasResources && canTrade ? (
                     <Box color="#ccc" marginTop="8px">
                         <Flex alignItems="center">
-                            <Box marginRight="4px">Trade with {firstSelectedColony.name}:</Box>{' '}
+                            <Box marginRight="4px">Trade with {firstSelectedColony.name}:</Box>
                             {tradePaymentElements}
                         </Flex>
                         <Flex alignItems="center">
@@ -234,11 +294,11 @@ export function Colonies() {
                             </button>
                         </Flex>
                     </Box>
-                ) : onlyOneColonySelected ? (
+                ) : (
                     <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
                         <em>{canTradeReason}</em>
                     </Box>
-                ) : null}
+                )}
             </Box>
         </Flex>
     );

@@ -1,3 +1,4 @@
+import {PlaceColony} from 'actions';
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
@@ -830,6 +831,15 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     );
 }
 
+function PlaceColonyIconography({placeColony}: {placeColony: PlaceColony}) {
+    return (
+        <Flex>
+            <ColonyIcon />
+            {placeColony.mayBeRepeatColony ? '*' : null}
+        </Flex>
+    );
+}
+
 export const BaseActionIconography = ({
     card,
     inline,
@@ -842,6 +852,7 @@ export const BaseActionIconography = ({
     shouldShowPlus?: boolean;
 }) => {
     const {
+        placeColony,
         tilePlacements,
         increaseParameter,
         removeResource,
@@ -873,8 +884,9 @@ export const BaseActionIconography = ({
             alignItems="center"
             position="relative"
         >
-            <Flex justifyContent="space-evenly" width="100%">
+            <Flex justifyContent="space-evenly" width="100%" alignItems="center">
                 {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
+                {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
                 <ProductionIconography card={card} />
             </Flex>
             {increaseParameter && (

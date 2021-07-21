@@ -580,6 +580,18 @@ export const increaseAndDecreaseColonyTileTracks = withMatcher(
     })
 );
 
+const ASK_USER_TO_TRADE_FOR_FREE = 'ASK_USER_TO_TRADE_FOR_FREE';
+export const askUserToTradeForFree = withMatcher((playerIndex: number) => ({
+    type: ASK_USER_TO_TRADE_FOR_FREE,
+    payload: {playerIndex},
+}));
+
+const COMPLETE_TRADE_FOR_FREE = 'COMPLETE_TRADE_FOR_FREE';
+export const completeTradeForFree = withMatcher((playerIndex: number) => ({
+    type: COMPLETE_TRADE_FOR_FREE,
+    payload: {playerIndex},
+}));
+
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
@@ -593,4 +605,5 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_FUND_AWARD,
     ASK_USER_TO_BUILD_COLONY,
     ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
+    ASK_USER_TO_TRADE_FOR_FREE,
 ];

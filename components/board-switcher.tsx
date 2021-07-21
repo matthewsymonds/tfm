@@ -1,5 +1,6 @@
 import {colors} from 'components/ui';
 import {Deck} from 'constants/card-types';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {Board} from './board/board';
@@ -24,6 +25,16 @@ export function BoardSwitcher() {
     useEffect(() => {
         setOption(BoardSwitcherOption.BOARD_SWITCHER_MARS);
     }, [gameName]);
+
+    const player = useLoggedInPlayer();
+
+    useEffect(() => {
+        if (player.placeColony || player.tradeForFree) {
+            setOption(BoardSwitcherOption.BOARD_SWITCHER_COLONIES);
+        } else if (player.pendingTilePlacement) {
+            setOption(BoardSwitcherOption.BOARD_SWITCHER_MARS);
+        }
+    }, [!!player.placeColony, !!player.pendingTilePlacement, !!player.tradeForFree]);
 
     const isColoniesEnabled = useTypedSelector(state => state?.options?.decks ?? []).includes(
         Deck.COLONIES

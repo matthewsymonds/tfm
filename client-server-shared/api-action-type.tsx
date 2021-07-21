@@ -15,6 +15,7 @@ export enum ApiActionType {
     API_SKIP_CHOOSE_DUPLICATE_PRODUCTION = 'apiSkipChooseDuplicateProduction',
     API_INCREASE_LOWEST_PRODUCTION = 'apiIncreaseLowestProduction',
     API_TRADE = 'apiTrade',
+    API_TRADE_FOR_FREE = 'apiTradeForFree',
     API_COMPLETE_BUILD_COLONY = 'apiCompletePlaceColony',
     API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'apiCompleteIncreaseAndDecreaseColonyTileTracks',
 }

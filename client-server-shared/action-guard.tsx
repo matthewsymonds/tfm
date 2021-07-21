@@ -16,6 +16,10 @@ import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, Resources} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
+import {
+    canTradeIgnoringPayment,
+    canTradeWithSomeColonyIgnoringPayment,
+} from 'selectors/can-trade-ignoring-payment';
 import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
 import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
 import {getCard} from 'selectors/get-card';
@@ -26,6 +30,7 @@ import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
+import {meetsColonyPlacementRequirements} from 'selectors/meets-colony-placement-requirements';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
@@ -788,31 +793,6 @@ export class ActionGuard {
         }
         const player = this._getPlayerToConsider();
 
-        const colony = this.state.common.colonies?.find(colony => colony.name === name);
-        if (!colony) {
-            return [false, `Colony ${name} is not in this game`];
-        }
-
-        if (colony.step < 0) {
-            // e.g. animals/microbes/floaters
-            return [false, 'Colony is not online'];
-        }
-
-        const lastTrade = colony.lastTrade ?? {player: '', round: -1};
-        if (lastTrade.round === this.state.common.generation) {
-            return [false, 'Colony has already been traded with this generation'];
-        }
-
-        if (
-            (this.state.common.colonies ?? []).filter(
-                colony =>
-                    colony.lastTrade?.round === this.state.common.generation &&
-                    colony.lastTrade?.player === player.username
-            ).length >= player.fleets
-        ) {
-            return [false, 'Used all trade fleets this generation'];
-        }
-
         const validPayment = getValidTradePayment(player);
 
         const withResource = validPayment.find(validPayment => validPayment.resource === payment);
@@ -825,18 +805,17 @@ export class ActionGuard {
             return [false, 'Cannot afford to trade with that resource'];
         }
 
-        const deployedFleets = (this.state.common.colonies ?? []).filter(colony => {
-            const {lastTrade} = colony;
-            if (!lastTrade) return false;
-            if (lastTrade.round < this.state.common.generation) return false;
-            return lastTrade.player === player.username;
-        }).length;
+        return canTradeIgnoringPayment(player, name, this.state);
+    }
 
-        if (deployedFleets === player.fleets) {
-            return [false, 'Already used all fleets this generation'];
+    canTradeForFree(name: string): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
+
+        if (!player.tradeForFree) {
+            return [false, 'Player cannot trade for free'];
         }
 
-        return [true, 'Good to go'];
+        return canTradeIgnoringPayment(player, name, this.state);
     }
 
     private arePreludesCorrect(selectedPreludes: Card[]) {
@@ -898,8 +877,16 @@ export function canPlayActionInSpiteOfUI(
         return [false, 'Cannot place tile'];
     }
 
+    if (!meetsColonyPlacementRequirements(action, state, player)) {
+        return [false, 'Cannot place colony'];
+    }
+
     if (!meetsTerraformRequirements(action, player)) {
         return [false, 'Not yet terraformed this generation'];
+    }
+
+    if (action.tradeForFree && !canTradeWithSomeColonyIgnoringPayment(player, state)) {
+        return [false, 'Cannot trade with any colony right now'];
     }
 
     return [true, 'Good to go'];

@@ -122,12 +122,12 @@ export function ColonyComponent({colony}: {colony: Colony}) {
         );
 
         return (
-            <Box position="absolute" right="50px" top="5px" zIndex={4} transform="rotate(100deg)">
+            <Box position="absolute" right="60px" top="15px" zIndex={4} transform="rotate(140deg)">
                 <Arrow
-                    lineHeight={40}
+                    lineHeight={30}
                     lineWidth={10}
-                    pointHeight={24}
-                    pointWidth={12}
+                    pointHeight={20}
+                    pointWidth={24}
                     color={PLAYER_COLORS[player]}
                 />
             </Box>
@@ -227,7 +227,7 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                                         </Flex>
                                         {index === colony.step ? (
                                             <Cube />
-                                        ) : colony.colonies[index] ? (
+                                        ) : colony.colonies[index] != null ? (
                                             <Cube color={PLAYER_COLORS[colony.colonies[index]]} />
                                         ) : null}
                                     </Flex>

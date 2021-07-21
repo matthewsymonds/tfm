@@ -83,7 +83,17 @@ export interface GameActionHandler {
 
     increaseLowestProductionAsync({production}: {production: Resource}): Promise<void>;
 
-    tradeAsync({payment, colony}: {payment: Resource; colony: string}): Promise<void>;
+    tradeAsync({
+        payment,
+        colony,
+        tradeIncome,
+    }: {
+        payment: Resource;
+        colony: string;
+        tradeIncome: number;
+    }): Promise<void>;
+
+    tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}): Promise<void>;
 
     completePlaceColonyAsync({colony}: {colony: string}): Promise<void>;
 

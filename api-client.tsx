@@ -291,6 +291,11 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
     }
 
+    async tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
+        const payload = {colony, tradeIncome};
+        await this.makeApiCall(ApiActionType.API_TRADE_FOR_FREE, payload);
+    }
+
     async completePlaceColonyAsync({colony}: {colony: string}) {
         const payload = {colony};
         await this.makeApiCall(ApiActionType.API_COMPLETE_BUILD_COLONY, payload);

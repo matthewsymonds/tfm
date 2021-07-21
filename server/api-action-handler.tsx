@@ -17,10 +17,12 @@ import {
     askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
+    askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
     completeAction,
     completeIncreaseLowestProduction,
+    completeTradeForFree,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -835,6 +837,22 @@ export class ApiActionHandler {
             removeResource(validPayment.resource, validPayment.quantity, player.index, player.index)
         );
 
+        this.handleTrade(colony, tradeIncome);
+    }
+
+    tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
+        const [canTradeForFree, reason] = this.actionGuard.canTradeForFree(colony);
+
+        if (!canTradeForFree) {
+            throw new Error(reason);
+        }
+
+        this.handleTrade(colony, tradeIncome, /* withPriority = */ true);
+    }
+
+    private handleTrade(colony: string, tradeIncome: number, withPriority: boolean = false) {
+        const player = this.getLoggedInPlayer();
+
         const matchingColony = this.game.state.common.colonies?.find(
             colonyState => colonyState.name === colony
         );
@@ -847,56 +865,86 @@ export class ApiActionHandler {
             throw new Error('Trying to claim trade income that the player is not eligible for');
         }
 
+        // Just run it in both cases, doesn't matter
         const fullColony = getColony(matchingColony);
 
         const tradeIncomeAction = fullColony.tradeIncome[matchingColony.step];
+        const items: AnyAction[] = [];
         // Then receive trade income.
-        this.playAction({
-            action: tradeIncomeAction,
-            state: this.game.state,
-        });
-        this.queue.push(moveFleet(colony, player.index));
+        items.push(completeTradeForFree(player.index));
 
-        this.queue.push(moveColonyTileTrack(colony, matchingColony.colonies.length));
+        this.playActionBenefits(
+            {
+                action: tradeIncomeAction,
+                state: this.game.state,
+            },
+            items
+        );
+
+        items.push(moveFleet(colony, player.index));
+
+        items.push(moveColonyTileTrack(colony, matchingColony.colonies.length));
 
         // TODO make order customizable.
         for (const playerIndex of matchingColony.colonies) {
-            this.queue.push(selectPlayerToReceiveColonyBonus(playerIndex));
-            this.playActionBenefits({
-                action: fullColony.colonyBonus,
-                state: this.game.state,
-                thisPlayerIndex: playerIndex,
-            });
-            this.playActionCosts({
-                action: fullColony.colonyBonus,
-                thisPlayerIndex: playerIndex,
-                state: this.game.state,
-            });
+            items.push(selectPlayerToReceiveColonyBonus(playerIndex));
+            this.playActionBenefits(
+                {
+                    action: fullColony.colonyBonus,
+                    state: this.game.state,
+                    thisPlayerIndex: playerIndex,
+                },
+                items
+            );
+            this.playActionCosts(
+                {
+                    action: fullColony.colonyBonus,
+                    thisPlayerIndex: playerIndex,
+                    state: this.game.state,
+                },
+                items
+            );
             // Do discard last to match the Pluto flow (draw, then discard)
-            this.discardCards({
-                action: fullColony.colonyBonus,
-                thisPlayerIndex: playerIndex,
-                state: this.game.state,
-            });
+            this.discardCards(
+                {
+                    action: fullColony.colonyBonus,
+                    thisPlayerIndex: playerIndex,
+                    state: this.game.state,
+                },
+                items
+            );
         }
 
-        this.queue.push(returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus(player.index));
-        this.queue.push(completeAction(player.index));
+        items.push(returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus(player.index));
+        if (withPriority) {
+            this.queue.unshift(...items);
+        } else {
+            this.queue.push(...items);
+        }
+
         this.processQueue();
     }
 
     completePlaceColony({colony}: {colony: string}) {
         const player = this.getLoggedInPlayer();
-        const fullColony = this.state.common.colonies?.find(
+        const colonyObject = this.state.common.colonies?.find(
             colonyObject => colonyObject.name === colony
         );
-        if (!fullColony) {
+        if (!colonyObject) {
             throw new Error('Colony does not exist');
         }
-        const [canBuild, reason] = canPlaceColony(fullColony, player);
+        const [canBuild, reason] = canPlaceColony(colonyObject, player.index, player.placeColony);
         if (!canBuild) {
             throw new Error(reason);
         }
+        const fullColony = getColony(colonyObject);
+        const colonyPlacementBonus = fullColony.colonyPlacementBonus[fullColony.colonies.length];
+        this.playAction({
+            action: colonyPlacementBonus,
+            state: this.state,
+            // We want this benefit to come before other things that happen (like placing a city tile)
+            withPriority: true,
+        });
         this.queue.unshift(placeColony(colony, player.index));
         this.processQueue();
     }
@@ -951,6 +999,10 @@ export class ApiActionHandler {
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
             items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
+        }
+
+        if (action.tradeForFree) {
+            items.push(askUserToTradeForFree(playerIndex));
         }
 
         if (action.choosePrelude) {

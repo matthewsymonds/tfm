@@ -95,4 +95,6 @@ export interface Action {
     increaseColonyTileTrackRange?: number;
 
     increaseAndDecreaseColonyTileTracks?: number;
+
+    tradeForFree?: boolean;
 }

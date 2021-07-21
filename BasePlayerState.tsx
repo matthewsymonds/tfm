@@ -81,4 +81,5 @@ export type BasePlayerState = {
     colonyTileTrackRange?: number;
     // market manipulation
     increaseAndDecreaseColonyTileTracks?: number;
+    tradeForFree?: boolean;
 };

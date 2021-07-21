@@ -14,7 +14,7 @@ import {CardType} from 'constants/card-types';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import Link from 'next/link';
-import React, {ReactElement, useLayoutEffect, useState} from 'react';
+import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -159,6 +159,8 @@ export const ActiveRound = ({
     const hideOverlay =
         loggedInPlayer.pendingPlayCardFromHand ||
         loggedInPlayer.pendingTilePlacement ||
+        loggedInPlayer.placeColony ||
+        loggedInPlayer.tradeForFree ||
         loggedInPlayer.fundAward;
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
     let actionBarPromptText: string | null;
@@ -179,7 +181,9 @@ export const ActiveRound = ({
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund an award for free';
     } else if (loggedInPlayer.placeColony) {
-        actionBarPromptText = 'Build a colony';
+        actionBarPromptText = 'Place a colony';
+    } else if (loggedInPlayer.tradeForFree) {
+        actionBarPromptText = 'Select a colony to trade with for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
         actionBarPromptText = 'Increase and decrease colony tile tracks';
     } else {
@@ -189,6 +193,12 @@ export const ActiveRound = ({
     const [isActionOverlayVisible, setIsActionOverlayVisible] = useState(
         !showBoardFirstInActionPrompt
     );
+
+    useEffect(() => {
+        if (!hideOverlay && !showBoardFirstInActionPrompt) {
+            setIsActionOverlayVisible(true);
+        }
+    }, [!hideOverlay && !showBoardFirstInActionPrompt]);
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
     const logLength = useTypedSelector(state => state.log.length);

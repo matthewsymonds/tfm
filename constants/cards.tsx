@@ -3820,6 +3820,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place 1 colony and 1 ocean tile.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
+        placeColony: {mayBeRepeatColony: false},
+        tilePlacements: [t(TileType.OCEAN)],
     },
     {
         cost: 11,
@@ -4009,6 +4011,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: 2,
         placeColony: {mayBeRepeatColony: false},
+        decreaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         cost: 0,
@@ -4083,7 +4086,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place a colony. MAY BE PLACED WHERE YOU ALREADY HAVE A COLONY. Draw 2 cards.',
         tags: [Tag.SCIENCE, Tag.SPACE],
         type: CardType.AUTOMATED,
-        gainResource: {[Resource.MEGACREDIT]: 2},
+        gainResource: {[Resource.CARD]: 2},
         placeColony: {mayBeRepeatColony: true},
     },
     {
@@ -4216,9 +4219,17 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Add 1 floater to ANY JOVIAN CARD, or spend 1 floater here to trade for free',
-            // TODO implement as choice
-            // gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
-            // removeResourceSourceType: ResourceLocationType.THIS_CARD,
+            choice: [
+                {
+                    gainResource: {[Resource.FLOATER]: 1},
+                    gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+                },
+                {
+                    removeResource: {[Resource.FLOATER]: 1},
+                    tradeForFree: true,
+                    removeResourceSourceType: ResourceLocationType.THIS_CARD,
+                },
+            ],
         },
         cost: 18,
         deck: Deck.COLONIES,
@@ -4226,6 +4237,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Titan Floating Launch-Pad',
         text: 'Add 2 foaters to ANY JOVIAN CARD.',
         gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
+        gainResource: {[Resource.FLOATER]: 2},
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE,
         victoryPoints: 1,
