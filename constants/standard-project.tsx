@@ -103,6 +103,6 @@ export const standardProjectActions: StandardProjectAction[] = [
         actionType: ActionType.STANDARD_PROJECT,
         type: StandardProjectType.COLONY,
         cost: 17,
-        buildColony: {mayBeRepeatColony: false},
+        placeColony: {mayBeRepeatColony: false},
     },
 ];

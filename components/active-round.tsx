@@ -24,6 +24,7 @@ import {useIsomorphicLayoutEffect} from './action-log';
 import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
+import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increase-and-decrease-colony-tile-tracks';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
@@ -177,8 +178,10 @@ export const ActiveRound = ({
         }
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund an award for free';
-    } else if (loggedInPlayer.buildColony) {
+    } else if (loggedInPlayer.placeColony) {
         actionBarPromptText = 'Build a colony';
+    } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
+        actionBarPromptText = 'Increase and decrease colony tile tracks';
     } else {
         actionBarPromptText = 'Complete your action';
     }
@@ -268,6 +271,11 @@ export const ActiveRound = ({
             break;
         case !!loggedInPlayer.pendingCardSelection:
             actionOverlayElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
+            break;
+        case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
+            actionOverlayElement = (
+                <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
+            );
             break;
         case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&
             currentPlayerIndex === loggedInPlayer.index &&

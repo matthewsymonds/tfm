@@ -10,6 +10,7 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToFundAward,
+    askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
@@ -17,7 +18,6 @@ import {
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
-    buildColony,
     claimMilestone as claimMilestoneAction,
     completeAction,
     completeIncreaseLowestProduction,
@@ -30,6 +30,8 @@ import {
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
+    increaseAndDecreaseColonyTileTracks,
+    increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
@@ -43,6 +45,7 @@ import {
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
+    placeColony,
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
@@ -88,8 +91,9 @@ import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
-import {canBuildColony} from 'selectors/can-build-colony';
+import {canPlaceColony} from 'selectors/can-build-colony';
 import {getCard} from 'selectors/get-card';
+import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
@@ -805,7 +809,15 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    trade({payment, colony}: {payment: Resource; colony: string}) {
+    trade({
+        payment,
+        colony,
+        tradeIncome,
+    }: {
+        payment: Resource;
+        colony: string;
+        tradeIncome: number;
+    }) {
         const [canTrade, reason] = this.actionGuard.canTrade(payment, colony);
 
         if (!canTrade) {
@@ -828,12 +840,19 @@ export class ApiActionHandler {
         );
 
         if (!matchingColony) throw new Error('colony not found');
+        // Check tradeIncome is in range for player
+        const eligibleTradeIncomes = getEligibleTradeIncomes(matchingColony, player);
+
+        if (!eligibleTradeIncomes.includes(tradeIncome)) {
+            throw new Error('Trying to claim trade income that the player is not eligible for');
+        }
+
         const fullColony = getColony(matchingColony);
 
-        const tradeIncome = fullColony.tradeIncome[matchingColony.step];
+        const tradeIncomeAction = fullColony.tradeIncome[matchingColony.step];
         // Then receive trade income.
         this.playAction({
-            action: tradeIncome,
+            action: tradeIncomeAction,
             state: this.game.state,
         });
         this.queue.push(moveFleet(colony, player.index));
@@ -866,7 +885,7 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    completeBuildColony({colony}: {colony: string}) {
+    completePlaceColony({colony}: {colony: string}) {
         const player = this.getLoggedInPlayer();
         const fullColony = this.state.common.colonies?.find(
             colonyObject => colonyObject.name === colony
@@ -874,11 +893,33 @@ export class ApiActionHandler {
         if (!fullColony) {
             throw new Error('Colony does not exist');
         }
-        const [canBuild, reason] = canBuildColony(fullColony, player);
+        const [canBuild, reason] = canPlaceColony(fullColony, player);
         if (!canBuild) {
             throw new Error(reason);
         }
-        this.queue.unshift(buildColony(colony, player.index));
+        this.queue.unshift(placeColony(colony, player.index));
+        this.processQueue();
+    }
+
+    completeIncreaseAndDecreaseColonyTileTracks({
+        increase,
+        decrease,
+    }: {
+        increase: string;
+        decrease: string;
+    }) {
+        const player = this.getLoggedInPlayer();
+
+        const [canPlay, reason] = this.actionGuard.canCompleteIncreaseAndDecreaseColonyTileTracks(
+            increase,
+            decrease
+        );
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        this.queue.unshift(increaseAndDecreaseColonyTileTracks(increase, decrease, player.index));
         this.processQueue();
     }
 
@@ -1111,8 +1152,21 @@ export class ApiActionHandler {
         if (action.revealTakeAndDiscard) {
             items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
         }
-        if (action.buildColony) {
-            items.push(askUserToPlaceColony(action.buildColony, playerIndex));
+        if (action.placeColony) {
+            items.push(askUserToPlaceColony(action.placeColony, playerIndex));
+        }
+        if (action.increaseColonyTileTrackRange) {
+            items.push(
+                increaseColonyTileTrackRange(action.increaseColonyTileTrackRange, playerIndex)
+            );
+        }
+        if (action.increaseAndDecreaseColonyTileTracks) {
+            items.push(
+                askUserToIncreaseAndDecreaseColonyTileTracks(
+                    action.increaseAndDecreaseColonyTileTracks,
+                    playerIndex
+                )
+            );
         }
         if (withPriority) {
             queue.unshift(...items);

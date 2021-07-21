@@ -33,39 +33,3 @@ export const Arrow = (props: ArrowProps) => (
         <ArrowPoint {...props} />
     </Flex>
 );
-
-// export function Arrow({
-//     lineHeight,
-//     lineWidth,
-//     overallWidth,
-//     pointHeight,
-//     pointWidth,
-//     color,
-// }: {
-//     lineHeight: number;
-//     lineWidth: number;
-//     overallWidth: number;
-//     pointHeight: number;
-//     pointWidth: number;
-//     color: string;
-// }) {
-//     return (
-//         <Box width={overallWidth + 'px'}>
-//             <Box
-//                 float="left"
-//                 marginTop="14px"
-//                 height={lineHeight + 'px'}
-//                 width={lineWidth + 'px'}
-//                 background={color}
-//             ></Box>
-//             <Box
-//                 float="right"
-//                 width={0}
-//                 height={0}
-//                 borderTop={pointHeight + 'px transparent'}
-//                 borderBottom={pointHeight + 'px transparent'}
-//                 borderLeft={pointWidth + 'px solid ' + color}
-//             ></Box>
-//         </Box>
-//     );
-// }

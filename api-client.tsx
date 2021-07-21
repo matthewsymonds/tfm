@@ -278,13 +278,35 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION, payload);
     }
 
-    async tradeAsync({colony, payment}: {colony: string; payment: Resource}) {
-        const payload = {colony, payment};
+    async tradeAsync({
+        colony,
+        payment,
+        tradeIncome,
+    }: {
+        colony: string;
+        payment: Resource;
+        tradeIncome: number;
+    }) {
+        const payload = {colony, payment, tradeIncome};
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
     }
 
-    async completeBuildColonyAsync({colony}: {colony: string}) {
+    async completePlaceColonyAsync({colony}: {colony: string}) {
         const payload = {colony};
         await this.makeApiCall(ApiActionType.API_COMPLETE_BUILD_COLONY, payload);
+    }
+
+    async completeIncreaseAndDecreaseColonyTileTracksAsync({
+        increase,
+        decrease,
+    }: {
+        increase: string;
+        decrease: string;
+    }) {
+        const payload = {increase, decrease};
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
+            payload
+        );
     }
 }

@@ -572,6 +572,24 @@ export class ActionGuard {
         return [!!matchingCell, 'Not a valid placement location'];
     }
 
+    canCompleteIncreaseAndDecreaseColonyTileTracks(
+        increase: string,
+        decrease: string
+    ): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
+        if (!player.increaseAndDecreaseColonyTileTracks) {
+            return [false, 'You cannot increase and decrease colony tile tracks'];
+        }
+
+        const {state} = this;
+        const {colonies} = state.common;
+        if (colonies?.filter(colony => [increase, decrease].includes(colony.name)).length !== 2) {
+            return [false, 'Not selecting valid colonies for action'];
+        }
+
+        return [true, 'Good to go'];
+    }
+
     canCompleteChooseResourceActionDetails(
         option: ResourceActionOption,
         amount: number

@@ -95,7 +95,10 @@ export async function playGame(
             actionHandler.trade(payload);
             break;
         case ApiActionType.API_COMPLETE_BUILD_COLONY:
-            actionHandler.completeBuildColony(payload);
+            actionHandler.completePlaceColony(payload);
+            break;
+        case ApiActionType.API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS:
+            actionHandler.completeIncreaseAndDecreaseColonyTileTracks(payload);
             break;
         default:
             throw spawnExhaustiveSwitchError(type);

@@ -33,14 +33,14 @@ const ActionOverlayBase = styled.div<{isVisible: boolean; topBarHeight: number}>
 
 const ActionOverlayContent = styled.div<{isVisible: boolean}>`
     flex: auto;
-    width: 660px;
+    width: 720px;
     max-width: 100%;
     margin: 0px 8px;
     padding: 16px 0px;
     opacity: ${props => (props.isVisible ? 1 : 0)};
     transition: all 0.3s;
     overflow-y: auto;
-    @media (max-width: 660px) {
+    @media (max-width: 720px) {
         padding: 8px 0px;
     }
 `;

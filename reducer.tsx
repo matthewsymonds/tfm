@@ -33,6 +33,7 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToFundAward,
+    askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
@@ -40,7 +41,6 @@ import {
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
-    buildColony,
     claimMilestone,
     completeAction,
     completeIncreaseLowestProduction,
@@ -53,6 +53,8 @@ import {
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
+    increaseAndDecreaseColonyTileTracks,
+    increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
@@ -65,6 +67,7 @@ import {
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
+    placeColony,
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
@@ -125,6 +128,7 @@ function handleEnterActiveRound(state: GameState) {
         for (const colony of state.common.colonies ?? []) {
             if (colony.step >= 0) {
                 colony.step += 1;
+                colony.step = Math.min(colony.step, getColony(colony).tradeIncome.length - 1);
             }
         }
     }
@@ -1284,6 +1288,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     player: player.username,
                     round: draft.common.generation,
                 };
+                draft.log.push(`${corporationName} traded with ${colony.name}`);
             }
         }
 
@@ -1307,17 +1312,83 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
 
-            player.buildColony = payload.buildColony;
+            player.placeColony = payload.placeColony;
         }
 
-        if (buildColony.match(action)) {
+        if (placeColony.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.buildColony = undefined;
+            player.placeColony = undefined;
             const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
             if (colony) {
                 colony.colonies.push(player.index);
+                draft.log.push(`${corporationName} placed a colony on ${colony.name}`);
             }
+        }
+
+        if (increaseColonyTileTrackRange.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.colonyTileTrackRange ||= 0;
+            player.colonyTileTrackRange += payload.quantity;
+        }
+
+        if (askUserToIncreaseAndDecreaseColonyTileTracks.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.increaseAndDecreaseColonyTileTracks = action.payload.quantity;
+        }
+
+        if (increaseAndDecreaseColonyTileTracks.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            const increment = player.increaseAndDecreaseColonyTileTracks ?? 0;
+            const {colonies} = draft.common;
+
+            const increaseColony = colonies?.find(colony => colony.name === payload.increase);
+            if (increaseColony) {
+                if (increaseColony.step >= 0) {
+                    const originalStep = increaseColony.step;
+                    increaseColony.step += increment;
+                    increaseColony.step = Math.min(
+                        increaseColony.step,
+                        getColony(increaseColony).tradeIncome.length - 1
+                    );
+                    const difference = increaseColony.step - originalStep;
+                    const stepString = difference === 1 ? 'step' : 'steps';
+                    draft.log.push(
+                        `${corporationName} increased ${
+                            increaseColony.name
+                        }'s tile track by ${difference} ${stepString} to ${increaseColony.step + 1}`
+                    );
+                } else {
+                    draft.log.push(
+                        `${corporationName} did not increase ${increaseColony.name}'s step (colony is not online)`
+                    );
+                }
+            }
+
+            const decreaseColony = colonies?.find(colony => colony.name === payload.decrease);
+            if (decreaseColony) {
+                if (decreaseColony.step >= 0) {
+                    const originalStep = decreaseColony.step;
+                    decreaseColony.step -= increment;
+                    decreaseColony.step = Math.max(decreaseColony.step, 0);
+                    const difference = originalStep - decreaseColony.step;
+                    const stepString = difference === 1 ? 'step' : 'steps';
+                    draft.log.push(
+                        `${corporationName} decreased ${
+                            decreaseColony.name
+                        }'s tile track by ${difference} ${stepString} to ${decreaseColony.step + 1}`
+                    );
+                } else {
+                    draft.log.push(
+                        `${corporationName} did not decrease ${decreaseColony.name}'s step (colony is not online)`
+                    );
+                }
+            }
+
+            player.increaseAndDecreaseColonyTileTracks = undefined;
         }
 
         if (announceReadyToStartRound.match(action)) {
@@ -1414,7 +1485,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                                 draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
                             };
                             setSyncingTrueIfClient(draft);
-
                             if (process.env.NODE_ENV === 'development') {
                                 const bonuses = draft.common.deck.filter(card =>
                                     bonusNames.includes(card.name)

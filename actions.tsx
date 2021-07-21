@@ -541,19 +541,44 @@ export const moveColonyTileTrack = withMatcher((colony: string, location: number
 }));
 
 const ASK_USER_TO_BUILD_COLONY = 'ASK_USER_TO_PLACE_COLONY';
-export type BuildColony = {mayBeRepeatColony: boolean};
+export type PlaceColony = {mayBeRepeatColony: boolean};
 export const askUserToPlaceColony = withMatcher(
-    (buildColony: BuildColony, playerIndex: number) => ({
+    (placeColony: PlaceColony, playerIndex: number) => ({
         type: ASK_USER_TO_BUILD_COLONY,
-        payload: {buildColony, playerIndex},
+        payload: {placeColony, playerIndex},
     })
 );
 
 const BUILD_COLONY = 'BUILD_COLONY';
-export const buildColony = withMatcher((colony: string, playerIndex: number) => ({
+export const placeColony = withMatcher((colony: string, playerIndex: number) => ({
     type: BUILD_COLONY,
     payload: {colony, playerIndex},
 }));
+
+const INCREASE_COLONY_TILE_TRACK_RANGE = 'INCREASE_COLONY_TILE_TRACK_RANGE';
+export const increaseColonyTileTrackRange = withMatcher(
+    (quantity: number, playerIndex: number) => ({
+        type: INCREASE_COLONY_TILE_TRACK_RANGE,
+        payload: {quantity, playerIndex},
+    })
+);
+
+const ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS =
+    'ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS';
+export const askUserToIncreaseAndDecreaseColonyTileTracks = withMatcher(
+    (quantity: number, playerIndex: number) => ({
+        type: ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
+        payload: {quantity, playerIndex},
+    })
+);
+
+const INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'INCREASE_AND_DECREASE_COLONY_TILE_TRACKS';
+export const increaseAndDecreaseColonyTileTracks = withMatcher(
+    (increase: string, decrease: string, playerIndex: number) => ({
+        type: INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
+        payload: {increase, decrease, playerIndex},
+    })
+);
 
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
@@ -567,4 +592,5 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_CHOOSE_PRELUDE,
     ASK_USER_TO_FUND_AWARD,
     ASK_USER_TO_BUILD_COLONY,
+    ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
 ];

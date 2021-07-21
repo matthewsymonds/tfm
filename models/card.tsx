@@ -1,4 +1,4 @@
-import {BuildColony} from 'actions';
+import {PlaceColony} from 'actions';
 import {Action, ActionType, Amount, LookAtCardsConfig, PlayCardParams} from 'constants/action';
 import {Parameter, TilePlacement} from 'constants/board';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
@@ -124,7 +124,9 @@ export class Card {
     temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
     choice: Action[];
     playCard?: PlayCardParams;
-    buildColony?: BuildColony;
+    placeColony?: PlaceColony;
+    increaseColonyTileTrackRange?: number;
+    increaseAndDecreaseColonyTileTracks?: number;
 
     // Polyphemos
     cardCost?: number;
@@ -226,13 +228,15 @@ export class Card {
         if (config.revealTakeAndDiscard) {
             this.revealTakeAndDiscard = config.revealTakeAndDiscard;
         }
-        if (config.buildColony) {
-            this.buildColony = config.buildColony;
+        if (config.placeColony) {
+            this.placeColony = config.placeColony;
         }
         this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
         this.choice = config.choice || [];
 
         this.playCard = config.playCard;
+        this.increaseColonyTileTrackRange = config.increaseColonyTileTrackRange;
+        this.increaseAndDecreaseColonyTileTracks = config.increaseAndDecreaseColonyTileTracks;
     }
 }
 
