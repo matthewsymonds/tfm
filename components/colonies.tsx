@@ -141,6 +141,9 @@ export function Colonies() {
     const eligibleTradeIncomes = getEligibleTradeIncomes(firstSelectedColony, loggedInPlayer);
 
     const [selectedTradeIncome, setSelectedTradeIncome] = useState(firstSelectedColony.step);
+    useEffect(() => {
+        setSelectedTradeIncome(firstSelectedColony.step);
+    }, [firstSelectedColony.step]);
 
     useEffect(() => {
         setSelectedTradeIncome(firstSelectedColony.step);
