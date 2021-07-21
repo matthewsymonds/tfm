@@ -188,7 +188,7 @@ export function Colonies() {
             width="450px"
             alignItems="center"
         >
-            <Box marginRight="8px" marginLeft="8px">
+            <Box marginRight="8px" marginLeft="8px" display="table">
                 {switcherOptions}
                 {onlyOneColonySelected && loggedInPlayer.placeColony ? (
                     canBuild ? (
@@ -235,7 +235,7 @@ export function Colonies() {
                         </Flex>
                     </Box>
                 ) : onlyOneColonySelected ? (
-                    <Box color="#ccc">
+                    <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
                         <em>{canTradeReason}</em>
                     </Box>
                 ) : null}
