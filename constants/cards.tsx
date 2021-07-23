@@ -5134,6 +5134,7 @@ export const cardConfigs: CardConfig[] = [
         forcedAction: {
             placeColony: {mayBeRepeatColony: false},
         },
+        gainResource: {[Resource.MEGACREDIT]: 45},
     },
     {
         action: {
