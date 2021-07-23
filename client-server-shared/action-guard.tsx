@@ -72,7 +72,7 @@ export class ActionGuard {
         }
         if (
             !this.canPlayCorporation(card) &&
-            !player.cards.some(playerCard => playerCard.name === card.name) &&
+            !player.cards.some(playerCard => playerCard?.name === card?.name) &&
             !isPrelude
         ) {
             return [false, 'User cannot play this card at this time'];
@@ -805,7 +805,7 @@ export class ActionGuard {
         const possibleCards =
             loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
         for (const selectedCard of selectedCards) {
-            if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
+            if (!possibleCards?.some(possibleCard => possibleCard?.name === selectedCard?.name)) {
                 return false;
             }
         }

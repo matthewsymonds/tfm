@@ -29,15 +29,15 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     if ('name' in action) {
         if (action.name === 'Moss') {
             // Viral enhancers will always give us the plant we need to continue.
-            if (player.playedCards.some(card => card.name === 'Viral Enhancers')) {
+            if (player.playedCards.some(card => card?.name === 'Viral Enhancers')) {
                 return true;
             }
-            if (player.playedCards.some(card => card.name === 'Manutech')) {
+            if (player.playedCards.some(card => card?.name === 'Manutech')) {
                 return true;
             }
         }
         if (action.name === 'Nitrophilic Moss') {
-            if (player.playedCards.some(card => card.name === 'Manutech')) {
+            if (player.playedCards.some(card => card?.name === 'Manutech')) {
                 return true;
             }
         }
