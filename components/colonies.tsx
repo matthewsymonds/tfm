@@ -117,12 +117,21 @@ export function Colonies() {
 
     const firstSelectedColony = colonies[selectedColonies.indexOf(true)];
 
+    const [selectedPayment, setSelectedPayment] = useState(Resource.MEGACREDIT);
+
+    useEffect(() => {
+        if (
+            tradePayment.every(payment => payment.resource !== selectedPayment) &&
+            tradePayment.length > 0
+        ) {
+            setSelectedPayment(tradePayment[0].resource);
+        }
+    }, [tradePayment.length, tradePayment?.[0], selectedPayment]);
+
     const [canTrade, canTradeReason] =
         tradePayment.length === 0
             ? [false, 'No valid payment']
-            : actionGuard.canTrade(tradePayment[0].resource, firstSelectedColony.name);
-
-    const [selectedPayment, setSelectedPayment] = useState(tradePayment[0].resource);
+            : actionGuard.canTrade(selectedPayment, firstSelectedColony.name);
 
     const tradePaymentElements = tradePayment.map(payment => {
         const selected = payment.resource === selectedPayment;

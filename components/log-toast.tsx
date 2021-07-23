@@ -1,4 +1,5 @@
 import {GameStage} from 'constants/game';
+import {usePrevious} from 'hooks/use-previous';
 import React, {useEffect, useState} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
@@ -6,6 +7,8 @@ import {LogEntry} from './action-log';
 
 export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
     const log = useTypedSelector(state => state.log);
+    const gameName = useTypedSelector(state => state.name);
+    const previousGameName = usePrevious(gameName);
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
@@ -22,6 +25,9 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
         .map(player => player.corporation.name);
 
     useEffect(() => {
+        if (gameName !== previousGameName) {
+            return;
+        }
         if (theLastSeenLogItem == null) {
             return;
         }
@@ -53,7 +59,7 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
             </>
         );
         setTheLastSeenLogItem(log.length);
-    }, [log.length, theLastSeenLogItem]);
+    }, [log.length, theLastSeenLogItem, gameName, previousGameName]);
 
     if (isCorporationSelection) {
         return null;

@@ -1330,7 +1330,7 @@ export class ApiActionHandler {
         const numCardsToDiscard = action.removeResource?.[Resource.CARD] ?? 0;
 
         if (numCardsToDiscard) {
-            queue.unshift(
+            queue.push(
                 askUserToDiscardCards(
                     playerIndex,
                     numCardsToDiscard,

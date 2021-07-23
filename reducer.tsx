@@ -133,13 +133,6 @@ function handleEnterActiveRound(state: GameState) {
         }
         state.common.gameStage = GameStage.ACTIVE_ROUND;
         state.log.push(`Generation ${state.common.generation}, turn 1`);
-
-        for (const colony of state.common.colonies ?? []) {
-            if (colony.step >= 0) {
-                colony.step += 1;
-                colony.step = Math.min(colony.step, getColony(colony).tradeIncome.length - 1);
-            }
-        }
     }
 }
 
@@ -173,6 +166,12 @@ function handleProduction(draft: GameState) {
         player.resources[Resource.ENERGY] = 0;
         for (const production in player.productions) {
             player.resources[production] += player.productions[production];
+        }
+    }
+    for (const colony of draft.common.colonies ?? []) {
+        if (colony.step >= 0) {
+            colony.step += 1;
+            colony.step = Math.min(colony.step, getColony(colony).tradeIncome.length - 1);
         }
     }
 }

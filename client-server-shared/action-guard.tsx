@@ -874,12 +874,11 @@ export class ActionGuard {
         if (numHeat) {
             const isValidToPayWithHeat =
                 player.corporation.name === 'Helion' && payment === Resource.MEGACREDIT;
-            if (!isValidToPayWithHeat) {
-                return [false, 'Cannot pay with heat'];
-            }
-            resourceQuantity += numHeat;
-            if (numHeat > this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0) {
-                return [false, 'Trying to pay with too much heat'];
+            if (isValidToPayWithHeat) {
+                resourceQuantity += numHeat;
+                if (numHeat > this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0) {
+                    return [false, 'Trying to pay with too much heat'];
+                }
             }
         }
 
