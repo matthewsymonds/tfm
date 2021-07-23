@@ -625,7 +625,7 @@ export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
 const NOOP_ACTION = 'NOOP_ACTION';
 export const noopAction = withMatcher(() => ({
     type: NOOP_ACTION,
-    payload: {}
+    payload: {},
 }));
 
 export const PAUSE_ACTIONS = [

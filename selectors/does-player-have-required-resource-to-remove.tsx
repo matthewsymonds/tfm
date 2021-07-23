@@ -32,6 +32,14 @@ export function doesPlayerHaveRequiredResourcesToRemove(
             if (player.playedCards.some(card => card.name === 'Viral Enhancers')) {
                 return true;
             }
+            if (player.playedCards.some(card => card.name === 'Manutech')) {
+                return true;
+            }
+        }
+        if (action.name === 'Nitrophilic Moss') {
+            if (player.playedCards.some(card => card.name === 'Manutech')) {
+                return true;
+            }
         }
     }
 
