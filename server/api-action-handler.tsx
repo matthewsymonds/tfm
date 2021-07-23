@@ -553,7 +553,7 @@ export class ApiActionHandler {
         }
         if (
             !selectedCards.every(selectedCard =>
-                possibleCards.some(possibleCard => possibleCard?.name === selectedCard?.name)
+                possibleCards.some(possibleCard => possibleCard.name === selectedCard.name)
             )
         ) {
             throw new Error('Trying to select invalid card');
@@ -578,9 +578,7 @@ export class ApiActionHandler {
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(
-                                    selectedCard => selectedCard?.name === card?.name
-                                )
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
                         ),
                         loggedInPlayerIndex
                     )
@@ -599,9 +597,7 @@ export class ApiActionHandler {
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(
-                                    selectedCard => selectedCard?.name === card?.name
-                                )
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
                         ),
                         loggedInPlayerIndex
                     )
@@ -618,9 +614,7 @@ export class ApiActionHandler {
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(
-                                    selectedCard => selectedCard?.name === card?.name
-                                )
+                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
                         ),
                         loggedInPlayerIndex
                     )
