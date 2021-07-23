@@ -6,6 +6,7 @@ export enum VariableAmount {
     CITIES_ON_MARS = 'citiesOnMars',
     CITY_TILES_IN_PLAY = 'cityTilesInPlay',
     RESOURCES_ON_CARD = 'resourcesOnCard',
+    RESOURCES_ON_CARD_MAX_4 = 'resourcesOnCardMax4',
     TWICE_RESOURCES_ON_CARD = 'twiceResourcesOnCard',
     OPPONENTS_SPACE_TAGS = 'opponentsSpaceTags',
     ALL_EVENTS = 'allEvents',

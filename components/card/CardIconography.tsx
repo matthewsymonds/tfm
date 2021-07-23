@@ -1,5 +1,5 @@
 import {PlaceColony} from 'actions';
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
 import {PRODUCTION_PADDING} from 'components/icons/production';
@@ -309,6 +309,14 @@ export function ChangeResourceIconography({
                     break;
                 case VariableAmount.RESOURCES_ON_CARD:
                     multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
+                    break;
+                case VariableAmount.RESOURCES_ON_CARD_MAX_4:
+                    multiplierElement = (
+                        <Flex display="inline-flex">
+                            <ResourceIcon name={resource as Resource} size={16} />
+                            <Box marginLeft="2px">(up to 4)</Box>
+                        </Flex>
+                    );
                     break;
                 default:
                     if (amount && isTagAmount(amount)) {

@@ -1738,6 +1738,7 @@ function getActionsFromEffect(
 
     if (trigger.cost) {
         if ((event.cost || 0) < trigger.cost) return [];
+        if (trigger.cardsOnly && !event.name) return [];
         return [effectAction];
     }
 

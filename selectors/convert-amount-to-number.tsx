@@ -14,7 +14,9 @@ export function convertAmountToNumber(
     card?: SerializedCard
 ): number {
     if (isTagAmount(amount)) {
-        const tags = getTags(player);
+        const tags = amount.includeOpponents
+            ? state.players.flatMap(player => getTags(player))
+            : getTags(player);
         const matchingTags = tags.filter(tag => tag === amount.tag || tag === Tag.WILD);
         return Math.floor(matchingTags.length / (amount.dividedBy ?? 1));
     }

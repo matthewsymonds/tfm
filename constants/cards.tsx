@@ -3717,6 +3717,7 @@ export const cardConfigs: CardConfig[] = [
         name: 'Corona Extractor',
         text: 'Requires 4 science tags. Increase your energy production 4 steps.',
         requiredTags: {[Tag.SCIENCE]: 4},
+        increaseProduction: {[Resource.ENERGY]: 4},
         tags: [Tag.POWER, Tag.SPACE],
         type: CardType.AUTOMATED,
     },
@@ -3764,7 +3765,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            // TODO fix
             [Resource.MEGACREDIT]: VariableAmount.THIRD_FLOATERS,
         },
     },
@@ -3794,12 +3794,11 @@ export const cardConfigs: CardConfig[] = [
         cost: 15,
         deck: Deck.COLONIES,
         name: 'Gaillean Waystation',
-        text: 'Increase your MC production 1 step for every Jovian tags in play.',
+        text: 'Increase your MC production 1 step for every Jovian tag in play.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        // TODO fix (must be opponents)
-        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN}},
+        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true}},
     },
     {
         cost: 3,
@@ -3875,7 +3874,7 @@ export const cardConfigs: CardConfig[] = [
                     gainResource: {[Resource.FLOATER]: 1},
                     gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
                 },
-                {gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD}},
+                {gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD_MAX_4}},
             ],
         },
         cost: 9,
@@ -3892,7 +3891,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.COLONIES,
         name: 'Luna Governor',
-        text: 'Requires 3 Earch tags. Increase your MC production 2 steps.',
+        text: 'Requires 3 Earth tags. Increase your MC production 2 steps.',
         requiredTags: {[Tag.EARTH]: 3},
         tags: [Tag.EARTH, Tag.EARTH],
         type: CardType.AUTOMATED,
@@ -3970,7 +3969,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 5,
         deck: Deck.COLONIES,
         name: 'Minority Refuge',
-        text: 'Decrese your MC production 2 steps. Place a colony.',
+        text: 'Decrease your MC production 2 steps. Place a colony.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.MEGACREDIT]: 2},
@@ -3984,10 +3983,14 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        gainResource: {
-            // Todo change to ALL_COLONIES_AND_CITIES
-            [Resource.MEGACREDIT]: VariableAmount.ALL_COLONIES,
-        },
+        steps: [
+            {gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITY_TILES_IN_PLAY}},
+            {
+                gainResource: {
+                    [Resource.MEGACREDIT]: VariableAmount.ALL_COLONIES,
+                },
+            },
+        ],
     },
     {
         increaseTerraformRating: 2,
@@ -4142,6 +4145,9 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         gainTradeFleet: true,
         minColonies: 1,
+        tilePlacements: [t(TileType.CITY)],
+        decreaseProduction: {[Resource.ENERGY]: 1},
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
     },
     {
         cost: 27,
@@ -4159,7 +4165,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text: 'Effect: WHEN PLAYING A CARD WITH A BASIC COST OF 20 MC OR MORE, draw a card',
-            trigger: {cost: 20},
+            trigger: {cost: 20, cardsOnly: true},
             action: {gainResource: {[Resource.CARD]: 1}},
         },
         cost: 10,
@@ -4302,7 +4308,6 @@ export const cardConfigs: CardConfig[] = [
         cost: 6,
         deck: Deck.COLONIES,
         name: 'Urban Decomposers',
-        // TODO handle multiple requirement types!
         text:
             'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
         requiredTags: {[Tag.SPACE]: 1},

@@ -118,6 +118,13 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.RESOURCES_ON_CARD]: (state: GameState, player: PlayerState, card?: Card) => {
         return card?.storedResourceAmount!;
     },
+    [VariableAmount.RESOURCES_ON_CARD_MAX_4]: (
+        state: GameState,
+        player: PlayerState,
+        card?: Card
+    ) => {
+        return Math.min(card?.storedResourceAmount!, 4);
+    },
     [VariableAmount.TWICE_RESOURCES_ON_CARD]: (
         state: GameState,
         player: PlayerState,
@@ -198,5 +205,18 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.THIRD_ALL_CITIES]: (state: GameState, player: PlayerState) => {
         return Math.floor(getCellsWithCities(state, player).length / 3);
+    },
+    [VariableAmount.COLONIES]: (state: GameState, player: PlayerState) => {
+        const colonies = state.common.colonies ?? [];
+        return colonies.flatMap(colony => colony.colonies).filter(colony => colony === player.index)
+            .length;
+    },
+    [VariableAmount.ALL_COLONIES]: (state: GameState, player: PlayerState) => {
+        const colonies = state.common.colonies ?? [];
+        return colonies.flatMap(colony => colony.colonies).length;
+    },
+    [VariableAmount.HALF_ALL_COLONIES]: (state: GameState, player: PlayerState) => {
+        const colonies = state.common.colonies ?? [];
+        return Math.floor(colonies.flatMap(colony => colony.colonies).length / 2);
     },
 };

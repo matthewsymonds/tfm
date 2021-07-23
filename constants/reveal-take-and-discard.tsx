@@ -20,6 +20,9 @@ export const CARD_SELECTION_CRITERIA_SELECTORS = {
                 return true;
             }
         }
+        if (card.name.toLowerCase().split(' ').includes('floater')) {
+            return true;
+        }
         return false;
     },
     [CardSelectionCriteria.VENUS_TAG]: (serializedCard: SerializedCard): boolean => {

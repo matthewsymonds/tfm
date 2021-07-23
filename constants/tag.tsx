@@ -17,4 +17,5 @@ export enum Tag {
 export type TagAmount = {
     tag: Tag;
     dividedBy?: number;
+    includeOpponents?: boolean;
 };
