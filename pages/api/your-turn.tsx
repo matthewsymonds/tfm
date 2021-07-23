@@ -8,7 +8,6 @@ export default async (req, res) => {
     }
 
     let games;
-    let game;
 
     switch (req.method) {
         case 'GET':
@@ -73,7 +72,7 @@ export default async (req, res) => {
             });
             // Ensure the results are fresh!
             res.setHeader('cache-control', 'no-cache');
-            return res.json({games});
+            return res.json({games: games.map(game => ({name: game.name}))});
         default:
             res.status(404);
             res.json({error: 'Call misformatted '});

@@ -72,6 +72,8 @@ export interface CardConfig extends Action {
     playCard?: PlayCardParams;
     // Polyphemos (currently only supported on corporations)
     cardCost?: number;
+
+    useStoredResourceAsHeat?: number;
 }
 
 type MinimumGlobalParameter = {

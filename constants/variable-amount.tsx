@@ -17,6 +17,7 @@ export enum VariableAmount {
     QUARTER_RESOURCES_ON_CARD = 'quarterResourcesOnCard',
     CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT = 'cityTilesAdjacentToCommercialDistrict',
     THIRD_RESOURCES_ON_CARD = 'thirdResourcesOnCard',
+    THIRD_FLOATERS = 'thirdFloaters',
     CARDS_WITHOUT_TAGS = 'cardsWithoutTags',
     HALF_ALL_COLONIES = 'halfAllColonies',
     MINING_AREA_CELL_HAS_STEEL_BONUS = 'miningAreaCellHasSteelBonus',

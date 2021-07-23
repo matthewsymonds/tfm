@@ -82,4 +82,5 @@ export type BasePlayerState = {
     // market manipulation
     increaseAndDecreaseColonyTileTracks?: number;
     tradeForFree?: boolean;
+    putAdditionalColonyTileIntoPlay?: boolean;
 };

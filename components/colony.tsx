@@ -296,7 +296,7 @@ function getPlacementBonuses(placementBonus: Action | null) {
             ? 80
             : 84;
         elements.push(
-            <Box key={elements.length} transform={`scale(${scale}%) rotate(180deg)`}>
+            <Box key={elements.length} color="#333" transform={`scale(${scale}%) rotate(180deg)`}>
                 <BaseActionIconography card={placementBonus} />
             </Box>
         );

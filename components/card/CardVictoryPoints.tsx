@@ -6,6 +6,7 @@ import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
+import {Resource} from 'constants/resource';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -68,6 +69,13 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                     <CenteredText>
                         <InlineText>1/3</InlineText>
                         {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                    </CenteredText>
+                );
+            case VariableAmount.THIRD_FLOATERS:
+                return (
+                    <CenteredText>
+                        <InlineText>1/3</InlineText>
+                        <ResourceIcon name={Resource.FLOATER} size={16} />
                     </CenteredText>
                 );
             case VariableAmount.QUARTER_RESOURCES_ON_CARD:

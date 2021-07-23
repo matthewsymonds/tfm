@@ -9,7 +9,7 @@ export interface Conversion extends Action {
     removeResource: PropertyCounter<Resource>;
 }
 
-export const CONVERSIONS = {
+export const CONVERSIONS: {[key in Resource]?: Conversion} = {
     [Resource.PLANT]: {
         resourceToRemove: Resource.PLANT,
         removeResource: {[Resource.PLANT]: VariableAmount.PLANT_CONVERSION_AMOUNT},

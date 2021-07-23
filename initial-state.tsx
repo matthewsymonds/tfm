@@ -18,14 +18,14 @@ export function shuffle<T>(array: T[]) {
 }
 
 function DEV_cardOverrides() {
-    const cardOverrides: Array<string> = [];
+    const cardOverrides: Array<string> = ['Caretaker Contract'];
     return cards.filter(card => {
         return cardOverrides.includes(card.name);
     });
 }
 
 function DEV_corporationOverrides() {
-    const cardOverrides: Array<string> = [];
+    const cardOverrides: Array<string> = ['Helion'];
     return cards.filter(card => {
         return cardOverrides.includes(card.name) && card.type === CardType.CORPORATION;
     });

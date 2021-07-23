@@ -3,7 +3,7 @@ import {getTextForAward} from 'components/board/board-actions/awards-new';
 import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
 import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
 import {CardType, Deck} from 'constants/card-types';
-import {getColony} from 'constants/colonies';
+import {COLONIES, getColony} from 'constants/colonies';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
@@ -11,6 +11,10 @@ import {Card} from 'models/card';
 import {shallowEqual, TypedUseSelectorHook, useSelector} from 'react-redux';
 import {AnyAction} from 'redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
+import {
+    getAmountForResource,
+    getSupplementalQuantity,
+} from 'selectors/does-player-have-required-resource-to-remove';
 import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
@@ -40,12 +44,14 @@ import {
     askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
+    askUserToPutAdditionalColonyTileIntoPlay,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
     completeAction,
     completeIncreaseLowestProduction,
     completeTradeForFree,
+    completeUserToPutAdditionalColonyTileIntoPlay,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -55,6 +61,7 @@ import {
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
+    gainTradeFleet,
     increaseAndDecreaseColonyTileTracks,
     increaseColonyTileTrackRange,
     increaseParameter,
@@ -211,7 +218,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Local Heat Trapping'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -709,20 +716,49 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             player.pendingResourceActionDetails = undefined;
             const {resource, amount, sourcePlayerIndex} = payload;
+            const quantity = convertAmountToNumber(amount, draft, player);
 
             const sourcePlayer = draft.players[sourcePlayerIndex];
-            if (amount > sourcePlayer.resources[resource]) {
+            const totalAvailable = getAmountForResource(
+                resource,
+                sourcePlayer,
+                payload.supplementalResources
+            );
+            if (quantity > totalAvailable) {
                 throw new Error('Trying to take too many resources');
             }
-            draft.pendingVariableAmount = amount;
-
-            const quantity = convertAmountToNumber(amount, state, player);
-
-            sourcePlayer.resources[resource] -= quantity;
-            if (amount) {
+            draft.pendingVariableAmount = quantity;
+            let supplementalQuantity = 0;
+            if (resource === Resource.HEAT && payload.supplementalResources) {
+                const {name} = payload.supplementalResources;
+                const matchingCard = player.playedCards.find(card => card.name === name);
+                if (matchingCard) {
+                    supplementalQuantity = getSupplementalQuantity(
+                        player,
+                        payload.supplementalResources
+                    );
+                    const fullCard = getCard(matchingCard);
+                    if (fullCard.useStoredResourceAsHeat) {
+                        const amountToRemove =
+                            supplementalQuantity / fullCard.useStoredResourceAsHeat;
+                        matchingCard.storedResourceAmount! -= amountToRemove;
+                        if (amountToRemove) {
+                            draft.log.push(
+                                `${sourcePlayer.corporation.name} lost ${quantityAndResource(
+                                    amountToRemove,
+                                    fullCard.storedResourceType!
+                                )} from ${fullCard.name}`
+                            );
+                        }
+                    }
+                }
+            }
+            const adjustedAmount = quantity - supplementalQuantity;
+            if (adjustedAmount > 0) {
+                sourcePlayer.resources[resource] -= adjustedAmount;
                 draft.log.push(
                     `${sourcePlayer.corporation.name} lost ${quantityAndResource(
-                        quantity,
+                        adjustedAmount,
                         resource
                     )}`
                 );
@@ -1331,6 +1367,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
+        if (gainTradeFleet.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.fleets = (player.fleets ?? 0) + 1;
+        }
+
         if (askUserToTradeForFree.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1341,6 +1383,27 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.tradeForFree = undefined;
+        }
+
+        if (askUserToPutAdditionalColonyTileIntoPlay.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.putAdditionalColonyTileIntoPlay = true;
+        }
+
+        if (completeUserToPutAdditionalColonyTileIntoPlay.match(action)) {
+            const {payload} = action;
+            const newColony = COLONIES.find(colony => colony.name === payload.colony);
+            player = getPlayer(draft, payload);
+            player.putAdditionalColonyTileIntoPlay = undefined;
+            if (newColony) {
+                draft.common.colonies = draft.common.colonies || [];
+                draft.common.colonies.push({
+                    name: newColony.name,
+                    step: newColony.step,
+                    colonies: [],
+                });
+            }
         }
 
         if (increaseColonyTileTrackRange.match(action)) {
@@ -1462,7 +1525,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             player =>
                                 player.resources[Resource.PLANT] >=
                                 convertAmountToNumber(
-                                    CONVERSIONS[Resource.PLANT].removeResource[Resource.PLANT],
+                                    CONVERSIONS[Resource.PLANT]?.removeResource?.[Resource.PLANT] ??
+                                        0,
                                     state,
                                     player
                                 )

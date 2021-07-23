@@ -25,4 +25,10 @@ export interface EffectTrigger {
 
     // Vitor
     nonNegativeVictoryPointsIcon?: boolean;
+
+    // Poseidon
+    placedColony?: boolean;
+
+    // Aridor
+    newTag?: boolean;
 }

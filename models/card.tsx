@@ -125,11 +125,15 @@ export class Card {
     choice: Action[];
     playCard?: PlayCardParams;
     placeColony?: PlaceColony;
+    gainTradeFleet?: boolean;
     increaseColonyTileTrackRange?: number;
     increaseAndDecreaseColonyTileTracks?: number;
 
     // Polyphemos
     cardCost?: number;
+
+    // Stormcraft
+    useStoredResourceAsHeat?: number;
 
     constructor(config: CardConfig) {
         // Hack to fix compile bug
@@ -231,6 +235,10 @@ export class Card {
         if (config.placeColony) {
             this.placeColony = config.placeColony;
         }
+        if (config.useStoredResourceAsHeat) {
+            this.useStoredResourceAsHeat = config.useStoredResourceAsHeat;
+        }
+        this.gainTradeFleet = config.gainTradeFleet;
         this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
         this.choice = config.choice || [];
 

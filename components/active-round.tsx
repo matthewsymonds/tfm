@@ -29,6 +29,7 @@ import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-p
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
+import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {BoardSwitcher} from './board-switcher';
 import {Box, Flex} from './box';
@@ -170,6 +171,8 @@ export const ActiveRound = ({
         actionBarPromptText = null;
     } else if (loggedInPlayer.pendingPlayCardFromHand) {
         actionBarPromptText = 'Play a card from hand';
+    } else if (loggedInPlayer.putAdditionalColonyTileIntoPlay) {
+        actionBarPromptText = 'Put an additional colony into play.';
     } else if (loggedInPlayer.pendingTilePlacement) {
         if (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM) {
             actionBarPromptText = 'Claim an unreserved area.';
@@ -285,6 +288,11 @@ export const ActiveRound = ({
         case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
             actionOverlayElement = (
                 <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
+            );
+            break;
+        case !!loggedInPlayer.putAdditionalColonyTileIntoPlay:
+            actionOverlayElement = (
+                <AskUserToPutAdditionalColonyTileIntoPlay player={loggedInPlayer} />
             );
             break;
         case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&

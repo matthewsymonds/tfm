@@ -139,6 +139,17 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     ) => {
         return Math.floor(card?.storedResourceAmount! / 3);
     },
+    [VariableAmount.THIRD_FLOATERS]: (state: GameState, player: PlayerState, card?: Card) => {
+        let numFloaters = 0;
+        for (const card of player.playedCards) {
+            const fullCard = getCard(card);
+            if (fullCard.storedResourceType !== Resource.FLOATER) {
+                continue;
+            }
+            numFloaters += card.storedResourceAmount ?? 0;
+        }
+        return Math.floor(numFloaters / 3);
+    },
     [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (
         state: GameState,
         player: PlayerState,

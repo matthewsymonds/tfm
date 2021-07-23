@@ -22,6 +22,7 @@ export async function playGame(
                 serializedCard: card,
                 payment: payload.payment,
                 conditionalPayments: payload.conditionalPayments,
+                supplementalResources: payload.supplementalResources,
             });
 
             break;
@@ -30,6 +31,7 @@ export async function playGame(
             actionHandler.playCardAction({
                 parent: card,
                 payment: payload.payment,
+                supplementalResources: payload.supplementalResources,
                 choiceIndex: payload.choiceIndex,
             });
             break;
@@ -102,6 +104,9 @@ export async function playGame(
             break;
         case ApiActionType.API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS:
             actionHandler.completeIncreaseAndDecreaseColonyTileTracks(payload);
+            break;
+        case ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY:
+            actionHandler.completePutAdditionalColonyTileIntoPlay(payload);
             break;
         default:
             throw spawnExhaustiveSwitchError(type);

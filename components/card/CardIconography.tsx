@@ -228,7 +228,18 @@ export function ChangeResourceIconography({
                     break;
                     break;
                 case VariableAmount.THIRD_RESOURCES_ON_CARD:
-                    multiplierElement = <ColonyIcon size={16} />;
+                    // Sort of nonsensical. No resources will be present on the card when played.
+                    multiplierElement = null;
+                    break;
+                case VariableAmount.THIRD_FLOATERS:
+                    multiplierElement = (
+                        <>
+                            <TextWithMargin fontSize="12px" margin="3px">
+                                {3}
+                            </TextWithMargin>
+                            <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
+                        </>
+                    );
                     break;
                 case VariableAmount.CITIES_ON_MARS:
                     multiplierElement = <TileIcon type={TileType.CITY} size={16} />;

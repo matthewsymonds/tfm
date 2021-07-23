@@ -1,7 +1,10 @@
 import {setGame, setIsNotSyncing} from 'actions';
 import {makeGetCall, makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
-import {GameActionHandler} from 'client-server-shared/game-action-handler-interface';
+import {
+    GameActionHandler,
+    PlayCardAsyncParams,
+} from 'client-server-shared/game-action-handler-interface';
 import {playGame} from 'client-server-shared/play-game';
 import {
     ResourceActionOption,
@@ -12,7 +15,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
 import {AnyAction, Store} from 'redux';
-import {ApiActionHandler} from 'server/api-action-handler';
+import {ApiActionHandler, SupplementalResources} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
 import {SerializedCard} from 'state-serialization';
 
@@ -45,19 +48,26 @@ export class ApiClient implements GameActionHandler {
         });
     }
     async playCardAsync({
-        serializedCard,
+        name,
         payment,
         conditionalPayments,
-    }: {
-        serializedCard: SerializedCard;
-        payment?: PropertyCounter<Resource>;
-        conditionalPayments?: number[];
-    }): Promise<void> {
-        const payload = {
-            name: serializedCard.name,
-            payment,
-            conditionalPayments,
+        supplementalResources,
+    }: PlayCardAsyncParams): Promise<void> {
+        const payload: PlayCardAsyncParams = {
+            name,
         };
+
+        if (payment) {
+            payload.payment = payment;
+        }
+
+        if (conditionalPayments) {
+            payload.conditionalPayments = conditionalPayments;
+        }
+
+        if (supplementalResources) {
+            payload.supplementalResources = supplementalResources;
+        }
 
         await this.makeApiCall(ApiActionType.API_PLAY_CARD, payload);
     }
@@ -125,15 +135,19 @@ export class ApiClient implements GameActionHandler {
     async playCardActionAsync({
         parent,
         payment,
+        // Exclusively for StormCraft
+        supplementalResources,
         choiceIndex,
     }: {
         parent: SerializedCard;
         payment?: PropertyCounter<Resource>;
+        supplementalResources?: SupplementalResources;
         choiceIndex?: number;
     }): Promise<void> {
         const payload = {
             name: parent.name,
             payment,
+            supplementalResources,
             choiceIndex,
         };
 
@@ -169,7 +183,10 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_FUND_AWARD, payload);
     }
 
-    async doConversionAsync(payload: {resource: Resource}): Promise<void> {
+    async doConversionAsync(payload: {
+        resource: Resource;
+        supplementalResources?: SupplementalResources;
+    }): Promise<void> {
         await this.makeApiCall(ApiActionType.API_DO_CONVERSION, payload);
     }
 
@@ -281,13 +298,15 @@ export class ApiClient implements GameActionHandler {
     async tradeAsync({
         colony,
         payment,
+        numHeat,
         tradeIncome,
     }: {
         colony: string;
         payment: Resource;
         tradeIncome: number;
+        numHeat?: number;
     }) {
-        const payload = {colony, payment, tradeIncome};
+        const payload = {colony, payment, tradeIncome, numHeat: numHeat || 0};
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
     }
 
@@ -311,6 +330,14 @@ export class ApiClient implements GameActionHandler {
         const payload = {increase, decrease};
         await this.makeApiCall(
             ApiActionType.API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
+            payload
+        );
+    }
+
+    async completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}) {
+        const payload = {colony};
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
             payload
         );
     }

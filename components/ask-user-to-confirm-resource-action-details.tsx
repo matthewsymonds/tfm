@@ -13,6 +13,7 @@ import {Box, Flex} from 'components/box';
 import {ChangeResourceIconography} from 'components/card/CardIconography';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
+import {Amount} from 'constants/action';
 import {MinimumProductions} from 'constants/game';
 import {
     getResourceName,
@@ -165,10 +166,15 @@ export function deserializeResourceOptionAction(
 
 export function getPlayerOptionWrappers(
     state: GameState,
-    player: PlayerState
+    player: PlayerState,
+    resourceActionDetails: {
+        actionType: ResourceActionType;
+        resourceAndAmounts: {resource: Resource; amount: Amount}[];
+        card: SerializedCard;
+        locationType?: ResourceLocationType;
+    } = player.pendingResourceActionDetails!
 ): PlayerOptionWrapper[] {
     const players = state.players;
-    const resourceActionDetails = player.pendingResourceActionDetails!;
     const {actionType, resourceAndAmounts, locationType} = resourceActionDetails;
     const card = getCard(resourceActionDetails.card);
     let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);

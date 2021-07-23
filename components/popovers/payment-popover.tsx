@@ -2,7 +2,7 @@ import {Box, Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {Action} from 'constants/action';
 import {PLAYER_COLORS} from 'constants/game';
-import {PropertyCounter} from 'constants/property-counter';
+import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Pane, Popover, Position} from 'evergreen-ui';
@@ -81,6 +81,7 @@ type PaymentPopoverRowProps = {
     numMC: number;
     playerMoney: number;
     name?: string;
+    disable?: boolean;
 };
 
 function PaymentPopoverRow({
@@ -92,14 +93,17 @@ function PaymentPopoverRow({
     numMC,
     name,
     playerMoney,
+    disable,
 }: PaymentPopoverRowProps) {
     let shouldDisableIncrease = false;
-    currentQuantity === availableQuantity || numMC === 0;
     if (currentQuantity === availableQuantity) {
         shouldDisableIncrease = true;
     }
 
     if (numMC === 0 && playerMoney > 0) {
+        shouldDisableIncrease = true;
+    }
+    if (disable) {
         shouldDisableIncrease = true;
     }
 
@@ -141,7 +145,10 @@ function PaymentPopoverRow({
 // either `card` or `cost` will be defined in props. we need the full card in order to determine
 // tag discounts and alternate payments (steel / titanium).
 type BasePaymentPopoverProps = {
-    onConfirmPayment: (payment: PropertyCounter<Resource>, conditionalPayments: number[]) => void;
+    onConfirmPayment: (
+        payment: NumericPropertyCounter<Resource>,
+        conditionalPayments: number[]
+    ) => void;
     children: React.ReactNode;
     shouldHide?: boolean;
 };
@@ -406,6 +413,122 @@ export default function PaymentPopover({
                                 },
                                 numConditionalPayment
                             );
+                            close();
+                        }}
+                    >
+                        Confirm
+                    </PaymentPopoverConfirmationButton>
+                </PaymentPopoverBase>
+            )}
+        >
+            <Pane>{children}</Pane>
+        </Popover>
+    );
+}
+
+type HeatPaymentPopoverProps = {
+    onConfirmPayment: (payment: NumericPropertyCounter<Resource>) => void;
+    useStoredResourceAsCard: Card;
+    cost: number;
+    children: React.ReactNode;
+};
+
+export function HeatPaymentPopover({
+    onConfirmPayment,
+    children,
+    useStoredResourceAsCard,
+    cost,
+}: HeatPaymentPopoverProps) {
+    const player = useLoggedInPlayer();
+    const playerHeat = useTypedSelector(state => player.resources[Resource.HEAT]);
+    const [numStoredResource, setNumStoredResource] = useState(0);
+    const totalStoredResource = useStoredResourceAsCard.storedResourceAmount!;
+    const resource = useStoredResourceAsCard.storedResourceType!;
+
+    const numHeat = Math.min(playerHeat, Math.max(0, cost - calculateRunningTotalWithoutHeat()));
+
+    function handleDecrease(resource: Resource, quantity = 1) {
+        if (quantity <= 0) return;
+        if (numStoredResource > 0) {
+            setNumStoredResource(numStoredResource - quantity);
+        }
+    }
+
+    function handleIncrease(resource: Resource) {
+        const runningTotal = calculateRunningTotal();
+        if (runningTotal >= cost && numHeat === 0) return;
+        if (numStoredResource < totalStoredResource) {
+            setNumStoredResource(numStoredResource + 1);
+        }
+    }
+
+    // Ensure the popover doesn't let you pay with resources you no longer have.
+    useEffect(() => {
+        handleDecrease(resource, numStoredResource - totalStoredResource);
+    }, [totalStoredResource]);
+
+    const prevCost = usePrevious(cost);
+
+    useEffect(() => {
+        // If the cost decreases (e.g. removing a picked card), reset the pickers so the player is not overpaying.
+        if (cost < (prevCost ?? 0)) {
+            handleDecrease(resource, numStoredResource);
+        }
+    }, [cost, prevCost]);
+
+    // Ensure when cost changes the payment popover reflects the cost change
+
+    function calculateRunningTotal() {
+        return numHeat + numStoredResource * (useStoredResourceAsCard.useStoredResourceAsHeat ?? 0);
+    }
+
+    function calculateRunningTotalWithoutHeat() {
+        return numStoredResource * (useStoredResourceAsCard.useStoredResourceAsHeat ?? 0);
+    }
+
+    const runningTotal = calculateRunningTotal();
+    const isValidPayment = cost <= runningTotal;
+
+    return (
+        <Popover
+            position={Position.RIGHT}
+            content={({close}) => (
+                <PaymentPopoverBase>
+                    <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
+                        <span>Cost: {cost} heat</span>
+                        <span className="running-total">
+                            <em
+                                style={{
+                                    color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
+                                }}
+                            >
+                                Current: {runningTotal}
+                            </em>
+                        </span>
+                    </PaymentPopoverSummaryRow>
+                    <Box marginBottom="4px" fontSize="12px">
+                        With <em>{numHeat} heat</em> and...
+                    </Box>
+                    <div className="payment-rows">
+                        <PaymentPopoverRow
+                            resource={resource}
+                            currentQuantity={numStoredResource}
+                            availableQuantity={totalStoredResource}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                            numMC={numHeat}
+                            playerMoney={playerHeat}
+                            name={useStoredResourceAsCard.name}
+                            disable={runningTotal > cost}
+                        />
+                    </div>
+                    <PaymentPopoverConfirmationButton
+                        disabled={!isValidPayment}
+                        onClick={() => {
+                            onConfirmPayment({
+                                [resource]: numStoredResource,
+                                [Resource.HEAT]: numHeat,
+                            });
                             close();
                         }}
                     >

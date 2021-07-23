@@ -2,15 +2,17 @@ import {Box, Flex} from 'components/box';
 import {BaseActionIconography} from 'components/card/CardIconography';
 import {ColonyComponent} from 'components/colony';
 import {AcceptedTradePayment, Colony, getColony} from 'constants/colonies';
+import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {canPlaceColony} from 'selectors/can-build-colony';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {BOX_SHADOW_BASE} from './board-switcher';
+import PaymentPopover from './popovers/payment-popover';
 
 export function ColonySwitcher({
     colonies,
@@ -127,21 +129,26 @@ export function Colonies() {
         const border = `1px solid ${selected ? '#ccc' : 'transparent'}`;
 
         return (
-            <Box
-                cursor={canTrade && !selected ? 'pointer' : 'auto'}
-                color="#333"
-                marginRight="4px"
-                padding="1px"
-                border={border}
-                key={payment.resource}
+            <div
                 onClick={() => {
                     setSelectedPayment(payment.resource);
                 }}
+                key={payment.resource}
             >
-                <BaseActionIconography
-                    card={{gainResource: {[payment.resource]: payment.quantity}}}
-                />
-            </Box>
+                {
+                    <Box
+                        cursor={canTrade && !selected ? 'pointer' : 'auto'}
+                        color="#333"
+                        marginRight="4px"
+                        padding="1px"
+                        border={border}
+                    >
+                        <BaseActionIconography
+                            card={{gainResource: {[payment.resource]: payment.quantity}}}
+                        />
+                    </Box>
+                }
+            </div>
         );
     });
 
@@ -161,7 +168,7 @@ export function Colonies() {
         if (!tradeIncome) return null;
         const nextTradeIncome =
             firstSelectedColony.tradeIncome[eligibleTradeIncomes[internalIndex + 1]];
-        // Filter duplicate options
+        // Filter duplicate options.
         if (nextTradeIncome && JSON.stringify(tradeIncome) === JSON.stringify(nextTradeIncome)) {
             return null;
         }
@@ -178,7 +185,7 @@ export function Colonies() {
             <Box
                 key={index + '-' + firstSelectedColony.name}
                 padding="1px"
-                color={tradeIncome.gainResource ? '#ccc' : '#333'}
+                color={tradeIncome.gainResource?.[Resource.MEGACREDIT] ? '#333' : '#ccc'}
                 cursor={canTrade && !selected ? 'pointer' : 'auto'}
                 onClick={onClick}
                 border={border}
@@ -206,6 +213,61 @@ export function Colonies() {
     const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(
         firstSelectedColony.name
     );
+
+    const payment = tradePayment.find(payment => payment.resource === selectedPayment);
+
+    let onClick = () => {
+        const tradeIncome = selectedTradeIncome;
+        if (payment) {
+            tradeWithPayment(payment, firstSelectedColony, tradeIncome);
+        }
+    };
+
+    let tradeButton = () => (
+        <button
+            style={{
+                marginTop: 'auto',
+                marginBottom: 'auto',
+                marginLeft: '4px',
+            }}
+            onClick={onClick}
+        >
+            Confirm
+        </button>
+    );
+
+    const doesActionRequireUserInput =
+        loggedInPlayer.corporation.name === 'Helion' &&
+        selectedPayment === Resource.MEGACREDIT &&
+        loggedInPlayer?.resources[Resource.HEAT] > 0 &&
+        !canTradeForFree;
+
+    if (doesActionRequireUserInput) {
+        const innerTradeButton = tradeButton;
+        tradeButton = () => {
+            if (payment) {
+                onClick = () => {};
+                return (
+                    <PaymentPopover
+                        key={payment.resource}
+                        cost={payment.quantity}
+                        onConfirmPayment={paymentResources => {
+                            apiClient.tradeAsync({
+                                payment: payment.resource,
+                                colony: firstSelectedColony.name,
+                                numHeat: paymentResources[Resource.HEAT] ?? 0,
+                                tradeIncome: selectedTradeIncome,
+                            });
+                        }}
+                    >
+                        {innerTradeButton()}
+                    </PaymentPopover>
+                );
+            } else {
+                return innerTradeButton();
+            }
+        };
+    }
 
     return (
         <Flex
@@ -274,24 +336,7 @@ export function Colonies() {
                         <Flex alignItems="center">
                             <Box margin="4px">For:</Box>
                             {tradeIncomeElements}
-                            <button
-                                style={{
-                                    marginTop: 'auto',
-                                    marginBottom: 'auto',
-                                    marginLeft: '4px',
-                                }}
-                                onClick={() => {
-                                    const payment = tradePayment.find(
-                                        payment => payment.resource === selectedPayment
-                                    );
-                                    const tradeIncome = selectedTradeIncome;
-                                    if (payment) {
-                                        tradeWithPayment(payment, firstSelectedColony, tradeIncome);
-                                    }
-                                }}
-                            >
-                                Confirm
-                            </button>
+                            {tradeButton()}
                         </Flex>
                     </Box>
                 ) : (

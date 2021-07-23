@@ -5,6 +5,8 @@ import {GameState, PlayerState} from 'reducer';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getAppropriatePlayerForAction} from 'selectors/get-appropriate-player-for-action';
+import {SupplementalResources} from 'server/api-action-handler';
+import {getCard} from './get-card';
 
 /* Locations where we must remove the resource, or the action isn't playable */
 const REQUIRED_REMOVE_RESOURCE_LOCATIONS = [
@@ -16,7 +18,8 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     action: Action | Card,
     state: GameState,
     _player: PlayerState | null,
-    parent?: Card
+    parent?: Card,
+    supplementalResources?: SupplementalResources
 ) {
     const player = _player ?? getAppropriatePlayerForAction(state, parent);
 
@@ -69,7 +72,11 @@ export function doesPlayerHaveRequiredResourcesToRemove(
             // Otherwise, if it's an action or effect the card has already been played.
             playerAmount = action instanceof Card ? player.cards.length - 1 : player.cards.length;
         } else {
-            playerAmount = player.resources[resource];
+            playerAmount = getAmountForResource(
+                resource as Resource,
+                player,
+                supplementalResources
+            );
         }
 
         return playerAmount >= requiredAmount;
@@ -87,4 +94,57 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     }
 
     return true;
+}
+
+export function getAmountForResource(
+    resource: Resource,
+    player: PlayerState,
+    supplementalResources?: SupplementalResources
+) {
+    const baseAmount = player.resources[resource];
+    if (resource !== Resource.HEAT) {
+        return baseAmount;
+    }
+
+    return getSupplementalQuantity(player, supplementalResources) + baseAmount;
+}
+
+export function getSupplementalQuantity(
+    player: PlayerState,
+    supplementalResources?: SupplementalResources
+): number {
+    const fullCard = getFullCardForSupplementalQuantity(player, supplementalResources);
+    let supplementalQuantity = 0;
+
+    if (fullCard?.storedResourceAmount && fullCard?.useStoredResourceAsHeat) {
+        if (supplementalResources?.quantity != null) {
+            supplementalQuantity =
+                fullCard.useStoredResourceAsHeat * supplementalResources.quantity;
+        } else {
+            supplementalQuantity = fullCard.useStoredResourceAsHeat * fullCard.storedResourceAmount;
+        }
+    }
+
+    return supplementalQuantity;
+}
+
+export function getFullCardForSupplementalQuantity(
+    player: PlayerState,
+    supplementalResources?: SupplementalResources
+) {
+    let fullCard: Card | undefined = undefined;
+
+    if (supplementalResources?.name) {
+        const card = player.playedCards.find(card => card.name === supplementalResources.name);
+        if (card) {
+            fullCard = getCard(card);
+        }
+    } else {
+        const card = player.playedCards.map(getCard).find(card => card.useStoredResourceAsHeat);
+        if (card) {
+            fullCard = getCard(card);
+        }
+    }
+
+    return fullCard;
 }

@@ -3765,7 +3765,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         increaseProduction: {
             // TODO fix
-            [Resource.MEGACREDIT]: VariableAmount.THIRD_RESOURCES_ON_CARD,
+            [Resource.MEGACREDIT]: VariableAmount.THIRD_FLOATERS,
         },
     },
     {
@@ -4012,6 +4012,7 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: 2,
         placeColony: {mayBeRepeatColony: false},
         decreaseProduction: {[Resource.MEGACREDIT]: 2},
+        maxColonies: 1,
     },
     {
         cost: 0,
@@ -4109,6 +4110,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
         victoryPoints: 2,
         discounts: {card: 1},
+        gainTradeFleet: true,
     },
     {
         cost: 9,
@@ -4138,6 +4140,8 @@ export const cardConfigs: CardConfig[] = [
             'Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step, and increase your MC production 4 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
+        gainTradeFleet: true,
+        minColonies: 1,
     },
     {
         cost: 27,
@@ -4149,6 +4153,8 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         victoryPoints: VariableAmount.HALF_ALL_COLONIES,
         placeColony: {mayBeRepeatColony: true},
+        gainTradeFleet: true,
+        minColonies: 1,
     },
     {
         effect: {
@@ -4301,8 +4307,12 @@ export const cardConfigs: CardConfig[] = [
             'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
         requiredTags: {[Tag.SPACE]: 1},
         tags: [Tag.MICROBE],
+        gainResource: {[Resource.MICROBE]: 2},
+        increaseProduction: {[Resource.PLANT]: 1},
         type: CardType.AUTOMATED,
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        minColonies: 1,
+        requiredTilePlacements: [{type: TileType.CITY, currentPlayer: true}],
     },
     {
         effect: {text: 'Effect: When you play a space tag, you pay 4 MC less for it.'},
@@ -5046,6 +5056,8 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: When you get a new type of tag in play (event cards do not count), increase your MC production 1 step.',
+            trigger: {newTag: true},
+            action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         deck: Deck.COLONIES,
         name: 'Aridor',
@@ -5053,6 +5065,10 @@ export const cardConfigs: CardConfig[] = [
             'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
         tags: [],
         type: CardType.CORPORATION,
+        forcedAction: {
+            putAdditionalColonyTileIntoPlay: true,
+        },
+        gainResource: {[Resource.MEGACREDIT]: 40},
     },
     {
         effect: {
@@ -5072,6 +5088,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.ANIMAL],
         type: CardType.CORPORATION,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
+        gainResource: {[Resource.MEGACREDIT]: 45},
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
         effect: {
@@ -5091,13 +5109,17 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'Effect: When any colony is placed, including this, raise your MC production 1 step.',
+            trigger: {placedColony: true},
+            action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         deck: Deck.COLONIES,
         name: 'Poseidon',
         text: 'You start with 45 MC. As your first action, place a colony.',
         tags: [],
         type: CardType.CORPORATION,
-        placeColony: {mayBeRepeatColony: false},
+        forcedAction: {
+            placeColony: {mayBeRepeatColony: false},
+        },
     },
     {
         action: {
@@ -5105,7 +5127,6 @@ export const cardConfigs: CardConfig[] = [
                 'Add 1 floater to ANY card. Effect: Floaters on this card may be used as 2 heat each',
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
             gainResource: {[Resource.FLOATER]: 1},
-            // todo conditional exchange into heat???
         },
         deck: Deck.COLONIES,
         storedResourceType: Resource.FLOATER,
@@ -5113,5 +5134,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 48 MC.',
         tags: [Tag.JOVIAN],
         type: CardType.CORPORATION,
+        useStoredResourceAsHeat: 2,
+        gainResource: {[Resource.MEGACREDIT]: 48},
     },
 ];

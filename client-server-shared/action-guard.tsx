@@ -7,6 +7,7 @@ import {
 import {Action} from 'constants/action';
 import {Award, Cell, Milestone, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
+import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource';
@@ -37,6 +38,7 @@ import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-req
 import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {getTags} from 'selectors/variable-amount';
+import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 
 export type CanPlayAndReason = [boolean, string];
@@ -57,7 +59,8 @@ export class ActionGuard {
         payment: Resources = player.resources,
         conditionalPayments: number[] = getConditionalPaymentWithResourceInfo(player, card).map(
             payment => payment.resourceAmount
-        )
+        ),
+        supplementalResources?: SupplementalResources
     ): CanPlayAndReason {
         const {state} = this;
         const isPrelude =
@@ -85,7 +88,7 @@ export class ActionGuard {
         const [canPlay, reason] = (player.pendingPlayCardFromHand || isPrelude
             ? this.canPlayActionInSpiteOfUI
             : this.canPlayAction
-        ).bind(this)(card, state);
+        ).bind(this)(card, state, supplementalResources);
 
         if (!canPlay) {
             return [canPlay, reason];
@@ -116,6 +119,10 @@ export class ActionGuard {
 
         if (!this.canSatisfyTilePlacements(card)) {
             return [false, 'No valid tile placements'];
+        }
+
+        if (!this.canSatisfyColonyRequirements(card)) {
+            return [false, 'Colony requirements not met'];
         }
 
         const {requiredProduction} = card;
@@ -334,12 +341,19 @@ export class ActionGuard {
         return cost <= payment[Resource.MEGACREDIT];
     }
 
-    canDoConversion(conversion: Conversion | undefined): CanPlayAndReason {
+    canDoConversion(
+        conversion: Conversion | undefined,
+        supplementalResources?: SupplementalResources
+    ): CanPlayAndReason {
         if (!conversion) return [false, 'No conversion available'];
-        return this.canPlayAction(conversion, this.state);
+        const parent: Card | undefined = undefined;
+        return this.canPlayAction(conversion, this.state, parent, supplementalResources);
     }
 
-    canDoConversionInSpiteOfUI(conversion: Conversion): CanPlayAndReason {
+    canDoConversionInSpiteOfUI(
+        conversion: Conversion,
+        supplementalResources?: SupplementalResources
+    ): CanPlayAndReason {
         const {state} = this;
         const {gameStage} = state.common;
         if (gameStage === GameStage.GREENERY_PLACEMENT) {
@@ -347,7 +361,8 @@ export class ActionGuard {
                 return [false, 'May only convert plants in greenery placement phase'];
             }
         }
-        return this.canPlayActionInSpiteOfUI(conversion, state);
+        const parent: Card | undefined = undefined;
+        return this.canPlayActionInSpiteOfUI(conversion, state, parent, supplementalResources);
     }
 
     getDiscountedCardCost(card: Card) {
@@ -431,6 +446,29 @@ export class ActionGuard {
         return true;
     }
 
+    canSatisfyColonyRequirements(card: Card) {
+        const colonies = this.getPlayerColonies();
+
+        if (card.minColonies != null) {
+            if (colonies.length < card.minColonies) {
+                return false;
+            }
+        }
+        if (card.maxColonies != null) {
+            if (colonies.length > card.maxColonies) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private getPlayerColonies() {
+        const player = this._getPlayerToConsider();
+        const colonies = this.state.common.colonies ?? [];
+        return colonies.filter(colony => colony.colonies.some(colony => colony === player.index));
+    }
+
     canPlayWithRequiredTilePlacements(card: Card) {
         const player = this._getPlayerToConsider();
         let tiles = this.state.common.board
@@ -467,7 +505,8 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources
+        payment: Resources | undefined = player?.resources,
+        supplementalResources?: SupplementalResources
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
@@ -480,7 +519,7 @@ export class ActionGuard {
             return canPlayCardActionPrologue;
         }
 
-        return this.canPlayAction(action, state, parent);
+        return this.canPlayAction(action, state, parent, supplementalResources);
     }
 
     canPlayCardActionInSpiteOfUI(
@@ -488,7 +527,8 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources
+        payment: Resources | undefined = player?.resources,
+        supplementalResources?: SupplementalResources
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
@@ -500,7 +540,7 @@ export class ActionGuard {
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
         }
-        return this.canPlayActionInSpiteOfUI(action, state, parent);
+        return this.canPlayActionInSpiteOfUI(action, state, parent, supplementalResources);
     }
 
     private canPlayCardActionPrologue(
@@ -547,7 +587,12 @@ export class ActionGuard {
         return [true, 'Good to go'];
     }
 
-    canPlayAction(action: Action, state: GameState, parent?: Card): CanPlayAndReason {
+    canPlayAction(
+        action: Action,
+        state: GameState,
+        parent?: Card,
+        supplementalResources?: SupplementalResources
+    ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
             if (state.common.currentPlayerIndex === player.index) {
@@ -556,7 +601,7 @@ export class ActionGuard {
             return [false, 'Cannot play out of turn'];
         }
 
-        return this.canPlayActionInSpiteOfUI(action, state, parent);
+        return this.canPlayActionInSpiteOfUI(action, state, parent, supplementalResources);
     }
 
     canCompletePlaceTile(cell: Cell): CanPlayAndReason {
@@ -575,6 +620,25 @@ export class ActionGuard {
         });
 
         return [!!matchingCell, 'Not a valid placement location'];
+    }
+
+    canCompletePutAdditionalColonyTileIntoPlay(colony: string): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
+        if (!player.putAdditionalColonyTileIntoPlay) {
+            return [false, 'Player cannot put an additional colony tile into play'];
+        }
+
+        const coloniesAlreadyInPlay = this.state.common.colonies ?? [];
+        const colonyNames = coloniesAlreadyInPlay.map(colony => colony.name);
+        if (colonyNames.includes(colony)) {
+            return [false, 'Colony is already in play'];
+        }
+
+        if (!COLONIES.some(colonyObject => colonyObject.name === colony)) {
+            return [false, 'Colony does not exist'];
+        }
+
+        return [true, 'Good to go'];
     }
 
     canCompleteIncreaseAndDecreaseColonyTileTracks(
@@ -718,10 +782,11 @@ export class ActionGuard {
     canPlayActionInSpiteOfUI(
         action: Action,
         state: GameState = this.state,
-        parent?: Card
+        parent?: Card,
+        supplementalResources?: SupplementalResources
     ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
-        return canPlayActionInSpiteOfUI(action, state, player, parent);
+        return canPlayActionInSpiteOfUI(action, state, player, parent, supplementalResources);
     }
 
     canConfirmCardSelection(
@@ -787,7 +852,11 @@ export class ActionGuard {
         );
     }
 
-    canTrade(payment: Resource, name: string): CanPlayAndReason {
+    canTrade(
+        payment: Resource,
+        name: string,
+        numHeat = this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0
+    ): CanPlayAndReason {
         if (this.shouldDisableUI()) {
             return [false, 'Cannot trade right now'];
         }
@@ -801,7 +870,20 @@ export class ActionGuard {
             return [false, 'Cannot pay with that resource'];
         }
 
-        if (withResource.quantity > player.resources[payment]) {
+        let resourceQuantity = player.resources[payment];
+        if (numHeat) {
+            const isValidToPayWithHeat =
+                player.corporation.name === 'Helion' && payment === Resource.MEGACREDIT;
+            if (!isValidToPayWithHeat) {
+                return [false, 'Cannot pay with heat'];
+            }
+            resourceQuantity += numHeat;
+            if (numHeat > this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0) {
+                return [false, 'Trying to pay with too much heat'];
+            }
+        }
+
+        if (withResource.quantity > resourceQuantity) {
             return [false, 'Cannot afford to trade with that resource'];
         }
 
@@ -858,9 +940,18 @@ export function canPlayActionInSpiteOfUI(
     action: Action,
     state: GameState,
     player: PlayerState,
-    parent?: Card
+    parent?: Card,
+    supplementalResources?: SupplementalResources
 ): CanPlayAndReason {
-    if (!doesPlayerHaveRequiredResourcesToRemove(action, state, player, parent)) {
+    if (
+        !doesPlayerHaveRequiredResourcesToRemove(
+            action,
+            state,
+            player,
+            parent,
+            supplementalResources
+        )
+    ) {
         return [false, 'Not enough of required resource'];
     }
 

@@ -2,6 +2,7 @@ import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
+import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, PlayCardParams} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
@@ -128,9 +129,15 @@ export const completeIncreaseLowestProduction = withMatcher((playerIndex: number
 
 const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = withMatcher(
-    (resource: Resource, amount: number, sourcePlayerIndex: number, playerIndex: number) => ({
+    (
+        resource: Resource,
+        amount: number,
+        sourcePlayerIndex: number,
+        playerIndex: number,
+        supplementalResources?: SupplementalResources
+    ) => ({
         type: REMOVE_RESOURCE,
-        payload: {resource, amount, sourcePlayerIndex, playerIndex},
+        payload: {resource, amount, sourcePlayerIndex, playerIndex, supplementalResources},
     })
 );
 const REMOVE_STORABLE_RESOURCE = 'REMOVE_STORABLE_RESOURCE';
@@ -592,6 +599,28 @@ export const completeTradeForFree = withMatcher((playerIndex: number) => ({
     payload: {playerIndex},
 }));
 
+const GAIN_TRADE_FLEET = 'GAIN_TRADE_FLEET';
+export const gainTradeFleet = withMatcher((playerIndex: number) => ({
+    type: GAIN_TRADE_FLEET,
+    payload: {playerIndex},
+}));
+
+const ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
+    'ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
+export const askUserToPutAdditionalColonyTileIntoPlay = withMatcher((playerIndex: number) => ({
+    type: ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+    payload: {playerIndex},
+}));
+
+const COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
+    'COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
+export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
+    (colony: string, playerIndex: number) => ({
+        type: COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+        payload: {playerIndex, colony},
+    })
+);
+
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
@@ -606,4 +635,5 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_BUILD_COLONY,
     ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
     ASK_USER_TO_TRADE_FOR_FREE,
+    ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
 ];

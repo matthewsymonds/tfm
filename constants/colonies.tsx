@@ -69,7 +69,7 @@ const STARTING_STEP = 1;
 const STARTING_STEP_STORABLE_RESOURCE_COLONY = -1;
 const MAX_NUM_COLONIES = 3;
 
-const COLONIES: Colony[] = [];
+export const COLONIES: Colony[] = [];
 
 let tradeIncomeQuantities: number[] | Resource[] = [0, 2, 3, 5, 7, 10, 13];
 

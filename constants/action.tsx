@@ -6,7 +6,7 @@ import {Resource, ResourceLocationType} from './resource';
 import {Tag, TagAmount} from './tag';
 import {VariableAmount} from './variable-amount';
 
-type ResourceCounter = PropertyCounter<Resource>;
+export type ResourceCounter = PropertyCounter<Resource>;
 
 // Exclude oceans from this configuration.
 // We'll use the tilePlacement property to place oceans instead.
@@ -97,4 +97,7 @@ export interface Action {
     increaseAndDecreaseColonyTileTracks?: number;
 
     tradeForFree?: boolean;
+    gainTradeFleet?: boolean;
+
+    putAdditionalColonyTileIntoPlay?: boolean;
 }

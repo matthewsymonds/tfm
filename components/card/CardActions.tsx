@@ -15,7 +15,7 @@ import {CardText} from 'components/card/CardText';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
-import PaymentPopover from 'components/popovers/payment-popover';
+import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
@@ -27,7 +27,9 @@ import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
 import {isActiveRound} from 'selectors/is-active-round';
+import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
@@ -284,6 +286,16 @@ function CardAction({
         apiClient.playCardActionAsync({parent: card, payment});
     }
 
+    function playActionWithSupplementalResources(
+        action: Action,
+        supplementalResources: SupplementalResources
+    ) {
+        if (cardContext !== CardContext.PLAYED_CARD) {
+            return;
+        }
+        apiClient.playCardActionAsync({parent: card, supplementalResources});
+    }
+
     function renderArrow() {
         return <TextWithMargin>{'=>'}</TextWithMargin>;
     }
@@ -295,6 +307,7 @@ function CardAction({
                 cardContext={cardContext}
                 action={action}
                 playAction={playAction}
+                playActionWithSupplementalResources={playActionWithSupplementalResources}
                 canPlay={canPlay}
                 tooltipText={tooltipText}
                 loggedInPlayer={loggedInPlayer}
@@ -314,6 +327,7 @@ function ActionContainer({
     cardContext,
     action,
     playAction,
+    playActionWithSupplementalResources,
     canPlay,
     tooltipText,
     isOwnedByLoggedInPlayer,
@@ -323,6 +337,10 @@ function ActionContainer({
     cardContext: CardContext;
     action: Action;
     playAction: (action: Action, payment?: PropertyCounter<Resource>) => void;
+    playActionWithSupplementalResources: (
+        action: Action,
+        supplementalResources?: SupplementalResources
+    ) => void;
     canPlay: boolean;
     tooltipText: string | null;
     isOwnedByLoggedInPlayer: boolean;
@@ -354,6 +372,32 @@ function ActionContainer({
                 <ActionContainerBase>{children}</ActionContainerBase>
             </PaymentPopover>
         );
+    }
+
+    const heatCost = action?.removeResource?.[Resource.HEAT];
+
+    if (canPlay && isOwnedByLoggedInPlayer && playedCard && heatCost) {
+        const useStoredResourceAsCard = getUseStoredResourcesAsCard(loggedInPlayer);
+        if (useStoredResourceAsCard) {
+            const resource = useStoredResourceAsCard.storedResourceType;
+            const quantity = useStoredResourceAsCard.storedResourceAmount;
+            if (resource && quantity) {
+                return (
+                    <HeatPaymentPopover
+                        cost={heatCost as number}
+                        useStoredResourceAsCard={useStoredResourceAsCard}
+                        onConfirmPayment={payment =>
+                            playActionWithSupplementalResources(action, {
+                                name: useStoredResourceAsCard.name,
+                                quantity: (payment[resource] ?? 0) as number,
+                            })
+                        }
+                    >
+                        <ActionContainerBase>{children}</ActionContainerBase>
+                    </HeatPaymentPopover>
+                );
+            }
+        }
     }
 
     if (tooltipText && playedCard) {

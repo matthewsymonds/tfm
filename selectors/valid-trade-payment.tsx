@@ -1,4 +1,5 @@
 import {AcceptedTradePayment, ACCEPTED_TRADE_PAYMENT} from 'constants/colonies';
+import {Resource} from 'constants/resource';
 import {PlayerState} from 'reducer';
 
 export function getValidTradePayment(player: PlayerState): AcceptedTradePayment[] {
@@ -10,7 +11,11 @@ export function getValidTradePayment(player: PlayerState): AcceptedTradePayment[
     });
 
     tradeOptions = tradeOptions.filter(option => {
-        return option.quantity <= player.resources[option.resource];
+        let playerResourceQuantity = player.resources[option.resource];
+        if (option.resource === Resource.MEGACREDIT && player.corporation.name === 'Helion') {
+            playerResourceQuantity += player.resources[Resource.HEAT];
+        }
+        return option.quantity <= playerResourceQuantity;
     });
 
     return tradeOptions;

@@ -4,15 +4,17 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
 import {Card} from 'models/card';
+import {SupplementalResources} from 'server/api-action-handler';
+
+export type PlayCardAsyncParams = {
+    name: string;
+    payment?: PropertyCounter<Resource>;
+    conditionalPayments?: number[];
+    supplementalResources?: SupplementalResources;
+};
 
 export interface GameActionHandler {
-    playCardAsync({
-        serializedCard,
-        payment,
-    }: {
-        serializedCard: Card;
-        payment?: PropertyCounter<Resource>;
-    }): Promise<void>;
+    playCardAsync(params: PlayCardAsyncParams): Promise<void>;
 
     playCardActionAsync({
         parent,
@@ -104,4 +106,6 @@ export interface GameActionHandler {
         increase: string;
         decrease: string;
     }): Promise<void>;
+
+    completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}): Promise<void>;
 }

@@ -18,4 +18,5 @@ export enum ApiActionType {
     API_TRADE_FOR_FREE = 'apiTradeForFree',
     API_COMPLETE_BUILD_COLONY = 'apiCompletePlaceColony',
     API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'apiCompleteIncreaseAndDecreaseColonyTileTracks',
+    API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY = 'apiCompletePutAdditionalColonyTileIntoPlay',
 }

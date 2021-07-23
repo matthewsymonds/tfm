@@ -17,12 +17,14 @@ import {
     askUserToPlaceColony,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
+    askUserToPutAdditionalColonyTileIntoPlay,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
     completeAction,
     completeIncreaseLowestProduction,
     completeTradeForFree,
+    completeUserToPutAdditionalColonyTileIntoPlay,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -32,6 +34,7 @@ import {
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
+    gainTradeFleet,
     increaseAndDecreaseColonyTileTracks,
     increaseColonyTileTrackRange,
     increaseParameter,
@@ -68,6 +71,7 @@ import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     getAction,
+    getPlayerOptionWrappers,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
@@ -111,7 +115,10 @@ export interface EffectEvent {
     increasedParameter?: Parameter;
     name?: string;
     victoryPoints?: Amount;
+    placedColony?: boolean;
 }
+
+export type SupplementalResources = {name: string; quantity: number};
 
 type PlayActionParams = {
     action: Action;
@@ -122,6 +129,7 @@ type PlayActionParams = {
     withPriority?: boolean;
     // Like with priority, but instead of "unshifting" onto queue it skips queue and dispatches items immediately.
     playImmediatelyIfNoUserInputNeeded?: boolean;
+    supplementalResources?: SupplementalResources;
 };
 
 export class ApiActionHandler {
@@ -198,10 +206,12 @@ export class ApiActionHandler {
         serializedCard,
         payment,
         conditionalPayments,
+        supplementalResources,
     }: {
         serializedCard: SerializedCard;
         payment?: Resources;
         conditionalPayments?: number[];
+        supplementalResources?: SupplementalResources;
     }) {
         const card = getCard(serializedCard);
         const playerIndex = this.getLoggedInPlayerIndex();
@@ -211,7 +221,8 @@ export class ApiActionHandler {
             card,
             loggedInPlayer,
             payment,
-            conditionalPayments
+            conditionalPayments,
+            supplementalResources
         );
 
         if (!canPlay) {
@@ -260,9 +271,14 @@ export class ApiActionHandler {
         //     - tile pacements
         //     - discarding/drawing cards
         for (const step of card.steps) {
-            this.playAction({state: this.state, action: step, parent: card});
+            this.playAction({state: this.state, action: step, parent: card, supplementalResources});
         }
-        const playActionParams = {action: card, state: this.state, parent: card};
+        const playActionParams = {
+            action: card,
+            state: this.state,
+            parent: card,
+            supplementalResources,
+        };
         // Get the resources/production/cards first.
         // Trigger effects after.
         this.playActionBenefits({...playActionParams, withPriority: true});
@@ -315,6 +331,12 @@ export class ApiActionHandler {
         });
     }
 
+    private triggerEffectsFromPlacedColony() {
+        this.triggerEffects({
+            placedColony: true,
+        });
+    }
+
     private triggerEffects(event: EffectEvent, playedCard?: Card) {
         const {state} = this;
         const player = this.getLoggedInPlayer();
@@ -363,10 +385,12 @@ export class ApiActionHandler {
     playCardAction({
         parent,
         payment,
+        supplementalResources,
         choiceIndex,
     }: {
         parent: Card;
         payment?: Resources;
+        supplementalResources?: SupplementalResources;
         choiceIndex?: number;
     }) {
         const player = this.getLoggedInPlayer();
@@ -408,7 +432,8 @@ export class ApiActionHandler {
                 parent,
                 player,
                 state,
-                payment
+                payment,
+                supplementalResources
             );
         } else {
             [canPlay, reason] = this.actionGuard.canPlayCardAction(
@@ -416,7 +441,8 @@ export class ApiActionHandler {
                 parent,
                 player,
                 state,
-                payment
+                payment,
+                supplementalResources
             );
         }
 
@@ -442,6 +468,7 @@ export class ApiActionHandler {
             state,
             parent,
             withPriority,
+            supplementalResources,
         });
 
         if (isChoiceAction) {
@@ -691,14 +718,26 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    doConversion({resource}: {resource: Resource}) {
+    doConversion({
+        resource,
+        supplementalResources,
+    }: {
+        resource: Resource;
+        supplementalResources?: SupplementalResources;
+    }) {
         const conversion = CONVERSIONS[resource];
-        const [canPlay, reason] = this.actionGuard.canDoConversion(conversion);
+        if (!conversion) {
+            throw new Error('No conversion');
+        }
+        const [canPlay, reason] = this.actionGuard.canDoConversion(
+            conversion,
+            supplementalResources
+        );
         if (!canPlay) {
             throw new Error(reason);
         }
 
-        this.playAction({action: conversion, state: this.state});
+        this.playAction({action: conversion, state: this.state, supplementalResources});
         const gameStage = this.state.common.gameStage;
         if (gameStage === GameStage.ACTIVE_ROUND) {
             this.queue.push(completeAction(this.getLoggedInPlayerIndex()));
@@ -755,6 +794,23 @@ export class ApiActionHandler {
 
         this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
 
+        this.processQueue();
+    }
+
+    completePutAdditionalColonyTileIntoPlay({colony}: {colony: string}) {
+        const [
+            canCompletePutAdditionalColonyTileIntoPlay,
+            reason,
+        ] = this.actionGuard.canCompletePutAdditionalColonyTileIntoPlay(colony);
+        if (!canCompletePutAdditionalColonyTileIntoPlay) {
+            throw new Error('reason');
+        }
+
+        const loggedInPlayer = this.getLoggedInPlayer();
+
+        this.queue.unshift(
+            completeUserToPutAdditionalColonyTileIntoPlay(colony, loggedInPlayer.index)
+        );
         this.processQueue();
     }
 
@@ -815,12 +871,14 @@ export class ApiActionHandler {
         payment,
         colony,
         tradeIncome,
+        numHeat,
     }: {
         payment: Resource;
         colony: string;
         tradeIncome: number;
+        numHeat: number;
     }) {
-        const [canTrade, reason] = this.actionGuard.canTrade(payment, colony);
+        const [canTrade, reason] = this.actionGuard.canTrade(payment, colony, numHeat);
 
         if (!canTrade) {
             throw new Error(reason);
@@ -833,8 +891,15 @@ export class ApiActionHandler {
         if (!validPayment) throw new Error('valid payment not found');
 
         // First. Pay for trade
+        let paymentQuantity = validPayment.quantity;
+
+        if (numHeat && validPayment.resource === Resource.MEGACREDIT) {
+            this.queue.push(removeResource(Resource.HEAT, numHeat, player.index, player.index));
+            paymentQuantity -= numHeat;
+        }
+
         this.queue.push(
-            removeResource(validPayment.resource, validPayment.quantity, player.index, player.index)
+            removeResource(validPayment.resource, paymentQuantity, player.index, player.index)
         );
 
         this.handleTrade(colony, tradeIncome);
@@ -946,6 +1011,7 @@ export class ApiActionHandler {
             withPriority: true,
         });
         this.queue.unshift(placeColony(colony, player.index));
+        this.triggerEffectsFromPlacedColony();
         this.processQueue();
     }
 
@@ -1001,6 +1067,10 @@ export class ApiActionHandler {
             items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
         }
 
+        if (action.putAdditionalColonyTileIntoPlay) {
+            items.push(askUserToPutAdditionalColonyTileIntoPlay(playerIndex));
+        }
+
         if (action.tradeForFree) {
             items.push(askUserToTradeForFree(playerIndex));
         }
@@ -1029,14 +1099,26 @@ export class ApiActionHandler {
         }
 
         if (stealResourceResourceAndAmounts.length > 0) {
-            items.push(
-                askUserToChooseResourceActionDetails({
-                    actionType: 'stealResource',
-                    resourceAndAmounts: stealResourceResourceAndAmounts,
-                    card: parent!,
-                    playerIndex,
-                })
-            );
+            const player = this.getLoggedInPlayer();
+            const actionType = 'stealResource';
+            const wrappers = getPlayerOptionWrappers(this.state, player, {
+                actionType,
+                resourceAndAmounts: stealResourceResourceAndAmounts,
+                card: parent!,
+            });
+            const options = wrappers.flatMap(wrapper => wrapper.options);
+            if (options.length === 1 && !options[0].isVariable) {
+                items.push(getAction(options[0], player, 0));
+            } else {
+                items.push(
+                    askUserToChooseResourceActionDetails({
+                        actionType,
+                        resourceAndAmounts: stealResourceResourceAndAmounts,
+                        card: parent!,
+                        playerIndex,
+                    })
+                );
+            }
         }
 
         if (action.lookAtCards) {
@@ -1088,10 +1170,20 @@ export class ApiActionHandler {
                     amount: action.increaseProductionOption[resource] as number,
                 });
             }
-            if (resourceAndAmounts.length > 0) {
+            const player = this.getLoggedInPlayer();
+            const actionType = 'increaseProduction';
+            const wrappers = getPlayerOptionWrappers(this.state, player, {
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+            });
+            const options = wrappers.flatMap(wrapper => wrapper.options);
+            if (options.length === 1 && !options[0].isVariable) {
+                items.push(getAction(options[0], player, 0));
+            } else if (resourceAndAmounts.length > 0) {
                 items.push(
                     askUserToChooseResourceActionDetails({
-                        actionType: 'increaseProduction',
+                        actionType,
                         resourceAndAmounts,
                         playerIndex,
                         card: parent!,
@@ -1207,6 +1299,9 @@ export class ApiActionHandler {
         if (action.placeColony) {
             items.push(askUserToPlaceColony(action.placeColony, playerIndex));
         }
+        if (action.gainTradeFleet) {
+            items.push(gainTradeFleet(playerIndex));
+        }
         if (action.increaseColonyTileTrackRange) {
             items.push(
                 increaseColonyTileTrackRange(action.increaseColonyTileTrackRange, playerIndex)
@@ -1248,7 +1343,14 @@ export class ApiActionHandler {
     }
 
     private playActionCosts(
-        {action, parent, playedCard, thisPlayerIndex, withPriority}: PlayActionParams,
+        {
+            action,
+            parent,
+            playedCard,
+            thisPlayerIndex,
+            withPriority,
+            supplementalResources,
+        }: PlayActionParams,
         queue = this.queue
     ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
@@ -1266,20 +1368,32 @@ export class ApiActionHandler {
         }
 
         for (const production in action.decreaseAnyProduction) {
-            items.push(
-                askUserToChooseResourceActionDetails({
-                    actionType: 'decreaseProduction',
-                    card: parent!,
-                    playerIndex,
-                    locationType: ResourceLocationType.ANY_PLAYER,
-                    resourceAndAmounts: [
-                        {
-                            resource: production as Resource,
-                            amount: action.decreaseAnyProduction[production],
-                        },
-                    ],
-                })
-            );
+            const player = this.getLoggedInPlayer();
+            const resourceAndAmounts = [
+                {
+                    resource: production as Resource,
+                    amount: action.decreaseAnyProduction[production],
+                },
+            ];
+            const actionType = 'decreaseProduction';
+            const wrappers = getPlayerOptionWrappers(this.state, player, {
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+            });
+            const options = wrappers.flatMap(wrapper => wrapper.options);
+            if (options.length === 1 && !options[0].isVariable) {
+                items.push(getAction(options[0], player, 0));
+            } else
+                items.push(
+                    askUserToChooseResourceActionDetails({
+                        actionType,
+                        card: parent!,
+                        playerIndex,
+                        locationType: ResourceLocationType.ANY_PLAYER,
+                        resourceAndAmounts,
+                    })
+                );
         }
 
         if (action.choice && action.choice.length > 0) {
@@ -1297,7 +1411,7 @@ export class ApiActionHandler {
                     parent,
                     playedCard,
                     action.removeResourceSourceType,
-                    action
+                    supplementalResources
                 )
             );
         }
@@ -1342,10 +1456,22 @@ export class ApiActionHandler {
         playerIndex: number,
         parent?: Card
     ) {
+        const resourceAndAmounts = [{resource, amount}];
+        const actionType = 'decreaseProduction';
+        const player = this.getLoggedInPlayer();
+        const wrappers = getPlayerOptionWrappers(this.state, player, {
+            actionType,
+            resourceAndAmounts,
+            card: parent!,
+        });
+        const options = wrappers.flatMap(wrapper => wrapper.options);
+        if (options.length === 1 && !options[0].isVariable) {
+            return getAction(options[0], player, 0);
+        }
         if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
             return askUserToChooseResourceActionDetails({
-                actionType: 'decreaseProduction',
-                resourceAndAmounts: [{resource, amount}],
+                actionType,
+                resourceAndAmounts,
                 card: parent!,
                 playerIndex,
             });
@@ -1355,19 +1481,30 @@ export class ApiActionHandler {
     }
 
     private createGainResourceOptionAction(
-        options: PropertyCounter<Resource>,
+        resourceOptions: PropertyCounter<Resource>,
         playerIndex: number,
         parent?: Card,
         playedCard?: Card,
         locationType?: ResourceLocationType
     ) {
         // HACK: all instances of `gainResourceOption` use a number amount, so we don't account for variable amounts here
-        const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+        const resourceAndAmounts = Object.keys(resourceOptions).map((resource: Resource) => ({
             resource,
-            amount: options[resource] as number,
+            amount: resourceOptions[resource] as number,
         }));
+        const actionType = 'gainResource';
+        const player = this.getLoggedInPlayer();
+        const wrappers = getPlayerOptionWrappers(this.state, player, {
+            actionType,
+            resourceAndAmounts,
+            card: parent!,
+        });
+        const options = wrappers.flatMap(wrapper => wrapper.options);
+        if (options.length === 1 && !options[0].isVariable) {
+            return getAction(options[0], player, 0);
+        }
         return askUserToChooseResourceActionDetails({
-            actionType: 'gainResource',
+            actionType,
             resourceAndAmounts,
             card: parent!,
             playedCard,
@@ -1384,14 +1521,26 @@ export class ApiActionHandler {
         playedCard?: Card,
         locationType?: ResourceLocationType
     ) {
+        const player = this.getLoggedInPlayer();
         const requiresLocationChoice =
             locationType &&
             USER_CHOICE_LOCATION_TYPES.includes(locationType) &&
             resource !== Resource.CARD;
         if (requiresLocationChoice) {
+            const actionType = 'gainResource';
+            const resourceAndAmounts = [{resource, amount}];
+            const wrappers = getPlayerOptionWrappers(this.state, player, {
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+            });
+            const options = wrappers.flatMap(wrapper => wrapper.options);
+            if (options.length === 1 && !options[0].isVariable) {
+                return getAction(options[0], player, 0);
+            }
             return askUserToChooseResourceActionDetails({
-                actionType: 'gainResource',
-                resourceAndAmounts: [{resource, amount}],
+                actionType,
+                resourceAndAmounts,
                 card: parent!,
                 playedCard,
                 locationType,
@@ -1413,16 +1562,28 @@ export class ApiActionHandler {
         parent?: Card,
         playedCard?: Card,
         locationType?: ResourceLocationType,
-        action?: Action
+        supplementalResources?: SupplementalResources
     ) {
         const requiresLocationChoice =
             locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
         const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
 
         if (requiresAmountChoice || requiresLocationChoice) {
+            const actionType = 'removeResource';
+            const resourceAndAmounts = [{resource, amount}];
+            const player = this.getLoggedInPlayer();
+            const wrappers = getPlayerOptionWrappers(this.state, player, {
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+            });
+            const options = wrappers.flatMap(wrapper => wrapper.options);
+            if (options.length === 1 && !options[0].isVariable) {
+                return getAction(options[0], player, 0);
+            }
             return askUserToChooseResourceActionDetails({
-                actionType: 'removeResource',
-                resourceAndAmounts: [{resource, amount}],
+                actionType,
+                resourceAndAmounts,
                 card: parent!,
                 playedCard,
                 locationType,
@@ -1435,23 +1596,40 @@ export class ApiActionHandler {
             return removeStorableResource(resource, amount as number, playerIndex, parent!);
         } else {
             // Assumes you're removing from your own resources
-            return removeResource(resource, amount as number, playerIndex, playerIndex);
+            return removeResource(
+                resource,
+                amount as number,
+                playerIndex,
+                playerIndex,
+                supplementalResources
+            );
         }
     }
 
     private createRemoveResourceOptionAction(
-        options: PropertyCounter<Resource>,
+        resourceOptions: PropertyCounter<Resource>,
         playerIndex: number,
         parent?: Card,
         locationType?: ResourceLocationType
     ) {
         // HACK: all instances of `removeResourceOption` use a number amount, so we don't account for variable amounts here
-        const resourceAndAmounts = Object.keys(options).map((resource: Resource) => ({
+        const resourceAndAmounts = Object.keys(resourceOptions).map((resource: Resource) => ({
             resource,
-            amount: options[resource] as number,
+            amount: resourceOptions[resource] as number,
         }));
+        const actionType = 'removeResource';
+        const player = this.getLoggedInPlayer();
+        const wrappers = getPlayerOptionWrappers(this.state, player, {
+            actionType,
+            resourceAndAmounts,
+            card: parent!,
+        });
+        const options = wrappers.flatMap(wrapper => wrapper.options);
+        if (options.length === 1 && !options[0].isVariable) {
+            return getAction(options[0], player, 0);
+        }
         return askUserToChooseResourceActionDetails({
-            actionType: 'removeResource',
+            actionType,
             resourceAndAmounts,
             card: parent!,
             locationType,
@@ -1539,6 +1717,13 @@ function getActionsFromEffect(
         return [];
     }
 
+    if (trigger.placedColony) {
+        if (event.placedColony) {
+            return [effectAction];
+        }
+        return [];
+    }
+
     if (trigger.standardProject) {
         if (!event.standardProject) return [];
 
@@ -1563,6 +1748,24 @@ function getActionsFromEffect(
             if (!eventTags.includes(tag)) return [];
         }
         return [effectAction];
+    }
+
+    if (trigger.newTag) {
+        // confusing (the event of playing the card vs the card being type event)
+        if (eventTags && !eventTags.includes(Tag.EVENT)) {
+            const tagsSeenSoFar = player.playedCards
+                .slice(0, -1)
+                .map(card => getCard(card))
+                .map(card => card.tags)
+                .filter(Boolean)
+                .filter(tags => !tags.includes(Tag.EVENT))
+                .flat();
+
+            const newTags = eventTags.filter(tag => !tagsSeenSoFar.includes(tag));
+
+            return Array(newTags.length).fill(effectAction);
+        }
+        return [];
     }
 
     const triggerTags = trigger.tags || [];
