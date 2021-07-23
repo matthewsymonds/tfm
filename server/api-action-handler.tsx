@@ -651,7 +651,7 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
 
-        this.playAction({action, state});
+        this.playAction({action, state, withPriority: true});
         this.processQueue();
     }
 
