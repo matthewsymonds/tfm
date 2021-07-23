@@ -1515,6 +1515,7 @@ export class ApiActionHandler {
             actionType,
             resourceAndAmounts,
             card: parent!,
+            locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
         if (options.length === 1 && !options[0].isVariable) {
@@ -1550,6 +1551,7 @@ export class ApiActionHandler {
                 actionType,
                 resourceAndAmounts,
                 card: parent!,
+                locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
             if (options.length === 1 && !options[0].isVariable) {
@@ -1568,7 +1570,7 @@ export class ApiActionHandler {
         if (isStorableResource(resource)) {
             return gainStorableResource(resource, amount, parent!, playerIndex);
         } else {
-            return gainResource(resource, amount, playerIndex);
+            return gainResource(resource, amount, playerIndex, parent?.name);
         }
     }
 
@@ -1593,6 +1595,7 @@ export class ApiActionHandler {
                 actionType,
                 resourceAndAmounts,
                 card: parent!,
+                locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
             if (options.length === 1 && !options[0].isVariable) {
@@ -1640,6 +1643,7 @@ export class ApiActionHandler {
             actionType,
             resourceAndAmounts,
             card: parent!,
+            locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
         if (options.length === 1 && !options[0].isVariable) {

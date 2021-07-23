@@ -53,8 +53,10 @@ const GroupedProductionWrapper = styled(ProductionWrapper)`
 export function ChangeResourceIconography({
     changeResource,
     opts,
+    resourceOnCard,
 }: {
     changeResource: PropertyCounter<Resource>;
+    resourceOnCard?: Resource;
     opts?: {
         isNegative?: boolean;
         isInline?: boolean;
@@ -227,10 +229,6 @@ export function ChangeResourceIconography({
                     multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
                     break;
                     break;
-                case VariableAmount.THIRD_RESOURCES_ON_CARD:
-                    // Sort of nonsensical. No resources will be present on the card when played.
-                    multiplierElement = null;
-                    break;
                 case VariableAmount.THIRD_FLOATERS:
                     multiplierElement = (
                         <>
@@ -308,12 +306,12 @@ export function ChangeResourceIconography({
                     );
                     break;
                 case VariableAmount.RESOURCES_ON_CARD:
-                    multiplierElement = <ResourceIcon name={resource as Resource} size={16} />;
+                    multiplierElement = <ResourceIcon name={resourceOnCard!} size={16} />;
                     break;
                 case VariableAmount.RESOURCES_ON_CARD_MAX_4:
                     multiplierElement = (
                         <Flex display="inline-flex">
-                            <ResourceIcon name={resource as Resource} size={16} />
+                            <ResourceIcon name={resourceOnCard!} size={16} />
                             <Box marginLeft="2px">(up to 4)</Box>
                         </Flex>
                     );
@@ -416,14 +414,22 @@ export function ChangeResourceOptionIconography({
 export function GainResourceIconography({
     gainResource,
     opts,
+    resourceOnCard,
 }: {
     gainResource: PropertyCounter<Resource>;
+    resourceOnCard?: Resource;
     opts?: {
         isInline?: boolean;
         shouldShowPlus?: boolean;
     };
 }) {
-    return <ChangeResourceIconography changeResource={gainResource} opts={opts} />;
+    return (
+        <ChangeResourceIconography
+            resourceOnCard={resourceOnCard}
+            changeResource={gainResource}
+            opts={opts}
+        />
+    );
 }
 
 export function GainResourceWhenIncreaseProductionIconography() {

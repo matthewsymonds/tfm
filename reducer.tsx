@@ -288,11 +288,16 @@ const handleGainResource = (
     draft: GameState,
     resource: Resource,
     amount: Amount,
-    corporationName: string
+    corporationName: string,
+    parentName?: string
 ) => {
     mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
 
-    const quantity = convertAmountToNumber(amount, draft, player, mostRecentlyPlayedCard);
+    const parentCard = parentName && player.playedCards.find(card => card.name === parentName);
+
+    const cardToConsider = parentCard || mostRecentlyPlayedCard;
+
+    const quantity = convertAmountToNumber(amount, draft, player, cardToConsider);
 
     if (resource === Resource.CARD) {
         // Sometimes we list cards as a resource.
@@ -864,7 +869,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.pendingResourceActionDetails = undefined;
-            handleGainResource(player, draft, payload.resource, payload.amount, corporationName);
+            handleGainResource(
+                player,
+                draft,
+                payload.resource,
+                payload.amount,
+                corporationName,
+                payload.parentName
+            );
         }
 
         if (gainStorableResource.match(action)) {
@@ -1572,13 +1584,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                                 ].filter(card => bonusNames.includes(card.name));
                                 // (hack for debugging)
                                 player.pendingCardSelection.possibleCards.push(...bonuses);
+                                draft.common.deck = draft.common.deck.filter(
+                                    card => !bonusNames.includes(card.name)
+                                );
+                                draft.common.discardPile = draft.common.discardPile.filter(
+                                    card => !bonusNames.includes(card.name)
+                                );
                             }
-                            draft.common.deck = draft.common.deck.filter(
-                                card => !bonusNames.includes(card.name)
-                            );
-                            draft.common.discardPile = draft.common.discardPile.filter(
-                                card => !bonusNames.includes(card.name)
-                            );
                         }
                     }
                 } else {

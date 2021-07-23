@@ -112,6 +112,7 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
                     isInline: true,
                     shouldShowPlus,
                 }}
+                resourceOnCard={card?.storedResourceType}
             />
         );
     }

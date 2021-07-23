@@ -150,9 +150,9 @@ export const removeStorableResource = withMatcher(
 
 export const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = withMatcher(
-    (resource: Resource, amount: Amount, playerIndex: number) => ({
+    (resource: Resource, amount: Amount, playerIndex: number, parentName?: string) => ({
         type: GAIN_RESOURCE,
-        payload: {resource, amount, playerIndex},
+        payload: {resource, amount, playerIndex, parentName},
     })
 );
 

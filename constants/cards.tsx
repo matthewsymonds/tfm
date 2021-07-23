@@ -3373,9 +3373,17 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        removeResource: {[Resource.CARD]: 1},
-        gainResource: {[Resource.CARD]: 3},
-        opponentsGainResource: {[Resource.CARD]: 1},
+        steps: [
+            {
+                removeResource: {[Resource.CARD]: 1},
+            },
+            {
+                gainResource: {[Resource.CARD]: 3},
+            },
+            {
+                opponentsGainResource: {[Resource.CARD]: 1},
+            },
+        ],
     },
     {
         action: {
