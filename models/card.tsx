@@ -135,6 +135,9 @@ export class Card {
     // Stormcraft
     useStoredResourceAsHeat?: number;
 
+    // Productive Outpost
+    gainAllColonyBonuses?: boolean;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -245,6 +248,7 @@ export class Card {
         this.playCard = config.playCard;
         this.increaseColonyTileTrackRange = config.increaseColonyTileTrackRange;
         this.increaseAndDecreaseColonyTileTracks = config.increaseAndDecreaseColonyTileTracks;
+        this.gainAllColonyBonuses = config.gainAllColonyBonuses;
     }
 }
 

@@ -1566,13 +1566,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             };
                             setSyncingTrueIfClient(draft);
                             if (process.env.NODE_ENV === 'development') {
-                                const bonuses = draft.common.deck.filter(card =>
-                                    bonusNames.includes(card.name)
-                                );
+                                const bonuses = [
+                                    ...draft.common.deck,
+                                    ...draft.common.discardPile,
+                                ].filter(card => bonusNames.includes(card.name));
                                 // (hack for debugging)
                                 player.pendingCardSelection.possibleCards.push(...bonuses);
                             }
                             draft.common.deck = draft.common.deck.filter(
+                                card => !bonusNames.includes(card.name)
+                            );
+                            draft.common.discardPile = draft.common.discardPile.filter(
                                 card => !bonusNames.includes(card.name)
                             );
                         }

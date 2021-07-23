@@ -4024,6 +4024,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain all your colony bonuses',
         tags: [],
         type: CardType.AUTOMATED,
+        gainAllColonyBonuses: true,
     },
     {
         cost: 8,

@@ -16,6 +16,7 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
     let cardSelectionPrompt: string;
     let maxCardsToDiscard: number;
 
+    // TODO, move the min max validation to the backend so someone can't bypass this.
     if (amount === VariableAmount.USER_CHOICE) {
         maxCardsToDiscard = player.cards.length;
         cardSelectionPrompt = `${
@@ -38,15 +39,16 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
             corporation: player.corporation,
             selectedPreludes: [],
         });
-        setSelectedCards([]);
     }
+
+    const min = typeof amount === 'number' ? amount : 0;
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
             <Flex flexDirection="column" width="100%" style={{color: colors.TEXT_LIGHT_1}}>
                 <CardSelector
                     max={maxCardsToDiscard}
-                    min={0}
+                    min={min}
                     selectedCards={selectedCards}
                     onSelect={cards => setSelectedCards(cards)}
                     options={player.cards}
@@ -54,7 +56,12 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
                     cardSelectorPrompt={<div style={{margin: '0 8px'}}>{cardSelectionPrompt}</div>}
                 />
                 <Flex justifyContent="center" marginTop="8px">
-                    <button onClick={handleConfirmCardSelection}>
+                    <button
+                        onClick={handleConfirmCardSelection}
+                        disabled={
+                            selectedCards.length < min || selectedCards.length > maxCardsToDiscard
+                        }
+                    >
                         Discard {selectedCards.length} card{selectedCards.length === 1 ? '' : 's'}
                     </button>
                 </Flex>

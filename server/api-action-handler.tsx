@@ -933,7 +933,7 @@ export class ApiActionHandler {
         // Just run it in both cases, doesn't matter
         const fullColony = getColony(matchingColony);
 
-        const tradeIncomeAction = fullColony.tradeIncome[matchingColony.step];
+        const tradeIncomeAction = fullColony.tradeIncome[tradeIncome];
         const items: AnyAction[] = [];
         // Then receive trade income.
         items.push(completeTradeForFree(player.index));
@@ -1065,6 +1065,23 @@ export class ApiActionHandler {
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
             items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
+        }
+
+        if (action.gainAllColonyBonuses) {
+            const colonyTiles = this.state.common?.colonies ?? [];
+            for (const colonyTile of colonyTiles) {
+                if (colonyTile.colonies.some(colony => colony === playerIndex)) {
+                    const fullColony = getColony(colonyTile);
+                    const params = {
+                        state: this.state,
+                        action: fullColony.colonyBonus,
+                        thisPlayerIndex: playerIndex,
+                    };
+                    this.playActionBenefits(params);
+                    this.playActionCosts(params);
+                    this.discardCards(params);
+                }
+            }
         }
 
         if (action.putAdditionalColonyTileIntoPlay) {

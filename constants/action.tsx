@@ -100,4 +100,5 @@ export interface Action {
     gainTradeFleet?: boolean;
 
     putAdditionalColonyTileIntoPlay?: boolean;
+    gainAllColonyBonuses?: boolean;
 }
