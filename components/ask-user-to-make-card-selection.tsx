@@ -9,7 +9,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
@@ -48,6 +48,10 @@ function HoverToPreviewPlaceholder() {
 export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const pendingCardSelection = player.pendingCardSelection!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
+    const gameName = useTypedSelector(state => state.name);
+    useEffect(() => {
+        setSelectedCards([]);
+    }, [gameName]);
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
     const numPlayers = useTypedSelector(state => state.players.length);

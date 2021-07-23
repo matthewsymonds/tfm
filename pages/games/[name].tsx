@@ -30,7 +30,7 @@ export default function Game(props) {
     const context = useContext(AppContext);
     useEffect(() => {
         store.dispatch(setGame(game.state));
-    }, [location.pathname, lastSeenLogItem]);
+    }, [game.state.name, lastSeenLogItem]);
 
     const state = useTypedSelector(state => state);
     const logLength = useTypedSelector(state => state?.log?.length);

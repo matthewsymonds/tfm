@@ -23,7 +23,7 @@ export const PlayerHand = React.memo(PlayerHandInner, (prevProps, nextProps) => 
     const prevCards = prevProps.player.cards;
     const nextCards = nextProps.player.cards;
 
-    const prevCardNames = prevCards.map(card => card.name);
+    const prevCardNames = prevCards.map(card => card?.name);
     const nextCardNames = nextCards.map(card => card.name);
 
     return prevCardNames.join('-') === nextCardNames.join('-');

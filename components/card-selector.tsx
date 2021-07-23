@@ -59,7 +59,7 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
             {props.cardSelectorPrompt}
             <CardSelectorBase orientation={orientation}>
                 {options.map((option, key) => {
-                    const selected = selectedCards.some(card => card.name === option.name);
+                    const selected = selectedCards.some(card => card?.name === option?.name);
 
                     const cannotSelect = !selected && !canSelect;
                     const cannotUnselect = selected && numSelected === 1 && min === 1;
