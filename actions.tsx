@@ -621,6 +621,13 @@ export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
     })
 );
 
+// When a function returns an action, it's nice to use this if nothing should happen.
+const NOOP_ACTION = 'NOOP_ACTION';
+export const noopAction = withMatcher(() => ({
+    type: NOOP_ACTION,
+    payload: {}
+}));
+
 export const PAUSE_ACTIONS = [
     ASK_USER_TO_PLACE_TILE,
     ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,

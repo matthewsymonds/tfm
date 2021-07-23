@@ -72,6 +72,7 @@ import {
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
     moveFleet,
+    noopAction,
     payForCards,
     payToPlayCard,
     payToPlayCardAction,
@@ -314,6 +315,9 @@ const handleGainResource = (
 };
 
 export const reducer = (state: GameState | null = null, action: AnyAction) => {
+    if (noopAction.match(action)) {
+        return state;
+    }
     if (setGame.match(action)) {
         // A client-side action.
         // Sets the game state returned from the server.

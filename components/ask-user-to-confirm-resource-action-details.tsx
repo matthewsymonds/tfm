@@ -525,6 +525,7 @@ export function canSkipResourceActionDetails(
         (actionType !== 'stealResource' &&
             actionType !== 'decreaseProduction' &&
             actionType !== 'increaseProduction' &&
+            actionType !== 'gainResource' &&
             (actionType === 'removeResource' ||
                 resourceAndAmounts.every(resourceAndAmount =>
                     isStorableResource(resourceAndAmount.resource)

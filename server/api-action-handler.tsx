@@ -45,6 +45,7 @@ import {
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
     moveFleet,
+    noopAction,
     PAUSE_ACTIONS,
     payForCards,
     payToPlayCard,
@@ -70,6 +71,7 @@ import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
+    canSkipResourceActionDetails,
     getAction,
     getPlayerOptionWrappers,
     ResourceActionOption,
@@ -1124,8 +1126,14 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (options.length === 1 && !options[0].isVariable) {
+            if (
+                options.length === 1 &&
+                !options[0].isVariable &&
+                !canSkipResourceActionDetails(wrappers, actionType, stealResourceResourceAndAmounts)
+            ) {
                 items.push(getAction(options[0], player, 0));
+            } else if (options.length === 0) {
+                items.push(noopAction());
             } else {
                 items.push(
                     askUserToChooseResourceActionDetails({
@@ -1195,8 +1203,14 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (options.length === 1 && !options[0].isVariable) {
+            if (
+                options.length === 1 &&
+                !options[0].isVariable &&
+                !canSkipResourceActionDetails(wrappers, actionType, stealResourceResourceAndAmounts)
+            ) {
                 items.push(getAction(options[0], player, 0));
+            } else if (options.length === 0) {
+                items.push(noopAction());
             } else if (resourceAndAmounts.length > 0) {
                 items.push(
                     askUserToChooseResourceActionDetails({
@@ -1399,9 +1413,15 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (options.length === 1 && !options[0].isVariable) {
+            if (
+                options.length === 1 &&
+                !options[0].isVariable &&
+                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            ) {
                 items.push(getAction(options[0], player, 0));
-            } else
+            } else if (options.length === 0) {
+                items.push(noopAction());
+            } else {
                 items.push(
                     askUserToChooseResourceActionDetails({
                         actionType,
@@ -1411,6 +1431,7 @@ export class ApiActionHandler {
                         resourceAndAmounts,
                     })
                 );
+            }
         }
 
         if (action.choice && action.choice.length > 0) {
@@ -1476,15 +1497,7 @@ export class ApiActionHandler {
         const resourceAndAmounts = [{resource, amount}];
         const actionType = 'decreaseProduction';
         const player = this.getLoggedInPlayer();
-        const wrappers = getPlayerOptionWrappers(this.state, player, {
-            actionType,
-            resourceAndAmounts,
-            card: parent!,
-        });
-        const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (options.length === 1 && !options[0].isVariable) {
-            return getAction(options[0], player, 0);
-        }
+
         if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
             return askUserToChooseResourceActionDetails({
                 actionType,
@@ -1492,6 +1505,23 @@ export class ApiActionHandler {
                 card: parent!,
                 playerIndex,
             });
+        }
+
+        const wrappers = getPlayerOptionWrappers(this.state, player, {
+            actionType,
+            resourceAndAmounts,
+            card: parent!,
+        });
+
+        const options = wrappers.flatMap(wrapper => wrapper.options);
+        if (
+            options.length === 1 &&
+            !options[0].isVariable &&
+            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+        ) {
+            return getAction(options[0], player, 0);
+        } else if (options.length === 0) {
+            return noopAction();
         } else {
             return decreaseProduction(resource, amount, playerIndex);
         }
@@ -1518,8 +1548,14 @@ export class ApiActionHandler {
             locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (options.length === 1 && !options[0].isVariable) {
+        if (
+            options.length === 1 &&
+            !options[0].isVariable &&
+            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+        ) {
             return getAction(options[0], player, 0);
+        } else if (options.length === 0) {
+            return noopAction();
         }
         return askUserToChooseResourceActionDetails({
             actionType,
@@ -1554,8 +1590,14 @@ export class ApiActionHandler {
                 locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (options.length === 1 && !options[0].isVariable) {
+            if (
+                options.length === 1 &&
+                !options[0].isVariable &&
+                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            ) {
                 return getAction(options[0], player, 0);
+            } else if (options.length === 0) {
+                return noopAction();
             }
             return askUserToChooseResourceActionDetails({
                 actionType,
@@ -1598,8 +1640,14 @@ export class ApiActionHandler {
                 locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (options.length === 1 && !options[0].isVariable) {
+            if (
+                options.length === 1 &&
+                !options[0].isVariable &&
+                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            ) {
                 return getAction(options[0], player, 0);
+            } else if (options.length === 0) {
+                return noopAction();
             }
             return askUserToChooseResourceActionDetails({
                 actionType,
@@ -1646,8 +1694,14 @@ export class ApiActionHandler {
             locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (options.length === 1 && !options[0].isVariable) {
+        if (
+            options.length === 1 &&
+            !options[0].isVariable &&
+            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+        ) {
             return getAction(options[0], player, 0);
+        } else if (options.length === 0) {
+            return noopAction();
         }
         return askUserToChooseResourceActionDetails({
             actionType,
