@@ -21,7 +21,7 @@ export function convertAmountToNumber(
             : getTags(player);
         const matchingTags = tags.filter(tag => tag === amount.tag || tag === Tag.WILD);
         let extraTags = 0;
-        if (card) {
+        if (card?.name) {
             const fullCard = getCard(card);
             if (fullCard.type === CardType.EVENT) {
                 extraTags = fullCard.tags.filter(tag => tag === amount.tag).length;

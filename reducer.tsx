@@ -325,6 +325,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (newState == null) {
             return state;
         }
+        if (newState.name !== state?.name) {
+            return newState;
+        }
         // Exceptionally (hacky):
         // Corporation selection happens client-side, then is finalized on server.
         // To avoid de-syncs, prefer client-side corporation selection to server value.
