@@ -157,6 +157,10 @@ export const ActiveRound = ({
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
+    const gameName = useTypedSelector(state => state.name);
+    useEffect(() => {
+        setSelectedPlayerIndex(0);
+    }, [gameName]);
     const hideOverlay =
         loggedInPlayer.pendingPlayCardFromHand ||
         loggedInPlayer.pendingTilePlacement ||
