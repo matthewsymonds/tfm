@@ -6,6 +6,7 @@ import {getCard} from 'selectors/get-card';
 
 type PlayerHandProps = {
     player: PlayerState;
+    gameName: string;
 };
 
 const PlayerHandInner = ({player}: PlayerHandProps) => {
@@ -20,6 +21,7 @@ const PlayerHandInner = ({player}: PlayerHandProps) => {
 };
 
 export const PlayerHand = React.memo(PlayerHandInner, (prevProps, nextProps) => {
+    if (prevProps.gameName !== nextProps.gameName) return false;
     const prevCards = prevProps.player.cards;
     const nextCards = nextProps.player.cards;
 

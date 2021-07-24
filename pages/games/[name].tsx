@@ -59,10 +59,9 @@ export default function Game(props) {
     useEffect(() => {
         handleRetrievedGame(game);
     }, []);
-    let loggedInPlayerIndex = game.state.players.findIndex(
-        player => player.username === session.username
-    );
-    if (loggedInPlayerIndex < 0 && game.state.players.length !== 1) {
+    const players = useTypedSelector(state => state?.players ?? game.state.players);
+    let loggedInPlayerIndex = players.findIndex(player => player.username === session.username);
+    if (loggedInPlayerIndex < 0 && players.length !== 1) {
         useEffect(() => {
             router.push('/');
         }, []);
@@ -71,6 +70,9 @@ export default function Game(props) {
         loggedInPlayerIndex = 0;
     }
     context.setLoggedInPlayerIndex(loggedInPlayerIndex);
+    useEffect(() => {
+        context.setLoggedInPlayerIndex(loggedInPlayerIndex);
+    }, [game.name, loggedInPlayerIndex]);
 
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);

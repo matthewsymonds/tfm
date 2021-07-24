@@ -469,7 +469,7 @@ export const ActiveRound = ({
                     </Flex>
                 </Flex>
             </Flex>
-            <PlayerHand player={loggedInPlayer} />
+            <PlayerHand player={loggedInPlayer} gameName={gameName} />
         </React.Fragment>
     );
 };
