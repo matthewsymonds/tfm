@@ -159,8 +159,9 @@ export const ActiveRound = ({
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
     const gameName = useTypedSelector(state => state.name);
     useEffect(() => {
-        setSelectedPlayerIndex(0);
+        setSelectedPlayerIndex(loggedInPlayerIndex);
     }, [gameName]);
+
     const hideOverlay =
         loggedInPlayer.pendingPlayCardFromHand ||
         loggedInPlayer.pendingTilePlacement ||
@@ -342,6 +343,8 @@ export const ActiveRound = ({
             );
             break;
     }
+
+    if (!players[selectedPlayerIndex]) return null;
 
     return (
         <React.Fragment>
