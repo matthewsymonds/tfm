@@ -577,8 +577,8 @@ export class ActionGuard {
                     return false;
                 }
 
-                // Finally, check, if we can replay the action.
-                return this.canPlayAction(fullCard.action, state, fullCard)[0];
+                // Finally, check, if we can replay the card action.
+                return this.canPlayCardAction(action, fullCard, player, state)[0];
             });
             if (candidates.length === 0) {
                 return [false, 'No actions can be replayed'];
