@@ -3,7 +3,7 @@ import {InputBox} from 'components/input-box';
 import {Mars} from 'components/mars';
 import {colors} from 'components/ui';
 import {AppContext, appContext} from 'context/app-context';
-import {FONTS} from 'fonts';
+import {Fonts} from 'fonts';
 import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
 import Head from 'next/head';
@@ -24,7 +24,6 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
-    ${FONTS}
     html, body {
         height: 100%;
     }
@@ -242,6 +241,7 @@ class MyApp extends App {
                         id={'root'}
                         suppressHydrationWarning
                     >
+                        <Fonts />
                         <GlobalStyles />
                         {typeof window === 'undefined' ? null : (
                             <InnerAppComponent {...this.props} />

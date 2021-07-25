@@ -905,6 +905,7 @@ export class ApiActionHandler {
         );
 
         this.handleTrade(colony, tradeIncome);
+        this.queue.push(completeAction(player.index));
     }
 
     tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
