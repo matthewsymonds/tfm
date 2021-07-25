@@ -442,6 +442,7 @@ export const ActiveRound = ({
                                 </Flex>
                             </Box>
                             <Flex
+                                flexGrow="1"
                                 borderColor={PLAYER_COLORS[selectedPlayerIndex]}
                                 borderRadius="4px"
                                 borderStyle="solid"
@@ -455,7 +456,7 @@ export const ActiveRound = ({
                                 marginLeft="8px"
                                 marginRight="8px"
                             >
-                                <Flex margin="2px">
+                                <Flex margin="2px" flexGrow="1">
                                     <PlayerPanel player={players[selectedPlayerIndex]} />
                                 </Flex>
                             </Flex>

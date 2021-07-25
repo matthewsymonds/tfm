@@ -78,6 +78,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .active-round-left {
+        flex-grow: 1;
         width: fit-content;
         @media (max-width: 1366px) {
             width: 100%;

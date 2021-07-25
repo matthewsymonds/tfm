@@ -195,6 +195,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                         <CardTextToken
                                             showCardOnHover={true}
                                             card={getCard(draftedCard)}
+                                            key={draftedCard.name}
                                             margin="0 8px 8px 0"
                                             style={{fontSize: '1em'}}
                                             absoluteOffset={-68}

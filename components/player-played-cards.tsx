@@ -76,13 +76,15 @@ function PlayerPlayedCards({
         }, 0);
     }
 
+    let eventIndex = 0;
+
     return (
         <div style={{width: '100%'}} ref={containerRef}>
             <Flex flexWrap="wrap" onMouseLeave={() => _setHoveredCardIndex(null)}>
                 {filteredCards.map((card, index) => (
                     <Flex
                         margin="4px"
-                        key={card.name === '' ? undefined : card.name} // How do do this for events??
+                        key={card.name === '' ? player.username + '-' + eventIndex++ : card.name} // How do do this for events??
                         onMouseEnter={() => _setHoveredCardIndex(index)}
                         onMouseLeave={() => _setHoveredCardIndex(null)}
                     >
