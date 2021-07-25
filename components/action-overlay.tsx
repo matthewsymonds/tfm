@@ -35,7 +35,7 @@ const ActionOverlayContent = styled.div<{isVisible: boolean}>`
     flex: auto;
     width: 720px;
     max-width: 100%;
-    margin: 0px 8px;
+    margin: 8px;
     padding: 16px 0px;
     opacity: ${props => (props.isVisible ? 1 : 0)};
     transition: all 0.3s;

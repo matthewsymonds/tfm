@@ -210,7 +210,7 @@ export const ActiveRound = ({
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
     const logLength = useTypedSelector(state => state.log.length);
-    const [topBarHeight, setTopBarHeight] = useState(0);
+    const [topBarHeight, setTopBarHeight] = useState(48);
 
     useLayoutEffect(() => {
         if (topBarRef.current) {
@@ -223,7 +223,13 @@ export const ActiveRound = ({
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [window.innerWidth, topBarRef.current, logLength]);
+    }, [topBarRef.current]);
+
+    useEffect(() => {
+        if (topBarRef.current) {
+            setTopBarHeight(topBarRef.current.offsetHeight);
+        }
+    }, [topBarRef.current, logLength]);
 
     const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;

@@ -16,7 +16,7 @@ import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
-import {Flex} from './box';
+import {Box, Flex} from './box';
 import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
 
@@ -156,7 +156,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const showPreviewBelow = isDrafting;
 
     return (
-        <div style={{color: colors.TEXT_LIGHT_1}}>
+        <Box color={colors.TEXT_LIGHT_1} margin="8px">
             {possibleCorporations.length > 0 && (
                 <CardSelector
                     min={1}
@@ -283,6 +283,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     </Flex>
                 )}
             </AskUserToMakeChoice>
-        </div>
+        </Box>
     );
 }
