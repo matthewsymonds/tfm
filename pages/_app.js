@@ -78,6 +78,12 @@ export const GlobalStyles = createGlobalStyle`
           align-items: center;
         }
     }
+    .active-round-left {
+        width: fit-content;
+        @media (max-width: 1366px) {
+            width: 100%;
+        }
+    }
     .active-round-right {
         padding-right: 8px;
         @media (max-width: 1366px) {

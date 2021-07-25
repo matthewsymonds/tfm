@@ -377,7 +377,7 @@ export const ActiveRound = ({
                     flex="auto"
                     alignItems="flex-start"
                 >
-                    <Flex className="active-round-left" flexDirection="column" width="100%">
+                    <Flex className="active-round-left" flexDirection="column">
                         <Flex
                             className="player-details"
                             marginRight="8px"
