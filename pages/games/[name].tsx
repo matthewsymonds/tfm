@@ -3,7 +3,6 @@ import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import {usePrevious} from 'hooks/use-previous';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import React, {useContext, useEffect, useState} from 'react';

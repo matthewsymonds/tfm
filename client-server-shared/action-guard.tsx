@@ -506,14 +506,17 @@ export class ActionGuard {
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
         payment: Resources | undefined = player?.resources,
-        supplementalResources?: SupplementalResources
+        supplementalResources?: SupplementalResources,
+        actionReplay: boolean = !!player?.pendingActionReplay
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
             parent,
             player,
             state,
-            payment
+            payment,
+            supplementalResources,
+            actionReplay
         );
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
@@ -528,14 +531,17 @@ export class ActionGuard {
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
         payment: Resources | undefined = player?.resources,
-        supplementalResources?: SupplementalResources
+        supplementalResources?: SupplementalResources,
+        actionReplay: boolean = !!player?.pendingActionReplay
     ): CanPlayAndReason {
         const canPlayCardActionPrologue = this.canPlayCardActionPrologue(
             action,
             parent,
             player,
             state,
-            payment
+            payment,
+            supplementalResources,
+            actionReplay
         );
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
@@ -548,7 +554,9 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources
+        payment: Resources | undefined = player?.resources,
+        supplementalResources?: SupplementalResources,
+        actionReplay?: boolean
     ): CanPlayAndReason {
         if (!this.canAffordActionCost(action, player, payment)) {
             return [false, 'Cannot afford action cost'];
@@ -558,10 +566,7 @@ export class ActionGuard {
             return [false, 'Cannot play card action outside active round'];
         }
 
-        if (
-            parent.lastRoundUsedAction === state.common.generation &&
-            !player?.pendingActionReplay
-        ) {
+        if (parent.lastRoundUsedAction === state.common.generation && !actionReplay) {
             return [false, 'Already used this generation'];
         }
 
@@ -572,13 +577,42 @@ export class ActionGuard {
                     // Card does not have an action to replay.
                     return false;
                 }
+
+                if (fullCard.action.useBlueCardActionAlreadyUsedThisGeneration) {
+                    // Prevent infinite loop
+                    return false;
+                }
+
                 if (card.lastRoundUsedAction !== state.common.generation) {
                     // Haven't used this card's action this round, so cannot "re-use" it.
                     return false;
                 }
 
+                if (fullCard?.action?.choice) {
+                    return fullCard.action.choice.some(
+                        choiceAction =>
+                            this.canPlayCardAction(
+                                choiceAction,
+                                fullCard,
+                                player,
+                                state,
+                                payment,
+                                supplementalResources,
+                                /* actionReplay = */ true
+                            )[0]
+                    );
+                }
+
                 // Finally, check, if we can replay the card action.
-                return this.canPlayCardAction(action, fullCard, player, state)[0];
+                return this.canPlayCardAction(
+                    fullCard.action,
+                    fullCard,
+                    player,
+                    state,
+                    payment,
+                    supplementalResources,
+                    /* actionreplay */ true
+                )[0];
             });
             if (candidates.length === 0) {
                 return [false, 'No actions can be replayed'];

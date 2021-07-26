@@ -25,9 +25,6 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
         .map(player => player.corporation.name);
 
     useEffect(() => {
-        if (gameName !== previousGameName) {
-            return;
-        }
         if (theLastSeenLogItem == null) {
             return;
         }

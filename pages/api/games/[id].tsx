@@ -32,9 +32,11 @@ export default async (req, res) => {
             res.setHeader('cache-control', 'no-cache');
             const index = game.players.indexOf(username);
             const {lastSeenLogItem = []} = game;
+            const previousLastSeenLogItem = [...lastSeenLogItem];
             game.lastSeenLogItem ||= [];
             if (game.lastSeenLogItem[index] !== game.state.log.length) {
                 game.lastSeenLogItem[index] = game.state.log.length;
+                game.markModified('lastSeenLogItem');
                 try {
                     await game.save();
                 } catch (error) {}
@@ -42,7 +44,7 @@ export default async (req, res) => {
             game.state.name = game.name;
             res.json({
                 state: censorGameState(game.state, username),
-                lastSeenLogItem: lastSeenLogItem[index],
+                lastSeenLogItem: previousLastSeenLogItem[index] ?? game.lastSeenLogItem[index],
             });
             return;
         default:
