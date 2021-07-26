@@ -81,7 +81,11 @@ export const GlobalStyles = createGlobalStyle`
         flex-grow: 1;
         width: fit-content;
         @media (max-width: 1366px) {
-            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            width: min-content;
+            max-width: 100%;
+            height: fit-content;
         }
     }
     .active-round-right {
