@@ -222,7 +222,7 @@ export const CardActions = ({
             {actions.map((action, index) => {
                 return (
                     <CardAction
-                        key={index}
+                        key={card.name + '-action-' + index}
                         action={action}
                         index={index}
                         card={card}
@@ -260,10 +260,19 @@ function CardAction({
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
-    const [canPlay, disabledReason] = (canPlayInSpiteOfUI
-        ? actionGuard.canPlayCardActionInSpiteOfUI
-        : actionGuard.canPlayCardAction
-    ).bind(actionGuard)(action, card, cardOwner);
+    let canPlay: boolean;
+    let disabledReason: string;
+
+    if (canPlayInSpiteOfUI) {
+        [canPlay, disabledReason] = actionGuard.canPlayCardActionInSpiteOfUI(
+            action,
+            card,
+            cardOwner
+        );
+    } else {
+        [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card, cardOwner);
+    }
+
     let tooltipText: string | null = null;
 
     if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {
@@ -302,7 +311,7 @@ function CardAction({
     }
 
     return (
-        <React.Fragment key={index}>
+        <React.Fragment>
             {index > 0 && <TextWithMargin>OR</TextWithMargin>}
             <ActionContainer
                 cardContext={cardContext}

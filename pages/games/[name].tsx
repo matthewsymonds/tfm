@@ -3,9 +3,10 @@ import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
+import {usePrevious} from 'hooks/use-previous';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
-import {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
 import {useTypedSelector} from 'reducer';
 
@@ -22,18 +23,27 @@ async function retrieveYourTurnGames(callback: Function) {
 }
 
 export default function Game(props) {
+    const {game} = props;
+    if (!game.state) return null;
+    const store = useStore();
+    const {lastSeenLogItem} = game;
+    useEffect(() => {
+        store.dispatch(setGame(game.state));
+    }, [game.state.name, lastSeenLogItem]);
+    const state = useTypedSelector(state => state);
+    if (!state) return null;
+    return <GameInner {...props} />;
+}
+
+function GameInner(props) {
     const {game, session} = props;
     const {lastSeenLogItem} = game;
     const router = useRouter();
     const dispatch = useDispatch();
     const store = useStore();
     const context = useContext(AppContext);
-    useEffect(() => {
-        store.dispatch(setGame(game.state));
-    }, [game.state.name, lastSeenLogItem]);
 
-    const state = useTypedSelector(state => state);
-    const logLength = useTypedSelector(state => state?.log?.length);
+    const logLength = useTypedSelector(state => state.log.length);
 
     const handleRetrievedGame = game => {
         if (game.error) {
@@ -59,7 +69,7 @@ export default function Game(props) {
     useEffect(() => {
         handleRetrievedGame(game);
     }, []);
-    const players = useTypedSelector(state => state?.players ?? game.state.players);
+    const players = useTypedSelector(state => state.players ?? game.state.players);
     let loggedInPlayerIndex = players.findIndex(player => player.username === session.username);
     if (loggedInPlayerIndex < 0 && players.length !== 1) {
         useEffect(() => {
@@ -74,12 +84,12 @@ export default function Game(props) {
         context.setLoggedInPlayerIndex(loggedInPlayerIndex);
     }, [game.name, loggedInPlayerIndex]);
 
-    const gameStage = useTypedSelector(state => state?.common?.gameStage);
-    const currentPlayerIndex = useTypedSelector(state => state?.common?.currentPlayerIndex);
-    const numPlayers = useTypedSelector(state => state?.players?.length ?? 0);
+    const gameStage = useTypedSelector(state => state.common.gameStage);
+    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+    const numPlayers = useTypedSelector(state => state.players.length ?? 0);
 
     const getPendingCardSelection = state =>
-        state?.players[loggedInPlayerIndex]?.pendingCardSelection;
+        state.players[loggedInPlayerIndex].pendingCardSelection;
 
     const draftPicks = useTypedSelector(state => getPendingCardSelection(state)?.draftPicks ?? []);
     const possibleCards = useTypedSelector(
@@ -163,14 +173,12 @@ export default function Game(props) {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
-        if (!store.getState().syncing) {
+        if (!store.getState()?.syncing) {
             // Make sure that we are not syncing (ie, playing an action),
             // which would mean we are about to get a more up to date state.
             handleRetrievedGame(result);
         }
     };
-
-    if (!state) return null;
 
     return (
         <ActiveRound

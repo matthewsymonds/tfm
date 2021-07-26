@@ -323,7 +323,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // Sets the game state returned from the server.
         const newState = action.payload.gameState;
         if (newState == null) {
-            return state;
+            return null;
         }
         if (newState.name !== state?.name) {
             return newState;

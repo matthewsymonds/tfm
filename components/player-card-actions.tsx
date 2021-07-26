@@ -13,7 +13,7 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                 .map(card => {
                     return (
                         <Box
-                            key={`card-actions-${card.name}`}
+                            key={`card-actions-convenience-${card.name}`}
                             width="fit-content"
                             margin="4px"
                             border="1px solid #aaa"
