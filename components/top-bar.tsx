@@ -130,7 +130,7 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                             </React.Fragment>
                         )}
                         {isLoggedInPlayersTurn && isGreeneryPlacement && (
-                            <div>{greeneryPlacementText}</div>
+                            <Box display="inline-block">{greeneryPlacementText}</Box>
                         )}
                         {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
                             <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">

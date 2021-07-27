@@ -102,7 +102,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const gameStage = useTypedSelector(state => state?.common?.gameStage);
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
     const roundText = isGreeneryPlacement
-        ? 'End of game Greenery placement'
+        ? 'Greenery placement'
         : `Gen ${generation}, Turn ${turn}`;
 
     const venus = useTypedSelector(isPlayingVenus);
