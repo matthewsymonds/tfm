@@ -72,6 +72,7 @@ export default async (req, res) => {
         game.updatedAt = Date.now();
         game.lastSeenLogItem ||= [];
         game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
+        game.markModified('lastSeenLogItem');
         await game.save();
         purgeLock(lock, username, game.name);
 

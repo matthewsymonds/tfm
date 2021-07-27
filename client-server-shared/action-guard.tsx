@@ -6,7 +6,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Action} from 'constants/action';
 import {Award, Cell, Milestone, TileType} from 'constants/board';
-import {CardType} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
@@ -872,7 +872,11 @@ export class ActionGuard {
             return false;
         }
 
-        if (selectedPreludes && !this.arePreludesCorrect(selectedPreludes)) {
+        if (
+            selectedPreludes &&
+            state.options.decks.includes(Deck.PRELUDE) &&
+            !this.arePreludesCorrect(selectedPreludes)
+        ) {
             return false;
         }
         return true;

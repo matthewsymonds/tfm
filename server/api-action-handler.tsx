@@ -83,7 +83,7 @@ import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage, PARAMETER_STEPS} from 'constants/game';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {PropertyCounter} from 'constants/property-counter';
 import {
@@ -97,7 +97,7 @@ import {StandardProjectAction, StandardProjectType} from 'constants/standard-pro
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
-import {GameState, PlayerState, reducer, Resources} from 'reducer';
+import {GameState, getNumOceans, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
 import {canPlaceColony} from 'selectors/can-build-colony';
 import {getCard} from 'selectors/get-card';
@@ -1062,8 +1062,18 @@ export class ApiActionHandler {
                 )
             );
         }
+        const numOceansPlacedSoFar = getNumOceans(state);
+        let oceansInQueue = 0;
         for (const tilePlacement of action?.tilePlacements ?? []) {
-            items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+            let isOcean = false;
+            if (tilePlacement.type === TileType.OCEAN) {
+                isOcean = true;
+                oceansInQueue += 1;
+            }
+            if (isOcean && numOceansPlacedSoFar + oceansInQueue > MAX_PARAMETERS[Parameter.OCEAN]) {
+            } else {
+                items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+            }
         }
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
@@ -1295,22 +1305,28 @@ export class ApiActionHandler {
                     // Relying on the order of the parameters variable here.
                     const newLevel =
                         i * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
-                    const getBonus = PARAMETER_BONUSES[parameter][newLevel];
-                    if (!getBonus) {
-                        continue;
-                    }
-                    const bonus = getBonus(playerIndex);
-                    const {payload} = bonus;
-                    if (increaseParameter.match(bonus)) {
+                    const bonus = PARAMETER_BONUSES[parameter][newLevel];
+                    if (bonus?.increaseParameter) {
+                        for (const parameter in bonus.increaseParameter) {
+                            increaseParametersWithBonuses[parameter] +=
+                                bonus.increaseParameter[parameter];
+                        }
                         // combine the bonus parameter increase with the rest of the parameter increases.
                         // That way an oxygen can trigger a temperature which triggers an
                         // ocean.
-                        increaseParametersWithBonuses[payload.parameter] += payload.amount;
-                    } else if (increaseTerraformRating.match(bonus)) {
+                    } else if (bonus?.increaseTerraformRating) {
                         // combine terraform increases into one action/log message.
-                        (terraformRatingIncrease as number) += payload.amount as number;
-                    } else {
-                        items.push(bonus);
+                        (terraformRatingIncrease as number) += bonus.increaseTerraformRating as number;
+                    } else if (bonus) {
+                        const playActionParams: PlayActionParams = {
+                            action: bonus,
+                            state,
+                            parent,
+                            playedCard,
+                            thisPlayerIndex,
+                            withPriority,
+                        };
+                        this.playActionBenefits(playActionParams, items);
                     }
                 }
             }

@@ -1,10 +1,4 @@
-import {
-    askUserToPlaceTile,
-    gainResource,
-    increaseParameter,
-    increaseProduction,
-    increaseTerraformRating,
-} from 'actions';
+import {Action} from './action';
 import {Parameter, t, TileType} from './board';
 import {Resource} from './resource';
 
@@ -15,31 +9,28 @@ export const PARAMETER_BONUSES = {
     [Parameter.VENUS]: getVenusBonuses(),
 };
 
-type PlayerIndexCallBackBase = (playerIndex: number) => {type: string; payload; name: string};
+type PlayerIndexCallBackBase = Action & {name: string};
 type PlayerIndexCallBack = PlayerIndexCallBackBase | undefined;
 
 function getOxygenBonuses() {
     const oxygenBonuses: Array<PlayerIndexCallBack> = [];
-    oxygenBonuses[7] = (playerIndex: number) => ({
-        ...increaseParameter(Parameter.TEMPERATURE, 1, playerIndex),
+    oxygenBonuses[7] = {
         name: 'Increase temperature 1 step',
-    });
+        increaseParameter: {[Parameter.TEMPERATURE]: 1},
+    };
     return oxygenBonuses;
 }
 
 function getTemperatureBonuses() {
     const temperatureBonuses: Array<PlayerIndexCallBack> = [];
-    const increaseHeatProduction = (playerIndex: number) => ({
-        ...increaseProduction(Resource.HEAT, 1, playerIndex),
+    const increaseHeatProduction = {
+        increaseProduction: {[Resource.HEAT]: 1},
         name: 'Increase your heat production 1 step',
-    });
+    };
     temperatureBonuses[-24] = increaseHeatProduction;
     temperatureBonuses[-20] = increaseHeatProduction;
 
-    temperatureBonuses[0] = (playerIndex: number) => ({
-        ...askUserToPlaceTile(t(TileType.OCEAN), playerIndex),
-        name: 'Place an ocean tile',
-    });
+    temperatureBonuses[0] = {tilePlacements: [t(TileType.OCEAN)], name: 'Place an ocean tile'};
 
     return temperatureBonuses;
 }
@@ -47,13 +38,13 @@ function getTemperatureBonuses() {
 function getVenusBonuses() {
     const venusBonuses: Array<PlayerIndexCallBack> = [];
 
-    venusBonuses[8] = (playerIndex: number) => ({
-        ...gainResource(Resource.CARD, 1, playerIndex),
+    venusBonuses[8] = {
+        gainResource: {[Resource.CARD]: 1},
         name: 'Draw card',
-    });
-    venusBonuses[16] = (playerIndex: number) => ({
-        ...increaseTerraformRating(1, playerIndex),
+    };
+    venusBonuses[16] = {
+        increaseTerraformRating: 1,
         name: 'Increase your terraform rating 1 step',
-    });
+    };
     return venusBonuses;
 }

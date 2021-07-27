@@ -56,8 +56,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
         >
             {steps.map(value => {
                 const isFilledIn = currentValue === value;
-                // Takes logged in player index, but we don't need that.
-                const bonus = PARAMETER_BONUSES[parameter][value]?.(0);
+                const bonus = PARAMETER_BONUSES[parameter][value];
                 const color = colors.PARAMETERS[parameter];
 
                 const showTooltip = isFilledIn || !!bonus;
