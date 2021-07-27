@@ -21,15 +21,7 @@ async function retrieveYourTurnGames(callback: Function) {
     }
 }
 
-const GameOuterMemo = React.memo(GameOuter, (prevProps, currentProps) => {
-    return prevProps.game.state !== currentProps.game.state;
-});
-
 export default function Game(props) {
-    return <GameOuterMemo {...props} />;
-}
-
-function GameOuter(props) {
     const {game} = props;
     if (!game.state) return null;
     const store = useStore();
