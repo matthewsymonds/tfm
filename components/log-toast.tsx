@@ -28,6 +28,9 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
         if (theLastSeenLogItem == null) {
             return;
         }
+        if (gameName !== previousGameName) {
+            return;
+        }
 
         if (theLastSeenLogItem >= log.length) {
             return;
@@ -56,6 +59,7 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
             </>
         );
         setTheLastSeenLogItem(log.length);
+        return () => toast.clearWaitingQueue();
     }, [log.length, theLastSeenLogItem, gameName, previousGameName]);
 
     if (isCorporationSelection) {
