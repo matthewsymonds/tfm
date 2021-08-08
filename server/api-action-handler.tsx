@@ -1423,9 +1423,11 @@ export class ApiActionHandler {
                     amount: action.decreaseAnyProduction[production],
                 },
             ];
+            const locationType = ResourceLocationType.ANY_PLAYER;
             const actionType = 'decreaseProduction';
             const wrappers = getPlayerOptionWrappers(this.state, player, {
                 actionType,
+                locationType,
                 resourceAndAmounts,
                 card: parent!,
             });
@@ -1444,7 +1446,7 @@ export class ApiActionHandler {
                         actionType,
                         card: parent!,
                         playerIndex,
-                        locationType: ResourceLocationType.ANY_PLAYER,
+                        locationType,
                         resourceAndAmounts,
                     })
                 );

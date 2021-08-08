@@ -51,6 +51,14 @@ export function CardHand({
     const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
     const prevContainerWidth = usePrevious(containerWidth);
 
+    const cardsLength = cards.length;
+    const prevCardsLength = usePrevious(cardsLength);
+    useEffect(() => {
+        if (cardsLength !== prevCardsLength) {
+            setHighlightedIndex(null);
+        }
+    }, [cardsLength, prevCardsLength]);
+
     // enforce at least a half CARD_WIDTH padding on each side (x2 = 1 CARD_WIDTH)
     const maximumCardWidth = Math.max(0, containerWidth - CARD_WIDTH / 4);
 
