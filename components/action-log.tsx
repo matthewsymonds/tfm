@@ -14,23 +14,32 @@ export const ActionLog = () => {
     const [isPopperVisible, setIsPopperVisible] = useState(false);
     const referenceElement = useRef(null);
     const popperElement = useRef(null);
-    const {styles, attributes} = usePopper(referenceElement.current, popperElement.current, {
-        placement: 'bottom-end',
-        modifiers: [
-            {
-                name: 'offset',
-                options: {
-                    offset: [0, 2],
+    const {styles, attributes, update} = usePopper(
+        referenceElement.current,
+        popperElement.current,
+        {
+            placement: 'bottom-end',
+            modifiers: [
+                {
+                    name: 'offset',
+                    options: {
+                        offset: [0, 2],
+                    },
                 },
-            },
-        ],
-    });
+            ],
+        }
+    );
 
     return (
         <React.Fragment>
             <BlankButton
                 ref={referenceElement}
-                onClick={() => setIsPopperVisible(!isPopperVisible)}
+                onClick={() => {
+                    setIsPopperVisible(!isPopperVisible);
+                    if (update) {
+                        update();
+                    }
+                }}
                 style={{marginRight: 4}}
             >
                 📜
