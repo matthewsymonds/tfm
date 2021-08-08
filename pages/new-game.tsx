@@ -100,9 +100,7 @@ export default function NewGame(props) {
                     value={gameName}
                     onChange={updateGameName}
                 />
-                {error && (
-                    <ErrorText>May only contain letters, numbers, hyphens, underscores</ErrorText>
-                )}
+                {error && <ErrorText>{error}</ErrorText>}
 
                 <Input
                     type="number"

@@ -26,7 +26,7 @@ export default async (req, res) => {
                                         currentPlayer: sessionResult.username,
                                     },
                                     {
-                                        // or we'rd in draft/buy or discard
+                                        // or we're in draft/buy or discard
                                         'state.players': {
                                             $elemMatch: {
                                                 username: sessionResult.username,

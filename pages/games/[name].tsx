@@ -155,17 +155,32 @@ function GameInner(props) {
     ]);
 
     useEffect(() => {
+        let isActive = true;
         const interval = setInterval(() => {
-            retrieveYourTurnGames(handleRetrievedYourTurnGames);
+            retrieveYourTurnGames(result => {
+                if (isActive) {
+                    handleRetrievedYourTurnGames(result);
+                }
+            });
         }, 10000);
 
         return () => {
+            isActive = false;
             clearInterval(interval);
         };
     }, []);
 
     useEffect(() => {
-        retrieveYourTurnGames(handleRetrievedYourTurnGames);
+        let isActive = true;
+
+        retrieveYourTurnGames(result => {
+            if (isActive) {
+                handleRetrievedYourTurnGames(result);
+            }
+        });
+        return () => {
+            isActive = false;
+        };
     }, [logLength]);
 
     const retrieveGame = async () => {

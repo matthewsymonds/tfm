@@ -130,10 +130,13 @@ export function CardHand({
 
     useEffect(() => {
         const containerElement = containerRef.current;
-        if (containerWidth !== prevContainerWidth && containerElement) {
-            setContainerWidth(containerElement.getBoundingClientRect().width);
+        if (containerElement) {
+            const newContainerWidth = containerElement.getBoundingClientRect().width;
+            if (newContainerWidth !== prevContainerWidth) {
+                setContainerWidth(newContainerWidth);
+            }
         }
-    }, [containerRef, setContainerWidth, prevContainerWidth, containerWidth]);
+    }, [containerRef.current, setContainerWidth, prevContainerWidth, containerWidth]);
 
     useEffect(() => {
         const resize = () => setContainerWidth(window.innerWidth);

@@ -73,7 +73,7 @@ export default async (req, res) => {
         game.lastSeenLogItem ||= [];
         game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
         game.markModified('lastSeenLogItem');
-        await game.save();
+        await game.save({validateBeforeSave: false});
         purgeLock(lock, username, game.name);
 
         res.json({

@@ -1,4 +1,4 @@
-import {gamesModel, retrieveSession} from 'database';
+import {gamesModel, retrieveSession, usersModel} from 'database';
 import {getInitialState} from 'initial-state';
 
 export default async (req, res) => {
@@ -24,10 +24,16 @@ export default async (req, res) => {
             return res.json({games});
         case 'POST': {
             const {name, options} = req.body;
-            const players = req.body.players.slice(0, 5);
+            let players = req.body.players.slice(0, 5);
+            players = [...new Set(players)];
             game = await gamesModel.findOne({name});
             if (game) {
                 res.json({error: 'Game with that name already exists'});
+                return;
+            }
+            const validPlayers = await usersModel.find({username: {$in: players}});
+            if (validPlayers.length !== players.length) {
+                res.json({error: 'Not all players found'});
                 return;
             }
             game = new gamesModel();
