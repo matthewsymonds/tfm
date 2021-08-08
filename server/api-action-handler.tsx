@@ -905,7 +905,6 @@ export class ApiActionHandler {
         );
 
         this.handleTrade(colony, tradeIncome);
-        this.queue.push(completeAction(player.index));
     }
 
     tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
@@ -940,6 +939,7 @@ export class ApiActionHandler {
         const items: AnyAction[] = [];
         // Then receive trade income.
         items.push(completeTradeForFree(player.index));
+        items.push(moveFleet(colony, player.index));
 
         this.playActionBenefits(
             {
@@ -948,8 +948,6 @@ export class ApiActionHandler {
             },
             items
         );
-
-        items.push(moveFleet(colony, player.index));
 
         items.push(moveColonyTileTrack(colony, matchingColony.colonies.length));
 
@@ -988,6 +986,7 @@ export class ApiActionHandler {
             this.queue.unshift(...items);
         } else {
             this.queue.push(...items);
+            this.queue.push(completeAction(player.index));
         }
 
         this.processQueue();
