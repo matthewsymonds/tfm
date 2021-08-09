@@ -3,7 +3,12 @@ import {getTextForAward} from 'components/board/board-actions/awards-new';
 import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
 import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
 import {CardType, Deck} from 'constants/card-types';
-import {COLONIES, getColony} from 'constants/colonies';
+import {
+    COLONIES,
+    getColony,
+    STARTING_STEP,
+    STARTING_STEP_STORABLE_RESOURCE_COLONY,
+} from 'constants/colonies';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
@@ -1111,8 +1116,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             if (card.storedResourceType) {
                 for (const colony of draft.common.colonies ?? []) {
-                    if (getColony(colony).offlineUntilResource === card.storedResourceType) {
-                        colony.step = 1;
+                    if (
+                        getColony(colony).offlineUntilResource === card.storedResourceType &&
+                        colony.step === STARTING_STEP_STORABLE_RESOURCE_COLONY
+                    ) {
+                        colony.step = STARTING_STEP;
                     }
                 }
             }

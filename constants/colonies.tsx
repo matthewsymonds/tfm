@@ -65,8 +65,8 @@ type Trade = {
     round: number;
 };
 
-const STARTING_STEP = 1;
-const STARTING_STEP_STORABLE_RESOURCE_COLONY = -1;
+export const STARTING_STEP = 1;
+export const STARTING_STEP_STORABLE_RESOURCE_COLONY = -1;
 const MAX_NUM_COLONIES = 3;
 
 export const COLONIES: Colony[] = [];

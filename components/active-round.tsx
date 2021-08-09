@@ -223,7 +223,7 @@ export const ActiveRound = ({
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, [topBarRef.current]);
+    }, [topBarRef.current?.offsetHeight]);
 
     useEffect(() => {
         if (topBarRef.current) {
