@@ -91,7 +91,7 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
                     style={{
                         marginRight: '8px',
                         marginLeft: '8px',
-                        marginTop: 'auto',
+                        marginTop: '13px',
                         marginBottom: 'auto',
                     }}
                     playerIndex={loggedInPlayer.index}
