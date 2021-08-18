@@ -5,6 +5,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 import {Flex} from './box';
+import {BaseActionIconography} from './card/CardIconography';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     const {card, playedCard, choice} = player.pendingChoice!;
@@ -25,7 +26,7 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
                         });
                     }}
                 >
-                    {action.text}
+                    <BaseActionIconography card={action} />
                 </button>
                 {!canPlay && <em style={{marginLeft: 4}}>{reason}</em>}
             </Flex>
