@@ -212,28 +212,30 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             </em>
                             {numPlayers > 2 && (
                                 <table>
-                                    <tr>
-                                        <td>
-                                            <span style={{marginRight: 4}}>Receiving from</span>
-                                        </td>
-                                        <td>
-                                            <PlayerCorpAndIcon
-                                                player={passSourcePlayer}
-                                                color={colors.TEXT_LIGHT_1}
-                                            />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <span style={{marginRight: 4}}>Passing to</span>
-                                        </td>
-                                        <td>
-                                            <PlayerCorpAndIcon
-                                                player={passPlayer}
-                                                color={colors.TEXT_LIGHT_1}
-                                            />
-                                        </td>
-                                    </tr>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <span style={{marginRight: 4}}>Receiving from</span>
+                                            </td>
+                                            <td>
+                                                <PlayerCorpAndIcon
+                                                    player={passSourcePlayer}
+                                                    color={colors.TEXT_LIGHT_1}
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span style={{marginRight: 4}}>Passing to</span>
+                                            </td>
+                                            <td>
+                                                <PlayerCorpAndIcon
+                                                    player={passPlayer}
+                                                    color={colors.TEXT_LIGHT_1}
+                                                />
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             )}
                         </Flex>
