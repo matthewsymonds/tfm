@@ -49,8 +49,8 @@ function GameInner(props) {
             router.push('/new-game');
             return;
         }
-        const existingTimestamp = store.getState().timestamp ?? 0;
-        const newTimestamp = game.state.timestamp ?? 0;
+        const existingTimestamp = store.getState()?.timestamp ?? 0;
+        const newTimestamp = game.state?.timestamp ?? 0;
         if (newTimestamp > existingTimestamp) {
             // So...we've seen examples of the state going one step backward in time.
             // We generally don't want that.
