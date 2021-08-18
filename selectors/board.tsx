@@ -78,12 +78,23 @@ function isAvailable(state: GameState, cell: Cell, player: PlayerState) {
     );
 }
 
-function isOwnedByCurrentPlayer(state: GameState, cell: Cell, player: PlayerState) {
-    return cell.tile && cell.tile.ownerPlayerIndex === player.index;
+// This is used by greenery placement, Mining Area, and Landlord
+function isOwnedByCurrentPlayerExcludingLandClaim(
+    state: GameState,
+    cell: Cell,
+    player: PlayerState
+) {
+    return (
+        cell.tile &&
+        cell.tile.ownerPlayerIndex === player.index &&
+        cell.tile.type !== TileType.LAND_CLAIM
+    );
 }
 
 export function getAllCellsOwnedByCurrentPlayer(state: GameState, player: PlayerState) {
-    return state.common.board.flat().filter(cell => isOwnedByCurrentPlayer(state, cell, player));
+    return state.common.board
+        .flat()
+        .filter(cell => isOwnedByCurrentPlayerExcludingLandClaim(state, cell, player));
 }
 
 function getAvailableCells(state: GameState, player: PlayerState) {
@@ -176,7 +187,7 @@ export function getPossibleValidPlacementsForRequirement(
             const availableLandCellsOnMars = getAvailableLandCellsOnMars(state, player);
             const cellsAdjacentToCurrentTiles = availableLandCellsOnMars.filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
-                    isOwnedByCurrentPlayer(state, adjCell, player)
+                    isOwnedByCurrentPlayerExcludingLandClaim(state, adjCell, player)
                 )
             );
             if (cellsAdjacentToCurrentTiles.length === 0) {
@@ -209,7 +220,7 @@ export function getPossibleValidPlacementsForRequirement(
             const availableLandCellsOnMars = getAvailableLandCellsOnMars(state, player);
             const cellsAdjacentToCurrentTiles = availableLandCellsOnMars.filter(cell =>
                 getAdjacentCellsForCell(state, cell).some(adjCell =>
-                    isOwnedByCurrentPlayer(state, adjCell, player)
+                    isOwnedByCurrentPlayerExcludingLandClaim(state, adjCell, player)
                 )
             );
             return cellsAdjacentToCurrentTiles.filter(
