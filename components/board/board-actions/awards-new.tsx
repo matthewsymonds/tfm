@@ -285,7 +285,7 @@ function getRequirementTextForAward(award: Award) {
         case Award.THERMALIST:
             return 'Player with the most heat resources wins.';
         case Award.VENUPHILE:
-            return 'Player with the most Veus tags wins.';
+            return 'Player with the most Venus tags wins.';
         default:
             throw new Error('Unrecognized award');
     }
