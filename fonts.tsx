@@ -9,6 +9,7 @@ export const Fonts = () => (
             onLoad={function () {
                 this.rel = 'stylesheet';
             }}
+            crossOrigin="anonymous"
         />
     </>
 );
