@@ -21,7 +21,7 @@ async function retrieveYourTurnGames(callback: Function) {
     }
 }
 
-export default function Game(props) {
+function GameMiddle(props) {
     const {game} = props;
     if (!game.state) return null;
     const store = useStore();
@@ -203,13 +203,25 @@ function GameInner(props) {
     );
 }
 
-Game.getInitialProps = async ctx => {
-    const {isServer, req, res, query} = ctx;
+export default function Game(props) {
+    const isServer = typeof window === 'undefined';
+    if (isServer) return null;
+    const router = useRouter();
+    const [game, setGame] = useState({state: null});
 
-    // To start, clear out the old game if any is present.
-    ctx.store.dispatch(setGame(null));
+    const headers = {};
+    const {query} = router;
+    useEffect(() => {
+        getInitialProps({query, headers, isServer, setGame});
+    }, [query?.name]);
 
-    const headers = isServer ? req.headers : {};
+    if (!game?.state) return null;
+
+    return <GameMiddle game={game} session={props.session} />;
+}
+
+const getInitialProps = async ctx => {
+    const {query, headers, isServer, setGame} = ctx;
 
     try {
         const response = await fetch(getGamePath(isServer, query, headers), {
@@ -217,17 +229,9 @@ Game.getInitialProps = async ctx => {
         });
 
         const game = await response.json();
-        return {game};
+        setGame(game);
     } catch (error) {
-        if (isServer) {
-            res.writeHead(302, {
-                Location: '/login',
-            });
-            res.end();
-        } else {
-            Router.push('/login');
-            return {};
-        }
+        Router.push('/login');
     }
 };
 
