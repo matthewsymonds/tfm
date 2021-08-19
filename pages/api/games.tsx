@@ -1,3 +1,4 @@
+import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession, usersModel} from 'database';
 import {getInitialState} from 'initial-state';
 
@@ -15,7 +16,10 @@ export default async (req, res) => {
             // Retrieve list of public games.
             try {
                 games = await gamesModel.find(
-                    {players: sessionResult.username},
+                    {
+                        players: sessionResult.username,
+                        'state.common.gameStage': {$ne: GameStage.END_OF_GAME},
+                    },
                     'name players createdAt'
                 );
             } catch (error) {
