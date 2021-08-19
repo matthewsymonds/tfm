@@ -349,7 +349,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         <React.Fragment>
             <LogToast />
             <Flex flexDirection="column" flex="auto" bottom="0px">
-                <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
+                <TopBar ref={topBarRef} />
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
                         hideOverlay={!!hideOverlay}
