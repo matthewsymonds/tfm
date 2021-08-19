@@ -101,7 +101,7 @@ const CardInner: React.FC<CardProps> = ({
 };
 
 export const Card: React.FC<CardProps> = props => {
-    const logLength = useTypedSelector(state => state.log.length);
+    const logLength = useTypedSelector(state => state.logLength);
     const gameName = useTypedSelector(state => state.name);
 
     const memoizedCard = useMemo(() => <CardInner {...props} />, [

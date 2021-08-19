@@ -1639,6 +1639,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
+        draft.logLength = draft.log.length;
+
         if (typeof window !== 'undefined') {
             // Don't update log on client.
             draft.log = state.log;

@@ -11,7 +11,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useRouter} from 'next/router';
 import React, {forwardRef} from 'react';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
 

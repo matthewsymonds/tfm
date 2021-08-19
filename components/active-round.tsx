@@ -202,7 +202,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     }, [!hideOverlay && !showBoardFirstInActionPrompt]);
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
-    const logLength = useTypedSelector(state => state.log.length);
+    const logLength = useTypedSelector(state => state.logLength);
     const [topBarHeight, setTopBarHeight] = useState(48);
 
     useLayoutEffect(() => {
@@ -235,6 +235,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const playing =
         (loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound) || isPickingCards;
     const onlyOnePlayer = useTypedSelector(state => state.players.length === 1);
+
+    const playerCardsString = useTypedSelector(state =>
+        state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
+    );
 
     const currentGame = useTypedSelector(state => state.name);
 
@@ -469,7 +473,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </Flex>
                 </Flex>
             </Flex>
-            <PlayerHand player={loggedInPlayer} gameName={gameName} />
+            <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />
         </React.Fragment>
     );
 };

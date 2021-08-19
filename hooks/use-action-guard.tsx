@@ -16,7 +16,7 @@ export const useActionGuard = (user?: string) => {
             return actionGuardsByUsername[username];
         },
         (prev, next) => {
-            return prev.state.log.length === next.state.log.length;
+            return prev.state.logLength === next.state.logLength;
         }
     );
 };

@@ -272,14 +272,15 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                 onConfirmPayment={payment => handleConfirmCardSelection(payment)}
                                 shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
                             >
-                                <button
-                                    disabled={shouldDisableConfirmCardSelection}
-                                    onClick={() =>
-                                        !usePaymentPopover && handleConfirmCardSelection()
-                                    }
-                                >
-                                    {cardSelectionButtonText}
-                                </button>
+                                {shouldDisableConfirmCardSelection ? null : (
+                                    <button
+                                        onClick={() =>
+                                            !usePaymentPopover && handleConfirmCardSelection()
+                                        }
+                                    >
+                                        {cardSelectionButtonText}
+                                    </button>
+                                )}
                             </PaymentPopover>
                         </Flex>
                     </Flex>

@@ -13,4 +13,5 @@ export type BaseGameState = {
     timestamp?: number;
     name: string;
     actionCount?: number;
+    logLength?: number;
 };
