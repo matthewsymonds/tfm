@@ -1,3 +1,4 @@
+import {Box} from 'components/box';
 import {Centered} from 'components/centered';
 import {InputBox} from 'components/input-box';
 import {Mars} from 'components/mars';
@@ -248,6 +249,14 @@ class MyApp extends App {
                     >
                         <Fonts />
                         <GlobalStyles />
+                        <Box
+                            className="display"
+                            visibility="hidden"
+                            position="absolute"
+                            transform="translate(-100%, -100%)"
+                        >
+                            Hidden
+                        </Box>
                         {typeof window === 'undefined' ? null : (
                             <InnerAppComponent {...this.props} />
                         )}
