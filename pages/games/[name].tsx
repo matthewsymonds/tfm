@@ -177,7 +177,7 @@ function GameInner() {
     return <ActiveRound yourTurnGames={yourTurnGames} />;
 }
 
-type ServerGame = {state: GameState; username: string; lastSeenLogItem: number};
+type ServerGame = {state: GameState; username: string; lastSeenLogItem: number; error?: string};
 
 export default function Game(props) {
     const isServer = typeof window === 'undefined';
@@ -187,6 +187,10 @@ export default function Game(props) {
     const context = useContext(AppContext);
 
     const setGameDispatch = (game: ServerGame) => {
+        if (game.error) {
+            router.push('/new-game');
+            return;
+        }
         batch(() => {
             context.setLastSeenLogItem(game.lastSeenLogItem);
             store.dispatch(setGame(game.state));

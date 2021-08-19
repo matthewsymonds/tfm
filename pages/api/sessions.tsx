@@ -63,7 +63,7 @@ export default async (req, res) => {
             session = await retrieveSession(req, res);
             if (session) {
                 res.writeHead(200, {
-                    'Set-Cookie': '',
+                    'Set-Cookie': 'session=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
                     'Content-Type': 'application/json',
                 });
             }
