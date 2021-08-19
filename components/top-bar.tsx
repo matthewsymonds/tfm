@@ -43,8 +43,8 @@ export const TopBar = forwardRef<HTMLDivElement, TopBarProps>(
          * State selectors
          */
         const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
-        const gameStage = useTypedSelector(state => state?.common?.gameStage);
-        const players = useTypedSelector(state => state?.players);
+        const gameStage = useTypedSelector(state => state.common.gameStage);
+        const players = useTypedSelector(state => state.players);
         const syncing = useTypedSelector(state => state.syncing);
 
         /**

@@ -25,7 +25,7 @@ const withAppContext = (Story, context) => {
         <AppContext.Provider value={appContext}>
             {(() => {
                 const context = useContext(AppContext);
-                context.setLoggedInPlayerIndex(0);
+                context.setUsername('Player 1');
                 return <Story {...context} />;
             })()}
         </AppContext.Provider>

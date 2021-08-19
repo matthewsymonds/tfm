@@ -36,7 +36,7 @@ export function BoardSwitcher() {
         }
     }, [!!player.placeColony, !!player.pendingTilePlacement, !!player.tradeForFree]);
 
-    const isColoniesEnabled = useTypedSelector(state => state?.options?.decks ?? []).includes(
+    const isColoniesEnabled = useTypedSelector(state => state.options?.decks ?? []).includes(
         Deck.COLONIES
     );
     const switcher = isColoniesEnabled ? (

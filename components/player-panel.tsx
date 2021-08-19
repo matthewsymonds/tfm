@@ -49,7 +49,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     /**
      * State selectors
      */
-    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const gameStage = useTypedSelector(state => state.common.gameStage);
 
     /**
      * Derived state

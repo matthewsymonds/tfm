@@ -1,8 +1,10 @@
+import {setGame} from 'actions';
 import {getPath} from 'client-server-shared/get-path';
 import {SwitchColors} from 'components/action-log';
 import {Box, Flex} from 'components/box';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
+import {useStore} from 'react-redux';
 import styled from 'styled-components';
 
 const Username = styled.div``;
@@ -10,6 +12,7 @@ const Username = styled.div``;
 export default function Index(props) {
     const {userGames, session} = props;
     const router = useRouter();
+    const store = useStore();
     function goToNewGame() {
         router.push('/new-game');
     }
@@ -36,7 +39,13 @@ export default function Index(props) {
                             return (
                                 <Box key={'overview-' + game.name} padding="4px">
                                     <Link href="/games/[name]" as={getGameLink(game.name)}>
-                                        <a>{game.name}</a>
+                                        <a
+                                            onClick={() => {
+                                                store.dispatch(setGame(null));
+                                            }}
+                                        >
+                                            {game.name}
+                                        </a>
                                     </Link>
                                     <div>
                                         {game.players.length} player

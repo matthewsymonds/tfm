@@ -99,7 +99,7 @@ type GlobalParamsProps = {
 export default function GlobalParams(props: GlobalParamsProps) {
     const generation = useTypedSelector(state => state.common.generation);
     const turn = useTypedSelector(state => state.common.turn);
-    const gameStage = useTypedSelector(state => state?.common?.gameStage);
+    const gameStage = useTypedSelector(state => state.common.gameStage);
     const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
     const roundText = isGreeneryPlacement
         ? 'Greenery placement'

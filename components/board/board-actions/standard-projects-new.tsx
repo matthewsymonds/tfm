@@ -50,7 +50,7 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
     };
 
     const venus = useTypedSelector(isPlayingVenus);
-    const colonies = useTypedSelector(state => state?.options?.decks.includes(Deck.COLONIES));
+    const colonies = useTypedSelector(state => state.options?.decks.includes(Deck.COLONIES));
 
     let actions = [...standardProjectActions];
 

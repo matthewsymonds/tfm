@@ -13,6 +13,7 @@ import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage, PLAYER_COLORS} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import Link from 'next/link';
 import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
@@ -118,20 +119,13 @@ function getFontSizeForCorporation(string) {
     }
 }
 
-export const ActiveRound = ({
-    loggedInPlayerIndex,
-    yourTurnGames,
-    lastSeenLogItem,
-}: {
-    loggedInPlayerIndex: number;
-    lastSeenLogItem: number;
-    yourTurnGames: string[];
-}) => {
+export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     /**
      * Hooks
      */
     const players = useTypedSelector(state => state.players);
-    const loggedInPlayer = players[loggedInPlayerIndex];
+    const gameName = useTypedSelector(state => state.name);
+    const loggedInPlayer = useLoggedInPlayer();
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const firstPlayerIndex = useTypedSelector(state => state.common.firstPlayerIndex);
 
@@ -157,9 +151,8 @@ export const ActiveRound = ({
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
-    const gameName = useTypedSelector(state => state.name);
     useEffect(() => {
-        setSelectedPlayerIndex(loggedInPlayerIndex);
+        setSelectedPlayerIndex(loggedInPlayer.index);
     }, [gameName]);
 
     const hideOverlay =
@@ -231,7 +224,7 @@ export const ActiveRound = ({
         }
     }, [topBarRef.current, logLength]);
 
-    const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
+    const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayer.index;
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
     const {draftPicks = [], possibleCards = []} = loggedInPlayer?.pendingCardSelection ?? {
         draftPicks: [],
@@ -354,7 +347,7 @@ export const ActiveRound = ({
 
     return (
         <React.Fragment>
-            <LogToast lastSeenLogItem={lastSeenLogItem} />
+            <LogToast />
             <Flex flexDirection="column" flex="auto" bottom="0px">
                 <TopBar ref={topBarRef} loggedInPlayer={loggedInPlayer} />
                 {isPlayerMakingDecision && (

@@ -34,17 +34,26 @@ export default async (req, res) => {
             const {lastSeenLogItem = []} = game;
             const previousLastSeenLogItem = [...lastSeenLogItem];
             game.lastSeenLogItem ||= [];
-            if (game.lastSeenLogItem[index] !== game.state.log.length) {
+            if (index >= 0 && game.lastSeenLogItem[index] !== game.state.log.length) {
                 game.lastSeenLogItem[index] = game.state.log.length;
                 game.markModified('lastSeenLogItem');
                 try {
                     await game.save();
                 } catch (error) {}
             }
+            let loggedInPlayerIndex = game.state.players.findIndex(
+                player => player.username === username
+            );
+            if (loggedInPlayerIndex < 0 && game.state.players.length !== 1) {
+                res.status(403);
+                res.json({error: 'Cannot access this game'});
+                return;
+            }
             game.state.name = game.name;
             res.json({
                 state: censorGameState(game.state, username),
                 lastSeenLogItem: previousLastSeenLogItem[index] ?? game.lastSeenLogItem[index],
+                username,
             });
             return;
         default:

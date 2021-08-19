@@ -1,19 +1,35 @@
 import {createContext} from 'react';
 import {GameState, PlayerState} from 'reducer';
 
-let loggedInPlayerIndex = -1;
+let username = '';
+let lastSeenLogItem = 0;
 
 export function getLoggedInPlayer(state: GameState): PlayerState {
-    return state.players[loggedInPlayerIndex];
+    return state.players.find(player => player.username === username)!;
 }
 
-function setLoggedInPlayerIndex(index: number) {
-    loggedInPlayerIndex = index;
+function setUsername(theUsername: string) {
+    username = theUsername;
+}
+
+function getUsername(): string {
+    return username;
+}
+
+function setLastSeenLogItem(index: number) {
+    lastSeenLogItem = index;
+}
+
+function getLastSeenLogItem(): number {
+    return lastSeenLogItem;
 }
 
 export const appContext = {
-    setLoggedInPlayerIndex,
+    setUsername,
     getLoggedInPlayer,
+    getUsername,
+    getLastSeenLogItem,
+    setLastSeenLogItem,
 };
 
 export const AppContext = createContext(appContext);

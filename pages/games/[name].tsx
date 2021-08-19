@@ -3,11 +3,12 @@ import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import Router, {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import React, {useContext, useEffect, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
-import {useTypedSelector} from 'reducer';
+import {batch, useDispatch, useStore} from 'react-redux';
+import {GameState, useTypedSelector} from 'reducer';
 
 async function retrieveYourTurnGames(callback: Function) {
     if (typeof window === 'undefined') {
@@ -22,27 +23,22 @@ async function retrieveYourTurnGames(callback: Function) {
 }
 
 function GameMiddle(props) {
-    const {game} = props;
-    if (!game.state) return null;
-    const store = useStore();
-    const {lastSeenLogItem} = game;
-    useEffect(() => {
-        store.dispatch(setGame(game.state));
-    }, [game.state.name, lastSeenLogItem]);
     const state = useTypedSelector(state => state);
+    const context = useContext(AppContext);
+    const loggedInPlayer = useTypedSelector(
+        state => state?.players?.find(player => player.username === context.getUsername()) ?? null
+    );
+
     if (!state) return null;
+    if (!loggedInPlayer) return null;
+
     return <GameInner {...props} />;
 }
 
-function GameInner(props) {
-    const {game, session} = props;
-    const {lastSeenLogItem} = game;
+function GameInner() {
     const router = useRouter();
     const dispatch = useDispatch();
     const store = useStore();
-    const context = useContext(AppContext);
-
-    const logLength = useTypedSelector(state => state.log.length);
 
     const handleRetrievedGame = game => {
         if (game.error) {
@@ -65,37 +61,21 @@ function GameInner(props) {
 
     const [yourTurnGames, setYourTurnGames] = useState<string[]>([]);
 
-    useEffect(() => {
-        handleRetrievedGame(game);
-    }, []);
-    const players = useTypedSelector(state => state.players ?? game.state.players);
-    let loggedInPlayerIndex = players.findIndex(player => player.username === session.username);
-    if (loggedInPlayerIndex < 0 && players.length !== 1) {
-        useEffect(() => {
-            router.push('/');
-        }, []);
-        return null;
-    } else if (loggedInPlayerIndex < 0) {
-        loggedInPlayerIndex = 0;
-    }
-    context.setLoggedInPlayerIndex(loggedInPlayerIndex);
-    useEffect(() => {
-        context.setLoggedInPlayerIndex(loggedInPlayerIndex);
-    }, [game.name, loggedInPlayerIndex]);
-
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const numPlayers = useTypedSelector(state => state.players.length ?? 0);
-
-    const getPendingCardSelection = state =>
-        state.players[loggedInPlayerIndex].pendingCardSelection;
-
-    const draftPicks = useTypedSelector(state => getPendingCardSelection(state)?.draftPicks ?? []);
-    const possibleCards = useTypedSelector(
-        state => getPendingCardSelection(state)?.possibleCards ?? []
+    const context = useContext(AppContext);
+    const loggedInPlayerIndex = useTypedSelector(state =>
+        state.players.findIndex(player => player.username === context.getUsername())
     );
+
+    const {pendingCardSelection} = useLoggedInPlayer();
+
+    const draftPicks = pendingCardSelection?.draftPicks ?? [];
+    const possibleCards = pendingCardSelection?.possibleCards ?? [];
     const isWaitingInDraft = draftPicks.length + possibleCards.length === 5;
-    const isSyncing = useTypedSelector(state => state?.syncing);
+    const isSyncing = useTypedSelector(state => state.syncing);
+    const logLength = useTypedSelector(state => state.log.length);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -194,30 +174,33 @@ function GameInner(props) {
         }
     };
 
-    return (
-        <ActiveRound
-            lastSeenLogItem={lastSeenLogItem}
-            loggedInPlayerIndex={loggedInPlayerIndex}
-            yourTurnGames={yourTurnGames}
-        />
-    );
+    return <ActiveRound yourTurnGames={yourTurnGames} />;
 }
+
+type ServerGame = {state: GameState; username: string; lastSeenLogItem: number};
 
 export default function Game(props) {
     const isServer = typeof window === 'undefined';
     if (isServer) return null;
     const router = useRouter();
-    const [game, setGame] = useState({state: null});
+    const store = useStore();
+    const context = useContext(AppContext);
+
+    const setGameDispatch = (game: ServerGame) => {
+        batch(() => {
+            context.setLastSeenLogItem(game.lastSeenLogItem);
+            store.dispatch(setGame(game.state));
+            context.setUsername(game.username);
+        });
+    };
 
     const headers = {};
     const {query} = router;
     useEffect(() => {
-        getInitialProps({query, headers, isServer, setGame});
+        getInitialProps({query, headers, isServer, setGame: setGameDispatch});
     }, [query?.name]);
 
-    if (!game?.state) return null;
-
-    return <GameMiddle game={game} session={props.session} />;
+    return <GameMiddle />;
 }
 
 const getInitialProps = async ctx => {

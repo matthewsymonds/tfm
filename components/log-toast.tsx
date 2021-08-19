@@ -1,23 +1,20 @@
 import {GameStage} from 'constants/game';
-import {usePrevious} from 'hooks/use-previous';
-import React, {useEffect, useState} from 'react';
+import {AppContext} from 'context/app-context';
+import React, {useContext, useEffect} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
 import {LogEntry} from './action-log';
 
-export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
+export const LogToast = () => {
+    const context = useContext(AppContext);
+    const lastSeenLogItem = context.getLastSeenLogItem();
     const log = useTypedSelector(state => state.log);
     const gameName = useTypedSelector(state => state.name);
-    const previousGameName = usePrevious(gameName);
+    const logLength = log.length;
+
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
-
-    const [theLastSeenLogItem, setTheLastSeenLogItem] = useState(lastSeenLogItem);
-
-    useEffect(() => {
-        setTheLastSeenLogItem(lastSeenLogItem);
-    }, [lastSeenLogItem]);
 
     const players = useTypedSelector(state => state.players);
     const corporationNames = players
@@ -25,19 +22,16 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
         .map(player => player.corporation.name);
 
     useEffect(() => {
-        if (theLastSeenLogItem == null) {
-            return;
-        }
-        if (gameName !== previousGameName) {
+        if (lastSeenLogItem == null) {
             return;
         }
 
-        if (theLastSeenLogItem >= log.length) {
+        if (lastSeenLogItem >= logLength) {
             return;
         }
 
         const logItems = log
-            .slice(theLastSeenLogItem - log.length)
+            .slice(lastSeenLogItem - logLength)
             .filter(entry => !entry.startsWith('Generation')); // Hack
 
         if (logItems.join('').trim().length === 0) {
@@ -58,9 +52,11 @@ export const LogToast = ({lastSeenLogItem}: {lastSeenLogItem: number}) => {
                 ))}
             </>
         );
-        setTheLastSeenLogItem(log.length);
-        return () => toast.clearWaitingQueue();
-    }, [log.length, theLastSeenLogItem, gameName, previousGameName]);
+        context.setLastSeenLogItem(logLength);
+        return () => {
+            toast.clearWaitingQueue();
+        };
+    }, [logLength, lastSeenLogItem, gameName]);
 
     if (isCorporationSelection) {
         return null;
