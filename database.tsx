@@ -27,8 +27,8 @@ export const db = mongoose.connect(process.env.MONGODB_URI, {
 
 const gamesSchema = new schema({
     name: uniqueNameSchema,
-    state: {type: Object},
-    players: {type: Array, default: []},
+    state: {type: Object, index: true},
+    players: {type: Array, default: [], index: true},
     queue: {type: Array, default: []},
     public: {type: Boolean, default: false},
     createdAt: {
