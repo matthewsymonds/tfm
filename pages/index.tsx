@@ -71,6 +71,7 @@ Index.getInitialProps = async ctx => {
 
     const headers = isServer ? req.headers : {};
     try {
+        fetch(getCronJobPath(isServer, req, headers), {headers: []});
         const response = await fetch(getUserGamesPath(isServer, req, headers), {
             headers,
         });
@@ -91,5 +92,10 @@ Index.getInitialProps = async ctx => {
 
 function getUserGamesPath(isServer, req, headers) {
     const path = '/api/games';
+    return getPath(path, isServer, req, headers);
+}
+
+function getCronJobPath(isServer, req, headers) {
+    const path = '/api/cron-job';
     return getPath(path, isServer, req, headers);
 }
