@@ -71,31 +71,25 @@ export const GlobalStyles = createGlobalStyle`
         flex-direction: row;
         justify-content: center;
         padding-bottom: 100px;
+        width: 100%;
+        box-sizing: border-box;
+        padding-right: 8px;
 
         @media (max-width: 1366px) {
+          width: min-content;
+          padding-right: 0px;
+          margin-right: 0px;
+          max-width: 100%;
           flex-direction: column-reverse;
           justify-content: flex-end;
           align-items: center;
+
         }
     }
-    .active-round-left {
-        flex-grow: 1;
-        width: fit-content;
-        @media (max-width: 1366px) {
-            margin-left: auto;
-            margin-right: auto;
-            width: min-content;
-            max-width: 100%;
-            height: fit-content;
-        }
-    }
-    .active-round-right {
-        padding-right: 8px;
-        @media (max-width: 1366px) {
-            width: 100%;
-            padding-right: 0px;
-            margin-left: auto;
-            margin-right: auto;
+    .board-scrolling-wrapper {
+        width: 100%;
+        max-width: fit-content;
+        @media (max-width: 1366px) {            
             overflow-x: auto;
         }
     }
@@ -105,13 +99,17 @@ export const GlobalStyles = createGlobalStyle`
         @media (max-width: 1366px) {
             flex-direction: column;
             align-items: center;
-            margin-right: 0px;
             flex-shrink: 0;
-
             .player-boards-outer {
-                width: 100%
+                width: 100%;
             }
         }
+    }
+    .player-cards-and-tags-outer {
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 8px;
+        padding-right: 8px;
     }
     .player-cards-and-tags {
         align-self: flex-start;
@@ -122,14 +120,14 @@ export const GlobalStyles = createGlobalStyle`
     .board-wrapper {
         width: fit-content;
         @media (max-width: 1366px) {
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 8px;
+            margin-left: 8px;
+            margin-right: 8px;
         }
     }
     .player-boards {
         flex-direction: column;
         justify-content: center;
+        padding-left: 16px;
         @media (max-width: 1366px) {
             flex-direction: row;
             margin-left: auto;

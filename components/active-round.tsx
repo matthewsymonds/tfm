@@ -55,7 +55,6 @@ const CorporationHeader = styled.h2`
 const CorporationHeaderOuter = styled.div<{selected: boolean}>`
     display: inline-block;
     position: relative;
-    margin-left: 16px;
     margin-right: 16px;
     margin-top: 12px;
     margin-bottom: 12px;
@@ -352,7 +351,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     return (
         <React.Fragment>
             <LogToast />
-            <Flex flexDirection="column" flex="auto" bottom="0px">
+            <Flex flexDirection="column" alignItems="center" flex="auto" bottom="0px">
                 <TopBar ref={topBarRef} />
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
@@ -367,7 +366,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </ActionOverlay>
                 )}
                 {yourTurnMessage ? (
-                    <Box padding="8px" color="#ddd">
+                    <Box padding="8px" color="#ddd" alignSelf="flex-start">
                         {yourTurnMessage}
                         <Link href={yourTurnLink}>
                             <YourTurnLink href={yourTurnLink}>Click</YourTurnLink>
@@ -378,72 +377,69 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     paddingTop="8px"
                     className="active-round-outer"
                     flex="auto"
-                    alignItems="flex-start"
+                    alignItems="stretch"
                 >
-                    <Flex className="active-round-left" flexDirection="column">
-                        <Flex
-                            className="player-details"
-                            marginRight="8px"
-                            marginBottom="8px"
-                            paddingTop="4px"
-                            overflowX="hidden"
+                    <Flex
+                        className="player-details"
+                        width="100%"
+                        marginBottom="8px"
+                        paddingTop="4px"
+                        overflowX="hidden"
+                    >
+                        <Box
+                            className="player-boards-outer"
+                            overflowX="auto"
+                            flexShrink="0"
+                            marginBottom="16px"
                         >
-                            <Box
-                                className="player-boards-outer"
-                                overflowX="auto"
-                                flexShrink="0"
-                                marginBottom="16px"
-                            >
-                                <Flex className="player-boards" width="fit-content">
-                                    {players.map((player, index) => (
-                                        <CorporationHeaderOuter
-                                            selected={index === selectedPlayerIndex}
-                                            className="display"
-                                            key={index}
-                                            onClick={() => setSelectedPlayerIndex(index)}
-                                        >
-                                            {index === firstPlayerIndex && (
-                                                <FirstPlayerToken>1</FirstPlayerToken>
-                                            )}
-                                            <CorporationHeader>
-                                                <Flex alignItems="center">
-                                                    <PlayerIcon
-                                                        size={16}
-                                                        playerIndex={player.index}
-                                                    />
-                                                    <span
-                                                        style={{
-                                                            marginLeft: 8,
-                                                            fontSize: getFontSizeForCorporation(
-                                                                player.corporation.name ||
-                                                                    player.username
-                                                            ),
-                                                        }}
-                                                        title={`${player.corporation.name ?? ''} (${
-                                                            player.username
-                                                        })`}
-                                                    >
-                                                        {player.corporation.name || player.username}
-                                                    </span>
-                                                </Flex>
-                                                <ScorePopover playerIndex={player.index}>
-                                                    <TerraformRating>
-                                                        {player.terraformRating} TR
-                                                    </TerraformRating>
-                                                </ScorePopover>
-                                            </CorporationHeader>
-                                            {!isCorporationSelection && (
-                                                <PlayerResourceBoard
-                                                    player={player}
-                                                    isLoggedInPlayer={
-                                                        player.index === loggedInPlayer.index
-                                                    }
-                                                />
-                                            )}
-                                        </CorporationHeaderOuter>
-                                    ))}
-                                </Flex>
-                            </Box>
+                            <Flex className="player-boards" width="fit-content">
+                                {players.map((player, index) => (
+                                    <CorporationHeaderOuter
+                                        selected={index === selectedPlayerIndex}
+                                        className="display"
+                                        key={index}
+                                        onClick={() => setSelectedPlayerIndex(index)}
+                                    >
+                                        {index === firstPlayerIndex && (
+                                            <FirstPlayerToken>1</FirstPlayerToken>
+                                        )}
+                                        <CorporationHeader>
+                                            <Flex alignItems="center">
+                                                <PlayerIcon size={16} playerIndex={player.index} />
+                                                <span
+                                                    style={{
+                                                        marginLeft: 8,
+                                                        fontSize: getFontSizeForCorporation(
+                                                            player.corporation.name ||
+                                                                player.username
+                                                        ),
+                                                    }}
+                                                    title={`${player.corporation.name ?? ''} (${
+                                                        player.username
+                                                    })`}
+                                                >
+                                                    {player.corporation.name || player.username}
+                                                </span>
+                                            </Flex>
+                                            <ScorePopover playerIndex={player.index}>
+                                                <TerraformRating>
+                                                    {player.terraformRating} TR
+                                                </TerraformRating>
+                                            </ScorePopover>
+                                        </CorporationHeader>
+                                        {!isCorporationSelection && (
+                                            <PlayerResourceBoard
+                                                player={player}
+                                                isLoggedInPlayer={
+                                                    player.index === loggedInPlayer.index
+                                                }
+                                            />
+                                        )}
+                                    </CorporationHeaderOuter>
+                                ))}
+                            </Flex>
+                        </Box>
+                        <Box className="player-cards-and-tags-outer">
                             <Flex
                                 flexGrow="1"
                                 borderColor={PLAYER_COLORS[selectedPlayerIndex]}
@@ -453,20 +449,18 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                 flexWrap="wrap"
                                 background="#333"
                                 justifyContent="center"
+                                boxSizing="border-box"
                                 overflowY="auto"
+                                width="100%"
                                 className="player-cards-and-tags"
-                                width="fit-content"
-                                marginLeft="8px"
-                                marginRight="8px"
                             >
                                 <Flex margin="2px" flexGrow="1">
                                     <PlayerPanel player={players[selectedPlayerIndex]} />
                                 </Flex>
                             </Flex>
-                        </Flex>
+                        </Box>
                     </Flex>
-
-                    <Flex className="active-round-right" flexDirection="column">
+                    <Flex className="board-scrolling-wrapper" flexDirection="column">
                         <Box className="board-wrapper">
                             <BoardSwitcher />
                         </Box>

@@ -49,15 +49,13 @@ export function BoardSwitcher() {
             marginLeft="auto"
             marginRight="auto"
             position="absolute"
-            right="0"
+            right="3px"
             top="0"
             flexDirection="column"
-            paddingRight="4px"
         >
             <Box
                 cursor="pointer"
                 padding="8px"
-                marginRight="8px"
                 marginTop="4px"
                 background="#333"
                 borderRadius="12px"
@@ -72,7 +70,6 @@ export function BoardSwitcher() {
                 cursor="pointer"
                 background="#333"
                 padding="8px"
-                marginRight="8px"
                 marginTop="8px"
                 borderRadius="12px"
                 boxShadow={

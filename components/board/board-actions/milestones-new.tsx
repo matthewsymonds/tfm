@@ -50,7 +50,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     }
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
+        <Flex flexDirection="column" alignItems="flex-end">
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
                 actions={milestones}

@@ -78,7 +78,7 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     }
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end" margin="0 8px">
+        <Flex flexDirection="column" alignItems="flex-end">
             <AwardHeader className="display">Awards</AwardHeader>
 
             <ActionListWithPopovers<Award>
