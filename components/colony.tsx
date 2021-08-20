@@ -38,7 +38,8 @@ const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: bool
     border-radius: 82px;
     flex-shrink: 0;
     background: gray;
-    margin: 8px;
+    margin-left: auto;
+    margin-right: auto;
     position: relative;
     position: relative;
     border-size: 4px;
@@ -122,12 +123,12 @@ export function ColonyComponent({colony}: {colony: Colony}) {
         );
 
         return (
-            <Box position="absolute" right="60px" top="15px" zIndex={4} transform="rotate(140deg)">
+            <Box position="absolute" right="60px" top="15px" zIndex={4} transform="rotate(220deg)">
                 <Arrow
-                    lineHeight={30}
-                    lineWidth={10}
-                    pointHeight={20}
-                    pointWidth={24}
+                    lineHeight={36}
+                    lineWidth={14}
+                    pointHeight={24}
+                    pointWidth={29}
                     color={PLAYER_COLORS[player]}
                 />
             </Box>
@@ -179,7 +180,10 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                 </Flex>
                 <Flex
                     justifyContent="center"
-                    transform="scale(0.9)"
+                    transform="translateX(-50%) scale(0.9)"
+                    position="absolute"
+                    left="50%"
+                    bottom={'tradeIncomeQuantities' in colony ? '16px' : '6px'}
                     transformOrigin={'tradeIncomeQuantities' in colony ? 'bottom' : 'top'}
                 >
                     {colony.tradeIncome
@@ -249,7 +253,7 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                                             alignItems="flex-start"
                                             justifyContent="center"
                                             transform="scale(0.8)"
-                                            boxShadow="3px 2px 2px 1px rgba(0, 0, 0, 0.2);"
+                                            boxShadow="2px 1px 2px 2px rgb(50 50 50 / 60%)"
                                         >
                                             <BaseActionIconography
                                                 card={colony.tradeIncome[index]}

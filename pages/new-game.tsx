@@ -1,3 +1,4 @@
+import {setGame} from 'actions';
 import {makePostCall} from 'api-calls';
 import {Box, Flex} from 'components/box';
 import {Input, SubmitInput} from 'components/input';
@@ -5,6 +6,7 @@ import {Deck} from 'constants/card-types';
 import {useInput} from 'hooks/use-input';
 import {useRouter} from 'next/router';
 import React, {FormEvent, ReactElement, useState} from 'react';
+import {useStore} from 'react-redux';
 import styled from 'styled-components';
 
 const ErrorText = styled.div`
@@ -27,6 +29,8 @@ export default function NewGame(props) {
     const [usernames, setUsernames] = useState<string[]>([session.username]);
 
     const [error, setError] = useState('');
+
+    const store = useStore();
 
     function setUsername(index: number, username: string) {
         const replacement = [...usernames];
@@ -56,6 +60,7 @@ export default function NewGame(props) {
 
     async function handleSubmit(event) {
         event.preventDefault();
+        store.dispatch(setGame(null));
         const players = usernames;
 
         const decks: Deck[] = [Deck.BASIC];

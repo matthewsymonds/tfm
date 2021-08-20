@@ -25,7 +25,7 @@ function DEV_cardOverrides() {
 }
 
 function DEV_corporationOverrides() {
-    const cardOverrides: Array<string> = [];
+    const cardOverrides: Array<string> = ['Aridor'];
     return cards.filter(card => {
         return cardOverrides.includes(card.name) && card.type === CardType.CORPORATION;
     });

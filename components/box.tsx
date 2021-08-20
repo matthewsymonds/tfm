@@ -61,6 +61,7 @@ interface BoxProps {
     flex: string;
     flexBasis: string;
     flexWrap: string;
+    lineHeight: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -116,6 +117,7 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
     font-style: ${props => props.fontStyle};
+    line-height: ${props => props.lineHeight};
     align-self: ${props => props.alignSelf};
     align-items: ${props => props.alignItems};
     float: ${props => props.float};

@@ -27,52 +27,82 @@ export function ColonySwitcher({
 }) {
     return (
         <>
-            <Flex
-                className="display"
-                color="#ccc"
-                flexWrap="wrap"
-                marginBottom="8px"
-                marginLeft="4px"
-                marginRight="4px"
-                marginTop="16px"
-                style={{userSelect: 'none'}}
-            >
-                {colonies.map((colony, index) => {
-                    return (
-                        <Box
-                            cursor={!allowMulti && selectedColonies[index] ? 'auto' : 'pointer'}
-                            key={colony.name}
-                            padding="8px"
-                            marginRight="8px"
-                            marginBottom="4px"
-                            marginTop="4px"
-                            background="#333"
-                            borderRadius="12px"
-                            boxShadow={
-                                selectedColonies[index]
-                                    ? `${BOX_SHADOW_BASE} ${colony.planetColor}`
-                                    : 'none'
-                            }
-                            onClick={event => {
-                                const newSelectedColonies =
-                                    event.shiftKey && allowMulti ? [...selectedColonies] : [];
-                                newSelectedColonies[index] = !newSelectedColonies[index];
-                                // ensure at least one colony selected.
-                                if (newSelectedColonies.every(selected => !selected)) return;
+            <ColonyPicker {...{colonies, setSelectedColonies, selectedColonies, allowMulti}} />
+            <FilteredColonies colonies={colonies} selectedColonies={selectedColonies} />
+        </>
+    );
+}
 
-                                setSelectedColonies(newSelectedColonies);
-                            }}
-                        >
-                            {colony.name}
-                        </Box>
-                    );
-                })}
-            </Flex>
+function ColonyPicker({
+    colonies,
+    setSelectedColonies,
+    selectedColonies,
+    allowMulti,
+}: {
+    colonies: Colony[];
+    setSelectedColonies: Dispatch<SetStateAction<boolean[]>>;
+    selectedColonies: boolean[];
+    allowMulti?: boolean;
+}) {
+    return (
+        <Flex
+            className="display"
+            color="#ccc"
+            flexWrap="wrap"
+            marginBottom="8px"
+            marginLeft="4px"
+            marginRight="4px"
+            marginTop="16px"
+            style={{userSelect: 'none'}}
+        >
+            {colonies.map((colony, index) => {
+                return (
+                    <Box
+                        cursor={!allowMulti && selectedColonies[index] ? 'auto' : 'pointer'}
+                        key={colony.name}
+                        padding="8px"
+                        marginRight="8px"
+                        marginBottom="4px"
+                        marginTop="4px"
+                        background="#333"
+                        borderRadius="12px"
+                        boxShadow={
+                            selectedColonies[index]
+                                ? `${BOX_SHADOW_BASE} ${colony.planetColor}`
+                                : 'none'
+                        }
+                        onClick={event => {
+                            const newSelectedColonies =
+                                event.shiftKey && allowMulti ? [...selectedColonies] : [];
+                            newSelectedColonies[index] = !newSelectedColonies[index];
+                            // ensure at least one colony selected.
+                            if (newSelectedColonies.every(selected => !selected)) return;
+
+                            setSelectedColonies(newSelectedColonies);
+                        }}
+                    >
+                        {colony.name}
+                    </Box>
+                );
+            })}
+        </Flex>
+    );
+}
+
+function FilteredColonies({
+    colonies,
+    selectedColonies,
+}: {
+    colonies: Colony[];
+    selectedColonies: boolean[];
+}) {
+    return (
+        <>
             {colonies
                 .filter((_, index) => selectedColonies[index])
                 .map(colony => {
                     return (
-                        <Box key={colony.name}>
+                        <Box key={colony.name} marginLeft="auto" marginRight="auto">
                             <ColonyComponent colony={colony} />
                         </Box>
                     );
@@ -91,7 +121,7 @@ export function Colonies() {
     }
 
     const switcherOptions = (
-        <ColonySwitcher allowMulti {...{selectedColonies, setSelectedColonies, colonies}} />
+        <ColonyPicker allowMulti {...{selectedColonies, setSelectedColonies, colonies}} />
     );
 
     const loggedInPlayer = useLoggedInPlayer();
@@ -194,7 +224,12 @@ export function Colonies() {
             <Box
                 key={index + '-' + firstSelectedColony.name}
                 padding="1px"
-                color={tradeIncome.gainResource?.[Resource.MEGACREDIT] ? '#333' : '#ccc'}
+                color={
+                    tradeIncome.gainResource?.[Resource.MEGACREDIT] ||
+                    tradeIncome.increaseProduction?.[Resource.MEGACREDIT]
+                        ? '#333'
+                        : '#ccc'
+                }
                 cursor={canTrade && !selected ? 'pointer' : 'auto'}
                 onClick={onClick}
                 border={border}
@@ -278,6 +313,10 @@ export function Colonies() {
         };
     }
 
+    const colonyTiles = (
+        <FilteredColonies colonies={colonies} selectedColonies={selectedColonies} />
+    );
+
     return (
         <Flex
             overflow="auto"
@@ -286,74 +325,108 @@ export function Colonies() {
             width="450px"
             alignItems="center"
         >
-            <Box marginRight="8px" marginLeft="8px" display="table">
+            <Flex width="100%" alignItems="center" flexDirection="column">
                 {switcherOptions}
-                {!onlyOneColonySelected ? null : loggedInPlayer.tradeForFree ? (
-                    canTradeForFree ? (
-                        <Box color="#ccc" marginTop="8px">
+                <Box width="fit-content" display="table">
+                    {colonyTiles}
+                    {!onlyOneColonySelected ? null : loggedInPlayer.tradeForFree ? (
+                        canTradeForFree ? (
+                            <Box
+                                color="#ccc"
+                                marginTop="8px"
+                                display="table-caption"
+                                style={{captionSide: 'bottom'}}
+                            >
+                                <Flex alignItems="center">
+                                    <Box marginRight="4px">
+                                        Trade with {firstSelectedColony.name}:
+                                    </Box>
+                                </Flex>
+                                <Flex alignItems="center">
+                                    <Box margin="4px">For:</Box>
+                                    {tradeIncomeElements}
+                                    <button
+                                        style={{
+                                            marginTop: 'auto',
+                                            marginBottom: 'auto',
+                                            marginLeft: '4px',
+                                        }}
+                                        onClick={() => {
+                                            const tradeIncome = selectedTradeIncome;
+                                            tradeForFree(firstSelectedColony, tradeIncome);
+                                        }}
+                                    >
+                                        Confirm
+                                    </button>
+                                </Flex>
+                            </Box>
+                        ) : (
+                            <Box
+                                color="#ccc"
+                                display="table-caption"
+                                style={{captionSide: 'bottom'}}
+                            >
+                                <em>{canTradeForFreeReason}</em>
+                            </Box>
+                        )
+                    ) : loggedInPlayer.placeColony ? (
+                        canBuild ? (
+                            <Box
+                                marginTop="8px"
+                                display="table-caption"
+                                style={{captionSide: 'bottom'}}
+                            >
+                                <button
+                                    onClick={() => {
+                                        apiClient.completePlaceColonyAsync({
+                                            colony: firstSelectedColony.name,
+                                        });
+                                    }}
+                                    style={{
+                                        marginLeft: 'auto',
+                                        marginRight: 'auto',
+                                        display: 'block',
+                                    }}
+                                >
+                                    Build colony
+                                </button>
+                            </Box>
+                        ) : (
+                            <Box
+                                color="#ccc"
+                                display="table-caption"
+                                style={{captionSide: 'bottom'}}
+                            >
+                                <em>{canBuildReason}</em>
+                            </Box>
+                        )
+                    ) : hasResources && canTrade ? (
+                        <Box
+                            color="#ccc"
+                            marginTop="8px"
+                            width="100%"
+                            display="table-caption"
+                            style={{captionSide: 'bottom'}}
+                        >
                             <Flex alignItems="center">
-                                <Box marginRight="4px">Trade with {firstSelectedColony.name}:</Box>
+                                <Box marginRight="4px" flexShrink="0">
+                                    Trade with {firstSelectedColony.name}:
+                                </Box>
+                                {tradePaymentElements}
                             </Flex>
                             <Flex alignItems="center">
                                 <Box margin="4px">For:</Box>
                                 {tradeIncomeElements}
-                                <button
-                                    style={{
-                                        marginTop: 'auto',
-                                        marginBottom: 'auto',
-                                        marginLeft: '4px',
-                                    }}
-                                    onClick={() => {
-                                        const tradeIncome = selectedTradeIncome;
-                                        tradeForFree(firstSelectedColony, tradeIncome);
-                                    }}
-                                >
-                                    Confirm
-                                </button>
+                                {tradeButton()}
                             </Flex>
                         </Box>
                     ) : (
-                        <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
-                            <em>{canTradeForFreeReason}</em>
+                        <Box color="#ccc" marginTop="8px" lineHeight="30px">
+                            <em>{canTradeReason}</em>
                         </Box>
-                    )
-                ) : loggedInPlayer.placeColony ? (
-                    canBuild ? (
-                        <Box marginTop="8px">
-                            <button
-                                onClick={() => {
-                                    apiClient.completePlaceColonyAsync({
-                                        colony: firstSelectedColony.name,
-                                    });
-                                }}
-                                style={{marginLeft: 'auto', marginRight: 'auto', display: 'block'}}
-                            >
-                                Build colony
-                            </button>
-                        </Box>
-                    ) : (
-                        <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
-                            <em>{canBuildReason}</em>
-                        </Box>
-                    )
-                ) : hasResources && canTrade ? (
-                    <Box color="#ccc" marginTop="8px">
-                        <Flex alignItems="center">
-                            <Box marginRight="4px">Trade with {firstSelectedColony.name}:</Box>
-                            {tradePaymentElements}
-                        </Flex>
-                        <Flex alignItems="center">
-                            <Box margin="4px">For:</Box>
-                            {tradeIncomeElements}
-                            {tradeButton()}
-                        </Flex>
-                    </Box>
-                ) : (
-                    <Box color="#ccc" display="table-caption" style={{captionSide: 'bottom'}}>
-                        <em>{canTradeReason}</em>
-                    </Box>
-                )}
-            </Box>
+                    )}
+                </Box>
+            </Flex>
         </Flex>
     );
 }
