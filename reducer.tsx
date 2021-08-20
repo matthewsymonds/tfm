@@ -1124,6 +1124,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     }
                 }
             }
+            player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
         }
 
         if (addParameterRequirementAdjustments.match(action)) {
