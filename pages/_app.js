@@ -91,6 +91,9 @@ export const GlobalStyles = createGlobalStyle`
         max-width: fit-content;
         @media (max-width: 1366px) {            
             overflow-x: auto;
+            margin-left: auto;
+            margin-right: auto;
+            overflow-y: hidden;
         }
     }
     .player-details {
