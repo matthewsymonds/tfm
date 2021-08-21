@@ -9,6 +9,7 @@ const ActionBar = styled.div`
     min-height: 36px;
     display: flex;
     align-items: center;
+    align-self: stretch;
     justify-content: space-between;
     padding: 0 8px;
     background-color: hsla(0, 0%, 100%, 0.2);

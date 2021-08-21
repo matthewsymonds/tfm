@@ -443,6 +443,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                             <Flex
                                 flexGrow="1"
                                 borderColor={PLAYER_COLORS[selectedPlayerIndex]}
+                                key={selectedPlayerIndex + '-cards-and-tags'}
                                 borderRadius="4px"
                                 borderStyle="solid"
                                 borderWidth="3px"
