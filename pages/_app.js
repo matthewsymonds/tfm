@@ -170,6 +170,9 @@ function InnerAppComponent({Component, pageProps, session}) {
 
 export const PROTOCOL_HOST_DELIMITER = '://';
 
+const FONT_LIST = ['Open Sans', 'Ubuntu Condensed'];
+const FONT_WEIGHT_LIST = [400, 500, 600, 700, 900];
+
 function getSessionPath(isServer, headers) {
     const path = '/api/sessions';
     if (!isServer) {
@@ -250,14 +253,21 @@ class MyApp extends App {
                     >
                         <Fonts />
                         <GlobalStyles />
-                        <Box
-                            className="display"
-                            visibility="hidden"
-                            position="absolute"
-                            transform="translate(-100%, -100%)"
-                        >
-                            Hidden
-                        </Box>
+                        {/* Force every font to load */}
+                        {FONT_LIST.flatMap(font =>
+                            FONT_WEIGHT_LIST.map(weight => (
+                                <Box
+                                    fontFamily={font}
+                                    fontWeight={weight}
+                                    visibility="hidden"
+                                    key={font + '-' + weight}
+                                    position="absolute"
+                                    transform="translate(-100%, -100%)"
+                                >
+                                    Hidden
+                                </Box>
+                            ))
+                        )}
                         {typeof window === 'undefined' ? null : (
                             <InnerAppComponent {...this.props} />
                         )}

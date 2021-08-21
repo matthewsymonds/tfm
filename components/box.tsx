@@ -43,6 +43,8 @@ interface BoxProps {
     zIndex: number;
     fontSize: string;
     fontStyle: string;
+    fontWeight: string;
+    fontFamily: string;
     alignSelf: string;
     alignItems: string;
     float: string;
@@ -55,7 +57,6 @@ interface BoxProps {
     transform: string;
     transformOrigin: string;
     boxShadow: string;
-    fontWeight: string;
     cursor: string;
     flexGrow: string;
     flex: string;
@@ -117,6 +118,8 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     z-index: ${props => props.zIndex};
     font-size: ${props => props.fontSize};
     font-style: ${props => props.fontStyle};
+    font-weight: ${props => props.fontWeight};
+    font-family: ${props => props.fontFamily};
     line-height: ${props => props.lineHeight};
     align-self: ${props => props.alignSelf};
     align-items: ${props => props.alignItems};
@@ -129,7 +132,6 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     border-image-source: ${props => props.borderImageSource};
     border-image-slice: ${props => props.borderImageSlice};
     box-shadow: ${props => props.boxShadow};
-    font-weight: ${props => props.fontWeight};
     cursor: ${props => props.cursor};
     flex: ${props => props.flex};
     flex-basis: ${props => props.flexBasis};
