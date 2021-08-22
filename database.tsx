@@ -116,12 +116,8 @@ export const sessionsSchema = new schema({
     },
 });
 
-export let sessionsModel;
-
-try {
-    sessionsModel = mongoose.model('sessions');
-} catch (error) {
-    sessionsModel = mongoose.model('sessions', sessionsSchema);
+export interface Session {
+    username: string;
 }
 
 export async function retrieveSession(req, res) {

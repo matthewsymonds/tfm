@@ -1,4 +1,4 @@
-import {appendSecurityCookieModifiers, retrieveSession, sessionsModel, usersModel} from 'database';
+import {appendSecurityCookieModifiers, retrieveSession, Session, usersModel} from 'database';
 import jwt from 'jsonwebtoken';
 import absoluteUrl from 'next-absolute-url';
 
@@ -7,7 +7,7 @@ function generateAccessToken(payload: {username: string}): string {
 }
 
 export default async (req, res) => {
-    let session: typeof sessionsModel;
+    let session: Session | undefined;
 
     switch (req.method) {
         case 'POST':
