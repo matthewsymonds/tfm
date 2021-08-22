@@ -13,8 +13,9 @@ export default async (req, res) => {
         case 'POST':
             // Log in!
             const {username, password} = req.body;
+            const usernameRegex = new RegExp(['^', username, '$'].join(''), 'i');
             const user = await usersModel.findOne({
-                username,
+                username: usernameRegex,
             });
             let isMatch: boolean;
             try {
@@ -38,7 +39,7 @@ export default async (req, res) => {
             const theCookie = appendSecurityCookieModifiers(
                 req.secure,
                 absoluteUrl(req).host,
-                `session=${generateAccessToken({username})}`
+                `session=${generateAccessToken({username: String(user.username)})}`
             );
 
             res.writeHead(200, {

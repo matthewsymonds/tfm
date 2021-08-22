@@ -6,7 +6,11 @@ export default async (req, res) => {
     switch (req.method) {
         case 'POST':
             // Create a new user.
-            user = (await usersModel.findOne({email})) || (await usersModel.findOne({username}));
+            const usernameRegex = new RegExp(['^', username, '$'].join(''), 'i');
+            const emailRegex = new RegExp(['^', email, '$'].join(''), 'i');
+            user = await usersModel.findOne({
+                $or: [{email: emailRegex}, {username: usernameRegex}],
+            });
 
             if (user) {
                 res.status(409);
