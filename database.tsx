@@ -15,8 +15,6 @@ const uniqueNameSchema = {
     validate: /^[a-zA-Z0-9_-]*$/,
 };
 
-const sessions: {[token: string]: {username: string}} = {};
-
 const schema = mongoose.Schema;
 
 export const db = mongoose.connect(process.env.MONGODB_URI, {
@@ -24,6 +22,19 @@ export const db = mongoose.connect(process.env.MONGODB_URI, {
     useUnifiedTopology: true,
     useCreateIndex: true,
 });
+
+async function connectionIsUp(): Promise<boolean> {
+    try {
+        return await db
+            .admin()
+            .ping()
+            .then(res => !!res?.ok);
+    } catch (err) {
+        return false;
+    }
+}
+
+connectionIsUp();
 
 const gamesSchema = new schema({
     name: uniqueNameSchema,
