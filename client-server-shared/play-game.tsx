@@ -6,7 +6,7 @@ import {ApiActionHandler} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
 import spawnExhaustiveSwitchError from 'utils';
 
-export async function playGame(
+export function playGame(
     type: ApiActionType,
     // TODO enhance
     payload: any,

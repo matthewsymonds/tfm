@@ -1,9 +1,8 @@
 import {colors} from 'components/ui';
 import {Deck} from 'constants/card-types';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useTypedSelector} from 'reducer';
-import {Board} from './board/board';
 import {Box, Flex} from './box';
 
 export enum DisplayBoard {

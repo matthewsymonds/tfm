@@ -76,19 +76,21 @@ export class ApiClient implements GameActionHandler {
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
         const {actionCount} = this.store.getState();
-
-        playGame(
-            type,
-            payload,
-            this.actionHandler,
-            this.stateHydrator,
-            this.actionHandler.state
-        ).catch(async error => {
+        try {
+            playGame(
+                type,
+                payload,
+                this.actionHandler,
+                this.stateHydrator,
+                this.actionHandler.state
+            );
+        } catch (error) {
             const apiPath = '/api' + window.location.pathname;
 
             const result = await makeGetCall(apiPath);
             this.dispatch(setGame(result.state));
-        });
+        }
+
         this.processingActions.push(async () => {
             try {
                 const result = await makePostCall(this.getPath(), {
