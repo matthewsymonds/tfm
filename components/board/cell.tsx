@@ -1,4 +1,4 @@
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {getTileBgColor} from 'components/icons/tile';
 import {Square} from 'components/square';
@@ -21,6 +21,8 @@ const getColor = (type: CellType) => {
             return 'rgba(255, 255, 255, 0.2)';
         case CellType.WATER:
             return 'rgba(206, 247, 253, 0.5)';
+        default:
+            return 'rgba(0,0,0,0)';
     }
 };
 
@@ -47,16 +49,21 @@ const CellWrapper = styled.div`
 
 export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
     const {type, bonus = [], tile = null, specialName = null} = cell;
+    const isLandClaim = tile?.type === TileType.LAND_CLAIM;
 
     const bgColor =
-        tile && typeof tile.ownerPlayerIndex === 'number'
+        tile && typeof tile.ownerPlayerIndex === 'number' && !isLandClaim
             ? PLAYER_COLORS[tile?.ownerPlayerIndex]
             : getColor(type);
 
     function renderTile(tile) {
         // Land claim is specially coded as a tile, but shouldn't show a tile.
         if (tile.type === TileType.LAND_CLAIM) {
-            return <Square playerIndex={tile.ownerPlayerIndex!} />;
+            return (
+                <Box position="absolute" bottom="4px">
+                    <Square playerIndex={tile.ownerPlayerIndex!} />
+                </Box>
+            );
         }
 
         const scale = typeof tile.ownerPlayerIndex === 'number' ? 0.8 : 1;
@@ -85,8 +92,10 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
     return (
         <CellWrapper>
             <Hexagon color={bgColor} selectable={selectable}>
-                {tile && renderTile(tile)}
-                {bonus.length > 0 && !tile && renderBonus(bonus)}
+                <Flex flexDirection="column" alignItems="center" justifyContent="flex-start">
+                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
+                    {tile && renderTile(tile)}
+                </Flex>
             </Hexagon>
             {specialName && (
                 <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>

@@ -240,6 +240,7 @@ export function getMostRecentlyPlayedCard(player: PlayerState) {
 function setSyncingTrueIfClient(draft: GameState) {
     if (typeof window !== 'undefined') {
         draft.syncing = true;
+        draft.isReallySyncing = true;
     }
 }
 
@@ -355,7 +356,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         }
 
         if (setIsNotSyncing.match(action)) {
-            draft.syncing = false;
+            if (!draft.isReallySyncing) {
+                draft.syncing = false;
+            }
             return;
         }
 

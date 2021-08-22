@@ -1,4 +1,4 @@
-import {setGame, setIsNotSyncing} from 'actions';
+import {setGame, setIsNotSyncing, setIsSyncing} from 'actions';
 import {makeGetCall, makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {
@@ -76,6 +76,7 @@ export class ApiClient implements GameActionHandler {
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
         const {actionCount} = this.store.getState();
+        this.store.dispatch(setIsSyncing());
         try {
             playGame(
                 type,
@@ -90,6 +91,8 @@ export class ApiClient implements GameActionHandler {
             const result = await makeGetCall(apiPath);
             this.dispatch(setGame(result.state));
         }
+
+        this.store.dispatch(setIsNotSyncing());
 
         this.processingActions.push(async () => {
             try {
