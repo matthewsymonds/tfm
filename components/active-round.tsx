@@ -1,6 +1,7 @@
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
+import {Board} from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerIcon} from 'components/icons/player';
 import {PlayerHand} from 'components/player-hand';
@@ -32,7 +33,6 @@ import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
-import {BoardSwitcher} from './board-switcher';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import {LogToast} from './log-toast';
@@ -463,7 +463,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </Flex>
                     <Flex className="board-scrolling-wrapper" flexDirection="column">
                         <Box className="board-wrapper">
-                            <BoardSwitcher />
+                            <Board />
                         </Box>
                     </Flex>
                 </Flex>
