@@ -154,6 +154,7 @@ export function appendSecurityCookieModifiers(
     if (secure) {
         originalCookie += '; Secure';
     }
+    originalCookie += '; Max-Age=31536000';
     return originalCookie;
 }
 
