@@ -2,6 +2,7 @@ import {colors} from 'components/ui';
 import React from 'react';
 import styled from 'styled-components';
 import {Flex} from './box';
+import hex from 'assets/hexellence.png';
 
 const CardContainer = styled.div<TexturedCardProps>`
     color: ${colors.TEXT_DARK_1};
@@ -43,7 +44,7 @@ const CardTexture = styled.div<{borderRadius: number}>`
         border-radius: ${props => props.borderRadius}px;
         filter: sepia(0.1) hue-rotate(-9deg);
         opacity: 0.8;
-        background-image: url(${require('assets/hexellence.png')});
+        background-image: url(${hex.src});
     }
 `;
 
