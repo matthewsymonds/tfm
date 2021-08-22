@@ -1,4 +1,4 @@
-import {BoardSwitcherOption} from 'components/board-switcher';
+import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
 import AwardsNew from 'components/board/board-actions/awards-new';
 import MilestonesNew from 'components/board/board-actions/milestones-new';
 import StandardProjectsNew from 'components/board/board-actions/standard-projects-new';
@@ -10,7 +10,7 @@ import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React from 'react';
+import React, {useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
@@ -37,8 +37,9 @@ const Row = styled.div`
     margin-top: -${rowOffset}px;
 `;
 
-export const Board = ({option}: {option: BoardSwitcherOption}) => {
+export const Board = () => {
     const loggedInPlayer = useLoggedInPlayer();
+    const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
 
     const parameters = useTypedSelector(state => state.common.parameters);
 
@@ -47,11 +48,12 @@ export const Board = ({option}: {option: BoardSwitcherOption}) => {
             <GlobalParams parameters={parameters} />
 
             <Flex flexDirection="column" alignItems="center" flexGrow="1">
-                <BoardInner option={option} />
+                <BoardInner displayBoard={displayBoard} />
                 <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
             </Flex>
 
             <Flex flexDirection="column" alignItems="flex-end" alignSelf="center">
+                <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
                 <MilestonesNew loggedInPlayer={loggedInPlayer} />
                 <AwardsNew loggedInPlayer={loggedInPlayer} />
             </Flex>
@@ -59,7 +61,7 @@ export const Board = ({option}: {option: BoardSwitcherOption}) => {
     );
 };
 
-export function BoardInner({option}: {option: BoardSwitcherOption}) {
+export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
     const loggedInPlayer = useLoggedInPlayer();
 
     const board = useTypedSelector(state => state.common.board);
@@ -80,7 +82,7 @@ export function BoardInner({option}: {option: BoardSwitcherOption}) {
         apiClient.completePlaceTileAsync({cell});
     }
 
-    if (option === BoardSwitcherOption.BOARD_SWITCHER_COLONIES) {
+    if (displayBoard === DisplayBoard.COLONIES) {
         return <Colonies />;
     }
     return (
