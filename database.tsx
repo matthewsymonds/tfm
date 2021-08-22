@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import cookie from 'cookie';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';

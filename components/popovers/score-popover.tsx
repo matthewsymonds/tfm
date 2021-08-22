@@ -1,4 +1,3 @@
-// import {Popover} from 'reactstrap';
 import {CardType} from 'constants/card-types';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
