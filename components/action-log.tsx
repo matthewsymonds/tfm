@@ -54,7 +54,6 @@ export const ActionLog = () => {
                     border: isPopperVisible ? '' : 'none',
                     zIndex: 20,
                     overflow: 'hidden',
-                    // borderRadius: 5,
                     boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
                 }}
                 {...attributes.popper}

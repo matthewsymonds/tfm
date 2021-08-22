@@ -1,7 +1,7 @@
 import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
-import AwardsNew from 'components/board/board-actions/awards-new';
-import MilestonesNew from 'components/board/board-actions/milestones-new';
-import StandardProjectsNew from 'components/board/board-actions/standard-projects-new';
+import AwardsNew from 'components/board/board-actions/awards';
+import MilestonesNew from 'components/board/board-actions/milestones';
+import StandardProjectsNew from 'components/board/board-actions/standard-projects';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
 import GlobalParams from 'components/global-params';

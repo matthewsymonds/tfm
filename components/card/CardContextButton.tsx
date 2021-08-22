@@ -12,12 +12,8 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
 import {isActiveRound} from 'selectors/is-active-round';
-import styled from 'styled-components';
+import {CardButton} from 'components/card/CardButton';
 import spawnExhaustiveSwitchError from 'utils';
-
-const CardButton = styled.button`
-    width: 80px;
-`;
 
 export function CardContextButton({
     card,

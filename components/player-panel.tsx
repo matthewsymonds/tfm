@@ -80,11 +80,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                         tagFilterConfig={tagFilterConfig}
                         setTagFilterConfig={setTagFilterConfig}
                     />
-                    <PlayerPlayedCards
-                        player={player}
-                        playerPanelRef={playerPanelRef}
-                        tagFilterConfig={tagFilterConfig}
-                    />
+                    <PlayerPlayedCards player={player} tagFilterConfig={tagFilterConfig} />
                 </React.Fragment>
             )}
 

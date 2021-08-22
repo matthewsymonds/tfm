@@ -3,6 +3,7 @@ import {Flex} from 'components/box';
 import {LiveCard as LiveCardComponent} from 'components/card/Card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
+import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
 import React, {useRef, useState} from 'react';
 import {useRect} from 'react-use-rect';
@@ -94,17 +95,6 @@ function getColorForCardType(cardType: CardType) {
         default:
             throw spawnExhaustiveSwitchError(cardType);
     }
-}
-
-let uniqueId = 0;
-const getUniqueId = () => uniqueId++;
-
-export function useComponentId() {
-    const idRef = useRef<null | number>(null);
-    if (idRef.current === null) {
-        idRef.current = getUniqueId();
-    }
-    return `${idRef.current}`;
 }
 
 export const CardToggleToken = ({

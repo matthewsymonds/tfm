@@ -44,7 +44,7 @@ const CardTexture = styled.div<{borderRadius: number}>`
         border-radius: ${props => props.borderRadius}px;
         filter: sepia(0.1) hue-rotate(-9deg);
         opacity: 0.8;
-        background-image: url(${hex.src});
+        background-image: url(${hex.src ?? '/hexellence.png'});
     }
 `;
 

@@ -1,5 +1,6 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Flex} from 'components/box';
+import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
@@ -59,20 +60,23 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
                 ActionComponent={({action}) => (
                     <MilestoneBadge
                         milestone={action}
-                        claimMilestone={claimMilestone}
-                        loggedInPlayer={loggedInPlayer}
                         canClaim={canPlay(action)}
                         isClaimed={isClaimed(action)}
                     />
                 )}
-                ActionPopoverComponent={({action}) => (
+                ActionPopoverComponent={({action, closePopover}) => (
                     <MilestonePopover
                         milestone={action}
                         isClaimed={isClaimed(action)}
+                        claimMilestone={(milestone, payment) => {
+                            closePopover();
+                            claimMilestone(milestone, payment);
+                        }}
                         claimedByPlayer={
                             claimedMilestones.find(cm => cm.milestone === action)
                                 ?.claimedByPlayer ?? null
                         }
+                        loggedInPlayer={loggedInPlayer}
                     />
                 )}
             />
@@ -91,14 +95,10 @@ const MilestoneBadgeContainer = styled.div<{canClaim: boolean; isClaimed: boolea
 
 function MilestoneBadge({
     milestone,
-    claimMilestone,
-    loggedInPlayer,
     canClaim,
     isClaimed,
 }: {
     milestone: Milestone;
-    claimMilestone: (action: Milestone | null, payment?: PropertyCounter<Resource>) => void;
-    loggedInPlayer: PlayerState;
     canClaim: boolean;
     isClaimed: boolean;
 }) {
@@ -107,31 +107,15 @@ function MilestoneBadge({
             state.common.claimedMilestones.find(cm => cm.milestone === milestone)
         )?.claimedByPlayerIndex ?? null;
 
-    const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
-
     return (
-        <PaymentPopover
-            cost={8}
-            onConfirmPayment={payment => claimMilestone(milestone, payment)}
-            shouldHide={!showPaymentPopover}
-        >
-            <MilestoneBadgeContainer
-                className="display"
-                canClaim={canClaim}
-                isClaimed={isClaimed}
-                onClick={() => {
-                    !showPaymentPopover && claimMilestone(milestone);
-                }}
-            >
-                {claimedByPlayerIndex !== null && (
-                    <div style={{marginRight: 4}}>
-                        <PlayerIcon playerIndex={claimedByPlayerIndex} size={10} />
-                    </div>
-                )}
-                <span>{getTextForMilestone(milestone)}</span>
-            </MilestoneBadgeContainer>
-        </PaymentPopover>
+        <MilestoneBadgeContainer className="display" canClaim={canClaim} isClaimed={isClaimed}>
+            {claimedByPlayerIndex !== null && (
+                <div style={{marginRight: 4}}>
+                    <PlayerIcon playerIndex={claimedByPlayerIndex} size={10} />
+                </div>
+            )}
+            <span>{getTextForMilestone(milestone)}</span>
+        </MilestoneBadgeContainer>
     );
 }
 
@@ -142,14 +126,20 @@ const ErrorText = styled.span`
 function MilestonePopover({
     milestone,
     isClaimed,
+    loggedInPlayer,
     claimedByPlayer,
+    claimMilestone,
 }: {
     milestone: Milestone;
     isClaimed: boolean;
+    loggedInPlayer: PlayerState;
     claimedByPlayer: PlayerState | null;
+    claimMilestone: (action: Milestone, payment?: PropertyCounter<Resource>) => void;
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
+    const showPaymentPopover =
+        loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
 
     return (
         <TexturedCard width={200}>
@@ -183,6 +173,23 @@ function MilestonePopover({
                         fontSize="13px"
                     >
                         <ErrorText>{reason}</ErrorText>
+                    </Flex>
+                )}
+                {canPlay && (
+                    <Flex justifyContent="center" marginBottom="8px">
+                        <PaymentPopover
+                            cost={8}
+                            onConfirmPayment={payment => claimMilestone(milestone, payment)}
+                            shouldHide={!showPaymentPopover}
+                        >
+                            <CardButton
+                                onClick={() => {
+                                    !showPaymentPopover && claimMilestone(milestone);
+                                }}
+                            >
+                                Claim {getTextForMilestone(milestone)}
+                            </CardButton>
+                        </PaymentPopover>
                     </Flex>
                 )}
             </Flex>
