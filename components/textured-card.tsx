@@ -1,8 +1,8 @@
+import hex from 'assets/hexellence.png';
 import {colors} from 'components/ui';
 import React from 'react';
 import styled from 'styled-components';
 import {Flex} from './box';
-import hex from 'assets/hexellence.png';
 
 const CardContainer = styled.div<TexturedCardProps>`
     color: ${colors.TEXT_DARK_1};
