@@ -117,16 +117,6 @@ try {
     usersModel = mongoose.model('users', usersSchema);
 }
 
-export const sessionsSchema = new schema({
-    username: {type: String, required: true},
-    token: {type: String, required: true, default: getToken},
-    expiresAt: {
-        type: Date,
-        default: Date.now,
-        index: {expires: '100d'},
-    },
-});
-
 export interface Session {
     username: string;
 }
