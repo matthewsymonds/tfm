@@ -1,6 +1,9 @@
 import {Meta, Story} from '@storybook/react';
+import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
+import {Award} from 'constants/board';
 import {cardConfigs} from 'constants/cards';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 
@@ -26,6 +29,27 @@ const Template: Story<{}> = args => (
             })}
     </div>
 );
-
 export const Default = Template.bind({});
 Default.args = {};
+
+const AwardCardTemplate: Story<{}> = args => {
+    const loggedInPlayer = useLoggedInPlayer();
+
+    return (
+        <div style={{display: 'flex', flexWrap: 'wrap'}}>
+            {Object.values(Award).map(award => (
+                <AwardPopover
+                    key={award}
+                    award={award}
+                    loggedInPlayer={loggedInPlayer}
+                    cost={14}
+                    isFunded={false}
+                    fundAward={() => {}}
+                />
+            ))}
+        </div>
+    );
+};
+
+export const AwardCard = AwardCardTemplate.bind({});
+AwardCard.args = {};

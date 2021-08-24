@@ -1,5 +1,6 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {Box, Flex} from 'components/box';
+import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {
     GainResourceIconography,
@@ -76,15 +77,27 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
                 }}
                 ActionComponent={({action}) => (
                     <Box padding="4px">
-                        <StandardProject
-                            action={action}
-                            playStandardProjectAction={playStandardProjectAction}
-                            loggedInPlayer={loggedInPlayer}
-                        />
+                        <StandardProject action={action} />
                     </Box>
                 )}
-                ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
-                    <StandardProjectTooltip action={action} loggedInPlayer={loggedInPlayer} />
+                ActionPopoverComponent={({
+                    action,
+                    closePopover,
+                }: {
+                    action: StandardProjectAction;
+                    closePopover: () => void;
+                }) => (
+                    <StandardProjectTooltip
+                        action={action}
+                        loggedInPlayer={loggedInPlayer}
+                        playStandardProjectAction={(
+                            action: StandardProjectAction,
+                            payment: PropertyCounter<Resource>
+                        ) => {
+                            closePopover();
+                            playStandardProjectAction(action, payment);
+                        }}
+                    />
                 )}
             />
         </Flex>
@@ -95,19 +108,29 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function StandardProject({
+function StandardProject({action}: {action: StandardProjectAction}) {
+    return (
+        <Flex height="32px" width="32px" justifyContent="center" alignItems="center">
+            <StandardProjectActionIcon actionType={action.type} />
+        </Flex>
+    );
+}
+
+function StandardProjectTooltip({
     action,
-    playStandardProjectAction,
     loggedInPlayer,
+    playStandardProjectAction,
 }: {
     action: StandardProjectAction;
+    loggedInPlayer: PlayerState;
     playStandardProjectAction: (
         action: StandardProjectAction | null,
         payment: PropertyCounter<Resource>
     ) => void;
-    loggedInPlayer: PlayerState;
 }) {
+    const actionGuard = useActionGuard();
     const cost = getCostForStandardProject(action, loggedInPlayer);
+    const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
 
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' &&
@@ -115,40 +138,7 @@ function StandardProject({
         action.cost;
 
     return (
-        <PaymentPopover
-            cost={cost}
-            onConfirmPayment={payment => playStandardProjectAction(action, payment)}
-            shouldHide={!showPaymentPopover}
-        >
-            <Flex
-                onClick={() => {
-                    !showPaymentPopover &&
-                        playStandardProjectAction(action, {[Resource.MEGACREDIT]: cost});
-                }}
-                height="32px"
-                width="32px"
-                justifyContent="center"
-                alignItems="center"
-            >
-                <StandardProjectActionIcon actionType={action.type} />
-            </Flex>
-        </PaymentPopover>
-    );
-}
-
-function StandardProjectTooltip({
-    action,
-    loggedInPlayer,
-}: {
-    action: StandardProjectAction;
-    loggedInPlayer: PlayerState;
-}) {
-    const actionGuard = useActionGuard();
-    const cost = getCostForStandardProject(action, loggedInPlayer);
-    const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
-
-    return (
-        <TexturedCard width={200}>
+        <TexturedCard width={200} height={225}>
             <GenericCardTitleBar bgColor={'#d67500'}>
                 {getTextForStandardProject(action.type)}
             </GenericCardTitleBar>
@@ -170,6 +160,28 @@ function StandardProjectTooltip({
                     fontSize="13px"
                 >
                     <ErrorText>{reason}</ErrorText>
+                </Flex>
+            )}
+            {canPlay && (
+                <Flex justifyContent="center" marginBottom="8px">
+                    <PaymentPopover
+                        cost={cost}
+                        onConfirmPayment={payment => playStandardProjectAction(action, payment)}
+                        shouldHide={!showPaymentPopover}
+                    >
+                        <CardButton
+                            width={150}
+                            onClick={() => {
+                                if (!showPaymentPopover) {
+                                    playStandardProjectAction(action, {
+                                        [Resource.MEGACREDIT]: cost,
+                                    });
+                                }
+                            }}
+                        >
+                            {getButtonTextForStandardProject(action.type)}
+                        </CardButton>
+                    </PaymentPopover>
                 </Flex>
             )}
         </TexturedCard>
@@ -222,6 +234,29 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
             return 'Venus';
         case StandardProjectType.COLONY:
             return 'Colony';
+        default:
+            throw spawnExhaustiveSwitchError(standardProject);
+    }
+}
+
+export function getButtonTextForStandardProject(standardProject: StandardProjectType) {
+    switch (standardProject) {
+        case StandardProjectType.SELL_PATENTS:
+            return 'Sell cards';
+        case StandardProjectType.POWER_PLANT:
+            return 'Increase energy';
+        case StandardProjectType.ASTEROID:
+            return 'Raise temperature';
+        case StandardProjectType.AQUIFER:
+            return 'Place ocean';
+        case StandardProjectType.GREENERY:
+            return 'Place greenery';
+        case StandardProjectType.CITY:
+            return 'Place city';
+        case StandardProjectType.VENUS:
+            return 'Increase Venus';
+        case StandardProjectType.COLONY:
+            return 'Place colony';
         default:
             throw spawnExhaustiveSwitchError(standardProject);
     }

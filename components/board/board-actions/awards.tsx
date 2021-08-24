@@ -5,6 +5,7 @@ import {GenericCardTitleBar} from 'components/card/CardTitle';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
+import {CardButton} from 'components/card/CardButton';
 import {colors} from 'components/ui';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
@@ -88,16 +89,17 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
                 ActionComponent={({action}) => (
                     <AwardBadge
                         award={action}
-                        fundAward={fundAward}
                         canFund={canPlay(action)}
                         isFunded={isFunded(action)}
-                        loggedInPlayer={loggedInPlayer}
-                        cost={isFree ? 0 : awardConfigsByAward[action].cost}
                     />
                 )}
-                ActionPopoverComponent={({action}) => (
+                ActionPopoverComponent={({action, closePopover}) => (
                     <AwardPopover
                         award={action}
+                        fundAward={(award, payment) => {
+                            closePopover();
+                            fundAward(award, payment);
+                        }}
                         loggedInPlayer={loggedInPlayer}
                         cost={isFree ? 0 : awardConfigsByAward[action].cost}
                         isFunded={isFunded(action)}
@@ -120,49 +122,26 @@ const AwardBadgeContainer = styled.div<{canFund: boolean; isFunded: boolean}>`
 
 function AwardBadge({
     award,
-    fundAward,
     canFund,
     isFunded,
-    loggedInPlayer,
-    cost,
 }: {
     award: Award;
-    fundAward: (action: Award | null, payment?: PropertyCounter<Resource>) => void;
     canFund: boolean;
     isFunded: boolean;
-    loggedInPlayer: PlayerState;
-    cost: number;
 }) {
     const fundedByPlayerIndex =
         useTypedSelector(state => state.common.fundedAwards.find(fa => fa.award === award))
             ?.fundedByPlayerIndex ?? null;
-    const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' &&
-        loggedInPlayer.resources[Resource.HEAT] > 0 &&
-        !loggedInPlayer.fundAward;
 
     return (
-        <PaymentPopover
-            cost={cost}
-            onConfirmPayment={payment => fundAward(award, payment)}
-            shouldHide={!showPaymentPopover}
-        >
-            <AwardBadgeContainer
-                className="display"
-                canFund={canFund}
-                isFunded={isFunded}
-                onClick={() => {
-                    !showPaymentPopover && fundAward(award, {[Resource.MEGACREDIT]: cost});
-                }}
-            >
-                {fundedByPlayerIndex !== null && (
-                    <div style={{marginRight: 4}}>
-                        <PlayerIcon playerIndex={fundedByPlayerIndex} size={10} />
-                    </div>
-                )}
-                <span>{getTextForAward(award)}</span>
-            </AwardBadgeContainer>
-        </PaymentPopover>
+        <AwardBadgeContainer className="display" canFund={canFund} isFunded={isFunded}>
+            {fundedByPlayerIndex !== null && (
+                <div style={{marginRight: 4}}>
+                    <PlayerIcon playerIndex={fundedByPlayerIndex} size={10} />
+                </div>
+            )}
+            <span>{getTextForAward(award)}</span>
+        </AwardBadgeContainer>
     );
 }
 
@@ -170,20 +149,27 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function AwardPopover({
+export function AwardPopover({
     award,
+    loggedInPlayer,
     cost,
     isFunded,
     fundedByPlayer,
+    fundAward,
 }: {
     award: Award;
     loggedInPlayer: PlayerState;
     cost: number;
     isFunded: boolean;
     fundedByPlayer?: PlayerState;
+    fundAward: (action: Award, payment?: PropertyCounter<Resource>) => void;
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canFundAward(award);
+    const showPaymentPopover =
+        loggedInPlayer.corporation.name === 'Helion' &&
+        loggedInPlayer.resources[Resource.HEAT] > 0 &&
+        !loggedInPlayer.fundAward;
 
     return (
         <TexturedCard width={200}>
@@ -221,6 +207,25 @@ function AwardPopover({
                         fontSize="13px"
                     >
                         <ErrorText>{reason}</ErrorText>
+                    </Flex>
+                )}
+                {canPlay && (
+                    <Flex justifyContent="center" marginBottom="8px">
+                        <PaymentPopover
+                            cost={cost}
+                            onConfirmPayment={payment => fundAward(award, payment)}
+                            shouldHide={!showPaymentPopover}
+                        >
+                            <CardButton
+                                onClick={() => {
+                                    if (!showPaymentPopover) {
+                                        fundAward(award, {[Resource.MEGACREDIT]: cost});
+                                    }
+                                }}
+                            >
+                                Fund {getTextForAward(award)}
+                            </CardButton>
+                        </PaymentPopover>
                     </Flex>
                 )}
             </Flex>

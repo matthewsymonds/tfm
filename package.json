@@ -11,7 +11,7 @@
         "prettier:check": "npm run prettier:base -- --list-different \"**/*.{ts,tsx}\"",
         "prettier:write": "npm run organize-imports && npm run prettier:base -- --write \"**/*.{js,ts,tsx}\" \"!.next\"",
         "organize-imports": "organize-imports-cli tsconfig.json",
-        "storybook": "start-storybook -p 6006",
+        "storybook": "start-storybook -s ./assets -p 6006",
         "build-storybook": "build-storybook",
         "postinstall": "patch-package"
     },
@@ -46,6 +46,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.11.6",
+        "@babel/preset-typescript": "^7.15.0",
         "@storybook/addon-actions": "^6.3.7",
         "@storybook/addon-essentials": "^6.3.7",
         "@storybook/addon-links": "^6.3.7",

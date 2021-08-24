@@ -1,7 +1,7 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
-import {getTextForAward} from 'components/board/board-actions/awards-new';
-import {getTextForMilestone} from 'components/board/board-actions/milestones-new';
-import {getTextForStandardProject} from 'components/board/board-actions/standard-projects-new';
+import {getTextForAward} from 'components/board/board-actions/awards';
+import {getTextForMilestone} from 'components/board/board-actions/milestones';
+import {getTextForStandardProject} from 'components/board/board-actions/standard-projects';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
