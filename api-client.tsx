@@ -14,6 +14,7 @@ import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {StandardProjectAction} from 'constants/standard-project';
+import {batch} from 'react-redux';
 import {AnyAction, Store} from 'redux';
 import {ApiActionHandler, SupplementalResources} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
@@ -76,23 +77,26 @@ export class ApiClient implements GameActionHandler {
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
         const {actionCount} = this.store.getState();
-        this.store.dispatch(setIsSyncing());
-        try {
-            playGame(
-                type,
-                payload,
-                this.actionHandler,
-                this.stateHydrator,
-                this.actionHandler.state
-            );
-        } catch (error) {
-            const apiPath = '/api' + window.location.pathname;
+        batch(() => {
+            this.store.dispatch(setIsSyncing());
+            try {
+                playGame(
+                    type,
+                    payload,
+                    this.actionHandler,
+                    this.stateHydrator,
+                    this.actionHandler.state
+                );
+            } catch (error) {
+                const apiPath = '/api' + window.location.pathname;
 
-            const result = await makeGetCall(apiPath);
-            this.dispatch(setGame(result.state));
-        }
+                makeGetCall(apiPath).then(result => {
+                    this.dispatch(setGame(result.state));
+                });
+            }
 
-        this.store.dispatch(setIsNotSyncing());
+            this.store.dispatch(setIsNotSyncing());
+        });
 
         this.processingActions.push(async () => {
             try {

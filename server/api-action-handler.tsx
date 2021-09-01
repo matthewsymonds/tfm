@@ -97,7 +97,6 @@ import {StandardProjectAction, StandardProjectType} from 'constants/standard-pro
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
-import {batch} from 'react-redux';
 import {GameState, getNumOceans, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
 import {canPlaceColony} from 'selectors/can-build-colony';
@@ -108,8 +107,6 @@ import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {SerializedCard} from 'state-serialization';
-
-const batchTogether = typeof window !== 'undefined' ? batch : fn => fn();
 
 export interface EffectEvent {
     standardProject?: StandardProjectType;
@@ -370,16 +367,14 @@ export class ApiActionHandler {
     readonly executedItems: Array<AnyAction> = [];
 
     private processQueue(items = this.queue) {
-        batchTogether(() => {
-            while (items.length > 0) {
-                const item = items.shift()!;
-                this.executedItems.push(item);
-                this.dispatch(item);
-                if (this.shouldPause(item)) {
-                    break;
-                }
+        while (items.length > 0) {
+            const item = items.shift()!;
+            this.executedItems.push(item);
+            this.dispatch(item);
+            if (this.shouldPause(item)) {
+                break;
             }
-        });
+        }
     }
 
     private dispatch(action: AnyAction) {

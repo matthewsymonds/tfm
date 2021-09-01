@@ -2,6 +2,7 @@ import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
+import {CardButton} from 'components/card/CardButton';
 import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
@@ -12,7 +13,6 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
 import {isActiveRound} from 'selectors/is-active-round';
-import {CardButton} from 'components/card/CardButton';
 import spawnExhaustiveSwitchError from 'utils';
 
 export function CardContextButton({

@@ -1,8 +1,8 @@
 import {colors} from 'components/ui';
 import {useComponentId} from 'hooks/use-component-id';
 import React, {useEffect, useState} from 'react';
-import styled from 'styled-components';
 import {useRect} from 'react-use-rect';
+import styled from 'styled-components';
 
 const OuterWrapper = styled.div`
     display: flex;

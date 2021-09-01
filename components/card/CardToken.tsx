@@ -5,7 +5,7 @@ import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {useRect} from 'react-use-rect';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
