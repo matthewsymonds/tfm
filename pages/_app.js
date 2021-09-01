@@ -28,6 +28,12 @@ export const GlobalStyles = createGlobalStyle`
     html, body {
         height: 100%;
     }
+    div[aria-hidden="true"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translate(-100%, -100%);
+    }
     #__next, #root, #__next > div {
         height: 100%;
         min-height: 100%;
