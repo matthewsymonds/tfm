@@ -84,8 +84,8 @@ const CardInner: React.FC<CardProps> = ({
             {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} />
             <CardActions card={card} cardOwner={cardOwner} cardContext={cardContext} />
-            <BaseActionIconography card={card} />
-            <BaseActionIconography card={combinedStep} />
+            <BaseActionIconography card={card} /> {/* Cards with single-step actions */}
+            <BaseActionIconography card={combinedStep} /> {/* Cards with multi-step actions */}
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}
             <CardContextButton

@@ -2,6 +2,7 @@ import {Meta, Story} from '@storybook/react';
 import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
 import {Award} from 'constants/board';
+import {Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
@@ -15,9 +16,9 @@ export default {
 const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
-            .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
-            // .filter(c => c.name === 'Experimental Forest')
-            // .filter(c => [Deck.VENUS, Deck.PRELUDE].includes(c.deck))
+            // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
+            // .filter(c => c.name === 'Vitor')
+            .filter(c => [Deck.VENUS, Deck.PRELUDE, Deck.COLONIES].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

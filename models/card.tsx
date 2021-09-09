@@ -272,6 +272,22 @@ export const doesCardHaveDiscounts = (card: Card) => {
     return false;
 };
 
+export const doesCardHaveTriggerAction = (card: Card) => {
+    if (card.effects?.[0]?.trigger || card.effects?.[0]?.trigger) {
+        return true;
+    }
+
+    if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
+        return true;
+    }
+
+    if (card.increaseColonyTileTrackRange) {
+        return true;
+    }
+
+    return false;
+};
+
 export const cards = cardConfigs.map(config => new Card(config));
 
 export const cardMap: {[name: string]: Card} = {};

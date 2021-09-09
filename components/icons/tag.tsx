@@ -34,6 +34,7 @@ const TagBase = styled.div<TagBaseProps>`
     font-weight: 600;
 `;
 
+// icon, text color, bg color
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen'],
     [Tag.BUILDING]: ['🏛️', 'brown', '#f7dbc7', '', 'building-icon'],
@@ -48,6 +49,7 @@ const dict = {
     [Tag.SPACE]: ['✴️', 'white', 'black', '', 'space-icon'],
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
     [Tag.WILD]: ['?', 'black', '#fefefe'],
+    [Tag.ANY]: ['🌈', 'black', 'white'],
     x: ['x', 'white', 'white'],
 };
 
