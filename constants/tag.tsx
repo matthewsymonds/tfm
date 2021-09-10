@@ -12,6 +12,7 @@ export enum Tag {
     SPACE = 'tagSpace',
     VENUS = 'tagVenus',
     WILD = 'tagWild',
+    ANY = 'tagAny',
 }
 
 export type TagAmount = {

@@ -311,7 +311,6 @@ function StandardProjectActionIconography({action}: {action: StandardProjectActi
                 <React.Fragment>
                     <RemoveResourceIconography
                         removeResource={{[Resource.CARD]: VariableAmount.USER_CHOICE}}
-                        sourceType={undefined}
                     />
                     <GainResourceIconography
                         gainResource={{[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE}}

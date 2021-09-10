@@ -2,10 +2,12 @@ import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ProductionIcon} from 'components/icons/production';
+import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
+import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -29,6 +31,8 @@ const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     height: 20px;
 `;
 
+// TODO: Consider making the requirements a discriminated union. Although maybe this is a feature,
+// not a bug?
 function getCardRequirementText(card: CardModel) {
     let text: string | null = null;
     if (card.requiredGlobalParameter) {
@@ -47,6 +51,8 @@ function getCardRequirementText(card: CardModel) {
         text = null;
     } else if (card.minTerraformRating !== undefined) {
         text = String(card.minTerraformRating);
+    } else if (card.requiredResources !== undefined) {
+        text = null;
     } else {
         throw new Error('Unhandled card requirement text');
     }
@@ -80,7 +86,7 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 tagElements.push(
                     <Flex alignItems="center" justifyContent="center">
                         <span>{tagCount}</span>
-                        <TagIcon name={tag as Tag} size={12} />
+                        <TagIcon name={tag as Tag} size={16} />
                     </Flex>
                 );
             } else {
@@ -98,6 +104,39 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
         );
     } else if (card.minTerraformRating !== undefined) {
         return <TerraformRatingIcon size={16} />;
+    } else if (Object.keys(card.requiredResources).length > 0) {
+        const tagElements: Array<React.ReactElement> = [];
+        for (const [resource, resourceCount] of Object.entries(card.requiredResources)) {
+            if (typeof resourceCount !== 'number') {
+                throw new Error('Tag count must be fixed number for required tags');
+            }
+
+            if (resourceCount > MAX_TAG_SPREAD) {
+                tagElements.push(
+                    <Flex alignItems="center" justifyContent="center">
+                        <span>{resourceCount}</span>
+                        <ResourceIcon name={resource as Resource} size={16} />
+                    </Flex>
+                );
+            } else {
+                for (let i = 0; i < resourceCount; i++) {
+                    tagElements.push(
+                        <ResourceIcon
+                            key={`${resource}-${i}`}
+                            name={resource as Resource}
+                            size={16}
+                        />
+                    );
+                }
+            }
+        }
+        return (
+            <Flex>
+                {tagElements.map((el, i) => (
+                    <React.Fragment key={i}>{el}</React.Fragment>
+                ))}
+            </Flex>
+        );
     } else {
         throw new Error('Unhandled card requirement text');
     }
@@ -109,7 +148,8 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
         card.requiredProduction !== undefined ||
         card.requiredTilePlacements.length > 0 ||
         Object.keys(card.requiredTags).length > 0 ||
-        card.minTerraformRating !== undefined;
+        card.minTerraformRating !== undefined ||
+        Object.keys(card.requiredResources).length > 0;
 
     if (!hasRequirement) {
         return null;

@@ -2,6 +2,7 @@ import {Flex} from 'components/box';
 import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
 import {
     Colon,
+    Equal,
     GainResourceWhenIncreaseProductionIconography,
     IconographyRow,
     InlineText,
@@ -9,6 +10,7 @@ import {
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
+import {ColonyIcon, TradeIcon, VictoryPointIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
@@ -17,7 +19,7 @@ import {Parameter, TileType} from 'constants/board';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {Resource} from 'constants/resource';
 import {Tag} from 'constants/tag';
-import {Card as CardModel, doesCardHaveDiscounts} from 'models/card';
+import {Card as CardModel, doesCardHaveDiscounts, doesCardHaveTriggerAction} from 'models/card';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
@@ -57,7 +59,9 @@ function renderCardCost(cardCost: number) {
 
 export const CardEffects = ({card}: {card: CardModel}) => {
     const venus = useTypedSelector(isPlayingVenus);
-    if (card.effects.length < 1) {
+
+    // Bail early if there's nothing to show
+    if (card.effects.length === 0) {
         return null;
     }
 
@@ -88,7 +92,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         }
 
         if (card.discounts.trade) {
-            elements.push(<IconizedText>TRADE</IconizedText>);
+            elements.push(<TradeIcon size={24} />);
         }
 
         if (card.plantDiscount) {
@@ -139,6 +143,47 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 {elements.map((el, i) => (
                     <React.Fragment key={i}>{el}</React.Fragment>
                 ))}
+            </React.Fragment>
+        );
+    }
+
+    function renderConditionalPayment() {
+        const {conditionalPayment} = card;
+        if (!conditionalPayment) {
+            return null;
+        }
+        return (
+            <React.Fragment>
+                <TagIcon name={conditionalPayment.tag} size={16} />
+                <Colon />
+                <ResourceIcon
+                    name={card.storedResourceType ?? Resource.ANY_STORABLE_RESOURCE}
+                    size={16}
+                />
+                <Equal />
+                <ResourceIcon
+                    name={Resource.MEGACREDIT}
+                    size={16}
+                    amount={conditionalPayment.rate}
+                />
+            </React.Fragment>
+        );
+    }
+
+    function renderUseStoredResourceAsHeat() {
+        const {useStoredResourceAsHeat} = card;
+        if (!useStoredResourceAsHeat) {
+            return null;
+        }
+        return (
+            <React.Fragment>
+                <ResourceIcon
+                    name={card.storedResourceType ?? Resource.ANY_STORABLE_RESOURCE}
+                    size={16}
+                />
+                <Equal />
+                <InlineText>{useStoredResourceAsHeat}</InlineText>
+                <ResourceIcon name={Resource.HEAT} size={16} />
             </React.Fragment>
         );
     }
@@ -194,6 +239,12 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                     <ResourceIcon name={Resource.TITANIUM} size={16} />
                 </Flex>
             );
+        } else if (trigger?.nonNegativeVictoryPointsIcon) {
+            return <VictoryPointIcon size={20}>?</VictoryPointIcon>;
+        } else if (trigger?.newTag) {
+            return <TagIcon name={Tag.ANY} size={16} />;
+        } else if (trigger?.placedColony) {
+            return <ColonyIcon size={16} />;
         }
 
         let parameterRequirementAdjustments = Object.keys(
@@ -204,6 +255,10 @@ export const CardEffects = ({card}: {card: CardModel}) => {
             parameterRequirementAdjustments = parameterRequirementAdjustments.filter(
                 parameter => parameter !== Parameter.VENUS
             );
+        }
+
+        if (card.increaseColonyTileTrackRange) {
+            return <TradeIcon size={24} />;
         }
 
         if (parameterRequirementAdjustments.length > 0) {
@@ -244,6 +299,11 @@ export const CardEffects = ({card}: {card: CardModel}) => {
                 <InlineText>+/-{Object.values(card.parameterRequirementAdjustments)[0]}</InlineText>
             );
         }
+
+        if (card.increaseColonyTileTrackRange) {
+            return <InlineText>+{card.increaseColonyTileTrackRange}</InlineText>;
+        }
+
         if (!action) {
             return null;
         }
@@ -271,23 +331,36 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         );
     }
 
+    // We use the CardEffects component for more than just traditional effects with triggers
+    // and actions - it's the catch-all component for all passive logistics.
     return (
         <React.Fragment>
             {effects.map((effect, index) => (
                 <EffectWrapper key={index}>
                     {effect.text && <EffectText>{effect.text}</EffectText>}
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
-                        {Object.keys(card.exchangeRates).length > 0 ? (
-                            <React.Fragment>{renderExchangeRates()}</React.Fragment>
-                        ) : card.cardCost ? (
-                            renderCardCost(card.cardCost)
-                        ) : doesCardHaveDiscounts(card) ? (
-                            <React.Fragment>{renderDiscounts()}</React.Fragment>
-                        ) : card.gainResourceWhenIncreaseProduction ? (
-                            <React.Fragment>
-                                <GainResourceWhenIncreaseProductionIconography />
-                            </React.Fragment>
-                        ) : (
+                        {/* Exchange rates (e.g. Advanced Alloys) */}
+                        {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}
+
+                        {/* Modified card cost (e.g. Polyphemos) */}
+                        {card.cardCost && renderCardCost(card.cardCost)}
+
+                        {/* Card discounts (e.g. Research Outpost) */}
+                        {doesCardHaveDiscounts(card) && renderDiscounts()}
+
+                        {/* Manutech's special power */}
+                        {card.gainResourceWhenIncreaseProduction && (
+                            <GainResourceWhenIncreaseProductionIconography />
+                        )}
+
+                        {/* Conditional payments (e.g. Dirigibles) */}
+                        {card.conditionalPayment && renderConditionalPayment()}
+
+                        {/* Use stored resource as heat (e.g. Stormcraft) */}
+                        {card.useStoredResourceAsHeat && renderUseStoredResourceAsHeat()}
+
+                        {/* Standard trigger/action effects (e.g. Point Luna) */}
+                        {doesCardHaveTriggerAction(card) && (
                             <React.Fragment>
                                 {renderTrigger(effect.trigger)}
                                 <Colon />

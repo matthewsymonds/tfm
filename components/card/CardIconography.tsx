@@ -34,6 +34,7 @@ export const TextWithMargin = styled(InlineText)<{margin?: string; fontSize?: st
 `;
 export const IconographyRow = styled.div<{isInline?: boolean}>`
     display: ${props => (props.isInline ? 'inline-flex' : 'flex')};
+    position: relative;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
@@ -50,22 +51,25 @@ const GroupedProductionWrapper = styled(ProductionWrapper)`
     padding: 0;
 `;
 
+type ChangeResourceOpts = {
+    isNegative?: boolean;
+    useRedBorder?: boolean;
+    isInline?: boolean;
+    showStealText?: boolean;
+    isProduction?: boolean;
+    locationType?: ResourceLocationType;
+    shouldShowPlus?: boolean;
+    showNumericQuantity?: boolean;
+};
+
 export function ChangeResourceIconography({
     changeResource,
-    opts,
     resourceOnCard,
+    opts,
 }: {
     changeResource: PropertyCounter<Resource>;
     resourceOnCard?: Resource;
-    opts?: {
-        isNegative?: boolean;
-        isInline?: boolean;
-        showStealText?: boolean;
-        isProduction?: boolean;
-        shouldShowPlus?: boolean;
-        useRedBorder?: boolean;
-        showNumericQuantity?: boolean;
-    };
+    opts?: ChangeResourceOpts;
 }) {
     if (Object.keys(changeResource).length === 0) {
         return null;
@@ -352,8 +356,23 @@ export function ChangeResourceIconography({
         i++;
     }
 
+    let locationTypeIcon: React.ReactNode = null;
+    if (opts.locationType) {
+        if (
+            opts.locationType === ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG ||
+            opts.locationType === ResourceLocationType.VENUS_CARD
+        ) {
+            locationTypeIcon = (
+                <Box position="absolute" top="-6px" right="-6px">
+                    <TagIcon name={Tag.VENUS} size={12} showRedBorder={opts.useRedBorder} />
+                </Box>
+            );
+        }
+    }
+
     return (
         <IconographyRow className="change-resource" isInline={opts.isInline}>
+            {locationTypeIcon}
             {elements.map((el, i) => (
                 <React.Fragment key={i}>{el}</React.Fragment>
             ))}
@@ -361,19 +380,22 @@ export function ChangeResourceIconography({
     );
 }
 
+type ChangeResourceOptionOpts = {
+    isNegative?: boolean;
+    useRedBorder?: boolean;
+    isInline?: boolean;
+    showStealText?: boolean;
+    isProduction?: boolean;
+    locationType?: ResourceLocationType;
+    useSlashSeparator?: boolean;
+};
+
 export function ChangeResourceOptionIconography({
     changeResourceOption,
     opts,
 }: {
     changeResourceOption: PropertyCounter<Resource>;
-    opts?: {
-        isNegative?: boolean;
-        useRedBorder?: boolean;
-        isInline?: boolean;
-        showStealText?: boolean;
-        isProduction?: boolean;
-        useSlashSeparator?: boolean;
-    };
+    opts?: ChangeResourceOptionOpts;
 }) {
     if (Object.keys(changeResourceOption).length === 0) {
         return null;
@@ -413,15 +435,12 @@ export function ChangeResourceOptionIconography({
 
 export function GainResourceIconography({
     gainResource,
-    opts,
     resourceOnCard,
+    opts,
 }: {
     gainResource: PropertyCounter<Resource>;
     resourceOnCard?: Resource;
-    opts?: {
-        isInline?: boolean;
-        shouldShowPlus?: boolean;
-    };
+    opts?: ChangeResourceOpts;
 }) {
     return (
         <ChangeResourceIconography
@@ -448,44 +467,38 @@ export function Colon() {
     return <TextWithMargin>:</TextWithMargin>;
 }
 
+export function Equal() {
+    return <TextWithMargin>=</TextWithMargin>;
+}
+
 export function GainResourceOptionIconography({
     gainResourceOption,
     opts,
 }: {
     gainResourceOption: PropertyCounter<Resource>;
-    opts?: {
-        useSlashSeparator?: boolean;
-        isInline?: boolean;
-    };
+    opts?: ChangeResourceOptionOpts;
 }) {
     return (
-        <ChangeResourceOptionIconography
-            changeResourceOption={gainResourceOption}
-            opts={{
-                isInline: opts?.isInline ?? false,
-                useSlashSeparator: opts?.useSlashSeparator ?? false,
-            }}
-        />
+        <ChangeResourceOptionIconography changeResourceOption={gainResourceOption} opts={opts} />
     );
 }
 
 export function RemoveResourceIconography({
     removeResource,
-    sourceType,
     opts,
 }: {
     removeResource: PropertyCounter<Resource>;
-    sourceType: ResourceLocationType | undefined;
-    opts?: {isInline: boolean};
+    opts?: ChangeResourceOpts;
 }) {
-    const useRedBorder = sourceType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(sourceType);
+    const useRedBorder =
+        opts?.locationType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
     return (
         <ChangeResourceIconography
             changeResource={removeResource}
             opts={{
+                ...opts,
                 isNegative: true,
                 useRedBorder,
-                isInline: opts?.isInline ?? false,
             }}
         />
     );
@@ -496,7 +509,7 @@ export function StealResourceIconography({
     opts,
 }: {
     stealResource: PropertyCounter<Resource>;
-    opts?: {showStealText?: boolean};
+    opts?: ChangeResourceOptionOpts;
 }) {
     return (
         <ChangeResourceOptionIconography
@@ -518,12 +531,13 @@ const RED_BORDER_RESOURCE_LOCATION_TYPES = [
 
 export function RemoveResourceOptionIconography({
     removeResourceOption,
-    sourceType,
+    opts,
 }: {
     removeResourceOption: PropertyCounter<Resource>;
-    sourceType?: ResourceLocationType | undefined;
+    opts?: ChangeResourceOptionOpts;
 }) {
-    const useRedBorder = sourceType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(sourceType);
+    const useRedBorder =
+        opts?.locationType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
 
     return (
         <ChangeResourceOptionIconography
@@ -826,8 +840,8 @@ function RevealTakeAndDiscardIconography({
             {Object.entries(revealTakeAndDiscard).map(([cardSelectionCriteria, amount], index) => (
                 <IconographyRow key={index}>
                     <GainResourceIconography
-                        opts={{isInline: true}}
                         gainResource={{[Resource.CARD]: amount}}
+                        opts={{isInline: true}}
                     />
                     <InlineText style={{marginLeft: 4}}>*</InlineText>
                     <CardSelectionCriteriaIconography
@@ -885,9 +899,11 @@ export const BaseActionIconography = ({
         removeResourceOption,
         gainResource,
         gainResourceOption,
+        gainResourceTargetType,
         stealResource,
         increaseTerraformRating,
         revealTakeAndDiscard,
+        opponentsGainResource,
     } = card;
     // This bad code can be alleviated by moving temporaryParameterRequirementAdjustments
     // to the base action type (it currently only exists on cards).
@@ -921,20 +937,29 @@ export const BaseActionIconography = ({
             {removeResource && (
                 <RemoveResourceIconography
                     removeResource={removeResource}
-                    sourceType={removeResourceSourceType}
+                    opts={{locationType: removeResourceSourceType}}
                 />
             )}
             {removeResourceOption && (
                 <RemoveResourceOptionIconography
                     removeResourceOption={removeResourceOption}
-                    sourceType={removeResourceSourceType}
+                    opts={{locationType: removeResourceSourceType}}
                 />
             )}
             {gainResource && (
                 <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
             )}
             {gainResourceOption && (
-                <GainResourceOptionIconography gainResourceOption={gainResourceOption} />
+                <GainResourceOptionIconography
+                    gainResourceOption={gainResourceOption}
+                    opts={{locationType: gainResourceTargetType}}
+                />
+            )}
+            {opponentsGainResource && (
+                <GainResourceIconography
+                    gainResource={opponentsGainResource}
+                    opts={{locationType: gainResourceTargetType, useRedBorder: true}}
+                />
             )}
             {stealResource && <StealResourceIconography stealResource={stealResource} />}
             {increaseTerraformRating ? (

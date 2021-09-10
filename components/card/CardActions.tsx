@@ -163,7 +163,7 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
         elements.push(
             <RemoveResourceOptionIconography
                 removeResourceOption={action.removeResourceOption}
-                sourceType={action.removeResourceSourceType}
+                opts={{locationType: action.removeResourceSourceType}}
             />
         );
     }
@@ -171,9 +171,9 @@ export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
         elements.push(
             <RemoveResourceIconography
                 removeResource={action.removeResource}
-                sourceType={action.removeResourceSourceType}
                 opts={{
                     isInline: true,
+                    locationType: action.removeResourceSourceType,
                 }}
             />
         );

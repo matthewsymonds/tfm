@@ -2962,10 +2962,13 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 floater to ANY card. Effect: When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
+            text: 'Add 1 floater to ANY card.',
             gainResource: {[Resource.FLOATER]: 1},
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+        },
+        effect: {
+            text:
+                'When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -3942,11 +3945,11 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text: 'Action: Gain 1 MC per animal here.',
+            text: 'Gain 1 MC per animal here.',
             gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD},
         },
         effect: {
-            text: 'Effect: when you play an Earth tag, place an animal here.',
+            text: 'Effect: When you play an Earth tag, place an animal here.',
             trigger: {tags: [Tag.EARTH]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -4694,10 +4697,12 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add a microbe to this card. Effect: When paying for a plant card, microbes here may be used as 2 MC each.',
+            text: 'Add a microbe to this card.',
             gainResource: {[Resource.MICROBE]: 1},
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
+        },
+        effect: {
+            text: 'When paying for a plant card, microbes here may be used as 2 MC each.',
         },
         conditionalPayment: {
             tag: Tag.PLANT,
@@ -5138,10 +5143,12 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 floater to ANY card. Effect: Floaters on this card may be used as 2 heat each',
+            text: 'Add 1 floater to ANY card.',
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
             gainResource: {[Resource.FLOATER]: 1},
+        },
+        effect: {
+            text: 'Effect: Floaters on this card may be used as 2 heat each',
         },
         deck: Deck.COLONIES,
         storedResourceType: Resource.FLOATER,
