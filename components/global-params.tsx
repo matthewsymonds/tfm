@@ -2,18 +2,26 @@ import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {GlobalParameters, Parameter} from 'constants/board';
 import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
+import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
-import {Flex} from './box';
+import {Box, Flex} from './box';
 import {ColoredTooltip} from './colored-tooltip';
 import {colors} from './ui';
 
 const GlobalParamColumn = styled.div`
     display: flex;
     flex-direction: column;
+    @media (max-width: 895px) {
+        flex-direction: row-reverse;
+        align-items: center;
+    }
     margin: 0 2px;
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 0;
 `;
 
 const GlobalParamStep = styled.div<{isFilledIn: boolean; color: string; bonus: boolean}>`
@@ -39,6 +47,18 @@ type GlobalParamValueProps = {
     currentValue: number;
 };
 
+const GlobalParamValueBase = styled.div`
+    flex-direction: column-reverse;
+    align-items: stretch;
+    justify-content: stretch;
+    flex: auto;
+    display: flex;
+
+    @media (max-width: 895px) {
+        flex-direction: row;
+    }
+`;
+
 function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     const numSteps =
         (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) / PARAMETER_STEPS[parameter];
@@ -48,12 +68,7 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     steps.push(MAX_PARAMETERS[parameter]);
 
     return (
-        <Flex
-            flexDirection="column-reverse"
-            alignItems="stretch"
-            justifyContent="stretch"
-            flex="auto"
-        >
+        <GlobalParamValueBase>
             {steps.map(value => {
                 const isFilledIn = currentValue === value;
                 const bonus = PARAMETER_BONUSES[parameter][value];
@@ -88,13 +103,33 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                     </GlobalParamStep>
                 );
             })}
-        </Flex>
+        </GlobalParamValueBase>
     );
 }
 
 type GlobalParamsProps = {
     parameters: GlobalParameters;
 };
+
+const GlobalParamWrapper = styled.div`
+    flex-direction: column;
+    margin-right: 2%;
+    margin-top: 24px;
+    @media (max-width: 895px) {
+        flex-direction: row;
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0;
+    }
+`;
+
+const GlobalParamColumns = styled.div`
+    display: flex;
+    flex-direction: row;
+    @media (max-width: 895px) {
+        flex-direction: column;
+    }
+`;
 
 export default function GlobalParams(props: GlobalParamsProps) {
     const generation = useTypedSelector(state => state.common.generation);
@@ -107,25 +142,35 @@ export default function GlobalParams(props: GlobalParamsProps) {
 
     const venus = useTypedSelector(isPlayingVenus);
     return (
-        <Flex margin="0 4px 0 0" flexDirection="column">
+        <GlobalParamWrapper>
             <Flex className="textLight1" fontSize="12px" marginBottom="1px">
                 {roundText}
             </Flex>
-            <Flex>
-                {Object.keys(props.parameters)
-                    .filter(parameter => parameter !== Parameter.VENUS || venus)
-                    .map(parameter => (
-                        <GlobalParamColumn key={parameter as Parameter}>
-                            <GlobalParamValue
-                                parameter={parameter as Parameter}
-                                currentValue={props.parameters[parameter]}
-                            />
-                            <Flex alignItems="center" justifyContent="center" height="40px">
-                                <GlobalParameterIcon parameter={parameter as Parameter} size={24} />
-                            </Flex>
-                        </GlobalParamColumn>
-                    ))}
-            </Flex>
-        </Flex>
+            <Box display="inline-block" width="100%">
+                <GlobalParamColumns>
+                    {Object.keys(props.parameters)
+                        .filter(parameter => parameter !== Parameter.VENUS || venus)
+                        .map(parameter => (
+                            <GlobalParamColumn key={parameter as Parameter}>
+                                <GlobalParamValue
+                                    parameter={parameter as Parameter}
+                                    currentValue={props.parameters[parameter]}
+                                />
+                                <Flex
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    height="40px"
+                                    width="32px"
+                                >
+                                    <GlobalParameterIcon
+                                        parameter={parameter as Parameter}
+                                        size={24}
+                                    />
+                                </Flex>
+                            </GlobalParamColumn>
+                        ))}
+                </GlobalParamColumns>
+            </Box>
+        </GlobalParamWrapper>
     );
 }

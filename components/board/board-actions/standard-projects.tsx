@@ -35,7 +35,7 @@ import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
-export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
+export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
     const canPlay = standardProjectAction =>
@@ -69,6 +69,7 @@ export default function StandardProjectsNew({loggedInPlayer}: {loggedInPlayer: P
                 actions={actions}
                 emphasizeOnHover={canPlay}
                 isVertical={false}
+                setBoundaries={false}
                 style={{
                     display: 'flex',
                     flexDirection: 'row',

@@ -26,8 +26,7 @@ const getColor = (type: CellType) => {
     }
 };
 
-const ChildrenWrapper = styled.div<{selectable?: boolean}>`
-    position: absolute;
+const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean}>`
     color: #333333;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
     padding: 2px;
@@ -35,16 +34,22 @@ const ChildrenWrapper = styled.div<{selectable?: boolean}>`
 
     z-index: 1;
     user-select: none;
-    overflow: auto;
+    margin-bottom: 8%;
+    overflow: visible;
+    margin-top: 8%;
     font-weight: bold;
-    font-size: 8px;
+    font-size: clamp(7px, 1vw, 9px);
     background: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
+    transform: translateY(${props => (props.moveUp ? -32 : 0)}%);
 `;
 
 const CellWrapper = styled.div`
     display: flex;
+    width: fit-content;
+    flex-grow: 1;
     justify-content: center;
+    flex: 0 0 calc(100% / 9);
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
@@ -69,20 +74,31 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         const scale = typeof tile.ownerPlayerIndex === 'number' ? 0.8 : 1;
         return (
             <Hexagon scale={scale} color={getTileBgColor(tile.type)}>
-                {getTileIcon(tile.type)}
+                <Flex
+                    height="100%"
+                    width="100%"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontSize="clamp(16px,5vw,36px)"
+                    lineHeight="clamp(16px,5vw,36px)"
+                >
+                    {getTileIcon(tile.type)}
+                </Flex>
             </Hexagon>
         );
     }
 
-    function renderBonus(bonus: Array<Resource>) {
+    function renderBonus(bonus: Array<Resource>, specialName: string | null) {
+        const hasCard = bonus.some(resource => resource === Resource.CARD);
         return (
             <Flex flexDirection="row">
                 {bonus.map((resource, index) => (
                     <ResourceIcon
-                        margin={index ? '0 0 0 6px' : 0}
+                        margin={index ? '0 0 0 0.3vw' : 0}
                         key={index}
                         name={resource}
-                        size={12}
+                        size={1.5}
+                        unit="vw"
                     />
                 ))}
             </Flex>
@@ -90,16 +106,23 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
     }
 
     return (
-        <CellWrapper>
+        <>
             <Hexagon color={bgColor} selectable={selectable}>
-                <Flex flexDirection="column" alignItems="center" justifyContent="flex-start">
-                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
+                {specialName && (
+                    <ChildrenWrapper moveUp={bonus.length === 0} selectable={selectable}>
+                        {specialName}
+                    </ChildrenWrapper>
+                )}
+                <Flex
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    width="100%"
+                >
+                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus, specialName)}
                     {tile && renderTile(tile)}
                 </Flex>
             </Hexagon>
-            {specialName && (
-                <ChildrenWrapper selectable={selectable}>{specialName}</ChildrenWrapper>
-            )}
-        </CellWrapper>
+        </>
     );
 };

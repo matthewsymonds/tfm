@@ -42,7 +42,7 @@ export const GlobalParameterIcon = ({
         case Parameter.VENUS:
             return <TagIcon name={Tag.VENUS} size={size} margin={margin} />;
         case Parameter.OCEAN:
-            return <TileIcon type={TileType.OCEAN} size={size} margin={margin} />;
+            return <TileIcon type={TileType.OCEAN} size={(size * 4) / 3} margin={margin} />;
         case Parameter.OXYGEN:
             return (
                 <AllCapsIcon size={size} bgColor={colors.PARAMETERS[parameter]} margin={margin}>

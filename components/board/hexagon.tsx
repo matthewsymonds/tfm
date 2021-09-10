@@ -1,24 +1,18 @@
-import {HEX_RADIUS} from 'constants/board';
 import React from 'react';
 import styled from 'styled-components';
 
-const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
+const HexagonBase = styled.div<HexagonProps>`
     color: black;
+    background-color: ${props => props.color};
+    overflow: visible;
     position: relative;
-    font-size: ${props => Math.floor((props.hexRadius * 5) / 3)}px;
-    width: ${props => props.hexRadius * Math.cos((30 * Math.PI) / 180) * 2}px;
-    height: ${props => props.hexRadius * 2}px;
+    width: 100%;
     transform: ${props => (props.scale ? `scale(${props.scale})` : '')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
     background: ${props => (props.selectable ? 'gray' : 'transparent')};
     &:hover {
         background: ${props => (props.selectable ? 'black' : 'transparent')};
     }
-
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 
     &:before {
         content: '';
@@ -26,6 +20,7 @@ const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
         height: 100%;
         width: 100%;
         background-color: ${props => props.color};
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     }
 
     & > * {
@@ -33,6 +28,23 @@ const HexagonBase = styled.div<HexagonProps & {hexRadius: number}>`
         z-index: 0;
     }
 `;
+
+const HexagonDummy = styled.div`
+    padding-top: 115.47%;
+`;
+
+const HexagonInner = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+`;
+
 type HexagonProps = {
     color: string;
     scale?: number;
@@ -44,12 +56,12 @@ export const Hexagon: React.FunctionComponent<HexagonProps> = ({
     selectable,
     color,
     scale,
-    hexRadius = HEX_RADIUS,
     children,
 }) => {
     return (
-        <HexagonBase selectable={selectable} color={color} scale={scale} hexRadius={hexRadius}>
-            <div>{children}</div>
+        <HexagonBase selectable={selectable} color={color} scale={scale}>
+            <HexagonDummy />
+            <HexagonInner>{children}</HexagonInner>
         </HexagonBase>
     );
 };

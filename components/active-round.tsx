@@ -461,11 +461,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                             </Flex>
                         </Box>
                     </Flex>
-                    <Flex className="board-scrolling-wrapper" flexDirection="column">
-                        <Box className="board-wrapper">
-                            <Board />
-                        </Box>
-                    </Flex>
+                    <Box className="board-wrapper">
+                        <Board />
+                    </Box>
                 </Flex>
             </Flex>
             <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />

@@ -12,11 +12,13 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
+import {useWindowWidth} from 'hooks/use-window-width';
 import React from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
+import {AwardsMilestonesLayout} from '../awards-milestones-layout';
 
 const AwardHeader = styled.div`
     margin: 4px 2px;
@@ -26,9 +28,10 @@ const AwardHeader = styled.div`
     color: ${colors.GOLD};
 `;
 
-export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
+export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
+    const windowWidth = useWindowWidth();
     const awardConfigsByAward = useTypedSelector(
         state =>
             Object.values(Award).reduce((acc, award) => {
@@ -79,13 +82,13 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
     }
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end">
+        <AwardsMilestonesLayout>
             <AwardHeader className="display">Awards</AwardHeader>
 
             <ActionListWithPopovers<Award>
                 actions={awards}
                 emphasizeOnHover={canPlay}
-                isVertical={true}
+                isVertical={windowWidth > 895}
                 ActionComponent={({action}) => (
                     <AwardBadge
                         award={action}
@@ -107,7 +110,7 @@ export default function AwardsNew({loggedInPlayer}: {loggedInPlayer: PlayerState
                     />
                 )}
             />
-        </Flex>
+        </AwardsMilestonesLayout>
     );
 }
 

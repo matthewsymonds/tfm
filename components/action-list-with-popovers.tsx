@@ -1,8 +1,8 @@
 import {colors} from 'components/ui';
 import {useComponentId} from 'hooks/use-component-id';
 import React, {useEffect, useState} from 'react';
-import {useRect} from 'react-use-rect';
 import styled from 'styled-components';
+import {Flex} from './box';
 
 const OuterWrapper = styled.div`
     display: flex;
@@ -10,33 +10,10 @@ const OuterWrapper = styled.div`
     flex-direction: column;
     align-items: stretch;
     margin: 0px;
+    @media (max-width: 895px) {
+        flex-direction: row;
+    }
 `;
-
-// This is pretty hard-coded
-export function usePositionOnHover(showAbove: boolean) {
-    const [ref, rect] = useRect();
-
-    let windowScrollY = 0;
-    if (typeof window !== 'undefined') {
-        windowScrollY = window.scrollY;
-    }
-    const topRelativeToWindow = rect.top + windowScrollY;
-
-    let top, left;
-    if (showAbove) {
-        top = topRelativeToWindow - 230; // 225 card height + some buffer
-        left = rect.left - 82; // (half card width 100 - half button width 20 + half boxshadow width 2)
-    } else {
-        top = topRelativeToWindow - 50; // arbitrary
-        left = rect.left - 205; // 200 card width + some buffer
-    }
-
-    return {
-        ref,
-        top,
-        left,
-    };
-}
 
 export default function ActionListWithPopovers<T>({
     actions,
@@ -45,6 +22,7 @@ export default function ActionListWithPopovers<T>({
     style,
     emphasizeOnHover,
     isVertical,
+    setBoundaries = true,
 }: {
     actions: Array<T>;
     ActionComponent: React.FunctionComponent<{
@@ -57,6 +35,7 @@ export default function ActionListWithPopovers<T>({
     style?: React.CSSProperties;
     emphasizeOnHover: (t: T) => boolean;
     isVertical: boolean;
+    setBoundaries?: boolean;
 }) {
     const [pinnedAction, setPinnedAction] = useState<T | null>(null);
 
@@ -85,6 +64,8 @@ export default function ActionListWithPopovers<T>({
                         setPinnedAction={setPinnedAction}
                         ActionComponent={ActionComponent}
                         ActionPopoverComponent={ActionPopoverComponent}
+                        isFirst={!isVertical && setBoundaries && index === 0}
+                        isLast={!isVertical && setBoundaries && index === actions.length - 1}
                     />
                 );
             })}
@@ -100,6 +81,8 @@ function ActionWithPopover<T>({
     isVertical,
     isPinned,
     setPinnedAction,
+    isFirst,
+    isLast,
 }: {
     action: T;
     ActionComponent: React.FunctionComponent<{
@@ -113,9 +96,10 @@ function ActionWithPopover<T>({
     isVertical: boolean;
     isPinned: boolean;
     setPinnedAction: (action: T | null) => void;
+    isFirst: boolean;
+    isLast: boolean;
 }) {
     const [isHovering, setIsHovering] = useState(false);
-    const {ref, top, left} = usePositionOnHover(!isVertical);
     const popoverId = useComponentId();
 
     function _setIsHoveringToTrue() {
@@ -127,25 +111,36 @@ function ActionWithPopover<T>({
         }
     }
 
+    const translateX = isVertical ? 100 : isFirst ? 0 : isLast ? -100 : -50;
+    const translateY = !isVertical ? -100 : isFirst ? 0 : isLast ? -100 : -50;
+
+    const left = isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
+    const top = !isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
+
     return (
-        <React.Fragment>
+        <Flex
+            position="relative"
+            alignItems="center"
+            justifyContent="flex-end"
+            onMouseEnter={_setIsHoveringToTrue}
+            onMouseMove={_setIsHoveringToTrue}
+            onMouseLeave={(e: React.MouseEvent) => {
+                if ((e?.relatedTarget as Element)?.parentElement?.id !== popoverId) {
+                    setIsHovering(false);
+                }
+            }}
+            paddingLeft={isVertical ? '4px' : 0}
+            paddingTop={isVertical ? 0 : '4px'}
+            onClick={e => {
+                setPinnedAction(action);
+                e.stopPropagation();
+            }}
+        >
             <StylizedActionWrapper
-                ref={ref}
                 id={`${action}`}
                 emphasizeOnHover={emphasizeOnHover}
                 isHovering={isHovering || isPinned}
                 isVertical={isVertical}
-                onClick={e => {
-                    setPinnedAction(action);
-                    e.stopPropagation();
-                }}
-                onMouseEnter={_setIsHoveringToTrue}
-                onMouseMove={_setIsHoveringToTrue}
-                onMouseLeave={(e: React.MouseEvent) => {
-                    if ((e?.relatedTarget as Element)?.parentElement?.id !== popoverId) {
-                        setIsHovering(false);
-                    }
-                }}
             >
                 <ActionComponent action={action} />
             </StylizedActionWrapper>
@@ -156,8 +151,9 @@ function ActionWithPopover<T>({
                     style={{
                         position: 'absolute',
                         zIndex: 10,
-                        left,
-                        top,
+                        left: `${left}%`,
+                        top: `${top}%`,
+                        transform: `translate(${translateX}%, ${translateY}%)`,
                     }}
                 >
                     <ActionPopoverComponent
@@ -169,7 +165,7 @@ function ActionWithPopover<T>({
                     />
                 </div>
             )}
-        </React.Fragment>
+        </Flex>
     );
 }
 
@@ -178,26 +174,14 @@ const StylizedActionWrapper = styled.div<{
     isVertical: boolean;
     isHovering: boolean;
 }>`
-    display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: flex-end;
     ${props => (props.isVertical ? 'margin-bottom: 4px;' : 'margin-right: 4px;')}
     user-select: none;
     opacity: ${props => (props.emphasizeOnHover ? 1 : 0.5)};
 
-    &:before {
-        content: '';
-        transition: background-color 250ms, box-shadow 250ms;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        z-index: -1;
-        border-radius: 3px;
-        background-color: ${props => (props.isHovering ? colors.LIGHT_BG : 'none')};
-        box-shadow: ${props =>
-            props.emphasizeOnHover && props.isHovering
-                ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px'
-                : 'none'};
-    }
+    transition: background-color 250ms, box-shadow 250ms;
+    border-radius: 3px;
+    background-color: ${props => (props.isHovering ? colors.LIGHT_BG : 'none')};
+
+    box-shadow: ${props =>
+        props.emphasizeOnHover && props.isHovering ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px' : 'none'};
 `;

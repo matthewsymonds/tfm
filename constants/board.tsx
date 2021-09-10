@@ -1,8 +1,5 @@
 import {Resource} from './resource';
 
-export const HEX_RADIUS = 25;
-export const HEX_PADDING = 2;
-
 export enum CellType {
     LAND,
     WATER,

@@ -16,15 +16,24 @@ interface ResourceIconBaseProps {
     readonly margin: number | string;
     readonly tall?: boolean;
     readonly border?: string;
+    readonly unit?: string;
 }
+
+const clampedIfViewportWidth = (props: ResourceIconBaseProps, multiplier: number) =>
+    props?.unit === 'vw'
+        ? `clamp(${10 * multiplier}px, ${props.size * multiplier + props?.unit}, ${
+              14 * multiplier
+          }px)`
+        : `${props.size * multiplier}${props?.unit ?? 'px'}`;
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     display: inline-block;
-    height: ${props => (props.tall ? props.size * 1.5 : props.size)}px;
-    width: ${props => props.size}px;
+    height: ${props => clampedIfViewportWidth(props, props.tall ? 1.5 : 1)};
+    width: ${props => clampedIfViewportWidth(props, 1)};
     text-align: center;
-    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
-    font-size: ${props => props.size * 0.5}px;
+    margin: ${props =>
+        typeof props.margin === 'string' ? props.margin : `${props.margin}${props?.unit ?? 'px'}`};
+    font-size: ${props => clampedIfViewportWidth(props, 0.5)};
     font-weight: bold;
     color: ${props => props.color};
     background: ${props => props.background};
@@ -59,6 +68,7 @@ interface ResourceIconProps {
     amount?: string | number;
     margin?: number | string;
     border?: string;
+    unit?: string;
 }
 
 export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
@@ -68,6 +78,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
     amount,
     margin = 0,
     border = 'none',
+    unit = 'px',
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
@@ -86,8 +97,22 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
             showRedBorder={showRedBorder}
             margin={margin}
             border={border}
+            unit={unit}
         >
             <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
         </ResourceIconBase>
     );
 };
+
+// >
+//     <svg
+//         className={getClassName(name)}
+//         height="100%"
+//         width="100%"
+//         viewBox="0 0 100 100"
+//         style={{display: 'block', width: '100%'}}
+//         preserveAspectRatio="xMidYMid meet"
+//     >
+//         <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
+//         </text>
+//     </svg>

@@ -52,7 +52,6 @@ function ColonyPicker({
             marginBottom="8px"
             marginLeft="4px"
             marginRight="4px"
-            marginTop="16px"
             style={{userSelect: 'none'}}
         >
             {colonies.map((colony, index) => {

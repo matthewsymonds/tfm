@@ -25,6 +25,16 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
+    iframe {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        width: unset;
+        height: unset;
+        body {
+            margin: 0;
+        }
+    }
     html, body {
         height: 100%;
     }
@@ -74,44 +84,24 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
-        flex-direction: row;
-        justify-content: center;
-        padding-bottom: 100px;
-        width: 100%;
+        min-width: min(450px, 100%);
+        max-width: min-content;
+        width: fit-content;
         box-sizing: border-box;
-        padding-right: 8px;
-
-        @media (max-width: 1366px) {
-          width: min-content;
-          padding-right: 0px;
-          margin-right: 0px;
-          max-width: 100%;
-          flex-direction: column-reverse;
-          justify-content: flex-end;
-          align-items: center;
-
-        }
-    }
-    .board-scrolling-wrapper {
-        width: 100%;
-        max-width: fit-content;
-        @media (max-width: 1366px) {            
-            overflow-x: auto;
-            margin-left: auto;
-            margin-right: auto;
-            overflow-y: hidden;
-        }
+        padding-right: 0px;
+        margin-right: 0px;
+        max-width: 100%;
+        flex-direction: column-reverse;
+        justify-content: flex-end;
+        align-items: center;
     }
     .player-details {
-        flex-direction: row;
         width: 100%;
-        @media (max-width: 1366px) {
-            flex-direction: column;
-            align-items: center;
-            flex-shrink: 0;
-            .player-boards-outer {
-                width: 100%;
-            }
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        .player-boards-outer {
+            width: 100%;
         }
     }
     .player-cards-and-tags-outer {
@@ -122,26 +112,21 @@ export const GlobalStyles = createGlobalStyle`
     }
     .player-cards-and-tags {
         align-self: flex-start;
-        @media (max-width: 1366px) {
+        @media (max-width: 895px) {
             align-self: center;
         }
     }
     .board-wrapper {
-        width: fit-content;
-        @media (max-width: 1366px) {
-            margin-left: 8px;
-            margin-right: 8px;
-        }
+        width: calc(100% - 16px);
+        padding-left: 8px;
+        padding-right: 8px;
     }
     .player-boards {
-        flex-direction: column;
         justify-content: center;
         padding-left: 16px;
-        @media (max-width: 1366px) {
-            flex-direction: row;
-            margin-left: auto;
-            margin-right: auto;
-        }
+        flex-direction: row;
+        margin-left: auto;
+        margin-right: auto;
     }
     .ellipsis {
         white-space: nowrap;

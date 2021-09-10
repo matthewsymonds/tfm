@@ -12,11 +12,13 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
+import {useWindowWidth} from 'hooks/use-window-width';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
+import {AwardsMilestonesLayout} from '../awards-milestones-layout';
 
 const MilestoneHeader = styled.div`
     margin: 4px 2px;
@@ -26,9 +28,10 @@ const MilestoneHeader = styled.div`
     color: ${colors.GOLD};
 `;
 
-export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
+export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
+    const windowWidth = useWindowWidth();
     const canPlay = milestone => actionGuard.canClaimMilestone(milestone)[0];
     const isClaimed = milestone => actionGuard.isMilestoneClaimed(milestone);
     const claimedMilestones = useTypedSelector(state =>
@@ -51,12 +54,12 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
     }
 
     return (
-        <Flex flexDirection="column" alignItems="flex-end">
+        <AwardsMilestonesLayout>
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <ActionListWithPopovers<Milestone>
                 actions={milestones}
                 emphasizeOnHover={canPlay}
-                isVertical={true}
+                isVertical={windowWidth > 895}
                 ActionComponent={({action}) => (
                     <MilestoneBadge
                         milestone={action}
@@ -80,7 +83,7 @@ export default function MilestonesNew({loggedInPlayer}: {loggedInPlayer: PlayerS
                     />
                 )}
             />
-        </Flex>
+        </AwardsMilestonesLayout>
     );
 }
 

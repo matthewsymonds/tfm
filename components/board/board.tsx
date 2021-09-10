@@ -1,40 +1,101 @@
 import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
-import AwardsNew from 'components/board/board-actions/awards';
-import MilestonesNew from 'components/board/board-actions/milestones';
-import StandardProjectsNew from 'components/board/board-actions/standard-projects';
+import AwardsList from 'components/board/board-actions/awards';
+import MilestonesList from 'components/board/board-actions/milestones';
+import StandardProjectList from 'components/board/board-actions/standard-projects';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
 import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
-import {Cell as CellModel, cellHelpers, HEX_PADDING, HEX_RADIUS} from 'constants/board';
+import {Cell as CellModel, cellHelpers, SpecialLocation} from 'constants/board';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {useWindowWidth} from 'hooks/use-window-width';
 import React, {useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import {Cell} from './cell';
-import OffMarsCities from './off-mars-cities';
+import OffMarsCities, {OffMarsCity} from './off-mars-cities';
+
+const CircleOuter = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
 
 const Circle = styled.div`
     border-radius: 50%;
-    width: 450px;
-    height: 450px;
+    width: 100%;
+    position: relative;
     background: ${colors.DARK_ORANGE};
-    display: flex;
-    justify-content: center;
-    align-items: center;
 `;
 
-const rowOffset = HEX_RADIUS * Math.sin((30 * Math.PI) / 180) - HEX_PADDING * 1.5;
+const CircleDummy = styled.div`
+    padding-top: 100%;
+`;
+
+const CircleInner = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+`;
 
 const Row = styled.div`
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: -${rowOffset}px;
+    margin-top: calc(-1 * 1 / 40 * 100%);
+`;
+
+const BoardOuter = styled.div`
+    justify-content: flex-end;
+    align-items: flex-start;
+    width: 100%;
+    display: flex;
+    position: relative;
+    @media (max-width: 895px) {
+        flex-direction: column;
+        & > * {
+            :nth-child(1) {
+                order: 3;
+            }
+            :nth-child(2) {
+                order: 1;
+            }
+            :nth-child(3) {
+                order: 2;
+            }
+            :nth-child(4) {
+                order: 4;
+            }
+        }
+    }
+`;
+
+const MilestonesAwardsBoardSwitcherWrapper = styled.div`
+    flex-direction: column;
+    align-items: flex-end;
+    align-self: flex-start;
+    margin-top: 24px;
+    display: flex;
+    @media (max-width: 895px) {
+        margin-top: 0px;
+        flex-direction: column-reverse;
+        align-items: center;
+        align-self: center;
+    }
+`;
+
+const AwardsAndMilestones = styled.div`
+    display: flex;
+    flex-direction: column;
+    @media (max-width: 895px) {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 `;
 
 export const Board = () => {
@@ -42,22 +103,31 @@ export const Board = () => {
     const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
 
     const parameters = useTypedSelector(state => state.common.parameters);
+    const windowWidth = useWindowWidth();
 
     return (
-        <Flex justifyContent="flex-end" alignItems="flex-start" width="100%">
+        <BoardOuter>
             <GlobalParams parameters={parameters} />
-
-            <Flex flexDirection="column" alignItems="center" flexGrow="1">
+            {windowWidth <= 895 && (
+                <Flex width="100%" justifyContent="center">
+                    <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
+                </Flex>
+            )}
+            <Flex flexDirection="column" alignItems="center" flexGrow="1" width="100%">
                 <BoardInner displayBoard={displayBoard} />
-                <StandardProjectsNew loggedInPlayer={loggedInPlayer} />
+                <StandardProjectList loggedInPlayer={loggedInPlayer} />
             </Flex>
 
-            <Flex flexDirection="column" alignItems="flex-end" alignSelf="center">
-                <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
-                <MilestonesNew loggedInPlayer={loggedInPlayer} />
-                <AwardsNew loggedInPlayer={loggedInPlayer} />
-            </Flex>
-        </Flex>
+            <MilestonesAwardsBoardSwitcherWrapper>
+                {windowWidth > 895 && (
+                    <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
+                )}
+                <AwardsAndMilestones>
+                    <MilestonesList loggedInPlayer={loggedInPlayer} />
+                    <AwardsList loggedInPlayer={loggedInPlayer} />
+                </AwardsAndMilestones>
+            </MilestonesAwardsBoardSwitcherWrapper>
+        </BoardOuter>
     );
 };
 
@@ -70,10 +140,12 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
         getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
     );
 
+    const cells = board.flat();
+
+    const ganymede = cells.find(cell => cell.specialLocation === SpecialLocation.GANYMEDE)!;
+
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
-
-    const venus = useTypedSelector(isPlayingVenus);
 
     function handleClick(cell: CellModel) {
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {
@@ -82,42 +154,67 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
         apiClient.completePlaceTileAsync({cell});
     }
 
+    const offMarsCitiesProps = {board, validPlacements, handleClick};
+
     if (displayBoard === DisplayBoard.COLONIES) {
         return <Colonies />;
     }
     return (
-        <Box position="relative" paddingBottom={venus ? '75px' : '0px'}>
-            <OffMarsCities
-                board={board}
-                validPlacements={validPlacements}
-                handleClick={handleClick}
-            />
-            <Circle>
-                <Flex flexDirection="column">
-                    {board.map((row, outerIndex) => (
-                        <Row key={outerIndex}>
-                            {row.map(
-                                (cell, index) =>
-                                    cellHelpers.onMars(cell) && (
-                                        <div
-                                            key={`${outerIndex}-${index}`}
-                                            style={{
-                                                position: 'relative',
-                                                margin: `0 ${HEX_PADDING}px`,
-                                            }}
-                                            onClick={() => handleClick(cell)}
-                                        >
-                                            <Cell
-                                                cell={cell}
-                                                selectable={validPlacements.includes(cell)}
-                                            />
-                                        </div>
-                                    )
-                            )}
-                        </Row>
-                    ))}
-                </Flex>
-            </Circle>
+        <Box position="relative" width="100%" maxWidth="582px">
+            <CircleOuter>
+                <Circle>
+                    <CircleDummy />
+                    <CircleInner>
+                        <Flex
+                            width="90%"
+                            left="50%"
+                            transform="translateX(-50%)"
+                            justifyContent="flex-end"
+                            position="absolute"
+                        >
+                            <Box width="calc(100% / 9)">
+                                <OffMarsCity
+                                    cell={ganymede}
+                                    offMarsCitiesProps={offMarsCitiesProps}
+                                />
+                            </Box>
+                        </Flex>
+
+                        <Flex
+                            flexDirection="column"
+                            alignItems="center"
+                            justifyContent="center"
+                            height="100%"
+                        >
+                            {board.map((row, outerIndex) => (
+                                <Row key={outerIndex}>
+                                    {row.map(
+                                        (cell, index) =>
+                                            cellHelpers.onMars(cell) && (
+                                                <div
+                                                    key={`${outerIndex}-${index}`}
+                                                    style={{
+                                                        position: 'relative',
+                                                        margin: `0 calc(100% / (4 * 10 * 10))`,
+                                                        flex: '0 0 calc(100% / 10)',
+                                                    }}
+                                                    onClick={() => handleClick(cell)}
+                                                >
+                                                    <Cell
+                                                        cell={cell}
+                                                        selectable={validPlacements.includes(cell)}
+                                                    />
+                                                </div>
+                                            )
+                                    )}
+                                </Row>
+                            ))}
+                        </Flex>
+                    </CircleInner>
+                </Circle>
+            </CircleOuter>
+
+            <OffMarsCities {...offMarsCitiesProps} />
         </Box>
     );
 }

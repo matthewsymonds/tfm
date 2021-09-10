@@ -13,7 +13,7 @@ export const TileIcon = ({
     margin?: number | string;
 }) => {
     return (
-        <div style={{margin}}>
+        <div style={{margin, width: `${Math.floor((3 * size) / 4)}px`}}>
             <Hexagon hexRadius={size / 2} color={getTileBgColor(type)}>
                 {getTileIcon(type)}
             </Hexagon>
