@@ -113,7 +113,7 @@ type GlobalParamsProps = {
 
 const GlobalParamWrapper = styled.div`
     flex-direction: column;
-    margin-right: 2%;
+    margin-right: 8px;
     margin-top: 24px;
     @media (max-width: 895px) {
         flex-direction: row;

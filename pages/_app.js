@@ -85,8 +85,9 @@ export const GlobalStyles = createGlobalStyle`
     }
     .active-round-outer {
         min-width: min(450px, 100%);
-        max-width: min-content;
-        width: fit-content;
+        max-width: 895px;
+        padding-bottom: 100px;
+        width: 100%;
         box-sizing: border-box;
         padding-right: 0px;
         margin-right: 0px;
@@ -109,6 +110,7 @@ export const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
         padding-left: 8px;
         padding-right: 8px;
+        max-width: 809px;
     }
     .player-cards-and-tags {
         align-self: flex-start;

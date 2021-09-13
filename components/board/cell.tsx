@@ -81,6 +81,11 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                     justifyContent="center"
                     fontSize="clamp(16px,5vw,36px)"
                     lineHeight="clamp(16px,5vw,36px)"
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    right="0"
+                    bottom="0"
                 >
                     {getTileIcon(tile.type)}
                 </Flex>
@@ -109,7 +114,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         <>
             <Hexagon color={bgColor} selectable={selectable}>
                 {specialName && (
-                    <ChildrenWrapper moveUp={bonus.length === 0} selectable={selectable}>
+                    <ChildrenWrapper moveUp={bonus.length === 0 || !!tile} selectable={selectable}>
                         {specialName}
                     </ChildrenWrapper>
                 )}
@@ -118,6 +123,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                     alignItems="center"
                     justifyContent="center"
                     width="100%"
+                    position={tile ? 'absolute' : 'static'}
                 >
                     {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus, specialName)}
                     {tile && renderTile(tile)}

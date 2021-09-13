@@ -15,6 +15,13 @@ const OuterWrapper = styled.div`
     }
 `;
 
+const ScrollingOuterWrapper = styled.div`
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+`;
+
 export default function ActionListWithPopovers<T>({
     actions,
     ActionComponent,
@@ -52,24 +59,26 @@ export default function ActionListWithPopovers<T>({
     }, []);
 
     return (
-        <OuterWrapper style={style}>
-            {actions.map((action, index) => {
-                return (
-                    <ActionWithPopover<T>
-                        key={index}
-                        action={action}
-                        emphasizeOnHover={emphasizeOnHover(action)}
-                        isVertical={isVertical}
-                        isPinned={pinnedAction === action}
-                        setPinnedAction={setPinnedAction}
-                        ActionComponent={ActionComponent}
-                        ActionPopoverComponent={ActionPopoverComponent}
-                        isFirst={!isVertical && setBoundaries && index === 0}
-                        isLast={!isVertical && setBoundaries && index === actions.length - 1}
-                    />
-                );
-            })}
-        </OuterWrapper>
+        <ScrollingOuterWrapper>
+            <OuterWrapper style={style}>
+                {actions.map((action, index) => {
+                    return (
+                        <ActionWithPopover<T>
+                            key={index}
+                            action={action}
+                            emphasizeOnHover={emphasizeOnHover(action)}
+                            isVertical={isVertical}
+                            isPinned={pinnedAction === action}
+                            setPinnedAction={setPinnedAction}
+                            ActionComponent={ActionComponent}
+                            ActionPopoverComponent={ActionPopoverComponent}
+                            isFirst={!isVertical && setBoundaries && index === 0}
+                            isLast={!isVertical && setBoundaries && index === actions.length - 1}
+                        />
+                    );
+                })}
+            </OuterWrapper>
+        </ScrollingOuterWrapper>
     );
 }
 
@@ -111,7 +120,7 @@ function ActionWithPopover<T>({
         }
     }
 
-    const translateX = isVertical ? 100 : isFirst ? 0 : isLast ? -100 : -50;
+    const translateX = isVertical ? -100 : isFirst ? 0 : isLast ? -100 : -50;
     const translateY = !isVertical ? -100 : isFirst ? 0 : isLast ? -100 : -50;
 
     const left = isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
@@ -119,7 +128,6 @@ function ActionWithPopover<T>({
 
     return (
         <Flex
-            position="relative"
             alignItems="center"
             justifyContent="flex-end"
             onMouseEnter={_setIsHoveringToTrue}

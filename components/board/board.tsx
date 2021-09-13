@@ -21,6 +21,7 @@ import OffMarsCities, {OffMarsCity} from './off-mars-cities';
 const CircleOuter = styled.div`
     display: flex;
     flex-direction: column;
+    max-width: 582px;
 `;
 
 const Circle = styled.div`
@@ -50,12 +51,14 @@ const Row = styled.div`
 `;
 
 const BoardOuter = styled.div`
-    justify-content: flex-end;
+    justify-content: center;
     align-items: flex-start;
     width: 100%;
     display: flex;
     position: relative;
     @media (max-width: 895px) {
+        margin-left: auto;
+        margin-right: auto;
         flex-direction: column;
         & > * {
             :nth-child(1) {
@@ -82,6 +85,7 @@ const MilestonesAwardsBoardSwitcherWrapper = styled.div`
     display: flex;
     @media (max-width: 895px) {
         margin-top: 0px;
+        width: 100%;
         flex-direction: column-reverse;
         align-items: center;
         align-self: center;
@@ -92,9 +96,23 @@ const AwardsAndMilestones = styled.div`
     display: flex;
     flex-direction: column;
     @media (max-width: 895px) {
+        max-width: 100%;
         flex-direction: row;
         justify-content: center;
         flex-wrap: wrap;
+    }
+`;
+
+const BoardMid = styled.div`
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    max-width: 582px;
+    @media (max-width: 895px) {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
     }
 `;
 
@@ -106,28 +124,37 @@ export const Board = () => {
     const windowWidth = useWindowWidth();
 
     return (
-        <BoardOuter>
-            <GlobalParams parameters={parameters} />
-            {windowWidth <= 895 && (
-                <Flex width="100%" justifyContent="center">
-                    <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
-                </Flex>
-            )}
-            <Flex flexDirection="column" alignItems="center" flexGrow="1" width="100%">
-                <BoardInner displayBoard={displayBoard} />
-                <StandardProjectList loggedInPlayer={loggedInPlayer} />
-            </Flex>
-
-            <MilestonesAwardsBoardSwitcherWrapper>
-                {windowWidth > 895 && (
-                    <BoardSwitcher setDisplayBoard={setDisplayBoard} selectedBoard={displayBoard} />
+        <Box>
+            <BoardOuter>
+                <GlobalParams parameters={parameters} />
+                {windowWidth <= 895 && (
+                    <Flex width="100%" justifyContent="center">
+                        <BoardSwitcher
+                            setDisplayBoard={setDisplayBoard}
+                            selectedBoard={displayBoard}
+                        />
+                    </Flex>
                 )}
-                <AwardsAndMilestones>
-                    <MilestonesList loggedInPlayer={loggedInPlayer} />
-                    <AwardsList loggedInPlayer={loggedInPlayer} />
-                </AwardsAndMilestones>
-            </MilestonesAwardsBoardSwitcherWrapper>
-        </BoardOuter>
+                <BoardMid>
+                    <BoardInner displayBoard={displayBoard} />
+                    {windowWidth <= 895 && <StandardProjectList loggedInPlayer={loggedInPlayer} />}
+                </BoardMid>
+
+                <MilestonesAwardsBoardSwitcherWrapper>
+                    {windowWidth > 895 && (
+                        <BoardSwitcher
+                            setDisplayBoard={setDisplayBoard}
+                            selectedBoard={displayBoard}
+                        />
+                    )}
+                    <AwardsAndMilestones>
+                        <MilestonesList loggedInPlayer={loggedInPlayer} />
+                        <AwardsList loggedInPlayer={loggedInPlayer} />
+                    </AwardsAndMilestones>
+                </MilestonesAwardsBoardSwitcherWrapper>
+            </BoardOuter>
+            {windowWidth > 895 && <StandardProjectList loggedInPlayer={loggedInPlayer} />}
+        </Box>
     );
 };
 
@@ -160,7 +187,7 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
         return <Colonies />;
     }
     return (
-        <Box position="relative" width="100%" maxWidth="582px">
+        <Box position="relative" width="100%">
             <CircleOuter>
                 <Circle>
                     <CircleDummy />
