@@ -20,7 +20,7 @@ const getColor = (type: CellType) => {
         case CellType.OFF_MARS:
             return 'rgba(255, 255, 255, 0.2)';
         case CellType.WATER:
-            return 'rgba(206, 247, 253, 0.5)';
+            return '#b0b2b5';
         default:
             return 'rgba(0,0,0,0)';
     }
@@ -42,14 +42,6 @@ const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean}>`
     background: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
     transform: translateY(${props => (props.moveUp ? -32 : 0)}%);
-`;
-
-const CellWrapper = styled.div`
-    display: flex;
-    width: fit-content;
-    flex-grow: 1;
-    justify-content: center;
-    flex: 0 0 calc(100% / 9);
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
@@ -93,7 +85,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         );
     }
 
-    function renderBonus(bonus: Array<Resource>, specialName: string | null) {
+    function renderBonus(bonus: Array<Resource>) {
         const hasCard = bonus.some(resource => resource === Resource.CARD);
         return (
             <Flex flexDirection="row">
@@ -125,7 +117,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                     width="100%"
                     position={tile ? 'absolute' : 'static'}
                 >
-                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus, specialName)}
+                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
                     {tile && renderTile(tile)}
                 </Flex>
             </Hexagon>

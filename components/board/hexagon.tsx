@@ -3,15 +3,16 @@ import styled from 'styled-components';
 
 const HexagonBase = styled.div<HexagonProps>`
     color: black;
-    background-color: ${props => props.color};
     overflow: visible;
     position: relative;
     width: 100%;
     transform: ${props => (props.scale ? `scale(${props.scale})` : '')};
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
-    background: ${props => (props.selectable ? 'gray' : 'transparent')};
+
     &:hover {
-        background: ${props => (props.selectable ? 'black' : 'transparent')};
+        &:before {
+            background: ${props => (props.selectable ? 'dimgray' : props.color)};
+        }
     }
 
     &:before {
@@ -19,7 +20,7 @@ const HexagonBase = styled.div<HexagonProps>`
         position: absolute;
         height: 100%;
         width: 100%;
-        background-color: ${props => props.color};
+        background-color: ${props => (props.selectable ? '#888' : props.color)};
         clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     }
 

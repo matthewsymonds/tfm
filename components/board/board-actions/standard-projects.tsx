@@ -64,7 +64,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
     }
 
     return (
-        <Flex marginTop="8px">
+        <Flex marginTop="8px" position="relative">
             <ActionListWithPopovers<StandardProjectAction>
                 actions={actions}
                 emphasizeOnHover={canPlay}
