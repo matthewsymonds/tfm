@@ -5,7 +5,6 @@ import {Box, Flex} from 'components/box';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import {useStore} from 'react-redux';
-import styled from 'styled-components';
 
 export default function Index(props) {
     const {userGames, session} = props;
