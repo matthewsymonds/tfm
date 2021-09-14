@@ -322,6 +322,7 @@ export function Colonies() {
             flexDirection="column"
             height="525px"
             width="450px"
+            maxWidth="100%"
             alignItems="center"
         >
             <Flex width="100%" alignItems="center" flexDirection="column">
