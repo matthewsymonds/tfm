@@ -18,7 +18,18 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {awardToQuantity} from 'selectors/score';
 import styled from 'styled-components';
-import {AwardsMilestonesLayout} from '../awards-milestones-layout';
+
+export const AwardsMilestonesLayout = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: relative;
+    @media (max-width: 895px) {
+        align-items: center;
+        max-width: 100%;
+        margin: 4px;
+    }
+`;
 
 const AwardHeader = styled.div`
     margin: 4px 2px;

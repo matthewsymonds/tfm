@@ -18,7 +18,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
 import styled from 'styled-components';
-import {AwardsMilestonesLayout} from '../awards-milestones-layout';
+import {AwardsMilestonesLayout} from 'components/board/board-actions/awards';
 
 const MilestoneHeader = styled.div`
     margin: 4px 2px;

@@ -76,11 +76,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                     flexWrap: 'wrap',
                     justifyContent: 'flex-end',
                 }}
-                ActionComponent={({action}) => (
-                    <Box padding="4px">
-                        <StandardProject action={action} />
-                    </Box>
-                )}
+                ActionComponent={({action}) => <StandardProject action={action} />}
                 ActionPopoverComponent={({
                     action,
                     closePopover,
@@ -203,13 +199,13 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
         case StandardProjectType.ASTEROID:
             return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={22} />;
         case StandardProjectType.AQUIFER:
-            return <GlobalParameterIcon parameter={Parameter.OCEAN} size={22} />;
+            return <TileIcon type={TileType.OCEAN} size={22} />;
         case StandardProjectType.GREENERY:
             return <TileIcon type={TileType.GREENERY} size={22} />;
         case StandardProjectType.CITY:
             return <TileIcon type={TileType.CITY} size={22} />;
         case StandardProjectType.COLONY:
-            return <ColonyIcon size={22} />;
+            return <ColonyIcon size={16} />;
         case StandardProjectType.VENUS:
             return <GlobalParameterIcon parameter={Parameter.VENUS} size={22} />;
         default:
