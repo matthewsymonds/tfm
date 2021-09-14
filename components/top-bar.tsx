@@ -126,9 +126,14 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
                     {isLoggedInPlayersTurn && isGreeneryPlacement && (
                         <Box display="inline-block">{greeneryPlacementText}</Box>
                     )}
-                    {actionGuard.canSkipAction()[0] && (isGreeneryPlacement || isActiveRound) && (
+                    {actionGuard.canSkipAction()[0] && (
                         <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
-                            {isGreeneryPlacement ? 'Pass' : action === 2 ? 'Skip' : 'Pass'}
+                            Skip
+                        </Button>
+                    )}
+                    {actionGuard.canPassGeneration()[0] && (
+                        <Button onClick={() => apiClient.passGenerationAsync()} margin="0 0 0 8px">
+                            Pass
                         </Button>
                     )}
                 </Box>

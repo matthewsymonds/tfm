@@ -46,6 +46,7 @@ import {
     moveColonyTileTrack,
     moveFleet,
     noopAction,
+    passGeneration,
     PAUSE_ACTIONS,
     payForCards,
     payToPlayCard,
@@ -764,6 +765,17 @@ export class ApiActionHandler {
         if (playablePreludes.length === 0) {
             this.queue.push(discardPreludes(this.loggedInPlayerIndex));
         }
+        this.processQueue();
+    }
+
+    passGeneration() {
+        const [canPassGeneration, reason] = this.actionGuard.canPassGeneration();
+
+        if (!canPassGeneration) {
+            throw new Error(reason);
+        }
+
+        this.queue.unshift(passGeneration(this.loggedInPlayerIndex));
         this.processQueue();
     }
 

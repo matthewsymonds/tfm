@@ -6,6 +6,7 @@ export enum ApiActionType {
     API_FUND_AWARD = 'apiFundAward',
     API_DO_CONVERSION = 'apiDoConversion',
     API_SKIP_ACTION = 'apiSkipAction',
+    API_PASS_GENERATION = 'apiPassGeneration',
     API_COMPLETE_PLACE_TILE = 'apiCompletePlaceTile',
     API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS = 'apiCompleteChooseResourceActionDetails',
     API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS = 'apiSkipChooseResourceActionDetails',

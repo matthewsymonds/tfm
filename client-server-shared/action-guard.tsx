@@ -282,12 +282,34 @@ export class ActionGuard {
             if (this.shouldDisableUI()) {
                 return [false, 'Cannot play game right now'];
             }
-            return [true, 'Good to go'];
+            return [player.action === 2, 'Cannot skip 1st action'];
+        }
+        return [false, 'Cannot skip action right now'];
+    }
+
+    canPassGeneration(): CanPlayAndReason {
+        const {state} = this;
+        const player = this._getPlayerToConsider();
+
+        if (!player.action || state.common.currentPlayerIndex !== player.index) {
+            return [false, 'It is not your turn right now'];
+        }
+
+        if (getIsPlayerMakingDecision(state, player)) {
+            return [false, 'Player cannot skip while making decision'];
+        }
+
+        const {gameStage} = state.common;
+        if (gameStage === GameStage.ACTIVE_ROUND) {
+            if (this.shouldDisableUI()) {
+                return [false, 'Cannot play game right now'];
+            }
+            return [player.action === 1, 'Cannot pass 2nd action'];
         }
         if (gameStage === GameStage.GREENERY_PLACEMENT) {
             return [true, 'Good to go'];
         }
-        return [false, 'Cannot skip action right now'];
+        return [false, 'Cannot pass right now'];
     }
 
     private canAffordActionCost(

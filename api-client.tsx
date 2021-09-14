@@ -203,6 +203,10 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_SKIP_ACTION, {});
     }
 
+    async passGenerationAsync(): Promise<void> {
+        await this.makeApiCall(ApiActionType.API_PASS_GENERATION, {});
+    }
+
     async completePlaceTileAsync(payload: {cell: Cell}): Promise<void> {
         await this.makeApiCall(ApiActionType.API_COMPLETE_PLACE_TILE, payload);
     }
@@ -224,10 +228,6 @@ export class ApiClient implements GameActionHandler {
 
     async skipChooseResourceActionDetailsAsync() {
         await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
-    }
-
-    async skipPlayCardFromHandAsync() {
-        await this.makeApiCall(ApiActionType.API_SKIP_ACTION, {});
     }
 
     async completeLookAtCardsAsync({

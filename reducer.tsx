@@ -78,6 +78,7 @@ import {
     moveColonyTileTrack,
     moveFleet,
     noopAction,
+    passGeneration,
     payForCards,
     payToPlayCard,
     payToPlayCardAction,
@@ -166,6 +167,7 @@ function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: n
 }
 
 function handleProduction(draft: GameState) {
+    draft.log.push('Production');
     for (const player of draft.players) {
         player.resources[Resource.MEGACREDIT] += player.terraformRating;
         player.resources[Resource.HEAT] += player.resources[Resource.ENERGY];
@@ -173,11 +175,38 @@ function handleProduction(draft: GameState) {
         for (const production in player.productions) {
             player.resources[production] += player.productions[production];
         }
+
+        let playerNewResourcesLogMessage: string = `${player.corporation.name} has`;
+        const nonZeroResources = Object.keys(player.resources)
+            .reverse()
+            .filter(resource => player.resources[resource] > 0);
+        const [lastResource, ...firstResources] = nonZeroResources as Resource[];
+        for (const resource of firstResources.reverse()) {
+            playerNewResourcesLogMessage += ` ${quantityAndResource(
+                player.resources[resource],
+                resource
+            )},`;
+        }
+
+        if (firstResources.length > 0) {
+            playerNewResourcesLogMessage += ` and`;
+        }
+
+        playerNewResourcesLogMessage += ` ${quantityAndResource(
+            player.resources[lastResource],
+            lastResource
+        )}`;
+
+        draft.log.push(playerNewResourcesLogMessage);
     }
     for (const colony of draft.common.colonies ?? []) {
         if (colony.step >= 0) {
+            const originalColonyStep = colony.step;
             colony.step += 1;
             colony.step = Math.min(colony.step, getColony(colony).tradeIncome.length - 1);
+            if (colony.step > originalColonyStep) {
+                draft.log.push(`${colony.name}'s tile track increased to ${colony.step + 1}`);
+            }
         }
     }
 }
@@ -1121,6 +1150,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         colony.step === STARTING_STEP_STORABLE_RESOURCE_COLONY
                     ) {
                         colony.step = STARTING_STEP;
+                        draft.log.push(
+                            `${colony.name}'s tile track went online at ${colony.step + 1}`
+                        );
                     }
                 }
             }
@@ -1362,6 +1394,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
             if (colony) {
                 colony.step = payload.location;
+                draft.log.push(`${colony.name}'s tile track went to ${colony.step + 1}`);
             }
         }
 
@@ -1386,11 +1419,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.placeColony = undefined;
             const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
             if (colony) {
-                if (colony.colonies.length === colony.step) {
-                    colony.step += 1;
-                }
                 colony.colonies.push(player.index);
                 draft.log.push(`${corporationName} placed a colony on ${colony.name}`);
+                if (colony.colonies.length === colony.step) {
+                    colony.step += 1;
+                    draft.log.push(`${colony.name}'s tile track increased to ${colony.step + 1}`);
+                }
             }
         }
 
@@ -1470,7 +1504,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 } else {
                     draft.log.push(
-                        `${corporationName} did not increase ${increaseColony.name}'s step (colony is not online)`
+                        `${corporationName} did not increase ${increaseColony.name}'s tile track (colony is not online)`
                     );
                 }
             }
@@ -1490,7 +1524,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 } else {
                     draft.log.push(
-                        `${corporationName} did not decrease ${decreaseColony.name}'s step (colony is not online)`
+                        `${corporationName} did not decrease ${decreaseColony.name}'s tile track (colony is not online)`
                     );
                 }
             }
@@ -1509,6 +1543,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (skipAction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
+            // "Play a card from hand, reducing its cost by 25MC" but you had no valid cards to play.
+            // Since you declined to play a card, you lose the discount for "next card this generation".
             if (player.pendingPlayCardFromHand) {
                 if (player.pendingPlayCardFromHand.discount) {
                     player.discounts.nextCardThisGeneration = 0;
@@ -1522,98 +1558,94 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const isPrelude = player.preludes?.length ?? 0 > 0;
             if (!isPrelude) {
                 player.action = 1;
+                draft.log.push(`${corporationName} skipped their 2nd action`);
             }
-            // Did the player just skip on their first action?
-            // Or is this greenery phase?
-            // If so, they're out for the rest of the round.
-            if (
-                !isPrelude &&
-                (previous === 1 || common.gameStage === GameStage.GREENERY_PLACEMENT)
-            ) {
-                draft.log.push(`${corporationName} passed`);
+            if (!isPrelude && previous === 2) {
+                handleChangeCurrentPlayer(state, draft);
+            }
+        }
 
-                player.action = 0;
-                player.previousCardsInHand = player.cards.length;
-                player.terraformedThisGeneration = false;
-                player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
+        if (passGeneration.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            draft.log.push(`${corporationName} passed`);
 
-                // Check if all other players have also passed
-                const activePlayers = draft.players.filter(p => p.action !== 0);
-                if (activePlayers.length === 0) {
-                    if (common.gameStage === GameStage.GREENERY_PLACEMENT) {
-                        common.gameStage = GameStage.END_OF_GAME;
-                        return;
+            player.action = 0;
+            player.previousCardsInHand = player.cards.length;
+            player.terraformedThisGeneration = false;
+            player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
+
+            // Check if all other players have also passed
+            const activePlayers = draft.players.filter(p => p.action !== 0);
+            if (activePlayers.length === 0) {
+                if (common.gameStage === GameStage.GREENERY_PLACEMENT) {
+                    common.gameStage = GameStage.END_OF_GAME;
+                    return;
+                }
+
+                handleProduction(draft);
+
+                if (isGameEndTriggered(draft)) {
+                    const playersWhoCanPlaceGreenery = draft.players.filter(
+                        player =>
+                            player.resources[Resource.PLANT] >=
+                            convertAmountToNumber(
+                                CONVERSIONS[Resource.PLANT]?.removeResource?.[Resource.PLANT] ?? 0,
+                                state,
+                                player
+                            )
+                    );
+                    for (player of playersWhoCanPlaceGreenery) {
+                        player.action = 1;
                     }
-
-                    handleProduction(draft);
-
-                    if (isGameEndTriggered(draft)) {
-                        const playersWhoCanPlaceGreenery = draft.players.filter(
-                            player =>
-                                player.resources[Resource.PLANT] >=
-                                convertAmountToNumber(
-                                    CONVERSIONS[Resource.PLANT]?.removeResource?.[Resource.PLANT] ??
-                                        0,
-                                    state,
-                                    player
-                                )
-                        );
-                        for (player of playersWhoCanPlaceGreenery) {
-                            player.action = 1;
-                        }
-                        if (playersWhoCanPlaceGreenery.length > 0) {
-                            draft.log.push('Greenery Placement');
-                            const [{index}] = playersWhoCanPlaceGreenery;
-                            common.currentPlayerIndex = index;
-                            common.gameStage = GameStage.GREENERY_PLACEMENT;
-                        } else {
-                            common.gameStage = GameStage.END_OF_GAME;
-                        }
+                    if (playersWhoCanPlaceGreenery.length > 0) {
+                        draft.log.push('Greenery Placement');
+                        const [{index}] = playersWhoCanPlaceGreenery;
+                        common.currentPlayerIndex = index;
+                        common.gameStage = GameStage.GREENERY_PLACEMENT;
                     } else {
-                        // shift the turn order by 1
-                        const oldTurnOrder = state.common.playerIndexOrderForGeneration;
-                        draft.common.playerIndexOrderForGeneration = [
-                            ...oldTurnOrder.slice(1),
-                            oldTurnOrder[0],
-                        ];
-                        common.firstPlayerIndex =
-                            (common.firstPlayerIndex + 1) % draft.players.length;
-                        common.currentPlayerIndex = common.firstPlayerIndex;
-                        common.turn = 1;
-                        common.generation++;
-                        draft.log.push(`Generation ${common.generation}`);
-                        common.gameStage = draft.options?.isDraftingEnabled
-                            ? GameStage.DRAFTING
-                            : GameStage.BUY_OR_DISCARD;
-
-                        for (player of draft.players) {
-                            player.pendingCardSelection = {
-                                possibleCards: handleDrawCards(draft, 4),
-                                isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
-                                draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
-                            };
-                            setSyncingTrueIfClient(draft);
-                            if (process.env.NODE_ENV === 'development') {
-                                const bonuses = [
-                                    ...draft.common.deck,
-                                    ...draft.common.discardPile,
-                                ].filter(card => bonusNames.includes(card.name));
-                                // (hack for debugging)
-                                player.pendingCardSelection.possibleCards.push(...bonuses);
-                                draft.common.deck = draft.common.deck.filter(
-                                    card => !bonusNames.includes(card.name)
-                                );
-                                draft.common.discardPile = draft.common.discardPile.filter(
-                                    card => !bonusNames.includes(card.name)
-                                );
-                            }
-                        }
+                        common.gameStage = GameStage.END_OF_GAME;
                     }
                 } else {
-                    handleChangeCurrentPlayer(state, draft);
+                    // shift the turn order by 1
+                    const oldTurnOrder = state.common.playerIndexOrderForGeneration;
+                    draft.common.playerIndexOrderForGeneration = [
+                        ...oldTurnOrder.slice(1),
+                        oldTurnOrder[0],
+                    ];
+                    common.firstPlayerIndex = (common.firstPlayerIndex + 1) % draft.players.length;
+                    common.currentPlayerIndex = common.firstPlayerIndex;
+                    common.turn = 1;
+                    common.generation++;
+                    draft.log.push(`Generation ${common.generation}`);
+                    common.gameStage = draft.options?.isDraftingEnabled
+                        ? GameStage.DRAFTING
+                        : GameStage.BUY_OR_DISCARD;
+
+                    for (player of draft.players) {
+                        player.pendingCardSelection = {
+                            possibleCards: handleDrawCards(draft, 4),
+                            isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
+                            draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
+                        };
+                        setSyncingTrueIfClient(draft);
+                        if (process.env.NODE_ENV === 'development') {
+                            const bonuses = [
+                                ...draft.common.deck,
+                                ...draft.common.discardPile,
+                            ].filter(card => bonusNames.includes(card.name));
+                            // (hack for debugging)
+                            player.pendingCardSelection.possibleCards.push(...bonuses);
+                            draft.common.deck = draft.common.deck.filter(
+                                card => !bonusNames.includes(card.name)
+                            );
+                            draft.common.discardPile = draft.common.discardPile.filter(
+                                card => !bonusNames.includes(card.name)
+                            );
+                        }
+                    }
                 }
             } else {
-                draft.log.push(`${corporationName} skipped their 2nd action`);
                 handleChangeCurrentPlayer(state, draft);
             }
         }

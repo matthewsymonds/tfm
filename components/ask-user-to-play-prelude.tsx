@@ -40,13 +40,17 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
 
     if (playableCards.length === 0) {
         return (
-            <>
-                <Flex flexDirection="column" alignItems="center">
-                    <h2>You are unable to play any of these preludes.</h2>
-                    <button onClick={handleSkip}>Skip</button>
-                </Flex>
+            <Flex alignItems="center" flexDirection="column">
+                <h2 style={{color: '#eee'}}>
+                    {player.choosePrelude
+                        ? 'Cannot play any of these preludes'
+                        : 'No more playable preludes.'}
+                </h2>
+                <button onClick={handleSkip} style={{marginTop: '8px', marginBottom: '24px'}}>
+                    Skip remaining preludes
+                </button>
                 {preludesEls}
-            </>
+            </Flex>
         );
     }
 

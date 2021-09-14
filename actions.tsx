@@ -430,10 +430,17 @@ export const completeAction = withMatcher((playerIndex: number) => ({
     payload: {playerIndex},
 }));
 
-// If this is the player's first action.
+// If this is the player's second action. (Also used to skip playing a card if you cannot play card).
 const SKIP_ACTION = 'SKIP_ACTION';
 export const skipAction = withMatcher((playerIndex: number) => ({
     type: SKIP_ACTION,
+    payload: {playerIndex},
+}));
+
+// If this is the player's first action.
+const PASS_GENERATION = 'PASS_GENERATION';
+export const passGeneration = withMatcher((playerIndex: number) => ({
+    type: PASS_GENERATION,
     payload: {playerIndex},
 }));
 

@@ -56,6 +56,9 @@ export function playGame(
         case ApiActionType.API_SKIP_ACTION:
             actionHandler.skipAction();
             break;
+        case ApiActionType.API_PASS_GENERATION:
+            actionHandler.passGeneration();
+            break;
         case ApiActionType.API_COMPLETE_PLACE_TILE:
             actionHandler.completePlaceTile(payload);
             break;
