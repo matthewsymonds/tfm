@@ -1,7 +1,5 @@
 import {Box} from 'components/box';
-import {Centered} from 'components/centered';
-import {InputBox} from 'components/input-box';
-import {Mars} from 'components/mars';
+import {MarsHeader} from 'components/mars-header';
 import {colors} from 'components/ui';
 import {AppContext, appContext} from 'context/app-context';
 import {Fonts} from 'fonts';
@@ -151,12 +149,8 @@ function InnerAppComponent({Component, pageProps, session}) {
     }
     return (
         <>
-            <Centered>
-                <Mars />
-                <InputBox>
-                    <Component {...pageProps} session={session} />
-                </InputBox>
-            </Centered>
+            <MarsHeader />
+            <Component {...pageProps} session={session} />
         </>
     );
 }

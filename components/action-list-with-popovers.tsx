@@ -2,7 +2,7 @@ import {colors} from 'components/ui';
 import {useComponentId} from 'hooks/use-component-id';
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {Flex} from './box';
+import {Box, Flex} from './box';
 
 const OuterWrapper = styled.div`
     display: flex;
@@ -18,8 +18,12 @@ const OuterWrapper = styled.div`
 const ScrollingOuterWrapper = styled.div`
     width: 100%;
     overflow-x: auto;
+    padding-bottom: 4px;
     display: flex;
     justify-content: center;
+    @media (max-width: 895px) {
+        justify-content: flex-start;
+    }
 `;
 
 export default function ActionListWithPopovers<T>({
@@ -127,62 +131,62 @@ function ActionWithPopover<T>({
     const top = !isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
 
     return (
-        <Flex
-            alignItems="center"
-            justifyContent="flex-end"
-            onMouseEnter={_setIsHoveringToTrue}
-            onMouseMove={_setIsHoveringToTrue}
-            onMouseLeave={(e: React.MouseEvent) => {
-                if ((e?.relatedTarget as Element)?.parentElement?.id !== popoverId) {
-                    setIsHovering(false);
-                }
-            }}
-            paddingLeft={isVertical ? '4px' : 0}
-            paddingTop={isVertical ? 0 : '4px'}
-            onClick={e => {
-                setPinnedAction(action);
-                e.stopPropagation();
-            }}
+        <Box
+            marginRight={isVertical ? undefined : '4px'}
+            marginBottom={isVertical ? '4px' : undefined}
         >
-            <StylizedActionWrapper
-                id={`${action}`}
-                emphasizeOnHover={emphasizeOnHover}
-                isHovering={isHovering || isPinned}
-                isVertical={isVertical}
+            <Flex
+                alignItems="center"
+                justifyContent="flex-end"
+                onMouseEnter={_setIsHoveringToTrue}
+                onMouseMove={_setIsHoveringToTrue}
+                onMouseLeave={(e: React.MouseEvent) => {
+                    if ((e?.relatedTarget as Element)?.parentElement?.id !== popoverId) {
+                        setIsHovering(false);
+                    }
+                }}
+                onClick={e => {
+                    setPinnedAction(action);
+                    e.stopPropagation();
+                }}
             >
-                <ActionComponent action={action} />
-            </StylizedActionWrapper>
-            {(isHovering || isPinned) && (
-                <div
-                    id={popoverId}
-                    onMouseLeave={() => setIsHovering(false)}
-                    style={{
-                        position: 'absolute',
-                        zIndex: 10,
-                        left: `${left}%`,
-                        top: `${top}%`,
-                        transform: `translate(${translateX}%, ${translateY}%)`,
-                    }}
+                <StylizedActionWrapper
+                    id={`${action}`}
+                    emphasizeOnHover={emphasizeOnHover}
+                    isHovering={isHovering || isPinned}
                 >
-                    <ActionPopoverComponent
-                        action={action}
-                        closePopover={() => {
-                            setIsHovering(false);
-                            setPinnedAction(null);
+                    <ActionComponent action={action} />
+                </StylizedActionWrapper>
+                {(isHovering || isPinned) && (
+                    <div
+                        id={popoverId}
+                        onMouseLeave={() => setIsHovering(false)}
+                        style={{
+                            position: 'absolute',
+                            zIndex: 10,
+                            left: `${left}%`,
+                            top: `${top}%`,
+                            transform: `translate(${translateX}%, ${translateY}%)`,
                         }}
-                    />
-                </div>
-            )}
-        </Flex>
+                    >
+                        <ActionPopoverComponent
+                            action={action}
+                            closePopover={() => {
+                                setIsHovering(false);
+                                setPinnedAction(null);
+                            }}
+                        />
+                    </div>
+                )}
+            </Flex>
+        </Box>
     );
 }
 
 const StylizedActionWrapper = styled.div<{
     emphasizeOnHover: boolean;
-    isVertical: boolean;
     isHovering: boolean;
 }>`
-    ${props => (props.isVertical ? 'margin-bottom: 4px;' : 'margin-right: 4px;')}
     user-select: none;
     opacity: ${props => (props.emphasizeOnHover ? 1 : 0.5)};
 

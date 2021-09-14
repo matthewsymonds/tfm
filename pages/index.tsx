@@ -5,9 +5,6 @@ import {Box, Flex} from 'components/box';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import {useStore} from 'react-redux';
-import styled from 'styled-components';
-
-const Username = styled.div``;
 
 export default function Index(props) {
     const {userGames, session} = props;
@@ -17,18 +14,18 @@ export default function Index(props) {
         router.push('/new-game');
     }
     return (
-        <div>
-            <Flex marginBottom="6px" width="100%" justifyContent="space-between">
-                <Box marginLeft="6px" display="inline-block">
-                    <Username>{session.username}</Username>
+        <Box margin="16px">
+            <Flex marginBottom="8px" width="100%" justifyContent="space-between">
+                <Box display="inline-block">
+                    <span style={{color: 'white'}}>{session.username}</span>
                 </Box>
                 <Link href="/logout">
-                    <a>Log out</a>
+                    <span style={{color: 'white'}}>Log out</span>
                 </Link>
             </Flex>
             {userGames.length > 0 && (
                 <Box
-                    marginBottom="16px"
+                    marginBottom="8px"
                     background="#ddd"
                     border="2px solid gray"
                     maxHeight="400px"
@@ -58,7 +55,7 @@ export default function Index(props) {
                 </Box>
             )}
             <button onClick={() => goToNewGame()}>New game</button>
-        </div>
+        </Box>
     );
 }
 

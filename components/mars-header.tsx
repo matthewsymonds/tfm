@@ -33,7 +33,7 @@ const MarsOuter = styled.div`
     }
 `;
 
-export const Mars = () => {
+export const MarsHeader = () => {
     return (
         <Link href="/">
             <a>
