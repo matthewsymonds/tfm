@@ -23,7 +23,7 @@ export const PlayerCardActions = ({player}: {player: PlayerState}) => {
                                 card={card}
                                 cardOwner={player}
                                 cardContext={CardContext.PLAYED_CARD}
-                                useCardName
+                                showCardName={true}
                             />
                         </Box>
                     );

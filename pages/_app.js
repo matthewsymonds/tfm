@@ -136,6 +136,11 @@ export const GlobalStyles = createGlobalStyle`
     .textLight1 {
         color: ${colors.TEXT_LIGHT_1};
     }
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 `;
 
 function InnerAppComponent({Component, pageProps, session}) {

@@ -1,12 +1,16 @@
 import Color from 'color';
 import {Flex} from 'components/box';
-import {LiveCard as LiveCardComponent} from 'components/card/Card';
+import {CardContext, LiveCard as LiveCardComponent} from 'components/card/Card';
+import {CardActions} from 'components/card/CardActions';
+import {CardEffects} from 'components/card/CardEffects';
+import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
 import React, {useState} from 'react';
 import {useRect} from 'react-use-rect';
+import {PlayerState} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -23,18 +27,22 @@ type CardToggleTokenProps = SharedCardTokenProps & {
 };
 type CardTextTokenProps = SharedCardTokenProps & {
     style?: React.CSSProperties;
-    variant?: 'pill' | 'text';
+    shouldUseFullWidth?: boolean;
+};
+type MiniatureCardProps = SharedCardTokenProps & {
+    cardOwner: PlayerState;
+    cardContext: CardContext;
+    shouldUseFullWidth?: boolean;
 };
 
-const CardTextTokenBase = styled.div<{
+export const CardTextTokenBase = styled.div<{
     color: string;
-    variant: 'pill' | 'text';
     margin?: string;
 }>`
-    background-color: ${props => (props.variant === 'pill' ? props.color : 'transparent')};
-    color: ${props => (props.variant === 'pill' ? 'white' : props.color)};
-    border-radius: ${props => (props.variant === 'pill' ? '4px' : '0')};
-    padding: ${props => (props.variant === 'pill' ? '4px' : '0')};
+    background-color: ${props => props.color};
+    color: white;
+    border-radius: 4px;
+    padding: 4px;
     display: inline-flex;
     margin: ${props => props.margin ?? '0 4px'};
     cursor: default;
@@ -182,7 +190,7 @@ export const CardTextToken = ({
     showCardOnHover,
     style,
     absoluteOffset,
-    variant = 'text',
+    shouldUseFullWidth,
 }: CardTextTokenProps) => {
     const [isHovering, setIsHovering] = useState(false);
     const color = getColorForCardType(card.type);
@@ -190,13 +198,17 @@ export const CardTextToken = ({
     const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
 
     return (
-        <Flex display="inline-flex">
+        <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
             <CardTextTokenBase
                 ref={ref}
                 color={color}
                 margin={margin}
-                variant={variant}
-                style={style}
+                style={{
+                    ...style,
+                    width: shouldUseFullWidth ? 'calc(100%)' : undefined,
+                    display: 'block',
+                }}
+                className="truncate"
                 {...(showCardOnHover
                     ? {
                           onMouseEnter: () => setIsHovering(true),
@@ -208,6 +220,66 @@ export const CardTextToken = ({
             >
                 {card.name === '' ? '[Event]' : card.name}
             </CardTextTokenBase>
+            {isHovering && showCardOnHover && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        zIndex: 10,
+                        left,
+                        top,
+                    }}
+                >
+                    <LiveCardComponent card={card} />
+                </div>
+            )}
+        </Flex>
+    );
+};
+
+export const MiniatureCard = ({
+    card,
+    showCardOnHover,
+    cardOwner,
+    cardContext,
+    shouldUseFullWidth,
+}: MiniatureCardProps) => {
+    const [isHovering, setIsHovering] = useState(false);
+    const color = getColorForCardType(card.type);
+
+    const {ref, top, left} = useCardPositionOnHover(0);
+    return (
+        <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
+            <Flex flexDirection="column" width={shouldUseFullWidth ? '100%' : undefined}>
+                <CardTextTokenBase
+                    ref={ref}
+                    color={color}
+                    style={{
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                    }}
+                    margin="0px"
+                    className="truncate"
+                    {...(showCardOnHover
+                        ? {
+                              onMouseEnter: () => setIsHovering(true),
+                              onMouseLeave: () => {
+                                  setIsHovering(false);
+                              },
+                          }
+                        : {})}
+                >
+                    {card.name === '' ? 'Event' : card.name}
+                </CardTextTokenBase>
+                <TexturedCard borderRadius={0} borderWidth={0}>
+                    <CardEffects card={card} showEffectText={false} />
+                    <CardActions
+                        card={card}
+                        cardOwner={cardOwner}
+                        cardContext={cardContext}
+                        showCardName={false}
+                    />
+                </TexturedCard>
+            </Flex>
             {isHovering && showCardOnHover && (
                 <div
                     style={{

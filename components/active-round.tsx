@@ -386,12 +386,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         paddingTop="4px"
                         overflowX="hidden"
                     >
-                        <Box
-                            className="player-boards-outer"
-                            overflowX="auto"
-                            flexShrink="0"
-                            marginBottom="16px"
-                        >
+                        <Box className="player-boards-outer" overflowX="auto" flexShrink="0">
                             <Flex className="player-boards" width="fit-content">
                                 {players.map((player, index) => (
                                     <CorporationHeaderOuter

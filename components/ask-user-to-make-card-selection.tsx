@@ -199,7 +199,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                             margin="0 8px 8px 0"
                                             style={{fontSize: '1em'}}
                                             absoluteOffset={-68}
-                                            variant="pill"
                                         />
                                     ))}
                                 </Flex>

@@ -30,9 +30,7 @@ const EffectText = styled(CardText)``;
 const EffectWrapper = styled.div`
     display: flex;
     position: relative;
-    border: 2px dashed red;
-    margin: 3px;
-    padding: 6px;
+    padding: 4px;
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -57,7 +55,7 @@ function renderCardCost(cardCost: number) {
     );
 }
 
-export const CardEffects = ({card}: {card: CardModel}) => {
+export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffectText: boolean}) => {
     const venus = useTypedSelector(isPlayingVenus);
 
     // Bail early if there's nothing to show
@@ -337,7 +335,7 @@ export const CardEffects = ({card}: {card: CardModel}) => {
         <React.Fragment>
             {effects.map((effect, index) => (
                 <EffectWrapper key={index}>
-                    {effect.text && <EffectText>{effect.text}</EffectText>}
+                    {effect.text && showEffectText && <EffectText>{effect.text}</EffectText>}
                     <Flex alignItems="center" justifyContent="center" marginTop="4px">
                         {/* Exchange rates (e.g. Advanced Alloys) */}
                         {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}

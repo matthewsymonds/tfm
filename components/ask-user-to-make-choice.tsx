@@ -28,12 +28,7 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken
-                    card={playedCard}
-                    showCardOnHover={true}
-                    absoluteOffset={-68}
-                    variant="text"
-                />
+                <CardTextToken card={playedCard} showCardOnHover={true} absoluteOffset={-68} />
                 <span>which triggered</span>
                 <CardTextToken card={card} showCardOnHover={true} />
             </Box>
@@ -42,12 +37,7 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken
-                    card={card}
-                    showCardOnHover={true}
-                    absoluteOffset={-68}
-                    variant="text"
-                />
+                <CardTextToken card={card} showCardOnHover={true} absoluteOffset={-68} />
             </Box>
         );
     } else {

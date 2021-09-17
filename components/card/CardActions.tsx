@@ -190,13 +190,13 @@ export const CardActions = ({
     card,
     cardOwner,
     cardContext,
-    useCardName,
+    showCardName,
     canPlayInSpiteOfUI,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
-    useCardName?: boolean;
+    showCardName?: boolean;
     canPlayInSpiteOfUI?: boolean;
 }) => {
     if (!card.action) {
@@ -207,16 +207,9 @@ export const CardActions = ({
     const actions = [...(action.choice ? action.choice : [action])];
     return (
         <ActionsWrapper>
-            {(!action.lookAtCards || useCardName) && (
+            {showCardName && (
                 <ActionText>
-                    {useCardName ? (
-                        <div style={{fontWeight: 600}}>{card.name}</div>
-                    ) : (
-                        <React.Fragment>
-                            <span style={{fontWeight: 600}}>Action: </span>
-                            <span>{action.text}</span>
-                        </React.Fragment>
-                    )}
+                    {showCardName && <div style={{fontWeight: 600}}>{card.name}</div>}
                 </ActionText>
             )}
             {actions.map((action, index) => {

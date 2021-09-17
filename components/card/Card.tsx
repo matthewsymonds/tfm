@@ -82,7 +82,7 @@ const CardInner: React.FC<CardProps> = ({
             <CardTags card={card} />
             <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
             {card.text && <MainCardText>{card.text}</MainCardText>}
-            <CardEffects card={card} />
+            <CardEffects card={card} showEffectText={true} />
             <CardActions card={card} cardOwner={cardOwner} cardContext={cardContext} />
             <BaseActionIconography card={card} /> {/* Cards with single-step actions */}
             <BaseActionIconography card={combinedStep} /> {/* Cards with multi-step actions */}

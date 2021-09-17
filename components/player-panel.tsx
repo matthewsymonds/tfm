@@ -83,12 +83,6 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
                     <PlayerPlayedCards player={player} tagFilterConfig={tagFilterConfig} />
                 </React.Fragment>
             )}
-
-            {!isCorporationSelection && (
-                <Flex marginTop="12px" background={colors.LIGHT_2} width="100%" flexWrap="wrap">
-                    <PlayerCardActions player={player} />
-                </Flex>
-            )}
             {isCorporationSelection ? <CorporationSelector player={player} /> : null}
         </OuterWrapper>
     );
