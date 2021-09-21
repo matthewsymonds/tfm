@@ -19,10 +19,10 @@ import {
     getResourceName,
     isStorableResource,
     PROTECTED_HABITAT_RESOURCE,
-    Resource,
     ResourceAndAmount,
     ResourceLocationType,
 } from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {useApiClient} from 'hooks/use-api-client';

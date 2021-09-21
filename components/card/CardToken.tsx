@@ -272,6 +272,13 @@ export const MiniatureCard = ({
                           }
                         : {})}
                 >
+                    {card.lastRoundUsedAction === currentGeneration ? (
+                        <Box display="inline-block" marginRight="4px">
+                            <PlayerIcon border="black" playerIndex={cardOwner.index} size={8} />
+                        </Box>
+                    ) : (
+                        ''
+                    )}
                     {card.name === '' ? 'Event' : card.name}
                 </CardTextTokenBase>
                 <Box
@@ -283,40 +290,15 @@ export const MiniatureCard = ({
                     }}
                 >
                     <CardEffects card={card} showEffectText={false} />
-                    <CardActions
-                        card={card}
-                        cardOwner={cardOwner}
-                        cardContext={cardContext}
-                        showActionText={false}
-                    />
-                </Box>
-                {card.lastRoundUsedAction === currentGeneration && (
-                    <Box
-                        position="absolute"
-                        top="24px"
-                        bottom="0"
-                        left="0"
-                        right="0"
-                        style={{
-                            borderBottomRightRadius: 4,
-                            borderBottomLeftRadius: 4,
-                            backgroundColor: 'hsla(0, 0%, 0%, 0.7)',
-                        }}
-                    >
-                        <PlayerIcon
-                            playerIndex={cardOwner.index}
-                            size={18}
-                            style={{
-                                position: 'absolute',
-                                bottom: '50%',
-                                right: '50%',
-                                marginBottom: -11,
-                                marginRight: -11,
-                                opacity: 1,
-                            }}
+                    <Box opacity={card.lastRoundUsedAction === currentGeneration ? 0.6 : 1}>
+                        <CardActions
+                            card={card}
+                            cardOwner={cardOwner}
+                            cardContext={cardContext}
+                            showActionText={false}
                         />
                     </Box>
-                )}
+                </Box>
             </Flex>
             {isHovering && showCardOnHover && (
                 <div

@@ -1,5 +1,6 @@
 import {Action} from 'constants/action';
-import {isStorableResource, Resource, ResourceLocationType} from 'constants/resource';
+import {isStorableResource, ResourceLocationType} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getAllowedCardsForResourceAction} from 'selectors/card';

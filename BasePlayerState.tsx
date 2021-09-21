@@ -5,7 +5,8 @@ import {Action, Amount, PlayCardParams} from './constants/action';
 import {Parameter, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {NumericPropertyCounter} from './constants/property-counter';
-import {Resource, ResourceAndAmount, ResourceLocationType} from './constants/resource';
+import {ResourceAndAmount, ResourceLocationType} from './constants/resource';
+import {Resource} from './constants/resource-enum';
 import {Card} from './models/card';
 import {PendingChoice, Resources} from './reducer';
 

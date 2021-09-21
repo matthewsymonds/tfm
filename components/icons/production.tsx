@@ -1,6 +1,7 @@
 import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
-import {getResourceBorder, Resource} from 'constants/resource';
+import {getResourceBorder} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import React from 'react';
 import styled from 'styled-components';
 

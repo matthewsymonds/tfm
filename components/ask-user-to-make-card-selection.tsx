@@ -6,7 +6,7 @@ import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useEffect, useState} from 'react';

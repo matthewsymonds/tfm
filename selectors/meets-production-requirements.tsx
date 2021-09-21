@@ -1,6 +1,6 @@
 import {Action} from 'constants/action';
 import {MinimumProductions} from 'constants/game';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {EffectEvent, getActionsFromEffectForPlayer} from 'server/api-action-handler';

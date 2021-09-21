@@ -1,6 +1,6 @@
 import {hasCity, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {getLoggedInPlayer} from 'context/app-context';

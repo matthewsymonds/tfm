@@ -89,11 +89,11 @@ import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
-    Resource,
     ResourceAndAmount,
     ResourceLocationType,
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';

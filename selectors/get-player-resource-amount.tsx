@@ -1,4 +1,5 @@
-import {isStorableResource, Resource} from 'constants/resource';
+import {isStorableResource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {SerializedPlayerState} from 'state-serialization';
 import {getPlayedCards} from './get-played-cards';
 

@@ -1,4 +1,5 @@
-import {getResourceName, Resource} from 'constants/resource';
+import {getResourceName} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';

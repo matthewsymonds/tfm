@@ -1,7 +1,7 @@
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import {CardSelectionCriteria} from './card-selection-criteria';
-import {Resource} from './resource';
+import {Resource} from './resource-enum';
 import {Tag} from './tag';
 
 export const CARD_SELECTION_CRITERIA_SELECTORS = {

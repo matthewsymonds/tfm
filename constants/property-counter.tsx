@@ -1,7 +1,7 @@
 import {Amount} from './action';
 import {Parameter} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
-import {Resource} from './resource';
+import {Resource} from './resource-enum';
 import {Tag} from './tag';
 
 /* Utility type that lets us represent a count, e.g.

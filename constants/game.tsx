@@ -1,6 +1,6 @@
 import {colors} from 'components/ui';
 import {Parameter} from './board';
-import {Resource} from './resource';
+import {Resource} from './resource-enum';
 
 export enum GameStage {
     CORPORATION_SELECTION = 'corporationSelection',

@@ -1,4 +1,4 @@
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
 import {PlayerState} from 'reducer';

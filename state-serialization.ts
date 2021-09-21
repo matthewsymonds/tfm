@@ -8,7 +8,8 @@ import {Tag} from 'constants/tag';
 import produce from 'immer';
 import {BaseGameState} from './BaseGameState';
 import {BasePlayerState} from './BasePlayerState';
-import {Resource, ResourceLocationType} from './constants/resource';
+import {ResourceLocationType} from './constants/resource';
+import {Resource} from './constants/resource-enum';
 import {Card, cardMap, cards, dummyCard} from './models/card';
 
 export type SerializedCommonState = Omit<

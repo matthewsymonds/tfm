@@ -1,7 +1,8 @@
 import {Parameter, PlacementRequirement, t, TileType} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {CardConfig, CardType, Deck} from './card-types';
-import {Resource, ResourceLocationType} from './resource';
+import {ResourceLocationType} from './resource';
+import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 

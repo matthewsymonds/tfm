@@ -1,7 +1,7 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Award, Cell, Milestone, Tile} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
 import {Card} from 'models/card';
 import {SupplementalResources} from 'server/api-action-handler';

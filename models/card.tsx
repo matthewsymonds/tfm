@@ -15,7 +15,8 @@ import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
-import {Resource, ResourceLocationType} from 'constants/resource';
+import {ResourceLocationType} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 
 export class Card {

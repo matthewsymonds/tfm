@@ -10,7 +10,7 @@ import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';

@@ -1,5 +1,5 @@
 import {Award, TileType} from 'constants/board';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
 import {

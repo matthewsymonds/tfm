@@ -20,7 +20,7 @@ import {colors} from 'components/ui';
 import {Parameter, TileType} from 'constants/board';
 import {Deck} from 'constants/card-types';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {
     StandardProjectAction,
     standardProjectActions,

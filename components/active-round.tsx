@@ -60,6 +60,8 @@ const CorporationHeaderOuter = styled.div<{selected: boolean}>`
     margin-bottom: 12px;
     padding: 8px;
     background: ${props => (props.selected ? colors.DARK_3 : 'transparent')};
+    border: 1px solid ${props => (props.selected ? colors.PANEL_BORDER : 'transparent')};
+    border-radius: 4px;
 `;
 
 const TerraformRating = styled.span`
@@ -439,6 +441,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                 flexGrow="1"
                                 flexWrap="wrap"
                                 background={colors.DARK_3}
+                                border={`1px solid ${colors.PANEL_BORDER}`}
+                                borderRadius="4px"
                                 justifyContent="center"
                                 boxSizing="border-box"
                                 overflowY="auto"

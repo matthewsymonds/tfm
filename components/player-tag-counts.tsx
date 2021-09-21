@@ -112,7 +112,7 @@ function PlayerTagCounts({
     );
 
     return (
-        <Flex margin="4px 0" alignItems="center" justifyContent="space-between" width="100%">
+        <Flex margin="8px 0" alignItems="center" justifyContent="space-between" width="100%">
             <Flex>
                 <AllButton
                     onClick={() =>

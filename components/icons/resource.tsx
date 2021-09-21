@@ -4,8 +4,8 @@ import {
     getResourceBackgroundColor,
     getResourceColor,
     getResourceSymbol,
-    Resource,
 } from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import styled from 'styled-components';
 
 interface ResourceIconBaseProps {

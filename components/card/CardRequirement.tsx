@@ -7,7 +7,7 @@ import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card as CardModel} from 'models/card';
 import React from 'react';

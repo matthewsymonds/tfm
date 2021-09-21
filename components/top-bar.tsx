@@ -5,7 +5,7 @@ import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';

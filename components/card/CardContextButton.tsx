@@ -5,7 +5,7 @@ import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {CardButton} from 'components/card/CardButton';
 import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {Tooltip} from 'react-tippy';

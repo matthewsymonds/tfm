@@ -1,5 +1,5 @@
 import {GameStage} from 'constants/game';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {GameState, PlayerState} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {SerializedCard} from 'state-serialization';

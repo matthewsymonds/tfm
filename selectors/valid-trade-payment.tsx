@@ -1,5 +1,5 @@
 import {AcceptedTradePayment, ACCEPTED_TRADE_PAYMENT} from 'constants/colonies';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {PlayerState} from 'reducer';
 
 export function getValidTradePayment(player: PlayerState): AcceptedTradePayment[] {

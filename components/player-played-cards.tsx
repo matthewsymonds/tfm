@@ -51,13 +51,13 @@ function PlayerPlayedCards({
     filteredCards.forEach(card => {
         const hydratedCard = getCard(card);
         switch (hydratedCard.type) {
-            case CardType.CORPORATION:
             case CardType.PRELUDE:
             case CardType.AUTOMATED:
             case CardType.EVENT:
                 passiveCards.push(hydratedCard);
                 break;
             case CardType.ACTIVE:
+            case CardType.CORPORATION:
                 activeCards.push(hydratedCard);
                 break;
             default:
@@ -91,7 +91,7 @@ function PlayerPlayedCards({
                                         ? card.name
                                         : player.username + '-event-' + eventIndex++
                                 }
-                                showCardOnHover={true}
+                                showCardOnHover={!!card.name}
                                 shouldUseFullWidth={true}
                             />
                         );

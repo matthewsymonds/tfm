@@ -69,8 +69,10 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
 
     return (
         <OuterWrapper ref={playerPanelRef} id={`player-board-${player.index}`}>
-            {!isCorporationSelection && playerCardsElement}
-            {fleets}
+            <Flex width="100%" justifyContent="space-between">
+                {!isCorporationSelection && playerCardsElement}
+                {fleets}
+            </Flex>
             {!isCorporationSelection && (
                 <React.Fragment>
                     <PlayerTagCounts

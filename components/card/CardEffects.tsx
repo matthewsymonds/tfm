@@ -17,7 +17,7 @@ import {TileIcon} from 'components/icons/tile';
 import {Action} from 'constants/action';
 import {Parameter, TileType} from 'constants/board';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card as CardModel, doesCardHaveDiscounts, doesCardHaveTriggerAction} from 'models/card';
 import React from 'react';

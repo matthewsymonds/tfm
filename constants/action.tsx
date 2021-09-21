@@ -2,7 +2,8 @@ import {PlaceColony} from 'actions';
 import {Parameter, TilePlacement} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
-import {Resource, ResourceLocationType} from './resource';
+import {ResourceLocationType} from './resource';
+import {Resource} from './resource-enum';
 import {Tag, TagAmount} from './tag';
 import {VariableAmount} from './variable-amount';
 

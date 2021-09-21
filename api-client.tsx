@@ -12,7 +12,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
 import {batch} from 'react-redux';
 import {AnyAction, Store} from 'redux';

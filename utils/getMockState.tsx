@@ -1,6 +1,6 @@
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {getInitialState} from 'initial-state';
 import {cards} from 'models/card';
 import {GameOptions, GameState} from 'reducer';

@@ -2,7 +2,7 @@ import {Box, Flex} from 'components/box';
 import {BaseActionIconography} from 'components/card/CardIconography';
 import {ColonyComponent} from 'components/colony';
 import {AcceptedTradePayment, Colony, getColony} from 'constants/colonies';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';

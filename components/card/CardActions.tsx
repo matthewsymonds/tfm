@@ -19,7 +19,7 @@ import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-po
 import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -323,7 +323,7 @@ function CardAction({
     }
 
     function renderArrow() {
-        return <TextWithMargin>{'=>'}</TextWithMargin>;
+        return <TextWithMargin>➡</TextWithMargin>;
     }
 
     return (

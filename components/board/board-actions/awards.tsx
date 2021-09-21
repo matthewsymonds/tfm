@@ -9,7 +9,7 @@ import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';

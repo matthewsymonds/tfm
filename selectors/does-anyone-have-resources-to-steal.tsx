@@ -1,5 +1,6 @@
 import {Action} from 'constants/action';
-import {PROTECTED_HABITAT_RESOURCE, Resource} from 'constants/resource';
+import {PROTECTED_HABITAT_RESOURCE} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getCard} from 'selectors/get-card';

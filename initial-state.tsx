@@ -3,7 +3,7 @@ import {INITIAL_BOARD_STATE} from './constants/board';
 import {CardType, Deck} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
-import {Resource} from './constants/resource';
+import {Resource} from './constants/resource-enum';
 import {Tag} from './constants/tag';
 import {cards} from './models/card';
 import {GameOptions, GameState, PlayerState} from './reducer';

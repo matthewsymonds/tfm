@@ -1,6 +1,6 @@
 import {Action, ActionType} from './action';
 import {Parameter, PlacementRequirement, TileType} from './board';
-import {Resource} from './resource';
+import {Resource} from './resource-enum';
 import {VariableAmount} from './variable-amount';
 
 export enum StandardProjectType {

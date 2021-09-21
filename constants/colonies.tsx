@@ -1,7 +1,8 @@
 import {sample, shuffle} from 'initial-state';
 import {Action} from './action';
 import {t, TileType} from './board';
-import {Resource, ResourceLocationType} from './resource';
+import {ResourceLocationType} from './resource';
+import {Resource} from './resource-enum';
 
 type TradeIncomeQuantity = {
     // For display purposes

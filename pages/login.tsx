@@ -77,8 +77,10 @@ Login.getInitialProps = async ctx => {
                 Location: '/',
             });
             res.end();
+            return {};
         } else {
             Router.push('/');
+            return {};
         }
     } catch (error) {
         return {};

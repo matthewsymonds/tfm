@@ -1,10 +1,10 @@
 import {Amount} from 'constants/action';
 import {
     PROTECTED_HABITAT_RESOURCE,
-    Resource,
     ResourceLocationType,
     StorableResource,
 } from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';

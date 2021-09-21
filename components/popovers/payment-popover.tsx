@@ -3,7 +3,7 @@ import {ResourceIcon} from 'components/icons/resource';
 import {Action} from 'constants/action';
 import {PLAYER_COLORS} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';

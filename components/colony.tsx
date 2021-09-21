@@ -2,7 +2,7 @@ import {Action} from 'constants/action';
 import {Colony} from 'constants/colonies';
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
-import {Resource} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';

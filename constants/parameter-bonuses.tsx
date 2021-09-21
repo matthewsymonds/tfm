@@ -1,6 +1,6 @@
 import {Action} from './action';
 import {Parameter, t, TileType} from './board';
-import {Resource} from './resource';
+import {Resource} from './resource-enum';
 
 export const PARAMETER_BONUSES = {
     [Parameter.OCEAN]: [],

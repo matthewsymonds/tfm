@@ -3,7 +3,7 @@ import {Parameter} from 'constants/board';
 export const colors = {
     DARK_1: 'hsl(0, 0%, 10%)', // darkest
     DARK_2: 'hsl(0, 0%, 20%)',
-    DARK_3: 'hsl(0, 0%, 27%)',
+    DARK_3: '#353535',
     DARK_4: 'hsl(0, 0%, 33%)', // lightest
 
     LIGHT_1: 'hsl(0, 0%, 100%)', // lightest
@@ -27,7 +27,7 @@ export const colors = {
     LIGHTEST_BG: 'hsl(15, 5%, 70%)',
 
     // panels
-    PANEL_BORDER: '#999',
+    PANEL_BORDER: '#505050',
 
     // board color
     DARK_ORANGE: '#bf5f3f',
