@@ -350,6 +350,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
 
     if (!players[selectedPlayerIndex]) return null;
 
+    const shouldHidePlayerDetails =
+        isPlayerMakingDecision && !hideOverlay && isActionOverlayVisible;
+
     return (
         <React.Fragment>
             <LogToast />
@@ -383,6 +386,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 >
                     <Flex
                         className="player-details"
+                        display={shouldHidePlayerDetails ? 'none' : 'flex'}
                         width="100%"
                         marginBottom="8px"
                         paddingTop="4px"
