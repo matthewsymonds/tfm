@@ -43,7 +43,11 @@ export default async (req, res) => {
             payload,
             actionCount,
         }: {type: ApiActionType; payload; actionCount: number | undefined} = req.body;
-        if (typeof actionCount !== 'undefined' && game.state.actionCount !== actionCount) {
+        if (
+            typeof actionCount !== 'undefined' &&
+            game.state.actionCount !== actionCount &&
+            game.state.common.gameStage === GameStage.ACTIVE_ROUND
+        ) {
             res.json({error: 'Client out of sync with server.'});
             purgeLock(lock, username, game.name);
             return;
