@@ -4,7 +4,6 @@ import {CardContext, LiveCard as LiveCardComponent} from 'components/card/Card';
 import {CardActions} from 'components/card/CardActions';
 import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
-import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {useComponentId} from 'hooks/use-component-id';

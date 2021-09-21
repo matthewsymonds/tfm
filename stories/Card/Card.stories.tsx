@@ -3,7 +3,7 @@ import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
 import {MiniatureCard} from 'components/card/CardToken';
 import {Award} from 'constants/board';
-import {CardType, Deck} from 'constants/card-types';
+import {CardType} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';

@@ -1,17 +1,16 @@
 import {Flex} from 'components/box';
-import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
-import {colors} from 'components/ui';
-import {CardType} from 'constants/card-types';
-import {Card} from 'models/card';
 import {CardContext} from 'components/card/Card';
+import {CardTextToken, MiniatureCard} from 'components/card/CardToken';
+import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
+import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {Card} from 'models/card';
 import React, {useRef} from 'react';
+import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 import {getCard} from 'selectors/get-card';
 import {SerializedPlayerState} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
-import {CardTextToken, CardTextTokenBase, MiniatureCard} from 'components/card/CardToken';
-import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 
 function PlayerPlayedCards({
     player,

@@ -429,7 +429,7 @@ export function ChangeResourceOptionIconography({
     });
 
     if (opts.isInline && elements.length === 1) {
-        return elements[0];
+        return <React.Fragment>{elements[0]}</React.Fragment>;
     }
 
     return (

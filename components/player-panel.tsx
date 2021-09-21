@@ -1,14 +1,12 @@
 import {Flex} from 'components/box';
 import PlayerPlayedCards from 'components/player-played-cards';
 import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
-import {colors} from 'components/ui';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import React, {useRef, useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {CorporationSelector} from './corporation-selector';
-import {PlayerCardActions} from './player-card-actions';
 
 type PlayerPanelProps = {
     player: PlayerState;

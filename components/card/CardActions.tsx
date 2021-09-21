@@ -1,5 +1,5 @@
 import {Box, Flex} from 'components/box';
-import {CardContext, DisabledTooltip} from 'components/card/Card';
+import {CardContext} from 'components/card/Card';
 import {
     GainResourceIconography,
     GainResourceOptionIconography,

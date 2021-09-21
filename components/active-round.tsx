@@ -12,7 +12,7 @@ import {TopBar} from 'components/top-bar';
 import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {GameStage, PLAYER_COLORS} from 'constants/game';
+import {GameStage} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import Link from 'next/link';
