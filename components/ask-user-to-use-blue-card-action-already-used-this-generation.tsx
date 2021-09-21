@@ -21,8 +21,7 @@ const PlayerCardAction = ({card, player}: {card: Card; player: PlayerState}) => 
                 card={card}
                 cardOwner={player}
                 cardContext={CardContext.PLAYED_CARD}
-                showCardName
-                canPlayInSpiteOfUI
+                canPlayInSpiteOfUI={true}
             />
         </Box>
     );

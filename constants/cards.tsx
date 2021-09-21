@@ -3879,7 +3879,6 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Add 1 floater to a JOVIAN CARD, or gain 1 MC for every floater here (Max 4).',
             gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
-            // todo: add max 4
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 1},

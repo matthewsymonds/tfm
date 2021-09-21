@@ -51,6 +51,7 @@ const MegacreditIcon = styled.div<{
 }>`
     height: ${props => props.size}px;
     width: ${props => props.size}px;
+    color: ${colors.TEXT_DARK_1};
     font-size: ${props => (props.size ? props.size * 0.75 : '12')}px;
     display: flex;
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
@@ -103,16 +104,3 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
         </ResourceIconBase>
     );
 };
-
-// >
-//     <svg
-//         className={getClassName(name)}
-//         height="100%"
-//         width="100%"
-//         viewBox="0 0 100 100"
-//         style={{display: 'block', width: '100%'}}
-//         preserveAspectRatio="xMidYMid meet"
-//     >
-//         <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
-//         </text>
-//     </svg>

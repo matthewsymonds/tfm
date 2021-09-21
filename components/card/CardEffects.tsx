@@ -202,7 +202,12 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
             return (
                 <Flex>
                     {trigger?.cardTags.map((tag, index) => (
-                        <TagIcon name={tag} size={16} key={index} />
+                        <TagIcon
+                            name={tag}
+                            size={16}
+                            key={index}
+                            margin={index > 0 ? '0 0 0 4px' : '0'}
+                        />
                     ))}
                 </Flex>
             );
@@ -268,7 +273,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
             });
             return (
-                <Flex>
+                <Flex justifyContent="center" alignItems="center">
                     {elements.map((el, i) => (
                         <React.Fragment key={i}>{el}</React.Fragment>
                     ))}
@@ -285,7 +290,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 <Flex alignItems="center">
                     {action?.choice.map((actionChoice, index) => (
                         <React.Fragment key={index}>
-                            {index > 0 && <InlineText>or</InlineText>}
+                            {index > 0 && <TextWithMargin>or</TextWithMargin>}
                             {renderAction(actionChoice)}
                         </React.Fragment>
                     ))}
@@ -317,8 +322,8 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
     function renderExchangeRates() {
         return (
             <Flex flexDirection="column">
-                {Object.entries(card.exchangeRates).map(([resource, amount]) => (
-                    <IconographyRow key={resource}>
+                {Object.entries(card.exchangeRates).map(([resource, amount], index) => (
+                    <IconographyRow key={resource} style={{marginTop: index > 0 ? '4px' : '0px'}}>
                         <ResourceIcon name={resource as Resource} size={16} />
                         <TextWithMargin>:</TextWithMargin>
                         {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
@@ -335,8 +340,10 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         <React.Fragment>
             {effects.map((effect, index) => (
                 <EffectWrapper key={index}>
-                    {effect.text && showEffectText && <EffectText>{effect.text}</EffectText>}
-                    <Flex alignItems="center" justifyContent="center" marginTop="4px">
+                    {effect.text && showEffectText && (
+                        <EffectText style={{marginBottom: 4}}>{effect.text}</EffectText>
+                    )}
+                    <Flex alignItems="center" justifyContent="center" flexWrap="wrap">
                         {/* Exchange rates (e.g. Advanced Alloys) */}
                         {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}
 

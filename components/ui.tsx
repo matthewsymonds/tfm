@@ -1,13 +1,15 @@
 import {Parameter} from 'constants/board';
 
 export const colors = {
-    DARK_1: '#111111', // darkest
-    DARK_2: '#2b2f2b',
-    DARK_3: '#454545', // lightest
+    DARK_1: 'hsl(0, 0%, 10%)', // darkest
+    DARK_2: 'hsl(0, 0%, 20%)',
+    DARK_3: 'hsl(0, 0%, 27%)',
+    DARK_4: 'hsl(0, 0%, 33%)', // lightest
 
-    LIGHT_1: '#fff', // lightest
-    LIGHT_2: '#ddd',
-    LIGHT_3: '#bbb', // darkest
+    LIGHT_1: 'hsl(0, 0%, 100%)', // lightest
+    LIGHT_2: 'hsl(0, 0%, 90%)',
+    LIGHT_3: 'hsl(0, 0%, 80%)',
+    LIGHT_4: 'hsl(0, 0%, 70%)', // darkest
 
     // text
     TEXT_LIGHT_1: '#ccc',

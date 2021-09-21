@@ -1,4 +1,5 @@
 import {Flex} from 'components/box';
+import {colors} from 'components/ui';
 import {PLAYER_COLORS} from 'constants/game';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getHasPlayerPassed} from 'selectors/get-has-player-passed';
@@ -9,7 +10,8 @@ const PlayerIconBase = styled.div<{size: number; color: string; passed: boolean}
     height: ${props => props.size}px;
     background-color: ${props => props.color};
     opacity: ${props => (props.passed ? 0.5 : 1)};
-    border: 1px solid white;
+    border: 2px solid ${colors.LIGHT_1};
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;

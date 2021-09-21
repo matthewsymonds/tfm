@@ -1,12 +1,14 @@
 import {Meta, Story} from '@storybook/react';
 import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
+import {MiniatureCard} from 'components/card/CardToken';
 import {Award} from 'constants/board';
-import {Deck} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
+import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 
 export default {
     title: 'Card',
@@ -18,7 +20,7 @@ const Template: Story<{}> = args => (
         {cardConfigs
             // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
             // .filter(c => c.name === 'Vitor')
-            .filter(c => [Deck.VENUS, Deck.PRELUDE, Deck.COLONIES].includes(c.deck))
+            // .filter(c => [Deck.VENUS, Deck.PRELUDE, Deck.COLONIES].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;
@@ -54,3 +56,40 @@ const AwardCardTemplate: Story<{}> = args => {
 
 export const AwardCard = AwardCardTemplate.bind({});
 AwardCard.args = {};
+
+const MiniCardTemplate: Story<{}> = args => {
+    const loggedInPlayer = useLoggedInPlayer();
+
+    return (
+        <div style={{width: '100%'}}>
+            <ResponsiveMasonry columnsCountBreakPoints={{300: 2, 450: 3, 600: 4, 750: 5, 900: 6}}>
+                <Masonry gutter="6px">
+                    {cardConfigs
+                        // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
+                        // .filter(c => c.name === 'Vitor')
+                        .filter(c => c.type === CardType.ACTIVE)
+                        // .filter(c => c.name === 'Olympus Conference')
+                        .map(cardConfig => {
+                            const card = new CardModel(cardConfig);
+                            card.storedResourceAmount = 3;
+                            return (
+                                <div style={{margin: 4}}>
+                                    <MiniatureCard
+                                        key={card.name}
+                                        card={card}
+                                        showCardOnHover={true}
+                                        cardOwner={loggedInPlayer}
+                                        cardContext={CardContext.PLAYED_CARD}
+                                        shouldUseFullWidth={true}
+                                    />
+                                </div>
+                            );
+                        })}
+                </Masonry>
+            </ResponsiveMasonry>
+        </div>
+    );
+};
+
+export const MiniCard = MiniCardTemplate.bind({});
+MiniCard.args = {};

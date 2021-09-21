@@ -24,7 +24,6 @@ export const TileIcon = ({
                 <span
                     style={{
                         fontSize: `${size / 2}px`,
-                        marginLeft: size > 23 ? 0 : -4,
                     }}
                 >
                     {getTileIcon(type)}

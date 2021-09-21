@@ -11,6 +11,8 @@ const CardContainer = styled.div<TexturedCardProps>`
     height: ${props => (props.height ? `${props.height}px` : 'initial')};
     min-height: ${props => (props.height ? `${props.height}px` : 'initial')};
     border-radius: ${props => props.borderRadius}px;
+    border-bottom-right-radius: ${props => props.borderBottomRightRadius ?? props.borderRadius}px;
+    border-bottom-left-radius: ${props => props.borderBottomLeftRadius ?? props.borderRadius}px;
     border-width: ${props => props.borderWidth}px;
     border-style: solid;
     border-top-color: ${colors.CARD_BORDER_1};
@@ -28,11 +30,18 @@ const CardContainer = styled.div<TexturedCardProps>`
         left: 0px;
         right: 0px;
         border-radius: ${props => props.borderRadius}px;
+        border-bottom-right-radius: ${props =>
+            props.borderBottomRightRadius ?? props.borderRadius}px;
+        border-bottom-left-radius: ${props => props.borderBottomLeftRadius ?? props.borderRadius}px;
         background-color: ${props => props.bgColor};
     }
 `;
 
-const CardTexture = styled.div<{borderRadius: number}>`
+const CardTexture = styled.div<{
+    borderRadius: number;
+    borderBottomRightRadius: number;
+    borderBottomLeftRadius: number;
+}>`
     height: 100%;
     &:before {
         content: '';
@@ -42,6 +51,9 @@ const CardTexture = styled.div<{borderRadius: number}>`
         left: 0px;
         right: 0px;
         border-radius: ${props => props.borderRadius}px;
+        border-bottom-right-radius: ${props =>
+            props.borderBottomRightRadius ?? props.borderRadius}px;
+        border-bottom-left-radius: ${props => props.borderBottomLeftRadius ?? props.borderRadius}px;
         filter: sepia(0.1) hue-rotate(-9deg);
         opacity: 0.8;
         background-image: url(${hex.src ?? '/hexellence.png'});
@@ -55,6 +67,8 @@ type TexturedCardProps = {
     isSelected?: boolean;
     bgColor?: string;
     borderRadius?: number;
+    borderBottomRightRadius?: number;
+    borderBottomLeftRadius?: number;
     borderWidth?: number;
     style?: React.CSSProperties;
 };
@@ -70,6 +84,8 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
             borderRadius = 10,
             borderWidth = 2,
             style,
+            borderBottomRightRadius,
+            borderBottomLeftRadius,
         }: {
             children: React.ReactNode;
             height?: number;
@@ -77,6 +93,8 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
             isSelected?: boolean;
             bgColor?: string;
             borderRadius?: number;
+            borderBottomRightRadius?: number;
+            borderBottomLeftRadius?: number;
             borderWidth?: number;
             style?: React.CSSProperties;
         },
@@ -86,6 +104,8 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
             <CardContainer
                 ref={ref}
                 borderRadius={borderRadius}
+                borderBottomRightRadius={borderBottomRightRadius}
+                borderBottomLeftRadius={borderBottomLeftRadius}
                 borderWidth={borderWidth}
                 height={height}
                 width={width}
@@ -93,7 +113,11 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
                 isSelected={isSelected}
                 style={style}
             >
-                <CardTexture borderRadius={borderRadius}>
+                <CardTexture
+                    borderRadius={borderRadius}
+                    borderBottomRightRadius={borderBottomRightRadius}
+                    borderBottomLeftRadius={borderBottomLeftRadius}
+                >
                     <Flex position="relative" height="100%" flexDirection="column">
                         {children}
                     </Flex>

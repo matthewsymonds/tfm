@@ -83,7 +83,12 @@ const CardInner: React.FC<CardProps> = ({
             <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
             {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} showEffectText={true} />
-            <CardActions card={card} cardOwner={cardOwner} cardContext={cardContext} />
+            <CardActions
+                card={card}
+                cardOwner={cardOwner}
+                cardContext={cardContext}
+                showActionText={true}
+            />
             <BaseActionIconography card={card} /> {/* Cards with single-step actions */}
             <BaseActionIconography card={combinedStep} /> {/* Cards with multi-step actions */}
             <CardVictoryPoints card={card} />

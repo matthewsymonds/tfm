@@ -18,6 +18,7 @@ const HexagonBase = styled.div<HexagonProps>`
     &:before {
         content: '';
         position: absolute;
+        left: 0;
         height: 100%;
         width: 100%;
         background-color: ${props => (props.selectable ? '#888' : props.color)};

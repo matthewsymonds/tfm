@@ -1,5 +1,6 @@
 // Can appear on the board, on a card, or in a colony.
 
+import {colors} from 'components/ui';
 import spawnExhaustiveSwitchError from 'utils';
 import {Amount} from './action';
 
@@ -232,7 +233,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.ASTEROID:
             return 'black';
         case Resource.CAMP:
-            return 'lightbrown';
+            return colors.DARK_4;
         case Resource.CARD:
             return 'black';
         case Resource.ENERGY:
@@ -250,7 +251,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.PLANT:
             return 'lightgreen';
         case Resource.SCIENCE:
-            return 'darkgray';
+            return colors.DARK_4;
         case Resource.STEEL:
             return 'brown';
         case Resource.TITANIUM:

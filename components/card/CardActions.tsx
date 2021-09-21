@@ -25,10 +25,8 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
-import {Tooltip} from 'react-tippy';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {PlayerState} from 'reducer';
 import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
-import {isActiveRound} from 'selectors/is-active-round';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
@@ -47,13 +45,33 @@ const ActionsWrapper = styled.div`
 `;
 
 const ActionContainerBase = styled.button`
-    border: 2px dashed blue;
-    margin: 3px;
     background-color: initial;
+    padding: 4px;
+
+    &:disabled {
+        color: initial;
+        background-color: initial;
+    }
+
+    border: 2px solid ${colors.DARK_2};
+    border-radius: 4px;
+
+    -webkit-transition: color 200ms ease-in-out, background-color 200ms ease-in-out,
+        transform 50ms ease-in-out;
+    transition: color 200ms ease-in-out, background-color 200ms ease-in-out,
+        transform 50ms ease-in-out;
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
+        color: #fff;
+        outline: 0;
+        background-color: ${colors.DARK_2};
+    }
+    &:active:not(:disabled) {
+        transform: scale(0.95);
+    }
 
     &:hover:not(:disabled) {
         cursor: initial;
-        background-color: lightblue;
     }
 `;
 
@@ -102,7 +120,7 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
         elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>=&gt;</InlineText>);
     }
     if (action.gainResource) {
-        // if this action also has a remove, lets explicit mark the gain with a +
+        // if this action also has a remove, lets explicitly mark the gain with a +
         const shouldShowPlus = Object.keys(action?.removeResource ?? {}).length > 0;
 
         elements.push(
@@ -138,7 +156,26 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
             </Box>
         );
     }
-    return elements.map((element, index) => <React.Fragment key={index}>{element}</React.Fragment>);
+
+    if (elements.length === 1) {
+        return elements[0];
+    }
+
+    return (
+        <Flex
+            marginTop="-4px"
+            marginLeft="-4px"
+            flexWrap="wrap"
+            justifyContent="center"
+            alignItems="center"
+        >
+            {elements.map((element, index) => (
+                <Box marginTop="4px" marginLeft="4px" key={index}>
+                    {element}
+                </Box>
+            ))}
+        </Flex>
+    );
 }
 
 export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
@@ -190,13 +227,13 @@ export const CardActions = ({
     card,
     cardOwner,
     cardContext,
-    showCardName,
+    showActionText,
     canPlayInSpiteOfUI,
 }: {
     card: CardModel;
     cardContext: CardContext;
     cardOwner?: PlayerState;
-    showCardName?: boolean;
+    showActionText?: boolean;
     canPlayInSpiteOfUI?: boolean;
 }) => {
     if (!card.action) {
@@ -207,22 +244,29 @@ export const CardActions = ({
     const actions = [...(action.choice ? action.choice : [action])];
     return (
         <ActionsWrapper>
-            {showCardName && (
+            {showActionText && (
                 <ActionText>
-                    {showCardName && <div style={{fontWeight: 600}}>{card.name}</div>}
+                    <span style={{fontWeight: 600}}>Action: </span>
+                    <span>{action.text}</span>
                 </ActionText>
             )}
+
             {actions.map((action, index) => {
                 return (
-                    <CardAction
-                        key={card.name + '-action-' + index}
-                        action={action}
-                        index={index}
-                        card={card}
-                        cardContext={cardContext}
-                        cardOwner={cardOwner}
-                        canPlayInSpiteOfUI={canPlayInSpiteOfUI}
-                    />
+                    <React.Fragment key={card.name + '-action-' + index}>
+                        {index > 0 && (
+                            <Box margin="4px 0">
+                                <TextWithMargin>OR</TextWithMargin>
+                            </Box>
+                        )}
+                        <CardAction
+                            action={action}
+                            card={card}
+                            cardContext={cardContext}
+                            cardOwner={cardOwner}
+                            canPlayInSpiteOfUI={canPlayInSpiteOfUI}
+                        />
+                    </React.Fragment>
                 );
             })}
         </ActionsWrapper>
@@ -231,22 +275,18 @@ export const CardActions = ({
 
 function CardAction({
     action,
-    index,
     card,
     cardContext,
     cardOwner,
     canPlayInSpiteOfUI,
 }: {
     action: Action;
-    index: number;
     card: CardModel;
     cardContext: CardContext;
     cardOwner: SerializedPlayerState | undefined;
     canPlayInSpiteOfUI?: boolean;
 }) {
     const apiClient = useApiClient();
-    const isSyncing = useTypedSelector(state => state.syncing);
-    const activeRound = useTypedSelector(state => isActiveRound(state));
     const loggedInPlayer = useLoggedInPlayer();
     const actionGuard = useActionGuard(cardOwner?.username ?? loggedInPlayer.username);
 
@@ -254,28 +294,11 @@ function CardAction({
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
 
     let canPlay: boolean;
-    let disabledReason: string;
 
     if (canPlayInSpiteOfUI) {
-        [canPlay, disabledReason] = actionGuard.canPlayCardActionInSpiteOfUI(
-            action,
-            card,
-            cardOwner
-        );
+        [canPlay] = actionGuard.canPlayCardActionInSpiteOfUI(action, card, cardOwner);
     } else {
-        [canPlay, disabledReason] = actionGuard.canPlayCardAction(action, card, cardOwner);
-    }
-
-    let tooltipText: string | null = null;
-
-    if (!isSyncing && activeRound && cardContext === CardContext.PLAYED_CARD) {
-        if (isOwnedByLoggedInPlayer) {
-            tooltipText = canPlay ? null : disabledReason;
-        } else {
-            tooltipText = canPlay
-                ? `${cardOwner?.corporation?.name} can play this.`
-                : `${cardOwner?.corporation?.name} cannot play: ${disabledReason}.`;
-        }
+        [canPlay] = actionGuard.canPlayCardAction(action, card, cardOwner);
     }
 
     function playAction(action: Action, payment?: PropertyCounter<Resource>) {
@@ -304,25 +327,21 @@ function CardAction({
     }
 
     return (
-        <React.Fragment>
-            {index > 0 && <TextWithMargin>OR</TextWithMargin>}
-            <ActionContainer
-                cardContext={cardContext}
-                action={action}
-                playAction={playAction}
-                playActionWithSupplementalResources={playActionWithSupplementalResources}
-                canPlay={canPlay}
-                tooltipText={tooltipText}
-                loggedInPlayer={loggedInPlayer}
-                isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
-            >
-                <Flex alignItems="center" justifyContent="center" margin="4px">
-                    {renderLeftSideOfArrow(action, card)}
-                    {renderArrow()}
-                    {renderRightSideOfArrow(action, card)}
-                </Flex>
-            </ActionContainer>
-        </React.Fragment>
+        <ActionContainer
+            cardContext={cardContext}
+            action={action}
+            playAction={playAction}
+            playActionWithSupplementalResources={playActionWithSupplementalResources}
+            canPlay={canPlay}
+            loggedInPlayer={loggedInPlayer}
+            isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
+        >
+            <Flex alignItems="center" justifyContent="center">
+                {renderLeftSideOfArrow(action, card)}
+                {renderArrow()}
+                {renderRightSideOfArrow(action, card)}
+            </Flex>
+        </ActionContainer>
     );
 }
 
@@ -332,7 +351,6 @@ function ActionContainer({
     playAction,
     playActionWithSupplementalResources,
     canPlay,
-    tooltipText,
     isOwnedByLoggedInPlayer,
     loggedInPlayer,
     children,
@@ -345,7 +363,6 @@ function ActionContainer({
         supplementalResources?: SupplementalResources
     ) => void;
     canPlay: boolean;
-    tooltipText: string | null;
     isOwnedByLoggedInPlayer: boolean;
     loggedInPlayer: PlayerState | null;
     children: React.ReactNode;
@@ -401,24 +418,6 @@ function ActionContainer({
                 );
             }
         }
-    }
-
-    if (tooltipText && playedCard) {
-        return (
-            <Tooltip
-                sticky={true}
-                unmountHTMLWhenHide={true}
-                animation="fade"
-                html={<DisabledTooltip>{tooltipText}</DisabledTooltip>}
-            >
-                <ActionContainerBase
-                    disabled={!canPlay || !isOwnedByLoggedInPlayer}
-                    onClick={() => {}}
-                >
-                    {children}
-                </ActionContainerBase>
-            </Tooltip>
-        );
     }
 
     return (

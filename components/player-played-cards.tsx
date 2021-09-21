@@ -47,91 +47,56 @@ function PlayerPlayedCards({
                   return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
               });
 
-    const corporationAndPreludeCards: Array<Card> = [];
-    const greenCards: Array<Card> = [];
-    const redCards: Array<Card> = [];
-    const blueCards: Array<Card> = [];
+    let activeCards: Array<Card> = [];
+    let passiveCards: Array<Card> = [];
     filteredCards.forEach(card => {
         const hydratedCard = getCard(card);
         switch (hydratedCard.type) {
             case CardType.CORPORATION:
             case CardType.PRELUDE:
-                corporationAndPreludeCards.push(hydratedCard);
-                break;
-            case CardType.EVENT:
-                redCards.push(hydratedCard);
-                break;
             case CardType.AUTOMATED:
-                greenCards.push(hydratedCard);
+            case CardType.EVENT:
+                passiveCards.push(hydratedCard);
                 break;
             case CardType.ACTIVE:
-                blueCards.push(hydratedCard);
+                activeCards.push(hydratedCard);
                 break;
             default:
                 throw spawnExhaustiveSwitchError(hydratedCard.type);
         }
     });
-
+    let eventIndex = 0;
     return (
         <Flex flexDirection="column" width="100%" ref={containerRef}>
             <ResponsiveMasonry columnsCountBreakPoints={{300: 2, 450: 3, 600: 4, 750: 5, 900: 6}}>
-                <Masonry>
-                    {/* Corporation & preludes */}
-                    {corporationAndPreludeCards.map((card, index) => (
-                        <Flex margin="4px" key={card.name}>
-                            <CardTextToken
-                                margin="0"
-                                card={card}
-                                showCardOnHover={true}
-                                shouldUseFullWidth={true}
-                            />
-                        </Flex>
-                    ))}
-
-                    {/* Events */}
-                    {isLoggedInPlayer ? (
-                        redCards.map((card, index) => (
-                            <Flex margin="4px" key={card.name}>
-                                <CardTextToken
-                                    margin="0"
-                                    card={card}
-                                    showCardOnHover={true}
-                                    shouldUseFullWidth={true}
-                                />
-                            </Flex>
-                        ))
-                    ) : (
-                        <Flex margin="4px">
-                            <CardTextTokenBase color={colors.CARD_EVENT} margin="0px">
-                                {redCards.length} Events
-                            </CardTextTokenBase>
-                        </Flex>
-                    )}
-
-                    {/* Blue cards */}
-                    {blueCards.map((card, index) => (
-                        <Flex margin="4px" key={card.name}>
+                <Masonry gutter="6px">
+                    {activeCards.map(card => {
+                        return (
                             <MiniatureCard
+                                key={card.name}
                                 card={card}
                                 showCardOnHover={true}
                                 cardOwner={player}
                                 cardContext={CardContext.PLAYED_CARD}
                                 shouldUseFullWidth={true}
                             />
-                        </Flex>
-                    ))}
-
-                    {/* Green cards */}
-                    {greenCards.map((card, index) => (
-                        <Flex margin="4px" key={card.name}>
+                        );
+                    })}
+                    {passiveCards.map(card => {
+                        return (
                             <CardTextToken
                                 margin="0"
                                 card={card}
+                                key={
+                                    isLoggedInPlayer
+                                        ? card.name
+                                        : player.username + '-event-' + eventIndex++
+                                }
                                 showCardOnHover={true}
                                 shouldUseFullWidth={true}
                             />
-                        </Flex>
-                    ))}
+                        );
+                    })}
                 </Masonry>
             </ResponsiveMasonry>
         </Flex>

@@ -32,7 +32,7 @@ export const AllCapsIcon = styled.div<{
 export const GlobalParameterIcon = ({
     parameter,
     size = 16,
-    margin = 2,
+    margin = 0,
 }: {
     parameter: Parameter;
     size?: number;

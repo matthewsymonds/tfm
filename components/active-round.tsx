@@ -59,7 +59,7 @@ const CorporationHeaderOuter = styled.div<{selected: boolean}>`
     margin-top: 12px;
     margin-bottom: 12px;
     padding: 8px;
-    background: ${props => (props.selected ? 'hsla(0, 0%, 100%, 0.2)' : 'transparent')};
+    background: ${props => (props.selected ? colors.DARK_3 : 'transparent')};
 `;
 
 const TerraformRating = styled.span`
@@ -437,13 +437,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         <Box className="player-cards-and-tags-outer">
                             <Flex
                                 flexGrow="1"
-                                borderColor={PLAYER_COLORS[selectedPlayerIndex]}
-                                key={selectedPlayerIndex + '-cards-and-tags'}
-                                borderRadius="4px"
-                                borderStyle="solid"
-                                borderWidth="3px"
                                 flexWrap="wrap"
-                                background="#333"
+                                background={colors.DARK_3}
                                 justifyContent="center"
                                 boxSizing="border-box"
                                 overflowY="auto"

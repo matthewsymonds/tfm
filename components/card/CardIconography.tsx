@@ -28,8 +28,7 @@ export const InlineText = styled.span`
     min-width: 6px;
     text-align: center;
 `;
-export const TextWithMargin = styled(InlineText)<{margin?: string; fontSize?: string}>`
-    font-size: ${props => props.fontSize ?? '11px'};
+export const TextWithMargin = styled(InlineText)<{margin?: string}>`
     margin: ${props => props.margin ?? '0 4px'};
 `;
 export const IconographyRow = styled.div<{isInline?: boolean}>`
@@ -38,7 +37,7 @@ export const IconographyRow = styled.div<{isInline?: boolean}>`
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    margin: ${props => (props.isInline ? '0' : '4px')};
+    margin: 0;
 `;
 export const ProductionWrapper = styled.div`
     display: flex;
@@ -138,11 +137,9 @@ export function ChangeResourceIconography({
                 ...(shouldShowNumericQuantity ? [amount] : []),
             ];
             let el = (
-                <Flex marginLeft={i > 0 ? '6px' : '0px'} alignItems="center">
+                <Flex alignItems="center">
                     {prefixElements.length > 0 && (
-                        <TextWithMargin margin="0 4px 0 0" fontSize="12px">
-                            {prefixElements}
-                        </TextWithMargin>
+                        <TextWithMargin margin="0 4px 0 0">{prefixElements}</TextWithMargin>
                     )}
                     {shouldShowNumericQuantity || resource === Resource.MEGACREDIT
                         ? resourceIconElement
@@ -232,15 +229,12 @@ export function ChangeResourceIconography({
                 case VariableAmount.OPPONENTS_SPACE_TAGS:
                     multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
                     break;
-                    break;
                 case VariableAmount.THIRD_FLOATERS:
                     multiplierElement = (
-                        <>
-                            <TextWithMargin fontSize="12px" margin="3px">
-                                {3}
-                            </TextWithMargin>
+                        <React.Fragment>
+                            <TextWithMargin margin="3px">3</TextWithMargin>
                             <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
-                        </>
+                        </React.Fragment>
                     );
                     break;
                 case VariableAmount.CITIES_ON_MARS:
@@ -270,7 +264,7 @@ export function ChangeResourceIconography({
                     } else {
                         customElement = (
                             <React.Fragment>
-                                <TextWithMargin>{opts.shouldShowPlus ? '+' : 'X'}</TextWithMargin>
+                                <TextWithMargin>{opts.shouldShowPlus ? '+' : '+X'}</TextWithMargin>
                                 <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
                             </React.Fragment>
                         );
@@ -314,9 +308,9 @@ export function ChangeResourceIconography({
                     break;
                 case VariableAmount.RESOURCES_ON_CARD_MAX_4:
                     multiplierElement = (
-                        <Flex display="inline-flex">
+                        <Flex display="inline-flex" justifyContent="center" alignItems="center">
                             <ResourceIcon name={resourceOnCard!} size={16} />
-                            <Box marginLeft="2px">(up to 4)</Box>
+                            <InlineText>*</InlineText>
                         </Flex>
                     );
                     break;
@@ -336,12 +330,7 @@ export function ChangeResourceIconography({
             }
 
             elements.push(
-                <Flex
-                    key={i}
-                    justifyContent="center"
-                    alignItems="center"
-                    marginLeft={i > 0 ? '4px' : 'initial'}
-                >
+                <Flex key={i} justifyContent="center" alignItems="center">
                     {customElement}
                     {multiplierElement && (
                         <React.Fragment>
@@ -370,11 +359,22 @@ export function ChangeResourceIconography({
         }
     }
 
+    // marginLeft/Top "hacks" here ensure that there's adequate spacing between elements
+    // regardless of whether they wrap or not
     return (
-        <IconographyRow className="change-resource" isInline={opts.isInline}>
+        <IconographyRow
+            className="change-resource"
+            isInline={opts.isInline}
+            style={{
+                marginLeft: -4,
+                marginTop: -4,
+            }}
+        >
             {locationTypeIcon}
             {elements.map((el, i) => (
-                <React.Fragment key={i}>{el}</React.Fragment>
+                <Box key={i} marginLeft="4px" marginTop="4px">
+                    {el}
+                </Box>
             ))}
         </IconographyRow>
     );
@@ -414,7 +414,11 @@ export function ChangeResourceOptionIconography({
 
     Object.entries(changeResourceOption).forEach(([resource, quantity], index) => {
         if (index > 0) {
-            elements.push(<TextWithMargin>{opts?.useSlashSeparator ? '/' : 'or'}</TextWithMargin>);
+            if (opts?.useSlashSeparator) {
+                elements.push(<InlineText>/</InlineText>);
+            } else {
+                elements.push(<TextWithMargin>or</TextWithMargin>);
+            }
         }
         elements.push(
             <ChangeResourceIconography
@@ -424,10 +428,16 @@ export function ChangeResourceOptionIconography({
         );
     });
 
+    if (opts.isInline && elements.length === 1) {
+        return elements[0];
+    }
+
     return (
-        <IconographyRow isInline={opts.isInline}>
+        <IconographyRow isInline={opts.isInline} style={{marginLeft: -4, marginTop: -4}}>
             {elements.map((el, i) => (
-                <React.Fragment key={i}>{el}</React.Fragment>
+                <Box marginLeft="4px" marginTop="4px" key={i}>
+                    {el}
+                </Box>
             ))}
         </IconographyRow>
     );
