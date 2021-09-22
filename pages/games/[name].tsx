@@ -16,10 +16,10 @@ async function retrieveYourTurnGames(callback: Function) {
     }
     const apiPath = '/api/your-turn';
 
-    // const result = await makeGetCall(apiPath);
-    // if (result.games) {
-    //     callback(result);
-    // }
+    const result = await makeGetCall(apiPath);
+    if (result.games) {
+        callback(result);
+    }
 }
 
 function GameMiddle(props) {
