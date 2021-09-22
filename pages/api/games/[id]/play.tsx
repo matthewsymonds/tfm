@@ -38,7 +38,6 @@ export default async (req, res) => {
         if (!game.players.includes(username)) throw new Error('Not in this game!');
         lock[game.name] ||= [];
         lock[game.name].push(username);
-        console.log(game.state.common);
         const {
             type,
             payload,
