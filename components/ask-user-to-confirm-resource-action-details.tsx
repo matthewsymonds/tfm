@@ -605,10 +605,14 @@ function AskUserToConfirmResourceActionDetails({
                                     Warning: This is you!
                                 </span>
                             )}
-                            <Flex>
+                            <Flex flexWrap="wrap">
                                 {playerOptionWrapper.options.map((option, index) => {
                                     return (
-                                        <Box key={index} marginLeft={index > 0 ? '4px' : '0'}>
+                                        <Box
+                                            key={index}
+                                            marginLeft={index > 0 ? '4px' : '0'}
+                                            marginBottom="8px"
+                                        >
                                             <OptionComponent
                                                 apiClient={apiClient}
                                                 option={option}
