@@ -21,9 +21,9 @@ interface ResourceIconBaseProps {
 
 const clampedIfViewportWidth = (props: ResourceIconBaseProps, multiplier: number) =>
     props?.unit === 'vw'
-        ? `clamp(${10 * multiplier}px, ${props.size * multiplier + props?.unit}, ${
-              14 * multiplier
-          }px)`
+        ? `clamp(${10 * multiplier}px, ${props.size * multiplier + props?.unit}, ${Math.floor(
+              14.5 * multiplier
+          )}px)`
         : `${props.size * multiplier}${props?.unit ?? 'px'}`;
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`

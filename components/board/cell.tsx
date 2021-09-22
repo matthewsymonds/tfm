@@ -94,7 +94,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                         margin={index ? '0 0 0 0.3vw' : 0}
                         key={index}
                         name={resource}
-                        size={1.5}
+                        size={2.25}
                         unit="vw"
                     />
                 ))}
