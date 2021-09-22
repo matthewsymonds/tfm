@@ -117,7 +117,7 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
         );
     }
     if (action.useBlueCardActionAlreadyUsedThisGeneration) {
-        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>=&gt;</InlineText>);
+        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>{renderArrow()}</InlineText>);
     }
     if (action.gainResource) {
         // if this action also has a remove, lets explicitly mark the gain with a +
@@ -273,6 +273,10 @@ export const CardActions = ({
     );
 };
 
+function renderArrow() {
+    return <TextWithMargin>➡</TextWithMargin>;
+}
+
 function CardAction({
     action,
     card,
@@ -320,10 +324,6 @@ function CardAction({
             return;
         }
         apiClient.playCardActionAsync({parent: card, supplementalResources});
-    }
-
-    function renderArrow() {
-        return <TextWithMargin>➡</TextWithMargin>;
     }
 
     return (
