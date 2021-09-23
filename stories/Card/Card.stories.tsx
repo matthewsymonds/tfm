@@ -62,7 +62,9 @@ const MiniCardTemplate: Story<{}> = args => {
 
     return (
         <div style={{width: '100%'}}>
-            <ResponsiveMasonry columnsCountBreakPoints={{300: 2, 450: 3, 600: 4, 750: 5, 900: 6}}>
+            <ResponsiveMasonry
+                columnsCountBreakPoints={{260: 2, 390: 3, 520: 4, 650: 5, 780: 6, 910: 7}}
+            >
                 <Masonry gutter="6px">
                     {cardConfigs
                         // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)

@@ -67,7 +67,9 @@ function PlayerPlayedCards({
     let eventIndex = 0;
     return (
         <Flex flexDirection="column" width="100%" ref={containerRef}>
-            <ResponsiveMasonry columnsCountBreakPoints={{300: 2, 450: 3, 600: 4, 750: 5, 900: 6}}>
+            <ResponsiveMasonry
+                columnsCountBreakPoints={{260: 2, 390: 3, 520: 4, 650: 5, 780: 6, 910: 7}}
+            >
                 <Masonry gutter="6px">
                     {activeCards.map(card => {
                         return (

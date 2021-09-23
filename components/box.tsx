@@ -31,6 +31,7 @@ interface BoxProps {
     overflowX: string;
     overflow: string;
     background: string;
+    backgroundColor: string;
     border: string;
     borderRadius: string;
     borderWidth: string;
@@ -106,6 +107,7 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     overflow-x: ${props => props.overflowX};
     overflow: ${props => props.overflow};
     background: ${props => props.background};
+    background-color: ${props => props.backgroundColor};
     border: ${props => props.border};
     border-radius: ${props => props.borderRadius};
     border-width: ${props => props.borderWidth};

@@ -11,7 +11,7 @@ const PlayerIconBase = styled.div<{size: number; color: string; passed: boolean;
     background-color: ${props => props.color};
     opacity: ${props => (props.passed ? 0.5 : 1)};
     border: 1px solid ${props => props.border || colors.LIGHT_1};
-    border-radius: 1px;
+    border-radius: 2px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -50,6 +50,7 @@ export const CardTextTokenBase = styled.div<{
     font-size: 0.85em;
     transition: all 0.1s;
     opacity: 1;
+    align-items: center;
 `;
 
 const CardToggleTokenLabel = styled.label<{
@@ -246,23 +247,19 @@ export const MiniatureCard = ({
     const currentGeneration = useTypedSelector(state => state.common.generation);
 
     const {ref, top, left} = useCardPositionOnHover(0);
+
+    const hasBeenUsedThisRound = card.lastRoundUsedAction === currentGeneration;
     return (
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
-            <Flex
-                flexDirection="column"
-                width={shouldUseFullWidth ? '100%' : undefined}
-                position="relative"
-            >
+            <Flex flexDirection="column" width={shouldUseFullWidth ? '100%' : undefined}>
                 <CardTextTokenBase
                     ref={ref}
                     color={color}
                     style={{
                         borderBottomLeftRadius: 0,
                         borderBottomRightRadius: 0,
-                        display: 'block',
                     }}
                     margin="0px"
-                    className="truncate"
                     {...(showCardOnHover
                         ? {
                               onMouseEnter: () => setIsHovering(true),
@@ -272,16 +269,18 @@ export const MiniatureCard = ({
                           }
                         : {})}
                 >
-                    {card.lastRoundUsedAction === currentGeneration ? (
-                        <Box display="inline-block" marginRight="4px">
-                            <PlayerIcon border="black" playerIndex={cardOwner.index} size={8} />
-                        </Box>
-                    ) : (
-                        ''
+                    {hasBeenUsedThisRound && (
+                        <PlayerIcon
+                            border="white"
+                            playerIndex={cardOwner.index}
+                            size={12}
+                            style={{marginRight: 4}}
+                        />
                     )}
-                    {card.name === '' ? 'Event' : card.name}
+                    <span className="truncate">{card.name === '' ? 'Event' : card.name}</span>
                 </CardTextTokenBase>
                 <Box
+                    position="relative"
                     borderRadius="0px"
                     style={{
                         borderBottomRightRadius: 4,
@@ -298,6 +297,16 @@ export const MiniatureCard = ({
                             showActionText={false}
                         />
                     </Box>
+                    {hasBeenUsedThisRound && (
+                        <Flex
+                            position="absolute"
+                            left="0"
+                            right="0"
+                            bottom="0"
+                            top="0"
+                            backgroundColor="hsla(0,0%,0%,0.6)"
+                        />
+                    )}
                 </Box>
             </Flex>
             {isHovering && showCardOnHover && (
