@@ -63,7 +63,7 @@ const BoardOuter = styled.div`
 export const MilestonesAwardsBoardSwitcherWrapper = styled.div`
     flex-direction: column;
     align-items: flex-end;
-    width: fit-content;
+    width: 112px;
     display: flex;
     @media (max-width: 895px) {
         margin-top: 0px;
