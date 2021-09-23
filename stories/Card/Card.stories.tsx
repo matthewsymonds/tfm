@@ -19,7 +19,7 @@ const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
             // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
-            // .filter(c => c.name === 'Vitor')
+            // .filter(c => c.name === 'Virus')
             // .filter(c => [Deck.VENUS, Deck.PRELUDE, Deck.COLONIES].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
