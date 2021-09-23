@@ -15,7 +15,7 @@ import {getResourceBorder, ResourceLocationType} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
-import {Card as CardModel} from 'models/card';
+import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
@@ -629,15 +629,7 @@ function DuplicateProductionIconography({
 }
 
 export function ProductionIconography({card}: {card: Action}) {
-    if (
-        Object.keys({
-            ...card.decreaseProduction,
-            ...card.decreaseAnyProduction,
-            ...card.increaseProduction,
-            ...card.increaseProductionOption,
-        }).length === 0 &&
-        !card.duplicateProduction
-    ) {
+    if (!doesActionHaveProductionIconography(card)) {
         return null;
     }
 
@@ -890,6 +882,18 @@ function PlaceColonyIconography({placeColony}: {placeColony: PlaceColony}) {
     );
 }
 
+const IconographyContainer = styled.div`
+    & > :not(:first-child) {
+        margin-top: 8px;
+    }
+
+    > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+`;
+
 export const BaseActionIconography = ({
     card,
     inline,
@@ -923,74 +927,105 @@ export const BaseActionIconography = ({
     const choice = 'choice' in card ? card.choice : null;
 
     return (
-        <Flex
-            flexDirection={
-                inline && reverse
-                    ? 'row-reverse'
-                    : inline
-                    ? 'row'
-                    : reverse
-                    ? 'column-reverse'
-                    : 'column'
-            }
-            alignItems="center"
-            position="relative"
+        <IconographyContainer
+            style={{
+                flexDirection:
+                    inline && reverse
+                        ? 'row-reverse'
+                        : inline
+                        ? 'row'
+                        : reverse
+                        ? 'column-reverse'
+                        : 'column',
+                position: 'relative',
+                alignItems: 'center',
+            }}
         >
-            <Flex justifyContent="space-evenly" width="100%" alignItems="center">
-                {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
-                {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
-                <ProductionIconography card={card} />
-            </Flex>
+            {doesActionHaveProductionIconography(card) || tilePlacements || placeColony ? (
+                <Flex justifyContent="space-evenly" width="100%" alignItems="center">
+                    {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
+                    {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
+                    <ProductionIconography card={card} />
+                </Flex>
+            ) : null}
             {increaseParameter && (
-                <IncreaseParameterIconography increaseParameter={increaseParameter} />
+                <div>
+                    <IncreaseParameterIconography increaseParameter={increaseParameter} />
+                </div>
             )}
-            {choice && <ChoiceIconography choice={choice} />}
+            {choice && (
+                <div>
+                    <ChoiceIconography choice={choice} />
+                </div>
+            )}
             {removeResource && (
-                <RemoveResourceIconography
-                    removeResource={removeResource}
-                    opts={{locationType: removeResourceSourceType}}
-                />
+                <div>
+                    <RemoveResourceIconography
+                        removeResource={removeResource}
+                        opts={{locationType: removeResourceSourceType}}
+                    />
+                </div>
             )}
             {removeResourceOption && (
-                <RemoveResourceOptionIconography
-                    removeResourceOption={removeResourceOption}
-                    opts={{locationType: removeResourceSourceType}}
-                />
+                <div>
+                    <RemoveResourceOptionIconography
+                        removeResourceOption={removeResourceOption}
+                        opts={{locationType: removeResourceSourceType}}
+                    />
+                </div>
             )}
             {gainResource && (
-                <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
+                <div>
+                    <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
+                </div>
             )}
             {gainResourceOption && (
-                <GainResourceOptionIconography
-                    gainResourceOption={gainResourceOption}
-                    opts={{locationType: gainResourceTargetType}}
-                />
+                <div>
+                    <GainResourceOptionIconography
+                        gainResourceOption={gainResourceOption}
+                        opts={{locationType: gainResourceTargetType}}
+                    />
+                </div>
             )}
             {opponentsGainResource && (
-                <GainResourceIconography
-                    gainResource={opponentsGainResource}
-                    opts={{locationType: gainResourceTargetType, useRedBorder: true}}
-                />
+                <div>
+                    <GainResourceIconography
+                        gainResource={opponentsGainResource}
+                        opts={{locationType: gainResourceTargetType, useRedBorder: true}}
+                    />
+                </div>
             )}
-            {stealResource && <StealResourceIconography stealResource={stealResource} />}
-            {increaseTerraformRating ? (
-                <IncreaseTerraformRatingIconography
-                    increaseTerraformRating={increaseTerraformRating}
-                />
-            ) : null}
+            {stealResource && (
+                <div>
+                    <StealResourceIconography stealResource={stealResource} />
+                </div>
+            )}
+            {increaseTerraformRating && (
+                <div>
+                    <IncreaseTerraformRatingIconography
+                        increaseTerraformRating={increaseTerraformRating}
+                    />
+                </div>
+            )}
             {temporaryParameterRequirementAdjustments && (
-                <TemporaryAdjustmentIconography
-                    temporaryParameterRequirementAdjustments={
-                        temporaryParameterRequirementAdjustments
-                    }
-                />
+                <div>
+                    <TemporaryAdjustmentIconography
+                        temporaryParameterRequirementAdjustments={
+                            temporaryParameterRequirementAdjustments
+                        }
+                    />
+                </div>
             )}
             {revealTakeAndDiscard && (
-                <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
+                <div>
+                    <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
+                </div>
             )}
             {card instanceof CardModel && card.forcedAction && (
-                <BaseActionIconography card={card.forcedAction} />
+                <div>
+                    <BaseActionIconography card={card.forcedAction} />
+                </div>
             )}
-        </Flex>
+        </IconographyContainer>
     );
 };

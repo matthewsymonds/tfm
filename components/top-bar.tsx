@@ -20,7 +20,7 @@ const TopBarBase = styled(Box)`
     width: 100%;
     justify-content: flex-start;
     align-items: center;
-    color: #ddd;
+    color: ${colors.LIGHT_2};
 `;
 
 const CorporationName = styled(Flex)`
@@ -92,6 +92,7 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
                     marginBottom: 'auto',
                 }}
                 playerIndex={loggedInPlayer.index}
+                border={colors.LIGHT_2}
             />
             <Flex alignItems="center" padding="2px" marginRight="4px" flexWrap="wrap">
                 <CorporationName>{loggedInPlayer.corporation.name}</CorporationName>

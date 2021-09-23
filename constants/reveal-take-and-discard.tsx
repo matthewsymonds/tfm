@@ -11,10 +11,15 @@ export const CARD_SELECTION_CRITERIA_SELECTORS = {
         if (card.storedResourceType === f) {
             return true;
         }
-        if (card.requiredResources[f]) {
+        if (card.requiredResources?.[f]) {
             return true;
         }
-        const actions = [card, ...card.choice, card?.action, ...(card?.action?.choice ?? [])];
+        const actions = [
+            card,
+            ...(card.choice ?? []),
+            card?.action,
+            ...(card?.action?.choice ?? []),
+        ];
         for (const action of actions) {
             if (action?.gainResource?.[f] || action?.removeResource?.[f]) {
                 return true;

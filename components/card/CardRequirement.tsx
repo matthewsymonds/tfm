@@ -43,10 +43,10 @@ function getCardRequirementText(card: CardModel) {
     } else if (card.requiredProduction !== undefined) {
         // currently all cards with required production only require a single production
         text = null;
-    } else if (card.requiredTilePlacements.length > 0) {
+    } else if (card.requiredTilePlacements) {
         // for required tile placements, we only show icons
         text = null;
-    } else if (Object.keys(card.requiredTags).length > 0) {
+    } else if (card.requiredTags) {
         // for required tags, we only show icons
         text = null;
     } else if (card.minTerraformRating !== undefined) {
@@ -60,12 +60,12 @@ function getCardRequirementText(card: CardModel) {
 }
 
 function getCardRequirementIcons(card: CardModel): React.ReactElement {
-    if (card.requiredGlobalParameter !== undefined) {
+    if (card.requiredGlobalParameter) {
         return <GlobalParameterIcon parameter={card.requiredGlobalParameter.type} size={16} />;
-    } else if (card.requiredProduction !== undefined) {
+    } else if (card.requiredProduction) {
         // currently all cards with required production only require a single production
         return <ProductionIcon name={card.requiredProduction} size={16} paddingSize={0} />;
-    } else if (card.requiredTilePlacements.length > 0) {
+    } else if (card.requiredTilePlacements) {
         // for required tile placements, we only show icons
         return (
             <Flex>
@@ -74,7 +74,7 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 ))}
             </Flex>
         );
-    } else if (Object.keys(card.requiredTags).length > 0) {
+    } else if (card.requiredTags) {
         // for required tags, we only show icons
         const tagElements: Array<React.ReactElement> = [];
         for (const [tag, tagCount] of Object.entries(card.requiredTags)) {
@@ -104,9 +104,9 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
         );
     } else if (card.minTerraformRating !== undefined) {
         return <TerraformRatingIcon size={16} />;
-    } else if (Object.keys(card.requiredResources).length > 0) {
+    } else if (card.requiredResources) {
         const tagElements: Array<React.ReactElement> = [];
-        for (const [resource, resourceCount] of Object.entries(card.requiredResources)) {
+        for (const [resource, resourceCount] of Object.entries(card.requiredResources ?? {})) {
             if (typeof resourceCount !== 'number') {
                 throw new Error('Tag count must be fixed number for required tags');
             }
@@ -144,12 +144,12 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
 
 export const CardRequirement = ({card}: {card: CardModel}) => {
     const hasRequirement =
-        card.requiredGlobalParameter !== undefined ||
-        card.requiredProduction !== undefined ||
-        card.requiredTilePlacements.length > 0 ||
-        Object.keys(card.requiredTags).length > 0 ||
-        card.minTerraformRating !== undefined ||
-        Object.keys(card.requiredResources).length > 0;
+        card.requiredGlobalParameter ||
+        card.requiredProduction ||
+        card.requiredTilePlacements ||
+        card.requiredTags ||
+        card.minTerraformRating ||
+        card.requiredResources;
 
     if (!hasRequirement) {
         return null;

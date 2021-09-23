@@ -33,24 +33,24 @@ export class Card {
     victoryPoints?: Amount;
     actionType: ActionType;
     action?: Action;
-    effects: Effect[] = [];
-    requiredTilePlacements: RequiredTilePlacement[] = [];
-    steps: Action[] = [];
+    effects?: Effect[];
+    requiredTilePlacements?: RequiredTilePlacement[];
+    steps?: Action[];
 
     // ====================================================
     // Requirements
     // ====================================================
     /** e.g. "Requires 25 TF Rating" */
     minTerraformRating?: number;
-    requiredTags: PropertyCounter<Tag>;
+    requiredTags?: PropertyCounter<Tag>;
     /** If unset, defaults to `removeResource`. e.g. "Requires that you have 5 floaters". Basically only required for Aerosport Tournament */
-    requiredResources: PropertyCounter<Resource>;
+    requiredResources?: PropertyCounter<Resource>;
     /** e.g. "Requires that you have titanium production" (Asteroid Mining Consortium, Great Escarpment Consortium */
     requiredProduction?: Resource; // e.g. Asteroid Mining Consortium
     /** e.g. "Requires 5% oxygen" */
     requiredGlobalParameter?: RequiredGlobalParameter;
     /** Restrictions about where this tile can be placed */
-    tilePlacements: TilePlacement[];
+    tilePlacements?: TilePlacement[];
     minColonies?: number; // only for colonies expansion
     maxColonies?: number; // only for colonies expansion
 
@@ -58,39 +58,39 @@ export class Card {
     // Resource & production implications
     // ====================================================
     /** e.g. "Gain 12 heat" */
-    gainResource: PropertyCounter<Resource>;
+    gainResource?: PropertyCounter<Resource>;
     /** e.g. Sponsored Academies */
-    opponentsGainResource: PropertyCounter<Resource>;
+    opponentsGainResource?: PropertyCounter<Resource>;
     /** e.g. "Gain 5 plants, or add 4 animals to ANOTHER card" */
-    gainResourceOption: PropertyCounter<Resource>;
+    gainResourceOption?: PropertyCounter<Resource>;
     /** e.g. Manutech */
     gainResourceWhenIncreaseProduction?: number;
     /** e.g. "Remove 5 MC" */
     /** e.g. "Remove up to 5 plants from any player" */
-    removeResource: PropertyCounter<Resource>;
+    removeResource?: PropertyCounter<Resource>;
     /** e.g. "Remove up to 2 animals or 5 plants from any player" */
-    removeResourceOption: PropertyCounter<Resource>;
+    removeResourceOption?: PropertyCounter<Resource>;
     /** e.g. "Remove up to 4 MC FROM A PLAYER WITH A JOVIAN TAG" */
     removeResourceSourceType?: ResourceLocationType;
     /** e.g. "Increase your MC production 2 steps" */
-    increaseProduction: PropertyCounter<Resource>;
+    increaseProduction?: PropertyCounter<Resource>;
     /** e.g. "Increase your plant production 1 step or your energy production 2 steps" */
-    increaseProductionOption: PropertyCounter<Resource>;
+    increaseProductionOption?: PropertyCounter<Resource>;
     /** Records Mining Rights and Mining Area's production increase. */
     increaseProductionResult?: Resource;
     /** e.g. Duplicate only the production box of one of your building cards  */
     duplicateProduction?: Tag;
     /** e.g. "Decrease your MC production 2 steps" */
-    decreaseProduction: PropertyCounter<Resource>;
+    decreaseProduction?: PropertyCounter<Resource>;
     /** e.g. "Decrease any plant production 1 step" */
-    decreaseAnyProduction: PropertyCounter<Resource>;
+    decreaseAnyProduction?: PropertyCounter<Resource>;
     /** e.g. "Raise oxygen 1 step" */
-    increaseParameter: NumericPropertyCounter<Parameter>;
+    increaseParameter?: NumericPropertyCounter<Parameter>;
     /** e.g. "Raise your TR 1 step" */
     increaseTerraformRating?: Amount;
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
-    stealResource: PropertyCounter<Resource>;
+    stealResource?: PropertyCounter<Resource>;
     /** e.g. "Look at the top 3 cards. Take one into hand and discard the other two" */
     lookAtCards?: LookAtCardsConfig;
 
@@ -121,9 +121,9 @@ export class Card {
 
     conditionalPayment?: ConditionalPayment;
 
-    parameterRequirementAdjustments: PropertyCounter<Parameter>;
-    temporaryParameterRequirementAdjustments: PropertyCounter<Parameter>;
-    choice: Action[];
+    parameterRequirementAdjustments?: PropertyCounter<Parameter>;
+    temporaryParameterRequirementAdjustments?: PropertyCounter<Parameter>;
+    choice?: Action[];
     playCard?: PlayCardParams;
     placeColony?: PlaceColony;
     gainTradeFleet?: boolean;
@@ -156,51 +156,50 @@ export class Card {
 
         // Card requirements
         this.requiredGlobalParameter = config.requiredGlobalParameter;
-        this.requiredResources = config.requiredResources || {};
+        this.requiredResources = config.requiredResources;
         this.minColonies = config.minColonies;
         this.maxColonies = config.maxColonies;
         this.minTerraformRating = config.minTerraformRating;
         this.requiredProduction = config.requiredProduction;
-        this.tilePlacements = config.tilePlacements || [];
+        this.tilePlacements = config.tilePlacements;
 
         // Resource & production implications
-        this.gainResource = config.gainResource || {};
-        this.opponentsGainResource = config.opponentsGainResource || {};
-        this.gainResourceOption = config.gainResourceOption || {};
+        this.gainResource = config.gainResource;
+        this.opponentsGainResource = config.opponentsGainResource;
+        this.gainResourceOption = config.gainResourceOption;
         this.gainResourceTargetType = config.gainResourceTargetType;
         this.lookAtCards = config.lookAtCards;
-        this.removeResource = config.removeResource || {};
-        this.removeResourceOption = config.removeResourceOption || {};
+        this.removeResource = config.removeResource;
+        this.removeResourceOption = config.removeResourceOption;
         this.removeResourceSourceType = config.removeResourceSourceType;
-        this.stealResource = config.stealResource || {};
-        this.increaseProduction = config.increaseProduction || {};
-        this.increaseProductionOption = config.increaseProductionOption || {};
+        this.stealResource = config.stealResource;
+        this.increaseProduction = config.increaseProduction;
+        this.increaseProductionOption = config.increaseProductionOption;
         this.duplicateProduction = config.duplicateProduction;
-        this.decreaseProduction = config.decreaseProduction || {};
-        this.decreaseAnyProduction = config.decreaseAnyProduction || {};
-        this.increaseParameter = config.increaseParameter || {};
-        this.increaseTerraformRating = config.increaseTerraformRating || 0;
-        this.requiredTags = config.requiredTags || {};
-        const {tags = {}, cards = {}, ...rest} = config.discounts || {};
+        this.decreaseProduction = config.decreaseProduction;
+        this.decreaseAnyProduction = config.decreaseAnyProduction;
+        this.increaseParameter = config.increaseParameter;
+        this.increaseTerraformRating = config.increaseTerraformRating;
+        this.requiredTags = config.requiredTags;
+        const {tags = {}, cards = {}, ...rest} = config.discounts ?? {};
         this.discounts = {
-            card: 0,
             tags,
             cards,
+            card: 0,
             standardProjects: 0,
             standardProjectPowerPlant: 0,
             nextCardThisGeneration: 0,
             trade: 0,
             ...rest,
         };
-        this.plantDiscount = config.plantDiscount || 0;
-        const {exchangeRates = {}} = config;
+        this.plantDiscount = config.plantDiscount;
         this.exchangeRates = {
-            ...exchangeRates,
+            ...config.exchangeRates,
         };
 
-        this.parameterRequirementAdjustments = config.parameterRequirementAdjustments || {};
+        this.parameterRequirementAdjustments = config.parameterRequirementAdjustments;
         this.temporaryParameterRequirementAdjustments =
-            config.temporaryParameterRequirementAdjustments || {};
+            config.temporaryParameterRequirementAdjustments;
 
         // card effects, actions, long-term play (ACTIVE cards)
         this.effects = [];
@@ -212,15 +211,13 @@ export class Card {
         }
 
         if (config.steps) {
-            this.steps.push(...config.steps);
+            this.steps = [...config.steps];
         }
 
         if (config.requiredTilePlacements) {
-            this.requiredTilePlacements.push(...config.requiredTilePlacements);
+            this.requiredTilePlacements = [...config.requiredTilePlacements];
         }
-        if (config.cardCost) {
-            this.cardCost = config.cardCost;
-        }
+        this.cardCost = config.cardCost;
 
         this.action = config.action;
         this.storedResourceType = config.storedResourceType;
@@ -230,21 +227,13 @@ export class Card {
         if (this.storedResourceType) {
             this.storedResourceAmount = 0;
         }
-        if (config.conditionalPayment) {
-            this.conditionalPayment = config.conditionalPayment;
-        }
-        if (config.revealTakeAndDiscard) {
-            this.revealTakeAndDiscard = config.revealTakeAndDiscard;
-        }
-        if (config.placeColony) {
-            this.placeColony = config.placeColony;
-        }
-        if (config.useStoredResourceAsHeat) {
-            this.useStoredResourceAsHeat = config.useStoredResourceAsHeat;
-        }
+        this.conditionalPayment = config.conditionalPayment;
+        this.revealTakeAndDiscard = config.revealTakeAndDiscard;
+        this.placeColony = config.placeColony;
+        this.useStoredResourceAsHeat = config.useStoredResourceAsHeat;
         this.gainTradeFleet = config.gainTradeFleet;
         this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
-        this.choice = config.choice || [];
+        this.choice = config.choice;
 
         this.playCard = config.playCard;
         this.increaseColonyTileTrackRange = config.increaseColonyTileTrackRange;
@@ -252,6 +241,21 @@ export class Card {
         this.gainAllColonyBonuses = config.gainAllColonyBonuses;
     }
 }
+
+export const doesActionHaveProductionIconography = (action: Action) => {
+    if (
+        Object.keys({
+            ...action.decreaseProduction,
+            ...action.decreaseAnyProduction,
+            ...action.increaseProduction,
+            ...action.increaseProductionOption,
+        }).length > 0 ||
+        action.duplicateProduction
+    )
+        return true;
+
+    return false;
+};
 
 export const doesCardHaveDiscounts = (card: Card) => {
     for (const value of Object.values(card.discounts)) {
@@ -278,7 +282,7 @@ export const doesCardHaveTriggerAction = (card: Card) => {
         return true;
     }
 
-    if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
+    if (card.parameterRequirementAdjustments) {
         return true;
     }
 

@@ -68,7 +68,7 @@ const CardInner: React.FC<CardProps> = ({
     );
     const apiClient = useApiClient();
 
-    const combinedStep = card.steps.reduce((acc, step) => ({...acc, ...step}), {});
+    const combinedStep = card.steps?.reduce((acc, step) => ({...acc, ...step}), {}) ?? {};
 
     return (
         <TexturedCard

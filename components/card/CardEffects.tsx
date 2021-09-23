@@ -59,7 +59,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
     const venus = useTypedSelector(isPlayingVenus);
 
     // Bail early if there's nothing to show
-    if (card.effects.length === 0) {
+    if (!card.effects) {
         return null;
     }
 
@@ -251,7 +251,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         }
 
         let parameterRequirementAdjustments = Object.keys(
-            card.parameterRequirementAdjustments
+            card.parameterRequirementAdjustments ?? {}
         ) as Parameter[];
 
         if (!venus) {
@@ -297,7 +297,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 </Flex>
             );
         }
-        if (Object.keys(card.parameterRequirementAdjustments).length > 0) {
+        if (card.parameterRequirementAdjustments) {
             return (
                 <InlineText>+/-{Object.values(card.parameterRequirementAdjustments)[0]}</InlineText>
             );

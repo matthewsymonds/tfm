@@ -68,7 +68,7 @@ function getEffectsDelta(
 
     const actionCardPairs = getActionsFromEffectForPlayer(player, event, player, additionalCards);
 
-    for (const tilePlacement of action.tilePlacements) {
+    for (const tilePlacement of action.tilePlacements ?? []) {
         const event: EffectEvent = {
             placedTile: tilePlacement.type,
         };

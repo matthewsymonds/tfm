@@ -76,7 +76,9 @@ export const MilestonesAwardsBoardSwitcherWrapper = styled.div`
 export const AwardsAndMilestones = styled.div`
     display: flex;
     flex-direction: column;
+    margin-left: 4px;
     @media (max-width: 895px) {
+        margin-left: inherit;
         max-width: 100%;
         flex-direction: row;
         justify-content: center;
