@@ -11,7 +11,7 @@ import {getCard} from './get-card';
 export function getMoney(state: GameState, player: PlayerState, corporation?: SerializedCard) {
     const playerMoneyAmount =
         (state.common.gameStage === GameStage.CORPORATION_SELECTION
-            ? getCard(corporation ?? player.corporation).gainResource[Resource.MEGACREDIT]
+            ? getCard(corporation ?? player.corporation).gainResource?.[Resource.MEGACREDIT]
             : player.resources[Resource.MEGACREDIT]) || 0;
 
     return convertAmountToNumber(playerMoneyAmount, state, player);

@@ -256,8 +256,8 @@ export class ApiActionHandler {
         //     - exchange rates (e.g. advanced alloys)
         this.queue.push(
             addParameterRequirementAdjustments(
-                card.parameterRequirementAdjustments,
-                card.temporaryParameterRequirementAdjustments,
+                card.parameterRequirementAdjustments ?? {},
+                card.temporaryParameterRequirementAdjustments ?? {},
                 playerIndex
             )
         );
@@ -273,7 +273,7 @@ export class ApiActionHandler {
         //     - gaining/losing/stealing resources & production
         //     - tile pacements
         //     - discarding/drawing cards
-        for (const step of card.steps) {
+        for (const step of card.steps ?? []) {
             this.playAction({state: this.state, action: step, parent: card, supplementalResources});
         }
         const playActionParams = {
@@ -1767,7 +1767,7 @@ export function getActionsFromEffectForPlayer(
 ) {
     const list: ActionCardPair[] = [];
     for (const card of getPlayedCards(player).concat(additionalCards)) {
-        for (const effect of card.effects) {
+        for (const effect of card.effects ?? []) {
             if (effect.trigger && effect.action) {
                 const actions = getActionsFromEffect(
                     event,

@@ -452,7 +452,7 @@ export class ActionGuard {
     canSatisfyTilePlacements(card: Card) {
         const player = this._getPlayerToConsider();
 
-        for (const tilePlacement of card.tilePlacements) {
+        for (const tilePlacement of card.tilePlacements ?? []) {
             const validPlacements = getValidPlacementsForRequirement(
                 this.state,
                 tilePlacement,
@@ -497,7 +497,7 @@ export class ActionGuard {
             .filter(cell => cell.tile)
             .map(cell => cell.tile);
 
-        for (const placement of card.requiredTilePlacements) {
+        for (const placement of card.requiredTilePlacements ?? []) {
             const match = tiles.find(tile => {
                 if (!tile) return false;
 
