@@ -106,11 +106,21 @@ export function getInitialState(players: string[], options: GameOptions, name: s
         let possibleCorporations = sample(allCorporations, 2).concat(DEV_corporationOverrides());
 
         if (options.soloCorporationName && players.length === 1) {
-            const matchingCorporation = allCorporations.find(
-                corp => corp.name.toLowerCase() === options.soloCorporationName?.toLowerCase()
-            );
-            if (matchingCorporation) {
-                possibleCorporations = [matchingCorporation];
+            const corporationsToFind = options.soloCorporationName
+                .split(',')
+                .map(corp => corp.trim());
+            let matchingCorporations: Array<{name: string}> = [];
+            for (const corporation of corporationsToFind) {
+                const matchingCorporation = allCorporations.find(
+                    corp => corp.name.toLowerCase() === corporation.toLowerCase()
+                );
+                if (matchingCorporation) {
+                    matchingCorporations.push(matchingCorporation);
+                }
+            }
+
+            if (matchingCorporations.length > 0) {
+                possibleCorporations = matchingCorporations;
             }
         }
 
