@@ -103,7 +103,16 @@ export function getInitialState(players: string[], options: GameOptions, name: s
     shuffle(players);
 
     for (const player of players) {
-        const possibleCorporations = sample(allCorporations, 2).concat(DEV_corporationOverrides());
+        let possibleCorporations = sample(allCorporations, 2).concat(DEV_corporationOverrides());
+
+        if (options.soloCorporationName && players.length === 1) {
+            const matchingCorporation = allCorporations.find(
+                corp => corp.name.toLowerCase() === options.soloCorporationName?.toLowerCase()
+            );
+            if (matchingCorporation) {
+                possibleCorporations = [matchingCorporation];
+            }
+        }
 
         base.players.push({
             // 0 for card selection, 1 / 2 for active round

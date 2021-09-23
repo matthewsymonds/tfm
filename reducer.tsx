@@ -147,6 +147,7 @@ function handleEnterActiveRound(state: GameState) {
 export type GameOptions = {
     isDraftingEnabled: boolean;
     decks: Deck[];
+    soloCorporationName?: string;
 };
 
 export type PendingChoice = {

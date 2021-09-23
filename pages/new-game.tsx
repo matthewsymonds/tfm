@@ -18,7 +18,8 @@ const ErrorText = styled.div`
 export default function NewGame(props) {
     const {session} = props;
     const [gameName, updateGameName] = useInput('');
-    const [numPlayers, updateNumPlayers] = useInput(2);
+    const [soloCorporationName, updateSoloCorporationName] = useInput('');
+    const [numPlayers, updateNumPlayers] = useInput<number>(2);
     const [isDraftingEnabled, setIsDraftingEnabled] = useState(true);
     const [isCorporateEraEnabled, setIsCorporateEraEnabled] = useState(true);
     const [isVenusNextEnabled, setIsVenusNextEnabled] = useState(true);
@@ -84,6 +85,7 @@ export default function NewGame(props) {
             options: {
                 isDraftingEnabled,
                 decks,
+                soloCorporationName,
             },
         });
         if (result.error) {
@@ -94,7 +96,15 @@ export default function NewGame(props) {
     }
 
     return (
-        <div>
+        <div
+            style={{
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                background: 'lightgray',
+                padding: '24px',
+                borderRadius: '8px',
+            }}
+        >
             <h1>New Game</h1>
 
             <form onSubmit={handleSubmit}>
@@ -116,6 +126,15 @@ export default function NewGame(props) {
                     onChange={updateNumPlayers}
                 />
                 {usernameInputs}
+                {numPlayers == 1 ? (
+                    <Input
+                        autoFocus
+                        type="text"
+                        name="Corporation? (Optional)"
+                        value={soloCorporationName}
+                        onChange={updateSoloCorporationName}
+                    />
+                ) : null}
                 <Flex flexDirection="column" margin="16px 0">
                     <h3>Options</h3>
                     <label style={{marginLeft: 4}}>
