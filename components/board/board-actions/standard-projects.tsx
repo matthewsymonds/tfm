@@ -27,9 +27,10 @@ import {
     StandardProjectType,
 } from 'constants/standard-project';
 import {VariableAmount} from 'constants/variable-amount';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React from 'react';
+import React, {useContext} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
@@ -40,6 +41,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
     const actionGuard = useActionGuard();
     const canPlay = standardProjectAction =>
         actionGuard.canPlayStandardProject(standardProjectAction)[0];
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
@@ -69,21 +71,15 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                 actions={actions}
                 emphasizeOnHover={canPlay}
                 isVertical={false}
-                setBoundaries={false}
                 style={{
                     display: 'flex',
                     flexDirection: 'row',
                     flexWrap: 'wrap',
                     justifyContent: 'flex-end',
                 }}
+                popoverPlacement="top-center"
                 ActionComponent={({action}) => <StandardProject action={action} />}
-                ActionPopoverComponent={({
-                    action,
-                    closePopover,
-                }: {
-                    action: StandardProjectAction;
-                    closePopover: () => void;
-                }) => (
+                ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
                     <StandardProjectTooltip
                         action={action}
                         loggedInPlayer={loggedInPlayer}
@@ -91,7 +87,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                             action: StandardProjectAction,
                             payment: PropertyCounter<Resource>
                         ) => {
-                            closePopover();
+                            setPopoverConfig(null);
                             playStandardProjectAction(action, payment);
                         }}
                     />

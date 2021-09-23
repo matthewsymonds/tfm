@@ -10,10 +10,11 @@ import {colors} from 'components/ui';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React from 'react';
+import React, {useContext} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {awardToQuantity} from 'selectors/score';
@@ -43,6 +44,8 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
     const windowWidth = useWindowWidth();
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+
     const awardConfigsByAward = useTypedSelector(
         state =>
             Object.values(Award).reduce((acc, award) => {
@@ -107,11 +110,11 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
                         isFunded={isFunded(action)}
                     />
                 )}
-                ActionPopoverComponent={({action, closePopover}) => (
+                ActionPopoverComponent={({action}) => (
                     <AwardPopover
                         award={action}
                         fundAward={(award, payment) => {
-                            closePopover();
+                            setPopoverConfig(null);
                             fundAward(award, payment);
                         }}
                         loggedInPlayer={loggedInPlayer}

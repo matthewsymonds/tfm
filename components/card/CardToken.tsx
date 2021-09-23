@@ -6,9 +6,11 @@ import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {useHover} from 'react-laag';
 import {useRect} from 'react-use-rect';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
@@ -113,7 +115,7 @@ export const CardToggleToken = ({
     absoluteOffset,
     disabled,
 }: CardToggleTokenProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const [isShowingCard, setIsShowingCard] = useState(false);
     const id = useComponentId();
     const color = getColorForCardType(card.type);
     const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
@@ -134,18 +136,11 @@ export const CardToggleToken = ({
                 color={color}
                 isSelected={isSelected}
                 margin={margin}
-                {...(showCardOnHover
-                    ? {
-                          onMouseEnter: () => setIsHovering(true),
-                          onMouseLeave: () => {
-                              setIsHovering(false);
-                          },
-                      }
-                    : {})}
+                onClick={() => setIsShowingCard(!isShowingCard)}
             >
                 {card.name}
             </CardToggleTokenLabel>
-            {isHovering && showCardOnHover && (
+            {showCardOnHover && isShowingCard && (
                 <div
                     style={{
                         position: 'absolute',
@@ -186,15 +181,28 @@ function useCardPositionOnHover(absoluteOffset) {
 export const CardTextToken = ({
     card,
     margin,
-    showCardOnHover,
     style,
-    absoluteOffset,
     shouldUseFullWidth,
+    showCardOnHover = true,
 }: CardTextTokenProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
     const color = getColorForCardType(card.type);
+    const ref = useRef<HTMLDivElement>(null);
+    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
-    const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
+    useEffect(() => {
+        if (!showCardOnHover) {
+            return;
+        }
+        setPopoverConfig(
+            isOver
+                ? {
+                      popover: <LiveCardComponent card={card} />,
+                      triggerRef: ref,
+                  }
+                : null
+        );
+    }, [isOver]);
 
     return (
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
@@ -208,47 +216,39 @@ export const CardTextToken = ({
                     display: 'block',
                 }}
                 className="truncate"
-                {...(showCardOnHover
-                    ? {
-                          onMouseEnter: () => setIsHovering(true),
-                          onMouseLeave: () => {
-                              setIsHovering(false);
-                          },
-                      }
-                    : {})}
+                {...hoverProps}
             >
                 {card.name === '' ? 'Event' : card.name}
             </CardTextTokenBase>
-            {isHovering && showCardOnHover && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        zIndex: 10,
-                        left,
-                        top,
-                    }}
-                >
-                    <LiveCardComponent card={card} />
-                </div>
-            )}
         </Flex>
     );
 };
 
 export const MiniatureCard = ({
     card,
-    showCardOnHover,
     cardOwner,
     cardContext,
     shouldUseFullWidth,
 }: MiniatureCardProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
     const color = getColorForCardType(card.type);
     const currentGeneration = useTypedSelector(state => state.common.generation);
+    const ref = useRef<HTMLDivElement>(null);
+    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
-    const {ref, top, left} = useCardPositionOnHover(0);
+    useEffect(() => {
+        setPopoverConfig(
+            isOver
+                ? {
+                      popover: <LiveCardComponent card={card} />,
+                      triggerRef: ref,
+                  }
+                : null
+        );
+    }, [isOver]);
 
     const hasBeenUsedThisRound = card.lastRoundUsedAction === currentGeneration;
+
     return (
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
             <Flex flexDirection="column" width={shouldUseFullWidth ? '100%' : undefined}>
@@ -260,14 +260,7 @@ export const MiniatureCard = ({
                         borderBottomRightRadius: 0,
                     }}
                     margin="0px"
-                    {...(showCardOnHover
-                        ? {
-                              onMouseEnter: () => setIsHovering(true),
-                              onMouseLeave: () => {
-                                  setIsHovering(false);
-                              },
-                          }
-                        : {})}
+                    {...hoverProps}
                 >
                     {hasBeenUsedThisRound && (
                         <PlayerIcon
@@ -309,18 +302,6 @@ export const MiniatureCard = ({
                     )}
                 </Box>
             </Flex>
-            {isHovering && showCardOnHover && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        zIndex: 10,
-                        left,
-                        top,
-                    }}
-                >
-                    <LiveCardComponent card={card} />
-                </div>
-            )}
         </Flex>
     );
 };

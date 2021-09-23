@@ -1,6 +1,8 @@
 import {colors} from 'components/ui';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {PlacementType} from 'react-laag/dist/PlacementType';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 
@@ -27,6 +29,16 @@ const ScrollingOuterWrapper = styled.div`
     }
 `;
 
+type ActionListWithPopoversProps<T> = {
+    actions: Array<T>;
+    ActionComponent: React.FunctionComponent<{action: T}>;
+    ActionPopoverComponent: React.FunctionComponent<{action: T}>;
+    style?: React.CSSProperties;
+    emphasizeOnHover: (t: T) => boolean;
+    isVertical: boolean;
+    popoverPlacement?: PlacementType;
+};
+
 export default function ActionListWithPopovers<T>({
     actions,
     ActionComponent,
@@ -34,35 +46,8 @@ export default function ActionListWithPopovers<T>({
     style,
     emphasizeOnHover,
     isVertical,
-    setBoundaries = true,
-}: {
-    actions: Array<T>;
-    ActionComponent: React.FunctionComponent<{
-        action: T;
-    }>;
-    ActionPopoverComponent: React.FunctionComponent<{
-        action: T;
-        closePopover: () => void;
-    }>;
-    style?: React.CSSProperties;
-    emphasizeOnHover: (t: T) => boolean;
-    isVertical: boolean;
-    setBoundaries?: boolean;
-}) {
-    const [pinnedAction, setPinnedAction] = useState<T | null>(null);
-
-    // TODO: hoist this to a context so we can be globally aware of what popovers are
-    // open or not.
-    useEffect(() => {
-        const globalHandlerToClearPinnedPopover = e => {
-            setPinnedAction(null);
-        };
-        window.addEventListener('click', globalHandlerToClearPinnedPopover);
-        return () => {
-            window.removeEventListener('click', globalHandlerToClearPinnedPopover);
-        };
-    }, []);
-
+    popoverPlacement,
+}: ActionListWithPopoversProps<T>) {
     return (
         <ScrollingOuterWrapper>
             <OuterWrapper style={style}>
@@ -73,12 +58,9 @@ export default function ActionListWithPopovers<T>({
                             action={action}
                             emphasizeOnHover={emphasizeOnHover(action)}
                             isVertical={isVertical}
-                            isPinned={pinnedAction === action}
-                            setPinnedAction={setPinnedAction}
                             ActionComponent={ActionComponent}
                             ActionPopoverComponent={ActionPopoverComponent}
-                            isFirst={!isVertical && setBoundaries && index === 0}
-                            isLast={!isVertical && setBoundaries && index === actions.length - 1}
+                            popoverPlacement={popoverPlacement}
                         />
                     );
                 })}
@@ -87,49 +69,25 @@ export default function ActionListWithPopovers<T>({
     );
 }
 
+type ActionWithPopoverProps<T> = {
+    action: T;
+    ActionComponent: React.FunctionComponent<{action: T}>;
+    ActionPopoverComponent: React.FunctionComponent<{action: T}>;
+    emphasizeOnHover: boolean;
+    isVertical: boolean;
+    popoverPlacement?: PlacementType;
+};
+
 function ActionWithPopover<T>({
     action,
     ActionComponent,
     ActionPopoverComponent,
     emphasizeOnHover,
     isVertical,
-    isPinned,
-    setPinnedAction,
-    isFirst,
-    isLast,
-}: {
-    action: T;
-    ActionComponent: React.FunctionComponent<{
-        action: T;
-    }>;
-    ActionPopoverComponent: React.FunctionComponent<{
-        action: T;
-        closePopover: () => void;
-    }>;
-    emphasizeOnHover: boolean;
-    isVertical: boolean;
-    isPinned: boolean;
-    setPinnedAction: (action: T | null) => void;
-    isFirst: boolean;
-    isLast: boolean;
-}) {
-    const [isHovering, setIsHovering] = useState(false);
-    const popoverId = useComponentId();
-
-    function _setIsHoveringToTrue() {
-        if (!isHovering) {
-            setIsHovering(true);
-        }
-        if (!isPinned) {
-            setPinnedAction(null);
-        }
-    }
-
-    const translateX = isVertical ? -100 : isFirst ? 0 : isLast ? -100 : -50;
-    const translateY = !isVertical ? -100 : isFirst ? 0 : isLast ? -100 : -50;
-
-    const left = isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
-    const top = !isVertical ? 0 : isFirst ? 0 : isLast ? 100 : 50;
+    popoverPlacement,
+}: ActionWithPopoverProps<T>) {
+    const {setPopoverConfig, popoverConfig} = useContext(GlobalPopoverContext);
+    const ref = useRef<HTMLDivElement>(null);
 
     return (
         <Box
@@ -138,47 +96,27 @@ function ActionWithPopover<T>({
         >
             <Flex
                 alignItems="center"
+                ref={ref}
                 justifyContent="flex-end"
-                onMouseEnter={_setIsHoveringToTrue}
-                onMouseMove={_setIsHoveringToTrue}
-                onMouseLeave={(e: React.MouseEvent) => {
-                    if ((e?.relatedTarget as Element)?.parentElement?.id !== popoverId) {
-                        setIsHovering(false);
-                    }
-                }}
-                onClick={e => {
-                    setPinnedAction(action);
-                    e.stopPropagation();
+                onMouseEnter={() => {
+                    setPopoverConfig({
+                        popover: <ActionPopoverComponent action={action} />,
+                        triggerRef: ref,
+                        popoverOpts: {
+                            placement: popoverPlacement,
+                        },
+                    });
                 }}
             >
                 <StylizedActionWrapper
                     id={`${action}`}
                     emphasizeOnHover={emphasizeOnHover}
-                    isHovering={isHovering || isPinned}
+                    isHovering={
+                        popoverConfig?.triggerRef !== null && popoverConfig?.triggerRef === ref
+                    }
                 >
                     <ActionComponent action={action} />
                 </StylizedActionWrapper>
-                {(isHovering || isPinned) && (
-                    <div
-                        id={popoverId}
-                        onMouseLeave={() => setIsHovering(false)}
-                        style={{
-                            position: 'absolute',
-                            zIndex: 10,
-                            left: `${left}%`,
-                            top: `${top}%`,
-                            transform: `translate(${translateX}%, ${translateY}%)`,
-                        }}
-                    >
-                        <ActionPopoverComponent
-                            action={action}
-                            closePopover={() => {
-                                setIsHovering(false);
-                                setPinnedAction(null);
-                            }}
-                        />
-                    </div>
-                )}
             </Flex>
         </Box>
     );

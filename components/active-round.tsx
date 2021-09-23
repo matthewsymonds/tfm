@@ -17,6 +17,12 @@ import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
+import {
+    GlobalPopoverContext,
+    GlobalPopoverManager,
+    PopoverConfig,
+    useGlobalPopover,
+} from 'context/global-popover-context';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
@@ -138,10 +144,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const loggedInPlayer = useLoggedInPlayer();
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const firstPlayerIndex = useTypedSelector(state => state.common.firstPlayerIndex);
-
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
+    const [popoverConfig, setPopoverConfig] = useState<PopoverConfig | null>(null);
 
     /**
      * Derived state
@@ -366,7 +372,13 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         isPlayerMakingDecision && !hideOverlay && isActionOverlayVisible;
 
     return (
-        <React.Fragment>
+        <GlobalPopoverContext.Provider
+            value={{
+                setPopoverConfig,
+                popoverConfig,
+            }}
+        >
+            <GlobalPopoverManager />
             <LogToast />
             <Flex flexDirection="column" alignItems="center" flex="auto" bottom="0px">
                 <TopBar ref={topBarRef} />
@@ -478,6 +490,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 </Box>
             </Flex>
             <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />
-        </React.Fragment>
+        </GlobalPopoverContext.Provider>
     );
 };

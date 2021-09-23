@@ -11,10 +11,11 @@ import {colors} from 'components/ui';
 import {Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React from 'react';
+import React, {useContext} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
@@ -34,6 +35,7 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
     const windowWidth = useWindowWidth();
     const canPlay = milestone => actionGuard.canClaimMilestone(milestone)[0];
     const isClaimed = milestone => actionGuard.isMilestoneClaimed(milestone);
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
     const claimedMilestones = useTypedSelector(state =>
         state.common.claimedMilestones.map(cm => ({
             ...cm,
@@ -67,12 +69,12 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
                         isClaimed={isClaimed(action)}
                     />
                 )}
-                ActionPopoverComponent={({action, closePopover}) => (
+                ActionPopoverComponent={({action}) => (
                     <MilestonePopover
                         milestone={action}
                         isClaimed={isClaimed(action)}
                         claimMilestone={(milestone, payment) => {
-                            closePopover();
+                            setPopoverConfig(null);
                             claimMilestone(milestone, payment);
                         }}
                         claimedByPlayer={
