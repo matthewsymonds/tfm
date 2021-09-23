@@ -193,7 +193,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                 <Flex flexWrap="wrap" marginBottom="8px" marginTop="8px">
                                     {pendingCardSelection.draftPicks.map(draftedCard => (
                                         <CardTextToken
-                                            showCardOnHover={true}
+                                            showCardOnClick={true}
                                             card={getCard(draftedCard)}
                                             key={draftedCard.name}
                                             margin="0 8px 8px 0"

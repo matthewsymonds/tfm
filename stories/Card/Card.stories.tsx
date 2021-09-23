@@ -79,7 +79,7 @@ const MiniCardTemplate: Story<{}> = args => {
                                     <MiniatureCard
                                         key={card.name}
                                         card={card}
-                                        showCardOnHover={true}
+                                        showCardOnClick={true}
                                         cardOwner={loggedInPlayer}
                                         cardContext={CardContext.PLAYED_CARD}
                                         shouldUseFullWidth={true}

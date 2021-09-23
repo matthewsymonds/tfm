@@ -76,7 +76,7 @@ function PlayerPlayedCards({
                             <MiniatureCard
                                 key={card.name}
                                 card={card}
-                                showCardOnHover={true}
+                                showCardOnClick={true}
                                 cardOwner={player}
                                 cardContext={CardContext.PLAYED_CARD}
                                 shouldUseFullWidth={true}
@@ -93,7 +93,7 @@ function PlayerPlayedCards({
                                         ? card.name
                                         : player.username + '-event-' + eventIndex++
                                 }
-                                showCardOnHover={!!card.name}
+                                showCardOnClick={!!card.name}
                                 shouldUseFullWidth={true}
                             />
                         );

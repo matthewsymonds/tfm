@@ -6,9 +6,10 @@ import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
+import {GlobalPopoverContext} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
-import React, {useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {useRect} from 'react-use-rect';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
@@ -17,7 +18,7 @@ import spawnExhaustiveSwitchError from 'utils';
 type SharedCardTokenProps = {
     card: CardModel;
     margin?: string;
-    showCardOnHover?: boolean;
+    showCardOnClick?: boolean;
     absoluteOffset?: number;
 };
 type CardToggleTokenProps = SharedCardTokenProps & {
@@ -109,11 +110,11 @@ export const CardToggleToken = ({
     onClick,
     isSelected,
     margin,
-    showCardOnHover,
+    showCardOnClick,
     absoluteOffset,
     disabled,
 }: CardToggleTokenProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const [isShowingCard, setIsShowingCard] = useState(false);
     const id = useComponentId();
     const color = getColorForCardType(card.type);
     const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
@@ -134,18 +135,11 @@ export const CardToggleToken = ({
                 color={color}
                 isSelected={isSelected}
                 margin={margin}
-                {...(showCardOnHover
-                    ? {
-                          onMouseEnter: () => setIsHovering(true),
-                          onMouseLeave: () => {
-                              setIsHovering(false);
-                          },
-                      }
-                    : {})}
+                onClick={() => setIsShowingCard(!isShowingCard)}
             >
                 {card.name}
             </CardToggleTokenLabel>
-            {isHovering && showCardOnHover && (
+            {showCardOnClick && isShowingCard && (
                 <div
                     style={{
                         position: 'absolute',
@@ -186,12 +180,12 @@ function useCardPositionOnHover(absoluteOffset) {
 export const CardTextToken = ({
     card,
     margin,
-    showCardOnHover,
+    showCardOnClick,
     style,
     absoluteOffset,
     shouldUseFullWidth,
 }: CardTextTokenProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const [isShowingCard, setIsShowingCard] = useState(false);
     const color = getColorForCardType(card.type);
 
     const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
@@ -208,18 +202,11 @@ export const CardTextToken = ({
                     display: 'block',
                 }}
                 className="truncate"
-                {...(showCardOnHover
-                    ? {
-                          onMouseEnter: () => setIsHovering(true),
-                          onMouseLeave: () => {
-                              setIsHovering(false);
-                          },
-                      }
-                    : {})}
+                onClick={() => setIsShowingCard(!isShowingCard)}
             >
                 {card.name === '' ? 'Event' : card.name}
             </CardTextTokenBase>
-            {isHovering && showCardOnHover && (
+            {showCardOnClick && isShowingCard && (
                 <div
                     style={{
                         position: 'absolute',
@@ -237,16 +224,14 @@ export const CardTextToken = ({
 
 export const MiniatureCard = ({
     card,
-    showCardOnHover,
     cardOwner,
     cardContext,
     shouldUseFullWidth,
 }: MiniatureCardProps) => {
-    const [isHovering, setIsHovering] = useState(false);
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
     const color = getColorForCardType(card.type);
     const currentGeneration = useTypedSelector(state => state.common.generation);
-
-    const {ref, top, left} = useCardPositionOnHover(0);
+    const ref = useRef<HTMLElement>(null);
 
     const hasBeenUsedThisRound = card.lastRoundUsedAction === currentGeneration;
     return (
@@ -260,14 +245,12 @@ export const MiniatureCard = ({
                         borderBottomRightRadius: 0,
                     }}
                     margin="0px"
-                    {...(showCardOnHover
-                        ? {
-                              onMouseEnter: () => setIsHovering(true),
-                              onMouseLeave: () => {
-                                  setIsHovering(false);
-                              },
-                          }
-                        : {})}
+                    onMouseDown={() => {
+                        setPopoverConfig({
+                            popover: <LiveCardComponent card={card} />,
+                            rootRef: ref,
+                        });
+                    }}
                 >
                     {hasBeenUsedThisRound && (
                         <PlayerIcon
@@ -309,18 +292,6 @@ export const MiniatureCard = ({
                     )}
                 </Box>
             </Flex>
-            {isHovering && showCardOnHover && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        zIndex: 10,
-                        left,
-                        top,
-                    }}
-                >
-                    <LiveCardComponent card={card} />
-                </div>
-            )}
         </Flex>
     );
 };
