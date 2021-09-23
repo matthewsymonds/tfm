@@ -9,9 +9,14 @@ import {cards} from './models/card';
 import {GameOptions, GameState, PlayerState} from './reducer';
 
 export function shuffle<T>(array: T[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    let n = array.length;
+    let i: number;
+    let temp: T;
+    while (n) {
+        i = Math.floor(Math.random() * n--);
+        temp = array[n];
+        array[n] = array[i];
+        array[i] = temp;
     }
 
     return array;

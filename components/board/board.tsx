@@ -1,17 +1,14 @@
 import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
-import AwardsList from 'components/board/board-actions/awards';
-import MilestonesList from 'components/board/board-actions/milestones';
 import StandardProjectList from 'components/board/board-actions/standard-projects';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
-import GlobalParams from 'components/global-params';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, SpecialLocation} from 'constants/board';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React, {useState} from 'react';
+import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import styled from 'styled-components';
@@ -21,7 +18,7 @@ import OffMarsCities, {OffMarsCity} from './off-mars-cities';
 const CircleOuter = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: 582px;
+    max-width: 664px;
 `;
 
 const Circle = styled.div`
@@ -60,28 +57,12 @@ const BoardOuter = styled.div`
         margin-left: auto;
         margin-right: auto;
         flex-direction: column;
-        & > * {
-            :nth-child(1) {
-                order: 3;
-            }
-            :nth-child(2) {
-                order: 1;
-            }
-            :nth-child(3) {
-                order: 2;
-            }
-            :nth-child(4) {
-                order: 4;
-            }
-        }
     }
 `;
 
-const MilestonesAwardsBoardSwitcherWrapper = styled.div`
+export const MilestonesAwardsBoardSwitcherWrapper = styled.div`
     flex-direction: column;
     align-items: flex-end;
-    align-self: flex-start;
-    margin-top: 24px;
     display: flex;
     @media (max-width: 895px) {
         margin-top: 0px;
@@ -92,7 +73,7 @@ const MilestonesAwardsBoardSwitcherWrapper = styled.div`
     }
 `;
 
-const AwardsAndMilestones = styled.div`
+export const AwardsAndMilestones = styled.div`
     display: flex;
     flex-direction: column;
     @media (max-width: 895px) {
@@ -108,7 +89,7 @@ const BoardMid = styled.div`
     flex-grow: 1;
     flex-direction: column;
     align-items: center;
-    max-width: 582px;
+    max-width: 664px;
     @media (max-width: 895px) {
         margin-left: auto;
         margin-right: auto;
@@ -116,17 +97,19 @@ const BoardMid = styled.div`
     }
 `;
 
-export const Board = () => {
+export const Board = ({
+    displayBoard,
+    setDisplayBoard,
+}: {
+    displayBoard: DisplayBoard;
+    setDisplayBoard: (board: DisplayBoard) => void;
+}) => {
     const loggedInPlayer = useLoggedInPlayer();
-    const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
-
-    const parameters = useTypedSelector(state => state.common.parameters);
     const windowWidth = useWindowWidth();
 
     return (
-        <Box>
+        <Box className="board">
             <BoardOuter>
-                <GlobalParams parameters={parameters} />
                 {windowWidth <= 895 && (
                     <Flex width="100%" justifyContent="center">
                         <BoardSwitcher
@@ -135,25 +118,12 @@ export const Board = () => {
                         />
                     </Flex>
                 )}
+
                 <BoardMid>
                     <BoardInner displayBoard={displayBoard} />
-                    {windowWidth <= 895 && <StandardProjectList loggedInPlayer={loggedInPlayer} />}
+                    <StandardProjectList loggedInPlayer={loggedInPlayer} />
                 </BoardMid>
-
-                <MilestonesAwardsBoardSwitcherWrapper>
-                    {windowWidth > 895 && (
-                        <BoardSwitcher
-                            setDisplayBoard={setDisplayBoard}
-                            selectedBoard={displayBoard}
-                        />
-                    )}
-                    <AwardsAndMilestones>
-                        <MilestonesList loggedInPlayer={loggedInPlayer} />
-                        <AwardsList loggedInPlayer={loggedInPlayer} />
-                    </AwardsAndMilestones>
-                </MilestonesAwardsBoardSwitcherWrapper>
             </BoardOuter>
-            {windowWidth > 895 && <StandardProjectList loggedInPlayer={loggedInPlayer} />}
         </Box>
     );
 };

@@ -8,6 +8,7 @@ const OuterWrapper = styled.div`
     display: flex;
     height: 100%;
     flex-direction: column;
+    width: 100%;
     align-items: stretch;
     margin: 0px;
     @media (max-width: 895px) {

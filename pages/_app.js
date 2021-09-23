@@ -82,33 +82,48 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
-        min-width: min(450px, 100%);
         max-width: 895px;
-        padding-bottom: 100px;
-        width: 100%;
-        box-sizing: border-box;
-        padding-right: 0px;
-        margin-right: 0px;
-        max-width: 100%;
-        flex-direction: column-reverse;
-        justify-content: flex-end;
+        display: grid;
         align-items: center;
-    }
-    .player-details {
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-        flex-shrink: 0;
-        .player-boards-outer {
-            width: 100%;
+        min-width: min(450px, 100%);
+        grid-template-columns: 2fr 11fr 2fr;
+        grid-template-areas:
+          "global-params board milestones-awards-board-switcher-wrapper"
+          "player-boards-outer player-boards-outer player-boards-outer"
+          "empty-space-left player-cards-and-tags-outer empty-space-right";
+        @media (max-width: 895px) {
+            grid-template-areas:
+              "board board board"
+              "global-params global-params global-params"
+              "milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper"
+              "player-boards-outer player-boards-outer player-boards-outer"
+              "player-cards-and-tags-outer player-cards-and-tags-outer player-cards-and-tags-outer";
         }
+        padding-bottom: 100px;
+        box-sizing: border-box;
+    }
+    .global-params {
+        grid-area: global-params;
+    }
+    .board {
+        grid-area: board;
+    }
+    .milestones-awards-board-switcher-wrapper {
+        grid-area: milestones-awards-board-switcher-wrapper;
+    }
+    .player-boards-outer {
+        width: 100%;
+        grid-area: player-boards-outer;
+
     }
     .player-cards-and-tags-outer {
         width: 100%;
         box-sizing: border-box;
-        padding-left: 8px;
-        padding-right: 8px;
-        max-width: 809px;
+        @media (max-width: 895px) {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        grid-area: player-cards-and-tags-outer;
     }
     .player-cards-and-tags {
         align-self: flex-start;

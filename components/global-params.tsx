@@ -114,12 +114,13 @@ type GlobalParamsProps = {
 const GlobalParamWrapper = styled.div`
     flex-direction: column;
     margin-right: 8px;
-    margin-top: 24px;
     @media (max-width: 895px) {
         flex-direction: row;
-        width: 100%;
         margin-right: 0;
         margin-top: 0;
+        padding-left: 8px;
+        padding-right: 8px;
+        width: calc(100% - 16px);
     }
 `;
 
@@ -142,7 +143,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
 
     const venus = useTypedSelector(isPlayingVenus);
     return (
-        <GlobalParamWrapper>
+        <GlobalParamWrapper className="global-params">
             <Flex className="textLight1" fontSize="12px" marginBottom="1px">
                 {roundText}
             </Flex>

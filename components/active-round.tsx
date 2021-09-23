@@ -1,7 +1,11 @@
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
-import {Board} from 'components/board/board';
+import {
+    AwardsAndMilestones,
+    Board,
+    MilestonesAwardsBoardSwitcherWrapper,
+} from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerIcon} from 'components/icons/player';
 import {PlayerHand} from 'components/player-hand';
@@ -15,6 +19,7 @@ import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {useWindowWidth} from 'hooks/use-window-width';
 import Link from 'next/link';
 import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
@@ -33,8 +38,12 @@ import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
+import {BoardSwitcher, DisplayBoard} from './board-switcher';
+import AwardsList from './board/board-actions/awards';
+import MilestonesList from './board/board-actions/milestones';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
+import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
 
 const PromptTitle = styled.h3`
@@ -205,6 +214,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const topBarRef = React.useRef<HTMLDivElement>(null);
     const logLength = useTypedSelector(state => state.logLength);
     const [topBarHeight, setTopBarHeight] = useState(48);
+    const parameters = useTypedSelector(state => state.common.parameters);
+    const windowWidth = useWindowWidth();
+    const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
 
     useLayoutEffect(() => {
         if (topBarRef.current) {
@@ -378,91 +390,92 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         </Link>
                     </Box>
                 ) : null}
-                <Flex
-                    paddingTop="8px"
-                    className="active-round-outer"
-                    flex="auto"
-                    alignItems="stretch"
-                >
-                    <Flex
-                        className="player-details"
-                        display={shouldHidePlayerDetails ? 'none' : 'flex'}
-                        width="100%"
-                        marginBottom="8px"
+                <Box paddingTop="8px" className="active-round-outer" flex="auto">
+                    <div className="empty-space-left" />
+                    <div className="empty-space-right" />
+                    <Box
+                        className="player-boards-outer"
+                        overflowX="auto"
+                        flexShrink="0"
                         paddingTop="4px"
-                        overflowX="hidden"
                     >
-                        <Box className="player-boards-outer" overflowX="auto" flexShrink="0">
-                            <Flex className="player-boards" width="fit-content">
-                                {players.map((player, index) => (
-                                    <CorporationHeaderOuter
-                                        selected={index === selectedPlayerIndex}
-                                        className="display"
-                                        key={index}
-                                        onClick={() => setSelectedPlayerIndex(index)}
-                                    >
-                                        {index === firstPlayerIndex && (
-                                            <FirstPlayerToken>1</FirstPlayerToken>
-                                        )}
-                                        <CorporationHeader>
-                                            <Flex alignItems="center">
-                                                <PlayerIcon size={16} playerIndex={player.index} />
-                                                <span
-                                                    style={{
-                                                        marginLeft: 8,
-                                                        fontSize: getFontSizeForCorporation(
-                                                            player.corporation.name ||
-                                                                player.username
-                                                        ),
-                                                    }}
-                                                    title={`${player.corporation.name ?? ''} (${
-                                                        player.username
-                                                    })`}
-                                                >
-                                                    {player.corporation.name || player.username}
-                                                </span>
-                                            </Flex>
-                                            <ScorePopover playerIndex={player.index}>
-                                                <TerraformRating>
-                                                    {player.terraformRating} TR
-                                                </TerraformRating>
-                                            </ScorePopover>
-                                        </CorporationHeader>
-                                        {!isCorporationSelection && (
-                                            <PlayerResourceBoard
-                                                player={player}
-                                                isLoggedInPlayer={
-                                                    player.index === loggedInPlayer.index
-                                                }
-                                            />
-                                        )}
-                                    </CorporationHeaderOuter>
-                                ))}
-                            </Flex>
-                        </Box>
-                        <Box className="player-cards-and-tags-outer">
-                            <Flex
-                                flexGrow="1"
-                                flexWrap="wrap"
-                                background={colors.DARK_3}
-                                border={`1px solid ${colors.PANEL_BORDER}`}
-                                borderRadius="4px"
-                                justifyContent="center"
-                                boxSizing="border-box"
-                                overflowY="auto"
-                                width="100%"
-                                className="player-cards-and-tags"
-                            >
-                                <Flex margin="2px" flexGrow="1">
-                                    <PlayerPanel player={players[selectedPlayerIndex]} />
-                                </Flex>
-                            </Flex>
-                        </Box>
-                    </Flex>
-                    <Box className="board-wrapper">
-                        <Board />
+                        <Flex className="player-boards" width="fit-content">
+                            {players.map((player, index) => (
+                                <CorporationHeaderOuter
+                                    selected={index === selectedPlayerIndex}
+                                    className="display"
+                                    key={index}
+                                    onClick={() => setSelectedPlayerIndex(index)}
+                                >
+                                    {index === firstPlayerIndex && (
+                                        <FirstPlayerToken>1</FirstPlayerToken>
+                                    )}
+                                    <CorporationHeader>
+                                        <Flex alignItems="center">
+                                            <PlayerIcon size={16} playerIndex={player.index} />
+                                            <span
+                                                style={{
+                                                    marginLeft: 8,
+                                                    fontSize: getFontSizeForCorporation(
+                                                        player.corporation.name || player.username
+                                                    ),
+                                                }}
+                                                title={`${player.corporation.name ?? ''} (${
+                                                    player.username
+                                                })`}
+                                            >
+                                                {player.corporation.name || player.username}
+                                            </span>
+                                        </Flex>
+                                        <ScorePopover playerIndex={player.index}>
+                                            <TerraformRating>
+                                                {player.terraformRating} TR
+                                            </TerraformRating>
+                                        </ScorePopover>
+                                    </CorporationHeader>
+                                    {!isCorporationSelection && (
+                                        <PlayerResourceBoard
+                                            player={player}
+                                            isLoggedInPlayer={player.index === loggedInPlayer.index}
+                                        />
+                                    )}
+                                </CorporationHeaderOuter>
+                            ))}
+                        </Flex>
                     </Box>
-                </Flex>
+                    <Box className="player-cards-and-tags-outer" marginBottom="8px">
+                        <Flex
+                            flexGrow="1"
+                            flexWrap="wrap"
+                            background={colors.DARK_3}
+                            border={`1px solid ${colors.PANEL_BORDER}`}
+                            borderRadius="4px"
+                            justifyContent="center"
+                            boxSizing="border-box"
+                            overflowY="auto"
+                            width="100%"
+                            className="player-cards-and-tags"
+                        >
+                            <Flex margin="2px" flexGrow="1">
+                                <PlayerPanel player={players[selectedPlayerIndex]} />
+                            </Flex>
+                        </Flex>
+                    </Box>
+                    <GlobalParams parameters={parameters} />
+                    <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
+                    <MilestonesAwardsBoardSwitcherWrapper className="milestones-awards-board-switcher-wrapper">
+                        {windowWidth > 895 && (
+                            <BoardSwitcher
+                                setDisplayBoard={setDisplayBoard}
+                                selectedBoard={displayBoard}
+                            />
+                        )}
+                        <AwardsAndMilestones>
+                            <MilestonesList loggedInPlayer={loggedInPlayer} />
+                            <AwardsList loggedInPlayer={loggedInPlayer} />
+                        </AwardsAndMilestones>
+                    </MilestonesAwardsBoardSwitcherWrapper>
+                </Box>
             </Flex>
             <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />
         </React.Fragment>
