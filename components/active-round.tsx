@@ -21,7 +21,6 @@ import {
     GlobalPopoverContext,
     GlobalPopoverManager,
     PopoverConfig,
-    useGlobalPopover,
 } from 'context/global-popover-context';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
