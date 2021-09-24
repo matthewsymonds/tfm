@@ -41,7 +41,7 @@ export function GlobalPopoverManager({}: {}) {
     });
 
     return renderLayer(
-        <div {...layerProps} style={{zIndex: 4, ...layerProps.style}}>
+        <div {...layerProps} style={{zIndex: 10, ...layerProps.style}}>
             {popover}
         </div>
     );

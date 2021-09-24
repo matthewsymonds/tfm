@@ -41,11 +41,13 @@ export const PlayerCorpAndIcon = ({
     color,
     includeUsername,
     isInline,
+    style,
 }: {
     player: PlayerState;
     color?: string;
     includeUsername?: boolean;
     isInline?: boolean;
+    style?: React.CSSProperties;
 }) => {
     let text = player.corporation?.name ?? '';
     if (!text) {
@@ -54,7 +56,7 @@ export const PlayerCorpAndIcon = ({
         text = `${text} (${player.username})`;
     }
 
-    const style: React.CSSProperties = isInline
+    const playerIconStyle: React.CSSProperties = isInline
         ? {
               position: 'relative',
               top: 2,
@@ -66,9 +68,10 @@ export const PlayerCorpAndIcon = ({
             display="inline-flex"
             alignItems={isInline ? 'baseline' : 'center'}
             justifyContent="center"
+            style={{...style, fontWeight: style?.fontWeight ?? '700'}}
         >
-            <PlayerIcon playerIndex={player.index} size={12} style={style} />
-            <span style={{marginLeft: 4, fontWeight: 700, color: color ?? 'black'}}>{text}</span>
+            <PlayerIcon playerIndex={player.index} size={12} style={playerIconStyle} />
+            <span style={{marginLeft: 4, color: color ?? 'black'}}>{text}</span>
         </Flex>
     );
 };

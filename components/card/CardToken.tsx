@@ -112,13 +112,28 @@ export const CardToggleToken = ({
     isSelected,
     margin,
     showCardOnHover,
-    absoluteOffset,
     disabled,
 }: CardToggleTokenProps) => {
-    const [isShowingCard, setIsShowingCard] = useState(false);
     const id = useComponentId();
     const color = getColorForCardType(card.type);
-    const {ref, top, left} = useCardPositionOnHover(absoluteOffset);
+    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
+    const ref = useRef<HTMLLabelElement>(null);
+
+    useEffect(() => {
+        if (!showCardOnHover) {
+            return;
+        }
+        setPopoverConfig(
+            isOver
+                ? {
+                      popover: <LiveCardComponent card={card} />,
+                      triggerRef: ref,
+                      popoverOpts: {placement: 'bottom-start', onOutsideClick: () => {}},
+                  }
+                : null
+        );
+    }, [isOver]);
 
     return (
         <React.Fragment>
@@ -136,47 +151,13 @@ export const CardToggleToken = ({
                 color={color}
                 isSelected={isSelected}
                 margin={margin}
-                onClick={() => setIsShowingCard(!isShowingCard)}
+                {...hoverProps}
             >
                 {card.name}
             </CardToggleTokenLabel>
-            {showCardOnHover && isShowingCard && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        zIndex: 10,
-                        left,
-                        top,
-                    }}
-                >
-                    <LiveCardComponent card={card} />
-                </div>
-            )}
         </React.Fragment>
     );
 };
-
-function useCardPositionOnHover(absoluteOffset) {
-    const [ref, rect] = useRect();
-    const showAbove = rect.top > 320;
-    let windowScrollY = 0;
-    if (typeof window !== 'undefined') {
-        windowScrollY = window.scrollY;
-    }
-    const topRelativeToWindow = rect.top + windowScrollY + (absoluteOffset ?? 0);
-    const top = showAbove ? topRelativeToWindow - 310 : topRelativeToWindow + 30;
-    let windowInnerWidth = 0;
-    if (typeof window !== 'undefined') {
-        windowInnerWidth = window.innerWidth;
-    }
-    const left = Math.min(rect.left, windowInnerWidth - 230);
-
-    return {
-        ref,
-        top,
-        left,
-    };
-}
 
 export const CardTextToken = ({
     card,

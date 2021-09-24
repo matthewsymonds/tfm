@@ -54,7 +54,8 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     }, [gameName]);
     const {possiblePreludes, possibleCorporations} = player;
     const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
-    const numPlayers = useTypedSelector(state => state.players.length);
+    const players = useTypedSelector(state => state.players);
+    const numPlayers = players.length;
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
@@ -140,6 +141,22 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         pendingCardSelection.possibleCards.length + (pendingCardSelection.draftPicks?.length ?? 0) >
             4;
 
+    const playersWhoNeedToDraft: Array<PlayerState> = [];
+    if (isWaitingOnOthersToDraft) {
+        players.forEach(_player => {
+            if (_player.index === player.index) {
+                return;
+            }
+            if (
+                (_player.pendingCardSelection?.possibleCards?.length ?? 0) +
+                    (_player.pendingCardSelection?.draftPicks?.length ?? 0) ===
+                4
+            ) {
+                playersWhoNeedToDraft.push(_player);
+            }
+        });
+    }
+
     const passSourcePlayer = useTypedSelector(state => {
         let passSourceIndex = state.common.generation % 2 ? player.index - 1 : player.index + 1;
         passSourceIndex = passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
@@ -152,8 +169,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         player.corporation.name === 'Helion' &&
         player.resources[Resource.HEAT] > 0 &&
         selectedCards.length;
-
-    const showPreviewBelow = isDrafting;
 
     return (
         <Box color={colors.TEXT_LIGHT_1} margin="8px">
@@ -206,9 +221,22 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         )}
                     {isWaitingOnOthersToDraft && (
                         <Flex justifyContent="center" flexDirection="column">
-                            <em style={{margin: '16px 0px'}}>
-                                Waiting on other players to draft...
-                            </em>
+                            <Flex alignItems="center">
+                                <em style={{margin: '16px 0px'}}>Waiting on </em>
+                                {playersWhoNeedToDraft.map((p, index) => (
+                                    <React.Fragment>
+                                        {index > 0 && <span>, </span>}
+                                        <PlayerCorpAndIcon
+                                            player={p}
+                                            color={colors.TEXT_LIGHT_1}
+                                            includeUsername={true}
+                                            isInline={true}
+                                            style={{marginLeft: 6, marginRight: 6, fontWeight: 500}}
+                                        />
+                                    </React.Fragment>
+                                ))}
+                                <em style={{margin: '16px 0px'}}> to draft...</em>
+                            </Flex>
                             {numPlayers > 2 && (
                                 <table>
                                     <tbody>
@@ -220,6 +248,8 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                                 <PlayerCorpAndIcon
                                                     player={passSourcePlayer}
                                                     color={colors.TEXT_LIGHT_1}
+                                                    includeUsername={true}
+                                                    style={{fontWeight: 500}}
                                                 />
                                             </td>
                                         </tr>
@@ -231,6 +261,8 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                                 <PlayerCorpAndIcon
                                                     player={passPlayer}
                                                     color={colors.TEXT_LIGHT_1}
+                                                    style={{fontWeight: 500}}
+                                                    includeUsername={true}
                                                 />
                                             </td>
                                         </tr>
