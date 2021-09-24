@@ -373,7 +373,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     return (
         <GlobalPopoverContext.Provider
             value={{
-                setPopoverConfig,
+                setPopoverConfig: e => {
+                    setPopoverConfig(e);
+                },
                 popoverConfig,
             }}
         >

@@ -129,7 +129,7 @@ export const CardToggleToken = ({
                 ? {
                       popover: <LiveCardComponent card={card} />,
                       triggerRef: ref,
-                      popoverOpts: {placement: 'bottom-start', onOutsideClick: () => {}},
+                      popoverOpts: {placement: 'bottom-start'},
                   }
                 : null
         );
@@ -180,6 +180,15 @@ export const CardTextToken = ({
                 ? {
                       popover: <LiveCardComponent card={card} />,
                       triggerRef: ref,
+                      popoverOpts: {
+                          placement: 'bottom-start',
+                          possiblePlacements: [
+                              'bottom-start',
+                              'bottom-end',
+                              'top-start',
+                              'top-end',
+                          ],
+                      },
                   }
                 : null
         );

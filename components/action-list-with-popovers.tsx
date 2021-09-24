@@ -98,7 +98,16 @@ function ActionWithPopover<T>({
                 alignItems="center"
                 ref={ref}
                 justifyContent="flex-end"
-                onMouseEnter={() => {
+                // onMouseEnter={() => {
+                //     setPopoverConfig({
+                //         popover: <ActionPopoverComponent action={action} />,
+                //         triggerRef: ref,
+                //         popoverOpts: {
+                //             placement: popoverPlacement,
+                //         },
+                //     });
+                // }}
+                onTouchStart={() => {
                     setPopoverConfig({
                         popover: <ActionPopoverComponent action={action} />,
                         triggerRef: ref,
