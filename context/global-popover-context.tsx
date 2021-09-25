@@ -48,9 +48,18 @@ export function GlobalPopoverManager({}: {}) {
 
     useEffect(() => {
         function closePopoverAndDeregisterHandler(e: MouseEvent) {
+            console.log('payment', document.querySelector('.payment-popover'));
             if (
                 e.target instanceof HTMLElement &&
-                !(triggerElement === e.target || triggerElement?.contains(e.target))
+                !(triggerElement === e.target || triggerElement?.contains(e.target)) &&
+                !(
+                    document.querySelector('#popoverContainer') === e.target ||
+                    document.querySelector('#popoverContainer')?.contains(e.target)
+                ) &&
+                !(
+                    document.querySelector('.payment-popover') === e.target ||
+                    document.querySelector('.payment-popover')?.contains(e.target)
+                )
             ) {
                 if (!didImmediatelyOpenNewPopover.current) {
                     setPopoverConfig(null);
@@ -69,7 +78,7 @@ export function GlobalPopoverManager({}: {}) {
     }, [popoverConfig]);
 
     return renderLayer(
-        <div {...layerProps} style={{zIndex: 10, ...layerProps.style}}>
+        <div {...layerProps} id={'popoverContainer'} style={{zIndex: 10, ...layerProps.style}}>
             {popover}
         </div>
     );
