@@ -1,6 +1,8 @@
 import {BaseCommonState} from 'BaseCommonState';
-import {BasePlayerState} from './BasePlayerState';
-import {GameOptions} from './reducer';
+import {BasePlayerState} from 'BasePlayerState';
+import {GameAction} from 'GameActionState';
+
+import {GameOptions} from 'reducer';
 
 export type BaseGameState = {
     // if true, the user is waiting for a response from the server.
@@ -8,7 +10,7 @@ export type BaseGameState = {
     options: GameOptions;
     common: BaseCommonState;
     players: Array<BasePlayerState>;
-    log: string[];
+    log: Array<GameAction>;
     pendingVariableAmount?: number;
     timestamp?: number;
     name: string;
