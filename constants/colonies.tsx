@@ -26,8 +26,23 @@ export const ACCEPTED_TRADE_PAYMENT: AcceptedTradePayment[] = [
 
 type TradeIncomeDisplay = TradeIncomeQuantity | TradeIncomeResource;
 
+export enum ColonyType {
+    CALLISTO = 'callisto',
+    CERES = 'ceres',
+    ENCELADUS = 'enceladus',
+    EUROPA = 'europa',
+    GANYMEDE = 'ganymede',
+    IO = 'io',
+    LUNA = 'luna',
+    MIRANDA = 'miranda',
+    PLUTO = 'pluto',
+    TITAN = 'titan',
+    TRITON = 'triton',
+}
+
 export type Colony = {
     name: string;
+    type: ColonyType;
     // What a colony gets when anyone trades
     colonyBonus: Action;
     // What the trade fleet gets for visiting the colony (length 7)
@@ -54,6 +69,7 @@ export type SerializedColony = {
     // Where is the gray cube?
     step: number;
     // Colonies placed (each number is a player index, up to 3 colonies allowed)
+    type: ColonyType;
     colonies: number[];
     lastTrade?: Trade;
 };
@@ -73,6 +89,7 @@ let tradeIncomeQuantities: number[] | Resource[] = [0, 2, 3, 5, 7, 10, 13];
 
 COLONIES.push({
     name: 'Callisto',
+    type: ColonyType.CALLISTO,
     colonyBonus: {gainResource: {[Resource.ENERGY]: 3}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -92,6 +109,7 @@ tradeIncomeQuantities = [1, 2, 3, 4, 6, 8, 10];
 
 COLONIES.push({
     name: 'Ceres',
+    type: ColonyType.CERES,
     colonyBonus: {gainResource: {[Resource.STEEL]: 2}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -111,6 +129,7 @@ tradeIncomeQuantities = [0, 1, 2, 3, 4, 4, 5];
 
 COLONIES.push({
     name: 'Enceladus',
+    type: ColonyType.ENCELADUS,
     colonyBonus: {
         gainResource: {[Resource.MICROBE]: 1},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
@@ -144,6 +163,7 @@ tradeIncomeQuantities = [
 
 COLONIES.push({
     name: 'Europa',
+    type: ColonyType.EUROPA,
     tradeIncomeResources: tradeIncomeQuantities,
     colonyBonus: {gainResource: {[Resource.MEGACREDIT]: 1}},
     tradeIncome: tradeIncomeQuantities.map(resource => ({
@@ -164,6 +184,7 @@ tradeIncomeQuantities = [0, 1, 2, 3, 4, 5, 6];
 
 COLONIES.push({
     name: 'Ganymede',
+    type: ColonyType.GANYMEDE,
     colonyBonus: {gainResource: {[Resource.PLANT]: 1}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -183,6 +204,7 @@ tradeIncomeQuantities = [2, 3, 4, 6, 8, 10, 13];
 
 COLONIES.push({
     name: 'Io',
+    type: ColonyType.IO,
     colonyBonus: {gainResource: {[Resource.HEAT]: 2}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -202,6 +224,7 @@ tradeIncomeQuantities = [1, 2, 4, 7, 10, 13, 17];
 
 COLONIES.push({
     name: 'Luna',
+    type: ColonyType.LUNA,
     colonyBonus: {gainResource: {[Resource.MEGACREDIT]: 2}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -221,6 +244,7 @@ tradeIncomeQuantities = [0, 1, 1, 2, 2, 3, 3];
 
 COLONIES.push({
     name: 'Miranda',
+    type: ColonyType.MIRANDA,
     colonyBonus: {
         gainResource: {[Resource.CARD]: 1},
     },
@@ -248,6 +272,7 @@ tradeIncomeQuantities = [0, 1, 1, 2, 2, 3, 4];
 
 COLONIES.push({
     name: 'Pluto',
+    type: ColonyType.PLUTO,
     colonyBonus: {
         gainResource: {[Resource.CARD]: 1},
         removeResource: {[Resource.CARD]: 1},
@@ -271,6 +296,7 @@ tradeIncomeQuantities = [0, 1, 1, 2, 3, 3, 4];
 
 COLONIES.push({
     name: 'Titan',
+    type: ColonyType.TITAN,
     colonyBonus: {
         gainResource: {[Resource.FLOATER]: 1},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
@@ -297,6 +323,7 @@ tradeIncomeQuantities = [0, 1, 1, 2, 3, 4, 5];
 
 COLONIES.push({
     name: 'Triton',
+    type: ColonyType.TRITON,
     colonyBonus: {gainResource: {[Resource.TITANIUM]: 1}},
     tradeIncomeQuantities,
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
@@ -317,6 +344,7 @@ export function getSerializedColony(colony: Colony): SerializedColony {
     return {
         name: colony.name,
         step: colony.offlineUntilResource ? STARTING_STEP_STORABLE_RESOURCE_COLONY : STARTING_STEP,
+        type: colony.type,
         colonies: [],
     };
 }

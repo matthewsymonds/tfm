@@ -12,6 +12,7 @@ import {
 } from 'constants/colonies';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import {VariableAmount} from 'constants/variable-amount';
+import {GameActionType} from 'GameActionState';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
@@ -36,6 +37,7 @@ import {
 import {
     addCards,
     addForcedActionToPlayer,
+    addGameActionToLog,
     addParameterRequirementAdjustments,
     announceReadyToStartRound,
     applyDiscounts,
@@ -406,6 +408,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         }
 
         draft.actionCount = (draft.actionCount ?? 0) + 1;
+
+        if (addGameActionToLog.match(action)) {
+            draft.log.push(action.payload.gameAction);
+        }
 
         if (payForCards.match(action)) {
             const {payload} = action;
@@ -1004,22 +1010,21 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     throw new Error('Got negative megacredits while trying to pay for card');
                 }
             }
-            let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
 
             player.discounts.nextCardThisGeneration = 0;
 
-            for (const resource in payload.payment) {
-                if (payload.payment[resource]) {
-                    details.push(
-                        quantityAndResource(payload.payment[resource], resource as Resource)
-                    );
-                }
-            }
-
-            if (details.length > 0) {
-                logMessage += ` (with ${details.join(', ')})`;
-            }
-            draft.log.push(logMessage);
+            // let logMessage = `${corporationName} paid ${cardCost} to play ${payload.card.name}`;
+            // for (const resource in payload.payment) {
+            //     if (payload.payment[resource]) {
+            //         details.push(
+            //             quantityAndResource(payload.payment[resource], resource as Resource)
+            //         );
+            //     }
+            // }
+            // if (details.length > 0) {
+            //     logMessage += ` (with ${details.join(', ')})`;
+            // }
+            // draft.log.push(logMessage);
         }
 
         if (payToPlayCardAction.match(action)) {
@@ -1134,11 +1139,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const card = getCard(payload.card);
             if (card.type === CardType.CORPORATION) {
                 player.possibleCorporations = [];
-                draft.log.push(`${player.username} chose ${payload.card.name}`);
             }
             if (card.type === CardType.PRELUDE) {
                 player.preludes = player.preludes.filter(c => c.name !== payload.card.name);
-                draft.log.push(`${corporationName} played Prelude ${card.name}`);
             }
             if (player.pendingPlayCardFromHand) {
                 player.pendingPlayCardFromHand = undefined;
@@ -1357,11 +1360,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             const playedCard = player.playedCards.find(card => card.name === payload.card.name)!;
             playedCard.lastRoundUsedAction = draft.common.generation;
-            // We skip logging if the action has a cost b/c in that case we already have logged
-            // e.g. "Corp X paid 2 to play Card Y's action" inside PAY_TO_PLAY_CARD_ACTION
-            if (payload.shouldLog) {
-                draft.log.push(`${corporationName} played ${playedCard.name}'s action`);
-            }
         }
 
         if (moveFleet.match(action)) {

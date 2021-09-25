@@ -136,14 +136,14 @@ export function Colonies() {
     ) {
         apiClient.tradeAsync({
             payment: payment.resource,
-            colony: colony.name,
+            colony: colony.type,
             tradeIncome,
         });
     }
 
     function tradeForFree(colony: SerializedColony, tradeIncome: number) {
         apiClient.tradeForFreeAsync({
-            colony: colony.name,
+            colony: colony.type,
             tradeIncome,
         });
     }
@@ -164,7 +164,7 @@ export function Colonies() {
     const [canTrade, canTradeReason] =
         tradePayment.length === 0
             ? [false, 'No valid payment']
-            : actionGuard.canTrade(selectedPayment, firstSelectedColony.name);
+            : actionGuard.canTrade(selectedPayment, firstSelectedColony.type);
 
     const tradePaymentElements = tradePayment.map(payment => {
         const selected = payment.resource === selectedPayment;
@@ -199,11 +199,7 @@ export function Colonies() {
     const [selectedTradeIncome, setSelectedTradeIncome] = useState(firstSelectedColony.step);
     useEffect(() => {
         setSelectedTradeIncome(firstSelectedColony.step);
-    }, [firstSelectedColony.step]);
-
-    useEffect(() => {
-        setSelectedTradeIncome(firstSelectedColony.step);
-    }, [firstSelectedColony.name]);
+    }, [firstSelectedColony.step, firstSelectedColony.name]);
 
     const firstColony = getColony(firstSelectedColony);
     const tradeIncomeElements = eligibleTradeIncomes.map((index, internalIndex) => {
@@ -258,7 +254,7 @@ export function Colonies() {
     );
 
     const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(
-        firstSelectedColony.name
+        firstSelectedColony.type
     );
 
     const payment = tradePayment.find(payment => payment.resource === selectedPayment);
@@ -301,7 +297,7 @@ export function Colonies() {
                         onConfirmPayment={paymentResources => {
                             apiClient.tradeAsync({
                                 payment: payment.resource,
-                                colony: firstSelectedColony.name,
+                                colony: firstSelectedColony.type,
                                 numHeat: paymentResources[Resource.HEAT] ?? 0,
                                 tradeIncome: selectedTradeIncome,
                             });

@@ -5,7 +5,20 @@ import {CardType} from 'constants/card-types';
 import {SerializedColony} from 'constants/colonies';
 import {GameStage} from 'constants/game';
 import {Tag} from 'constants/tag';
+import {
+    GameAction,
+    GameActionClaimMilestone,
+    GameActionFundAward,
+    GameActionPass,
+    GameActionPlayCard,
+    GameActionPlayCardAction,
+    GameActionSkip,
+    GameActionStandardProject,
+    GameActionTrade,
+    GameActionType,
+} from 'GameActionState';
 import produce from 'immer';
+import spawnExhaustiveSwitchError from 'utils';
 import {BaseGameState} from './BaseGameState';
 import {BasePlayerState} from './BasePlayerState';
 import {ResourceLocationType} from './constants/resource';
@@ -75,9 +88,10 @@ export type SerializedPlayerState = Omit<
     };
 };
 
-export type SerializedState = Omit<BaseGameState, 'common' | 'players'> & {
+export type SerializedState = Omit<BaseGameState, 'common' | 'players' | 'log'> & {
     common: SerializedCommonState;
     players: SerializedPlayerState[];
+    log: SerializedGameAction[];
 };
 
 export type SerializedCard = {
@@ -86,6 +100,50 @@ export type SerializedCard = {
     storedResourceAmount?: number;
     increaseProductionResult?: Resource;
 };
+
+type SerializedGameActionPlayCard = Omit<GameActionPlayCard, 'card'> & {
+    card: SerializedCard;
+};
+
+type SerializedGameActionPlayCardAction = Omit<GameActionPlayCardAction, 'card'> & {
+    card: SerializedCard;
+};
+
+export type SerializedGameAction =
+    | SerializedGameActionPlayCard
+    | SerializedGameActionPlayCardAction
+    | GameActionFundAward
+    | GameActionClaimMilestone
+    | GameActionStandardProject
+    | GameActionTrade
+    | GameActionSkip
+    | GameActionPass
+    | string;
+
+export function deserializeGameAction(serializedGameAction: SerializedGameAction): GameAction {
+    if (typeof serializedGameAction === 'string') {
+        return serializedGameAction;
+    }
+    switch (serializedGameAction.actionType) {
+        case GameActionType.CARD:
+        case GameActionType.CARD_ACTION:
+            return {
+                ...serializedGameAction,
+                card: deserializeCard(serializedGameAction.card),
+            };
+        case GameActionType.AWARD:
+        case GameActionType.MILESTONE:
+        case GameActionType.STANDARD_PROJECT:
+        case GameActionType.TRADE:
+        case GameActionType.PASS:
+        case GameActionType.SKIP:
+            return {
+                ...serializedGameAction,
+            };
+        default:
+            throw spawnExhaustiveSwitchError(serializedGameAction);
+    }
+}
 
 export function deserializeCard(serializedCard: SerializedCard): Card {
     if (!serializedCard) return dummyCard;

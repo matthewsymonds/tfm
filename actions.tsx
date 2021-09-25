@@ -3,6 +3,7 @@ import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {AnyAction} from 'redux';
+import {GameAction} from 'GameActionState';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';
@@ -14,6 +15,12 @@ import {Resource} from './constants/resource-enum';
 import {StandardProjectAction} from './constants/standard-project';
 import {GameState} from './reducer';
 import {withMatcher} from './with-matcher';
+
+const ADD_GAME_ACTION_TO_LOG = 'ADD_GAME_ACTION_TO_LOG';
+export const addGameActionToLog = withMatcher((gameAction: GameAction) => ({
+    type: ADD_GAME_ACTION_TO_LOG,
+    payload: {gameAction},
+}));
 
 const SET_CORPORATION = 'SET_CORPORATION';
 export const setCorporation = withMatcher((corporation: SerializedCard, playerIndex: number) => ({

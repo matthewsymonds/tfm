@@ -7,7 +7,7 @@ import {
 import {Action, Payment} from 'constants/action';
 import {Award, Cell, Milestone, TilePlacement, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
-import {COLONIES} from 'constants/colonies';
+import {COLONIES, ColonyType} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
@@ -974,7 +974,7 @@ export class ActionGuard {
 
     canTrade(
         payment: Resource,
-        name: string,
+        name: ColonyType,
         numHeat = this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0
     ): CanPlayAndReason {
         if (this.shouldDisableUI()) {
@@ -1009,7 +1009,7 @@ export class ActionGuard {
         return canTradeIgnoringPayment(player, name, this.state);
     }
 
-    canTradeForFree(name: string): CanPlayAndReason {
+    canTradeForFree(name: ColonyType): CanPlayAndReason {
         const player = this._getPlayerToConsider();
 
         if (!player.tradeForFree) {

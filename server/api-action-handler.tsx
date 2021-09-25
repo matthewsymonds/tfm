@@ -2,6 +2,7 @@ import {
     addActionToPlay,
     addCards,
     addForcedActionToPlayer,
+    addGameActionToLog,
     addParameterRequirementAdjustments,
     announceReadyToStartRound,
     applyDiscounts,
@@ -105,12 +106,12 @@ import {
     TileType,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {getColony} from 'constants/colonies';
+import {ColonyType, getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
-import {PropertyCounter} from 'constants/property-counter';
+import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
     ResourceAndAmount,
@@ -121,6 +122,7 @@ import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
+import {GameAction, GameActionType} from 'GameActionState';
 import {Card} from 'models/card';
 import {GameState, getNumOceans, PlayerState, reducer} from 'reducer';
 import {AnyAction} from 'redux';
@@ -265,6 +267,12 @@ export class ApiActionHandler {
         if (!canPlay) {
             throw new Error(reason);
         }
+        this.addGameActionToLog({
+            actionType: GameActionType.CARD,
+            playerIndex,
+            card,
+            payment,
+        });
 
         this.queue.unshift(moveCardFromHandToPlayArea(card, playerIndex));
 
@@ -514,6 +522,10 @@ export class ApiActionHandler {
         }
     }
 
+    private addGameActionToLog(gameAction: GameAction) {
+        this.dispatch(addGameActionToLog(gameAction));
+    }
+
     playCardAction({
         parent,
         payment,
@@ -529,6 +541,7 @@ export class ApiActionHandler {
         let action = parent.action;
         let isChoiceAction = false;
         const {pendingActionReplay} = player;
+
         const lastRoundUsedAction = player.playedCards.find(card => card.name === parent.name)!
             .lastRoundUsedAction;
 
@@ -582,6 +595,14 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
 
+        this.addGameActionToLog({
+            actionType: GameActionType.CARD_ACTION,
+            playerIndex: player.index,
+            card: parent,
+            payment,
+            choiceIndex,
+        });
+
         if (action.cost) {
             this.queue.push(payToPlayCardAction(action, player.index, parent, payment));
         }
@@ -624,7 +645,7 @@ export class ApiActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment: Payment;
+        payment: NumericPropertyCounter<Resource>;
     }) {
         const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
@@ -633,6 +654,14 @@ export class ApiActionHandler {
         }
 
         const playerIndex = this.getLoggedInPlayerIndex();
+
+        this.addGameActionToLog({
+            actionType: GameActionType.STANDARD_PROJECT,
+            playerIndex,
+            standardProject: standardProjectAction.type,
+            payment,
+        });
+
         this.queue.push(payToPlayStandardProject(standardProjectAction, payment, playerIndex));
 
         const {state} = this;
@@ -657,7 +686,7 @@ export class ApiActionHandler {
         selectedCards: SerializedCard[];
         selectedPreludes: SerializedCard[];
         corporation: SerializedCard;
-        payment?: PropertyCounter<Resource>;
+        payment?: NumericPropertyCounter<Resource>;
     }) {
         const {state} = this;
         const {
@@ -813,7 +842,13 @@ export class ApiActionHandler {
         });
     }
 
-    claimMilestone({milestone, payment}: {milestone: Milestone; payment: Payment}) {
+    claimMilestone({
+        milestone,
+        payment,
+    }: {
+        milestone: Milestone;
+        payment: NumericPropertyCounter<Resource>;
+    }) {
         const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
 
         if (!canPlay) {
@@ -821,12 +856,20 @@ export class ApiActionHandler {
         }
 
         const playerIndex = this.getLoggedInPlayerIndex();
+
+        this.addGameActionToLog({
+            actionType: GameActionType.MILESTONE,
+            playerIndex,
+            milestone,
+            payment,
+        });
+
         this.queue.push(claimMilestoneAction(milestone, payment, playerIndex));
         this.queue.push(completeAction(playerIndex));
         this.processQueue();
     }
 
-    fundAward({award, payment}: {award: Award; payment: Payment}) {
+    fundAward({award, payment}: {award: Award; payment: NumericPropertyCounter<Resource>}) {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
         if (!canPlay) {
@@ -834,6 +877,12 @@ export class ApiActionHandler {
         }
 
         const player = this.getLoggedInPlayer();
+        this.addGameActionToLog({
+            actionType: GameActionType.AWARD,
+            playerIndex: player.index,
+            award,
+            payment,
+        });
         if (player.fundAward) {
             this.queue.unshift(fundAwardAction(award, payment, player.index));
         } else {
@@ -878,6 +927,11 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
 
+        this.addGameActionToLog({
+            actionType: GameActionType.SKIP,
+            playerIndex: this.loggedInPlayerIndex,
+        });
+
         this.queue.unshift(skipAction(this.loggedInPlayerIndex));
         const player = this.getLoggedInPlayer();
         const playablePreludes =
@@ -897,6 +951,11 @@ export class ApiActionHandler {
         if (!canPassGeneration) {
             throw new Error(reason);
         }
+
+        this.addGameActionToLog({
+            actionType: GameActionType.PASS,
+            playerIndex: this.loggedInPlayerIndex,
+        });
 
         this.queue.unshift(passGeneration(this.loggedInPlayerIndex));
         this.processQueue();
@@ -1044,7 +1103,7 @@ export class ApiActionHandler {
         numHeat,
     }: {
         payment: Resource;
-        colony: string;
+        colony: ColonyType;
         tradeIncome: number;
         numHeat: number;
     }) {
@@ -1059,6 +1118,19 @@ export class ApiActionHandler {
         const validPayments = getValidTradePayment(player);
         const validPayment = validPayments.find(validPayment => validPayment.resource === payment);
         if (!validPayment) throw new Error('valid payment not found');
+
+        this.addGameActionToLog({
+            actionType: GameActionType.TRADE,
+            playerIndex: player.index,
+            colony,
+            payment: {
+                [payment]:
+                    payment === Resource.MEGACREDIT
+                        ? validPayment.quantity - numHeat
+                        : validPayment.quantity,
+                ...(numHeat > 0 ? {[Resource.HEAT]: numHeat} : {}),
+            },
+        });
 
         // First. Pay for trade
         let paymentQuantity = validPayment.quantity;
@@ -1075,7 +1147,7 @@ export class ApiActionHandler {
         this.handleTrade(colony, tradeIncome);
     }
 
-    tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
+    tradeForFree({colony, tradeIncome}: {colony: ColonyType; tradeIncome: number}) {
         const [canTradeForFree, reason] = this.actionGuard.canTradeForFree(colony);
 
         if (!canTradeForFree) {

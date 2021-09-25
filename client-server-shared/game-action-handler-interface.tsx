@@ -1,6 +1,7 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
-import {Award, Cell, Milestone} from 'constants/board';
+import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {ColonyType} from 'constants/colonies';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -97,13 +98,19 @@ export interface GameActionHandler {
         numHeat,
         tradeIncome,
     }: {
-        colony: string;
         payment: Resource;
+        colony: ColonyType;
         tradeIncome: number;
         numHeat?: number;
     }): Promise<void>;
 
-    tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}): Promise<void>;
+    tradeForFreeAsync({
+        colony,
+        tradeIncome,
+    }: {
+        colony: ColonyType;
+        tradeIncome: number;
+    }): Promise<void>;
 
     completePlaceColonyAsync({colony}: {colony: string}): Promise<void>;
 

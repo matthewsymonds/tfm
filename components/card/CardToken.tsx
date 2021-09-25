@@ -36,81 +36,12 @@ type MiniatureCardProps = SharedCardTokenProps & {
     shouldUseFullWidth?: boolean;
 };
 
-export const CardTextTokenBase = styled.div<{
-    color: string;
-    margin?: string;
-}>`
-    background-color: ${props => props.color};
-    color: ${colors.LIGHT_1};
-    border-radius: 4px;
-    padding: 4px;
-    font-family: 'Ubuntu Condensed', sans-serif;
-    display: inline-flex;
-    margin: ${props => props.margin ?? '0 4px'};
-    cursor: default;
-    font-size: 0.85em;
-    transition: all 0.1s;
-    opacity: 1;
-    align-items: center;
-`;
-
-const CardToggleTokenLabel = styled.label<{
-    color: string;
-    margin?: string;
-    isSelected?: boolean;
-}>`
-    color: ${colors.CARD_TEXT};
-    display: inline-flex;
-    white-space: nowrap;
-    margin: ${props => props.margin ?? '0 4px'};
-    padding: 4px;
-    opacity: ${props => (props.isSelected ? 1 : 0.4)};
-    border-radius: 4px;
-    background-color: ${props => {
-        let color = new Color(props.color);
-        if (!props.isSelected) {
-            return color.darken(0.2).desaturate(0.2).toString();
-        }
-        return color.toString();
-    }};
-    cursor: default;
-    transition: all 0.1s;
-`;
-
-const CardToggleTokenHiddenInput = styled.input`
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-`;
-
-function getColorForCardType(cardType: CardType) {
-    switch (cardType) {
-        case CardType.ACTIVE:
-            return colors.CARD_ACTIVE;
-        case CardType.AUTOMATED:
-            return colors.CARD_AUTOMATED;
-        case CardType.CORPORATION:
-            return 'black';
-        case CardType.EVENT:
-            return colors.CARD_EVENT;
-        case CardType.PRELUDE:
-            return colors.CARD_PRELUDE;
-        default:
-            throw spawnExhaustiveSwitchError(cardType);
-    }
-}
-
 export const CardToggleToken = ({
     card,
     onClick,
     isSelected,
     margin,
-    showCardOnHover,
+    showCardOnHover = true,
     disabled,
 }: CardToggleTokenProps) => {
     const id = useComponentId();
@@ -294,3 +225,72 @@ export const MiniatureCard = ({
         </Flex>
     );
 };
+
+export const CardTextTokenBase = styled.div<{
+    color: string;
+    margin?: string;
+}>`
+    background-color: ${props => props.color};
+    color: ${colors.LIGHT_1};
+    border-radius: 4px;
+    padding: 4px;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    display: inline-flex;
+    margin: ${props => props.margin ?? '0 4px'};
+    cursor: default;
+    font-size: 0.85em;
+    transition: all 0.1s;
+    opacity: 1;
+    align-items: center;
+`;
+
+const CardToggleTokenLabel = styled.label<{
+    color: string;
+    margin?: string;
+    isSelected?: boolean;
+}>`
+    color: ${colors.CARD_TEXT};
+    display: inline-flex;
+    white-space: nowrap;
+    margin: ${props => props.margin ?? '0 4px'};
+    padding: 4px;
+    opacity: ${props => (props.isSelected ? 1 : 0.4)};
+    border-radius: 4px;
+    background-color: ${props => {
+        let color = new Color(props.color);
+        if (!props.isSelected) {
+            return color.darken(0.2).desaturate(0.2).toString();
+        }
+        return color.toString();
+    }};
+    cursor: default;
+    transition: all 0.1s;
+`;
+
+const CardToggleTokenHiddenInput = styled.input`
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+`;
+
+function getColorForCardType(cardType: CardType) {
+    switch (cardType) {
+        case CardType.ACTIVE:
+            return colors.CARD_ACTIVE;
+        case CardType.AUTOMATED:
+            return colors.CARD_AUTOMATED;
+        case CardType.CORPORATION:
+            return 'black';
+        case CardType.EVENT:
+            return colors.CARD_EVENT;
+        case CardType.PRELUDE:
+            return colors.CARD_PRELUDE;
+        default:
+            throw spawnExhaustiveSwitchError(cardType);
+    }
+}
