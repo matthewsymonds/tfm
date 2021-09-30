@@ -333,7 +333,7 @@ export default function PaymentPopover({
         <Popover
             position={Position.RIGHT}
             content={({close}) => (
-                <PaymentPopoverBase>
+                <PaymentPopoverBase className="payment-popover">
                     <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
                         <span>Cost: {actionCost}</span>
                         <span className="running-total">
