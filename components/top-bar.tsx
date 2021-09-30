@@ -112,7 +112,7 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
                     {!isLoggedInPlayersTurn && isActiveRound && !isLoggedInPlayerPassed && (
                         <React.Fragment>
                             <Box display="inline-block" style={{marginRight: 4, color: 'white'}}>
-                                Waiting on
+                                Waiting for
                             </Box>
                             <PlayerCorpAndIcon
                                 player={currentPlayer}
