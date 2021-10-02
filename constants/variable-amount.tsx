@@ -32,4 +32,5 @@ export enum VariableAmount {
     THIRD_ALL_CITIES = 'thirdAllCities',
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
     PLANT_CONVERSION_AMOUNT = 'plantConversionAmount',
+    INFLUENCE = 'influence',
 }

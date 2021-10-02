@@ -1,4 +1,5 @@
 import {Amount} from 'constants/action';
+import {isOperationAmount} from 'constants/operation-amount';
 import {
     PROTECTED_HABITAT_RESOURCE,
     ResourceLocationType,
@@ -10,6 +11,7 @@ import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
+import {convertOperationAmountToNumber} from './convert-amount-to-number';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
 import {isTagAmount} from './is-tag-amount';
@@ -31,6 +33,9 @@ export function getCardVictoryPoints(
         // Wild tags do not count here.
         const matchingTags = tags.filter(tag => tag === amount.tag);
         return Math.floor(matchingTags.length / (amount.dividedBy ?? 1));
+    }
+    if (isOperationAmount(amount)) {
+        return convertOperationAmountToNumber(amount, state, player, card);
     }
 
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];

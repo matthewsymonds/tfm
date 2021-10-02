@@ -1,6 +1,7 @@
 import {PlaceColony} from 'actions';
 import {Parameter, TilePlacement} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
+import {OperationAmount} from './operation-amount';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {ResourceLocationType} from './resource';
 import {Resource} from './resource-enum';
@@ -18,7 +19,7 @@ type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parame
 // This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.
 export type ParameterCounter = NumericPropertyCounter<ParameterExcludingOcean>;
 
-export type Amount = number | VariableAmount | TagAmount;
+export type Amount = number | VariableAmount | TagAmount | OperationAmount;
 
 export enum ActionType {
     CARD = 'card',

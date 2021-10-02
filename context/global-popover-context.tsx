@@ -1,5 +1,4 @@
-import {usePrevious} from 'hooks/use-previous';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {useLayer} from 'react-laag';
 import {Options as PopoverOptions} from 'react-laag/dist/types';
 
@@ -48,7 +47,6 @@ export function GlobalPopoverManager({}: {}) {
 
     useEffect(() => {
         function closePopoverAndDeregisterHandler(e: MouseEvent) {
-            console.log('payment', document.querySelector('.payment-popover'));
             if (
                 e.target instanceof HTMLElement &&
                 !(triggerElement === e.target || triggerElement?.contains(e.target)) &&

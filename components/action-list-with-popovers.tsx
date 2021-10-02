@@ -1,7 +1,6 @@
 import {colors} from 'components/ui';
 import {GlobalPopoverContext} from 'context/global-popover-context';
-import {useComponentId} from 'hooks/use-component-id';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useRef} from 'react';
 import {PlacementType} from 'react-laag/dist/PlacementType';
 import styled from 'styled-components';
 import {Box, Flex} from './box';

@@ -77,7 +77,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                     flexWrap: 'wrap',
                     justifyContent: 'flex-end',
                 }}
-                popoverPlacement="top-center"
+                popoverPlacement="left-center"
                 ActionComponent={({action}) => <StandardProject action={action} />}
                 ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
                     <StandardProjectTooltip

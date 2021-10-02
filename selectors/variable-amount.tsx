@@ -219,4 +219,6 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const colonies = state.common.colonies ?? [];
         return Math.floor(colonies.flatMap(colony => colony.colonies).length / 2);
     },
+    // TODO implement
+    [VariableAmount.INFLUENCE]: (state: GameState, player: PlayerState) => 1,
 };

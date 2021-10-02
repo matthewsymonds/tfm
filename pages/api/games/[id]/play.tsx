@@ -3,6 +3,7 @@ import {playGame} from 'client-server-shared/play-game';
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
 import {ApiActionHandler} from 'server/api-action-handler';
+import {handleEmail} from 'server/handle-email';
 import {StateHydrator} from 'server/state-hydrator';
 import {censorGameState} from 'state-serialization';
 
@@ -83,6 +84,7 @@ export default async (req, res) => {
         res.json({
             state: censorGameState(hydratedGame.state, username),
         });
+        handleEmail(game.players);
     } catch (error) {
         delete lock[game.name];
         res.status(404);

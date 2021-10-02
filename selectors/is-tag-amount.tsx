@@ -5,5 +5,5 @@ export function isTagAmount(amount: Amount): amount is TagAmount {
     if (typeof amount === 'number') return false;
     // Variable amount is string enum
     if (typeof amount === 'string') return false;
-    return true;
+    return 'tag' in amount;
 }
