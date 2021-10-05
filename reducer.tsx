@@ -6,10 +6,12 @@ import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
     getColony,
+    getSerializedColony,
     STARTING_STEP,
     STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
+import {VariableAmount} from 'constants/variable-amount';
 import produce from 'immer';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
@@ -106,7 +108,6 @@ import {
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {Cell, getParameterName, Parameter, TileType} from './constants/board';
-import {CONVERSIONS} from './constants/conversion';
 import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {getResourceName, isStorableResource} from './constants/resource';
@@ -1423,7 +1424,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (colony) {
                 colony.colonies.push(player.index);
                 draft.log.push(`${corporationName} placed a colony on ${colony.name}`);
-                if (colony.colonies.length === colony.step) {
+                if (colony.colonies.length > colony.step) {
                     colony.step += 1;
                     draft.log.push(`${colony.name}'s tile track increased to ${colony.step + 1}`);
                 }
@@ -1461,11 +1462,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.putAdditionalColonyTileIntoPlay = undefined;
             if (newColony) {
                 draft.common.colonies = draft.common.colonies || [];
-                draft.common.colonies.push({
-                    name: newColony.name,
-                    step: newColony.step,
-                    colonies: [],
-                });
+                draft.common.colonies.push(getSerializedColony(newColony));
             }
         }
 
@@ -1588,20 +1585,31 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 handleProduction(draft);
 
                 if (isGameEndTriggered(draft)) {
-                    const playersWhoCanPlaceGreenery = draft.players.filter(
-                        player =>
+                    let playersWhoCanPlaceGreenery: PlayerState[] = [];
+                    let indexToConsider = common.firstPlayerIndex;
+                    do {
+                        if (!draft.players[indexToConsider]) {
+                            indexToConsider = 0;
+                        }
+                        const player = draft.players[indexToConsider];
+                        if (
                             player.resources[Resource.PLANT] >=
                             convertAmountToNumber(
-                                CONVERSIONS[Resource.PLANT]?.removeResource?.[Resource.PLANT] ?? 0,
+                                VariableAmount.PLANT_CONVERSION_AMOUNT,
                                 state,
                                 player
                             )
-                    );
-                    for (player of playersWhoCanPlaceGreenery) {
-                        player.action = 1;
-                    }
+                        ) {
+                            playersWhoCanPlaceGreenery.push(player);
+                        }
+                        indexToConsider += 1;
+                    } while (indexToConsider !== common.firstPlayerIndex);
                     if (playersWhoCanPlaceGreenery.length > 0) {
                         draft.log.push('Greenery Placement');
+                        for (player of playersWhoCanPlaceGreenery) {
+                            player.action = 1;
+                        }
+
                         const [{index}] = playersWhoCanPlaceGreenery;
                         common.currentPlayerIndex = index;
                         common.gameStage = GameStage.GREENERY_PLACEMENT;

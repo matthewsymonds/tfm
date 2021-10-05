@@ -1,5 +1,6 @@
 import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
+import {Condition, ConditionAmount, isConditionAmount} from 'constants/conditional-amount';
 import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
@@ -33,6 +34,9 @@ export function convertAmountToNumber(
     }
     if (isOperationAmount(amount)) {
         return convertOperationAmountToNumber(amount, state, player, card);
+    }
+    if (isConditionAmount(amount)) {
+        return convertConditionAmountToNumber(amount, state, player, card);
     }
     if (!isVariableAmount(amount)) return amount;
 
@@ -85,5 +89,25 @@ export function convertOperationAmountToNumber(
             return Math.min(...convertedOperands);
         default:
             throw new spawnExhaustiveSwitchError(operation);
+    }
+}
+
+export function convertConditionAmountToNumber(
+    amount: ConditionAmount,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+): number {
+    const {condition, operands, pass, fail} = amount;
+    switch (condition) {
+        case Condition.GREATER_THAN_OR_EQUAL_TO:
+            const [first, second] = operands.map(operand =>
+                convertAmountToNumber(operand, state, player, card)
+            );
+            if (first >= second) {
+                return convertAmountToNumber(pass, state, player, card);
+            } else {
+                return convertAmountToNumber(fail, state, player, card);
+            }
     }
 }

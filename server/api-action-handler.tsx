@@ -1017,7 +1017,7 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
         const fullColony = getColony(colonyObject);
-        const colonyPlacementBonus = fullColony.colonyPlacementBonus[fullColony.colonies.length];
+        const colonyPlacementBonus = fullColony.colonyPlacementBonus[colonyObject.colonies.length];
         this.playAction({
             action: colonyPlacementBonus,
             state: this.state,

@@ -33,4 +33,12 @@ export enum VariableAmount {
     REVEALED_CARD_MICROBE = 'revealedCardMicrobe',
     PLANT_CONVERSION_AMOUNT = 'plantConversionAmount',
     INFLUENCE = 'influence',
+    BLUE_CARD = 'blueCard',
+    TERRAFORM_RATING = 'terraformRating',
+    PLAYER_PLANTS = 'playerPlants',
+    PLAYER_HEAT = 'playerHeat',
+    CARDS_IN_HAND = 'cardsInHand',
+    UNIQUE_TAGS = 'uniqueTags',
+    CITY_TILES = 'cityTiles',
+    PLANT_PRODUCTION = 'plantProduction',
 }

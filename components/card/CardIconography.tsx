@@ -873,6 +873,20 @@ function ChoiceIconography({choice}: {choice: Action[]}) {
     );
 }
 
+function StepsIconography({steps}: {steps: Action[]}) {
+    const elements: Array<React.ReactNode> = [];
+    let index = 0;
+    for (const action of steps) {
+        elements.push(
+            <Flex alignItems="center" key={index++} marginBottom="8px">
+                <BaseActionIconography card={action} />
+            </Flex>
+        );
+    }
+
+    return <div>{elements}</div>;
+}
+
 function PlaceColonyIconography({placeColony}: {placeColony: PlaceColony}) {
     return (
         <Flex>
@@ -925,6 +939,7 @@ export const BaseActionIconography = ({
     const temporaryParameterRequirementAdjustments =
         card instanceof CardModel ? card.temporaryParameterRequirementAdjustments : null;
     const choice = 'choice' in card ? card.choice : null;
+    const steps = 'steps' in card ? card.steps : null;
 
     return (
         <IconographyContainer
@@ -956,6 +971,11 @@ export const BaseActionIconography = ({
             {choice && (
                 <div>
                     <ChoiceIconography choice={choice} />
+                </div>
+            )}
+            {steps && (
+                <div>
+                    <StepsIconography steps={steps} />
                 </div>
             )}
             {removeResource && (

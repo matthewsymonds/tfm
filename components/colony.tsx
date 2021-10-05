@@ -1,5 +1,5 @@
 import {Action} from 'constants/action';
-import {Colony} from 'constants/colonies';
+import {getColony, SerializedColony} from 'constants/colonies';
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -110,16 +110,16 @@ const ColonyPlanet = styled.div<{
     filter: blur(${props => props.blur ?? 0}px);
 `;
 
-export function ColonyComponent({colony}: {colony: Colony}) {
+export function ColonyComponent({colony: serializedColony}: {colony: SerializedColony}) {
     const tradeFleet = useTypedSelector(state => {
-        if (!colony.lastTrade) return null;
+        if (!serializedColony.lastTrade) return null;
 
-        if (colony.lastTrade.round !== state.common.generation) {
+        if (serializedColony.lastTrade.round !== state.common.generation) {
             return null;
         }
 
         const player = state.players.findIndex(
-            player => player.username === colony.lastTrade?.player
+            player => player.username === serializedColony.lastTrade?.player
         );
 
         return (
@@ -134,6 +134,7 @@ export function ColonyComponent({colony}: {colony: Colony}) {
             </Box>
         );
     });
+    const colony = getColony(serializedColony);
     return (
         <ColonyBase
             backgroundColor={colony.borderColor}
@@ -229,10 +230,14 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                                         >
                                             {getPlacementBonuses(placementBonus)}
                                         </Flex>
-                                        {index === colony.step ? (
+                                        {index === serializedColony.step ? (
                                             <Cube />
-                                        ) : colony.colonies[index] != null ? (
-                                            <Cube color={PLAYER_COLORS[colony.colonies[index]]} />
+                                        ) : serializedColony.colonies[index] != null ? (
+                                            <Cube
+                                                color={
+                                                    PLAYER_COLORS[serializedColony.colonies[index]]
+                                                }
+                                            />
                                         ) : null}
                                     </Flex>
                                     {'tradeIncomeQuantities' in colony ? (
@@ -246,7 +251,7 @@ export function ColonyComponent({colony}: {colony: Colony}) {
                                                 marginBottom: 0,
                                             }}
                                         >
-                                            {colony['tradeIncomeQuantities']?.[index]}
+                                            {colony?.tradeIncomeQuantities?.[index]}
                                         </h3>
                                     ) : (
                                         <Flex

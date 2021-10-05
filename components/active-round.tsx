@@ -283,92 +283,95 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay ? 'hidden' : 'initial';
     }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay, topBarRef.current]);
 
-    let actionOverlayElement: ReactElement | null = null;
-    switch (true) {
-        case gameStage === GameStage.END_OF_GAME:
-            actionOverlayElement = <EndOfGame />;
-            break;
-        case !!loggedInPlayer.pendingChoice:
-            actionOverlayElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
-            break;
-        case loggedInPlayer.pendingActionReplay:
-            actionOverlayElement = (
-                <AskUserToUseBlueCardActionAlreadyUsedThisGeneration player={loggedInPlayer} />
-            );
-            break;
-        case loggedInPlayer.pendingPlayCardFromHand:
-            actionOverlayElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.pendingDuplicateProduction:
-            actionOverlayElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.pendingIncreaseLowestProduction:
-            actionOverlayElement = <AskUserToIncreaseLowestProduction player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.pendingDiscard:
-            actionOverlayElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.pendingCardSelection:
-            actionOverlayElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
-            actionOverlayElement = (
-                <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
-            );
-            break;
-        case !!loggedInPlayer.putAdditionalColonyTileIntoPlay:
-            actionOverlayElement = (
-                <AskUserToPutAdditionalColonyTileIntoPlay player={loggedInPlayer} />
-            );
-            break;
-        case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&
-            currentPlayerIndex === loggedInPlayer.index &&
-            !loggedInPlayer.pendingPlayCardFromHand &&
-            !loggedInPlayer.pendingTilePlacement &&
-            players.every(
-                player =>
-                    (player.preludes?.length ?? 0) > 0 ||
-                    player.playedCards?.filter(c => getCard(c).type === CardType.PRELUDE)
-            ):
-            actionOverlayElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.fundAward:
-            actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
-            break;
-        case !!loggedInPlayer.pendingTilePlacement:
-            actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
-            break;
-        case !!loggedInPlayer.pendingResourceActionDetails:
-            actionOverlayElement = (
-                <AskUserToConfirmResourceActionDetails
-                    player={loggedInPlayer}
-                    resourceActionDetails={loggedInPlayer.pendingResourceActionDetails!}
-                />
-            );
-            break;
-        case revealedCards.length > 0:
-            actionOverlayElement = (
-                <Flex flexDirection="column">
-                    <span style={{marginBottom: 16}}>
-                        Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
-                    </span>
-                    <Flex flexWrap="wrap">
-                        {revealedCards.map((card, index) => {
-                            return <CardComponent key={index} card={getCard(card)} />;
-                        })}
+    const actionOverlayElement = useTypedSelector(state => {
+        let actionOverlayElement: ReactElement | null = null;
+        switch (true) {
+            case gameStage === GameStage.END_OF_GAME:
+                actionOverlayElement = <EndOfGame />;
+                break;
+            case !!loggedInPlayer.pendingChoice:
+                actionOverlayElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
+                break;
+            case loggedInPlayer.pendingActionReplay:
+                actionOverlayElement = (
+                    <AskUserToUseBlueCardActionAlreadyUsedThisGeneration player={loggedInPlayer} />
+                );
+                break;
+            case loggedInPlayer.pendingPlayCardFromHand:
+                actionOverlayElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.pendingDuplicateProduction:
+                actionOverlayElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.pendingIncreaseLowestProduction:
+                actionOverlayElement = (
+                    <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
+                );
+                break;
+            case !!loggedInPlayer.pendingDiscard:
+                actionOverlayElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.pendingCardSelection:
+                actionOverlayElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
+                actionOverlayElement = (
+                    <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
+                );
+                break;
+            case !!loggedInPlayer.putAdditionalColonyTileIntoPlay:
+                actionOverlayElement = (
+                    <AskUserToPutAdditionalColonyTileIntoPlay player={loggedInPlayer} />
+                );
+                break;
+            case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&
+                currentPlayerIndex === loggedInPlayer.index &&
+                !loggedInPlayer.pendingPlayCardFromHand &&
+                !loggedInPlayer.pendingTilePlacement &&
+                players.every(
+                    player =>
+                        (player.preludes?.length ?? 0) > 0 ||
+                        player.playedCards?.filter(c => getCard(c).type === CardType.PRELUDE)
+                ):
+                actionOverlayElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.fundAward:
+                actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
+                break;
+            case !!loggedInPlayer.pendingTilePlacement:
+                actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
+                break;
+            case !!loggedInPlayer.pendingResourceActionDetails:
+                actionOverlayElement = (
+                    <AskUserToConfirmResourceActionDetails
+                        player={loggedInPlayer}
+                        resourceActionDetails={loggedInPlayer.pendingResourceActionDetails!}
+                    />
+                );
+                break;
+            case revealedCards.length > 0:
+                actionOverlayElement = (
+                    <Flex flexDirection="column">
+                        <span style={{marginBottom: 16}}>
+                            Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
+                        </span>
+                        <Flex flexWrap="wrap">
+                            {revealedCards.map((card, index) => {
+                                return <CardComponent key={index} card={getCard(card)} />;
+                            })}
+                        </Flex>
+                        <Flex justifyContent="center" marginTop="16px">
+                            <button onClick={continueAfterRevealingCards}>Continue</button>
+                        </Flex>
                     </Flex>
-                    <Flex justifyContent="center" marginTop="16px">
-                        <button onClick={continueAfterRevealingCards}>Continue</button>
-                    </Flex>
-                </Flex>
-            );
-            break;
-    }
+                );
+                break;
+        }
+
+        return actionOverlayElement;
+    });
 
     if (!players[selectedPlayerIndex]) return null;
-
-    const shouldHidePlayerDetails =
-        isPlayerMakingDecision && !hideOverlay && isActionOverlayVisible;
 
     return (
         <GlobalPopoverContext.Provider

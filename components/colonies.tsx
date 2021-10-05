@@ -1,7 +1,7 @@
 import {Box, Flex} from 'components/box';
 import {BaseActionIconography} from 'components/card/CardIconography';
 import {ColonyComponent} from 'components/colony';
-import {AcceptedTradePayment, Colony, getColony} from 'constants/colonies';
+import {AcceptedTradePayment, getColony, SerializedColony} from 'constants/colonies';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -20,7 +20,7 @@ export function ColonySwitcher({
     selectedColonies,
     allowMulti,
 }: {
-    colonies: Colony[];
+    colonies: SerializedColony[];
     setSelectedColonies: Dispatch<SetStateAction<boolean[]>>;
     selectedColonies: boolean[];
     allowMulti?: boolean;
@@ -39,7 +39,7 @@ function ColonyPicker({
     selectedColonies,
     allowMulti,
 }: {
-    colonies: Colony[];
+    colonies: SerializedColony[];
     setSelectedColonies: Dispatch<SetStateAction<boolean[]>>;
     selectedColonies: boolean[];
     allowMulti?: boolean;
@@ -55,6 +55,8 @@ function ColonyPicker({
             style={{userSelect: 'none'}}
         >
             {colonies.map((colony, index) => {
+                const {planetColor} = getColony(colony);
+
                 return (
                     <Box
                         cursor={!allowMulti && selectedColonies[index] ? 'auto' : 'pointer'}
@@ -66,9 +68,7 @@ function ColonyPicker({
                         background="#333"
                         borderRadius="12px"
                         boxShadow={
-                            selectedColonies[index]
-                                ? `${BOX_SHADOW_BASE} ${colony.planetColor}`
-                                : 'none'
+                            selectedColonies[index] ? `${BOX_SHADOW_BASE} ${planetColor}` : 'none'
                         }
                         onClick={event => {
                             const newSelectedColonies =
@@ -92,7 +92,7 @@ function FilteredColonies({
     colonies,
     selectedColonies,
 }: {
-    colonies: Colony[];
+    colonies: SerializedColony[];
     selectedColonies: boolean[];
 }) {
     return (
@@ -111,7 +111,7 @@ function FilteredColonies({
 }
 
 export function Colonies() {
-    const colonies = useTypedSelector(state => state.common.colonies?.map(getColony) ?? []);
+    const colonies = useTypedSelector(state => state.common.colonies ?? []);
 
     const [selectedColonies, setSelectedColonies] = useState<boolean[]>([true]);
 
@@ -129,7 +129,11 @@ export function Colonies() {
     const tradePayment = getValidTradePayment(loggedInPlayer);
     const actionGuard = useActionGuard(loggedInPlayer.username);
 
-    function tradeWithPayment(payment: AcceptedTradePayment, colony: Colony, tradeIncome: number) {
+    function tradeWithPayment(
+        payment: AcceptedTradePayment,
+        colony: SerializedColony,
+        tradeIncome: number
+    ) {
         apiClient.tradeAsync({
             payment: payment.resource,
             colony: colony.name,
@@ -137,7 +141,7 @@ export function Colonies() {
         });
     }
 
-    function tradeForFree(colony: Colony, tradeIncome: number) {
+    function tradeForFree(colony: SerializedColony, tradeIncome: number) {
         apiClient.tradeForFreeAsync({
             colony: colony.name,
             tradeIncome,
@@ -201,11 +205,11 @@ export function Colonies() {
         setSelectedTradeIncome(firstSelectedColony.step);
     }, [firstSelectedColony.name]);
 
+    const firstColony = getColony(firstSelectedColony);
     const tradeIncomeElements = eligibleTradeIncomes.map((index, internalIndex) => {
-        const tradeIncome = firstSelectedColony.tradeIncome[index];
+        const tradeIncome = firstColony.tradeIncome[index];
         if (!tradeIncome) return null;
-        const nextTradeIncome =
-            firstSelectedColony.tradeIncome[eligibleTradeIncomes[internalIndex + 1]];
+        const nextTradeIncome = firstColony.tradeIncome[eligibleTradeIncomes[internalIndex + 1]];
         // Filter duplicate options.
         if (nextTradeIncome && JSON.stringify(tradeIncome) === JSON.stringify(nextTradeIncome)) {
             return null;

@@ -3040,6 +3040,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.VENUS],
         type: CardType.ACTIVE,
+        victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
     },
     {
         action: {
@@ -3990,7 +3991,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Molecular Printing',
-        text: 'Gain 1 MC fo each city tile in play. Gain 1 MC for each colony in play.',
+        text: 'Gain 1 MC for each city tile in play. Gain 1 MC for each colony in play.',
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,

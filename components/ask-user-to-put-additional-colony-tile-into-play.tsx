@@ -1,4 +1,4 @@
-import {COLONIES} from 'constants/colonies';
+import {COLONIES, getSerializedColony} from 'constants/colonies';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
@@ -12,7 +12,9 @@ export function AskUserToPutAdditionalColonyTileIntoPlay({player}: {player: Play
         colony => colony.name
     );
 
-    const otherColonies = COLONIES.filter(colony => !coloniesAlreadyInGame.includes(colony.name));
+    const otherColonies = COLONIES.filter(
+        colony => !coloniesAlreadyInGame.includes(colony.name)
+    ).map(getSerializedColony);
 
     const selectedColony = otherColonies[selectedColonies.indexOf(true)];
 

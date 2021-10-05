@@ -1,4 +1,3 @@
-import {isTagAmount} from 'selectors/is-tag-amount';
 import {Action, Amount} from './action';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
@@ -22,8 +21,6 @@ export function isOperationAmount(amount: Amount): amount is OperationAmount {
     if (typeof amount === 'number') return false;
     // Variable amount is string enum
     if (typeof amount === 'string') return false;
-
-    if (isTagAmount(amount)) return false;
 
     return 'operation' in amount;
 }
@@ -66,6 +63,8 @@ export const applyOperation = (operation: Operation) => (...operands: Amount[]) 
 });
 export const max = applyOperation(Operation.MAX);
 export const subtract = applyOperation(Operation.SUBTRACT);
+export const divide = applyOperation(Operation.DIVIDE);
+export const sum = applyOperation(Operation.ADD);
 
 // With these helper functions, the EXAMPLE_ACTION can also be represented as:
 const EXAMPLE_ACTION_ALTERNATIVE_REPRESENTATION: Action = {

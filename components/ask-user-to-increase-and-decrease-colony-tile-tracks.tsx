@@ -1,4 +1,3 @@
-import {getColony} from 'constants/colonies';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
@@ -10,7 +9,7 @@ export function AskUserToIncreaseAndDecreaseColonyTileTracks({player}: {player: 
 
     const [selectedDecreaseTrackColonies, setSelectedDecreaseTrackColonies] = useState([true]);
 
-    const colonies = useTypedSelector(state => (state.common.colonies ?? []).map(getColony));
+    const colonies = useTypedSelector(state => state.common.colonies ?? []);
 
     // increase/decrease colonies must be different
     const filteredDecreaseTrackColonies = colonies.filter(

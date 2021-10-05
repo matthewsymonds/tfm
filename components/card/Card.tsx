@@ -68,8 +68,6 @@ const CardInner: React.FC<CardProps> = ({
     );
     const apiClient = useApiClient();
 
-    const combinedStep = card.steps?.reduce((acc, step) => ({...acc, ...step}), {}) ?? {};
-
     return (
         <TexturedCard
             isSelected={isSelected}
@@ -90,7 +88,6 @@ const CardInner: React.FC<CardProps> = ({
                 showActionText={true}
             />
             <BaseActionIconography card={card} /> {/* Cards with single-step actions */}
-            <BaseActionIconography card={combinedStep} /> {/* Cards with multi-step actions */}
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}
             <CardContextButton
