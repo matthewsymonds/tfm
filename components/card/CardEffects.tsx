@@ -334,47 +334,63 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         );
     }
 
+    const effectTexts = effects.filter(effect => effect.text);
+    const effectElements = effectTexts.map((effect, index) => (
+        <React.Fragment key={index}>
+            {effect.text}
+            {index < effectTexts.length - 1 ? ' ' : ''}
+        </React.Fragment>
+    ));
+
+    const textElements =
+        showEffectText && effectTexts.length > 0 ? (
+            <EffectText style={{marginBottom: '4px', padding: '4px'}}>
+                <span style={{fontWeight: 600}}>Effect: </span>
+                {effectElements}
+            </EffectText>
+        ) : null;
+
     // We use the CardEffects component for more than just traditional effects with triggers
     // and actions - it's the catch-all component for all passive logistics.
     return (
-        <React.Fragment>
-            {effects.map((effect, index) => (
-                <EffectWrapper key={index}>
-                    {effect.text && showEffectText && (
-                        <EffectText style={{marginBottom: 4}}>{effect.text}</EffectText>
-                    )}
-                    <Flex alignItems="center" justifyContent="center" flexWrap="wrap">
-                        {/* Exchange rates (e.g. Advanced Alloys) */}
-                        {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}
+        <>
+            {textElements}
+            <Flex justifyContent="center" flexWrap="wrap">
+                {effects.map((effect, index) => (
+                    <EffectWrapper key={index}>
+                        <Flex alignItems="center" justifyContent="center" flexWrap="wrap">
+                            {/* Exchange rates (e.g. Advanced Alloys) */}
+                            {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}
 
-                        {/* Modified card cost (e.g. Polyphemos) */}
-                        {card.cardCost && renderCardCost(card.cardCost)}
+                            {/* Modified card cost (e.g. Polyphemos) */}
+                            {card.cardCost && renderCardCost(card.cardCost)}
 
-                        {/* Card discounts (e.g. Research Outpost) */}
-                        {doesCardHaveDiscounts(card) && renderDiscounts()}
+                            {/* Card discounts (e.g. Research Outpost) */}
+                            {doesCardHaveDiscounts(card) && renderDiscounts()}
 
-                        {/* Manutech's special power */}
-                        {card.gainResourceWhenIncreaseProduction && (
-                            <GainResourceWhenIncreaseProductionIconography />
-                        )}
+                            {/* Manutech's special power */}
+                            {card.gainResourceWhenIncreaseProduction && (
+                                <GainResourceWhenIncreaseProductionIconography />
+                            )}
 
-                        {/* Conditional payments (e.g. Dirigibles) */}
-                        {card.conditionalPayment && renderConditionalPayment()}
+                            {/* Conditional payments (e.g. Dirigibles) */}
+                            {card.conditionalPayment && renderConditionalPayment()}
 
-                        {/* Use stored resource as heat (e.g. Stormcraft) */}
-                        {card.useStoredResourceAsHeat && renderUseStoredResourceAsHeat()}
+                            {/* Use stored resource as heat (e.g. Stormcraft) */}
+                            {card.useStoredResourceAsHeat && renderUseStoredResourceAsHeat()}
 
-                        {/* Standard trigger/action effects (e.g. Point Luna) */}
-                        {doesCardHaveTriggerAction(card) && (
-                            <React.Fragment>
-                                {renderTrigger(effect.trigger)}
-                                <Colon />
-                                {renderAction(effect.action)}
-                            </React.Fragment>
-                        )}
-                    </Flex>
-                </EffectWrapper>
-            ))}
-        </React.Fragment>
+                            {/* Standard trigger/action effects (e.g. Point Luna) */}
+                            {doesCardHaveTriggerAction(card) && (
+                                <React.Fragment>
+                                    {renderTrigger(effect.trigger)}
+                                    <Colon />
+                                    {renderAction(effect.action)}
+                                </React.Fragment>
+                            )}
+                        </Flex>
+                    </EffectWrapper>
+                ))}
+            </Flex>
+        </>
     );
 };

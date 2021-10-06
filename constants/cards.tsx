@@ -276,7 +276,7 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.OCEAN)],
     },
     {
-        effect: {text: 'Effect: When you play a card, you pay 1 MC less for it.'},
+        effect: {text: 'When you play a card, you pay 1 MC less for it.'},
         cost: 18,
         deck: Deck.BASIC,
         name: 'Research Outpost',
@@ -314,7 +314,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {placedTile: TileType.OCEAN, anyPlayer: true},
             action: {gainResource: {[Resource.PLANT]: 2}},
-            text: 'Effect: When anyone places an ocean tile, gain 2 plants.',
+            text: 'When anyone places an ocean tile, gain 2 plants.',
         },
         cost: 12,
         deck: Deck.BASIC,
@@ -347,7 +347,7 @@ export const cardConfigs: CardConfig[] = [
         victoryPoints: VariableAmount.RESOURCES_ON_CARD,
     },
     {
-        effect: {text: 'Effect: When you play a space card, you pay 2 MC less for it.'},
+        effect: {text: 'When you play a space card, you pay 2 MC less for it.'},
         cost: 10,
         deck: Deck.CORPORATE,
         name: 'Space Station',
@@ -430,7 +430,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {cardTags: [Tag.EVENT, Tag.SPACE]},
             action: {gainResource: {[Resource.MEGACREDIT]: 3, [Resource.HEAT]: 3}},
-            text: 'Effect: When you place a space event, you gain 3 MC and 3 heat.',
+            text: 'When you place a space event, you gain 3 MC and 3 heat.',
         },
         cost: 7,
         deck: Deck.BASIC,
@@ -547,7 +547,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
-            text: 'Effect: When any city tile is placed, gain 2 MC',
+            text: 'When any city tile is placed, gain 2 MC',
         },
         cost: 8,
         deck: Deck.BASIC,
@@ -954,7 +954,7 @@ export const cardConfigs: CardConfig[] = [
         decreaseProduction: {[Resource.ENERGY]: 1},
     },
     {
-        effect: {text: 'Effect: when you play a card, you pay 2 MC less for it.'},
+        effect: {text: 'when you play a card, you pay 2 MC less for it.'},
         cost: 23,
         deck: Deck.CORPORATE,
         name: 'Earth Catapult',
@@ -966,7 +966,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: Each titanium you have is worth 1MC extra. Each steel you have is worth 1 MC extra.',
+                'Each titanium you have is worth 1MC extra. Each steel you have is worth 1 MC extra.',
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -1007,7 +1007,7 @@ export const cardConfigs: CardConfig[] = [
                 gainResource: {[Resource.CARD]: VariableAmount.BASED_ON_USER_CHOICE},
             },
             text:
-                'Effect: When you play a science tag, including this, you may discard a card from hand to draw a card.',
+                'When you play a science tag, including this, you may discard a card from hand to draw a card.',
         },
         cost: 8,
         deck: Deck.CORPORATE,
@@ -1028,7 +1028,7 @@ export const cardConfigs: CardConfig[] = [
                 gainResourceTargetType: ResourceLocationType.LAST_PLAYED_CARD,
             },
             text:
-                'Effect: When you play a plant, microbe, or an animal tag, including this, gain 1 plant or add 1 resource TO THAT CARD.',
+                'When you play a plant, microbe, or an animal tag, including this, gain 1 plant or add 1 resource TO THAT CARD.',
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -1079,7 +1079,7 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
     },
     {
-        effect: {text: 'Effect: When you play a space card, you pay 2 MC less for it'},
+        effect: {text: 'When you play a space card, you pay 2 MC less for it'},
         cost: 13,
         deck: Deck.CORPORATE,
         name: 'Quantum Extractor',
@@ -1248,7 +1248,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.PLANT]: 2},
     },
     {
-        effect: {text: 'Effect: When you play a space card, you pay 2 MC less for it.'},
+        effect: {text: 'When you play a space card, you pay 2 MC less for it.'},
         cost: 8,
         deck: Deck.CORPORATE,
         name: 'Mass Converter',
@@ -1381,7 +1381,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.ACTIVE,
     },
     {
-        effect: {text: 'Effect: When you play an Earth tag, you pay 3 MC less for it.'},
+        effect: {text: 'When you play an Earth tag, you pay 3 MC less for it.'},
         cost: 1,
         deck: Deck.CORPORATE,
         name: 'Earth Office',
@@ -1432,7 +1432,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {cardTags: [Tag.EVENT]},
             action: {gainResource: {[Resource.MEGACREDIT]: 3}},
-            text: 'Effect: After you play an event card, you gain 3MC',
+            text: 'After you play an event card, you gain 3MC',
         },
         cost: 6,
         deck: Deck.CORPORATE,
@@ -1669,7 +1669,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you play an animal or a plant tag (including these 2), add an animal to this card.',
+                'When you play an animal or a plant tag (including these 2), add an animal to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -1723,7 +1723,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you play an animal, plant, or microbe tag, including this, add a microbe to this card.',
+                'When you play an animal, plant, or microbe tag, including this, add a microbe to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]},
             action: {
                 gainResource: {[Resource.MICROBE]: 1},
@@ -1934,7 +1934,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you place a greenery tile, add an animal to this card.',
+            text: 'When you place a greenery tile, add an animal to this card.',
             trigger: {placedTile: TileType.GREENERY},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -1989,7 +1989,7 @@ export const cardConfigs: CardConfig[] = [
         gainResourceTargetType: ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE,
     },
     {
-        effect: {text: 'Effect: when you play a card, you pay 2 MC less for it.'},
+        effect: {text: 'when you play a card, you pay 2 MC less for it.'},
         cost: 14,
         deck: Deck.CORPORATE,
         name: 'Anti-Gravity Technology',
@@ -2038,7 +2038,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: Your global requirements are +2 or -2 steps, your choice in each case.',
+            text: 'Your global requirements are +2 or -2 steps, your choice in each case.',
         },
         cost: 12,
         deck: Deck.BASIC,
@@ -2085,8 +2085,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Effect: After you pay for a standard project, except selling patents, you gain 3 MC.',
+            text: 'After you pay for a standard project, except selling patents, you gain 3 MC.',
             trigger: {standardProject: true},
             action: {gainResource: {[Resource.MEGACREDIT]: 3}},
         },
@@ -2211,7 +2210,7 @@ export const cardConfigs: CardConfig[] = [
         increaseTerraformRating: 3,
     },
     {
-        effect: {text: 'Effect: When you play a space card, you pay 2MC less for it.'},
+        effect: {text: 'When you play a space card, you pay 2MC less for it.'},
         cost: 10,
         deck: Deck.BASIC,
         name: 'Shuttles',
@@ -2299,7 +2298,7 @@ export const cardConfigs: CardConfig[] = [
                 gainResourceTargetType: ResourceLocationType.THIS_CARD,
             },
             text:
-                'Effect: When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.',
+                'When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.',
         },
         cost: 10,
         deck: Deck.BASIC,
@@ -2474,7 +2473,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you play a science tag, including this, either add a science resource to this card, or remove a science resource from this card to draw a card.',
+                'When you play a science tag, including this, either add a science resource to this card, or remove a science resource from this card to draw a card.',
             trigger: {tags: [Tag.SCIENCE]},
             action: {
                 choice: [
@@ -2668,7 +2667,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: Each time a city tile is placed, including this, increase your MC production 1 step.',
+                'Each time a city tile is placed, including this, increase your MC production 1 step.',
             trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
@@ -3571,7 +3570,7 @@ export const cardConfigs: CardConfig[] = [
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
-        effect: {text: 'Effect: When you play a Venus tag, you pay 2 MC less for it.'},
+        effect: {text: 'When you play a Venus tag, you pay 2 MC less for it.'},
         cost: 9,
         deck: Deck.VENUS,
         name: 'Venus Waystation',
@@ -3582,7 +3581,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you play a science tag, including this, add 1 animal to this card.',
+            text: 'When you play a science tag, including this, add 1 animal to this card.',
             trigger: {tags: [Tag.SCIENCE]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -3735,7 +3734,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
     },
     {
-        effect: {text: 'Effect: When you trade, you pay 1 less resource for it.'},
+        effect: {text: 'When you trade, you pay 1 less resource for it.'},
         cost: 10,
         deck: Deck.COLONIES,
         name: 'Cryo-Sleep',
@@ -3950,7 +3949,7 @@ export const cardConfigs: CardConfig[] = [
             gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD},
         },
         effect: {
-            text: 'Effect: When you play an Earth tag, place an animal here.',
+            text: 'When you play an Earth tag, place an animal here.',
             trigger: {tags: [Tag.EARTH]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -4107,7 +4106,7 @@ export const cardConfigs: CardConfig[] = [
         placeColony: {mayBeRepeatColony: true},
     },
     {
-        effect: {text: 'Effect: When you trade, you pay 1 less resource for it.'},
+        effect: {text: 'When you trade, you pay 1 less resource for it.'},
         cost: 4,
         deck: Deck.COLONIES,
         name: 'Rim Freighters',
@@ -4116,7 +4115,7 @@ export const cardConfigs: CardConfig[] = [
         discounts: {trade: 1},
     },
     {
-        effect: {text: 'Effect: When you play a card, you pay 1 MC less for it.'},
+        effect: {text: 'When you play a card, you pay 1 MC less for it.'},
         cost: 18,
         deck: Deck.COLONIES,
         name: 'Sky Docks',
@@ -4177,7 +4176,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: WHEN PLAYING A CARD WITH A BASIC COST OF 20 MC OR MORE, draw a card',
+            text: 'WHEN PLAYING A CARD WITH A BASIC COST OF 20 MC OR MORE, draw a card',
             trigger: {cost: 20, cardsOnly: true},
             action: {gainResource: {[Resource.CARD]: 1}},
         },
@@ -4295,7 +4294,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you trade, you may first increase that Colony Tile track 1 step.',
+            text: 'When you trade, you may first increase that Colony Tile track 1 step.',
         },
         cost: 6,
         deck: Deck.COLONIES,
@@ -4306,7 +4305,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you trade, you may first increase that Colony Tile track 1 step.',
+            text: 'When you trade, you may first increase that Colony Tile track 1 step.',
         },
         cost: 18,
         deck: Deck.COLONIES,
@@ -4333,7 +4332,7 @@ export const cardConfigs: CardConfig[] = [
         requiredTilePlacements: [{type: TileType.CITY, currentPlayer: true}],
     },
     {
-        effect: {text: 'Effect: When you play a space tag, you pay 4 MC less for it.'},
+        effect: {text: 'When you play a space tag, you pay 4 MC less for it.'},
         cost: 14,
         deck: Deck.COLONIES,
         name: 'Warp Drive',
@@ -4753,7 +4752,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: After you pay for a card or standard project with a basic cost of 20 MC or more, you gain 4 MC.',
+                'After you pay for a card or standard project with a basic cost of 20 MC or more, you gain 4 MC.',
             trigger: {cost: 20},
             action: {gainResource: {[Resource.MEGACREDIT]: 4}},
         },
@@ -4765,7 +4764,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 57},
     },
     {
-        effect: {text: 'Effect: You may always pay 7 plants, instead of 8, to place 1 greenery.'},
+        effect: {text: 'You may always pay 7 plants, instead of 8, to place 1 greenery.'},
         deck: Deck.BASIC,
         name: 'Ecoline',
         text: 'You start with 2 plant production, 3 plants, and 36 MC.',
@@ -4776,7 +4775,7 @@ export const cardConfigs: CardConfig[] = [
         plantDiscount: 1,
     },
     {
-        effect: {text: 'Effect: You may use heat as MC. You may not use MC as heat.'},
+        effect: {text: 'You may use heat as MC. You may not use MC as heat.'},
         deck: Deck.BASIC,
         name: 'Helion',
         text: 'You start with 3 heat production and 42 MC.',
@@ -4788,7 +4787,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: Each time you play an event, you gain 2 MC.',
+            text: 'Each time you play an event, you gain 2 MC.',
             trigger: {cardTags: [Tag.EVENT]},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
         },
@@ -4802,7 +4801,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.',
+                'Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.',
         },
         deck: Deck.BASIC,
         name: 'Inventrix',
@@ -4822,7 +4821,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: Each time you get any steel or titanium as a placement bonus on the map, increase your steel production 1 step.',
+                'Each time you get any steel or titanium as a placement bonus on the map, increase your steel production 1 step.',
             trigger: {steelOrTitaniumPlacementBonus: true},
             action: {increaseProduction: {[Resource.STEEL]: 1}},
         },
@@ -4837,7 +4836,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: Each time any Jovian tag is put into play, including this, increase your MC production 1 step.',
+                'Each time any Jovian tag is put into play, including this, increase your MC production 1 step.',
             trigger: {tags: [Tag.JOVIAN], anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
@@ -4850,7 +4849,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 42},
     },
     {
-        effect: {text: 'Effect: Your titanium resources are each worth 1 MC extra.'},
+        effect: {text: 'Your titanium resources are each worth 1 MC extra.'},
         deck: Deck.BASIC,
         name: 'PhoboLog',
         text: 'You start with 10 titanium and 23 MC',
@@ -4862,7 +4861,7 @@ export const cardConfigs: CardConfig[] = [
         },
     },
     {
-        effect: {text: 'Effect: When playing an Earth card, you pay 3 MC less for it.'},
+        effect: {text: 'When playing an Earth card, you pay 3 MC less for it.'},
         deck: Deck.CORPORATE,
         name: 'Teractor',
         text: 'You start with 60 MC.',
@@ -4874,13 +4873,12 @@ export const cardConfigs: CardConfig[] = [
     {
         effects: [
             {
-                text:
-                    'Effect: When any city tile is placed ON MARS, increase your MC production 1 step.',
+                text: 'When any city tile is placed ON MARS, increase your MC production 1 step.',
                 trigger: {placedTile: TileType.CITY, anyPlayer: true, onMars: true},
                 action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
             },
             {
-                text: 'Effect: When you place a city tile, gain 3 MC.',
+                text: 'When you place a city tile, gain 3 MC.',
                 trigger: {placedTile: TileType.CITY},
                 action: {gainResource: {[Resource.MEGACREDIT]: 3}},
             },
@@ -4898,7 +4896,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When playing a power card OR THE STANDARD PROJECT POWER PLANT, you pay 3 MC less for it.',
+                'When playing a power card OR THE STANDARD PROJECT POWER PLANT, you pay 3 MC less for it.',
         },
         deck: Deck.BASIC,
         name: 'ThorGate',
@@ -4926,7 +4924,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: Whenever Venus is terraformed 1 step, you gain 2 MC.',
+            text: 'Whenever Venus is terraformed 1 step, you gain 2 MC.',
             trigger: {increasedParameter: Parameter.VENUS, anyPlayer: true},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
         },
@@ -4960,7 +4958,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: For each step you increase the production of a resource, including this, you also gain that resource',
+                'For each step you increase the production of a resource, including this, you also gain that resource',
         },
         deck: Deck.VENUS,
         name: 'Manutech',
@@ -4973,7 +4971,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: Your Venus requirements are +/- 2 steps, your choice in each case.',
+            text: 'Your Venus requirements are +/- 2 steps, your choice in each case.',
         },
         deck: Deck.VENUS,
         name: 'Morning Star Inc.',
@@ -5002,7 +5000,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 48},
     },
     {
-        effect: {text: 'Effect: When you play a building tag, you pay 2 MC less for it.'},
+        effect: {text: 'When you play a building tag, you pay 2 MC less for it.'},
         deck: Deck.PRELUDE,
         name: 'Cheung Shing Mars',
         text: 'You start with 44 MC and 3 MC production.',
@@ -5014,7 +5012,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you play a Earth tag, including this, draw a card.',
+            text: 'When you play a Earth tag, including this, draw a card.',
             trigger: {tags: [Tag.EARTH]},
             action: {gainResource: {[Resource.CARD]: 1}},
         },
@@ -5041,7 +5039,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'Effect: When you play a science tag, you pay 2 MC less for it.',
+            text: 'When you play a science tag, you pay 2 MC less for it.',
         },
         deck: Deck.PRELUDE,
         name: 'Valley Trust',
@@ -5057,8 +5055,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Effect: When you play a card with a NON-NEGATIVE VP icon, including this, gain 3 MC.',
+            text: 'When you play a card with a NON-NEGATIVE VP icon, including this, gain 3 MC.',
             trigger: {nonNegativeVictoryPointsIcon: true},
             action: {gainResource: {[Resource.MEGACREDIT]: 3}},
         },
@@ -5075,7 +5072,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you get a new type of tag in play (event cards do not count), increase your MC production 1 step.',
+                'When you get a new type of tag in play (event cards do not count), increase your MC production 1 step.',
             trigger: {newTag: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
@@ -5093,7 +5090,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you play an animal or plant tag, including this, add 1 animal to this card.',
+                'When you play an animal or plant tag, including this, add 1 animal to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -5114,7 +5111,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Effect: When you buy a card to hand, pay 5 MC instead of 3 MC, including the starting hand.',
+                'When you buy a card to hand, pay 5 MC instead of 3 MC, including the starting hand.',
         },
         deck: Deck.COLONIES,
         name: 'Polyphemos',
@@ -5127,8 +5124,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Effect: When any colony is placed, including this, raise your MC production 1 step.',
+            text: 'When any colony is placed, including this, raise your MC production 1 step.',
             trigger: {placedColony: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
@@ -5149,7 +5145,7 @@ export const cardConfigs: CardConfig[] = [
             gainResource: {[Resource.FLOATER]: 1},
         },
         effect: {
-            text: 'Effect: Floaters on this card may be used as 2 heat each',
+            text: 'Floaters on this card may be used as 2 heat each',
         },
         deck: Deck.COLONIES,
         storedResourceType: Resource.FLOATER,
