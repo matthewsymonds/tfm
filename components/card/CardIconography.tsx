@@ -26,7 +26,7 @@ export const InlineText = styled.span`
     height: 16px;
     line-height: 16px;
     display: inline-block;
-    min-width: 6px;
+    min-width: 9px;
     text-align: center;
 `;
 export const TextWithMargin = styled(InlineText)<{margin?: string}>`
@@ -956,11 +956,20 @@ export const BaseActionIconography = ({
                 alignItems: 'center',
             }}
         >
-            {doesActionHaveProductionIconography(card) || tilePlacements || placeColony ? (
+            {doesActionHaveProductionIconography(card) ||
+            tilePlacements ||
+            placeColony ||
+            gainResource ? (
                 <Flex justifyContent="space-evenly" width="100%" alignItems="center">
                     {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
                     {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
                     <ProductionIconography card={card} />
+                    {gainResource ? (
+                        <GainResourceIconography
+                            gainResource={gainResource}
+                            opts={{shouldShowPlus, isInline: !!tilePlacements}}
+                        />
+                    ) : null}
                 </Flex>
             ) : null}
             {increaseParameter && (
@@ -992,11 +1001,6 @@ export const BaseActionIconography = ({
                         removeResourceOption={removeResourceOption}
                         opts={{locationType: removeResourceSourceType}}
                     />
-                </div>
-            )}
-            {gainResource && (
-                <div>
-                    <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
                 </div>
             )}
             {gainResourceOption && (
