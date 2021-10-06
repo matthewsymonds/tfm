@@ -170,13 +170,18 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         setSelectedPlayerIndex(loggedInPlayer.index);
     }, [gameName]);
 
-    const hideOverlay =
-        loggedInPlayer.pendingPlayCardFromHand ||
-        loggedInPlayer.pendingTilePlacement ||
-        loggedInPlayer.placeColony ||
-        loggedInPlayer.tradeForFree ||
-        loggedInPlayer.fundAward;
+    const hideOverlay = useTypedSelector(
+        state =>
+            loggedInPlayer.pendingPlayCardFromHand ||
+            loggedInPlayer.pendingTilePlacement ||
+            loggedInPlayer.placeColony ||
+            loggedInPlayer.tradeForFree ||
+            loggedInPlayer.fundAward
+    );
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
+    const shouldHidePlayerDetails = useTypedSelector(
+        state => isPlayerMakingDecision && !hideOverlay && isActionOverlayVisible
+    );
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Choose your corporation and starting cards';
@@ -460,22 +465,24 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         </Flex>
                     </Box>
                     <Box className="player-cards-and-tags-outer" marginBottom="8px">
-                        <Flex
-                            flexGrow="1"
-                            flexWrap="wrap"
-                            background={colors.DARK_3}
-                            border={`1px solid ${colors.PANEL_BORDER}`}
-                            borderRadius="4px"
-                            justifyContent="center"
-                            boxSizing="border-box"
-                            overflowY="auto"
-                            width="100%"
-                            className="player-cards-and-tags"
-                        >
-                            <Flex margin="2px" flexGrow="1">
-                                <PlayerPanel player={players[selectedPlayerIndex]} />
+                        {shouldHidePlayerDetails ? null : (
+                            <Flex
+                                flexGrow="1"
+                                flexWrap="wrap"
+                                background={colors.DARK_3}
+                                border={`1px solid ${colors.PANEL_BORDER}`}
+                                borderRadius="4px"
+                                justifyContent="center"
+                                boxSizing="border-box"
+                                overflowY="auto"
+                                width="100%"
+                                className="player-cards-and-tags"
+                            >
+                                <Flex margin="2px" flexGrow="1">
+                                    <PlayerPanel player={players[selectedPlayerIndex]} />
+                                </Flex>
                             </Flex>
-                        </Flex>
+                        )}
                     </Box>
                     <GlobalParams parameters={parameters} />
                     <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
