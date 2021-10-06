@@ -40,7 +40,10 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
         );
         // Unfortunately we have to do all this crap to detect when someone is waiting to draft...
         games = games.filter(game => {
-            if (game.state.common.gameStage === GameStage.ACTIVE_ROUND) {
+            if (
+                game.state.common.gameStage === GameStage.ACTIVE_ROUND ||
+                game.stage.common.gameStage === GameStage.GREENERY_PLACEMENT
+            ) {
                 return true;
             }
             const currentPlayer = game.state.players.find(player => player.username === username);
