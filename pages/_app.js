@@ -163,6 +163,9 @@ function InnerAppComponent({Component, pageProps, session}) {
     const [path, setPath] = useState(router.pathname ?? '');
     useEffect(() => {
         setPath(router.pathname);
+        if (typeof history !== 'undefined') {
+            history.scrollRestoration = 'manual';
+        }
     }, [router.pathname]);
     if (router.pathname.includes('games')) {
         return <Component {...pageProps} session={session} />;
