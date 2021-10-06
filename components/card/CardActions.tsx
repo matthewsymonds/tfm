@@ -32,7 +32,7 @@ import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
 const ActionText = styled(CardText)`
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 `;
 
 const ActionsWrapper = styled.div`

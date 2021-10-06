@@ -956,20 +956,11 @@ export const BaseActionIconography = ({
                 alignItems: 'center',
             }}
         >
-            {doesActionHaveProductionIconography(card) ||
-            tilePlacements ||
-            placeColony ||
-            gainResource ? (
+            {doesActionHaveProductionIconography(card) || tilePlacements || placeColony ? (
                 <Flex justifyContent="space-evenly" width="100%" alignItems="center">
                     {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
                     {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
                     <ProductionIconography card={card} />
-                    {gainResource ? (
-                        <GainResourceIconography
-                            gainResource={gainResource}
-                            opts={{shouldShowPlus, isInline: !!tilePlacements}}
-                        />
-                    ) : null}
                 </Flex>
             ) : null}
             {increaseParameter && (
@@ -1001,6 +992,11 @@ export const BaseActionIconography = ({
                         removeResourceOption={removeResourceOption}
                         opts={{locationType: removeResourceSourceType}}
                     />
+                </div>
+            )}
+            {gainResource && (
+                <div>
+                    <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
                 </div>
             )}
             {gainResourceOption && (
