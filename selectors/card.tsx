@@ -1,6 +1,8 @@
 import {Amount} from 'constants/action';
 import {isConditionAmount} from 'constants/conditional-amount';
+import {isContestAmount} from 'constants/contest-amount';
 import {isOperationAmount} from 'constants/operation-amount';
+import {isProductionAmount} from 'constants/production-amount';
 import {
     PROTECTED_HABITAT_RESOURCE,
     ResourceLocationType,
@@ -14,7 +16,9 @@ import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
 import {
     convertConditionAmountToNumber,
+    convertContestAmountToNumber,
     convertOperationAmountToNumber,
+    convertProductionAmountToNumber,
 } from './convert-amount-to-number';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
@@ -44,6 +48,14 @@ export function getCardVictoryPoints(
 
     if (isConditionAmount(amount)) {
         return convertConditionAmountToNumber(amount, state, player, card);
+    }
+
+    if (isContestAmount(amount)) {
+        return convertContestAmountToNumber(amount, state, player, card);
+    }
+
+    if (isProductionAmount(amount)) {
+        return convertProductionAmountToNumber(amount, state, player, card);
     }
 
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];

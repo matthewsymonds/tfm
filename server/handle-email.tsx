@@ -11,13 +11,12 @@ const API_KEY = process.env.MAILGUN_PRIVATE_API_KEY;
 
 const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
 
+const getLink = (name: string) => `<a href=https://${DOMAIN}/games/${name}>${name}</a>`;
+
 const getMessage = (yourTurnGames: Array<{name: string}>) =>
     `<div>It is your turn in ${yourTurnGames.length} game${
         yourTurnGames.length === 1 ? '' : 's'
-    }.</div>`;
-
-const getLink = (yourTurnGames: Array<{name: string}>) =>
-    `<a href=https://${DOMAIN}/games/${yourTurnGames[0].name}>Click here</a>`;
+    }: ${yourTurnGames.map(({name}) => getLink(name)).join(', ')}</div>`;
 
 export async function handleEmail(players: string[]) {
     for (const username of players) {
@@ -31,7 +30,6 @@ export async function handleEmail(players: string[]) {
                 if (yourTurnGames.length === 0) return;
 
                 const message = getMessage(yourTurnGames);
-                const link = getLink(yourTurnGames);
 
                 const user = await usersModel.findOne({username: username}, 'email').lean();
                 const email = user['email'];
@@ -40,7 +38,7 @@ export async function handleEmail(players: string[]) {
                     from: 'TFM admin <noreply@tfm-online.net>',
                     to: email,
                     subject: 'Your turn in TFM',
-                    html: `${message}${link}`,
+                    html: message,
                 };
                 mg.messages().send(data, function () {
                     delete timeoutsByUsername[username];

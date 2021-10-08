@@ -1,7 +1,15 @@
 import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
-import {Condition, ConditionAmount, isConditionAmount} from 'constants/conditional-amount';
+import {
+    Condition,
+    ConditionAmount,
+    ConditionWithOperands,
+    isConditionAmount,
+} from 'constants/conditional-amount';
+import {ContestAmount, isContestAmount} from 'constants/contest-amount';
+import {LogicalOperator, LogicalOperatorWithConditions} from 'constants/logical-operator';
 import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
+import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -26,11 +34,15 @@ export function convertAmountToNumber(
         let extraTags = 0;
         if (card?.name) {
             const fullCard = getCard(card);
+            // Martian Survey
             if (fullCard.type === CardType.EVENT) {
                 extraTags = fullCard.tags.filter(tag => tag === amount.tag).length;
             }
         }
         return Math.floor((matchingTags.length + extraTags) / (amount.dividedBy ?? 1));
+    }
+    if (isProductionAmount(amount)) {
+        return convertProductionAmountToNumber(amount, state, player, card);
     }
     if (isOperationAmount(amount)) {
         return convertOperationAmountToNumber(amount, state, player, card);
@@ -38,11 +50,23 @@ export function convertAmountToNumber(
     if (isConditionAmount(amount)) {
         return convertConditionAmountToNumber(amount, state, player, card);
     }
+    if (isContestAmount(amount)) {
+        return convertContestAmountToNumber(amount, state, player, card);
+    }
     if (!isVariableAmount(amount)) return amount;
 
     const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!amountGetter) return 0;
     return amountGetter(state, player, card) || 0;
+}
+
+export function convertProductionAmountToNumber(
+    amount: ProductionAmount,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+) {
+    return Math.min(player.productions[amount.production], 0) ?? 0;
 }
 
 export function convertOperationAmountToNumber(
@@ -98,16 +122,88 @@ export function convertConditionAmountToNumber(
     player: PlayerState,
     card?: SerializedCard
 ): number {
-    const {condition, operands, pass, fail} = amount;
+    const {pass, fail} = amount;
+    const passed = isConditionPassed(amount, state, player, card);
+    if (passed) {
+        return convertAmountToNumber(pass, state, player, card);
+    } else {
+        return convertAmountToNumber(fail, state, player, card);
+    }
+}
+
+export function isConditionPassed(
+    conditionWithOperands: ConditionWithOperands,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+): boolean {
+    let {condition, operands} = conditionWithOperands;
+    operands = operands ?? [];
+
     switch (condition) {
         case Condition.GREATER_THAN_OR_EQUAL_TO:
             const [first, second] = operands.map(operand =>
                 convertAmountToNumber(operand, state, player, card)
             );
-            if (first >= second) {
-                return convertAmountToNumber(pass, state, player, card);
-            } else {
-                return convertAmountToNumber(fail, state, player, card);
-            }
+            return first >= second;
+        default:
+            return isLogicalOperatorPassed(condition, state, player, card);
     }
+}
+
+export function isLogicalOperatorPassed(
+    amount: LogicalOperatorWithConditions,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+): boolean {
+    const {logicalOperator, conditions} = amount;
+
+    return (logicalOperator === LogicalOperator.OR ? conditions.some : conditions.every).bind(
+        conditions
+    )(condition => {
+        if ('logicalOperator' in condition) {
+            return isLogicalOperatorPassed(condition, state, player, card);
+        } else {
+            return isConditionPassed(condition, state, player, card);
+        }
+    });
+}
+
+export function convertContestAmountToNumber(
+    amount: ContestAmount,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+): number {
+    if (state.players.length === 1) {
+        const contest = convertAmountToNumber(amount.contest, state, player, card);
+        if (contest >= convertAmountToNumber(amount.soloFirst, state, player, card)) {
+            return convertAmountToNumber(amount.first, state, player, card);
+        }
+        if (
+            typeof amount.soloSecond !== 'undefined' &&
+            contest >= convertAmountToNumber(amount.soloSecond, state, player, card)
+        ) {
+            return convertAmountToNumber(amount.second, state, player, card);
+        }
+        return 0;
+    }
+    const playerResults: number[] = state.players.map(player => {
+        return convertAmountToNumber(amount.contest, state, player, card);
+    });
+
+    const firstPlace = Math.max(...playerResults);
+
+    if (playerResults[player.index] === firstPlace) {
+        return convertAmountToNumber(amount.first, state, player, card);
+    }
+
+    const secondPlace = Math.max(...playerResults.filter(result => result !== firstPlace));
+
+    if (playerResults[player.index] === secondPlace) {
+        return convertAmountToNumber(amount.second, state, player, card);
+    }
+
+    return 0;
 }

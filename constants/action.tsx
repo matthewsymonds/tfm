@@ -2,7 +2,9 @@ import {PlaceColony} from 'actions';
 import {Parameter, TilePlacement} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {ConditionAmount} from './conditional-amount';
+import {ContestAmount} from './contest-amount';
 import {OperationAmount} from './operation-amount';
+import {ProductionAmount} from './production-amount';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {ResourceLocationType} from './resource';
 import {Resource} from './resource-enum';
@@ -20,7 +22,14 @@ type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parame
 // This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.
 export type ParameterCounter = NumericPropertyCounter<ParameterExcludingOcean>;
 
-export type Amount = number | VariableAmount | TagAmount | OperationAmount | ConditionAmount;
+export type Amount =
+    | number
+    | VariableAmount
+    | TagAmount
+    | OperationAmount
+    | ConditionAmount
+    | ProductionAmount
+    | ContestAmount;
 
 export enum ActionType {
     CARD = 'card',
@@ -58,7 +67,9 @@ export interface Action {
     lookAtCards?: LookAtCardsConfig;
     tilePlacements?: TilePlacement[];
     increaseParameter?: ParameterCounter;
+    decreaseParameter?: ParameterCounter;
     increaseTerraformRating?: Amount;
+    decreaseTerraformRating?: Amount;
     revealAndDiscardTopCards?: number;
 
     // For aquifier pumping, water import from europa, rotator impacts
@@ -104,4 +115,7 @@ export interface Action {
 
     putAdditionalColonyTileIntoPlay?: boolean;
     gainAllColonyBonuses?: boolean;
+
+    // From turmoil Global Event: "Sponsored Products" (All cards with resources on them gain 1 resource.)
+    increaseStoredResourceAmount?: number;
 }

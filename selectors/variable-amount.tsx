@@ -8,6 +8,7 @@ import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {SerializedCard} from 'state-serialization';
 import {
+    findCellsWithTile,
     findCellWithTile,
     getAdjacentCellsForCell,
     getCellsWithCities,
@@ -49,6 +50,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT));
         }).length;
     },
+    [VariableAmount.PLAYER_EVENTS]: (state: GameState, player = getLoggedInPlayer(state)) => {
+        return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT)).length;
+    },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getPlayedCards(player).filter(
             card => card.type !== CardType.EVENT && card.tags.length === 0
@@ -63,6 +67,16 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             return 0;
         }
         return getAdjacentCellsForCell(state, commercialDistrict).filter(hasCity).length;
+    },
+    [VariableAmount.TILES_ADJACENT_TO_OCEAN]: (
+        state: GameState,
+        player = getLoggedInPlayer(state)
+    ) => {
+        const oceans = findCellsWithTile(state, TileType.OCEAN);
+
+        return oceans
+            .flatMap(ocean => getAdjacentCellsForCell(state, ocean))
+            .filter(cell => cell.tile?.ownerPlayerIndex === player.index).length;
     },
     [VariableAmount.CITY_TILES_IN_PLAY]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getCellsWithCities(state, player).length;
