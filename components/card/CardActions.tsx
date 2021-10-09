@@ -75,7 +75,7 @@ const ActionContainerBase = styled.button`
     }
 `;
 
-export function renderRightSideOfArrow(action: Action, card?: CardModel) {
+export function renderRightSideOfArrow(action: Action, card?: CardModel, cardContext?: CardContext) {
     const elements: Array<React.ReactNode> = [];
     if (action.stealResource) {
         elements.push(
@@ -121,7 +121,7 @@ export function renderRightSideOfArrow(action: Action, card?: CardModel) {
     }
     if (action.gainResource) {
         // if this action also has a remove, lets explicitly mark the gain with a +
-        const shouldShowPlus = Object.keys(action?.removeResource ?? {}).length > 0;
+        const shouldShowPlus = Object.keys(action?.removeResource ?? {}).length > 0 && cardContext !== CardContext.PLAYED_CARD;
 
         elements.push(
             <GainResourceIconography
@@ -339,7 +339,7 @@ function CardAction({
             <Flex alignItems="center" justifyContent="center">
                 {renderLeftSideOfArrow(action, card)}
                 {renderArrow()}
-                {renderRightSideOfArrow(action, card)}
+                {renderRightSideOfArrow(action, card, cardContext)}
             </Flex>
         </ActionContainer>
     );
