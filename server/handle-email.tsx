@@ -13,15 +13,21 @@ const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
 
 const getLink = (name: string) => `<a href=https://${DOMAIN}/games/${name}>${name}</a>`;
 
+const getNumGamesMessage = (yourTurnGames: Array<{name: string}>) =>
+    `It is your turn in ${yourTurnGames.length} game${yourTurnGames.length === 1 ? '' : 's'}`;
+
+const getTitle = (yourTurnGames: Array<{name: string}>, notYouPlayers: string[]) =>
+    `[TFM] Your turn in ${yourTurnGames[0]} with ${notYouPlayers.join(', ')}`;
+
 const getMessage = (yourTurnGames: Array<{name: string}>) =>
-    `<div>It is your turn in ${yourTurnGames.length} game${
-        yourTurnGames.length === 1 ? '' : 's'
-    }: ${yourTurnGames.map(({name}) => getLink(name)).join(', ')}</div>`;
+    `<div>${getNumGamesMessage(yourTurnGames)}: ${yourTurnGames
+        .map(({name}) => getLink(name))
+        .join(', ')}</div>`;
 
 export async function handleEmail(players: string[]) {
     for (const username of players) {
         if (typeof timeoutsByUsername[username] !== 'undefined') {
-            return;
+            clearTimeout(timeoutsByUsername[username]);
         }
 
         const timeout = setTimeout(async () => {
@@ -37,7 +43,10 @@ export async function handleEmail(players: string[]) {
                 const data = {
                     from: 'TFM admin <noreply@tfm-online.net>',
                     to: email,
-                    subject: 'Your turn in TFM',
+                    subject: getTitle(
+                        yourTurnGames,
+                        players.filter(player => player !== username)
+                    ),
                     html: message,
                 };
                 mg.messages().send(data, function () {
