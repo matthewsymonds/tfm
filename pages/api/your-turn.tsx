@@ -1,7 +1,7 @@
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
 
-type NamedGame = {name: string};
+export type NamedGame = {name: string; length: number};
 
 export async function getYourTurnGameNames(username: string): Promise<NamedGame[]> {
     let gameNames: NamedGame[];
@@ -61,7 +61,7 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
             }
             return false;
         });
-        gameNames = games.map(game => ({name: game.name}));
+        gameNames = games.map(game => ({name: game.name, length: game.state.log.length}));
     } catch (error) {
         gameNames = [];
     }

@@ -1,6 +1,6 @@
 import {usersModel} from 'database';
 import mailgun from 'mailgun-js';
-import {getYourTurnGameNames} from 'pages/api/your-turn';
+import {getYourTurnGameNames, NamedGame} from 'pages/api/your-turn';
 
 const timeoutsByUsername: {[username: string]: number} = {};
 
@@ -13,13 +13,15 @@ const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
 
 const getLink = (name: string) => `<a href=https://${DOMAIN}/games/${name}>${name}</a>`;
 
-const getNumGamesMessage = (yourTurnGames: Array<{name: string}>) =>
+const getNumGamesMessage = (yourTurnGames: NamedGame[]) =>
     `It is your turn in ${yourTurnGames.length} game${yourTurnGames.length === 1 ? '' : 's'}`;
 
-const getTitle = (yourTurnGames: Array<{name: string}>, notYouPlayers: string[]) =>
-    `[TFM] Your turn in ${yourTurnGames[0]} with ${notYouPlayers.join(', ')}`;
+const getTitle = (yourTurnGames: NamedGame[], notYouPlayers: string[]) =>
+    `[TFM] [${yourTurnGames[0].length}] Your turn in ${
+        yourTurnGames[0].name
+    } with ${notYouPlayers.join(', ')}`;
 
-const getMessage = (yourTurnGames: Array<{name: string}>) =>
+const getMessage = (yourTurnGames: NamedGame[]) =>
     `<div>${getNumGamesMessage(yourTurnGames)}: ${yourTurnGames
         .map(({name}) => getLink(name))
         .join(', ')}</div>`;
