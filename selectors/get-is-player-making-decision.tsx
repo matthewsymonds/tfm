@@ -18,6 +18,8 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
             loggedInPlayer.increaseAndDecreaseColonyTileTracks ||
             loggedInPlayer.tradeForFree ||
             loggedInPlayer.putAdditionalColonyTileIntoPlay ||
+            loggedInPlayer.payPendingCost ||
+            loggedInPlayer.illegalStateReached ||
             ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                 state.common.currentPlayerIndex === loggedInPlayer.index &&
                 state.common.gameStage === GameStage.ACTIVE_ROUND) ||

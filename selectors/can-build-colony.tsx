@@ -1,14 +1,14 @@
 import {PlaceColony} from 'actions';
 import {CanPlayAndReason} from 'client-server-shared/action-guard';
-import {SerializedColony} from 'constants/colonies';
+import {MAX_NUM_COLONIES, SerializedColony} from 'constants/colonies';
 
 export function canPlaceColony(
     colony: SerializedColony,
     playerIndex: number,
     placeColony?: PlaceColony
 ): CanPlayAndReason {
-    if (colony.colonies.length === 3) {
-        return [false, '3 colonies have already been built here'];
+    if (colony.colonies.length === MAX_NUM_COLONIES) {
+        return [false, `${MAX_NUM_COLONIES} colonies have already been built here`];
     }
 
     if (!placeColony) {

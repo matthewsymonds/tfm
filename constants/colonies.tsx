@@ -33,8 +33,8 @@ export type Colony = {
     // What the trade fleet gets for visiting the colony (length 7)
     tradeIncome: Action[];
     // -1 initially for animals and other storable resources.
-    // What you get for establishing a colony (length 3)
-    colonyPlacementBonus: Action[];
+    // What you get for establishing a colony (max 3)
+    colonyPlacementBonus: Action;
     lastTrade?: Trade;
     planetColor: string;
     borderColor: string;
@@ -65,7 +65,7 @@ type Trade = {
 
 export const STARTING_STEP = 1;
 export const STARTING_STEP_STORABLE_RESOURCE_COLONY = -1;
-const MAX_NUM_COLONIES = 3;
+export const MAX_NUM_COLONIES = 3;
 
 export const COLONIES: Colony[] = [];
 
@@ -78,9 +78,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.ENERGY]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         increaseProduction: {[Resource.ENERGY]: 1},
-    }),
+    },
     planetColor: '#cc9ad0',
     borderColor: '#61244b',
     planetSize: 116,
@@ -97,9 +97,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.STEEL]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         increaseProduction: {[Resource.STEEL]: 1},
-    }),
+    },
     planetColor: '#cbcade',
     borderColor: '#34375f',
     planetSize: 24,
@@ -120,10 +120,10 @@ COLONIES.push({
         gainResource: {[Resource.MICROBE]: quantity},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         gainResource: {[Resource.MICROBE]: 3},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
-    }),
+    },
     planetColor: 'moccasin',
     borderColor: 'gray',
     planetSize: 16,
@@ -149,9 +149,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(resource => ({
         increaseProduction: {[resource]: 1},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         tilePlacements: [t(TileType.OCEAN)],
-    }),
+    },
     planetColor: '#af7f76',
     borderColor: '#cabba2',
     planetSize: 72,
@@ -169,9 +169,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.PLANT]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         increaseProduction: {[Resource.PLANT]: 1},
-    }),
+    },
     planetColor: '#afa7a7',
     borderColor: '#3d4a43',
     planetSize: 160,
@@ -188,9 +188,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.HEAT]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         increaseProduction: {[Resource.HEAT]: 1},
-    }),
+    },
     planetColor: '#afcc7a',
     borderColor: '#ecead7',
     planetSize: 96,
@@ -207,9 +207,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.MEGACREDIT]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-    }),
+    },
     planetColor: '#b7b3b3',
     borderColor: '#62a1e8',
     backgroundColor: '#4d70d6',
@@ -229,10 +229,10 @@ COLONIES.push({
         gainResource: {[Resource.ANIMAL]: quantity},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         gainResource: {[Resource.ANIMAL]: 1},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
-    }),
+    },
     planetColor: 'lightgray',
     borderColor: 'lightgray',
     backgroundColor: '#4da7de',
@@ -256,9 +256,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.CARD]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         gainResource: {[Resource.CARD]: 2},
-    }),
+    },
     planetColor: '#845d5d',
     backgroundColor: '#b5b2b2',
     reverseBackground: true,
@@ -280,10 +280,10 @@ COLONIES.push({
         gainResource: {[Resource.FLOATER]: quantity},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         gainResource: {[Resource.FLOATER]: 3},
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
-    }),
+    },
     planetColor: '#ab612e',
     backgroundColor: '#222',
     borderColor: '#222',
@@ -302,9 +302,9 @@ COLONIES.push({
     tradeIncome: tradeIncomeQuantities.map(quantity => ({
         gainResource: {[Resource.TITANIUM]: quantity},
     })),
-    colonyPlacementBonus: new Array<Action>(MAX_NUM_COLONIES).fill({
+    colonyPlacementBonus: {
         gainResource: {[Resource.TITANIUM]: 3},
-    }),
+    },
     borderColor: '#5a2531',
     backgroundColor: '#222',
     planetSize: 84,

@@ -78,7 +78,7 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
-import {Action, ActionType, Amount, ParameterCounter} from 'constants/action';
+import {Action, ActionType, Amount, ParameterCounter, Payment} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
@@ -365,12 +365,9 @@ export class ApiActionHandler {
         }
     }
 
-    readonly executedItems: Array<AnyAction> = [];
-
     private processQueue(items = this.queue) {
         while (items.length > 0) {
             const item = items.shift()!;
-            this.executedItems.push(item);
             this.dispatch(item);
             if (this.shouldPause(item)) {
                 break;
@@ -495,7 +492,7 @@ export class ApiActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment: PropertyCounter<Resource>;
+        payment: Payment;
     }) {
         const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
@@ -560,7 +557,7 @@ export class ApiActionHandler {
             throw new Error('Trying to select invalid card');
         }
         if (pendingDiscard) {
-            this.dispatch(discardCards(selectedCards, loggedInPlayerIndex));
+            this.queue.unshift(discardCards(selectedCards, loggedInPlayerIndex));
             this.processQueue();
             return;
         }
@@ -684,13 +681,7 @@ export class ApiActionHandler {
         });
     }
 
-    claimMilestone({
-        milestone,
-        payment,
-    }: {
-        milestone: Milestone;
-        payment: PropertyCounter<Resource>;
-    }) {
+    claimMilestone({milestone, payment}: {milestone: Milestone; payment: Payment}) {
         const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
 
         if (!canPlay) {
@@ -703,7 +694,7 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    fundAward({award, payment}: {award: Award; payment: PropertyCounter<Resource>}) {
+    fundAward({award, payment}: {award: Award; payment: Payment}) {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
         if (!canPlay) {
@@ -825,6 +816,41 @@ export class ApiActionHandler {
         this.queue.unshift(
             completeUserToPutAdditionalColonyTileIntoPlay(colony, loggedInPlayer.index)
         );
+        this.processQueue();
+    }
+
+    completePayPendingCost({payment}: {payment: Payment}) {
+        // We don't really have to protect this API endpoint too much.
+        // Just check that the payment is appropriate & sufficient.
+        const player = this.getLoggedInPlayer();
+        if (!player.payPendingCost) {
+            throw new Error('Cannot pay pending cost right now');
+        }
+        const megacredits = payment?.[Resource.MEGACREDIT] ?? 0;
+        const heat = payment?.[Resource.HEAT] ?? 0;
+        const totalPayment = megacredits + heat;
+        if (totalPayment !== player.pendingCost) {
+            throw new Error('Payment does not match pending cost');
+        }
+
+        const playerMegacredits = player.resources[Resource.MEGACREDIT];
+        const playerHeat = player.resources[Resource.HEAT];
+
+        if (megacredits > playerMegacredits || heat > playerHeat) {
+            throw new Error('Insufficient resources offered for payment');
+        }
+
+        if (megacredits) {
+            this.queue.push(
+                removeResource(Resource.MEGACREDIT, megacredits, player.index, player.index)
+            );
+        }
+        if (heat) {
+            this.queue.push(removeResource(Resource.HEAT, heat, player.index, player.index));
+        }
+
+        this.queue.push(completeAction(player.index));
+
         this.processQueue();
     }
 
@@ -1017,7 +1043,7 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
         const fullColony = getColony(colonyObject);
-        const colonyPlacementBonus = fullColony.colonyPlacementBonus[colonyObject.colonies.length];
+        const {colonyPlacementBonus} = fullColony;
         this.playAction({
             action: colonyPlacementBonus,
             state: this.state,
@@ -1857,7 +1883,7 @@ function getActionsFromEffect(
     }
 
     if (trigger.newTag) {
-        // confusing (the event of playing the card vs the card being type event)
+        // confusing (the EffectEvent of playing the card vs the card being type Event)
         if (eventTags && !eventTags.includes(Tag.EVENT)) {
             const tagsSeenSoFar = player.playedCards
                 .slice(0, -1)
@@ -1879,4 +1905,4 @@ function getActionsFromEffect(
     return Array(numTagsTriggered).fill(effectAction);
 }
 
-type ActionCardPair = [Action, Card];
+export type ActionCardPair = [Action, Card];

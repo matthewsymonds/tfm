@@ -5012,7 +5012,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text: 'When you play a Earth tag, including this, draw a card.',
+            text: 'When you play an Earth tag, including this, draw a card.',
             trigger: {tags: [Tag.EARTH]},
             action: {gainResource: {[Resource.CARD]: 1}},
         },

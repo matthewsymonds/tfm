@@ -1,4 +1,6 @@
+import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {Action} from 'constants/action';
+import {getColony, MAX_NUM_COLONIES} from 'constants/colonies';
 import {isStorableResource, ResourceLocationType} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {Card} from 'models/card';
@@ -6,7 +8,12 @@ import {GameState, PlayerState} from 'reducer';
 import {getAllowedCardsForResourceAction} from 'selectors/card';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getAppropriatePlayerForAction} from 'selectors/get-appropriate-player-for-action';
-import {SupplementalResources} from 'server/api-action-handler';
+import {
+    ActionCardPair,
+    EffectEvent,
+    getActionsFromEffectForPlayer,
+    SupplementalResources,
+} from 'server/api-action-handler';
 import {getCard} from './get-card';
 
 /* Locations where we must remove the resource, or the action isn't playable */
@@ -20,29 +27,10 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     state: GameState,
     _player: PlayerState | null,
     parent?: Card,
-    supplementalResources?: SupplementalResources
+    supplementalResources?: SupplementalResources,
+    sourceCard?: Card
 ) {
     const player = _player ?? getAppropriatePlayerForAction(state, parent);
-
-    // Moss exception.
-    // Note because this handling is special,
-    // it gets in the way of custom cards.
-    if ('name' in action) {
-        if (action.name === 'Moss') {
-            // Viral enhancers will always give us the plant we need to continue.
-            if (player.playedCards.some(card => card.name === 'Viral Enhancers')) {
-                return true;
-            }
-            if (player.playedCards.some(card => card.name === 'Manutech')) {
-                return true;
-            }
-        }
-        if (action.name === 'Nitrophilic Moss') {
-            if (player.playedCards.some(card => card.name === 'Manutech')) {
-                return true;
-            }
-        }
-    }
 
     if (
         action.removeResourceSourceType &&
@@ -53,12 +41,14 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     }
 
     for (const resource in action.removeResource) {
+        let playerAmount = Infinity;
         const requiredAmount = convertAmountToNumber(
             action.removeResource[resource],
             state,
             player
         );
         if (isStorableResource(resource)) {
+            // Find the max amount the player has on 1 card.
             const cards = getAllowedCardsForResourceAction({
                 thisCard: parent!,
                 resource,
@@ -67,28 +57,24 @@ export function doesPlayerHaveRequiredResourcesToRemove(
                 players: state.players,
             });
 
-            if (cards.every(card => (card.storedResourceAmount || 0) < requiredAmount)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        let playerAmount: number;
-        if (resource === Resource.CARD) {
-            // If we're playing a card which requires a discard,
-            // then by the time we play it there will be one fewer card in hand.
-            // Otherwise, if it's an action or effect the card has already been played.
-            playerAmount = action instanceof Card ? player.cards.length - 1 : player.cards.length;
-        } else {
+            playerAmount = Math.max(...cards.map(card => card.storedResourceAmount ?? 0));
+        } else if (resource === Resource.CARD) {
+            // When you have remove/gain, discard must happen first (exception: Colonies which does not call this function).
+            // Playing a card limits your hand by 1, so Sponsored Academies needs this ternary.
+            playerAmount = sourceCard ? player.cards.length - 1 : player.cards.length;
+        } else if (!sourceCard) {
+            // Pre-enforce remove resource standard resources on non-cards (e.g. a Card Action: spend 2 to draw a card, or a Standard Project, or a Conversoin)
             playerAmount = getAmountForResource(
                 resource as Resource,
                 player,
                 supplementalResources
             );
         }
-
-        return playerAmount >= requiredAmount;
+        if (playerAmount < requiredAmount) {
+            // We can do some complex logic to check if the player has some path out.
+            const delta = getEffectsDelta(state, player, action, resource as Resource, sourceCard);
+            return delta + playerAmount >= requiredAmount;
+        }
     }
 
     if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
@@ -156,4 +142,111 @@ export function getFullCardForSupplementalQuantity(
     }
 
     return fullCard;
+}
+
+// Ensure that, if an effect exists that will gain you resources,
+// in such a way that it counters your decreased resources dipping beneath 0,
+// that you can still play the card.
+// Example: Olympus Conference with 1 science resource. Only Sponsored Academies in hand.
+// Without this function you cannot play even though it should be possible.
+// Note: thanks to effect actions having *choices* sometimes,
+// This does not guarantee the player will not end up shooting themselves in the foot.
+// Example: if you play Sponsored Academies then choose to *gain* a science resource on Olympus Conference,
+// You will not have enough cards to discard and end up in an illegalState.
+function getEffectsDelta(
+    state: GameState,
+    player: PlayerState,
+    action: Action | Card,
+    resource: Resource,
+    sourceCard?: Card
+) {
+    // We should only do this stuff for cards, not standard projects or anything else.
+    if (!sourceCard) {
+        return 0;
+    }
+
+    const tags = 'isCard' in action ? action.tags : sourceCard ? sourceCard.tags : [];
+
+    const additionalCards = 'isCard' in action ? [action] : sourceCard ? [sourceCard] : [];
+
+    const actionCardPairs: ActionCardPair[] = [];
+
+    for (const tilePlacement of action.tilePlacements ?? []) {
+        const event: EffectEvent = {
+            placedTile: tilePlacement.type,
+        };
+
+        actionCardPairs.push(
+            ...getActionsFromEffectForPlayer(player, event, player, additionalCards)
+        );
+    }
+
+    if (action.cost) {
+        const event: EffectEvent = {
+            cost: action.cost,
+        };
+        actionCardPairs.push(
+            ...getActionsFromEffectForPlayer(player, event, player, additionalCards)
+        );
+    }
+
+    if (tags.length > 0) {
+        const event: EffectEvent = {
+            tags,
+        };
+        actionCardPairs.push(
+            ...getActionsFromEffectForPlayer(player, event, player, additionalCards)
+        );
+    }
+
+    const actions = actionCardPairs
+        .map(pair => {
+            let action: Action | undefined;
+            let card: Card;
+            [action, card] = pair;
+            if (action.choice) {
+                action = action.choice.find(action => action.gainResource?.[resource]);
+                if (!action || !canPlayActionInSpiteOfUI(action, state, player, card)[0]) {
+                    return undefined;
+                }
+            }
+
+            return action;
+        });
+
+    const increases = actions.map(action => action?.gainResource?.[resource] ?? 0);
+
+    let total = 0;
+    for (const increase of increases) {
+        if (!increase) continue;
+        total += convertAmountToNumber(increase, state, player);
+    }
+
+    // Account for getting resources
+    if (action.placeColony) {
+        const colonies = state.common.colonies ?? [];
+        const richColonies = colonies.map(getColony);
+
+        const coloniesWithSpace = richColonies.filter(colony => {
+            const matchingColony = state.common.colonies?.find(
+                stateColony => stateColony.name === colony.name
+            );
+
+            return matchingColony?.colonies.length ?? Infinity < MAX_NUM_COLONIES;
+        });
+
+        total += Math.max(
+            ...coloniesWithSpace.map(colony =>
+                convertAmountToNumber(
+                    colony.colonyPlacementBonus?.gainResource?.[resource] ?? 0,
+                    state,
+                    player
+                )
+            )
+        );
+    }
+
+    // We should probably account for "lose 1 resource. place a city" but no cards do that.
+    // This would only come up in custom cards.
+    return total;
 }

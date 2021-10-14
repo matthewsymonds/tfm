@@ -10,6 +10,7 @@ import {
     ResourceActionOption,
     serializeResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
+import {Payment} from 'constants/action';
 import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -168,7 +169,7 @@ export class ApiClient implements GameActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment: PropertyCounter<Resource>;
+        payment: Payment;
     }): Promise<void> {
         const payload = {
             standardProjectActionType: standardProjectAction.type,
@@ -341,6 +342,11 @@ export class ApiClient implements GameActionHandler {
             ApiActionType.API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
             payload
         );
+    }
+
+    async payPendingCostAsync({payment}: {payment: Payment}) {
+        const payload = {payment};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_PAY_PENDING_COST, payload);
     }
 
     async completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}) {

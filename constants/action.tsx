@@ -22,6 +22,8 @@ type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parame
 // This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.
 export type ParameterCounter = NumericPropertyCounter<ParameterExcludingOcean>;
 
+export type Payment = NumericPropertyCounter<Resource>;
+
 export type Amount =
     | number
     | VariableAmount

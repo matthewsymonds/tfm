@@ -19,7 +19,6 @@ import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Parameter, TileType} from 'constants/board';
 import {Deck} from 'constants/card-types';
-import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {
     StandardProjectAction,
@@ -35,6 +34,7 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
+import {Payment} from 'constants/action';
 
 export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
@@ -45,7 +45,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
-        payment: PropertyCounter<Resource>
+        payment: Payment
     ) => {
         if (canPlay(standardProjectAction)) {
             apiClient.playStandardProjectAsync({payment, standardProjectAction});
@@ -85,7 +85,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                         loggedInPlayer={loggedInPlayer}
                         playStandardProjectAction={(
                             action: StandardProjectAction,
-                            payment: PropertyCounter<Resource>
+                            payment: Payment
                         ) => {
                             setPopoverConfig(null);
                             playStandardProjectAction(action, payment);
@@ -116,10 +116,7 @@ function StandardProjectTooltip({
 }: {
     action: StandardProjectAction;
     loggedInPlayer: PlayerState;
-    playStandardProjectAction: (
-        action: StandardProjectAction | null,
-        payment: PropertyCounter<Resource>
-    ) => void;
+    playStandardProjectAction: (action: StandardProjectAction | null, payment: Payment) => void;
 }) {
     const actionGuard = useActionGuard();
     const cost = getCostForStandardProject(action, loggedInPlayer);

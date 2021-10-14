@@ -21,6 +21,7 @@ import {
     canTradeIgnoringPayment,
     canTradeWithSomeColonyIgnoringPayment,
 } from 'selectors/can-trade-ignoring-payment';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {doesAnyoneHaveResourcesToSteal} from 'selectors/does-anyone-have-resources-to-steal';
 import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-have-required-resource-to-remove';
 import {getCard} from 'selectors/get-card';
@@ -84,14 +85,36 @@ export class ActionGuard {
         }
         // If the user has been prompted "play a card from hand"
         // Then they should be able to play a card even though the rest of the UI is disabled!
-        const [canPlay, reason] = (player.pendingPlayCardFromHand || isPrelude
+        const canPlayAction = (player.pendingPlayCardFromHand || isPrelude
             ? this.canPlayActionInSpiteOfUI
             : this.canPlayAction
-        ).bind(this)(card, state, supplementalResources);
+        ).bind(this);
+
+        const [canPlay, reason] = canPlayAction(
+            card,
+            state,
+            /* parent = */ undefined,
+            /* supplementalResources = */ undefined,
+            /* sourceCard = */ card
+        );
 
         if (!canPlay) {
             return [canPlay, reason];
         }
+
+        for (const step of card.steps ?? []) {
+            const [canPlay, reason] = canPlayAction(
+                step,
+                state,
+                /* parent = */ undefined,
+                /* supplementalResources = */ undefined,
+                /* sourceCard = */ card
+            );
+            if (!canPlay) {
+                return [canPlay, reason];
+            }
+        }
+
         // Check if the amount the user is trying to pay with is sufficient (or if they're cheating?).
         const cappedConditionalPayments = getConditionalPaymentWithResourceInfo(player, card);
         for (let i = 0; i < cappedConditionalPayments.length; i++) {
@@ -132,10 +155,6 @@ export class ActionGuard {
 
         if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
             return [false, 'Terraform rating too low'];
-        }
-
-        if (player.pendingDiscard) {
-            return [false, 'Cannot play while selecting card(s) to discard'];
         }
 
         if (!isActiveRound(state)) {
@@ -487,7 +506,9 @@ export class ActionGuard {
     private getPlayerColonies() {
         const player = this._getPlayerToConsider();
         const colonies = this.state.common.colonies ?? [];
-        return colonies.filter(colony => colony.colonies.some(colony => colony === player.index));
+        return colonies.flatMap(colony =>
+            colony.colonies.filter(colony => colony === player.index)
+        );
     }
 
     canPlayWithRequiredTilePlacements(card: Card) {
@@ -646,7 +667,8 @@ export class ActionGuard {
         action: Action,
         state: GameState,
         parent?: Card,
-        supplementalResources?: SupplementalResources
+        supplementalResources?: SupplementalResources,
+        sourceCard?: Card
     ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
@@ -656,7 +678,13 @@ export class ActionGuard {
             return [false, 'Cannot play out of turn'];
         }
 
-        return this.canPlayActionInSpiteOfUI(action, state, parent, supplementalResources);
+        return this.canPlayActionInSpiteOfUI(
+            action,
+            state,
+            parent,
+            supplementalResources,
+            sourceCard
+        );
     }
 
     canCompletePlaceTile(cell: Cell): CanPlayAndReason {
@@ -838,10 +866,18 @@ export class ActionGuard {
         action: Action,
         state: GameState = this.state,
         parent?: Card,
-        supplementalResources?: SupplementalResources
+        supplementalResources?: SupplementalResources,
+        sourceCard?: Card
     ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
-        return canPlayActionInSpiteOfUI(action, state, player, parent, supplementalResources);
+        return canPlayActionInSpiteOfUI(
+            action,
+            state,
+            player,
+            parent,
+            supplementalResources,
+            sourceCard
+        );
     }
 
     canConfirmCardSelection(
@@ -872,12 +908,13 @@ export class ActionGuard {
             }
         }
 
-        // user doesnt have cards to discard, but is supposed to discard one
-        if (
-            loggedInPlayer.pendingDiscard?.amount === VariableAmount.USER_CHOICE &&
-            numCards === 0
-        ) {
-            return false;
+        const discardAmount = loggedInPlayer.pendingDiscard?.amount;
+        if (discardAmount) {
+            const discardQuantity = convertAmountToNumber(discardAmount, state, loggedInPlayer);
+            // User doesnt have enough cards to discard
+            if (discardQuantity > numCards) {
+                return false;
+            }
         }
 
         // user doesn't have money to buy cards
@@ -1002,7 +1039,8 @@ export function canPlayActionInSpiteOfUI(
     state: GameState,
     player: PlayerState,
     parent?: Card,
-    supplementalResources?: SupplementalResources
+    supplementalResources?: SupplementalResources,
+    sourceCard?: Card
 ): CanPlayAndReason {
     if (
         !doesPlayerHaveRequiredResourcesToRemove(
@@ -1010,7 +1048,8 @@ export function canPlayActionInSpiteOfUI(
             state,
             player,
             parent,
-            supplementalResources
+            supplementalResources,
+            sourceCard
         )
     ) {
         return [false, 'Not enough of required resource'];
@@ -1021,7 +1060,7 @@ export function canPlayActionInSpiteOfUI(
     }
 
     // Also accounts for opponent productions if applicable
-    if (!meetsProductionRequirements(action, state, player, parent)) {
+    if (!meetsProductionRequirements(action, state, player, parent, sourceCard)) {
         return [false, 'Does not have required production'];
     }
 

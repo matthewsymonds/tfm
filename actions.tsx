@@ -2,9 +2,10 @@ import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
+import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
-import {Action, Amount, PlayCardParams} from './constants/action';
+import {Action, Amount, Payment, PlayCardParams} from './constants/action';
 import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {PropertyCounter} from './constants/property-counter';
@@ -128,7 +129,7 @@ export const completeIncreaseLowestProduction = withMatcher((playerIndex: number
     payload: {playerIndex},
 }));
 
-const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
+export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = withMatcher(
     (
         resource: Resource,
@@ -149,9 +150,14 @@ export const removeStorableResource = withMatcher(
     })
 );
 
-export const GAIN_RESOURCE = 'GAIN_RESOURCE';
+const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = withMatcher(
-    (resource: Resource, amount: Amount, playerIndex: number, parentName?: string) => ({
+    (
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parentName?: string,
+    ) => ({
         type: GAIN_RESOURCE,
         payload: {resource, amount, playerIndex, parentName},
     })
@@ -212,7 +218,7 @@ export const payToPlayCard = withMatcher(
     (
         card: SerializedCard,
         playerIndex: number,
-        payment: PropertyCounter<Resource> | undefined,
+        payment: Payment | undefined,
         conditionalPayments: number[] | undefined
     ) => ({
         type: PAY_TO_PLAY_CARD,
@@ -226,7 +232,7 @@ export const payToPlayCardAction = withMatcher(
         action: Action,
         playerIndex: number,
         parentCard: SerializedCard,
-        payment: PropertyCounter<Resource> | undefined
+        payment: Payment | undefined
     ) => ({
         type: PAY_TO_PLAY_CARD_ACTION,
         payload: {action, playerIndex, parentCard, payment},
@@ -235,11 +241,7 @@ export const payToPlayCardAction = withMatcher(
 
 const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
 export const payToPlayStandardProject = withMatcher(
-    (
-        standardProjectAction: StandardProjectAction,
-        payment: PropertyCounter<Resource>,
-        playerIndex: number
-    ) => ({
+    (standardProjectAction: StandardProjectAction, payment: Payment, playerIndex: number) => ({
         type: PAY_TO_PLAY_STANDARD_PROJECT,
         payload: {standardProjectAction, payment, playerIndex},
     })
@@ -247,19 +249,17 @@ export const payToPlayStandardProject = withMatcher(
 
 const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
 export const claimMilestone = withMatcher(
-    (milestone: Milestone, payment: PropertyCounter<Resource>, playerIndex: number) => ({
+    (milestone: Milestone, payment: Payment, playerIndex: number) => ({
         type: CLAIM_MILESTONE,
         payload: {milestone, payment, playerIndex},
     })
 );
 
 const FUND_AWARD = 'FUND_AWARD';
-export const fundAward = withMatcher(
-    (award: Award, payment: PropertyCounter<Resource>, playerIndex: number) => ({
-        type: FUND_AWARD,
-        payload: {award, payment, playerIndex},
-    })
-);
+export const fundAward = withMatcher((award: Award, payment: Payment, playerIndex: number) => ({
+    type: FUND_AWARD,
+    payload: {award, payment, playerIndex},
+}));
 
 const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';
 export const moveCardFromHandToPlayArea = withMatcher(
@@ -285,7 +285,7 @@ export const addParameterRequirementAdjustments = withMatcher(
     })
 );
 
-const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
+export const ASK_USER_TO_PLACE_TILE = 'ASK_USER_TO_PLACE_TILE';
 export const askUserToPlaceTile = withMatcher(
     (tilePlacement: TilePlacement, playerIndex: number) => {
         return {
@@ -555,7 +555,7 @@ export const moveColonyTileTrack = withMatcher((colony: string, location: number
     payload: {colony, location},
 }));
 
-const ASK_USER_TO_BUILD_COLONY = 'ASK_USER_TO_PLACE_COLONY';
+export const ASK_USER_TO_BUILD_COLONY = 'ASK_USER_TO_PLACE_COLONY';
 export type PlaceColony = {mayBeRepeatColony: boolean};
 export const askUserToPlaceColony = withMatcher(
     (placeColony: PlaceColony, playerIndex: number) => ({
@@ -620,11 +620,11 @@ export const askUserToPutAdditionalColonyTileIntoPlay = withMatcher((playerIndex
     payload: {playerIndex},
 }));
 
-const COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
-    'COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
+const COMPLETE_USER_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
+    'COMPLETE_USER_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
 export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
     (colony: string, playerIndex: number) => ({
-        type: COMPLETE_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+        type: COMPLETE_USER_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
         payload: {playerIndex, colony},
     })
 );

@@ -28,6 +28,7 @@ export type SerializedPlayerState = Omit<
     | 'corporation'
     | 'possibleCorporations'
     | 'cards'
+    | 'pendingCards'
     | 'playedCards'
     | 'preludes'
     | 'possiblePreludes'
@@ -47,6 +48,7 @@ export type SerializedPlayerState = Omit<
     };
     possibleCorporations: SerializedCard[];
     cards: SerializedCard[];
+    pendingCards?: SerializedCard[];
     playedCards: SerializedCard[];
     preludes: SerializedCard[];
     choosePrelude?: boolean;

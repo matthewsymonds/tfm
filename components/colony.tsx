@@ -1,5 +1,5 @@
 import {Action} from 'constants/action';
-import {getColony, SerializedColony} from 'constants/colonies';
+import {getColony, MAX_NUM_COLONIES, SerializedColony} from 'constants/colonies';
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -188,7 +188,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                     transformOrigin={'tradeIncomeQuantities' in colony ? 'bottom' : 'top'}
                 >
                     {colony.tradeIncome
-                        .map((_, index) => colony.colonyPlacementBonus[index])
+                        .map((_, index) => index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus[index] : null)
                         .map((placementBonus, index) => {
                             return (
                                 <Flex

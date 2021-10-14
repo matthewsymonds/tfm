@@ -55,6 +55,7 @@ export type BasePlayerState = {
     corporation: Card;
     possibleCorporations: Card[];
     cards: Card[];
+    pendingCards?: Card[];
     playedCards: Card[];
     preludes: Card[];
     possiblePreludes: Card[];
@@ -84,4 +85,9 @@ export type BasePlayerState = {
     increaseAndDecreaseColonyTileTracks?: number;
     tradeForFree?: boolean;
     putAdditionalColonyTileIntoPlay?: boolean;
+    // How much you owe
+    pendingCost?: number;
+    // Is it time to pay up?
+    payPendingCost?: boolean;
+    illegalStateReached?: boolean;
 };

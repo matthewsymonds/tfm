@@ -1,4 +1,5 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
+import {Payment} from 'constants/action';
 import {Award, Cell, Milestone, Tile} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -38,16 +39,10 @@ export interface GameActionHandler {
         payment,
     }: {
         milestone: Milestone;
-        payment: PropertyCounter<Resource>;
+        payment: Payment;
     }): Promise<void>;
 
-    fundAwardAsync({
-        award,
-        payment,
-    }: {
-        award: Award;
-        payment: PropertyCounter<Resource>;
-    }): Promise<void>;
+    fundAwardAsync({award, payment}: {award: Award; payment: Payment}): Promise<void>;
 
     doConversionAsync({resource}: {resource: Resource}): Promise<void>;
 
@@ -108,4 +103,6 @@ export interface GameActionHandler {
     }): Promise<void>;
 
     completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}): Promise<void>;
+
+    payPendingCostAsync({payment}: {payment: Payment}): Promise<void>;
 }

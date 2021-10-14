@@ -54,6 +54,8 @@ import {
     askUserToPutAdditionalColonyTileIntoPlay,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
+    ASK_USER_TO_BUILD_COLONY,
+    ASK_USER_TO_PLACE_TILE,
     claimMilestone,
     completeAction,
     completeIncreaseLowestProduction,
@@ -90,6 +92,7 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
+    REMOVE_RESOURCE,
     returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
@@ -108,7 +111,7 @@ import {
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {Cell, getParameterName, Parameter, TileType} from './constants/board';
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {getResourceName, isStorableResource} from './constants/resource';
 import {Resource} from './constants/resource-enum';
@@ -329,6 +332,10 @@ const handleGainResource = (
     corporationName: string,
     parentName?: string
 ) => {
+    if (isStorableResource(resource)) {
+        return;
+    }
+
     mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
 
     const parentCard = parentName && player.playedCards.find(card => card.name === parentName);
@@ -772,7 +779,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 sourcePlayer,
                 payload.supplementalResources
             );
-            if (quantity > totalAvailable) {
+            if (quantity > totalAvailable && sourcePlayerIndex !== player.index) {
                 throw new Error('Trying to take too many resources');
             }
             draft.pendingVariableAmount = quantity;
@@ -1223,9 +1230,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (askUserToMakeActionChoice.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            const {choice, playedCard} = payload;
+            const {choice} = payload;
             const card = player.playedCards.find(
                 playedCard => playedCard.name === payload.card.name
+            )!;
+            const playedCard = player.playedCards.find(
+                playedCard => playedCard.name === payload.playedCard.name
             )!;
             player.pendingChoice = {choice, card, playedCard};
         }
@@ -1669,16 +1679,64 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (completeAction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.pendingResourceActionDetails = undefined;
-            draft.pendingVariableAmount = undefined;
-            player.action = (player.action % 2) + 1;
 
-            // Did the player just complete their second action?
-            // And is it not greenery placement?
-            // their turn is over.
-            if (player.action === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT) {
-                // It's the next player's turn
-                handleChangeCurrentPlayer(state, draft);
+            // First, check if we still owe resources.
+            // If we owe megacredits, we need to pay for them.
+            // If we still owe anything else, the user has to start over.
+            const {resources, productions} = player;
+            for (const resource in resources) {
+                if (resources[resource] < 0) {
+                    // There should be no code setting "illegalStateReached" to true.
+                    // The only way out is by reverting the whole state to the previous checkpoint.
+                    player.illegalStateReached = true;
+                }
+            }
+            for (const production in productions) {
+                if (productions[production] < MinimumProductions[production]) {
+                    player.illegalStateReached = true;
+                }
+            }
+
+            const megacredits = player.resources[Resource.MEGACREDIT];
+            const heat = player.resources[Resource.HEAT];
+            const isHelion = player.corporation.name === 'Helion';
+            let quantity = megacredits;
+            if (isHelion) {
+                quantity += heat;
+            }
+
+            const cost = player.pendingCost;
+            if (cost) {
+                if (quantity < cost) {
+                    player.illegalStateReached = true;
+                } else if (!isHelion || !heat) {
+                    player.resources[Resource.MEGACREDIT] -= cost;
+                    player.pendingCost = 0;
+                } else if (!megacredits) {
+                    player.resources[Resource.HEAT] -= cost;
+                    player.pendingCost = 0;
+                } else {
+                    // If heat > 0 and megacredits > 0 and the player is helion, we need player input.
+                    player.payPendingCost = true;
+                }
+            } else {
+                player.pendingResourceActionDetails = undefined;
+                player.payPendingCost = false;
+                player.cards.push(...(player.pendingCards ?? []));
+                player.pendingCards = [];
+                draft.pendingVariableAmount = undefined;
+                player.action = (player.action % 2) + 1;
+
+                // Did the player just complete their second action?
+                // And is it not greenery placement?
+                // their turn is over.
+                if (
+                    player.action === 1 &&
+                    draft.common.gameStage !== GameStage.GREENERY_PLACEMENT
+                ) {
+                    // It's the next player's turn
+                    handleChangeCurrentPlayer(state, draft);
+                }
             }
         }
 
