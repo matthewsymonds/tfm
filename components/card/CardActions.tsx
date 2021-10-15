@@ -338,7 +338,7 @@ function CardAction({
             action={action}
             playAction={playAction}
             playActionWithSupplementalResources={playActionWithSupplementalResources}
-            canPlay={canPlay}
+            canPlay={canPlay && isOwnedByLoggedInPlayer}
             loggedInPlayer={loggedInPlayer}
             isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
         >

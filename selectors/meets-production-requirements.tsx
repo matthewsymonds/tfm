@@ -1,4 +1,3 @@
-import {increaseProduction} from 'actions';
 import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {Action} from 'constants/action';
 import {getColony, MAX_NUM_COLONIES} from 'constants/colonies';

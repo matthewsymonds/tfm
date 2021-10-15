@@ -13,7 +13,6 @@ import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
-import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState, Resources} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';

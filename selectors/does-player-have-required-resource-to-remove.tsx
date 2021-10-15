@@ -199,20 +199,19 @@ function getEffectsDelta(
         );
     }
 
-    const actions = actionCardPairs
-        .map(pair => {
-            let action: Action | undefined;
-            let card: Card;
-            [action, card] = pair;
-            if (action.choice) {
-                action = action.choice.find(action => action.gainResource?.[resource]);
-                if (!action || !canPlayActionInSpiteOfUI(action, state, player, card)[0]) {
-                    return undefined;
-                }
+    const actions = actionCardPairs.map(pair => {
+        let action: Action | undefined;
+        let card: Card;
+        [action, card] = pair;
+        if (action.choice) {
+            action = action.choice.find(action => action.gainResource?.[resource]);
+            if (!action || !canPlayActionInSpiteOfUI(action, state, player, card)[0]) {
+                return undefined;
             }
+        }
 
-            return action;
-        });
+        return action;
+    });
 
     const increases = actions.map(action => action?.gainResource?.[resource] ?? 0);
 

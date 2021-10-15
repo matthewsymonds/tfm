@@ -7,7 +7,6 @@ import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
 import Head from 'next/head';
 import {useRouter} from 'next/router';
-import platform from 'platform-detect';
 import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
@@ -156,6 +155,56 @@ export const GlobalStyles = createGlobalStyle`
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+    .inner-space-tag {
+        transform: rotate(22.5deg) scale(1.5);
+     }
+     .inner-event {
+        transform: rotate(90deg);
+
+        div.not-mac button & {
+            transform: translateX(-6px) rotate(90deg);
+        }
+    }
+
+    .inner-emoji.earth {
+        transform: scale(2.1);
+    }
+
+    .inner-emoji.jovian {
+        transform: rotate(45deg) scale(2.75);
+        .mac & {
+            transform: rotate(-45deg) scale(2.75);
+        }
+    }
+
+    .inner-space-tag {
+        margin-right: 1px;
+    }
+
+    .mac { 
+        .lightning {
+            margin-right: 3px;
+        }
+
+        .titanium-icon {
+            margin-left: 1px;
+            margin-top: 1px;
+        }
+        
+        .card-icon {
+            margin-right: 1px;
+        }
+
+        .inner-event {
+            margin-left: 6px;
+        }
+
+        .inner-space-tag {
+            margin-left: 3px;
+            margin-bottom: 3px;
+        }
+    }
 `;
 
 function InnerAppComponent({Component, pageProps, session}) {
@@ -244,8 +293,11 @@ class MyApp extends App {
     }
     render() {
         const {store} = this.props;
-        let className;
-        if (platform.macos) {
+        let className = 'not-mac';
+        if (
+            typeof window !== 'undefined' &&
+            navigator.userAgent.toUpperCase().indexOf('MAC') >= 0
+        ) {
             className = 'mac';
         }
         return (
@@ -256,7 +308,6 @@ class MyApp extends App {
 
                 <AppContext.Provider value={appContext}>
                     <div
-                        className={className}
                         style={{visibility: this.state.ready ? 'visible' : 'hidden'}}
                         id={'root'}
                         suppressHydrationWarning
@@ -279,7 +330,9 @@ class MyApp extends App {
                             ))
                         )}
                         {typeof window === 'undefined' ? null : (
-                            <InnerAppComponent {...this.props} />
+                            <div className={className}>
+                                <InnerAppComponent {...this.props} />
+                            </div>
                         )}
                     </div>
                 </AppContext.Provider>

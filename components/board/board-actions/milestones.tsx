@@ -1,6 +1,6 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
 import {AwardsMilestonesLayout} from 'components/board/board-actions/awards';
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
@@ -58,33 +58,36 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
     return (
         <AwardsMilestonesLayout>
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
-            <ActionListWithPopovers<Milestone>
-                actions={milestones}
-                emphasizeOnHover={canPlay}
-                isVertical={windowWidth > 895}
-                ActionComponent={({action}) => (
-                    <MilestoneBadge
-                        milestone={action}
-                        canClaim={canPlay(action)}
-                        isClaimed={isClaimed(action)}
-                    />
-                )}
-                ActionPopoverComponent={({action}) => (
-                    <MilestonePopover
-                        milestone={action}
-                        isClaimed={isClaimed(action)}
-                        claimMilestone={(milestone, payment) => {
-                            setPopoverConfig(null);
-                            claimMilestone(milestone, payment);
-                        }}
-                        claimedByPlayer={
-                            claimedMilestones.find(cm => cm.milestone === action)
-                                ?.claimedByPlayer ?? null
-                        }
-                        loggedInPlayer={loggedInPlayer}
-                    />
-                )}
-            />
+            <Box position="relative">
+                <ActionListWithPopovers<Milestone>
+                    actions={milestones}
+                    emphasizeOnHover={canPlay}
+                    popoverPlacement={windowWidth > 895 ? 'left-center' : 'top-center'}
+                    isVertical={windowWidth > 895}
+                    ActionComponent={({action}) => (
+                        <MilestoneBadge
+                            milestone={action}
+                            canClaim={canPlay(action)}
+                            isClaimed={isClaimed(action)}
+                        />
+                    )}
+                    ActionPopoverComponent={({action}) => (
+                        <MilestonePopover
+                            milestone={action}
+                            isClaimed={isClaimed(action)}
+                            claimMilestone={(milestone, payment) => {
+                                setPopoverConfig(null);
+                                claimMilestone(milestone, payment);
+                            }}
+                            claimedByPlayer={
+                                claimedMilestones.find(cm => cm.milestone === action)
+                                    ?.claimedByPlayer ?? null
+                            }
+                            loggedInPlayer={loggedInPlayer}
+                        />
+                    )}
+                />
+            </Box>
         </AwardsMilestonesLayout>
     );
 }

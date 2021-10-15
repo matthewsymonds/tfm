@@ -205,7 +205,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                         <TagIcon
                             name={tag}
                             size={16}
-                            key={index}
+                            key={`${tag}-${index}`}
                             margin={index > 0 ? '0 0 0 4px' : '0'}
                         />
                     ))}

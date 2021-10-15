@@ -1,4 +1,4 @@
-import {Action} from 'constants/action';
+import {Action, Payment} from 'constants/action';
 import {Resource} from 'constants/resource-enum';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
@@ -6,8 +6,6 @@ import {PlayerState} from 'reducer';
 import {Box, Flex} from './box';
 import {BaseActionIconography} from './card/CardIconography';
 import PaymentPopover from './popovers/payment-popover';
-
-import {Payment} from 'constants/action';
 
 export function AskUserToPayPendingCost({player}: {player: PlayerState}) {
     const cost = player.pendingCost!;

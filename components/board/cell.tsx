@@ -26,7 +26,7 @@ const getColor = (type: CellType) => {
     }
 };
 
-const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean}>`
+const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean; moveDown?: boolean}>`
     color: #333333;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
     padding: 2px;
@@ -41,7 +41,7 @@ const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean}>`
     font-size: clamp(7px, 1vw, 9px);
     background: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
-    transform: translateY(${props => (props.moveUp ? -32 : 0)}%);
+    transform: translateY(${props => (props.moveUp ? -32 : props.moveDown ? 32 : 0)}%);
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
@@ -106,7 +106,11 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
         <>
             <Hexagon color={bgColor} selectable={selectable}>
                 {specialName && (
-                    <ChildrenWrapper moveUp={bonus.length === 0 || !!tile} selectable={selectable}>
+                    <ChildrenWrapper
+                        moveUp={!tile && bonus.length === 0}
+                        moveDown={!!tile}
+                        selectable={selectable}
+                    >
                         {specialName}
                     </ChildrenWrapper>
                 )}

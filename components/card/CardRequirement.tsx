@@ -86,12 +86,25 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 tagElements.push(
                     <Flex alignItems="center" justifyContent="center">
                         <span>{tagCount}</span>
-                        <TagIcon name={tag as Tag} size={16} />
+                        <TagIcon
+                            name={tag as Tag}
+                            size={16}
+                            emojiAdjustment={2}
+                            topEmojiAdjustment={0}
+                        />
                     </Flex>
                 );
             } else {
                 for (let i = 0; i < tagCount; i++) {
-                    tagElements.push(<TagIcon key={`${tag}-${i}`} name={tag as Tag} size={16} />);
+                    tagElements.push(
+                        <TagIcon
+                            key={`${tag}-${i}`}
+                            emojiAdjustment={2}
+                            topEmojiAdjustment={0}
+                            name={tag as Tag}
+                            size={16}
+                        />
+                    );
                 }
             }
         }

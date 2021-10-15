@@ -1,5 +1,5 @@
 import ActionListWithPopovers from 'components/action-list-with-popovers';
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
@@ -94,36 +94,37 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     if (!venus) {
         awards = awards.filter(award => award !== Award.VENUPHILE);
     }
-
     return (
         <AwardsMilestonesLayout>
             <AwardHeader className="display">Awards</AwardHeader>
-
-            <ActionListWithPopovers<Award>
-                actions={awards}
-                emphasizeOnHover={canPlay}
-                isVertical={windowWidth > 895}
-                ActionComponent={({action}) => (
-                    <AwardBadge
-                        award={action}
-                        canFund={canPlay(action)}
-                        isFunded={isFunded(action)}
-                    />
-                )}
-                ActionPopoverComponent={({action}) => (
-                    <AwardPopover
-                        award={action}
-                        fundAward={(award, payment) => {
-                            setPopoverConfig(null);
-                            fundAward(award, payment);
-                        }}
-                        loggedInPlayer={loggedInPlayer}
-                        cost={isFree ? 0 : awardConfigsByAward[action].cost}
-                        isFunded={isFunded(action)}
-                        fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
-                    />
-                )}
-            />
+            <Box position="relative">
+                <ActionListWithPopovers<Award>
+                    actions={awards}
+                    emphasizeOnHover={canPlay}
+                    popoverPlacement={windowWidth > 895 ? 'left-center' : 'top-center'}
+                    isVertical={windowWidth > 895}
+                    ActionComponent={({action}) => (
+                        <AwardBadge
+                            award={action}
+                            canFund={canPlay(action)}
+                            isFunded={isFunded(action)}
+                        />
+                    )}
+                    ActionPopoverComponent={({action}) => (
+                        <AwardPopover
+                            award={action}
+                            fundAward={(award, payment) => {
+                                setPopoverConfig(null);
+                                fundAward(award, payment);
+                            }}
+                            loggedInPlayer={loggedInPlayer}
+                            cost={isFree ? 0 : awardConfigsByAward[action].cost}
+                            isFunded={isFunded(action)}
+                            fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
+                        />
+                    )}
+                />
+            </Box>
         </AwardsMilestonesLayout>
     );
 }

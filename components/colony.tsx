@@ -188,7 +188,9 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                     transformOrigin={'tradeIncomeQuantities' in colony ? 'bottom' : 'top'}
                 >
                     {colony.tradeIncome
-                        .map((_, index) => index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus[index] : null)
+                        .map((_, index) =>
+                            index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus[index] : null
+                        )
                         .map((placementBonus, index) => {
                             return (
                                 <Flex

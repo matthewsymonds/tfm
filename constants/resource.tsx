@@ -59,6 +59,8 @@ export const getClassName = (resource: Resource) => {
             return 'titanium-icon';
         case Resource.MEGACREDIT:
             return 'megacredit-icon';
+        case Resource.CARD:
+            return 'card-icon';
         default:
             return 'resource-icon';
     }

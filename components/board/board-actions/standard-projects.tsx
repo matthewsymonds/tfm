@@ -17,6 +17,7 @@ import {TileIcon} from 'components/icons/tile';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
+import {Payment} from 'constants/action';
 import {Parameter, TileType} from 'constants/board';
 import {Deck} from 'constants/card-types';
 import {Resource} from 'constants/resource-enum';
@@ -34,7 +35,6 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {Payment} from 'constants/action';
 
 export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
     const apiClient = useApiClient();
@@ -77,7 +77,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                     flexWrap: 'wrap',
                     justifyContent: 'flex-end',
                 }}
-                popoverPlacement="left-center"
+                popoverPlacement="top-center"
                 ActionComponent={({action}) => <StandardProject action={action} />}
                 ActionPopoverComponent={({action}: {action: StandardProjectAction}) => (
                     <StandardProjectTooltip

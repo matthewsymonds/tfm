@@ -49,11 +49,7 @@ export function getOptionsForDuplicateProduction(
             return [candidate, syntheticAction] as [Card, Action];
         })
         .filter(([, action]) => {
-            const [canPlay] = canPlayActionInSpiteOfUI(
-                action,
-                state,
-                player
-            );
+            const [canPlay] = canPlayActionInSpiteOfUI(action, state, player);
             return canPlay;
         })
         .map(([candidate, action]) => {

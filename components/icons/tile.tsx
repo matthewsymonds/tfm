@@ -23,7 +23,8 @@ export const TileIcon = ({
                 {/* hacks... */}
                 <span
                     style={{
-                        fontSize: `${size / 2}px`,
+                        fontSize: `100px`,
+                        transform: `translateX(-1px) scale(${size / 200})`,
                     }}
                 >
                     {getTileIcon(type)}
