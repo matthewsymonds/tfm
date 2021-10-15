@@ -1595,9 +1595,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     let playersWhoCanPlaceGreenery: PlayerState[] = [];
                     let indexToConsider = common.firstPlayerIndex;
                     do {
-                        if (!draft.players[indexToConsider]) {
-                            indexToConsider = 0;
-                        }
                         const player = draft.players[indexToConsider];
                         if (
                             player.resources[Resource.PLANT] >=
@@ -1609,7 +1606,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         ) {
                             playersWhoCanPlaceGreenery.push(player);
                         }
-                        indexToConsider += 1;
+                        indexToConsider = (indexToConsider + 1) % draft.players.length;
                     } while (indexToConsider !== common.firstPlayerIndex);
                     if (playersWhoCanPlaceGreenery.length > 0) {
                         draft.log.push('Greenery Placement');
