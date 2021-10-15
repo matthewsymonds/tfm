@@ -41,7 +41,7 @@ const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean; move
     font-size: clamp(7px, 1vw, 9px);
     background: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
-    transform: translateY(${props => (props.moveUp ? -32 : props.moveDown ? 32 : 0)}%);
+    transform: translateY(${props => (props.moveUp ? -32 : props.moveDown ? 48 : 0)}%);
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
