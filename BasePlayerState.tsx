@@ -1,6 +1,7 @@
 import {PlaceColony} from 'actions';
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {Tag} from 'constants/tag';
+import {AnyAction} from 'redux';
 import {Action, Amount, PlayCardParams} from './constants/action';
 import {Parameter, TilePlacement} from './constants/board';
 import {Discounts} from './constants/discounts';
@@ -55,7 +56,6 @@ export type BasePlayerState = {
     corporation: Card;
     possibleCorporations: Card[];
     cards: Card[];
-    pendingCards?: Card[];
     playedCards: Card[];
     preludes: Card[];
     possiblePreludes: Card[];
@@ -70,6 +70,7 @@ export type BasePlayerState = {
     discounts: Discounts;
     plantDiscount?: number;
     pendingChoice?: PendingChoice;
+    pendingActionChoice?: AnyAction[];
     pendingActionReplay?: boolean;
 
     parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
@@ -85,9 +86,6 @@ export type BasePlayerState = {
     increaseAndDecreaseColonyTileTracks?: number;
     tradeForFree?: boolean;
     putAdditionalColonyTileIntoPlay?: boolean;
-    // How much you owe
-    pendingCost?: number;
-    // Is it time to pay up?
-    payPendingCost?: boolean;
     illegalStateReached?: boolean;
+    prioritizePendingActionChoice?: boolean;
 };

@@ -2,6 +2,7 @@ import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
+import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';
@@ -623,6 +624,20 @@ export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
     })
 );
 
+const ADD_ACTION_TO_PLAY = 'ADD_ACTION_TO_PLAY';
+export const addActionToPlay = withMatcher((action: Action, playerIndex: number) => ({
+    type: ADD_ACTION_TO_PLAY,
+    payload: {playerIndex, action},
+}));
+
+const ASK_USER_TO_CHOOSE_NEXT_ACTION = 'ASK_USER_TO_CHOOSE_NEXT_ACTION';
+export const askUserToChooseNextAction = withMatcher(
+    (actions: AnyAction[], playerIndex: number) => ({
+        type: ASK_USER_TO_CHOOSE_NEXT_ACTION,
+        payload: {playerIndex, actions},
+    })
+);
+
 // When a function returns an action, it's nice to use this if nothing should happen.
 const NOOP_ACTION = 'NOOP_ACTION';
 export const noopAction = withMatcher(() => ({
@@ -645,4 +660,11 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
     ASK_USER_TO_TRADE_FOR_FREE,
     ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+    ADD_ACTION_TO_PLAY,
+];
+
+export const NEGATIVE_ACTIONS = [
+    // There are negative *choice actions* but those are covered above.
+    REMOVE_RESOURCE,
+    DECREASE_PRODUCTION,
 ];

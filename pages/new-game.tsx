@@ -131,6 +131,7 @@ export default function NewGame(props) {
                         autoFocus
                         type="text"
                         name="Corporation? (Optional)"
+                        required={false}
                         value={soloCorporationName}
                         onChange={updateSoloCorporationName}
                     />

@@ -1003,8 +1003,18 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {tags: [Tag.SCIENCE]},
             action: {
-                removeResource: {[Resource.CARD]: VariableAmount.USER_CHOICE_UP_TO_ONE},
-                gainResource: {[Resource.CARD]: VariableAmount.BASED_ON_USER_CHOICE},
+                steps: [
+                    {
+                        removeResource: {
+                            [Resource.CARD]: VariableAmount.USER_CHOICE_UP_TO_ONE,
+                        },
+                    },
+                    {
+                        gainResource: {
+                            [Resource.CARD]: VariableAmount.BASED_ON_USER_CHOICE,
+                        },
+                    },
+                ],
             },
             text:
                 'When you play a science tag, including this, you may discard a card from hand to draw a card.',

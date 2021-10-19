@@ -1,10 +1,12 @@
 import {
+    addActionToPlay,
     addCards,
     addForcedActionToPlayer,
     addParameterRequirementAdjustments,
     announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
+    askUserToChooseNextAction,
     askUserToChoosePrelude,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
@@ -45,6 +47,7 @@ import {
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
     moveFleet,
+    NEGATIVE_ACTIONS,
     noopAction,
     passGeneration,
     PAUSE_ACTIONS,
@@ -78,13 +81,20 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
-import {Action, ActionType, Amount, ParameterCounter, Payment} from 'constants/action';
+import {
+    Action,
+    ActionType,
+    ActionWithSteps,
+    Amount,
+    ParameterCounter,
+    Payment,
+} from 'constants/action';
 import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
+import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {PropertyCounter} from 'constants/property-counter';
 import {
@@ -101,6 +111,7 @@ import {Card} from 'models/card';
 import {GameState, getNumOceans, PlayerState, reducer, Resources} from 'reducer';
 import {AnyAction} from 'redux';
 import {canPlaceColony} from 'selectors/can-build-colony';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {getCard} from 'selectors/get-card';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
@@ -123,16 +134,15 @@ export interface EffectEvent {
 
 export type SupplementalResources = {name: string; quantity: number};
 
-type PlayActionParams = {
+export type PlayActionParams = {
     action: Action;
     state: GameState;
     parent?: Card; // origin of action
     playedCard?: Card; // card that triggered action
     thisPlayerIndex?: number;
     withPriority?: boolean;
-    // Like with priority, but instead of "unshifting" onto queue it skips queue and dispatches items immediately.
-    playImmediatelyIfNoUserInputNeeded?: boolean;
     supplementalResources?: SupplementalResources;
+    groupEffects?: boolean;
 };
 
 export class ApiActionHandler {
@@ -165,7 +175,7 @@ export class ApiActionHandler {
         return this.state.common.gameStage;
     }
 
-    private get queue() {
+    private get queue(): AnyAction[] {
         return this.game.queue;
     }
 
@@ -265,7 +275,9 @@ export class ApiActionHandler {
         if (card.playCard) {
             this.queue.push(askUserToPlayCardFromHand(card.playCard, playerIndex));
         }
-        this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
+        if (Object.keys(card.exchangeRates).length > 0) {
+            this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
+        }
 
         // 3. Play the action
         //     - action steps
@@ -273,9 +285,8 @@ export class ApiActionHandler {
         //     - gaining/losing/stealing resources & production
         //     - tile pacements
         //     - discarding/drawing cards
-        for (const step of card.steps ?? []) {
-            this.playAction({state: this.state, action: step, parent: card, supplementalResources});
-        }
+        this.playActionSteps(card, card, supplementalResources);
+
         const playActionParams = {
             action: card,
             state: this.state,
@@ -356,21 +367,63 @@ export class ApiActionHandler {
                     playedCard,
                     thisPlayerIndex: thisPlayer.index,
                     withPriority: !!event.placedTile,
-                    // If the effect causes a choice that benefits from more information,
-                    // Then it's better to trigger after everything else.
-                    // Otherwise, grant the resources immediately.
-                    playImmediatelyIfNoUserInputNeeded: true,
                 });
+                this.playActionSteps(action, card);
             }
         }
     }
 
-    private processQueue(items = this.queue) {
-        while (items.length > 0) {
-            const item = items.shift()!;
-            this.dispatch(item);
-            if (this.shouldPause(item)) {
-                break;
+    private processQueue() {
+        const items = this.queue;
+        const actionsThatRequireUserInput: AnyAction[] = [];
+        const negativeActions: AnyAction[] = [];
+        const automaticActions: AnyAction[] = [];
+        for (const item of items) {
+            if (this.isNegativeAction(item)) {
+                negativeActions.push(item);
+            } else if (this.shouldPause(item)) {
+                actionsThatRequireUserInput.push(item);
+            } else {
+                automaticActions.push(item);
+            }
+        }
+
+        let unpaidNegativeActions: AnyAction[] = [];
+        for (const action of negativeActions) {
+            if (removeResource.match(action)) {
+                const targetPlayer = this.state.players[action.payload.sourcePlayerIndex];
+                if (action.payload.amount > targetPlayer.resources[action.payload.resource]) {
+                    unpaidNegativeActions.push(action);
+                }
+            } else if (decreaseProduction.match(action)) {
+                const targetPlayer = this.state.players[action.payload.targetPlayerIndex];
+                const targetPlayerAmountAvailable =
+                    targetPlayer.productions[action.payload.resource];
+                const requiredDecrease = convertAmountToNumber(
+                    action.payload.amount,
+                    this.state,
+                    targetPlayer
+                );
+                if (
+                    targetPlayerAmountAvailable - requiredDecrease <
+                    MinimumProductions[action.payload.resource]
+                ) {
+                    unpaidNegativeActions.push(action);
+                }
+            }
+        }
+
+        actionsThatRequireUserInput.push(...unpaidNegativeActions)
+
+        if (actionsThatRequireUserInput.length > 1 || unpaidNegativeActions.length > 0) {
+            this.dispatch(askUserToChooseNextAction(items, this.loggedInPlayerIndex));
+        } else {
+            while (items.length > 0) {
+                const item = items.shift()!;
+                this.dispatch(item);
+                if (this.shouldPause(item)) {
+                    break;
+                }
             }
         }
     }
@@ -816,41 +869,6 @@ export class ApiActionHandler {
         this.queue.unshift(
             completeUserToPutAdditionalColonyTileIntoPlay(colony, loggedInPlayer.index)
         );
-        this.processQueue();
-    }
-
-    completePayPendingCost({payment}: {payment: Payment}) {
-        // We don't really have to protect this API endpoint too much.
-        // Just check that the payment is appropriate & sufficient.
-        const player = this.getLoggedInPlayer();
-        if (!player.payPendingCost) {
-            throw new Error('Cannot pay pending cost right now');
-        }
-        const megacredits = payment?.[Resource.MEGACREDIT] ?? 0;
-        const heat = payment?.[Resource.HEAT] ?? 0;
-        const totalPayment = megacredits + heat;
-        if (totalPayment !== player.pendingCost) {
-            throw new Error('Payment does not match pending cost');
-        }
-
-        const playerMegacredits = player.resources[Resource.MEGACREDIT];
-        const playerHeat = player.resources[Resource.HEAT];
-
-        if (megacredits > playerMegacredits || heat > playerHeat) {
-            throw new Error('Insufficient resources offered for payment');
-        }
-
-        if (megacredits) {
-            this.queue.push(
-                removeResource(Resource.MEGACREDIT, megacredits, player.index, player.index)
-            );
-        }
-        if (heat) {
-            this.queue.push(removeResource(Resource.HEAT, heat, player.index, player.index));
-        }
-
-        this.queue.push(completeAction(player.index));
-
         this.processQueue();
     }
 
@@ -1528,16 +1546,20 @@ export class ApiActionHandler {
     }
 
     private playAction(playActionParams: PlayActionParams) {
+        if (playActionParams.groupEffects) {
+            this.queue.push(
+                addActionToPlay(
+                    playActionParams.action,
+                    playActionParams.thisPlayerIndex ?? this.loggedInPlayerIndex
+                )
+            );
+            return;
+        }
         const items: AnyAction[] = [];
         this.discardCards(playActionParams, items);
         this.playActionCosts(playActionParams, items);
         this.playActionBenefits(playActionParams, items);
-        if (
-            playActionParams.playImmediatelyIfNoUserInputNeeded &&
-            !items.some(item => this.shouldPause(item))
-        ) {
-            this.processQueue(items);
-        } else if (playActionParams.withPriority) {
+        if (playActionParams.withPriority) {
             this.queue.unshift(...items);
         } else {
             this.queue.push(...items);
@@ -1783,6 +1805,26 @@ export class ApiActionHandler {
     private shouldPause(action: {type: string}): boolean {
         return PAUSE_ACTIONS.includes(action.type);
     }
+
+    private isNegativeAction(action: {type: string}): boolean {
+        return NEGATIVE_ACTIONS.includes(action.type);
+    }
+
+    private playActionSteps(
+        action: ActionWithSteps,
+        parent?: Card,
+        supplementalResources?: SupplementalResources
+    ) {
+        for (const step of action.steps ?? []) {
+            this.playAction({
+                state: this.state,
+                action: step,
+                parent,
+                supplementalResources,
+                groupEffects: true,
+            });
+        }
+    }
 }
 
 export function getActionsFromEffectForPlayer(
@@ -1905,4 +1947,4 @@ function getActionsFromEffect(
     return Array(numTagsTriggered).fill(effectAction);
 }
 
-export type ActionCardPair = [Action, Card];
+export type ActionCardPair = [ActionWithSteps, Card];

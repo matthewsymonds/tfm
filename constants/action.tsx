@@ -121,3 +121,7 @@ export interface Action {
     // From turmoil Global Event: "Sponsored Products" (All cards with resources on them gain 1 resource.)
     increaseStoredResourceAmount?: number;
 }
+
+export interface ActionWithSteps extends Action {
+    steps?: Action[];
+}

@@ -1,4 +1,4 @@
-import {Action, Amount, PlayCardParams} from './action';
+import {Action, ActionWithSteps, Amount, PlayCardParams} from './action';
 import {Parameter, TileType} from './board';
 import {CardDiscounts, TagDiscounts} from './discounts';
 import {Effect} from './effect';
@@ -34,7 +34,7 @@ export type ConditionalPayment = {
     rate: number;
 };
 
-export interface CardConfig extends Action {
+export interface CardConfig extends ActionWithSteps {
     resources?: PropertyCounter<Resource>;
     action?: Action;
     effect?: Effect;

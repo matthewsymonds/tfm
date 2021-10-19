@@ -39,6 +39,7 @@ import {
     announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
+    askUserToChooseNextAction,
     askUserToChoosePrelude,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
@@ -255,7 +256,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Large Convoy'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -781,7 +782,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             draft.pendingVariableAmount = quantity;
             let supplementalQuantity = 0;
-            if (resource === Resource.HEAT && payload.supplementalResources) {
+            if (resource === Resource.HEAT && payload.supplementalResources && player.index === sourcePlayerIndex) {
                 const {name} = payload.supplementalResources;
                 const matchingCard = player.playedCards.find(card => card.name === name);
                 if (matchingCard) {
@@ -1674,6 +1675,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
 
+            // If there are pendingActionChoices, we need to resolve those first before completing round.
+            if (player?.pendingActionChoice?.length ?? 0 > 0) {
+                player.prioritizePendingActionChoice = true;
+                return;
+            }
+
             // First, check if we still owe resources.
             // If we owe megacredits, we need to pay for them.
             // If we still owe anything else, the user has to start over.
@@ -1691,47 +1698,24 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 }
             }
 
-            const megacredits = player.resources[Resource.MEGACREDIT];
-            const heat = player.resources[Resource.HEAT];
-            const isHelion = player.corporation.name === 'Helion';
-            let quantity = megacredits;
-            if (isHelion) {
-                quantity += heat;
-            }
+            player.pendingResourceActionDetails = undefined;
+            draft.pendingVariableAmount = undefined;
+            player.action = (player.action % 2) + 1;
 
-            const cost = player.pendingCost;
-            if (cost) {
-                if (quantity < cost) {
-                    player.illegalStateReached = true;
-                } else if (!isHelion || !heat) {
-                    player.resources[Resource.MEGACREDIT] -= cost;
-                    player.pendingCost = 0;
-                } else if (!megacredits) {
-                    player.resources[Resource.HEAT] -= cost;
-                    player.pendingCost = 0;
-                } else {
-                    // If heat > 0 and megacredits > 0 and the player is helion, we need player input.
-                    player.payPendingCost = true;
-                }
-            } else {
-                player.pendingResourceActionDetails = undefined;
-                player.payPendingCost = false;
-                player.cards.push(...(player.pendingCards ?? []));
-                player.pendingCards = [];
-                draft.pendingVariableAmount = undefined;
-                player.action = (player.action % 2) + 1;
-
-                // Did the player just complete their second action?
-                // And is it not greenery placement?
-                // their turn is over.
-                if (
-                    player.action === 1 &&
-                    draft.common.gameStage !== GameStage.GREENERY_PLACEMENT
-                ) {
-                    // It's the next player's turn
-                    handleChangeCurrentPlayer(state, draft);
-                }
+            // Did the player just complete their second action?
+            // And is it not greenery placement?
+            // their turn is over.
+            if (player.action === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT) {
+                // It's the next player's turn
+                handleChangeCurrentPlayer(state, draft);
             }
+        }
+
+        if (askUserToChooseNextAction.match(action)) {
+            player = getPlayer(draft, action.payload);
+            player.pendingActionChoice ||= [];
+            player.pendingActionChoice.push(...action.payload.actions);
+            player.prioritizePendingActionChoice = true;
         }
 
         draft.logLength = draft.log.length;

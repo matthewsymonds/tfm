@@ -344,11 +344,6 @@ export class ApiClient implements GameActionHandler {
         );
     }
 
-    async payPendingCostAsync({payment}: {payment: Payment}) {
-        const payload = {payment};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_PAY_PENDING_COST, payload);
-    }
-
     async completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}) {
         const payload = {colony};
         await this.makeApiCall(

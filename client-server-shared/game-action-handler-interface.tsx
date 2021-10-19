@@ -103,6 +103,4 @@ export interface GameActionHandler {
     }): Promise<void>;
 
     completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}): Promise<void>;
-
-    payPendingCostAsync({payment}: {payment: Payment}): Promise<void>;
 }
