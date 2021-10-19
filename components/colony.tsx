@@ -189,7 +189,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                 >
                     {colony.tradeIncome
                         .map((_, index) =>
-                            index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus[index] : null
+                            index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus : null
                         )
                         .map((placementBonus, index) => {
                             return (
