@@ -29,7 +29,11 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
                                     },
                                 },
                                 'state.common.gameStage': {
-                                    $in: [GameStage.BUY_OR_DISCARD, GameStage.DRAFTING],
+                                    $in: [
+                                        GameStage.BUY_OR_DISCARD,
+                                        GameStage.DRAFTING,
+                                        GameStage.CORPORATION_SELECTION,
+                                    ],
                                 },
                             },
                         ],
