@@ -306,24 +306,14 @@ export const askUserToDiscardCards = withMatcher(
 
 const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS = 'ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS';
 export const askUserToChooseResourceActionDetails = withMatcher(
-    (
-        payload:
-            | {
-                  actionType: ResourceActionType;
-                  resourceAndAmounts: Array<ResourceAndAmount>;
-                  card: SerializedCard;
-                  playedCard?: SerializedCard;
-                  playerIndex: number;
-                  locationType?: ResourceLocationType;
-              }
-            | undefined
-    ) => {
-        if (!payload) {
-            return {
-                type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
-            };
-        }
-
+    (payload: {
+        actionType: ResourceActionType;
+        resourceAndAmounts: Array<ResourceAndAmount>;
+        card: SerializedCard;
+        playedCard?: SerializedCard;
+        playerIndex: number;
+        locationType?: ResourceLocationType;
+    }) => {
         return {
             type: ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS,
             payload,
@@ -333,13 +323,7 @@ export const askUserToChooseResourceActionDetails = withMatcher(
 
 const ASK_USER_TO_DUPLICATE_PRODUCTION = 'ASK_USER_TO_DUPLICATE_PRODUCTION';
 export const askUserToDuplicateProduction = withMatcher(
-    (payload: {tag: Tag; card: SerializedCard; playerIndex: number} | undefined) => {
-        if (!payload) {
-            return {
-                type: ASK_USER_TO_DUPLICATE_PRODUCTION,
-            };
-        }
-
+    (payload: {tag: Tag; card: SerializedCard; playerIndex: number}) => {
         return {
             type: ASK_USER_TO_DUPLICATE_PRODUCTION,
             payload,
@@ -377,13 +361,20 @@ export const makeActionChoice = withMatcher((playerIndex: number) => ({
 
 const ASK_USER_TO_LOOK_AT_CARDS = 'ASK_USER_TO_LOOK_AT_CARDS';
 export const askUserToLookAtCards = withMatcher(
-    (playerIndex: number, amount: number, numCardsToTake?: number, buyCards?: boolean) => ({
+    (
+        playerIndex: number,
+        amount: number,
+        numCardsToTake?: number,
+        buyCards?: boolean,
+        text?: string
+    ) => ({
         type: ASK_USER_TO_LOOK_AT_CARDS,
         payload: {
             playerIndex,
             amount,
             numCardsToTake,
             buyCards,
+            text,
         },
     })
 );
@@ -528,21 +519,11 @@ export const moveFleet = withMatcher((colony: string, playerIndex: number) => ({
     payload: {colony, playerIndex},
 }));
 
-const SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS = 'SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS';
-export const selectPlayerToReceiveColonyBonus = withMatcher((opponentPlayerIndex: number) => ({
-    type: SELECT_PLAYER_TO_RECEIVE_COLONY_BONUS,
-    payload: {opponentPlayerIndex},
+const SET_CURRENT_PLAYER = 'SET_CURRENT_PLAYER';
+export const setCurrentPlayer = withMatcher((playerIndex: number) => ({
+    type: SET_CURRENT_PLAYER,
+    payload: {playerIndex},
 }));
-
-export const RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS =
-    'RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS';
-
-export const returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus = withMatcher(
-    (playerIndex: number) => ({
-        type: RETURN_CONTROL_TO_CURRENT_PLAYER_AFTER_OPPONENTS_RECEIVE_COLONY_BONUS,
-        payload: {playerIndex},
-    })
-);
 
 const MOVE_COLONY_TILE_TRACK = 'MOVE_COLONY_TILE_TRACK';
 export const moveColonyTileTrack = withMatcher((colony: string, location: number) => ({
@@ -637,6 +618,18 @@ export const askUserToChooseNextAction = withMatcher(
         payload: {playerIndex, actions},
     })
 );
+
+const CLEAR_PENDING_NEXT_ACTION_CHOICE = 'CLEAR_PENDING_NEXT_ACTION_CHOICE';
+export const clearPendingActionChoice = withMatcher((playerIndex: number) => ({
+    type: CLEAR_PENDING_NEXT_ACTION_CHOICE,
+    payload: {playerIndex},
+}));
+
+const COMPLETE_CHOOSE_NEXT_ACTION = 'COMPLETE_CHOOSE_NEXT_ACTION';
+export const completeChooseNextAction = withMatcher((actionIndex: number, playerIndex: number) => ({
+    type: COMPLETE_CHOOSE_NEXT_ACTION,
+    payload: {actionIndex, playerIndex},
+}));
 
 // When a function returns an action, it's nice to use this if nothing should happen.
 const NOOP_ACTION = 'NOOP_ACTION';

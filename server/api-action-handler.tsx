@@ -23,7 +23,9 @@ import {
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
+    clearPendingActionChoice,
     completeAction,
+    completeChooseNextAction,
     completeIncreaseLowestProduction,
     completeTradeForFree,
     completeUserToPutAdditionalColonyTileIntoPlay,
@@ -60,11 +62,11 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
-    returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
-    selectPlayerToReceiveColonyBonus,
     setCorporation,
+    setCurrentPlayer,
+    setGame,
     setPlantDiscount,
     setPreludes,
     skipAction,
@@ -73,6 +75,7 @@ import {
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
+import {canPlayActionNext, userCannotChooseAction} from 'components/ask-user-to-choose-next-action';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     canSkipResourceActionDetails,
@@ -89,7 +92,15 @@ import {
     ParameterCounter,
     Payment,
 } from 'constants/action';
-import {Award, Cell, CellType, Milestone, Parameter, TileType} from 'constants/board';
+import {
+    Award,
+    Cell,
+    CellType,
+    getTilePlacementBonus,
+    Milestone,
+    Parameter,
+    TileType,
+} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
@@ -108,13 +119,18 @@ import {StandardProjectAction, StandardProjectType} from 'constants/standard-pro
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card} from 'models/card';
-import {GameState, getNumOceans, PlayerState, reducer, Resources} from 'reducer';
+import {GameState, getNumOceans, PlayerState, reducer} from 'reducer';
 import {AnyAction} from 'redux';
+import {getAdjacentCellsForCell} from 'selectors/board';
 import {canPlaceColony} from 'selectors/can-build-colony';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
+import {getSupplementalQuantity} from 'selectors/does-player-have-required-resource-to-remove';
 import {getCard} from 'selectors/get-card';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
-import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
+import {
+    getIsPlayerMakingDecision,
+    getIsPlayerMakingDecisionExceptForNextActionChoice,
+} from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
@@ -179,6 +195,10 @@ export class ApiActionHandler {
         return this.game.queue;
     }
 
+    private set queue(queue: AnyAction[]) {
+        this.game.queue = queue;
+    }
+
     get state() {
         return this.game.state;
     }
@@ -222,7 +242,7 @@ export class ApiActionHandler {
         supplementalResources,
     }: {
         serializedCard: SerializedCard;
-        payment?: Resources;
+        payment?: Payment;
         conditionalPayments?: number[];
         supplementalResources?: SupplementalResources;
     }) {
@@ -253,13 +273,6 @@ export class ApiActionHandler {
             this.queue.push(payToPlayCard(card, playerIndex, payment, conditionalPayments));
         }
 
-        this.processQueue();
-
-        // Have to trigger effects from the card we just played.
-        // Must be processed separatedly in case the card effects itself.
-        // Must also happen after payment.
-        this.triggerEffectsFromPlayedCard(card);
-
         // 2. Apply effects that will affect future turns:
         //     - parameter requirement adjustments (next turn or permanent)
         //     - discounts (card discounts, standard project discounts, etc)
@@ -272,6 +285,14 @@ export class ApiActionHandler {
             )
         );
         this.queue.push(applyDiscounts(card.discounts, playerIndex));
+
+        this.processQueue();
+
+        // Have to trigger effects from the card we just played.
+        // Must be processed separatedly in case the card effects itself.
+        // Must also happen after payment.
+        this.triggerEffectsFromPlayedCard(card);
+
         if (card.playCard) {
             this.queue.push(askUserToPlayCardFromHand(card.playCard, playerIndex));
         }
@@ -373,57 +394,83 @@ export class ApiActionHandler {
         }
     }
 
-    private processQueue() {
-        const items = this.queue;
-        const actionsThatRequireUserInput: AnyAction[] = [];
-        const negativeActions: AnyAction[] = [];
-        const automaticActions: AnyAction[] = [];
-        for (const item of items) {
-            if (this.isNegativeAction(item)) {
-                negativeActions.push(item);
-            } else if (this.shouldPause(item)) {
-                actionsThatRequireUserInput.push(item);
-            } else {
-                automaticActions.push(item);
-            }
+    private shouldMakeUserChooseNextAction(items: AnyAction[]): boolean {
+        if (items.length < 2) {
+            return false;
         }
 
-        let unpaidNegativeActions: AnyAction[] = [];
-        for (const action of negativeActions) {
-            if (removeResource.match(action)) {
-                const targetPlayer = this.state.players[action.payload.sourcePlayerIndex];
-                if (action.payload.amount > targetPlayer.resources[action.payload.resource]) {
-                    unpaidNegativeActions.push(action);
-                }
-            } else if (decreaseProduction.match(action)) {
-                const targetPlayer = this.state.players[action.payload.targetPlayerIndex];
-                const targetPlayerAmountAvailable =
-                    targetPlayer.productions[action.payload.resource];
-                const requiredDecrease = convertAmountToNumber(
-                    action.payload.amount,
-                    this.state,
-                    targetPlayer
-                );
-                if (
-                    targetPlayerAmountAvailable - requiredDecrease <
-                    MinimumProductions[action.payload.resource]
-                ) {
-                    unpaidNegativeActions.push(action);
+        const player = this.getLoggedInPlayer();
+        const playerIndices = items.map(item => item?.payload?.playerIndex ?? -1);
+        const sourcePlayerIndices = items.map(
+            item => item?.payload?.sourcePlayerIndex ?? item?.payload?.targetPlayerIndex ?? -1
+        );
+        const playerIndicesSet = new Set(
+            [...playerIndices, ...sourcePlayerIndices].filter(a => a >= 0)
+        );
+        // There are an incredible number of interactions that are possible when more than one player is involved.
+        // Examples:
+        // Aphrodite & Comet for Venus
+        // Giant Ice Asteroid/Comet & Arctic Algae
+        // Deciding microbe order when trading with Enceladus (if you want to make a decision based on where opponent puts microbes)
+        // Deciding draw order if the deck is low (for Pluto or Sponsored Academies).
+        // So it's up to the player to decide what order effects happen to increase their chances of winning.
+        if (playerIndicesSet.size > 1) return true;
+
+        if (items.filter(item => this.shouldPause(item)).length > 1) {
+            return true;
+        }
+
+        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
+            for (const item of items) {
+                if (removeResource.match(item) && item.payload.resource === Resource.MEGACREDIT) {
+                    // We need the player to be able to pay with heat...
+                    return true;
                 }
             }
         }
 
-        actionsThatRequireUserInput.push(...unpaidNegativeActions)
+        if (hasUnpaidResources(items, this.state, player)) {
+            return true;
+        }
 
-        if (actionsThatRequireUserInput.length > 1 || unpaidNegativeActions.length > 0) {
-            this.dispatch(askUserToChooseNextAction(items, this.loggedInPlayerIndex));
+        return false;
+    }
+
+    setStateCheckpoint = false;
+
+    private processQueue(items = this.queue, processingExistingItems = false) {
+        const currentPlayerIndex = this.state.common.currentPlayerIndex;
+        const shouldMakeNextChoice = this.shouldMakeUserChooseNextAction(items);
+        if (shouldMakeNextChoice) {
+            if (processingExistingItems) {
+                // If we reach here, no action required.
+                // The items are already in pendingNextActionChoice, so we don't need to place them again.
+                return;
+            }
+            this.dispatch(askUserToChooseNextAction(items, currentPlayerIndex));
+            // Don't double count the queue items next time around...
+            this.queue = [];
         } else {
             while (items.length > 0) {
                 const item = items.shift()!;
                 this.dispatch(item);
+                if (item.payload.playerIndex !== this.loggedInPlayerIndex) {
+                    this.setStateCheckpoint = true;
+                }
+                if (gainResource.match(item) && item.payload.resource === Resource.CARD) {
+                    this.setStateCheckpoint = true;
+                }
                 if (this.shouldPause(item)) {
                     break;
                 }
+            }
+            const currentPlayer = this.state.players[currentPlayerIndex];
+            const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
+            if (existingItems.length > 0 && !processingExistingItems) {
+                this.processQueue(existingItems, true);
+            } else {
+                this.dispatch(clearPendingActionChoice(currentPlayer.index));
+                this.setStateCheckpoint = true;
             }
         }
     }
@@ -442,7 +489,7 @@ export class ApiActionHandler {
         choiceIndex,
     }: {
         parent: Card;
-        payment?: Resources;
+        payment?: Payment;
         supplementalResources?: SupplementalResources;
         choiceIndex?: number;
     }) {
@@ -806,7 +853,7 @@ export class ApiActionHandler {
                 const card = getCard(prelude);
                 return this.actionGuard.canPlayCard(card)[0];
             }) ?? [];
-        if (playablePreludes.length === 0) {
+        if (playablePreludes.length === 0 && (player?.preludes?.length ?? 0) > 0) {
             this.queue.push(discardPreludes(this.loggedInPlayerIndex));
         }
         this.processQueue();
@@ -833,9 +880,42 @@ export class ApiActionHandler {
         const {state} = this;
         const loggedInPlayer = this.getLoggedInPlayer();
         const {pendingTilePlacement} = loggedInPlayer;
-
+        if (!pendingTilePlacement) throw new Error('no pending tile placement');
+        const matchingCell = this.actionGuard.getMatchingCell(cell, pendingTilePlacement);
+        if (!matchingCell) throw new Error('Cannot place on specified cell');
         const type = pendingTilePlacement!.type!;
         this.triggerEffectsFromTilePlacement(type, cell);
+
+        const tilePlacementBonus = getTilePlacementBonus(matchingCell);
+        for (const bonus of tilePlacementBonus) {
+            this.queue.push(
+                this.createInitialGainResourceAction(
+                    bonus.resource,
+                    bonus.amount,
+                    loggedInPlayer.index
+                )
+            );
+        }
+        const action = matchingCell.action;
+        if (action) {
+            this.playAction({
+                action,
+                state,
+            });
+        }
+        const megacreditIncreaseFromOceans =
+            getAdjacentCellsForCell(this.state, matchingCell).filter(cell => {
+                return cell.tile?.type === TileType.OCEAN;
+            }).length * 2;
+        if (megacreditIncreaseFromOceans) {
+            this.queue.push(
+                this.createInitialGainResourceAction(
+                    Resource.MEGACREDIT,
+                    megacreditIncreaseFromOceans,
+                    loggedInPlayer.index
+                )
+            );
+        }
 
         const parameterForTile = this.getParameterForTile(type);
         if (parameterForTile) {
@@ -850,7 +930,7 @@ export class ApiActionHandler {
             });
         }
 
-        this.queue.unshift(placeTile({type}, cell, loggedInPlayer.index));
+        this.dispatch(placeTile({type}, cell, loggedInPlayer.index));
 
         this.processQueue();
     }
@@ -889,7 +969,7 @@ export class ApiActionHandler {
 
         const action = getAction(option, this.getLoggedInPlayer(), variableAmount);
 
-        this.queue.unshift(action);
+        this.dispatch(action);
 
         this.processQueue();
     }
@@ -952,11 +1032,11 @@ export class ApiActionHandler {
         let paymentQuantity = validPayment.quantity;
 
         if (numHeat && validPayment.resource === Resource.MEGACREDIT) {
-            this.queue.push(removeResource(Resource.HEAT, numHeat, player.index, player.index));
+            this.dispatch(removeResource(Resource.HEAT, numHeat, player.index, player.index));
             paymentQuantity -= numHeat;
         }
 
-        this.queue.push(
+        this.dispatch(
             removeResource(validPayment.resource, paymentQuantity, player.index, player.index)
         );
 
@@ -994,8 +1074,8 @@ export class ApiActionHandler {
         const tradeIncomeAction = fullColony.tradeIncome[tradeIncome];
         const items: AnyAction[] = [];
         // Then receive trade income.
-        items.push(completeTradeForFree(player.index));
-        items.push(moveFleet(colony, player.index));
+        this.dispatch(completeTradeForFree(player.index));
+        this.dispatch(moveFleet(colony, player.index));
 
         this.playActionBenefits(
             {
@@ -1005,11 +1085,10 @@ export class ApiActionHandler {
             items
         );
 
-        items.push(moveColonyTileTrack(colony, matchingColony.colonies.length));
+        this.dispatch(moveColonyTileTrack(colony, matchingColony.colonies.length));
 
         // TODO make order customizable.
         for (const playerIndex of matchingColony.colonies) {
-            items.push(selectPlayerToReceiveColonyBonus(playerIndex));
             this.playActionBenefits(
                 {
                     action: fullColony.colonyBonus,
@@ -1036,8 +1115,6 @@ export class ApiActionHandler {
                 items
             );
         }
-
-        items.push(returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus(player.index));
         if (withPriority) {
             this.queue.unshift(...items);
         } else {
@@ -1068,7 +1145,7 @@ export class ApiActionHandler {
             // We want this benefit to come before other things that happen (like placing a city tile)
             withPriority: true,
         });
-        this.queue.unshift(placeColony(colony, player.index));
+        this.dispatch(placeColony(colony, player.index));
         this.triggerEffectsFromPlacedColony();
         this.processQueue();
     }
@@ -1093,6 +1170,102 @@ export class ApiActionHandler {
 
         this.queue.unshift(increaseAndDecreaseColonyTileTracks(increase, decrease, player.index));
         this.processQueue();
+    }
+
+    completeChooseNextAction({actionIndex, payment}: {actionIndex: number; payment?: Payment}) {
+        const player = this.getLoggedInPlayer();
+        const actions = player.pendingNextActionChoice;
+        if (!actions) {
+            throw new Error('not choosing next action');
+        }
+        const {state} = this;
+        if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+            throw new Error('Cannot choose next action outside active round');
+        }
+        if (player.index !== state.common.currentPlayerIndex) {
+            throw new Error('Not your turn');
+        }
+        if (getIsPlayerMakingDecisionExceptForNextActionChoice(this.state, player)) {
+            throw new Error('Cannot choose next action while making other decision');
+        }
+        let action = actions[actionIndex];
+        if (!action) {
+            throw new Error('Out of bounds');
+        }
+        if (userCannotChooseAction(action)) {
+            throw new Error('User cannot choose action');
+        }
+        const hasUnpaidActions = hasUnpaidResources(actions, state, player);
+        if (!canPlayActionNext(action, this.state, player, hasUnpaidActions, this.actionGuard)) {
+            throw new Error('Cannot play this action next');
+        }
+        const playerWhoseActionItIs = action?.payload?.playerIndex ?? player.index;
+        if (player.index !== playerWhoseActionItIs) {
+            this.queue.push(setCurrentPlayer(playerWhoseActionItIs));
+        }
+        if (addActionToPlay.match(action)) {
+            this.playAction({
+                action: action.payload.action,
+                state: this.state,
+            });
+        } else if (removeResource.match(action)) {
+            if (
+                player.corporation.name === 'Helion' &&
+                action.payload.resource === Resource.MEGACREDIT &&
+                action.payload.playerIndex === this.loggedInPlayerIndex &&
+                payment
+            ) {
+                if (
+                    // Can I pay with the offered resources?
+                    !this.actionGuard.canAffordActionCost(
+                        {cost: action.payload.amount},
+                        player,
+                        payment
+                    ) ||
+                    // Can I pay with the player's resources? Need to check so player isnt trying to take resources they dont have
+                    !this.actionGuard.canAffordActionCost({cost: action.payload.amount}, player)
+                ) {
+                    throw new Error('Payment not acceptable');
+                }
+
+                for (const resource in payment) {
+                    this.queue.push(
+                        removeResource(
+                            resource as Resource,
+                            payment[resource],
+                            action.payload.playerIndex,
+                            action.payload.playerIndex
+                        )
+                    );
+                }
+            }
+        } else {
+            this.queue.push(action);
+        }
+        if (player.index !== playerWhoseActionItIs) {
+            this.queue.push(setCurrentPlayer(player.index));
+        }
+        this.queue.push(completeChooseNextAction(actionIndex, player.index));
+        this.processQueue();
+    }
+
+    startOver(checkpoint?: GameState) {
+        const playerIndex = this.getLoggedInPlayerIndex();
+
+        if (playerIndex !== this.state.common.currentPlayerIndex) {
+            throw new Error('Cannot start over as not current player');
+        }
+        if (this.state.common.gameStage !== GameStage.ACTIVE_ROUND) {
+            throw new Error('Starting over not currently supported outside active round');
+        }
+        const player = this.getLoggedInPlayer();
+        const items = player.pendingNextActionChoice ?? [];
+        if (!hasUnpaidResources(items, this.state, player)) {
+            throw new Error('Start over not implemented outside debt scenario yet.');
+        }
+        if (checkpoint) {
+            this.dispatch(setGame(checkpoint));
+        }
     }
 
     private playActionBenefits(
@@ -1120,14 +1293,11 @@ export class ApiActionHandler {
         const numOceansPlacedSoFar = getNumOceans(state);
         let oceansInQueue = 0;
         for (const tilePlacement of action?.tilePlacements ?? []) {
-            let isOcean = false;
-            if (tilePlacement.type === TileType.OCEAN) {
-                isOcean = true;
-                oceansInQueue += 1;
-            }
+            const isOcean = tilePlacement.type === TileType.OCEAN;
             if (isOcean && numOceansPlacedSoFar + oceansInQueue > MAX_PARAMETERS[Parameter.OCEAN]) {
             } else {
                 items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+                oceansInQueue += 1;
             }
         }
 
@@ -1218,7 +1388,8 @@ export class ApiActionHandler {
                     playerIndex,
                     action.lookAtCards.numCards,
                     action.lookAtCards.numCardsToTake,
-                    action.lookAtCards.buyCards
+                    action.lookAtCards.buyCards,
+                    action.text
                 )
             );
         }
@@ -1806,10 +1977,6 @@ export class ApiActionHandler {
         return PAUSE_ACTIONS.includes(action.type);
     }
 
-    private isNegativeAction(action: {type: string}): boolean {
-        return NEGATIVE_ACTIONS.includes(action.type);
-    }
-
     private playActionSteps(
         action: ActionWithSteps,
         parent?: Card,
@@ -1945,6 +2112,95 @@ function getActionsFromEffect(
     const triggerTags = trigger.tags || [];
     const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
     return Array(numTagsTriggered).fill(effectAction);
+}
+
+export function isNegativeAction(action: {type: string}): boolean {
+    return NEGATIVE_ACTIONS.includes(action.type);
+}
+
+export function getTotalResourcesOwed(
+    items: AnyAction[],
+    state: GameState,
+    player: PlayerState
+): Payment {
+    const totalResourceOwed: Payment = {};
+
+    const removeResourceCells = state.common.board
+        .flat()
+        .filter(cell => cell?.action?.removeResource);
+
+    const reachableNegativeCells = removeResourceCells.filter(cell =>
+        items.some(item => {
+            const tilePlacement = askUserToPlaceTile.match(item);
+            return (
+                tilePlacement &&
+                this.actionGuard.canCompletePlaceTile(cell, item.payload.tilePlacement)
+            );
+        })
+    );
+
+    const removeResourceActionsFromCells = reachableNegativeCells.map(cell => cell.action!);
+
+    for (const action of removeResourceActionsFromCells) {
+        for (const resource in action.removeResource) {
+            totalResourceOwed[resource] += action.removeResource[resource];
+        }
+    }
+
+    for (const action of items) {
+        if (removeResource.match(action)) {
+            const {resource, amount} = action.payload;
+            totalResourceOwed[resource] ||= 0;
+            totalResourceOwed[resource]! += amount;
+            if (action.payload.supplementalResources) {
+                totalResourceOwed[resource]! -= getSupplementalQuantity(
+                    player,
+                    action.payload.supplementalResources
+                );
+            }
+        }
+    }
+    return totalResourceOwed;
+}
+
+export function getTotalProductionDecreased(items: AnyAction[], state: GameState) {
+    const totalProductionDecreased: Payment = {};
+    for (const action of items) {
+        if (decreaseProduction.match(action)) {
+            const {amount, resource, targetPlayerIndex} = action.payload;
+            const targetPlayer = state.players[targetPlayerIndex];
+            const targetPlayerAmountAvailable = targetPlayer.productions[resource];
+            const requiredDecrease = convertAmountToNumber(amount, state, targetPlayer);
+            if (targetPlayerAmountAvailable - requiredDecrease < MinimumProductions[resource]) {
+                totalProductionDecreased[resource] ||= 0;
+                totalProductionDecreased[resource]! += requiredDecrease;
+            }
+        }
+    }
+    return totalProductionDecreased;
+}
+
+export function hasUnpaidResources(items: AnyAction[], state: GameState, player: PlayerState) {
+    const totalResourceOwed = getTotalResourcesOwed(items, state, player);
+    const totalProductionDecreased = getTotalProductionDecreased(items, state);
+
+    for (const resource in totalResourceOwed) {
+        if (player.resources[resource] < totalResourceOwed[resource]) {
+            // Sum of negative resource effects exceeds this player's resources.
+            return true;
+        }
+    }
+    for (const resource in totalProductionDecreased) {
+        if (
+            player.productions[resource] - totalProductionDecreased[resource] <
+            MinimumProductions[resource]
+        ) {
+            // sum of negative production effects would reduce production beneath minimum.
+            return true;
+        }
+    }
+
+    return false;
 }
 
 export type ActionCardPair = [ActionWithSteps, Card];

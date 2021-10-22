@@ -2544,11 +2544,17 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         victoryPoints: -1,
         tilePlacements: [t(TileType.OCEAN)],
-        removeResource: {
-            [Resource.MEGACREDIT]: 4,
-        },
-        removeResourceSourceType:
-            ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
+        steps: [
+            {
+                removeResource: {
+                    [Resource.MEGACREDIT]: 4,
+                },
+            },
+            {
+                removeResourceSourceType:
+                    ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
+            },
+        ],
     },
     {
         cost: 15,
@@ -3387,15 +3393,15 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
+        opponentsGainResource: {
+            [Resource.CARD]: 1,
+        },
         steps: [
             {
                 removeResource: {[Resource.CARD]: 1},
             },
             {
                 gainResource: {[Resource.CARD]: 3},
-            },
-            {
-                opponentsGainResource: {[Resource.CARD]: 1},
             },
         ],
     },

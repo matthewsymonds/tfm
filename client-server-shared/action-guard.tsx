@@ -4,8 +4,8 @@ import {
     getPlayerOptionWrappers,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
-import {Action} from 'constants/action';
-import {Award, Cell, Milestone, TileType} from 'constants/board';
+import {Action, Payment} from 'constants/action';
+import {Award, Cell, Milestone, TilePlacement, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
@@ -14,7 +14,7 @@ import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
-import {GameState, PlayerState, Resources} from 'reducer';
+import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
 import {
     canTradeIgnoringPayment,
@@ -55,7 +55,7 @@ export class ActionGuard {
     canPlayCard(
         card: Card,
         player = this._getPlayerToConsider(),
-        payment: Resources = player.resources,
+        payment: Payment = player.resources,
         conditionalPayments: number[] = getConditionalPaymentWithResourceInfo(player, card).map(
             payment => payment.resourceAmount
         ),
@@ -330,10 +330,10 @@ export class ActionGuard {
         return [false, 'Cannot pass right now'];
     }
 
-    private canAffordActionCost(
+    canAffordActionCost(
         action: Action,
         player = this._getPlayerToConsider(),
-        payment = player.resources
+        payment: Payment = player.resources
     ) {
         let {cost, acceptedPayment = []} = action;
         if (!cost) {
@@ -341,43 +341,44 @@ export class ActionGuard {
         }
 
         for (const acceptedPaymentType of acceptedPayment) {
-            cost -= player.exchangeRates[acceptedPaymentType] * payment[acceptedPaymentType];
+            cost -=
+                player.exchangeRates[acceptedPaymentType] * (payment?.[acceptedPaymentType] ?? 0);
         }
 
         if (player.corporation.name === 'Helion') {
-            cost -= player.exchangeRates[Resource.HEAT] * payment[Resource.HEAT];
+            cost -= player.exchangeRates[Resource.HEAT] * (payment?.[Resource.HEAT] ?? 0);
         }
 
-        return cost <= payment[Resource.MEGACREDIT];
+        return cost <= (payment?.[Resource.MEGACREDIT] ?? 0);
     }
 
     canAffordCard(
         card: Card,
         player = this._getPlayerToConsider(),
-        payment = player.resources,
+        payment: Payment = player.resources,
         conditionalPayment = getConditionalPaymentWithResourceInfo(player, card)
     ) {
         let cost = this.getDiscountedCardCost(card);
 
         const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
         if (isBuildingCard) {
-            cost -= player.exchangeRates[Resource.STEEL] * payment[Resource.STEEL];
+            cost -= player.exchangeRates[Resource.STEEL] * (payment?.[Resource.STEEL] ?? 0);
         }
 
         const isSpaceCard = card.tags.some(tag => tag === Tag.SPACE);
         if (isSpaceCard) {
-            cost -= player.exchangeRates[Resource.TITANIUM] * payment[Resource.TITANIUM];
+            cost -= player.exchangeRates[Resource.TITANIUM] * (payment?.[Resource.TITANIUM] ?? 0);
         }
 
         const playerIsHelion = player.corporation.name === 'Helion';
         if (playerIsHelion) {
-            cost -= player.exchangeRates[Resource.HEAT] * payment[Resource.HEAT];
+            cost -= player.exchangeRates[Resource.HEAT] * (payment?.[Resource.HEAT] ?? 0);
         }
         for (const payment of conditionalPayment) {
             cost -= payment.resourceAmount * payment.rate;
         }
 
-        return cost <= payment[Resource.MEGACREDIT];
+        return cost <= (payment?.[Resource.MEGACREDIT] ?? 0);
     }
 
     canDoConversion(
@@ -546,7 +547,7 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources,
+        payment: Payment | undefined = player?.resources,
         supplementalResources?: SupplementalResources,
         actionReplay: boolean = !!player?.pendingActionReplay
     ): CanPlayAndReason {
@@ -571,7 +572,7 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources,
+        payment: Payment | undefined = player?.resources,
         supplementalResources?: SupplementalResources,
         actionReplay: boolean = !!player?.pendingActionReplay
     ): CanPlayAndReason {
@@ -595,7 +596,7 @@ export class ActionGuard {
         parent: Card,
         player: SerializedPlayerState | undefined,
         state: GameState = this.state,
-        payment: Resources | undefined = player?.resources,
+        payment: Payment | undefined = player?.resources,
         supplementalResources?: SupplementalResources,
         actionReplay?: boolean
     ): CanPlayAndReason {
@@ -686,22 +687,34 @@ export class ActionGuard {
         );
     }
 
-    canCompletePlaceTile(cell: Cell): CanPlayAndReason {
+    canCompletePlaceTile(
+        cell: Cell,
+        pendingTilePlacement: TilePlacement | undefined = this._getPlayerToConsider()
+            .pendingTilePlacement
+    ): CanPlayAndReason {
+        if (!pendingTilePlacement) {
+            return [false, 'Player cannot place a tile'];
+        }
+        return [
+            !!this.getMatchingCell(cell, pendingTilePlacement),
+            'Not a valid placement location',
+        ];
+    }
+
+    getMatchingCell(cell: Cell, pendingTilePlacement: TilePlacement): Cell | undefined {
         const player = this._getPlayerToConsider();
         const validPlacements = getValidPlacementsForRequirement(
             this.state,
-            player.pendingTilePlacement,
+            pendingTilePlacement,
             player
         );
 
-        const matchingCell = validPlacements.find(candidate => {
+        return validPlacements.find(candidate => {
             if (candidate.specialName) {
                 return candidate.specialName === cell.specialName;
             }
             return candidate.coords?.every((coord, index) => coord === cell.coords?.[index]);
         });
-
-        return [!!matchingCell, 'Not a valid placement location'];
     }
 
     canCompletePutAdditionalColonyTileIntoPlay(colony: string): CanPlayAndReason {

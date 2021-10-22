@@ -31,7 +31,7 @@ export default async (req, res) => {
 
     try {
         if ((lock[id] ?? []).includes(username)) {
-            res.json({error: 'Game update in progress.'});
+            res.json({alert: 'Game update in progress.'});
             return;
         }
         game = await gamesModel.findOne({name: id});
@@ -66,7 +66,7 @@ export default async (req, res) => {
         const stateHydrator = new StateHydrator(hydratedGame, username);
         hydratedGame.state.name = game.name;
 
-        playGame(type, payload, actionHandler, stateHydrator, originalState);
+        playGame(type, payload, actionHandler, stateHydrator, originalState, game.stateCheckpoint);
 
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;
@@ -78,6 +78,10 @@ export default async (req, res) => {
         game.lastSeenLogItem ||= [];
         game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
         game.markModified('lastSeenLogItem');
+        if (actionHandler.setStateCheckpoint) {
+            game.stateCheckpoint = originalState;
+            game.markModified('stateCheckpoint');
+        }
         await game.save({validateBeforeSave: false});
         purgeLock(lock, username, game.name);
 

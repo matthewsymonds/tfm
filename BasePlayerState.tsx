@@ -70,7 +70,7 @@ export type BasePlayerState = {
     discounts: Discounts;
     plantDiscount?: number;
     pendingChoice?: PendingChoice;
-    pendingActionChoice?: AnyAction[];
+    pendingNextActionChoice?: AnyAction[];
     pendingActionReplay?: boolean;
 
     parameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
@@ -86,6 +86,4 @@ export type BasePlayerState = {
     increaseAndDecreaseColonyTileTracks?: number;
     tradeForFree?: boolean;
     putAdditionalColonyTileIntoPlay?: boolean;
-    illegalStateReached?: boolean;
-    prioritizePendingActionChoice?: boolean;
 };

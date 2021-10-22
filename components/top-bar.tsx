@@ -48,15 +48,23 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
      * Derived state
      */
     const {action, index: loggedInPlayerIndex} = loggedInPlayer;
-    const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayerIndex;
-    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-    const isDrafting = gameStage === GameStage.DRAFTING;
-    const isBuyOrDiscard = gameStage === GameStage.BUY_OR_DISCARD;
-    const isGreeneryPlacement = gameStage === GameStage.GREENERY_PLACEMENT;
-    const isEndOfGame = gameStage === GameStage.END_OF_GAME;
-    const hasPendingCardSelection = !!loggedInPlayer.pendingCardSelection;
-    const currentPlayer = players[currentPlayerIndex];
-    const isLoggedInPlayerPassed = loggedInPlayer.action === 0 && isActiveRound;
+    const isLoggedInPlayersTurn = useTypedSelector(
+        state => currentPlayerIndex === loggedInPlayerIndex
+    );
+    const isActiveRound = useTypedSelector(state => gameStage === GameStage.ACTIVE_ROUND);
+    const isDrafting = useTypedSelector(state => gameStage === GameStage.DRAFTING);
+    const isBuyOrDiscard = useTypedSelector(state => gameStage === GameStage.BUY_OR_DISCARD);
+    const isGreeneryPlacement = useTypedSelector(
+        state => gameStage === GameStage.GREENERY_PLACEMENT
+    );
+    const isEndOfGame = useTypedSelector(state => gameStage === GameStage.END_OF_GAME);
+    const hasPendingCardSelection = useTypedSelector(
+        state => !!loggedInPlayer.pendingCardSelection
+    );
+    const currentPlayer = useTypedSelector(state => players[currentPlayerIndex]);
+    const isLoggedInPlayerPassed = useTypedSelector(
+        state => loggedInPlayer.action === 0 && isActiveRound
+    );
 
     const topBarColor =
         isLoggedInPlayersTurn || hasPendingCardSelection
@@ -74,6 +82,9 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
         : 'Cannot place any more greeneries.';
 
     const playing = loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound;
+
+    const canSkip = useTypedSelector(state => actionGuard.canSkipAction()[0]);
+    const canPass = useTypedSelector(state => actionGuard.canPassGeneration()[0]);
 
     return (
         <TopBarBase
@@ -127,12 +138,12 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
                     {isLoggedInPlayersTurn && isGreeneryPlacement && (
                         <Box display="inline-block">{greeneryPlacementText}</Box>
                     )}
-                    {actionGuard.canSkipAction()[0] && (
+                    {canSkip && (
                         <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
                             Skip
                         </Button>
                     )}
-                    {actionGuard.canPassGeneration()[0] && (
+                    {canPass && (
                         <Button onClick={() => apiClient.passGenerationAsync()} margin="0 0 0 8px">
                             Pass
                         </Button>

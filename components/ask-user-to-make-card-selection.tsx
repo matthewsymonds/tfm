@@ -130,10 +130,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const canConfirmCardSelection = useTypedSelector(state =>
         actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
-    const shouldDisableDueToPreludes =
-        player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2;
-    const shouldDisableConfirmCardSelection =
-        !canConfirmCardSelection || actionGuard.isSyncing || shouldDisableDueToPreludes;
+    const shouldDisableDueToPreludes = useTypedSelector(
+        () => player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2
+    );
+    const shouldDisableConfirmCardSelection = useTypedSelector(
+        () => !canConfirmCardSelection || actionGuard.isSyncing || shouldDisableDueToPreludes
+    );
 
     // hide card selector while waiting on others to pick cards
     const isWaitingOnOthersToDraft =

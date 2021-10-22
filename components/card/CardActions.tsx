@@ -75,6 +75,14 @@ const ActionContainerBase = styled.button`
     }
 `;
 
+export function LookAtCards({text}: {text: string}) {
+    return (
+        <Box marginLeft="8px" display="flex">
+            <ActionText>{text}</ActionText>
+        </Box>
+    );
+}
+
 export function renderRightSideOfArrow(
     action: Action,
     card?: CardModel,
@@ -156,11 +164,7 @@ export function renderRightSideOfArrow(
         );
     }
     if (action.lookAtCards) {
-        elements.push(
-            <Box marginLeft="8px" display="flex">
-                <ActionText>{action.text}</ActionText>
-            </Box>
-        );
+        elements.push(<LookAtCards text={action.text ?? 'Look at cards'} />);
     }
 
     if (elements.length === 1) {

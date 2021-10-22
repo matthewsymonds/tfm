@@ -208,8 +208,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Select a colony to trade with for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
         actionBarPromptText = 'Increase and decrease colony tile tracks';
-    } else if (loggedInPlayer.illegalStateReached) {
-        actionBarPromptText = 'You have failed to pay for your action.';
     } else {
         actionBarPromptText = 'Complete your action';
     }
@@ -297,10 +295,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             case gameStage === GameStage.END_OF_GAME:
                 actionOverlayElement = <EndOfGame />;
                 break;
-            case loggedInPlayer.prioritizePendingActionChoice &&
-                (loggedInPlayer.pendingActionChoice?.length ?? 0) > 0:
-                actionOverlayElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
-                break;
             case !!loggedInPlayer.pendingChoice:
                 actionOverlayElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
                 break;
@@ -340,6 +334,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 currentPlayerIndex === loggedInPlayer.index &&
                 !loggedInPlayer.pendingPlayCardFromHand &&
                 !loggedInPlayer.pendingTilePlacement &&
+                !loggedInPlayer.pendingNextActionChoice &&
                 players.every(
                     player =>
                         (player.preludes?.length ?? 0) > 0 ||
@@ -379,8 +374,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 );
                 break;
             // This should be last...It's saying "ask the user which item they want to handle next"
-            case !loggedInPlayer.prioritizePendingActionChoice &&
-                (loggedInPlayer.pendingActionChoice?.length ?? 0) > 0:
+            case (loggedInPlayer.pendingNextActionChoice?.length ?? 0) > 0:
                 actionOverlayElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
                 break;
         }
