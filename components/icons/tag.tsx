@@ -50,13 +50,13 @@ const TagBase = styled.div<TagBaseProps>`
 // icon, text color, bg color
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji'],
-    [Tag.BUILDING]: ['🏛️', 'brown', '#583824', '', 'emoji'],
+    [Tag.BUILDING]: ['🏛️', 'brown', '#8b5e3d', '', 'emoji'],
     [Tag.CITY]: ['🌆', '#333333', '#C8B3C5', '', 'emoji'],
     [Tag.EARTH]: ['🌎', 'darkgreen', '', 'transparent', 'emoji earth'],
     [Tag.POWER]: ['⚡', 'white', 'purple', '', 'lightning'],
     [Tag.EVENT]: ['⮕', 'black', 'gold', '', 'event'],
     [Tag.JOVIAN]: ['🪐', 'purple', 'darkgray', 'transparent', 'emoji jovian'],
-    [Tag.MICROBE]: ['🐛', 'green', 'white', 'emoji'],
+    [Tag.MICROBE]: ['🐛', 'green', 'white', '', 'emoji'],
     [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji'],
     [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray', '', 'emoji'],
     [Tag.SPACE]: ['✷', 'gold', 'black', '', 'space-tag'],

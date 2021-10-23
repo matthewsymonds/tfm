@@ -606,10 +606,12 @@ export const completeUserToPutAdditionalColonyTileIntoPlay = withMatcher(
 );
 
 const ADD_ACTION_TO_PLAY = 'ADD_ACTION_TO_PLAY';
-export const addActionToPlay = withMatcher((action: Action, playerIndex: number) => ({
-    type: ADD_ACTION_TO_PLAY,
-    payload: {playerIndex, action},
-}));
+export const addActionToPlay = withMatcher(
+    (action: Action, reverseOrder: boolean, playerIndex: number) => ({
+        type: ADD_ACTION_TO_PLAY,
+        payload: {playerIndex, reverseOrder, action},
+    })
+);
 
 const ASK_USER_TO_CHOOSE_NEXT_ACTION = 'ASK_USER_TO_CHOOSE_NEXT_ACTION';
 export const askUserToChooseNextAction = withMatcher(
@@ -653,7 +655,6 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
     ASK_USER_TO_TRADE_FOR_FREE,
     ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
-    ADD_ACTION_TO_PLAY,
 ];
 
 export const NEGATIVE_ACTIONS = [

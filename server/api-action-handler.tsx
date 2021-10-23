@@ -159,6 +159,7 @@ export type PlayActionParams = {
     withPriority?: boolean;
     supplementalResources?: SupplementalResources;
     groupEffects?: boolean;
+    reverseOrder?: boolean;
 };
 
 export class ApiActionHandler {
@@ -400,10 +401,14 @@ export class ApiActionHandler {
         }
 
         const player = this.getLoggedInPlayer();
-        const playerIndices = items.map(item => item?.payload?.playerIndex ?? -1);
-        const sourcePlayerIndices = items.map(
-            item => item?.payload?.sourcePlayerIndex ?? item?.payload?.targetPlayerIndex ?? -1
-        );
+        const playerIndices = items
+            .filter(item => !setCurrentPlayer.match(item))
+            .map(item => item?.payload?.playerIndex ?? -1);
+        const sourcePlayerIndices = items
+            .filter(item => !setCurrentPlayer.match(item))
+            .map(
+                item => item?.payload?.sourcePlayerIndex ?? item?.payload?.targetPlayerIndex ?? -1
+            );
         const playerIndicesSet = new Set(
             [...playerIndices, ...sourcePlayerIndices].filter(a => a >= 0)
         );
@@ -443,14 +448,28 @@ export class ApiActionHandler {
         const shouldMakeNextChoice = this.shouldMakeUserChooseNextAction(items);
         if (shouldMakeNextChoice) {
             if (processingExistingItems) {
-                // If we reach here, no action required.
-                // The items are already in pendingNextActionChoice, so we don't need to place them again.
                 return;
             }
             this.dispatch(askUserToChooseNextAction(items, currentPlayerIndex));
             // Don't double count the queue items next time around...
             this.queue = [];
         } else {
+            const newItems: AnyAction[] = [];
+
+            for (const item of items) {
+                if (addActionToPlay.match(item)) {
+                    this.playAction(
+                        {
+                            action: item.payload.action,
+                            thisPlayerIndex: item.payload.playerIndex,
+                            state: this.state,
+                            reverseOrder: item.payload.reverseOrder,
+                        },
+                        newItems
+                    );
+                }
+            }
+            items.push(...newItems);
             while (items.length > 0) {
                 const item = items.shift()!;
                 this.dispatch(item);
@@ -464,12 +483,13 @@ export class ApiActionHandler {
                     break;
                 }
             }
-            const currentPlayer = this.state.players[currentPlayerIndex];
+            const currentPlayer = this.state.players[this.state.common.currentPlayerIndex];
             const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
             if (existingItems.length > 0 && !processingExistingItems) {
                 this.processQueue(existingItems, true);
-            } else {
+            } else if (processingExistingItems) {
                 this.dispatch(clearPendingActionChoice(currentPlayer.index));
+                this.queue = items;
                 this.setStateCheckpoint = true;
             }
         }
@@ -1089,31 +1109,13 @@ export class ApiActionHandler {
 
         // TODO make order customizable.
         for (const playerIndex of matchingColony.colonies) {
-            this.playActionBenefits(
-                {
-                    action: fullColony.colonyBonus,
-                    state: this.game.state,
-                    thisPlayerIndex: playerIndex,
-                },
-                items
-            );
-            this.playActionCosts(
-                {
-                    action: fullColony.colonyBonus,
-                    thisPlayerIndex: playerIndex,
-                    state: this.game.state,
-                },
-                items
-            );
-            // Do discard last to match the Pluto flow (draw, then discard)
-            this.discardCards(
-                {
-                    action: fullColony.colonyBonus,
-                    thisPlayerIndex: playerIndex,
-                    state: this.game.state,
-                },
-                items
-            );
+            this.playAction({
+                action: fullColony.colonyBonus,
+                state: this.state,
+                thisPlayerIndex: playerIndex,
+                groupEffects: true,
+                reverseOrder: true,
+            });
         }
         if (withPriority) {
             this.queue.unshift(...items);
@@ -1207,6 +1209,8 @@ export class ApiActionHandler {
             this.playAction({
                 action: action.payload.action,
                 state: this.state,
+                reverseOrder: action.payload.reverseOrder ?? false,
+                thisPlayerIndex: action.payload.playerIndex,
             });
         } else if (removeResource.match(action)) {
             if (
@@ -1244,9 +1248,10 @@ export class ApiActionHandler {
         }
         if (player.index !== playerWhoseActionItIs) {
             this.queue.push(setCurrentPlayer(player.index));
+        } else {
         }
-        this.queue.push(completeChooseNextAction(actionIndex, player.index));
         this.processQueue();
+        this.dispatch(completeChooseNextAction(actionIndex, player.index));
     }
 
     startOver(checkpoint?: GameState) {
@@ -1716,24 +1721,28 @@ export class ApiActionHandler {
         }
     }
 
-    private playAction(playActionParams: PlayActionParams) {
+    private playAction(playActionParams: PlayActionParams, queue = this.queue) {
         if (playActionParams.groupEffects) {
             this.queue.push(
                 addActionToPlay(
                     playActionParams.action,
+                    playActionParams.reverseOrder ?? false,
                     playActionParams.thisPlayerIndex ?? this.loggedInPlayerIndex
                 )
             );
             return;
         }
-        const items: AnyAction[] = [];
+        let items: AnyAction[] = [];
         this.discardCards(playActionParams, items);
         this.playActionCosts(playActionParams, items);
         this.playActionBenefits(playActionParams, items);
+        if (playActionParams.reverseOrder) {
+            items = items.reverse();
+        }
         if (playActionParams.withPriority) {
-            this.queue.unshift(...items);
+            queue.unshift(...items);
         } else {
-            this.queue.push(...items);
+            queue.push(...items);
         }
     }
 

@@ -81,7 +81,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 if (index > 0) {
                     elements.push(<TextWithMargin>/</TextWithMargin>);
                 }
-                elements.push(<TagIcon name={tag as Tag} size={16} />);
+                elements.push(<TagIcon emojiAdjustment={1} name={tag as Tag} size={16} />);
             });
         }
 
@@ -193,7 +193,12 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                     {trigger?.tags.map((tag, index) => (
                         <React.Fragment key={`${tag}-${index}`}>
                             {index > 0 && <TextWithMargin>/</TextWithMargin>}
-                            <TagIcon name={tag} size={16} />
+                            <TagIcon
+                                name={tag}
+                                emojiAdjustment={1}
+                                topEmojiAdjustment={0}
+                                size={16}
+                            />
                         </React.Fragment>
                     ))}
                 </Flex>
@@ -207,6 +212,8 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                             size={16}
                             key={`${tag}-${index}`}
                             margin={index > 0 ? '0 0 0 4px' : '0'}
+                            emojiAdjustment={1}
+                            topEmojiAdjustment={0}
                         />
                     ))}
                 </Flex>

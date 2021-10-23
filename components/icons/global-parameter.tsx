@@ -40,7 +40,7 @@ export const GlobalParameterIcon = ({
 }) => {
     switch (parameter) {
         case Parameter.VENUS:
-            return <TagIcon name={Tag.VENUS} size={size} margin={margin} />;
+            return <TagIcon name={Tag.VENUS} size={size * 1.25} margin={margin} />;
         case Parameter.OCEAN:
             return <TileIcon type={TileType.OCEAN} size={(size * 4) / 3} margin={margin} />;
         case Parameter.OXYGEN:

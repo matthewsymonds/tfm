@@ -49,4 +49,23 @@ const withGoogleFonts = (Story, context) => {
     );
 };
 
-export const decorators = [withGlobalStyles, withAppContext, withReduxStore, withGoogleFonts];
+export const withMacClassName = (Story, context) => {
+    let className = '';
+    if (typeof window !== 'undefined' && navigator.userAgent.toUpperCase().indexOf('MAC') >= 0) {
+        className = 'mac';
+    }
+
+    return (
+        <div className={className}>
+            <Story {...context} />
+        </div>
+    );
+};
+
+export const decorators = [
+    withGlobalStyles,
+    withAppContext,
+    withReduxStore,
+    withGoogleFonts,
+    withMacClassName,
+];

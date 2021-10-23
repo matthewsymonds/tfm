@@ -30,6 +30,7 @@ import {MinimumProductions} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {AnyAction} from 'redux';
@@ -79,7 +80,13 @@ function createActionIcon(action: AnyAction) {
             />
         );
     } else if (addActionToPlay.match(action)) {
-        return <BaseActionIconography card={action.payload.action} />;
+        return (
+            <BaseActionIconography
+                card={action.payload.action}
+                reverse={action.payload.reverseOrder}
+                inline
+            />
+        );
     } else if (askUserToPlaceTile.match(action)) {
         return <TileIcon type={action.payload.tilePlacement.type} size={24} />;
     } else if (askUserToChooseResourceActionDetails.match(action)) {
@@ -166,6 +173,9 @@ export function canPlayActionNext(
     hasUnpaidActions: boolean,
     actionGuard: ActionGuard
 ) {
+    if (player.index !== state.common.currentPlayerIndex) {
+        return false;
+    }
     if (increaseProduction.match(action)) {
         return true;
     } else if (decreaseProduction.match(action)) {
@@ -177,7 +187,7 @@ export function canPlayActionNext(
         );
     } else if (gainResource.match(action)) {
         // User cannot draw cards while they have to resolve negative production/discard.
-        return action.payload.resource !== Resource.CARD && hasUnpaidActions;
+        return action.payload.resource !== Resource.CARD || !hasUnpaidActions;
     } else if (removeResource.match(action)) {
         const {resource, amount, sourcePlayerIndex} = action.payload;
         const player = state.players[sourcePlayerIndex];
@@ -233,82 +243,112 @@ function getUniqueActions(actions: AnyAction[]) {
     return uniqueActions;
 }
 
+export function getPlayerIndex(action: AnyAction) {
+    const {payload} = action;
+    return 'sourcePlayerIndex' in payload
+        ? payload.sourcePlayerIndex
+        : 'targetPlayerIndex' in payload
+        ? payload.targetPlayerIndex
+        : payload.playerIndex;
+}
+
 export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const actionGuard = useActionGuard();
     const state = useTypedSelector(state => state);
+    const loggedInPlayer = useLoggedInPlayer();
     const apiClient = useApiClient();
     const uniqueActions = getUniqueActions(player?.pendingNextActionChoice ?? []);
 
-    const options: React.ReactNode[] = [];
-
     const actions = uniqueActions.map(({action}) => action);
-
     const hasUnpaidActions = hasUnpaidResources(actions, state, player);
 
-    for (const uniqueAction of uniqueActions) {
-        const {action, index} = uniqueAction;
+    const playerIndices = useTypedSelector(state =>
+        state.players.map(player => player.index)
+    ).filter(playerIndex =>
+        uniqueActions.some(action => getPlayerIndex(action.action) === playerIndex)
+    );
 
-        const actionElement = createActionIcon(action);
-        if (!actionElement) continue;
-        const canPlayAction = canPlayActionNext(
-            action,
-            state,
-            player,
-            hasUnpaidActions,
-            actionGuard
-        );
+    const playerElements: React.ReactNode[] = [];
 
-        const {payload} = action;
+    for (const playerIndex of playerIndices) {
+        let elements: React.ReactNode[] = [];
+        for (const uniqueAction of uniqueActions) {
+            const {action, index} = uniqueAction;
+            if (getPlayerIndex(action) !== playerIndex) continue;
 
-        const otherPlayerIndex =
-            'sourcePlayerIndex' in payload
-                ? payload.sourcePlayerIndex
-                : 'targetPlayerIndex' in payload
-                ? payload.targetPlayerIndex
-                : action.playerIndex;
-        let element = (
-            <button
-                style={{padding: '4px', height: '100%'}}
-                disabled={!canPlayAction}
-                onClick={() => handleChooseNextAction(apiClient, index)}
-            >
-                {actionElement}
-            </button>
-        );
-        if (
-            player.corporation.name === 'Helion' &&
-            removeResource.match(action) &&
-            action.payload.resource === Resource.MEGACREDIT
-        ) {
-            element = (
-                <PaymentPopover
-                    cost={action.payload.amount}
-                    onConfirmPayment={payment => handleChooseNextAction(apiClient, index, payment)}
-                    shouldHide={false}
-                >
-                    {element}
-                </PaymentPopover>
+            const actionElement = createActionIcon(action);
+            if (!actionElement) continue;
+            const canPlayAction = canPlayActionNext(
+                action,
+                state,
+                player,
+                hasUnpaidActions,
+                actionGuard
             );
+
+            let element = (
+                <button
+                    style={{padding: '4px', height: '100%'}}
+                    disabled={!canPlayAction}
+                    onClick={() => handleChooseNextAction(apiClient, index)}
+                >
+                    {actionElement}
+                </button>
+            );
+
+            if (
+                player.corporation.name === 'Helion' &&
+                removeResource.match(action) &&
+                action.payload.resource === Resource.MEGACREDIT
+            ) {
+                element = (
+                    <PaymentPopover
+                        cost={action.payload.amount}
+                        onConfirmPayment={payment =>
+                            handleChooseNextAction(apiClient, index, payment)
+                        }
+                        shouldHide={false}
+                    >
+                        {element}
+                    </PaymentPopover>
+                );
+            }
+
+            element = (
+                <Box margin="8px" key={index} height="100%">
+                    {element}
+                </Box>
+            );
+
+            elements.push(element);
         }
-        options.push(
-            <Box margin="8px" key={index} height="100%">
-                {element}
+        const playerElement = (
+            <Box key={playerIndex} padding={'4px'}>
+                {playerIndices.length > 1 ? (
+                    <em>{state.players[playerIndex].corporation.name}:</em>
+                ) : null}
+                <Flex>{elements}</Flex>
             </Box>
         );
+        playerElements.push(playerElement);
     }
+
+    const isLoggedInPlayersTurn = useTypedSelector(
+        state => state.common.currentPlayerIndex === loggedInPlayer.index
+    );
 
     return (
         <Box color={colors.TEXT_LIGHT_1}>
-            <h3>Please choose the next effect:</h3>
-            <Flex height="fit-content" alignItems="center" width="100%" flexWrap="wrap">
-                {options}
+            <h3>{isLoggedInPlayersTurn ? 'Please choose the next effect:' : 'Please wait...'}</h3>
+            <Box height="fit-content" alignItems="center" width="100%" flexWrap="wrap">
+                {playerElements}
                 {hasUnpaidActions ? (
                     <div>
                         ...or, you may{' '}
                         <button onClick={() => handleStartOver(apiClient)}>start over</button>
                     </div>
                 ) : null}
-            </Flex>
+            </Box>
         </Box>
     );
 }
