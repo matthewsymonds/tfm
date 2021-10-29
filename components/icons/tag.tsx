@@ -39,10 +39,28 @@ const TagBase = styled.div<TagBaseProps>`
 
     font-size: 100px;
 
+    .emoji {
+        line-height: 100%;
+    }
+
+    .building {
+        transform: scale(1) !important;
+    }
+    .inner-building {
+        background-color: #43362e;
+        clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
+        width: 70%;
+        height: 45%;
+        margin-bottom: 15%;
+    }
+
     &.mac {
         .emoji {
-            margin-right: ${props => props.emojiAdjustment || 3}px;
-            margin-top: ${props => props.topEmojiAdjustment || 1}px;
+            letter-spacing: 0.1em;
+        }
+        .inner-city {
+            line-height: 100%;
+            transform: translateY(5%);
         }
     }
 `;
@@ -50,15 +68,15 @@ const TagBase = styled.div<TagBaseProps>`
 // icon, text color, bg color
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji'],
-    [Tag.BUILDING]: ['🏛️', 'brown', '#8b5e3d', '', 'emoji'],
-    [Tag.CITY]: ['🌆', '#333333', '#C8B3C5', '', 'emoji'],
+    [Tag.BUILDING]: ['', '#9e6c43', '#8b5e3d', '', 'building'],
+    [Tag.CITY]: ['🌆', '#333333', '#C8B3C5', '', 'city emoji'],
     [Tag.EARTH]: ['🌎', 'darkgreen', '', 'transparent', 'emoji earth'],
-    [Tag.POWER]: ['⚡', 'white', 'purple', '', 'lightning'],
+    [Tag.POWER]: ['⚡', 'white', 'purple', '', 'emoji lightning'],
     [Tag.EVENT]: ['⮕', 'black', 'gold', '', 'event'],
     [Tag.JOVIAN]: ['🪐', 'purple', 'darkgray', 'transparent', 'emoji jovian'],
     [Tag.MICROBE]: ['🐛', 'green', 'white', '', 'emoji'],
     [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji'],
-    [Tag.SCIENCE]: ['⚛️', 'white', 'darkgray', '', 'emoji'],
+    [Tag.SCIENCE]: ['', '#666', '#eee', '', 'science'],
     [Tag.SPACE]: ['✷', 'gold', 'black', '', 'space-tag'],
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
     [Tag.WILD]: ['?', 'black', '#fefefe'],

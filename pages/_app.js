@@ -182,14 +182,29 @@ export const GlobalStyles = createGlobalStyle`
         margin-right: 1px;
     }
 
-    .mac { 
-        .lightning {
-            margin-right: 3px;
+    .science {
+        &::before {
+            content: '⚛';
+            font-family: Segoe UI Symbol;
+            transform: scale(200%);
+            transform-origin: center;
         }
+    }
+
+    .mac { 
+        .lightning, .energy-icon {
+            margin-right: 5%;
+        }
+
 
         .titanium-icon {
             margin-left: 1px;
             margin-top: 1px;
+        }
+
+        .heat-icon {
+            margin-right: 2px;
+            margin-bottom: 1px;
         }
         
         .card-icon {

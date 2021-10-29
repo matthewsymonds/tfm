@@ -27,6 +27,7 @@ export const AllCapsIcon = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
+    letter-spacing: 0.1em;
 `;
 
 export const GlobalParameterIcon = ({

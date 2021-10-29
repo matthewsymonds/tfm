@@ -61,6 +61,10 @@ export const getClassName = (resource: Resource) => {
             return 'megacredit-icon';
         case Resource.CARD:
             return 'card-icon';
+        case Resource.HEAT:
+            return 'heat-icon';
+        case Resource.ENERGY:
+            return 'energy-icon';
         default:
             return 'resource-icon';
     }
