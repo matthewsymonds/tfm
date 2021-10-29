@@ -45,12 +45,14 @@ const TagBase = styled.div<TagBaseProps>`
 
     .building {
         transform: scale(1) !important;
+        padding-left: 15% !important;
+        padding-right: 15% !important;
     }
     .inner-building {
         background-color: #43362e;
-        clip-path: polygon(0 50%, 50% 0, 100% 50%, 100% 100%, 0 100%);
-        width: 70%;
-        height: 45%;
+        clip-path: polygon(0 48%, 50% 0, 100% 48%, 100% 100%, 0 100%);
+        width: 100%;
+        height: 48%;
         margin-bottom: 15%;
     }
 
