@@ -44,7 +44,7 @@ const TagBase = styled.div<TagBaseProps>`
     }
 
     .building {
-        transform: scale(1) !important;
+        transform: translateX(2%) scale(1) !important;
         padding-left: 15% !important;
         padding-right: 15% !important;
     }
