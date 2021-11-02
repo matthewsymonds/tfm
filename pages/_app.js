@@ -171,7 +171,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
 
-    .inner-emoji.lightning, .inner-emoji.microbe {
+    .inner-emoji.lightning, .inner-emoji.microbe, .inner-emoji.plant {
         .mac & {
             width: 1.2em;
         }

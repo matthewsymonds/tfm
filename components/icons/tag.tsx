@@ -13,7 +13,7 @@ const dict = {
     [Tag.EVENT]: ['⮕', 'black', 'gold', '', 'event'],
     [Tag.JOVIAN]: ['🪐', 'purple', 'darkgray', 'transparent', 'emoji jovian'],
     [Tag.MICROBE]: ['🐛', 'green', 'white', '', 'emoji microbe'],
-    [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji'],
+    [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji plant'],
     [Tag.SCIENCE]: ['⚛', '#666', '#eee', '', 'science'],
     [Tag.SPACE]: ['✷', 'gold', 'black', '', 'space-tag'],
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
