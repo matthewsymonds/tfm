@@ -173,7 +173,7 @@ export const GlobalStyles = createGlobalStyle`
 
     .inner-emoji.lightning, .inner-emoji.microbe {
         .mac & {
-            letter-spacing: 0.235em;
+            width: 1.2em;
         }
     }
 
