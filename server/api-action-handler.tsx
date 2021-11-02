@@ -419,7 +419,9 @@ export class ApiActionHandler {
         // Deciding microbe order when trading with Enceladus (if you want to make a decision based on where opponent puts microbes)
         // Deciding draw order if the deck is low (for Pluto or Sponsored Academies).
         // So it's up to the player to decide what order effects happen to increase their chances of winning.
-        if (playerIndicesSet.size > 1) return true;
+        if (playerIndicesSet.size > 1) {
+            return true;
+        }
 
         if (items.filter(item => this.shouldPause(item)).length > 1) {
             return true;
@@ -1201,6 +1203,7 @@ export class ApiActionHandler {
         if (!canPlayActionNext(action, this.state, player, hasUnpaidActions, this.actionGuard)) {
             throw new Error('Cannot play this action next');
         }
+        this.dispatch(completeChooseNextAction(actionIndex, player.index));
         const playerWhoseActionItIs = action?.payload?.playerIndex ?? player.index;
         if (player.index !== playerWhoseActionItIs) {
             this.queue.push(setCurrentPlayer(playerWhoseActionItIs));
@@ -1251,7 +1254,6 @@ export class ApiActionHandler {
         } else {
         }
         this.processQueue();
-        this.dispatch(completeChooseNextAction(actionIndex, player.index));
     }
 
     startOver(checkpoint?: GameState) {

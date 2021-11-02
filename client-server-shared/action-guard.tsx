@@ -286,7 +286,10 @@ export class ActionGuard {
         if (player.pendingPlayCardFromHand && getPlayableCards(player, this).length === 0) {
             return [true, 'Has no cards to play'];
         }
+        const {gameStage} = state.common;
+
         if (
+            gameStage === GameStage.ACTIVE_ROUND &&
             player.preludes?.length > 0 &&
             player.preludes?.every(preludeCard => !this.canPlayCard(getCard(preludeCard))[0])
         ) {
@@ -295,7 +298,6 @@ export class ActionGuard {
         if (getIsPlayerMakingDecision(state, player)) {
             return [false, 'Player cannot skip while making decision'];
         }
-        const {gameStage} = state.common;
         if (gameStage === GameStage.ACTIVE_ROUND) {
             if (this.shouldDisableUI()) {
                 return [false, 'Cannot play game right now'];
