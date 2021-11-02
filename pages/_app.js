@@ -156,43 +156,94 @@ export const GlobalStyles = createGlobalStyle`
         text-overflow: ellipsis;
     }
 
-    .inner-space-tag {
-        transform: rotate(22.5deg) scale(1.5);
-     }
-     .inner-event {
-        transform: rotate(90deg);
+    .inner-event {
+        font-size: 1.5em;
+        line-height: 1.5em;
+        height: 1.35em;
+        width: 1.5em;
+        text-align: center;
+    }
 
-        div.not-mac button & {
-            transform: translateX(-6px) rotate(90deg);
+    .outer-emoji.jovian {
+        transform: rotate(45deg);
+        .mac & {
+            transform: rotate(-45deg);
+        }
+    }
+
+    .inner-emoji.lightning, .inner-emoji.microbe {
+        .mac & {
+            letter-spacing: 0.235em;
+        }
+    }
+
+    .inner-city.emoji {
+        font-size: 2.3em;
+        line-height: 2.3em;
+        letter-spacing: 0;
+    }
+
+    .outer-space-tag {
+        transform: rotate(22.5deg);
+    }
+
+    .inner-space-tag {
+        font-size: 1.5em;
+        line-height: 1.5em;
+        width: 1.5em;
+        height: 1.5em;
+        text-align: center;
+        .linux & {
+            width: 0.85em;
+            height: 1.45em;
         }
     }
 
     .inner-emoji.earth {
-        transform: scale(2.1);
+        font-size: 2.04em;
+        line-height: 2.04em;
+        width: 2.04em;
+        height: 2.04em;
+        text-align: center;
+    }
+
+     .inner-building {
+        background-color: #43362e;
+        clip-path: polygon(0 48%, 50% 0, 100% 48%, 100% 100%, 0 100%);
+        width: 72%;
+        height: 48%;
+        margin-bottom: 14%;
+        top: 42%;
     }
 
     .inner-emoji.jovian {
-        transform: rotate(45deg) scale(2.75);
+        font-size: 3.3em;
+    }
+    .inner-science {
+        font-family: "Source Sans Pro", Segoe UI Symbol;
+        font-size: 2em;
+        line-height: 2em;
+        width: 2em;
+        height: 1.92em;
+        letter-spacing: 0.01em;
         .mac & {
-            transform: rotate(-45deg) scale(2.75);
+            height: 2.02em;
+            letter-spacing: -0.02em;
         }
+
+        text-align: center;
     }
 
-    .inner-space-tag {
-        margin-right: 1px;
+    .inner-event {
+        font-family: "Source Sans Pro", Segoe UI Symbol;
     }
 
-    .science {
-        &::before {
-            content: '⚛';
-            font-family: Segoe UI Symbol;
-            transform: scale(200%);
-            transform-origin: center;
-        }
+    .outer-event {
+        transform: rotate(90deg);
     }
 
     .mac { 
-        .lightning, .energy-icon {
+        .energy-icon {
             margin-right: 5%;
         }
 
@@ -209,15 +260,6 @@ export const GlobalStyles = createGlobalStyle`
         
         .card-icon {
             margin-right: 1px;
-        }
-
-        .inner-event {
-            margin-left: 6px;
-        }
-
-        .inner-space-tag {
-            margin-left: 3px;
-            margin-bottom: 3px;
         }
     }
 `;
