@@ -56,8 +56,7 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
         const userAgent = navigator.userAgent.toUpperCase();
         if (userAgent.includes('MAC')) {
             className = 'mac';
-        }
-        if (userAgent.includes('LINUX ')) {
+        } else if (userAgent.includes('LINUX ')) {
             className = 'linux';
         }
     }

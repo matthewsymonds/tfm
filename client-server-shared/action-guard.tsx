@@ -280,7 +280,12 @@ export class ActionGuard {
         const {state} = this;
         const player = this._getPlayerToConsider();
 
-        if (!player.action || state.common.currentPlayerIndex !== player.index) {
+        if (
+            !player.action ||
+            state.common.currentPlayerIndex !== player.index ||
+            (state.common.controllingPlayerIndex !== undefined &&
+                state.common.controllingPlayerIndex !== player.index)
+        ) {
             return [false, 'It is not your turn right now'];
         }
         if (player.pendingPlayCardFromHand && getPlayableCards(player, this).length === 0) {
@@ -311,7 +316,12 @@ export class ActionGuard {
         const {state} = this;
         const player = this._getPlayerToConsider();
 
-        if (!player.action || state.common.currentPlayerIndex !== player.index) {
+        if (
+            !player.action ||
+            state.common.currentPlayerIndex !== player.index ||
+            (state.common.controllingPlayerIndex !== undefined &&
+                state.common.controllingPlayerIndex !== player.index)
+        ) {
             return [false, 'It is not your turn right now'];
         }
 

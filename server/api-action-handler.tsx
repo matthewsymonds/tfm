@@ -65,7 +65,6 @@ import {
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
     setCorporation,
-    setCurrentPlayer,
     setGame,
     setPlantDiscount,
     setPreludes,
@@ -75,7 +74,11 @@ import {
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
-import {canPlayActionNext, userCannotChooseAction} from 'components/ask-user-to-choose-next-action';
+import {
+    canPlayActionNext,
+    getPlayerIndex,
+    userCannotChooseAction,
+} from 'components/ask-user-to-choose-next-action';
 import {getOptionsForDuplicateProduction} from 'components/ask-user-to-confirm-duplicate-production';
 import {
     canSkipResourceActionDetails,
@@ -401,29 +404,18 @@ export class ApiActionHandler {
         }
 
         const player = this.getLoggedInPlayer();
-        const playerIndices = items
-            .filter(item => !setCurrentPlayer.match(item))
-            .map(item => item?.payload?.playerIndex ?? -1);
-        const sourcePlayerIndices = items
-            .filter(item => !setCurrentPlayer.match(item))
-            .map(
-                item => item?.payload?.sourcePlayerIndex ?? item?.payload?.targetPlayerIndex ?? -1
-            );
-        const playerIndicesSet = new Set(
-            [...playerIndices, ...sourcePlayerIndices].filter(a => a >= 0)
-        );
-        // There are an incredible number of interactions that are possible when more than one player is involved.
-        // Examples:
-        // Aphrodite & Comet for Venus
-        // Giant Ice Asteroid/Comet & Arctic Algae
-        // Deciding microbe order when trading with Enceladus (if you want to make a decision based on where opponent puts microbes)
-        // Deciding draw order if the deck is low (for Pluto or Sponsored Academies).
-        // So it's up to the player to decide what order effects happen to increase their chances of winning.
-        if (playerIndicesSet.size > 1) {
-            return true;
-        }
 
-        if (items.filter(item => this.shouldPause(item)).length > 1) {
+        items = items.filter(Boolean);
+
+        if (
+            items.filter(
+                item =>
+                    this.shouldPause(item) ||
+                    (gainResource.match(item) && item.payload.resource === Resource.CARD) ||
+                    (addActionToPlay.match(item) &&
+                        item.payload.action?.gainResource?.[Resource.CARD])
+            ).length > 1
+        ) {
             return true;
         }
 
@@ -458,22 +450,33 @@ export class ApiActionHandler {
         } else {
             const newItems: AnyAction[] = [];
 
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (!item) continue;
                 if (addActionToPlay.match(item)) {
+                    const {action, reverseOrder, playerIndex} = item.payload;
                     this.playAction(
                         {
-                            action: item.payload.action,
-                            thisPlayerIndex: item.payload.playerIndex,
+                            action: action,
+                            thisPlayerIndex: playerIndex,
                             state: this.state,
-                            reverseOrder: item.payload.reverseOrder,
+                            reverseOrder: reverseOrder,
                         },
                         newItems
                     );
+                } else {
+                    newItems.push(item);
                 }
             }
-            items.push(...newItems);
+            items = newItems;
+            let thisPlayerIndex = currentPlayerIndex;
+            let item;
             while (items.length > 0) {
-                const item = items.shift()!;
+                item = items.shift();
+                if (!item) {
+                    continue;
+                }
+                thisPlayerIndex = getPlayerIndex(item);
                 this.dispatch(item);
                 if (item.payload.playerIndex !== this.loggedInPlayerIndex) {
                     this.setStateCheckpoint = true;
@@ -485,14 +488,21 @@ export class ApiActionHandler {
                     break;
                 }
             }
-            const currentPlayer = this.state.players[this.state.common.currentPlayerIndex];
+            if (!processingExistingItems) {
+                this.queue = items;
+            }
+            const currentPlayer = this.state.players[currentPlayerIndex];
             const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
-            if (existingItems.length > 0 && !processingExistingItems) {
+            if (
+                existingItems.filter(Boolean).length > 0 &&
+                !processingExistingItems &&
+                !this.shouldPause(item)
+            ) {
                 this.processQueue(existingItems, true);
             } else if (processingExistingItems) {
                 this.dispatch(clearPendingActionChoice(currentPlayer.index));
-                this.queue = items;
                 this.setStateCheckpoint = true;
+                this.queue = items;
             }
         }
     }
@@ -1109,13 +1119,12 @@ export class ApiActionHandler {
 
         this.dispatch(moveColonyTileTrack(colony, matchingColony.colonies.length));
 
-        // TODO make order customizable.
         for (const playerIndex of matchingColony.colonies) {
             this.playAction({
                 action: fullColony.colonyBonus,
                 state: this.state,
                 thisPlayerIndex: playerIndex,
-                groupEffects: true,
+                groupEffects: !!fullColony.colonyBonus.removeResource,
                 reverseOrder: true,
             });
         }
@@ -1199,15 +1208,12 @@ export class ApiActionHandler {
         if (userCannotChooseAction(action)) {
             throw new Error('User cannot choose action');
         }
-        const hasUnpaidActions = hasUnpaidResources(actions, state, player);
+        const usedActions = actions.filter(Boolean);
+        const hasUnpaidActions = hasUnpaidResources(usedActions, state, player);
         if (!canPlayActionNext(action, this.state, player, hasUnpaidActions, this.actionGuard)) {
             throw new Error('Cannot play this action next');
         }
         this.dispatch(completeChooseNextAction(actionIndex, player.index));
-        const playerWhoseActionItIs = action?.payload?.playerIndex ?? player.index;
-        if (player.index !== playerWhoseActionItIs) {
-            this.queue.push(setCurrentPlayer(playerWhoseActionItIs));
-        }
         if (addActionToPlay.match(action)) {
             this.playAction({
                 action: action.payload.action,
@@ -1248,10 +1254,6 @@ export class ApiActionHandler {
             }
         } else {
             this.queue.push(action);
-        }
-        if (player.index !== playerWhoseActionItIs) {
-            this.queue.push(setCurrentPlayer(player.index));
-        } else {
         }
         this.processQueue();
     }
@@ -1361,7 +1363,7 @@ export class ApiActionHandler {
         }
 
         if (stealResourceResourceAndAmounts.length > 0) {
-            const player = this.getLoggedInPlayer();
+            const player = this.state.players[playerIndex];
             const actionType = 'stealResource';
             const wrappers = getPlayerOptionWrappers(this.state, player, {
                 actionType,
@@ -1439,7 +1441,7 @@ export class ApiActionHandler {
                     amount: action.increaseProductionOption[resource] as number,
                 });
             }
-            const player = this.getLoggedInPlayer();
+            const player = this.state.players[playerIndex];
             const actionType = 'increaseProduction';
             const wrappers = getPlayerOptionWrappers(this.state, player, {
                 actionType,
@@ -1649,7 +1651,7 @@ export class ApiActionHandler {
         }
 
         for (const production in action.decreaseAnyProduction) {
-            const player = this.getLoggedInPlayer();
+            const player = this.state.players[playerIndex];
             const resourceAndAmounts = [
                 {
                     resource: production as Resource,
@@ -1734,6 +1736,7 @@ export class ApiActionHandler {
             );
             return;
         }
+        const loggedInPlayerIndex = this.getLoggedInPlayerIndex();
         let items: AnyAction[] = [];
         this.discardCards(playActionParams, items);
         this.playActionCosts(playActionParams, items);
@@ -1756,7 +1759,7 @@ export class ApiActionHandler {
     ) {
         const resourceAndAmounts = [{resource, amount}];
         const actionType = 'decreaseProduction';
-        const player = this.getLoggedInPlayer();
+        const player = this.state.players[playerIndex];
 
         if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
             return askUserToChooseResourceActionDetails({
@@ -1800,7 +1803,7 @@ export class ApiActionHandler {
             amount: resourceOptions[resource] as number,
         }));
         const actionType = 'gainResource';
-        const player = this.getLoggedInPlayer();
+        const player = this.state.players[playerIndex];
         const wrappers = getPlayerOptionWrappers(this.state, player, {
             actionType,
             resourceAndAmounts,
@@ -1835,7 +1838,7 @@ export class ApiActionHandler {
         playedCard?: Card,
         locationType?: ResourceLocationType
     ) {
-        const player = this.getLoggedInPlayer();
+        const player = this.state.players[playerIndex];
         const requiresLocationChoice =
             locationType &&
             USER_CHOICE_LOCATION_TYPES.includes(locationType) &&
@@ -1885,6 +1888,7 @@ export class ApiActionHandler {
         locationType?: ResourceLocationType,
         supplementalResources?: SupplementalResources
     ) {
+        const player = this.state.players[playerIndex];
         const requiresLocationChoice =
             locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
         const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
@@ -1892,7 +1896,6 @@ export class ApiActionHandler {
         if (requiresAmountChoice || requiresLocationChoice) {
             const actionType = 'removeResource';
             const resourceAndAmounts = [{resource, amount}];
-            const player = this.getLoggedInPlayer();
             const wrappers = getPlayerOptionWrappers(this.state, player, {
                 actionType,
                 resourceAndAmounts,
@@ -1946,7 +1949,7 @@ export class ApiActionHandler {
             amount: resourceOptions[resource] as number,
         }));
         const actionType = 'removeResource';
-        const player = this.getLoggedInPlayer();
+        const player = this.state.players[playerIndex];
         const wrappers = getPlayerOptionWrappers(this.state, player, {
             actionType,
             resourceAndAmounts,
@@ -1985,6 +1988,7 @@ export class ApiActionHandler {
     }
 
     private shouldPause(action: {type: string}): boolean {
+        if (!action) return false;
         return PAUSE_ACTIONS.includes(action.type);
     }
 

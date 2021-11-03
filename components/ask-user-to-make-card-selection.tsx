@@ -226,7 +226,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             <Flex alignItems="center">
                                 <em style={{margin: '16px 0px'}}>Waiting on </em>
                                 {playersWhoNeedToDraft.map((p, index) => (
-                                    <React.Fragment>
+                                    <React.Fragment key={p.username}>
                                         {index > 0 && <span>, </span>}
                                         <PlayerCorpAndIcon
                                             player={p}

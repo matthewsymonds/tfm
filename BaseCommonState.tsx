@@ -17,6 +17,7 @@ export type BaseCommonState = {
     turn: number;
     firstPlayerIndex: number;
     currentPlayerIndex: number;
+    controllingPlayerIndex?: number;
     parameters: {
         [Parameter.OCEAN]: number;
         [Parameter.OXYGEN]: number;

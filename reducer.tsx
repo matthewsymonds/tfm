@@ -25,6 +25,7 @@ import {
 import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getIsPlayerMakingDecisionExceptForNextActionChoice} from 'selectors/get-is-player-making-decision';
 import {isVariableAmount} from 'selectors/is-variable-amount';
 import {
     SerializedCard,
@@ -96,7 +97,6 @@ import {
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
     setCorporation,
-    setCurrentPlayer,
     setGame,
     setIsNotSyncing,
     setIsSyncing,
@@ -244,7 +244,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = ['Giant Ice Asteroid'];
+const bonusNames: string[] = ['Ants'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -1386,10 +1386,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
-        if (setCurrentPlayer.match(action)) {
-            draft.common.currentPlayerIndex = action.payload.playerIndex;
-        }
-
         if (askUserToPlaceColony.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1653,11 +1649,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
 
-            // First, check if we still owe resources.
-            // If we owe megacredits, we need to pay for them.
-            // If we still owe anything else, the user has to start over.
-            const {resources, productions} = player;
-
             player.pendingResourceActionDetails = undefined;
             draft.pendingVariableAmount = undefined;
             player.action = (player.action % 2) + 1;
@@ -1686,9 +1677,22 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, action.payload);
             const {actionIndex} = action.payload;
             player.pendingNextActionChoice ||= [];
-            player.pendingNextActionChoice.splice(actionIndex, 1);
-            if (player.pendingNextActionChoice.length === 0) {
+            delete player.pendingNextActionChoice[actionIndex];
+            if (player.pendingNextActionChoice.filter(Boolean).length === 0) {
                 player.pendingNextActionChoice = undefined;
+            }
+        }
+
+        const maybePlayerIndex = action.payload?.playerIndex;
+        if (typeof maybePlayerIndex === 'number') {
+            const player = getPlayer(draft, action.payload);
+            if (
+                getIsPlayerMakingDecisionExceptForNextActionChoice(draft, player) &&
+                draft.common.gameStage === GameStage.ACTIVE_ROUND
+            ) {
+                draft.common.controllingPlayerIndex = player.index;
+            } else if (player.index === draft.common.controllingPlayerIndex) {
+                delete draft.common.controllingPlayerIndex;
             }
         }
 
@@ -1697,6 +1701,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (typeof window !== 'undefined') {
             // Don't update log on client.
             draft.log = state.log;
+        }
+
+        if ('playerIndex' in action.payload) {
+            const player = getPlayer(draft, action.payload);
+
+            if (player.pendingNextActionChoice?.filter(Boolean).length === 0) {
+                player.pendingNextActionChoice = undefined;
+            }
         }
     });
 };

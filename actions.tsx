@@ -519,12 +519,6 @@ export const moveFleet = withMatcher((colony: string, playerIndex: number) => ({
     payload: {colony, playerIndex},
 }));
 
-const SET_CURRENT_PLAYER = 'SET_CURRENT_PLAYER';
-export const setCurrentPlayer = withMatcher((playerIndex: number) => ({
-    type: SET_CURRENT_PLAYER,
-    payload: {playerIndex},
-}));
-
 const MOVE_COLONY_TILE_TRACK = 'MOVE_COLONY_TILE_TRACK';
 export const moveColonyTileTrack = withMatcher((colony: string, location: number) => ({
     type: MOVE_COLONY_TILE_TRACK,

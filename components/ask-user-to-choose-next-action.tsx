@@ -92,9 +92,8 @@ function createActionIcon(action: AnyAction) {
     } else if (askUserToChooseResourceActionDetails.match(action)) {
         const resourceAndAmountEls = action.payload.resourceAndAmounts.map(
             (resourceAndAmount, index) => (
-                <>
+                <React.Fragment key={index}>
                     <BaseActionIconography
-                        key={index}
                         card={{
                             [action.payload.actionType]: {
                                 [resourceAndAmount.resource]: resourceAndAmount.amount,
@@ -102,7 +101,7 @@ function createActionIcon(action: AnyAction) {
                         }}
                     />
                     {index < action.payload.resourceAndAmounts.length - 1 ? <span> / </span> : null}
-                </>
+                </React.Fragment>
             )
         );
         return <div>{resourceAndAmountEls}</div>;
@@ -176,6 +175,12 @@ export function canPlayActionNext(
     if (player.index !== state.common.currentPlayerIndex) {
         return false;
     }
+    if (
+        state.common.controllingPlayerIndex !== undefined &&
+        player.index !== state.common.controllingPlayerIndex
+    ) {
+        return false;
+    }
     if (increaseProduction.match(action)) {
         return true;
     } else if (decreaseProduction.match(action)) {
@@ -231,18 +236,6 @@ function naiveIsEqual(a: Object, b: Object) {
     }
 }
 
-function getUniqueActions(actions: AnyAction[]) {
-    let uniqueActions: Array<{action: AnyAction; index: number}> = [];
-
-    for (let i = 0; i < actions.length; i++) {
-        const action = actions[i];
-        if (uniqueActions.every(uniqueAction => !naiveIsEqual(action, uniqueAction.action))) {
-            uniqueActions.push({action, index: i});
-        }
-    }
-    return uniqueActions;
-}
-
 export function getPlayerIndex(action: AnyAction) {
     const {payload} = action;
     return 'sourcePlayerIndex' in payload
@@ -257,23 +250,24 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const state = useTypedSelector(state => state);
     const loggedInPlayer = useLoggedInPlayer();
     const apiClient = useApiClient();
-    const uniqueActions = getUniqueActions(player?.pendingNextActionChoice ?? []);
+    const actions = player?.pendingNextActionChoice ?? [];
 
-    const actions = uniqueActions.map(({action}) => action);
-    const hasUnpaidActions = hasUnpaidResources(actions, state, player);
+    const unusedActions = actions.filter(Boolean);
+
+    const hasUnpaidActions = hasUnpaidResources(unusedActions, state, player);
 
     const playerIndices = useTypedSelector(state =>
         state.players.map(player => player.index)
-    ).filter(playerIndex =>
-        uniqueActions.some(action => getPlayerIndex(action.action) === playerIndex)
-    );
+    ).filter(playerIndex => unusedActions.some(action => getPlayerIndex(action) === playerIndex));
 
     const playerElements: React.ReactNode[] = [];
 
     for (const playerIndex of playerIndices) {
         let elements: React.ReactNode[] = [];
-        for (const uniqueAction of uniqueActions) {
-            const {action, index} = uniqueAction;
+        for (let i = 0; i < actions.length; i++) {
+            const index = i;
+            const action = actions[index];
+            if (!action) continue;
             if (getPlayerIndex(action) !== playerIndex) continue;
 
             const actionElement = createActionIcon(action);
@@ -334,7 +328,9 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     }
 
     const isLoggedInPlayersTurn = useTypedSelector(
-        state => state.common.currentPlayerIndex === loggedInPlayer.index
+        state =>
+            (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
+            loggedInPlayer.index
     );
 
     return (
