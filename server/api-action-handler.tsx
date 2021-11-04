@@ -273,7 +273,7 @@ export class ApiActionHandler {
         //    - This should account for non-MC payment, which is prompted by the UI
         //      and included in `payment`
         //    - If no `payment` is defined, the reducer will defer to paying with MC
-        if (card.cost) {
+        if (typeof card.cost !== 'undefined') {
             this.queue.push(payToPlayCard(card, playerIndex, payment, conditionalPayments));
         }
 
