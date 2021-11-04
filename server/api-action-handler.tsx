@@ -1120,16 +1120,18 @@ export class ApiActionHandler {
         if (action.gainAllColonyBonuses) {
             const colonyTiles = this.state.common?.colonies ?? [];
             for (const colonyTile of colonyTiles) {
-                if (colonyTile.colonies.some(colony => colony === playerIndex)) {
-                    const fullColony = getColony(colonyTile);
-                    const params = {
-                        state: this.state,
-                        action: fullColony.colonyBonus,
-                        thisPlayerIndex: playerIndex,
-                    };
-                    this.playActionBenefits(params);
-                    this.playActionCosts(params);
-                    this.discardCards(params);
+                const fullColony = getColony(colonyTile);
+                const params = {
+                    action: fullColony.colonyBonus,
+                    state: this.state,
+                    thisPlayerIndex: playerIndex,
+                    groupEffects: !!fullColony.colonyBonus.removeResource,
+                    reverseOrder: true,
+                };
+                for (const colony of colonyTile.colonies) {
+                    if (colony === playerIndex) {
+                        this.playAction(params);
+                    }
                 }
             }
         }
