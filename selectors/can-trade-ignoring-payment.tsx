@@ -1,5 +1,4 @@
 import {CanPlayAndReason} from 'client-server-shared/action-guard';
-import {ColonyType} from 'constants/colonies';
 import {GameState, PlayerState} from 'reducer';
 
 export function canTradeWithSomeColonyIgnoringPayment(player: PlayerState, state: GameState) {
@@ -9,7 +8,7 @@ export function canTradeWithSomeColonyIgnoringPayment(player: PlayerState, state
 
 export function canTradeIgnoringPayment(
     player: PlayerState,
-    name: ColonyType,
+    name: string,
     state: GameState
 ): CanPlayAndReason {
     const colony = state.common.colonies?.find(colony => colony.type === name);

@@ -1,6 +1,4 @@
-import {ResourceCounter} from 'constants/action';
 import {Award, Milestone} from 'constants/board';
-import {ColonyType} from 'constants/colonies';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
@@ -54,7 +52,7 @@ export type GameActionStandardProject = SharedGameAction & {
 
 export type GameActionTrade = SharedGameAction & {
     actionType: GameActionType.TRADE;
-    colony: ColonyType;
+    colonyName: string;
     payment: NumericPropertyCounter<Resource>;
 };
 
