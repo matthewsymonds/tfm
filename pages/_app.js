@@ -166,7 +166,7 @@ export const GlobalStyles = createGlobalStyle`
 
     .outer-emoji.jovian {
         transform: rotate(45deg);
-        .mac & {
+        &.mac {
             transform: rotate(-45deg);
         }
     }

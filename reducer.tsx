@@ -1703,7 +1703,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             draft.log = state.log;
         }
 
-        if ('playerIndex' in action.payload) {
+        if ('playerIndex' in (action?.payload ?? {})) {
             const player = getPlayer(draft, action.payload);
 
             if (player.pendingNextActionChoice?.filter(Boolean).length === 0) {
