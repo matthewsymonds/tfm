@@ -106,7 +106,7 @@ import {
     TileType,
 } from 'constants/board';
 import {CardType} from 'constants/card-types';
-import {ColonyType, getColony} from 'constants/colonies';
+import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
@@ -1103,7 +1103,7 @@ export class ApiActionHandler {
         numHeat,
     }: {
         payment: Resource;
-        colony: ColonyType;
+        colony: string;
         tradeIncome: number;
         numHeat: number;
     }) {
@@ -1122,7 +1122,7 @@ export class ApiActionHandler {
         this.addGameActionToLog({
             actionType: GameActionType.TRADE,
             playerIndex: player.index,
-            colony,
+            colonyName: colony,
             payment: {
                 [payment]:
                     payment === Resource.MEGACREDIT
@@ -1147,7 +1147,7 @@ export class ApiActionHandler {
         this.handleTrade(colony, tradeIncome);
     }
 
-    tradeForFree({colony, tradeIncome}: {colony: ColonyType; tradeIncome: number}) {
+    tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
         const [canTradeForFree, reason] = this.actionGuard.canTradeForFree(colony);
 
         if (!canTradeForFree) {

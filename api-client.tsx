@@ -12,7 +12,6 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
 import {Award, Cell, Milestone} from 'constants/board';
-import {ColonyType} from 'constants/colonies';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -291,7 +290,7 @@ export class ApiClient implements GameActionHandler {
         numHeat,
         tradeIncome,
     }: {
-        colony: ColonyType;
+        colony: string;
         payment: Resource;
         tradeIncome: number;
         numHeat?: number;
@@ -300,7 +299,7 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
     }
 
-    async tradeForFreeAsync({colony, tradeIncome}: {colony: ColonyType; tradeIncome: number}) {
+    async tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
         const payload = {colony, tradeIncome};
         await this.makeApiCall(ApiActionType.API_TRADE_FOR_FREE, payload);
     }
