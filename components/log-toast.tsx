@@ -34,7 +34,7 @@ export const LogToast = () => {
 
         const logItems = log
             .slice(lastSeenLogItem - logLength)
-            .filter(entry => typeof entry === 'string')
+            .filter((entry): entry is string => typeof entry === 'string')
             .filter(entry => !entry.startsWith('Generation')); // Hack
 
         if (logItems.join('').trim().length === 0) {

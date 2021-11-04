@@ -136,14 +136,14 @@ export function Colonies() {
     ) {
         apiClient.tradeAsync({
             payment: payment.resource,
-            colony: colony.type,
+            colony: colony.name,
             tradeIncome,
         });
     }
 
     function tradeForFree(colony: SerializedColony, tradeIncome: number) {
         apiClient.tradeForFreeAsync({
-            colony: colony.type,
+            colony: colony.name,
             tradeIncome,
         });
     }
@@ -164,7 +164,7 @@ export function Colonies() {
     const [canTrade, canTradeReason] =
         tradePayment.length === 0
             ? [false, 'No valid payment']
-            : actionGuard.canTrade(selectedPayment, firstSelectedColony.type);
+            : actionGuard.canTrade(selectedPayment, firstSelectedColony.name);
 
     const tradePaymentElements = tradePayment.map(payment => {
         const selected = payment.resource === selectedPayment;
@@ -254,7 +254,7 @@ export function Colonies() {
     );
 
     const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(
-        firstSelectedColony.type
+        firstSelectedColony.name
     );
 
     const payment = tradePayment.find(payment => payment.resource === selectedPayment);
@@ -297,7 +297,7 @@ export function Colonies() {
                         onConfirmPayment={paymentResources => {
                             apiClient.tradeAsync({
                                 payment: payment.resource,
-                                colony: firstSelectedColony.type,
+                                colony: firstSelectedColony.name,
                                 numHeat: paymentResources[Resource.HEAT] ?? 0,
                                 tradeIncome: selectedTradeIncome,
                             });

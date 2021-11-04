@@ -3,7 +3,7 @@ import {GameState, PlayerState} from 'reducer';
 
 export function canTradeWithSomeColonyIgnoringPayment(player: PlayerState, state: GameState) {
     const colonies = state.common.colonies ?? [];
-    return colonies.some(colony => canTradeIgnoringPayment(player, colony.type, state)[0]);
+    return colonies.some(colony => canTradeIgnoringPayment(player, colony.name, state)[0]);
 }
 
 export function canTradeIgnoringPayment(
@@ -11,7 +11,7 @@ export function canTradeIgnoringPayment(
     name: string,
     state: GameState
 ): CanPlayAndReason {
-    const colony = state.common.colonies?.find(colony => colony.type === name);
+    const colony = state.common.colonies?.find(colony => colony.name === name);
     if (!colony) {
         return [false, `Colony ${name} is not in this game`];
     }
