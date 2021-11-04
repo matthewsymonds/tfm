@@ -4,7 +4,7 @@ import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {GlobalPopoverContext} from 'context/global-popover-context';
-import React, {useContext, useEffect, useLayoutEffect, useRef} from 'react';
+import React, {useState, useEffect, useLayoutEffect, useRef} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
