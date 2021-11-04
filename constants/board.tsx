@@ -1,3 +1,4 @@
+import {Action} from './action';
 import {Resource} from './resource-enum';
 
 export enum CellType {
@@ -191,6 +192,7 @@ export type Cell = {
     coords?: [number, number];
     landClaimedBy?: number;
     bonus?: Resource[];
+    action?: Action;
     specialLocation?: SpecialLocation;
     specialName?: string;
 };
@@ -359,6 +361,18 @@ INITIAL_BOARD_STATE.forEach((row, rowIndex) => {
         cell.coords = [rowIndex, cellIndex];
     });
 });
+
+export function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: number}> {
+    const bonuses = cell.bonus || [];
+    const uniqueBonuses = new Set(bonuses);
+
+    return [...uniqueBonuses].map(bonus => {
+        return {
+            resource: bonus,
+            amount: bonuses.filter(b => b === bonus).length,
+        };
+    });
+}
 
 export type Board = Cell[][];
 

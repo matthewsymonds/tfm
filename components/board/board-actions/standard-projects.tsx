@@ -188,19 +188,19 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
                 </React.Fragment>
             );
         case StandardProjectType.POWER_PLANT:
-            return <ProductionIcon name={Resource.ENERGY} size={22} paddingSize={3} />;
+            return <ProductionIcon name={Resource.ENERGY} size={24} paddingSize={3} />;
         case StandardProjectType.ASTEROID:
-            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={22} />;
+            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={17} />;
         case StandardProjectType.AQUIFER:
-            return <TileIcon type={TileType.OCEAN} size={22} />;
+            return <TileIcon type={TileType.OCEAN} size={24} />;
         case StandardProjectType.GREENERY:
-            return <TileIcon type={TileType.GREENERY} size={22} />;
+            return <TileIcon type={TileType.GREENERY} size={24} moveIconLeft={1.5} />;
         case StandardProjectType.CITY:
-            return <TileIcon type={TileType.CITY} size={22} />;
+            return <TileIcon type={TileType.CITY} size={24} moveIconLeft={1.5} />;
         case StandardProjectType.COLONY:
             return <ColonyIcon size={16} />;
         case StandardProjectType.VENUS:
-            return <GlobalParameterIcon parameter={Parameter.VENUS} size={22} />;
+            return <GlobalParameterIcon parameter={Parameter.VENUS} size={17} />;
         default:
             throw spawnExhaustiveSwitchError(actionType);
     }
@@ -320,14 +320,14 @@ function StandardProjectActionIconography({action}: {action: StandardProjectActi
         case StandardProjectType.GREENERY:
             return (
                 <React.Fragment>
-                    <TileIcon type={TileType.GREENERY} size={40} />
+                    <TileIcon type={TileType.GREENERY} size={40} margin="0 8px 0 0" />
                     <IncreaseParameterIconography increaseParameter={{[Parameter.OXYGEN]: 1}} />
                 </React.Fragment>
             );
         case StandardProjectType.CITY:
             return (
                 <React.Fragment>
-                    <TileIcon type={TileType.CITY} size={40} />
+                    <TileIcon type={TileType.CITY} size={40} margin="0 8px 0 0" />
                     <ProductionIconography
                         card={{increaseProduction: {[Resource.MEGACREDIT]: 1}}}
                     />

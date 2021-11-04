@@ -20,5 +20,6 @@ export enum ApiActionType {
     API_COMPLETE_BUILD_COLONY = 'apiCompletePlaceColony',
     API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'apiCompleteIncreaseAndDecreaseColonyTileTracks',
     API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY = 'apiCompletePutAdditionalColonyTileIntoPlay',
-    API_COMPLETE_PAY_PENDING_COST = 'apiCompletePayPendingCost',
+    API_COMPLETE_CHOOSE_NEXT_ACTION = 'apiCompleteChooseNextAction',
+    API_START_OVER = 'apiStartOver',
 }

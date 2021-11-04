@@ -62,7 +62,6 @@ function GameInner() {
     const [yourTurnGames, setYourTurnGames] = useState<string[]>([]);
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
-    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
     const numPlayers = useTypedSelector(state => state.players.length ?? 0);
     const context = useContext(AppContext);
     const loggedInPlayerIndex = useTypedSelector(state =>
@@ -87,16 +86,8 @@ function GameInner() {
     }, []);
 
     useEffect(() => {
-        // Do not sync if you're the only one who can play!
-        if (
-            (gameStage !== GameStage.CORPORATION_SELECTION &&
-                gameStage !== GameStage.BUY_OR_DISCARD &&
-                gameStage !== GameStage.DRAFTING &&
-                currentPlayerIndex == loggedInPlayerIndex) ||
-            numPlayers === 1 ||
-            gameStage === GameStage.END_OF_GAME ||
-            isSyncing
-        ) {
+        // Do not sync if you're the only player!
+        if (numPlayers === 1 || gameStage === GameStage.END_OF_GAME || isSyncing) {
             // Don't retrieve server state while only you can play!
             // Can lead the game to de-sync:
             // a) the interval calls retrieve game api
@@ -125,14 +116,7 @@ function GameInner() {
         return () => {
             clearInterval(interval);
         };
-    }, [
-        gameStage,
-        loggedInPlayerIndex,
-        currentPlayerIndex,
-        isWaitingInDraft,
-        isSyncing,
-        possibleCards.length,
-    ]);
+    }, [gameStage, loggedInPlayerIndex, isWaitingInDraft, isSyncing, possibleCards.length]);
 
     useEffect(() => {
         let isActive = true;

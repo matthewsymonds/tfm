@@ -2,7 +2,7 @@ import {ActionGuard} from 'client-server-shared/action-guard';
 import {useTypedSelector} from 'reducer';
 import {useLoggedInPlayer} from './use-logged-in-player';
 
-let actionGuardsByUsername: {[username: string]: ActionGuard} = {};
+export const actionGuardsByUsername: {[username: string]: ActionGuard} = {};
 
 export const useActionGuard = (user?: string) => {
     const player = useLoggedInPlayer();
@@ -19,4 +19,16 @@ export const useActionGuard = (user?: string) => {
             return prev.state.logLength === next.state.logLength;
         }
     );
+};
+
+export type ActionGuards = {
+    [username: string]: ActionGuard;
+};
+
+export const useActionGuards = (): ActionGuards => {
+    const players = useTypedSelector(state => state.players);
+    return players.reduce((acc, player) => {
+        acc[player.username] = useActionGuard(player.username);
+        return acc;
+    }, {});
 };

@@ -1,5 +1,7 @@
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {deserializeResourceOptionAction} from 'components/ask-user-to-confirm-resource-action-details';
+import {Deck} from 'constants/card-types';
+import {GameStage} from 'constants/game';
 import {Card} from 'models/card';
 import {GameState} from 'reducer';
 import {ApiActionHandler} from 'server/api-action-handler';
@@ -12,7 +14,8 @@ export function playGame(
     payload: any,
     actionHandler: ApiActionHandler,
     stateHydrator: StateHydrator,
-    originalState: GameState
+    originalState: GameState,
+    stateCheckpoint?: GameState
 ) {
     let card: Card;
     switch (type) {
@@ -77,6 +80,13 @@ export function playGame(
             if (cards.length > 10) {
                 throw new Error('trying to select too many cards');
             }
+            if (
+                actionHandler.state.options.decks.includes(Deck.PRELUDE) &&
+                actionHandler.state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+                preludes.length !== 2
+            ) {
+                throw new Error('Not selecting enough preludes');
+            }
             actionHandler.confirmCardSelection({
                 selectedCards: cards,
                 selectedPreludes: preludes,
@@ -111,8 +121,11 @@ export function playGame(
         case ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY:
             actionHandler.completePutAdditionalColonyTileIntoPlay(payload);
             break;
-        case ApiActionType.API_COMPLETE_PAY_PENDING_COST:
-            actionHandler.completePayPendingCost(payload);
+        case ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION:
+            actionHandler.completeChooseNextAction(payload);
+            break;
+        case ApiActionType.API_START_OVER:
+            actionHandler.startOver(stateCheckpoint);
             break;
         default:
             throw spawnExhaustiveSwitchError(type);

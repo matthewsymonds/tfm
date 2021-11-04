@@ -34,12 +34,12 @@ import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision
 import styled from 'styled-components';
 import {useIsomorphicLayoutEffect} from './action-log';
 import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
+import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increase-and-decrease-colony-tile-tracks';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
-import {AskUserToPayPendingCost} from './ask-user-to-pay-pending-cost';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
@@ -208,10 +208,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Select a colony to trade with for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
         actionBarPromptText = 'Increase and decrease colony tile tracks';
-    } else if (loggedInPlayer.payPendingCost) {
-        actionBarPromptText = 'Choose resources to pay your cost';
-    } else if (loggedInPlayer.illegalStateReached) {
-        actionBarPromptText = 'You have failed to pay for your action.';
     } else {
         actionBarPromptText = 'Complete your action';
     }
@@ -338,6 +334,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 currentPlayerIndex === loggedInPlayer.index &&
                 !loggedInPlayer.pendingPlayCardFromHand &&
                 !loggedInPlayer.pendingTilePlacement &&
+                !loggedInPlayer.pendingNextActionChoice &&
                 players.every(
                     player =>
                         (player.preludes?.length ?? 0) > 0 ||
@@ -359,9 +356,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     />
                 );
                 break;
-            case loggedInPlayer.payPendingCost:
-                actionOverlayElement = <AskUserToPayPendingCost player={loggedInPlayer} />;
-                break;
             case revealedCards.length > 0:
                 actionOverlayElement = (
                     <Flex flexDirection="column">
@@ -379,8 +373,11 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </Flex>
                 );
                 break;
+            // This should be last...It's saying "ask the user which item they want to handle next"
+            case (loggedInPlayer.pendingNextActionChoice?.length ?? 0) > 0:
+                actionOverlayElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
+                break;
         }
-
         return actionOverlayElement;
     });
 

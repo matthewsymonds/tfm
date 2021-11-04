@@ -3,6 +3,20 @@ import {GameState, PlayerState} from 'reducer';
 
 export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: PlayerState): boolean {
     try {
+        return (
+            getIsPlayerMakingDecisionExceptForNextActionChoice(state, loggedInPlayer) ||
+            !!loggedInPlayer.pendingNextActionChoice
+        );
+    } catch (error) {
+        return false;
+    }
+}
+
+export function getIsPlayerMakingDecisionExceptForNextActionChoice(
+    state: GameState,
+    loggedInPlayer: PlayerState
+): boolean {
+    try {
         const pendingActions =
             state.common.revealedCards.length > 0 ||
             loggedInPlayer.pendingTilePlacement ||
@@ -18,8 +32,6 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
             loggedInPlayer.increaseAndDecreaseColonyTileTracks ||
             loggedInPlayer.tradeForFree ||
             loggedInPlayer.putAdditionalColonyTileIntoPlay ||
-            loggedInPlayer.payPendingCost ||
-            loggedInPlayer.illegalStateReached ||
             ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                 state.common.currentPlayerIndex === loggedInPlayer.index &&
                 state.common.gameStage === GameStage.ACTIVE_ROUND) ||

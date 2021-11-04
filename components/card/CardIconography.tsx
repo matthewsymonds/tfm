@@ -897,10 +897,30 @@ function PlaceColonyIconography({placeColony}: {placeColony: PlaceColony}) {
 }
 
 const IconographyContainer = styled.div`
-    & > :not(:first-child) {
-        margin-top: 8px;
+    &.row-reverse {
+        flex-direction: row-reverse;
+        & > :not(:last-child) {
+            margin-left: 8px;
+        }
     }
-
+    &.row {
+        flex-direction: row;
+        & > :not(:first-child) {
+            margin-left: 8px;
+        }
+    }
+    &.column-reverse {
+        flex-direction: column-reverse;
+        & > :not(:last-child) {
+            margin-top: 8px;
+        }
+    }
+    &.column {
+        flex-direction: column;
+        & > :not(:first-child) {
+            margin-top: 8px;
+        }
+    }
     > div {
         display: flex;
         justify-content: center;
@@ -943,15 +963,17 @@ export const BaseActionIconography = ({
 
     return (
         <IconographyContainer
+            className={
+                inline && reverse
+                    ? 'row-reverse'
+                    : inline
+                    ? 'row'
+                    : reverse
+                    ? 'column-reverse'
+                    : 'column'
+            }
             style={{
-                flexDirection:
-                    inline && reverse
-                        ? 'row-reverse'
-                        : inline
-                        ? 'row'
-                        : reverse
-                        ? 'column-reverse'
-                        : 'column',
+                display: inline ? 'inline-flex' : 'flex',
                 position: 'relative',
                 alignItems: 'center',
             }}
@@ -997,6 +1019,9 @@ export const BaseActionIconography = ({
             {gainResource && (
                 <div>
                     <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
+                    {card instanceof CardModel && card.forcedAction && (
+                        <BaseActionIconography card={card.forcedAction} />
+                    )}
                 </div>
             )}
             {gainResourceOption && (
@@ -1039,11 +1064,6 @@ export const BaseActionIconography = ({
             {revealTakeAndDiscard && (
                 <div>
                     <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
-                </div>
-            )}
-            {card instanceof CardModel && card.forcedAction && (
-                <div>
-                    <BaseActionIconography card={card.forcedAction} />
                 </div>
             )}
         </IconographyContainer>

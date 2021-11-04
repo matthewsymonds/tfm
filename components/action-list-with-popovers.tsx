@@ -77,7 +77,7 @@ type ActionWithPopoverProps<T> = {
     popoverPlacement?: PlacementType;
 };
 
-function ActionWithPopover<T>({
+function ActionWithPopover<T extends {}>({
     action,
     ActionComponent,
     ActionPopoverComponent,
@@ -108,7 +108,7 @@ function ActionWithPopover<T>({
                 }}
             >
                 <StylizedActionWrapper
-                    id={`${action}`}
+                    id={`${JSON.stringify(action)}`}
                     emphasizeOnHover={emphasizeOnHover}
                     isHovering={
                         popoverConfig?.triggerRef !== null && popoverConfig?.triggerRef === ref

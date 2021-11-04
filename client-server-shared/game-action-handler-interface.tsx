@@ -1,11 +1,11 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
-import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
-import {Card} from 'models/card';
 import {SupplementalResources} from 'server/api-action-handler';
+import {SerializedCard} from 'state-serialization';
 
 export type PlayCardAsyncParams = {
     name: string;
@@ -15,14 +15,22 @@ export type PlayCardAsyncParams = {
 };
 
 export interface GameActionHandler {
-    playCardAsync(params: PlayCardAsyncParams): Promise<void>;
+    playCardAsync({
+        name,
+        payment,
+        conditionalPayments,
+        supplementalResources,
+    }: PlayCardAsyncParams): Promise<void>;
 
     playCardActionAsync({
         parent,
         payment,
+        supplementalResources,
+        choiceIndex,
     }: {
-        parent: Card;
+        parent: SerializedCard;
         payment?: PropertyCounter<Resource>;
+        supplementalResources?: SupplementalResources;
         choiceIndex?: number;
     }): Promise<void>;
 
@@ -31,24 +39,25 @@ export interface GameActionHandler {
         payment,
     }: {
         standardProjectAction: StandardProjectAction;
-        payment?: PropertyCounter<Resource>;
-    }): Promise<void>;
-
-    claimMilestoneAsync({
-        milestone,
-        payment,
-    }: {
-        milestone: Milestone;
         payment: Payment;
     }): Promise<void>;
 
-    fundAwardAsync({award, payment}: {award: Award; payment: Payment}): Promise<void>;
+    claimMilestoneAsync(payload: {
+        milestone: Milestone;
+        payment?: PropertyCounter<Resource>;
+    }): Promise<void>;
 
-    doConversionAsync({resource}: {resource: Resource}): Promise<void>;
+    fundAwardAsync(payload: {award: Award; payment?: PropertyCounter<Resource>}): Promise<void>;
+
+    doConversionAsync(payload: {
+        resource: Resource;
+        supplementalResources?: SupplementalResources;
+    }): Promise<void>;
 
     skipActionAsync(): Promise<void>;
+    passGenerationAsync(): Promise<void>;
 
-    completePlaceTileAsync({tile, cell}: {tile: Tile; cell: Cell}): Promise<void>;
+    completePlaceTileAsync(payload: {cell: Cell}): Promise<void>;
 
     completeChooseResourceActionDetailsAsync({
         option,
@@ -60,34 +69,38 @@ export interface GameActionHandler {
 
     skipChooseResourceActionDetailsAsync(): Promise<void>;
 
-    completeLookAtCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
+    completeDuplicateProductionAsync({card}: {card: SerializedCard}): Promise<void>;
 
-    completeChooseDiscardCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
-
-    completeDuplicateProductionAsync({card}: {card: Card}): Promise<void>;
-
-    chooseCorporationAndStartingCardsAsync({
-        corporation,
+    confirmCardSelectionAsync({
         selectedCards,
+        selectedPreludes,
+        corporation,
+        payment,
     }: {
-        corporation: Card;
-        selectedCards: Array<Card>;
+        selectedCards: Array<SerializedCard>;
+        selectedPreludes: Array<SerializedCard>;
+        corporation: SerializedCard;
+        payment?: PropertyCounter<Resource>;
     }): Promise<void>;
 
-    chooseCardsAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
+    continueAfterRevealingCardsAsync(): Promise<void>;
 
-    chooseCardForDraftRoundAsync({selectedCards}: {selectedCards: Array<Card>}): Promise<void>;
+    completeChooseDuplicateProductionAsync(index: number): Promise<void>;
+
+    skipChooseDuplicateProductionAsync(): Promise<void>;
 
     increaseLowestProductionAsync({production}: {production: Resource}): Promise<void>;
 
     tradeAsync({
-        payment,
         colony,
+        payment,
+        numHeat,
         tradeIncome,
     }: {
-        payment: Resource;
         colony: string;
+        payment: Resource;
         tradeIncome: number;
+        numHeat?: number;
     }): Promise<void>;
 
     tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}): Promise<void>;
@@ -104,5 +117,7 @@ export interface GameActionHandler {
 
     completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}): Promise<void>;
 
-    payPendingCostAsync({payment}: {payment: Payment}): Promise<void>;
+    completeChooseNextActionAsync(actionIndex: number, payment?: Payment): Promise<void>;
+
+    startOverAsync(): Promise<void>;
 }

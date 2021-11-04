@@ -161,9 +161,12 @@ export default function GlobalParams(props: GlobalParamsProps) {
                                 />
                                 <Flex
                                     alignItems="center"
-                                    justifyContent="flex-start"
-                                    width="20px"
+                                    justifyContent="center"
                                     marginRight="4px"
+                                    marginLeft="4px"
+                                    marginTop="4px"
+                                    width="20px"
+                                    height="24px"
                                 >
                                     <GlobalParameterIcon
                                         parameter={parameter as Parameter}

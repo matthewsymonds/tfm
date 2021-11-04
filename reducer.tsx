@@ -25,6 +25,7 @@ import {
 import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {getIsPlayerMakingDecisionExceptForNextActionChoice} from 'selectors/get-is-player-making-decision';
 import {isVariableAmount} from 'selectors/is-variable-amount';
 import {
     SerializedCard,
@@ -39,6 +40,7 @@ import {
     announceReadyToStartRound,
     applyDiscounts,
     applyExchangeRateChanges,
+    askUserToChooseNextAction,
     askUserToChoosePrelude,
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
@@ -55,7 +57,9 @@ import {
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
+    clearPendingActionChoice,
     completeAction,
+    completeChooseNextAction,
     completeIncreaseLowestProduction,
     completeTradeForFree,
     completeUserToPutAdditionalColonyTileIntoPlay,
@@ -90,10 +94,8 @@ import {
     removeForcedActionFromPlayer,
     removeResource,
     removeStorableResource,
-    returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
-    selectPlayerToReceiveColonyBonus,
     setCorporation,
     setGame,
     setIsNotSyncing,
@@ -107,13 +109,12 @@ import {
     useBlueCardActionAlreadyUsedThisGeneration,
 } from './actions';
 import {Action, Amount} from './constants/action';
-import {Cell, getParameterName, Parameter, TileType} from './constants/board';
-import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from './constants/game';
+import {getParameterName, Parameter, TileType} from './constants/board';
+import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {getResourceName, isStorableResource} from './constants/resource';
 import {Resource} from './constants/resource-enum';
 import {StandardProjectType} from './constants/standard-project';
-import {getAdjacentCellsForCell} from './selectors/board';
 import {getDiscountedCardCost} from './selectors/get-discounted-card-cost';
 export type Resources = {
     [Resource.MEGACREDIT]: number;
@@ -156,18 +157,6 @@ export type PendingChoice = {
     card: Card;
     playedCard?: Card;
 };
-
-function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: number}> {
-    const bonuses = cell.bonus || [];
-    const uniqueBonuses = new Set(bonuses);
-
-    return [...uniqueBonuses].map(bonus => {
-        return {
-            resource: bonus,
-            amount: bonuses.filter(b => b === bonus).length,
-        };
-    });
-}
 
 function handleProduction(draft: GameState) {
     draft.log.push('Production');
@@ -255,7 +244,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Ants'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -781,7 +770,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             draft.pendingVariableAmount = quantity;
             let supplementalQuantity = 0;
-            if (resource === Resource.HEAT && payload.supplementalResources) {
+            if (
+                resource === Resource.HEAT &&
+                payload.supplementalResources &&
+                player.index === sourcePlayerIndex
+            ) {
                 const {name} = payload.supplementalResources;
                 const matchingCard = player.playedCards.find(card => card.name === name);
                 if (matchingCard) {
@@ -1195,7 +1188,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
-        if (askUserToChooseResourceActionDetails.match(action) && action.payload) {
+        if (askUserToChooseResourceActionDetails.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {actionType, resourceAndAmounts, locationType} = payload;
@@ -1214,7 +1207,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             };
         }
 
-        if (askUserToDuplicateProduction.match(action) && action.payload) {
+        if (askUserToDuplicateProduction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {tag, card} = payload;
@@ -1299,21 +1292,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 )} ${getHumanReadableTileName(payload.tile.type)} tile${oceanAddendum}`
             );
             draft.common.mostRecentTilePlacementCell = matchingCell;
-
-            const tilePlacementBonus = getTilePlacementBonus(payload.cell);
-            for (const b of tilePlacementBonus) {
-                handleGainResource(player, draft, b.resource, b.amount, corporationName);
-            }
-            const megacreditIncreaseFromOceans =
-                getAdjacentCellsForCell(draft, payload.cell).filter(cell => {
-                    return cell.tile?.type === TileType.OCEAN;
-                }).length * 2;
-            if (megacreditIncreaseFromOceans) {
-                player.resources[Resource.MEGACREDIT] += megacreditIncreaseFromOceans;
-                draft.log.push(
-                    `${corporationName} gained ${megacreditIncreaseFromOceans} megacredits from ocean adjacency`
-                );
-            }
         }
         if (increaseParameter.match(action)) {
             const {payload} = action;
@@ -1406,14 +1384,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 colony.step = payload.location;
                 draft.log.push(`${colony.name}'s tile track went to ${colony.step + 1}`);
             }
-        }
-
-        if (selectPlayerToReceiveColonyBonus.match(action)) {
-            draft.common.currentPlayerIndex = action.payload.opponentPlayerIndex;
-        }
-
-        if (returnControlToCurrentPlayerAfterOpponentsReceiveColonyBonus.match(action)) {
-            draft.common.currentPlayerIndex = action.payload.playerIndex;
         }
 
         if (askUserToPlaceColony.match(action)) {
@@ -1649,13 +1619,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                                 ...draft.common.discardPile,
                             ].filter(card => bonusNames.includes(card.name));
                             // (hack for debugging)
-                            player.pendingCardSelection.possibleCards.push(...bonuses);
+                            const deleted = player.pendingCardSelection.possibleCards.splice(
+                                0,
+                                bonuses.length,
+                                ...bonuses
+                            );
                             draft.common.deck = draft.common.deck.filter(
                                 card => !bonusNames.includes(card.name)
                             );
                             draft.common.discardPile = draft.common.discardPile.filter(
                                 card => !bonusNames.includes(card.name)
                             );
+                            draft.common.discardPile.push(...deleted);
                         }
                     }
                 }
@@ -1674,63 +1649,50 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
 
-            // First, check if we still owe resources.
-            // If we owe megacredits, we need to pay for them.
-            // If we still owe anything else, the user has to start over.
-            const {resources, productions} = player;
-            for (const resource in resources) {
-                if (resources[resource] < 0) {
-                    // There should be no code setting "illegalStateReached" to true.
-                    // The only way out is by reverting the whole state to the previous checkpoint.
-                    player.illegalStateReached = true;
-                }
-            }
-            for (const production in productions) {
-                if (productions[production] < MinimumProductions[production]) {
-                    player.illegalStateReached = true;
-                }
-            }
+            player.pendingResourceActionDetails = undefined;
+            draft.pendingVariableAmount = undefined;
+            player.action = (player.action % 2) + 1;
 
-            const megacredits = player.resources[Resource.MEGACREDIT];
-            const heat = player.resources[Resource.HEAT];
-            const isHelion = player.corporation.name === 'Helion';
-            let quantity = megacredits;
-            if (isHelion) {
-                quantity += heat;
+            // Did the player just complete their second action?
+            // And is it not greenery placement?
+            // their turn is over.
+            if (player.action === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT) {
+                // It's the next player's turn
+                handleChangeCurrentPlayer(state, draft);
             }
+        }
 
-            const cost = player.pendingCost;
-            if (cost) {
-                if (quantity < cost) {
-                    player.illegalStateReached = true;
-                } else if (!isHelion || !heat) {
-                    player.resources[Resource.MEGACREDIT] -= cost;
-                    player.pendingCost = 0;
-                } else if (!megacredits) {
-                    player.resources[Resource.HEAT] -= cost;
-                    player.pendingCost = 0;
-                } else {
-                    // If heat > 0 and megacredits > 0 and the player is helion, we need player input.
-                    player.payPendingCost = true;
-                }
-            } else {
-                player.pendingResourceActionDetails = undefined;
-                player.payPendingCost = false;
-                player.cards.push(...(player.pendingCards ?? []));
-                player.pendingCards = [];
-                draft.pendingVariableAmount = undefined;
-                player.action = (player.action % 2) + 1;
+        if (askUserToChooseNextAction.match(action)) {
+            player = getPlayer(draft, action.payload);
+            player.pendingNextActionChoice ||= [];
+            player.pendingNextActionChoice.push(...action.payload.actions);
+        }
 
-                // Did the player just complete their second action?
-                // And is it not greenery placement?
-                // their turn is over.
-                if (
-                    player.action === 1 &&
-                    draft.common.gameStage !== GameStage.GREENERY_PLACEMENT
-                ) {
-                    // It's the next player's turn
-                    handleChangeCurrentPlayer(state, draft);
-                }
+        if (clearPendingActionChoice.match(action)) {
+            player = getPlayer(draft, action.payload);
+            player.pendingNextActionChoice = undefined;
+        }
+
+        if (completeChooseNextAction.match(action)) {
+            player = getPlayer(draft, action.payload);
+            const {actionIndex} = action.payload;
+            player.pendingNextActionChoice ||= [];
+            delete player.pendingNextActionChoice[actionIndex];
+            if (player.pendingNextActionChoice.filter(Boolean).length === 0) {
+                player.pendingNextActionChoice = undefined;
+            }
+        }
+
+        const maybePlayerIndex = action.payload?.playerIndex;
+        if (typeof maybePlayerIndex === 'number') {
+            const player = getPlayer(draft, action.payload);
+            if (
+                getIsPlayerMakingDecisionExceptForNextActionChoice(draft, player) &&
+                draft.common.gameStage === GameStage.ACTIVE_ROUND
+            ) {
+                draft.common.controllingPlayerIndex = player.index;
+            } else if (player.index === draft.common.controllingPlayerIndex) {
+                delete draft.common.controllingPlayerIndex;
             }
         }
 
@@ -1739,6 +1701,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (typeof window !== 'undefined') {
             // Don't update log on client.
             draft.log = state.log;
+        }
+
+        if ('playerIndex' in action.payload) {
+            const player = getPlayer(draft, action.payload);
+
+            if (player.pendingNextActionChoice?.filter(Boolean).length === 0) {
+                player.pendingNextActionChoice = undefined;
+            }
         }
     });
 };

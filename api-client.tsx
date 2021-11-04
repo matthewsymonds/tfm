@@ -16,6 +16,7 @@ import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
 import {batch} from 'react-redux';
+import {toast} from 'react-toastify';
 import {AnyAction, Store} from 'redux';
 import {ApiActionHandler, SupplementalResources} from 'server/api-action-handler';
 import {StateHydrator} from 'server/state-hydrator';
@@ -106,6 +107,16 @@ export class ApiClient implements GameActionHandler {
                     payload,
                     actionCount,
                 });
+                if (typeof result !== 'object' || !('state' in result)) {
+                    if ('error' in result) {
+                        toast(<div>{result.error}</div>);
+                        throw new Error('API call failed');
+                    } else if ('alert' in result) {
+                        // Should wait for lock to resolve.
+                        toast(<div>{result.alert}</div>);
+                        return;
+                    }
+                }
                 if (this.processingActions.length <= 1) {
                     this.dispatch(setGame(result.state));
                 }
@@ -231,39 +242,7 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
     }
 
-    async completeLookAtCardsAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<SerializedCard>;
-    }): Promise<void> {}
-
-    async completeChooseDiscardCardsAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<SerializedCard>;
-    }): Promise<void> {}
-
     async completeDuplicateProductionAsync({card}: {card: SerializedCard}): Promise<void> {}
-
-    async chooseCorporationAndStartingCardsAsync({
-        corporation,
-        selectedCards,
-    }: {
-        corporation: SerializedCard;
-        selectedCards: Array<SerializedCard>;
-    }): Promise<void> {}
-
-    async chooseCardsAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<SerializedCard>;
-    }): Promise<void> {}
-
-    async chooseCardForDraftRoundAsync({
-        selectedCards,
-    }: {
-        selectedCards: Array<SerializedCard>;
-    }): Promise<void> {}
 
     async confirmCardSelectionAsync({
         selectedCards,
@@ -344,16 +323,21 @@ export class ApiClient implements GameActionHandler {
         );
     }
 
-    async payPendingCostAsync({payment}: {payment: Payment}) {
-        const payload = {payment};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_PAY_PENDING_COST, payload);
-    }
-
     async completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}) {
         const payload = {colony};
         await this.makeApiCall(
             ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
             payload
         );
+    }
+
+    async completeChooseNextActionAsync(actionIndex: number, payment?: Payment) {
+        const payload = {actionIndex, payment};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION, payload);
+    }
+
+    async startOverAsync() {
+        const payload = {};
+        await this.makeApiCall(ApiActionType.API_START_OVER, payload);
     }
 }

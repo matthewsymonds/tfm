@@ -17,9 +17,11 @@ export const LogToast = () => {
     );
 
     const players = useTypedSelector(state => state.players);
-    const corporationNames = players
-        .filter(player => player?.corporation?.name)
-        .map(player => player.corporation.name);
+    const corporationNames = useTypedSelector(state =>
+        state.players
+            .filter(player => player?.corporation?.name)
+            .map(player => player.corporation.name)
+    );
 
     useEffect(() => {
         if (lastSeenLogItem == null) {

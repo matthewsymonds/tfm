@@ -24,7 +24,7 @@ export enum VariableAmount {
     CARDS_WITHOUT_TAGS = 'cardsWithoutTags',
     HALF_ALL_COLONIES = 'halfAllColonies',
     MINING_AREA_CELL_HAS_STEEL_BONUS = 'miningAreaCellHasSteelBonus',
-    MINING_AREA_CELL_HAS_TITANIUM_BONUS = 'miningAreaCellHasTitaniumBonua',
+    MINING_AREA_CELL_HAS_TITANIUM_BONUS = 'miningAreaCellHasTitaniumBonus',
     MINING_RIGHTS_CELL_HAS_STEEL_BONUS = 'miningRightsCellHasSteelBonus',
     MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS = 'miningRightsCellHasTitaniumBonus',
     TRIPLE_BASED_ON_USER_CHOICE = 'tripleBasedOnUserChoice',
