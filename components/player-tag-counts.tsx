@@ -151,7 +151,7 @@ function PlayerTagCounts({
                             style={{marginRight: 4}}
                         >
                             <Flex justifyContent="center" alignItems="center">
-                                <TagIcon size={24} name={tag as Tag} />
+                                <TagIcon size={25} name={tag as Tag} />
                                 <span className="display" style={{color: 'white', marginLeft: 2}}>
                                     {count}
                                 </span>

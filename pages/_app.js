@@ -16,8 +16,6 @@ import {createGlobalStyle} from 'styled-components';
 export const GlobalStyles = createGlobalStyle`
     body {
         margin: 0;
-        /* font-family: 'SF UI Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-            Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; */
         font-family: 'Open Sans', 'Roboto', sans-serif;
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
@@ -156,12 +154,12 @@ export const GlobalStyles = createGlobalStyle`
         text-overflow: ellipsis;
     }
 
-    .inner-event {
+    .mid-event {
         font-size: 1.5em;
-        line-height: 1.5em;
-        height: 1.35em;
-        width: 1.5em;
-        text-align: center;
+        .android & {
+            transform: scaleX(300%) scaleY(170%) translateY(-2.5%);
+            transform-origin: 50% 60%;
+        }
     }
 
     .outer-emoji.jovian {
@@ -171,40 +169,20 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
 
-    .inner-emoji.lightning, .inner-emoji.microbe, .inner-emoji.plant {
-        .mac & {
-            width: 1.2em;
-        }
-    }
-
-    .inner-city.emoji {
-        font-size: 2.3em;
-        line-height: 2.3em;
-        letter-spacing: 0;
+    .mid-city.emoji {
+        font-size: 2.75em;
     }
 
     .outer-space-tag {
         transform: rotate(22.5deg);
     }
 
-    .inner-space-tag {
+    .mid-space-tag {
         font-size: 1.5em;
-        line-height: 1.5em;
-        width: 1.5em;
-        height: 1.5em;
-        text-align: center;
-        .linux & {
-            width: 0.85em;
-            height: 1.45em;
-        }
     }
 
-    .inner-emoji.earth {
+    .mid-emoji.earth {
         font-size: 2.04em;
-        line-height: 2.04em;
-        width: 2.04em;
-        height: 2.04em;
-        text-align: center;
     }
 
      .inner-building {
@@ -216,33 +194,24 @@ export const GlobalStyles = createGlobalStyle`
         top: 42%;
     }
 
-    .inner-emoji.jovian {
+    .mid-emoji.jovian {
         font-size: 3.3em;
     }
-    .inner-science {
+    .mid-science {
         font-family: "Source Sans Pro", Segoe UI Symbol;
         font-size: 2em;
-        line-height: 2em;
-        width: 2em;
-        height: 1.92em;
-        letter-spacing: 0.01em;
-        .mac & {
-            height: 2.02em;
-            letter-spacing: -0.02em;
+    }
+
+    .mac {
+        .inner-emoji {
+            &.lightning {
+                font-size: 2em;
+                transform: scale(0.5);
+            }
         }
-
-        text-align: center;
-    }
-
-    .inner-event {
-        font-family: "Source Sans Pro", Segoe UI Symbol;
-    }
-
-    .outer-event {
-        transform: rotate(90deg);
-    }
-
-    .mac { 
+        .mid-science {
+            padding-bottom 0.05em;
+        }
         .energy-icon {
             margin-right: 5%;
         }

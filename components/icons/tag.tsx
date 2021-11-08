@@ -5,12 +5,12 @@ import React from 'react';
 
 // icon, text color, bg color
 const dict = {
-    [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji'],
+    [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji animal'],
     [Tag.BUILDING]: ['', '#9e6c43', '#8b5e3d', '', 'building'],
     [Tag.CITY]: ['🌆', '#333333', '#C8B3C5', '', 'city emoji'],
     [Tag.EARTH]: ['🌎', 'darkgreen', '', 'transparent', 'emoji earth'],
     [Tag.POWER]: ['⚡', 'white', 'purple', '', 'emoji lightning'],
-    [Tag.EVENT]: ['⮕', 'black', 'gold', '', 'event'],
+    [Tag.EVENT]: ['⬇', 'black', 'gold', '', 'event'],
     [Tag.JOVIAN]: ['🪐', 'purple', 'darkgray', 'transparent', 'emoji jovian'],
     [Tag.MICROBE]: ['🐛', 'green', 'white', '', 'emoji microbe'],
     [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji plant'],
@@ -56,11 +56,13 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
         const userAgent = navigator.userAgent.toUpperCase();
         if (userAgent.includes('MAC')) {
             className = 'mac';
-        } else if (userAgent.includes('LINUX ')) {
+        } else if (userAgent.includes('ANDROID ')) {
+            className = 'android';
+        } else if (userAgent.includes('LINUX')) {
             className = 'linux';
         }
     }
-    const innerSize = size - 2;
+    const fontSize = Math.ceil(size * 0.5);
     return (
         <Box
             border={'1px solid ' + tagProps.outerBackgroundColor ?? colors.CARD_BORDER_2}
@@ -70,9 +72,9 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
             borderRadius="50%"
             position="relative"
             width={size + 'px'}
-            fontSize={size / 2 + 'px'}
+            fontSize={fontSize + 'px'}
             overflow="hidden"
-            lineHeight={size / 2 + 'px'}
+            lineHeight={fontSize + 'px'}
             className={'outer-' + tagProps.className + ' ' + className}
             fontWeight="600"
         >
@@ -86,8 +88,13 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
                 bottom="0"
                 alignItems="center"
                 justifyContent="center"
+                className={'mid-' + tagProps.className}
             >
-                <Box color={tagProps.color} className={'inner-' + tagProps.className}>
+                <Box
+                    textAlign="center"
+                    color={tagProps.color}
+                    className={'inner-' + tagProps.className}
+                >
                     {tagProps.icon}
                 </Box>
             </Flex>
