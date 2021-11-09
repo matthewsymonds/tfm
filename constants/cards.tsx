@@ -4832,6 +4832,7 @@ export const cardConfigs: CardConfig[] = [
             [Parameter.OCEAN]: 2,
             [Parameter.OXYGEN]: 2,
             [Parameter.TEMPERATURE]: 2,
+            [Parameter.VENUS]: 2,
         },
     },
     {
