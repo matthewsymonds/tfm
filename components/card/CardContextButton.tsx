@@ -11,7 +11,8 @@ import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
-import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
+import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
+import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {isActiveRound} from 'selectors/is-active-round';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -28,7 +29,7 @@ export function CardContextButton({
     apiClient: ApiClient;
     loggedInPlayer: PlayerState;
 }) {
-    function playCard(payment?: PropertyCounter<Resource>, conditionalPayments?: number[]) {
+    function playCard(payment: PropertyCounter<Resource>, conditionalPayments?: number[]) {
         apiClient.playCardAsync({
             name: card.name,
             payment,
@@ -39,6 +40,7 @@ export function CardContextButton({
     let buttonContent: React.ReactNode | null;
     const isSyncing = useTypedSelector(state => state.syncing);
     const activeRound = useTypedSelector(state => isActiveRound(state));
+    const discountedCardCost = getDiscountedCardCost(card, loggedInPlayer);
 
     switch (cardContext) {
         case CardContext.NONE:
@@ -76,20 +78,25 @@ export function CardContextButton({
                 } else {
                     const heatCost = card?.removeResource?.[Resource.HEAT] ?? 0;
                     if (heatCost) {
-                        const useStoredResourceAsCard = getUseStoredResourcesAsCard(loggedInPlayer);
-                        if (useStoredResourceAsCard) {
-                            const resource = useStoredResourceAsCard.storedResourceType;
-                            const quantity = useStoredResourceAsCard.storedResourceAmount;
+                        const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(
+                            loggedInPlayer
+                        );
+                        if (useStoredResourcesAsHeatCard) {
+                            const resource = useStoredResourcesAsHeatCard.storedResourceType;
+                            const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
                             if (resource && quantity) {
                                 buttonContent = (
                                     <HeatPaymentPopover
                                         cost={heatCost as number}
-                                        useStoredResourceAsCard={useStoredResourceAsCard}
+                                        useStoredResourcesAsHeatCard={useStoredResourcesAsHeatCard}
                                         onConfirmPayment={payment => {
                                             apiClient.playCardAsync({
                                                 name: card.name,
+                                                payment: {
+                                                    [Resource.MEGACREDIT]: discountedCardCost,
+                                                },
                                                 supplementalResources: {
-                                                    name: useStoredResourceAsCard.name,
+                                                    name: useStoredResourcesAsHeatCard.name,
                                                     quantity: payment[resource] ?? 0,
                                                 },
                                             });
@@ -102,7 +109,15 @@ export function CardContextButton({
                         }
                     }
                     if (!buttonContent) {
-                        buttonContent = <CardButton onClick={() => playCard()}>Play</CardButton>;
+                        buttonContent = (
+                            <CardButton
+                                onClick={() =>
+                                    playCard({[Resource.MEGACREDIT]: discountedCardCost})
+                                }
+                            >
+                                Play
+                            </CardButton>
+                        );
                     }
                 }
             }

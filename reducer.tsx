@@ -1,7 +1,6 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/board-actions/awards';
 import {getTextForMilestone} from 'components/board/board-actions/milestones';
-import {getTextForStandardProject} from 'components/board/board-actions/standard-projects';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
@@ -14,6 +13,7 @@ import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-disca
 import {VariableAmount} from 'constants/variable-amount';
 import {GameActionType} from 'GameActionState';
 import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
 import {shallowEqual, TypedUseSelectorHook, useSelector} from 'react-redux';
@@ -134,17 +134,20 @@ export type CommonState = SerializedCommonState;
 const cardsPlural = num => (num === 1 ? 'card' : 'cards');
 const stepsPlural = num => (num === 1 ? 'step' : 'steps');
 
-function handleEnterActiveRound(state: GameState) {
+function handleEnterActiveRound(draft: WritableDraft<SerializedState>) {
     if (
-        state.common.gameStage !== GameStage.ACTIVE_ROUND &&
-        state.players.every(player => player.action === 1)
+        draft.common.gameStage !== GameStage.ACTIVE_ROUND &&
+        draft.players.every(player => player.action === 1)
     ) {
         // Everyone's ready!
-        for (const player of state.players) {
+        for (const player of draft.players) {
             player.pendingCardSelection = undefined;
         }
-        state.common.gameStage = GameStage.ACTIVE_ROUND;
-        state.log.push(`Generation ${state.common.generation}, turn 1`);
+        draft.common.gameStage = GameStage.ACTIVE_ROUND;
+        draft.log.push({
+            actionType: GameActionType.GAME_UPDATE,
+            text: `📜 Generation ${draft.common.generation}, turn 1`,
+        });
     }
 }
 
@@ -161,7 +164,10 @@ export type PendingChoice = {
 };
 
 function handleProduction(draft: GameState) {
-    draft.log.push('Production');
+    draft.log.push({
+        actionType: GameActionType.GAME_UPDATE,
+        text: '♼ Production',
+    });
     for (const player of draft.players) {
         player.resources[Resource.MEGACREDIT] += player.terraformRating;
         player.resources[Resource.HEAT] += player.resources[Resource.ENERGY];
@@ -170,28 +176,11 @@ function handleProduction(draft: GameState) {
             player.resources[production] += player.productions[production];
         }
 
-        let playerNewResourcesLogMessage: string = `${player.corporation.name} has`;
-        const nonZeroResources = Object.keys(player.resources)
-            .reverse()
-            .filter(resource => player.resources[resource] > 0);
-        const [lastResource, ...firstResources] = nonZeroResources as Resource[];
-        for (const resource of firstResources.reverse()) {
-            playerNewResourcesLogMessage += ` ${quantityAndResource(
-                player.resources[resource],
-                resource
-            )},`;
-        }
-
-        if (firstResources.length > 0) {
-            playerNewResourcesLogMessage += ` and`;
-        }
-
-        playerNewResourcesLogMessage += ` ${quantityAndResource(
-            player.resources[lastResource],
-            lastResource
-        )}`;
-
-        draft.log.push(playerNewResourcesLogMessage);
+        draft.log.push({
+            actionType: GameActionType.PLAYER_RESOURCE_UPDATE,
+            playerIndex: player.index,
+            resource: player.resources,
+        });
     }
     for (const colony of draft.common.colonies ?? []) {
         if (colony.step >= 0) {
@@ -241,7 +230,10 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
         (players.length === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT)
     ) {
         draft.common.turn++;
-        draft.log.push(`Generation ${draft.common.generation}, turn ${draft.common.turn}`);
+        draft.log.push({
+            actionType: GameActionType.GAME_UPDATE,
+            text: `Generation ${draft.common.generation}, turn ${draft.common.turn}`,
+        });
     }
 }
 
@@ -641,11 +633,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 draft.pendingVariableAmount = payload.cards.length;
             }
             if (payload.cards.length) {
-                draft.log.push(
-                    `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
-                        payload.cards.length
-                    )}`
-                );
+                if (draft.common.gameStage !== GameStage.BUY_OR_DISCARD) {
+                    // discard is implied during buy_or_discard, so we omit this log item
+                    draft.log.push(
+                        `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
+                            payload.cards.length
+                        )}`
+                    );
+                }
             }
             player.pendingDiscard = undefined;
             draft.common.discardPile.push(...payload.cards);
@@ -1081,19 +1076,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             for (const resource in payment) {
                 player.resources[resource] -= payment[resource];
-            }
-            if (cost) {
-                draft.log.push(
-                    `${corporationName} paid ${cost} for a standard project ${getTextForStandardProject(
-                        payload.standardProjectAction.type
-                    )!.toLowerCase()}`
-                );
-            } else {
-                draft.log.push(
-                    `${corporationName} played standard project ${getTextForStandardProject(
-                        payload.standardProjectAction.type
-                    )!.toLowerCase()}`
-                );
             }
         }
 
@@ -1532,7 +1514,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const isPrelude = player.preludes?.length ?? 0 > 0;
             if (!isPrelude) {
                 player.action = 1;
-                draft.log.push(`${corporationName} skipped their 2nd action`);
             }
             if (!isPrelude && previous === 2) {
                 handleChangeCurrentPlayer(state, draft);
@@ -1542,7 +1523,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (passGeneration.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            draft.log.push(`${corporationName} passed`);
 
             player.action = 0;
             player.previousCardsInHand = player.cards.length;
@@ -1599,7 +1579,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     common.currentPlayerIndex = common.firstPlayerIndex;
                     common.turn = 1;
                     common.generation++;
-                    draft.log.push(`Generation ${common.generation}`);
+                    draft.log.push({
+                        actionType: GameActionType.GAME_UPDATE,
+                        text: `📜 Start of Generation ${common.generation}`,
+                    });
                     common.gameStage = draft.options?.isDraftingEnabled
                         ? GameStage.DRAFTING
                         : GameStage.BUY_OR_DISCARD;

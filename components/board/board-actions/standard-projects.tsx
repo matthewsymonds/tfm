@@ -229,6 +229,33 @@ export function getTextForStandardProject(standardProject: StandardProjectType) 
     }
 }
 
+// tense should be present (pre-text will be "User paid X to ____"),
+// except for sell patents (which has no cost)
+export function getLogTextForStandardProject(
+    standardProject: StandardProjectType
+): React.ReactElement {
+    switch (standardProject) {
+        case StandardProjectType.SELL_PATENTS:
+            return <span style={{marginLeft: 4}}>sold patents</span>;
+        case StandardProjectType.POWER_PLANT:
+            return <span>use Power Plant</span>;
+        case StandardProjectType.ASTEROID:
+            return <span>play an Asteroid</span>;
+        case StandardProjectType.AQUIFER:
+            return <span>build an Aquifer</span>;
+        case StandardProjectType.GREENERY:
+            return <span>build a Greenery</span>;
+        case StandardProjectType.CITY:
+            return <span>build a City</span>;
+        case StandardProjectType.VENUS:
+            return <span>increase Venus</span>;
+        case StandardProjectType.COLONY:
+            return <span>build a Colony</span>;
+        default:
+            throw spawnExhaustiveSwitchError(standardProject);
+    }
+}
+
 export function getButtonTextForStandardProject(standardProject: StandardProjectType) {
     switch (standardProject) {
         case StandardProjectType.SELL_PATENTS:

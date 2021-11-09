@@ -428,7 +428,7 @@ export default function PaymentPopover({
 
 type HeatPaymentPopoverProps = {
     onConfirmPayment: (payment: NumericPropertyCounter<Resource>) => void;
-    useStoredResourceAsCard: Card;
+    useStoredResourcesAsHeatCard: Card;
     cost: number;
     children: React.ReactNode;
 };
@@ -436,14 +436,14 @@ type HeatPaymentPopoverProps = {
 export function HeatPaymentPopover({
     onConfirmPayment,
     children,
-    useStoredResourceAsCard,
+    useStoredResourcesAsHeatCard,
     cost,
 }: HeatPaymentPopoverProps) {
     const player = useLoggedInPlayer();
     const playerHeat = useTypedSelector(state => player.resources[Resource.HEAT]);
     const [numStoredResource, setNumStoredResource] = useState(0);
-    const totalStoredResource = useStoredResourceAsCard.storedResourceAmount!;
-    const resource = useStoredResourceAsCard.storedResourceType!;
+    const totalStoredResource = useStoredResourcesAsHeatCard.storedResourceAmount!;
+    const resource = useStoredResourcesAsHeatCard.storedResourceType!;
 
     const numHeat = Math.min(playerHeat, Math.max(0, cost - calculateRunningTotalWithoutHeat()));
 
@@ -479,11 +479,14 @@ export function HeatPaymentPopover({
     // Ensure when cost changes the payment popover reflects the cost change
 
     function calculateRunningTotal() {
-        return numHeat + numStoredResource * (useStoredResourceAsCard.useStoredResourceAsHeat ?? 0);
+        return (
+            numHeat +
+            numStoredResource * (useStoredResourcesAsHeatCard.useStoredResourceAsHeat ?? 0)
+        );
     }
 
     function calculateRunningTotalWithoutHeat() {
-        return numStoredResource * (useStoredResourceAsCard.useStoredResourceAsHeat ?? 0);
+        return numStoredResource * (useStoredResourcesAsHeatCard.useStoredResourceAsHeat ?? 0);
     }
 
     const runningTotal = calculateRunningTotal();
@@ -518,7 +521,7 @@ export function HeatPaymentPopover({
                             handleDecrease={handleDecrease}
                             numMC={numHeat}
                             playerMoney={playerHeat}
-                            name={useStoredResourceAsCard.name}
+                            name={useStoredResourcesAsHeatCard.name}
                             disable={runningTotal > cost}
                         />
                     </div>

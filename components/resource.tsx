@@ -10,7 +10,7 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
-import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
+import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {SupplementalResources} from 'server/api-action-handler';
 import styled, {keyframes} from 'styled-components';
 import {HeatPaymentPopover} from './popovers/payment-popover';
@@ -204,10 +204,13 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                         );
 
                         if (resource === Resource.HEAT && canDoConversion && isLoggedInPlayer) {
-                            const useStoredResourceAsCard = getUseStoredResourcesAsCard(player);
-                            if (useStoredResourceAsCard) {
-                                const storedResource = useStoredResourceAsCard.storedResourceType;
-                                const quantity = useStoredResourceAsCard.storedResourceAmount;
+                            const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(
+                                player
+                            );
+                            if (useStoredResourcesAsHeatCard) {
+                                const storedResource =
+                                    useStoredResourcesAsHeatCard.storedResourceType;
+                                const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
                                 if (storedResource && quantity) {
                                     const heatCost = conversion?.removeResource[Resource.HEAT];
                                     handleOnClick = () => {};
@@ -215,10 +218,12 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                         <HeatPaymentPopover
                                             cost={heatCost as number}
                                             key={resource}
-                                            useStoredResourceAsCard={useStoredResourceAsCard}
+                                            useStoredResourcesAsHeatCard={
+                                                useStoredResourcesAsHeatCard
+                                            }
                                             onConfirmPayment={payment => {
                                                 doConversionWithSupplementalResources({
-                                                    name: useStoredResourceAsCard.name,
+                                                    name: useStoredResourcesAsHeatCard.name,
                                                     quantity: (payment[storedResource] ??
                                                         0) as number,
                                                 });
@@ -232,12 +237,12 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                                 >
                                                     <Box marginRight="2px">
                                                         {
-                                                            useStoredResourceAsCard.storedResourceAmount
+                                                            useStoredResourcesAsHeatCard.storedResourceAmount
                                                         }
                                                     </Box>
                                                     <div>
                                                         {getResourceSymbol(
-                                                            useStoredResourceAsCard.storedResourceType!
+                                                            useStoredResourcesAsHeatCard.storedResourceType!
                                                         )}
                                                     </div>
                                                 </Flex>

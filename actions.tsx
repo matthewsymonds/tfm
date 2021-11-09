@@ -2,8 +2,8 @@ import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
 import {Tag} from 'constants/tag';
-import {AnyAction} from 'redux';
 import {GameAction} from 'GameActionState';
+import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';

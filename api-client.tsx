@@ -58,11 +58,8 @@ export class ApiClient implements GameActionHandler {
     }: PlayCardAsyncParams): Promise<void> {
         const payload: PlayCardAsyncParams = {
             name,
+            payment,
         };
-
-        if (payment) {
-            payload.payment = payment;
-        }
 
         if (conditionalPayments) {
             payload.conditionalPayments = conditionalPayments;

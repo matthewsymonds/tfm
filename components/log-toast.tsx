@@ -46,7 +46,7 @@ export const LogToast = () => {
                 {logItems.map((entry, entryIndex) => (
                     <div key={`${entry}-${entryIndex}`}>
                         <LogEntry
-                            entry={entry}
+                            items={[entry]}
                             entryIndex={entryIndex}
                             players={players}
                             corporationNames={corporationNames}

@@ -91,7 +91,7 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
 
     return (
         <React.Fragment>
-            {amount !== undefined && <span>{amount}</span>}
+            {amount !== undefined && <span style={{marginRight: 2}}>{amount}</span>}
             <ResourceIconBase
                 color={getResourceColor(name)}
                 background={getResourceBackgroundColor(name)}

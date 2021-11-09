@@ -248,7 +248,7 @@ export class ApiActionHandler {
         supplementalResources,
     }: {
         serializedCard: SerializedCard;
-        payment?: Payment;
+        payment: Payment;
         conditionalPayments?: number[];
         supplementalResources?: SupplementalResources;
     }) {
@@ -280,7 +280,8 @@ export class ApiActionHandler {
         //    - This should account for discounts
         //    - This should account for non-MC payment, which is prompted by the UI
         //      and included in `payment`
-        //    - If no `payment` is defined, the reducer will defer to paying with MC
+        //    - If no `payment` is defined, the reducer will defer to paying with MC.
+        //      As of Nov 2021, `payment` should always be defined.
         if (typeof card.cost !== 'undefined') {
             this.queue.push(payToPlayCard(card, playerIndex, payment, conditionalPayments));
         }
@@ -755,7 +756,7 @@ export class ApiActionHandler {
                     throw new Error('Cannot play corporation');
                 }
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
-                this.playCard({serializedCard: corporation});
+                this.playCard({serializedCard: corporation, payment: {}});
                 this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
                 this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
                 this.queue.push(setPreludes(selectedPreludes, loggedInPlayerIndex));
@@ -1005,7 +1006,7 @@ export class ApiActionHandler {
 
         const tilePlacementBonus = getTilePlacementBonus(matchingCell);
         for (const bonus of tilePlacementBonus) {
-            this.queue.push(
+            this.queue.unshift(
                 this.createInitialGainResourceAction(
                     bonus.resource,
                     bonus.amount,
@@ -1025,7 +1026,7 @@ export class ApiActionHandler {
                 return cell.tile?.type === TileType.OCEAN;
             }).length * 2;
         if (megacreditIncreaseFromOceans) {
-            this.queue.push(
+            this.queue.unshift(
                 this.createInitialGainResourceAction(
                     Resource.MEGACREDIT,
                     megacreditIncreaseFromOceans,

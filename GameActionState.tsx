@@ -13,6 +13,9 @@ export enum GameActionType {
     TRADE = 'trade',
     SKIP = 'skip',
     PASS = 'pass',
+    GAME_UPDATE = 'gameUpdate', // e.g. "Generation 1, Turn 2"
+    PLAYER_RESOURCE_UPDATE = 'playerResourceUpdate', // e.g. "Helion now has 92 MC, 12 heat" etc.
+    GENERIC_PLAYER_EFFECT = 'genericPlayerEffect',
 }
 
 type SharedGameAction = {
@@ -22,7 +25,7 @@ type SharedGameAction = {
 export type GameActionPlayCard = SharedGameAction & {
     actionType: GameActionType.CARD;
     card: Card;
-    payment?: NumericPropertyCounter<Resource> | null;
+    payment: NumericPropertyCounter<Resource>;
 };
 
 export type GameActionPlayCardAction = SharedGameAction & {
@@ -35,19 +38,19 @@ export type GameActionPlayCardAction = SharedGameAction & {
 export type GameActionFundAward = SharedGameAction & {
     actionType: GameActionType.AWARD;
     award: Award;
-    payment?: NumericPropertyCounter<Resource> | null;
+    payment: NumericPropertyCounter<Resource>;
 };
 
 export type GameActionClaimMilestone = SharedGameAction & {
     actionType: GameActionType.MILESTONE;
     milestone: Milestone;
-    payment?: NumericPropertyCounter<Resource> | null;
+    payment: NumericPropertyCounter<Resource>;
 };
 
 export type GameActionStandardProject = SharedGameAction & {
     actionType: GameActionType.STANDARD_PROJECT;
     standardProject: StandardProjectType;
-    payment?: NumericPropertyCounter<Resource> | null;
+    payment: NumericPropertyCounter<Resource>;
 };
 
 export type GameActionTrade = SharedGameAction & {
@@ -64,6 +67,16 @@ export type GameActionPass = SharedGameAction & {
     actionType: GameActionType.PASS;
 };
 
+export type GameActionGameUpdate = {
+    actionType: GameActionType.GAME_UPDATE;
+    text: string;
+};
+
+export type GameActionPlayerResourceUpdate = SharedGameAction & {
+    actionType: GameActionType.PLAYER_RESOURCE_UPDATE;
+    resource: NumericPropertyCounter<Resource>;
+};
+
 export type GameAction =
     | GameActionPlayCard
     | GameActionPlayCardAction
@@ -73,4 +86,6 @@ export type GameAction =
     | GameActionTrade
     | GameActionSkip
     | GameActionPass
+    | GameActionGameUpdate
+    | GameActionPlayerResourceUpdate
     | string;

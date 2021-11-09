@@ -9,9 +9,11 @@ import {
     GameAction,
     GameActionClaimMilestone,
     GameActionFundAward,
+    GameActionGameUpdate,
     GameActionPass,
     GameActionPlayCard,
     GameActionPlayCardAction,
+    GameActionPlayerResourceUpdate,
     GameActionSkip,
     GameActionStandardProject,
     GameActionTrade,
@@ -118,6 +120,8 @@ export type SerializedGameAction =
     | GameActionTrade
     | GameActionSkip
     | GameActionPass
+    | GameActionGameUpdate
+    | GameActionPlayerResourceUpdate
     | string;
 
 export function deserializeGameAction(serializedGameAction: SerializedGameAction): GameAction {
@@ -137,6 +141,8 @@ export function deserializeGameAction(serializedGameAction: SerializedGameAction
         case GameActionType.TRADE:
         case GameActionType.PASS:
         case GameActionType.SKIP:
+        case GameActionType.GAME_UPDATE:
+        case GameActionType.PLAYER_RESOURCE_UPDATE:
             return {
                 ...serializedGameAction,
             };

@@ -1,24 +1,26 @@
 import {Box, Flex} from 'components/box';
+import {CardTextToken} from 'components/card/CardToken';
 import {PlayerCorpAndIcon} from 'components/icons/player';
+import {ResourceIcon} from 'components/icons/resource';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
+import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
-import {GlobalPopoverContext} from 'context/global-popover-context';
-import React, {useState, useEffect, useLayoutEffect, useRef} from 'react';
-import ScrollableFeed from 'react-scrollable-feed';
-import {PlayerState, useTypedSelector} from 'reducer';
-import styled from 'styled-components';
-import {BlankButton} from './blank-button';
-import {GameAction, GameActionType} from 'GameActionState';
-import spawnExhaustiveSwitchError from 'utils';
-import {CardTextToken} from 'components/card/CardToken';
-import {getGameAction} from 'selectors/get-game-action';
-import {SerializedGameAction} from 'state-serialization';
-import {ResourceIcon} from 'components/icons/resource';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
-import {CardType} from 'constants/card-types';
-import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
+import {StandardProjectType} from 'constants/standard-project';
+import {GameActionType} from 'GameActionState';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
+import ScrollableFeed from 'react-scrollable-feed';
+import {PlayerState, useTypedSelector} from 'reducer';
+import {getGameAction} from 'selectors/get-game-action';
+import {SerializedGameAction} from 'state-serialization';
+import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
+import {BlankButton} from './blank-button';
+import {getTextForAward} from './board/board-actions/awards';
+import {getTextForMilestone} from './board/board-actions/milestones';
+import {getLogTextForStandardProject} from './board/board-actions/standard-projects';
 
 export const ActionLog = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -82,16 +84,32 @@ const LogPanel = () => {
     if (isCorporationSelection) {
         return null;
     }
+
+    const bucketedEntries: Array<Array<SerializedGameAction>> = [];
+    let currentBucket: Array<SerializedGameAction> = [];
+    log.forEach(entry => {
+        if (
+            typeof entry === 'string' ||
+            entry.actionType === GameActionType.PLAYER_RESOURCE_UPDATE
+        ) {
+            currentBucket.push(entry);
+        } else {
+            bucketedEntries.push(currentBucket);
+            currentBucket = [entry];
+        }
+    });
+    bucketedEntries.push(currentBucket);
+
     return (
         <LogPanelBase>
             <ScrollableFeed>
-                {log.map((entry, entryIndex) => (
+                {bucketedEntries.map((items, entryIndex) => (
                     <LogEntry
-                        entry={entry}
+                        items={items}
                         entryIndex={entryIndex}
                         players={players}
                         corporationNames={corporationNames}
-                        key={`${entry}-${entryIndex}`}
+                        key={`log-${entryIndex}`}
                     />
                 ))}
             </ScrollableFeed>
@@ -100,178 +118,323 @@ const LogPanel = () => {
 };
 
 const LogEntryInner = ({
-    entry,
+    items,
     entryIndex,
     players,
     corporationNames,
 }: {
-    entry: SerializedGameAction;
+    items: Array<SerializedGameAction>;
     entryIndex: number;
     players: PlayerState[];
     corporationNames: string[];
 }) => {
-    let innerElement: React.ReactNode;
-    const gameAction = getGameAction(entry);
+    const innerElements: Array<React.ReactNode> = [];
+    const gameActions = items.map(getGameAction);
 
-    let isTopLevelItem = false;
-    if (
-        typeof gameAction !== 'string' ||
-        gameAction.startsWith('Generation') ||
-        gameAction.startsWith('Production') ||
-        gameAction.indexOf('passed') !== -1
-    ) {
-        isTopLevelItem = true;
-    }
-
-    if (typeof gameAction === 'string') {
-        // OLD STYLE
-        const elements: Array<React.ReactNode> = [gameAction];
-        corporationNames.forEach((corpName, index) => {
-            let i = 0;
-            let key = 0;
-            while (i < elements.length) {
-                const stringOrElement = elements[i];
-                if (typeof stringOrElement !== 'string') {
-                    i++;
-                    continue;
-                } else {
-                    if (stringOrElement.indexOf(corpName) === -1) {
+    gameActions.forEach((gameAction, index) => {
+        if (typeof gameAction === 'string') {
+            // OLD STYLE
+            const elements: Array<React.ReactNode> = [gameAction];
+            corporationNames.forEach((corpName, index) => {
+                let i = 0;
+                let key = 0;
+                while (i < elements.length) {
+                    const stringOrElement = elements[i];
+                    if (typeof stringOrElement !== 'string') {
                         i++;
                         continue;
                     } else {
-                        elements.splice(
-                            i,
-                            1,
-                            stringOrElement.substring(0, stringOrElement.indexOf(corpName))
-                        );
-                        i++;
-                        elements.splice(
-                            i,
-                            0,
-                            <PlayerCorpAndIcon
-                                key={entryIndex + corpName + key++}
-                                player={players[index]}
-                                isInline={true}
-                            />
-                        );
-                        i++;
-                        elements.splice(
-                            i,
-                            0,
-                            stringOrElement.substring(
-                                stringOrElement.indexOf(corpName) + corpName.length
-                            )
-                        );
-                        i++;
-                        continue;
+                        if (stringOrElement.indexOf(corpName) === -1) {
+                            i++;
+                            continue;
+                        } else {
+                            elements.splice(
+                                i,
+                                1,
+                                stringOrElement.substring(0, stringOrElement.indexOf(corpName))
+                            );
+                            i++;
+                            elements.splice(
+                                i,
+                                0,
+                                <PlayerCorpAndIcon
+                                    key={entryIndex + corpName + key++}
+                                    player={players[index]}
+                                    isInline={true}
+                                />
+                            );
+                            i++;
+                            elements.splice(
+                                i,
+                                0,
+                                stringOrElement.substring(
+                                    stringOrElement.indexOf(corpName) + corpName.length
+                                )
+                            );
+                            i++;
+                            continue;
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        const style = isTopLevelItem ? null : {marginLeft: 30, fontSize: '0.8em', opacity: 0.85};
-        innerElement = (
-            <Box display="inline" style={style}>
-                {elements.map((el, index) => {
-                    if (typeof el === 'string') {
-                        return <span key={index}>{el}</span>;
+            innerElements.push(
+                <Box display="inline" key={innerElements.length}>
+                    {elements.map((el, index) => {
+                        if (typeof el === 'string') {
+                            return <span key={index}>{el}</span>;
+                        }
+                        return <React.Fragment key={index}>{el}</React.Fragment>;
+                    })}
+                </Box>
+            );
+        } else {
+            // new style
+            switch (gameAction.actionType) {
+                case GameActionType.CARD: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {card, payment} = gameAction;
+                    const isFree = Object.values(payment).reduce((a, b) => a + b, 0) === 0;
+
+                    if (card.type === CardType.CORPORATION) {
+                        innerElements.push(
+                            <Box display="inline">
+                                <span>{player.username} selected </span>
+                                <CardTextToken card={gameAction.card} margin="0px" />
+                            </Box>
+                        );
+                    } else {
+                        innerElements.push(
+                            <Flex display="inline-flex" alignItems="center">
+                                <PlayerCorpAndIcon player={player} isInline />
+                                {isFree ? (
+                                    <span style={{marginLeft: 4, marginRight: 4}}>played</span>
+                                ) : (
+                                    <React.Fragment>
+                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <PaymentIconography payment={payment} />
+                                        <span style={{marginLeft: 4, marginRight: 4}}>to play</span>
+                                    </React.Fragment>
+                                )}
+                                <CardTextToken card={card} margin="0px" />
+                                {isFree && <span style={{marginLeft: 4}}>for free</span>}
+                            </Flex>
+                        );
                     }
-                    return el;
-                })}
-            </Box>
-        );
-    } else {
-        // new style
-        const player = players.find(p => p.index === gameAction.playerIndex);
-        if (!player) throw new Error('unknown player');
-        switch (gameAction.actionType) {
-            case GameActionType.CARD: {
-                const {card} = gameAction;
-                const payment = gameAction.payment ?? {};
-                const cardCost = getDiscountedCardCost(card, player);
-                // If payment is omitted, they must've payed in MC.
-                // TODO: Make payment not optional; it makes life easier
-                if (cardCost > 0 && Object.keys(payment).length === 0) {
-                    payment[Resource.MEGACREDIT] = cardCost;
+                    break;
                 }
+                case GameActionType.CARD_ACTION: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {card} = gameAction;
+                    const payment = gameAction.payment ?? {};
 
-                if (card.type === CardType.CORPORATION) {
-                    innerElement = (
-                        <Box display="inline">
-                            <span>{player.username} selected </span>
-                            <CardTextToken card={gameAction.card} margin="0px" />
-                        </Box>
-                    );
-                } else {
-                    innerElement = (
+                    innerElements.push(
                         <Flex display="inline-flex" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
-                            {cardCost === 0 ? (
-                                <span style={{marginLeft: 4, marginRight: 4}}>played</span>
-                            ) : (
-                                <React.Fragment>
-                                    <span style={{marginLeft: 4, marginRight: 4}}> paid </span>
-                                    <PaymentIconography payment={payment} />
-                                    <span style={{marginLeft: 4, marginRight: 4}}> to play </span>
-                                </React.Fragment>
-                            )}
-                            <CardTextToken card={card} margin="0px" />
+                            <React.Fragment>
+                                {Object.keys(payment).length > 0 ? (
+                                    <React.Fragment>
+                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <PaymentIconography payment={payment} />
+                                        <span style={{marginLeft: 4, marginRight: 4}}>to play</span>
+                                    </React.Fragment>
+                                ) : (
+                                    <span style={{marginLeft: 4, marginRight: 4}}>played</span>
+                                )}
+                                <CardTextToken card={card} margin="0px" />
+                                <span style={{marginLeft: 4}}>'s action</span>
+                            </React.Fragment>
                         </Flex>
                     );
+                    break;
                 }
-                break;
-            }
-            case GameActionType.CARD_ACTION: {
-                const {card} = gameAction;
+                case GameActionType.AWARD: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {award, payment} = gameAction;
 
-                innerElement = (
-                    <Flex display="inline-flex" alignItems="center">
-                        <PlayerCorpAndIcon player={player} isInline />
-                        <React.Fragment>
-                            <span style={{marginLeft: 4, marginRight: 4}}> played </span>
-                            <CardTextToken card={card} margin="0px" />
-                            <span style={{marginRight: 4}}>'s action</span>
-                        </React.Fragment>
-                    </Flex>
-                );
-                break;
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <React.Fragment>
+                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <PaymentIconography payment={payment} />
+                                <span style={{marginLeft: 4}}>
+                                    to fund {getTextForAward(award)}
+                                </span>
+                            </React.Fragment>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.MILESTONE: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {milestone, payment} = gameAction;
+
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <React.Fragment>
+                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <PaymentIconography payment={payment} />
+                                <span style={{marginLeft: 4}}>
+                                    to claim {getTextForMilestone(milestone)}
+                                </span>
+                            </React.Fragment>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.STANDARD_PROJECT: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {standardProject, payment} = gameAction;
+
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <React.Fragment>
+                                {standardProject !== StandardProjectType.SELL_PATENTS && (
+                                    <React.Fragment>
+                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <PaymentIconography payment={payment} />
+                                        <span style={{marginLeft: 4, marginRight: 4}}>to</span>
+                                    </React.Fragment>
+                                )}
+                                {getLogTextForStandardProject(standardProject)}
+                            </React.Fragment>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.TRADE: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {colonyName, payment} = gameAction;
+
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <React.Fragment>
+                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <PaymentIconography payment={payment} />
+                                <span style={{marginLeft: 4, marginRight: 4}}>
+                                    to trade with {colonyName}
+                                </span>
+                            </React.Fragment>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.PASS: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <span style={{marginLeft: 4, marginRight: 4}}>
+                                passed for this generation
+                            </span>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.SKIP: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <span style={{marginLeft: 4, marginRight: 4}}>
+                                skipped their 2nd action
+                            </span>
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.GAME_UPDATE: {
+                    innerElements.push(
+                        <Flex
+                            display="inline-flex"
+                            alignItems="center"
+                            className="display"
+                            style={{fontSize: '1rem'}}
+                        >
+                            {gameAction.text}
+                        </Flex>
+                    );
+                    break;
+                }
+                case GameActionType.PLAYER_RESOURCE_UPDATE: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    innerElements.push(
+                        <Flex display="inline-flex" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <span style={{marginLeft: 4, marginRight: 4}}>now has</span>
+                            {Object.keys(gameAction.resource).map(resource => {
+                                return (
+                                    <span
+                                        key={resource}
+                                        style={{
+                                            display: 'inline-flex',
+                                            marginRight: 8,
+                                            alignItems: 'center',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        <ResourceIcon
+                                            amount={gameAction.resource[resource]}
+                                            name={resource as Resource}
+                                            margin="0 0 0 2px"
+                                        />
+                                    </span>
+                                );
+                            })}
+                        </Flex>
+                    );
+                    break;
+                }
+                default:
+                    throw spawnExhaustiveSwitchError(gameAction);
             }
-            case GameActionType.AWARD:
-            case GameActionType.MILESTONE:
-            case GameActionType.STANDARD_PROJECT:
-            case GameActionType.TRADE:
-            case GameActionType.PASS:
-            case GameActionType.SKIP:
-                break;
-            default:
-                throw spawnExhaustiveSwitchError(gameAction);
         }
-    }
+    });
 
     return (
-        <Box key={`Log-entry-${entryIndex}`} padding="8px">
-            {innerElement}
+        <Box key={`Log-entry-${entryIndex}`} padding="8px" fontSize="0.8rem">
+            {innerElements.map((innerElement, index) =>
+                index === 0 ? (
+                    <React.Fragment key={index}>{innerElement}</React.Fragment>
+                ) : (
+                    <Box margin="8px 30px 0" key={index}>
+                        {innerElement}
+                    </Box>
+                )
+            )}
         </Box>
     );
 };
 
 export const LogEntry = React.memo(LogEntryInner, logPropsAreEqual);
 
-function logPropsAreEqual() {
-    return true;
+function logPropsAreEqual(props1, props2) {
+    return props1?.items && props1?.items?.length === props2?.items?.length;
 }
 
 function PaymentIconography({payment}: {payment: NumericPropertyCounter<Resource>}) {
-    console.log('yo', Object.entries(payment));
     return (
         <React.Fragment>
             {Object.entries(payment)
                 .filter(([, amount]) => amount > 0)
                 .map(([resource, amount], index) => {
                     return (
-                        <React.Fragment>
+                        <React.Fragment key={index}>
                             {index > 0 && <span style={{marginLeft: 4, marginRight: 4}}> + </span>}
-                            <ResourceIcon name={resource as Resource} amount={amount} />
+                            <ResourceIcon name={resource as Resource} amount={amount} size={16} />
                         </React.Fragment>
                     );
                 })}

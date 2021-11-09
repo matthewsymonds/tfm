@@ -26,7 +26,7 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {PlayerState} from 'reducer';
-import {getUseStoredResourcesAsCard} from 'selectors/get-stored-resources-as-card';
+import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
@@ -407,18 +407,18 @@ function ActionContainer({
     const heatCost = action?.removeResource?.[Resource.HEAT];
 
     if (canPlay && isOwnedByLoggedInPlayer && playedCard && heatCost) {
-        const useStoredResourceAsCard = getUseStoredResourcesAsCard(loggedInPlayer);
-        if (useStoredResourceAsCard) {
-            const resource = useStoredResourceAsCard.storedResourceType;
-            const quantity = useStoredResourceAsCard.storedResourceAmount;
+        const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(loggedInPlayer);
+        if (useStoredResourcesAsHeatCard) {
+            const resource = useStoredResourcesAsHeatCard.storedResourceType;
+            const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
             if (resource && quantity) {
                 return (
                     <HeatPaymentPopover
                         cost={heatCost as number}
-                        useStoredResourceAsCard={useStoredResourceAsCard}
+                        useStoredResourcesAsHeatCard={useStoredResourcesAsHeatCard}
                         onConfirmPayment={payment =>
                             playActionWithSupplementalResources(action, {
-                                name: useStoredResourceAsCard.name,
+                                name: useStoredResourcesAsHeatCard.name,
                                 quantity: (payment[resource] ?? 0) as number,
                             })
                         }

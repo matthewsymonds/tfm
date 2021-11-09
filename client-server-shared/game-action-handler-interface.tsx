@@ -9,7 +9,7 @@ import {SerializedCard} from 'state-serialization';
 
 export type PlayCardAsyncParams = {
     name: string;
-    payment?: PropertyCounter<Resource>;
+    payment: PropertyCounter<Resource>;
     conditionalPayments?: number[];
     supplementalResources?: SupplementalResources;
 };

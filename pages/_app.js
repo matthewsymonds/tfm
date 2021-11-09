@@ -216,12 +216,6 @@ export const GlobalStyles = createGlobalStyle`
             margin-right: 5%;
         }
 
-
-        .titanium-icon {
-            margin-left: 1px;
-            margin-top: 1px;
-        }
-
         .heat-icon {
             margin-right: 2px;
             margin-bottom: 1px;

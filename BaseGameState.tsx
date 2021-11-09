@@ -1,7 +1,6 @@
 import {BaseCommonState} from 'BaseCommonState';
 import {BasePlayerState} from 'BasePlayerState';
 import {GameAction} from 'GameActionState';
-
 import {GameOptions} from 'reducer';
 
 export type BaseGameState = {
