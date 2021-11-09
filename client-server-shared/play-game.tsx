@@ -15,7 +15,7 @@ export function playGame(
     actionHandler: ApiActionHandler,
     stateHydrator: StateHydrator,
     originalState: GameState,
-    stateCheckpoint?: GameState
+    stateCheckpoint?: string
 ) {
     let card: Card;
     switch (type) {
@@ -125,7 +125,10 @@ export function playGame(
             actionHandler.completeChooseNextAction(payload);
             break;
         case ApiActionType.API_START_OVER:
-            actionHandler.startOver(stateCheckpoint);
+            if (!stateCheckpoint) {
+                return;
+            }
+            actionHandler.startOver(JSON.parse(stateCheckpoint) as GameState);
             break;
         default:
             throw spawnExhaustiveSwitchError(type);

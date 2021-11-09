@@ -49,7 +49,9 @@ export default async (req, res) => {
             game.state.actionCount !== actionCount &&
             game.state.common.gameStage === GameStage.ACTIVE_ROUND
         ) {
-            res.json({error: 'Client out of sync with server.'});
+            res.json({
+                state: censorGameState(game.state, username),
+            });
             purgeLock(lock, username, game.name);
             return;
         }
@@ -78,9 +80,12 @@ export default async (req, res) => {
         game.lastSeenLogItem ||= [];
         game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
         game.markModified('lastSeenLogItem');
-        if (actionHandler.setStateCheckpoint) {
-            game.stateCheckpoint = originalState;
-            game.markModified('stateCheckpoint');
+        if (
+            actionHandler.setStateCheckpoint ||
+            originalState.common.gameStage !== game.state.common.gameStage
+        ) {
+            game.stateCheckpoint = JSON.stringify(originalState);
+            game.markModified('stateCheckpoint.actionCount');
         }
         await game.save({validateBeforeSave: false});
         purgeLock(lock, username, game.name);

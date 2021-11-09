@@ -1104,5 +1104,20 @@ export function canPlayActionInSpiteOfUI(
         return [false, 'Cannot trade with any colony right now'];
     }
 
+    if (action.steps) {
+        for (const step of action.steps) {
+            const [canPlay, reason] = canPlayActionInSpiteOfUI(
+                step,
+                state,
+                player,
+                parent,
+                supplementalResources
+            );
+            if (!canPlay) {
+                return [canPlay, reason];
+            }
+        }
+    }
+
     return [true, 'Good to go'];
 }

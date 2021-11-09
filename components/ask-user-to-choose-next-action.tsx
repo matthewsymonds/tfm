@@ -108,7 +108,11 @@ function createActionIcon(action: AnyAction) {
     } else if (askUserToLookAtCards.match(action)) {
         return <LookAtCards text={action.payload.text ?? 'Look at cards'} />;
     } else if (askUserToDiscardCards.match(action)) {
-        return null;
+        return (
+            <BaseActionIconography
+                card={{removeResource: {[Resource.CARD]: action.payload.amount}}}
+            />
+        );
     } else if (askUserToMakeActionChoice.match(action)) {
         return (
             <>
@@ -198,7 +202,7 @@ export function canPlayActionNext(
         const player = state.players[sourcePlayerIndex];
         return amount <= player.resources[resource];
     } else if (addActionToPlay.match(action)) {
-        return actionGuard.canPlayActionInSpiteOfUI(action.payload.action, state);
+        return actionGuard.canPlayActionInSpiteOfUI(action.payload.action, state)[0];
     } else if (askUserToPlaceTile.match(action)) {
         return state.common.board
             .flat()
@@ -256,6 +260,8 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
 
     const hasUnpaidActions = hasUnpaidResources(unusedActions, state, player);
 
+    let hasDisabledAction = false;
+
     const playerIndices = useTypedSelector(state =>
         state.players.map(player => player.index)
     ).filter(playerIndex => unusedActions.some(action => getPlayerIndex(action) === playerIndex));
@@ -279,6 +285,10 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
                 hasUnpaidActions,
                 actionGuard
             );
+
+            if (!canPlayAction) {
+                hasDisabledAction = true;
+            }
 
             let element = (
                 <button
@@ -338,7 +348,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
             <h3>{isLoggedInPlayersTurn ? 'Please choose the next effect:' : 'Please wait...'}</h3>
             <Box height="fit-content" alignItems="center" width="100%" flexWrap="wrap">
                 {playerElements}
-                {hasUnpaidActions ? (
+                {hasDisabledAction ? (
                     <div>
                         ...or, you may{' '}
                         <button onClick={() => handleStartOver(apiClient)}>start over</button>

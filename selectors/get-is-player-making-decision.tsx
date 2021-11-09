@@ -5,7 +5,10 @@ export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: Play
     try {
         return (
             getIsPlayerMakingDecisionExceptForNextActionChoice(state, loggedInPlayer) ||
-            !!loggedInPlayer.pendingNextActionChoice
+            !!loggedInPlayer.pendingNextActionChoice ||
+            ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
+                state.common.currentPlayerIndex === loggedInPlayer.index &&
+                state.common.gameStage === GameStage.ACTIVE_ROUND)
         );
     } catch (error) {
         return false;
@@ -32,9 +35,6 @@ export function getIsPlayerMakingDecisionExceptForNextActionChoice(
             loggedInPlayer.increaseAndDecreaseColonyTileTracks ||
             loggedInPlayer.tradeForFree ||
             loggedInPlayer.putAdditionalColonyTileIntoPlay ||
-            ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
-                state.common.currentPlayerIndex === loggedInPlayer.index &&
-                state.common.gameStage === GameStage.ACTIVE_ROUND) ||
             state.common.gameStage === GameStage.END_OF_GAME ||
             loggedInPlayer.pendingDiscard;
 

@@ -90,7 +90,7 @@ import {getLowestProductions} from 'components/ask-user-to-increase-lowest-produ
 import {
     Action,
     ActionType,
-    ActionWithSteps,
+    ActionWithoutSteps,
     Amount,
     ParameterCounter,
     Payment,
@@ -154,7 +154,7 @@ export interface EffectEvent {
 export type SupplementalResources = {name: string; quantity: number};
 
 export type PlayActionParams = {
-    action: Action;
+    action: ActionWithoutSteps;
     state: GameState;
     parent?: Card; // origin of action
     playedCard?: Card; // card that triggered action
@@ -310,7 +310,7 @@ export class ApiActionHandler {
         //     - gaining/losing/stealing resources & production
         //     - tile pacements
         //     - discarding/drawing cards
-        this.playActionSteps(card, card, supplementalResources);
+        this.playActionSteps(card);
 
         const playActionParams = {
             action: card,
@@ -393,29 +393,44 @@ export class ApiActionHandler {
                     thisPlayerIndex: thisPlayer.index,
                     withPriority: !!event.placedTile,
                 });
-                this.playActionSteps(action, card);
+                this.playActionSteps(action);
             }
         }
     }
 
     private shouldMakeUserChooseNextAction(items: AnyAction[]): boolean {
+        items = items.filter(Boolean);
         if (items.length < 2) {
             return false;
         }
 
         const player = this.getLoggedInPlayer();
 
-        items = items.filter(Boolean);
+        const actions: Action[][] = items
+            .map<Action[]>(item => {
+                if (!addActionToPlay.match(item)) {
+                    return [];
+                }
 
-        if (
-            items.filter(
-                item =>
-                    this.shouldPause(item) ||
-                    (gainResource.match(item) && item.payload.resource === Resource.CARD) ||
-                    (addActionToPlay.match(item) &&
-                        item.payload.action?.gainResource?.[Resource.CARD])
-            ).length > 1
-        ) {
+                const {action} = item.payload;
+
+                return [action, ...(action?.steps ?? [])];
+            })
+            .filter(actions =>
+                actions.some(
+                    action =>
+                        action?.gainResource?.[Resource.CARD] ||
+                        action?.removeResource?.[Resource.CARD]
+                )
+            );
+
+        const choiceItems = items.filter(
+            item =>
+                this.shouldPause(item) ||
+                (gainResource.match(item) && item.payload.resource === Resource.CARD)
+        );
+
+        if (choiceItems.length + actions.length > 1) {
             return true;
         }
 
@@ -437,12 +452,22 @@ export class ApiActionHandler {
 
     setStateCheckpoint = false;
 
-    private processQueue(items = this.queue, processingExistingItems = false) {
+    private processQueue(
+        items = this.queue,
+        processingExistingItems = false,
+        overrideShouldMakeNextChoice = false
+    ) {
         const currentPlayerIndex = this.state.common.currentPlayerIndex;
-        const shouldMakeNextChoice = this.shouldMakeUserChooseNextAction(items);
+        const shouldMakeNextChoice =
+            !overrideShouldMakeNextChoice && this.shouldMakeUserChooseNextAction(items);
         if (shouldMakeNextChoice) {
             if (processingExistingItems) {
                 return;
+            }
+            const currentPlayer = this.state.players[currentPlayerIndex];
+            const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
+            if (existingItems.filter(Boolean).length === 0 && items.length > 0) {
+                this.setStateCheckpoint = true;
             }
             this.dispatch(askUserToChooseNextAction(items, currentPlayerIndex));
             // Don't double count the queue items next time around...
@@ -455,13 +480,10 @@ export class ApiActionHandler {
                 if (!item) continue;
                 if (addActionToPlay.match(item)) {
                     const {action, reverseOrder, playerIndex} = item.payload;
-                    this.playAction(
-                        {
-                            action: action,
-                            thisPlayerIndex: playerIndex,
-                            state: this.state,
-                            reverseOrder: reverseOrder,
-                        },
+                    this.handlePlayActionFromAddActionToPlay(
+                        action,
+                        reverseOrder,
+                        playerIndex,
                         newItems
                     );
                 } else {
@@ -478,7 +500,10 @@ export class ApiActionHandler {
                 }
                 thisPlayerIndex = getPlayerIndex(item);
                 this.dispatch(item);
-                if (item.payload.playerIndex !== this.loggedInPlayerIndex) {
+                if (thisPlayerIndex !== this.loggedInPlayerIndex) {
+                    this.setStateCheckpoint = true;
+                }
+                if (completeAction.match(item)) {
                     this.setStateCheckpoint = true;
                 }
                 if (gainResource.match(item) && item.payload.resource === Resource.CARD) {
@@ -501,6 +526,7 @@ export class ApiActionHandler {
                 this.processQueue(existingItems, true);
             } else if (processingExistingItems) {
                 this.dispatch(clearPendingActionChoice(currentPlayer.index));
+
                 this.setStateCheckpoint = true;
                 this.queue = items;
             }
@@ -1215,12 +1241,11 @@ export class ApiActionHandler {
         }
         this.dispatch(completeChooseNextAction(actionIndex, player.index));
         if (addActionToPlay.match(action)) {
-            this.playAction({
-                action: action.payload.action,
-                state: this.state,
-                reverseOrder: action.payload.reverseOrder ?? false,
-                thisPlayerIndex: action.payload.playerIndex,
-            });
+            this.handlePlayActionFromAddActionToPlay(
+                action.payload.action,
+                action.payload.reverseOrder ?? false,
+                action.payload.playerIndex
+            );
         } else if (removeResource.match(action)) {
             if (
                 player.corporation.name === 'Helion' &&
@@ -1255,7 +1280,7 @@ export class ApiActionHandler {
         } else {
             this.queue.push(action);
         }
-        this.processQueue();
+        this.processQueue(this.queue, false, true);
     }
 
     startOver(checkpoint?: GameState) {
@@ -1738,7 +1763,6 @@ export class ApiActionHandler {
             );
             return;
         }
-        const loggedInPlayerIndex = this.getLoggedInPlayerIndex();
         let items: AnyAction[] = [];
         this.discardCards(playActionParams, items);
         this.playActionCosts(playActionParams, items);
@@ -1751,6 +1775,36 @@ export class ApiActionHandler {
         } else {
             queue.push(...items);
         }
+    }
+
+    private handlePlayActionFromAddActionToPlay(
+        action: Action,
+        reverseOrder: boolean,
+        thisPlayerIndex: number,
+        items: AnyAction[] = this.queue
+    ) {
+        const steps = action?.steps ?? [];
+        const {state} = this;
+        for (const step of steps) {
+            this.playAction(
+                {
+                    action: step,
+                    thisPlayerIndex,
+                    state,
+                    reverseOrder,
+                },
+                items
+            );
+        }
+        this.playAction(
+            {
+                action,
+                thisPlayerIndex,
+                state,
+                reverseOrder,
+            },
+            items
+        );
     }
 
     private createDecreaseProductionAction(
@@ -1994,19 +2048,12 @@ export class ApiActionHandler {
         return PAUSE_ACTIONS.includes(action.type);
     }
 
-    private playActionSteps(
-        action: ActionWithSteps,
-        parent?: Card,
-        supplementalResources?: SupplementalResources
-    ) {
-        for (const step of action.steps ?? []) {
-            this.playAction({
-                state: this.state,
-                action: step,
-                parent,
-                supplementalResources,
-                groupEffects: true,
-            });
+    private playActionSteps(action: Action) {
+        const steps = action?.steps ?? [];
+        if (steps.length > 0) {
+            this.queue.push(
+                addActionToPlay({steps}, /* reverseOrder = */ false, this.loggedInPlayerIndex)
+            );
         }
     }
 }
@@ -2175,6 +2222,19 @@ export function getTotalResourcesOwed(
                     action.payload.supplementalResources
                 );
             }
+        } else if (addActionToPlay.match(action)) {
+            const actions = [action.payload.action, ...(action.payload.action?.steps ?? [])];
+            for (const action of actions) {
+                const resources = action?.removeResource ?? {};
+                for (const resource in resources) {
+                    totalResourceOwed[resource] ||= 0;
+                    totalResourceOwed[resource]! += convertAmountToNumber(
+                        resources[resource],
+                        state,
+                        player
+                    );
+                }
+            }
         }
     }
     return totalResourceOwed;
@@ -2202,7 +2262,12 @@ export function hasUnpaidResources(items: AnyAction[], state: GameState, player:
     const totalProductionDecreased = getTotalProductionDecreased(items, state);
 
     for (const resource in totalResourceOwed) {
-        if (player.resources[resource] < totalResourceOwed[resource]) {
+        const amount = totalResourceOwed[resource];
+        if (resource === Resource.CARD) {
+            if (player.cards.length < amount) {
+                return true;
+            }
+        } else if (player.resources[resource] < amount) {
             // Sum of negative resource effects exceeds this player's resources.
             return true;
         }
@@ -2220,4 +2285,4 @@ export function hasUnpaidResources(items: AnyAction[], state: GameState, player:
     return false;
 }
 
-export type ActionCardPair = [ActionWithSteps, Card];
+export type ActionCardPair = [Action, Card];

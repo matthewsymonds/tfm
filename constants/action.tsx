@@ -50,7 +50,7 @@ export type PlayCardParams = {
     discount?: number;
 };
 
-export interface Action {
+export interface ActionWithoutSteps {
     text?: string;
     cost?: number;
     actionType?: ActionType; // should be required
@@ -122,6 +122,6 @@ export interface Action {
     increaseStoredResourceAmount?: number;
 }
 
-export interface ActionWithSteps extends Action {
-    steps?: Action[];
+export interface Action extends ActionWithoutSteps {
+    steps?: ActionWithoutSteps[];
 }
