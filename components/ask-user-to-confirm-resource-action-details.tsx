@@ -425,6 +425,20 @@ function getOptionsForStorableResource(
     });
 }
 
+function getVerb(actionType: ResourceActionType, locationName?: string): string {
+    if (locationName && actionType === 'gainResource') {
+        return 'Add';
+    }
+
+    return {
+        gainResource: 'Gain',
+        removeResource: 'Remove',
+        stealResource: 'Steal',
+        increaseProduction: 'Increase',
+        decreaseProduction: 'Decrease',
+    }[actionType];
+}
+
 function formatText({
     quantity,
     resource,
@@ -440,13 +454,7 @@ function formatText({
 
     const locationAppendix = locationName ? `${modifier} ${locationName}` : '';
 
-    const verb = {
-        gainResource: 'Add',
-        removeResource: 'Remove',
-        stealResource: 'Steal',
-        increaseProduction: 'Increase',
-        decreaseProduction: 'Decrease',
-    }[actionType];
+    const verb = getVerb(actionType, locationName);
 
     return (
         <Flex alignItems="center" key={`${quantity}-${resource}-${actionType}-${locationName}`}>

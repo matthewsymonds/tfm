@@ -334,14 +334,14 @@ function ResourcePlacementBonus({
                 )
                     .fill(null)
                     .map((_, index) => (
-                        <Box
+                        <Flex
                             key={resource + index}
                             transform={`rotate(180deg) ${
                                 stagger ? ` translateY(${(-1 + 2 * index) * 24}%)` : ''
                             }`}
                         >
                             <ResourceIcon name={resource} size={13} />
-                        </Box>
+                        </Flex>
                     ))
             )}
         </>
