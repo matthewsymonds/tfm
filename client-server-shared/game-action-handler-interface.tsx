@@ -1,6 +1,6 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
-import {Award, Cell, Milestone, Tile} from 'constants/board';
+import {Award, Cell, Milestone} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -97,8 +97,8 @@ export interface GameActionHandler {
         numHeat,
         tradeIncome,
     }: {
-        payment: Resource;
         colony: string;
+        payment: Resource;
         tradeIncome: number;
         numHeat?: number;
     }): Promise<void>;

@@ -22,32 +22,32 @@ type SharedGameAction = {
 export type GameActionPlayCard = SharedGameAction & {
     actionType: GameActionType.CARD;
     card: Card;
-    payment?: NumericPropertyCounter<Resource>;
+    payment?: NumericPropertyCounter<Resource> | null;
 };
 
 export type GameActionPlayCardAction = SharedGameAction & {
     actionType: GameActionType.CARD_ACTION;
     card: Card;
-    payment?: NumericPropertyCounter<Resource>;
+    payment?: NumericPropertyCounter<Resource> | null;
     choiceIndex?: number;
 };
 
 export type GameActionFundAward = SharedGameAction & {
     actionType: GameActionType.AWARD;
     award: Award;
-    payment?: NumericPropertyCounter<Resource>;
+    payment?: NumericPropertyCounter<Resource> | null;
 };
 
 export type GameActionClaimMilestone = SharedGameAction & {
     actionType: GameActionType.MILESTONE;
     milestone: Milestone;
-    payment?: NumericPropertyCounter<Resource>;
+    payment?: NumericPropertyCounter<Resource> | null;
 };
 
 export type GameActionStandardProject = SharedGameAction & {
     actionType: GameActionType.STANDARD_PROJECT;
     standardProject: StandardProjectType;
-    payment?: NumericPropertyCounter<Resource>;
+    payment?: NumericPropertyCounter<Resource> | null;
 };
 
 export type GameActionTrade = SharedGameAction & {

@@ -187,11 +187,10 @@ const LogEntryInner = ({
         switch (gameAction.actionType) {
             case GameActionType.CARD: {
                 const {card} = gameAction;
-                const payment =
-                    gameAction.payment === null || gameAction.payment === undefined
-                        ? {}
-                        : gameAction.payment;
+                const payment = gameAction.payment ?? {};
                 const cardCost = getDiscountedCardCost(card, player);
+                // If payment is omitted, they must've payed in MC.
+                // TODO: Make payment not optional; it makes life easier
                 if (cardCost > 0 && Object.keys(payment).length === 0) {
                     payment[Resource.MEGACREDIT] = cardCost;
                 }
@@ -220,6 +219,7 @@ const LogEntryInner = ({
                         </Flex>
                     );
                 }
+                break;
             }
             case GameActionType.CARD_ACTION: {
                 const {card} = gameAction;
@@ -234,6 +234,7 @@ const LogEntryInner = ({
                         </React.Fragment>
                     </Flex>
                 );
+                break;
             }
             case GameActionType.AWARD:
             case GameActionType.MILESTONE:
