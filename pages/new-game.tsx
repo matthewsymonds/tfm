@@ -1,6 +1,7 @@
 import {setGame} from 'actions';
 import {makePostCall} from 'api-calls';
 import {Box, Flex} from 'components/box';
+import {checkSession} from 'components/check-session';
 import {Input, SubmitInput} from 'components/input';
 import {Deck} from 'constants/card-types';
 import {useInput} from 'hooks/use-input';
@@ -189,3 +190,5 @@ export default function NewGame(props) {
         </div>
     );
 }
+
+NewGame.getInitialProps = checkSession;

@@ -62,9 +62,10 @@ export const applyOperation = (operation: Operation) => (...operands: Amount[]) 
     operands,
 });
 export const max = applyOperation(Operation.MAX);
-export const subtract = applyOperation(Operation.SUBTRACT);
-export const divide = applyOperation(Operation.DIVIDE);
 export const sum = applyOperation(Operation.ADD);
+export const subtract = applyOperation(Operation.SUBTRACT);
+export const multiply = applyOperation(Operation.MULTIPLY);
+export const divide = applyOperation(Operation.DIVIDE);
 
 // With these helper functions, the EXAMPLE_ACTION can also be represented as:
 const EXAMPLE_ACTION_ALTERNATIVE_REPRESENTATION: Action = {

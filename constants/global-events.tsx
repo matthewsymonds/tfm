@@ -1,11 +1,12 @@
 import {Action} from './action';
 import {Parameter, t, TileType} from './board';
-import {Condition} from './conditional-amount';
+import {Condition} from './indicator-amount';
 import {
     applyOperationAndOperand,
     divide,
     double,
     max,
+    multiply,
     Operation,
     subtract,
     sum,
@@ -169,12 +170,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text:
                 'Gain 10 MC if you have 9 or more different tags. Influence counts as unique tags.',
             gainResource: {
-                [Resource.MEGACREDIT]: {
+                [Resource.MEGACREDIT]: multiply(10, {
                     condition: Condition.GREATER_THAN_OR_EQUAL_TO,
                     operands: [VariableAmount.UNIQUE_TAGS, 9],
-                    pass: 10,
-                    fail: 0,
-                },
+                }),
             },
         },
     },

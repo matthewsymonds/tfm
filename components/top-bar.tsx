@@ -84,7 +84,7 @@ export const TopBar = forwardRef<HTMLDivElement, {}>(({}, ref) => {
 
     const actionGuard = useActionGuard();
 
-    const color = `linear-gradient(to right, ${topBarColor}, rgba(255,255,255,0), rgba(255,255,255,0));`;
+    const color = `linear-gradient(to right, ${topBarColor} 0px, rgba(255,255,255,0) 250px);`;
 
     const greeneryPlacementText = actionGuard.canDoConversion(CONVERSIONS[Resource.PLANT])[0]
         ? 'You may place a greenery.'
