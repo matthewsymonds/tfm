@@ -18,7 +18,7 @@ import OffMarsCities, {OffMarsCity} from './off-mars-cities';
 const CircleOuter = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: 664px;
+    max-width: 698px;
 `;
 
 const Circle = styled.div`
@@ -92,7 +92,7 @@ const BoardMid = styled.div`
     flex-grow: 1;
     flex-direction: column;
     align-items: center;
-    max-width: 664px;
+    max-width: 698px;
     @media (max-width: 895px) {
         margin-left: auto;
         margin-right: auto;

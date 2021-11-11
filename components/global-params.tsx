@@ -115,6 +115,7 @@ const GlobalParamWrapper = styled.div`
     flex-direction: column;
     margin-right: 8px;
     margin-left: 8px;
+    padding-right: 34px;
     @media (max-width: 895px) {
         flex-direction: row;
         margin-right: 0;

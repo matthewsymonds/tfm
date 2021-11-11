@@ -79,9 +79,9 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
-        max-width: 895px;
+        max-width: 929px;
         display: grid;
-        align-items: center;
+        align-items: flex-start;
         min-width: min(450px, 100%);
         grid-template-columns: 2fr 11fr 2fr;
         grid-template-areas:

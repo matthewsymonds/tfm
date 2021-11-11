@@ -25,7 +25,6 @@ import {
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
-import Link from 'next/link';
 import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
@@ -110,15 +109,6 @@ const FirstPlayerToken = styled.div`
     top: -10px;
     right: -10px;
     background-color: ${colors.LIGHT_ORANGE};
-`;
-
-const YourTurnLink = styled.a`
-    &:link,
-    &:visited,
-    &:hover,
-    &:active {
-        color: #ddd;
-    }
 `;
 
 function getFontSizeForCorporation(string) {
@@ -248,35 +238,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         }
     }, [topBarRef.current, logLength]);
 
-    const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayer.index;
-    const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-    const {draftPicks = [], possibleCards = []} = loggedInPlayer?.pendingCardSelection ?? {
-        draftPicks: [],
-        possibleCards: [],
-    };
-    const isPickingCards = (draftPicks?.length ?? 0) + (possibleCards?.length ?? 0) === 4;
-
-    const playing =
-        (loggedInPlayer.action > 0 && isLoggedInPlayersTurn && isActiveRound) || isPickingCards;
-    const onlyOnePlayer = useTypedSelector(state => state.players.length === 1);
-
     const playerCardsString = useTypedSelector(state =>
         state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
     );
-
-    const currentGame = useTypedSelector(state => state.name);
-
-    const yourTurnGamesFiltered = yourTurnGames.filter(game => game !== currentGame);
-
-    const yourTurnMessage =
-        yourTurnGamesFiltered.length > 0 && (!playing || onlyOnePlayer) ? (
-            <Box marginRight="8px" display="inline-block" fontStyle="italic">
-                It is your turn in {yourTurnGamesFiltered.length} game
-                {yourTurnGamesFiltered.length === 1 ? '' : 's'}:
-            </Box>
-        ) : null;
-
-    const yourTurnLink = `/games/${yourTurnGamesFiltered[0]}`;
 
     useIsomorphicLayoutEffect(() => {
         if (typeof document === 'undefined') return;
@@ -395,7 +359,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             <GlobalPopoverManager />
             <LogToast />
             <Flex flexDirection="column" alignItems="center" flex="auto" bottom="0px">
-                <TopBar ref={topBarRef} />
+                <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
                 {isPlayerMakingDecision && (
                     <ActionOverlayTopBar
                         hideOverlay={!!hideOverlay}
@@ -408,14 +372,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         {actionOverlayElement}
                     </ActionOverlay>
                 )}
-                {yourTurnMessage ? (
-                    <Box padding="8px" color="#ddd" alignSelf="flex-start">
-                        {yourTurnMessage}
-                        <Link href={yourTurnLink}>
-                            <YourTurnLink href={yourTurnLink}>Click</YourTurnLink>
-                        </Link>
-                    </Box>
-                ) : null}
                 <Box paddingTop="8px" className="active-round-outer" flex="auto">
                     <div className="empty-space-left" />
                     <div className="empty-space-right" />

@@ -1,6 +1,6 @@
 import {Amount} from 'constants/action';
-import {isIndicatorAmount} from 'constants/indicator-amount';
 import {isContestAmount} from 'constants/contest-amount';
+import {isIndicatorAmount} from 'constants/indicator-amount';
 import {isOperationAmount} from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
 import {
