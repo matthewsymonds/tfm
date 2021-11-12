@@ -1210,8 +1210,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 playedCard => playedCard.name === payload.card.name
             )!;
             const playedCard = player.playedCards.find(
-                playedCard => playedCard.name === payload.playedCard.name
-            )!;
+                playedCard => playedCard.name === payload?.playedCard?.name
+            );
             player.pendingChoice = {choice, card, playedCard};
         }
 

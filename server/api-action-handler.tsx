@@ -1789,7 +1789,7 @@ export class ApiActionHandler {
         }
 
         if (action.choice && action.choice.length > 0) {
-            items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard!, playerIndex));
+            items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard, playerIndex));
         }
 
         for (const resource in action.removeResource) {

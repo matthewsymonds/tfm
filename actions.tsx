@@ -347,7 +347,12 @@ export const skipChoice = withMatcher((playerIndex: number) => ({
 const ASK_USER_TO_MAKE_ACTION_CHOICE = 'ASK_USER_TO_MAKE_ACTION_CHOICE';
 
 export const askUserToMakeActionChoice = withMatcher(
-    (choice: Action[], card: SerializedCard, playedCard: SerializedCard, playerIndex: number) => ({
+    (
+        choice: Action[],
+        card: SerializedCard,
+        playedCard: SerializedCard | undefined,
+        playerIndex: number
+    ) => ({
         type: ASK_USER_TO_MAKE_ACTION_CHOICE,
         payload: {
             choice,
