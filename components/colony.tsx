@@ -160,6 +160,9 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                     alignItems="center"
                     color={colony?.colonyBonus?.removeResource ? 'white' : '#333'}
                     fontWeight="bold"
+                    position="absolute"
+                    top="46px"
+                    height="24px"
                 >
                     <BaseActionIconography
                         card={colony.colonyBonus}
