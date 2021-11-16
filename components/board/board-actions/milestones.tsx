@@ -58,7 +58,7 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
     return (
         <AwardsMilestonesLayout>
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
-            <Box position="relative">
+            <Box position="relative" overflowX="hidden" maxWidth="100%">
                 <ActionListWithPopovers<Milestone>
                     actions={milestones}
                     emphasizeOnHover={canPlay}
@@ -99,6 +99,9 @@ const MilestoneBadgeContainer = styled.div<{canClaim: boolean; isClaimed: boolea
     color: white;
     opacity: ${props => (props.canClaim || props.isClaimed ? 1 : 0.5)};
     font-style: ${props => (props.isClaimed ? 'italic' : 'normal')};
+    @media (max-width: 895px) {
+        margin-right: ${props => (props.isClaimed ? '2px' : '0')};
+    }
 `;
 
 function MilestoneBadge({

@@ -19,11 +19,13 @@ const OuterWrapper = styled.div`
 
 const ScrollingOuterWrapper = styled.div`
     width: 100%;
+    min-width: 96px;
     overflow-x: auto;
     padding-bottom: 4px;
     display: flex;
     justify-content: center;
     @media (max-width: 895px) {
+        min-width: initial;
         justify-content: flex-start;
     }
 `;

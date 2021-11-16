@@ -68,9 +68,9 @@ export function GlobalPopoverManager({}: {}) {
 
         if (popoverConfig) {
             didImmediatelyOpenNewPopover.current = true;
-            setTimeout(() => {
+            window.requestAnimationFrame(() => {
                 didImmediatelyOpenNewPopover.current = false;
-            }, 100);
+            });
             document.addEventListener('click', closePopoverAndDeregisterHandler);
         }
     }, [popoverConfig]);

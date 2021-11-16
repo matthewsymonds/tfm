@@ -116,6 +116,11 @@ const GlobalParamWrapper = styled.div`
     margin-right: 8px;
     margin-left: 8px;
     padding-right: 34px;
+    .global-param-icon {
+        margin-right: 4px;
+        margin-left: 4px;
+        margin-top: 4px;
+    }
     @media (max-width: 895px) {
         flex-direction: row;
         margin-right: 0;
@@ -124,6 +129,10 @@ const GlobalParamWrapper = styled.div`
         padding-left: 8px;
         padding-right: 8px;
         width: calc(100% - 16px);
+
+        .global-param-icon {
+            margin-left: 0px;
+        }
     }
 `;
 
@@ -163,9 +172,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
                                 <Flex
                                     alignItems="center"
                                     justifyContent="center"
-                                    marginRight="4px"
-                                    marginLeft="4px"
-                                    marginTop="4px"
+                                    className="global-param-icon"
                                     width="20px"
                                     height="24px"
                                 >

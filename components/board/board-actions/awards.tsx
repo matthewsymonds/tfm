@@ -97,7 +97,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     return (
         <AwardsMilestonesLayout>
             <AwardHeader className="display">Awards</AwardHeader>
-            <Box position="relative">
+            <Box position="relative" overflowX="hidden" maxWidth="100%">
                 <ActionListWithPopovers<Award>
                     actions={awards}
                     emphasizeOnHover={canPlay}
@@ -136,6 +136,9 @@ const AwardBadgeContainer = styled.div<{canFund: boolean; isFunded: boolean}>`
     color: white;
     opacity: ${props => (props.canFund || props.isFunded ? 1 : 0.5)};
     font-style: ${props => (props.isFunded ? 'italic' : 'normal')};
+    @media (max-width: 895px) {
+        margin-right: ${props => (props.isFunded ? '2px' : '0')};
+    }
 `;
 
 function AwardBadge({
