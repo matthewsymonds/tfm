@@ -17,6 +17,8 @@ const TagButton = styled(BlankButton)<{isSelected: boolean; allSelected: boolean
     opacity: ${props => (props.isSelected || props.allSelected ? 1 : 0.4)};
     cursor: default;
     transition: opacity 150ms;
+    flex-shrink: 0;
+    width: 51px;
 
     &:hover {
         background-color: ${colors.CARD_BORDER_1};
@@ -152,7 +154,15 @@ function PlayerTagCounts({
                         >
                             <Flex justifyContent="center" alignItems="center">
                                 <TagIcon size={25} name={tag as Tag} />
-                                <span className="display" style={{color: 'white', marginLeft: 2}}>
+                                <span
+                                    className="display"
+                                    style={{
+                                        color: 'white',
+                                        marginLeft: 2,
+                                        textAlign: 'center',
+                                        flexGrow: 1,
+                                    }}
+                                >
                                     {count}
                                 </span>
                             </Flex>
