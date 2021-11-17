@@ -5,8 +5,7 @@ import {getPlayedCards} from 'selectors/get-played-cards';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 import {Box, Flex} from './box';
 import {CardContext} from './card/Card';
-import {CardActions} from './card/CardActions';
-import {colors} from './ui';
+import {MiniatureCard} from './card/CardToken';
 
 const PlayerCardAction = ({card, player}: {card: Card; player: PlayerState}) => {
     return (
@@ -14,13 +13,15 @@ const PlayerCardAction = ({card, player}: {card: Card; player: PlayerState}) => 
             width="fit-content"
             margin="4px"
             borderRadius="3px"
-            background={colors.LIGHT_BG}
             style={{color: 'black', fontWeight: 700}}
         >
-            <CardActions
+            <MiniatureCard
+                key={card.name}
                 card={card}
+                showCardOnHover={true}
                 cardOwner={player}
                 cardContext={CardContext.PLAYED_CARD}
+                shouldUseFullWidth={true}
                 canPlayInSpiteOfUI={true}
             />
         </Box>

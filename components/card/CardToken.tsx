@@ -34,6 +34,7 @@ type MiniatureCardProps = SharedCardTokenProps & {
     cardOwner: PlayerState;
     cardContext: CardContext;
     shouldUseFullWidth?: boolean;
+    canPlayInSpiteOfUI?: boolean;
 };
 
 export const CardToggleToken = ({
@@ -149,6 +150,7 @@ export const MiniatureCard = ({
     cardOwner,
     cardContext,
     shouldUseFullWidth,
+    canPlayInSpiteOfUI,
 }: MiniatureCardProps) => {
     const {setPopoverConfig} = useContext(GlobalPopoverContext);
     const color = getColorForCardType(card.type);
@@ -167,7 +169,8 @@ export const MiniatureCard = ({
         );
     }, [isOver]);
 
-    const hasBeenUsedThisRound = card.lastRoundUsedAction === currentGeneration;
+    const hasBeenUsedThisRound =
+        card.lastRoundUsedAction === currentGeneration && !canPlayInSpiteOfUI;
 
     return (
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
@@ -202,12 +205,13 @@ export const MiniatureCard = ({
                     }}
                 >
                     <CardEffects card={card} showEffectText={false} />
-                    <Box opacity={card.lastRoundUsedAction === currentGeneration ? 0.6 : 1}>
+                    <Box opacity={hasBeenUsedThisRound ? 0.6 : 1}>
                         <CardActions
                             card={card}
                             cardOwner={cardOwner}
                             cardContext={cardContext}
                             showActionText={false}
+                            canPlayInSpiteOfUI={canPlayInSpiteOfUI}
                         />
                     </Box>
                     {hasBeenUsedThisRound && (
