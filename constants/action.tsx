@@ -1,8 +1,8 @@
 import {PlaceColony} from 'actions';
 import {Parameter, TilePlacement} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
+import {ConditionAmount} from './conditional-amount';
 import {ContestAmount} from './contest-amount';
-import {IndicatorAmount} from './indicator-amount';
 import {OperationAmount} from './operation-amount';
 import {ProductionAmount} from './production-amount';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
@@ -29,7 +29,7 @@ export type Amount =
     | VariableAmount
     | TagAmount
     | OperationAmount
-    | IndicatorAmount
+    | ConditionAmount
     | ProductionAmount
     | ContestAmount;
 

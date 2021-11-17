@@ -1,14 +1,13 @@
 import {Amount} from 'constants/action';
 import {CardType} from 'constants/card-types';
-import {ContestAmount, isContestAmount} from 'constants/contest-amount';
 import {
     Condition,
+    ConditionAmount,
     ConditionWithOperands,
-    IndicatorAmount,
-    isIndicatorAmount,
-    LogicalOperator,
-    LogicalOperatorWithConditions,
-} from 'constants/indicator-amount';
+    isConditionAmount,
+} from 'constants/conditional-amount';
+import {ContestAmount, isContestAmount} from 'constants/contest-amount';
+import {LogicalOperator, LogicalOperatorWithConditions} from 'constants/logical-operator';
 import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
 import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
 import {Tag} from 'constants/tag';
@@ -48,8 +47,8 @@ export function convertAmountToNumber(
     if (isOperationAmount(amount)) {
         return convertOperationAmountToNumber(amount, state, player, card);
     }
-    if (isIndicatorAmount(amount)) {
-        return convertIndicatorAmountToNumber(amount, state, player, card);
+    if (isConditionAmount(amount)) {
+        return convertConditionAmountToNumber(amount, state, player, card);
     }
     if (isContestAmount(amount)) {
         return convertContestAmountToNumber(amount, state, player, card);
@@ -117,13 +116,19 @@ export function convertOperationAmountToNumber(
     }
 }
 
-export function convertIndicatorAmountToNumber(
-    amount: IndicatorAmount,
+export function convertConditionAmountToNumber(
+    amount: ConditionAmount,
     state: GameState,
     player: PlayerState,
     card?: SerializedCard
 ): number {
-    return isConditionPassed(amount, state, player, card) ? 1 : 0;
+    const {pass, fail} = amount;
+    const passed = isConditionPassed(amount, state, player, card);
+    if (passed) {
+        return convertAmountToNumber(pass, state, player, card);
+    } else {
+        return convertAmountToNumber(fail, state, player, card);
+    }
 }
 
 export function isConditionPassed(

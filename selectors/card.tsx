@@ -1,6 +1,6 @@
 import {Amount} from 'constants/action';
+import {isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
-import {isIndicatorAmount} from 'constants/indicator-amount';
 import {isOperationAmount} from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
 import {
@@ -15,8 +15,8 @@ import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import spawnExhaustiveSwitchError from 'utils';
 import {
+    convertConditionAmountToNumber,
     convertContestAmountToNumber,
-    convertIndicatorAmountToNumber,
     convertOperationAmountToNumber,
     convertProductionAmountToNumber,
 } from './convert-amount-to-number';
@@ -46,8 +46,8 @@ export function getCardVictoryPoints(
         return convertOperationAmountToNumber(amount, state, player, card);
     }
 
-    if (isIndicatorAmount(amount)) {
-        return convertIndicatorAmountToNumber(amount, state, player, card);
+    if (isConditionAmount(amount)) {
+        return convertConditionAmountToNumber(amount, state, player, card);
     }
 
     if (isContestAmount(amount)) {
