@@ -76,16 +76,23 @@ export const CardToggleToken = ({
                 onChange={onClick}
                 disabled={disabled}
             />
-            <CardToggleTokenLabel
+            <CardTextTokenBase
                 htmlFor={id}
                 ref={ref}
+                as="label"
                 color={color}
-                isSelected={isSelected}
                 margin={margin}
+                style={{
+                    opacity: isSelected ? 1 : 0.4,
+                    backgroundColor: isSelected
+                        ? color
+                        : new Color(color).darken(0.2).desaturate(0.2).toString(),
+                    fontSize: '1rem',
+                }}
                 {...hoverProps}
             >
                 {card.name}
-            </CardToggleTokenLabel>
+            </CardTextTokenBase>
         </React.Fragment>
     );
 };
@@ -237,7 +244,7 @@ export const CardTextTokenBase = styled.div<{
     background-color: ${props => props.color};
     color: ${colors.LIGHT_1};
     border-radius: 4px;
-    padding: 4px;
+    padding: 4px 8px;
     font-family: 'Ubuntu Condensed', sans-serif;
     display: inline-flex;
     margin: ${props => props.margin ?? '0 4px'};
@@ -246,29 +253,6 @@ export const CardTextTokenBase = styled.div<{
     transition: all 0.1s;
     opacity: 1;
     align-items: center;
-`;
-
-const CardToggleTokenLabel = styled.label<{
-    color: string;
-    margin?: string;
-    isSelected?: boolean;
-}>`
-    color: ${colors.CARD_TEXT};
-    display: inline-flex;
-    white-space: nowrap;
-    margin: ${props => props.margin ?? '0 4px'};
-    padding: 4px;
-    opacity: ${props => (props.isSelected ? 1 : 0.4)};
-    border-radius: 4px;
-    background-color: ${props => {
-        let color = new Color(props.color);
-        if (!props.isSelected) {
-            return color.darken(0.2).desaturate(0.2).toString();
-        }
-        return color.toString();
-    }};
-    cursor: default;
-    transition: all 0.1s;
 `;
 
 const CardToggleTokenHiddenInput = styled.input`

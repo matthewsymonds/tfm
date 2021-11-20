@@ -203,7 +203,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     {isDrafting &&
                         pendingCardSelection.draftPicks &&
                         pendingCardSelection.draftPicks.length > 0 && (
-                            <Flex flexDirection="column">
+                            <Flex flexDirection="column" margin="0 8px">
                                 <span style={{fontSize: '1.1em', fontWeight: 700}}>
                                     Drafted cards
                                 </span>
@@ -223,7 +223,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         )}
                     {isWaitingOnOthersToDraft && (
                         <Flex justifyContent="center" flexDirection="column">
-                            <Flex alignItems="center">
+                            <Flex alignItems="center" style={{display: 'inline', marginBottom: 16}}>
                                 <em style={{margin: '16px 0px'}}>Waiting on </em>
                                 {playersWhoNeedToDraft.map((p, index) => (
                                     <React.Fragment key={p.username}>

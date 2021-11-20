@@ -24,6 +24,7 @@ export const AwardsMilestonesLayout = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    overflow: hidden;
     position: relative;
     @media (max-width: 895px) {
         align-items: center;
@@ -97,7 +98,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     return (
         <AwardsMilestonesLayout>
             <AwardHeader className="display">Awards</AwardHeader>
-            <Box position="relative" overflowX="hidden" maxWidth="100%">
+            <Box position="relative" className="width-full overflow-auto">
                 <ActionListWithPopovers<Award>
                     actions={awards}
                     emphasizeOnHover={canPlay}

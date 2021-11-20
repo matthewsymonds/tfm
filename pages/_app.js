@@ -145,6 +145,18 @@ export const GlobalStyles = createGlobalStyle`
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .inline {
+        display: inline;
+    }
+    .overflow-auto {
+        overflow: auto;
+    }
+    .width-full {
+        width: 100%;
+    }
+    .height-full {
+        height: 100%;
+    }
     .textLight1 {
         color: ${colors.TEXT_LIGHT_1};
     }

@@ -58,7 +58,7 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
     return (
         <AwardsMilestonesLayout>
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
-            <Box position="relative" overflowX="hidden" maxWidth="100%">
+            <Box position="relative" className="width-full overflow-auto">
                 <ActionListWithPopovers<Milestone>
                     actions={milestones}
                     emphasizeOnHover={canPlay}

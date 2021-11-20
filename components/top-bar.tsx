@@ -19,6 +19,7 @@ import {BlankButton} from './blank-button';
 const TopBarBase = styled(Box)`
     display: flex;
     width: 100%;
+    overflow: auto;
     justify-content: flex-start;
     align-items: center;
     color: ${colors.LIGHT_2};
