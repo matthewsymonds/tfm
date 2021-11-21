@@ -8,7 +8,7 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Award} from 'constants/board';
-import {PropertyCounter} from 'constants/property-counter';
+import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -80,7 +80,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     const isFunded = award => actionGuard.isAwardFunded(award);
     const isFree = loggedInPlayer.fundAward;
 
-    const fundAward = (award: Award, payment?: PropertyCounter<Resource>) => {
+    const fundAward = (award: Award, payment: NumericPropertyCounter<Resource>) => {
         if (canPlay(award)) {
             if (isFree) {
                 apiClient.fundAwardAsync({award, payment: {}});
@@ -184,7 +184,7 @@ export function AwardPopover({
     cost: number;
     isFunded: boolean;
     fundedByPlayer?: PlayerState;
-    fundAward: (action: Award, payment?: PropertyCounter<Resource>) => void;
+    fundAward: (action: Award, payment: NumericPropertyCounter<Resource>) => void;
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canFundAward(award);

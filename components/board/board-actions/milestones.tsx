@@ -9,7 +9,7 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Milestone} from 'constants/board';
-import {PropertyCounter} from 'constants/property-counter';
+import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -43,7 +43,7 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
         }))
     );
 
-    const claimMilestone = (milestone: Milestone, payment?: PropertyCounter<Resource>) => {
+    const claimMilestone = (milestone: Milestone, payment: NumericPropertyCounter<Resource>) => {
         if (canPlay(milestone)) {
             apiClient.claimMilestoneAsync({milestone, payment});
         }
@@ -145,7 +145,7 @@ function MilestonePopover({
     isClaimed: boolean;
     loggedInPlayer: PlayerState;
     claimedByPlayer: PlayerState | null;
-    claimMilestone: (action: Milestone, payment?: PropertyCounter<Resource>) => void;
+    claimMilestone: (action: Milestone, payment: NumericPropertyCounter<Resource>) => void;
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
@@ -195,7 +195,8 @@ function MilestonePopover({
                         >
                             <CardButton
                                 onClick={() => {
-                                    !showPaymentPopover && claimMilestone(milestone);
+                                    !showPaymentPopover &&
+                                        claimMilestone(milestone, {[Resource.MEGACREDIT]: 8});
                                 }}
                             >
                                 Claim {getTextForMilestone(milestone)}
