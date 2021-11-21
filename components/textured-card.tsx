@@ -57,6 +57,7 @@ type TexturedCardProps = {
     borderRadius?: number;
     borderWidth?: number;
     style?: React.CSSProperties;
+    className?: string;
 };
 
 const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
@@ -70,6 +71,7 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
             borderRadius = 10,
             borderWidth = 2,
             style,
+            className,
         }: {
             children: React.ReactNode;
             height?: number;
@@ -79,6 +81,7 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
             borderRadius?: number;
             borderWidth?: number;
             style?: React.CSSProperties;
+            className?: string;
         },
         ref
     ) => {
@@ -92,6 +95,7 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
                 bgColor={bgColor}
                 isSelected={isSelected}
                 style={style}
+                className={className}
             >
                 <CardTexture borderRadius={borderRadius}>
                     <Flex position="relative" height="100%" flexDirection="column">

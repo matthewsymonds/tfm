@@ -27,7 +27,7 @@ import {
     StandardProjectType,
 } from 'constants/standard-project';
 import {VariableAmount} from 'constants/variable-amount';
-import {GlobalPopoverContext} from 'context/global-popover-context';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useContext} from 'react';
@@ -41,7 +41,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
     const actionGuard = useActionGuard();
     const canPlay = standardProjectAction =>
         actionGuard.canPlayStandardProject(standardProjectAction)[0];
-    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {hidePopover} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
 
     const playStandardProjectAction = (
         standardProjectAction: StandardProjectAction,
@@ -87,7 +87,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                             action: StandardProjectAction,
                             payment: Payment
                         ) => {
-                            setPopoverConfig(null);
+                            hidePopover();
                             playStandardProjectAction(action, payment);
                         }}
                     />

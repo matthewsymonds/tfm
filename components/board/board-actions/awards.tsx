@@ -10,11 +10,11 @@ import {colors} from 'components/ui';
 import {Award} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
-import {GlobalPopoverContext} from 'context/global-popover-context';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React, {useContext} from 'react';
+import React from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {awardToQuantity} from 'selectors/score';
@@ -45,7 +45,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
     const windowWidth = useWindowWidth();
-    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {hidePopover} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
 
     const awardConfigsByAward = useTypedSelector(
         state =>
@@ -115,7 +115,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
                         <AwardPopover
                             award={action}
                             fundAward={(award, payment) => {
-                                setPopoverConfig(null);
+                                hidePopover();
                                 fundAward(award, payment);
                             }}
                             loggedInPlayer={loggedInPlayer}

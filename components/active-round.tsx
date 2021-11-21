@@ -21,6 +21,8 @@ import {
     GlobalPopoverContext,
     GlobalPopoverManager,
     PopoverConfig,
+    PopoverConfigByType,
+    PopoverType,
 } from 'context/global-popover-context';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -137,7 +139,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
-    const [popoverConfig, setPopoverConfig] = useState<PopoverConfig | null>(null);
+    const [popoverConfigByType, setPopoverConfigByType] = useState<PopoverConfigByType>({});
 
     /**
      * Derived state
@@ -350,10 +352,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     return (
         <GlobalPopoverContext.Provider
             value={{
-                setPopoverConfig: e => {
-                    setPopoverConfig(e);
+                setPopoverConfigByType(type: PopoverType, config: PopoverConfig) {
+                    setPopoverConfigByType({...popoverConfigByType, [type]: config});
                 },
-                popoverConfig,
+                popoverConfigByType,
             }}
         >
             <GlobalPopoverManager />

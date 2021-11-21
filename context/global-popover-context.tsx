@@ -5,16 +5,62 @@ import {Options as PopoverOptions} from 'react-laag/dist/types';
 export type PopoverConfig = {
     popover: React.ReactNode;
     triggerRef: React.RefObject<HTMLElement>;
-    popoverOpts?: Pick<PopoverOptions, 'placement' | 'onDisappear' | 'possiblePlacements'>;
+    popoverOpts?: Pick<PopoverOptions, 'placement' | 'possiblePlacements'>;
 } | null;
 
+// Multiple popovers can be shown at once, but only one of any given type can be shown.
+export enum PopoverType {
+    ACTION_LIST_ITEM = 'actionListItem',
+    CARD = 'card',
+    ACTION_LOG = 'actionLog',
+}
+
+export type PopoverConfigByType = {[key in PopoverType]?: PopoverConfig};
+
 export const GlobalPopoverContext = React.createContext<{
-    setPopoverConfig: (newConfig: PopoverConfig) => void;
-    popoverConfig: PopoverConfig | null;
-}>({setPopoverConfig() {}, popoverConfig: null});
+    setPopoverConfigByType: (type: PopoverType, newConfig: PopoverConfig) => void;
+    popoverConfigByType: PopoverConfigByType;
+}>({
+    setPopoverConfigByType() {
+        throw new Error('Must specify context value for setPopoverConfigByType');
+    },
+    popoverConfigByType: {},
+});
+
+export function usePopoverType(type: PopoverType) {
+    const {popoverConfigByType, setPopoverConfigByType} = useContext(GlobalPopoverContext);
+
+    return {
+        hidePopover() {
+            setPopoverConfigByType(type, null);
+        },
+        showPopover(config: PopoverConfig) {
+            setPopoverConfigByType(type, config);
+        },
+        popoverConfig: popoverConfigByType[type] ?? null,
+    };
+}
 
 export function GlobalPopoverManager({}: {}) {
-    const {popoverConfig, setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {popoverConfigByType} = useContext(GlobalPopoverContext);
+
+    return (
+        <React.Fragment>
+            {Object.keys(popoverConfigByType).map(type => (
+                <IndividualPopoverManager key={type} type={type as PopoverType} />
+            ))}
+        </React.Fragment>
+    );
+}
+
+const Z_INDEX_BY_POPOVER_TYPE: {[type in PopoverType]: number} = {
+    [PopoverType.ACTION_LIST_ITEM]: 9,
+    [PopoverType.ACTION_LOG]: 10,
+    [PopoverType.CARD]: 11,
+};
+
+function IndividualPopoverManager({type}: {type: PopoverType}) {
+    const {hidePopover, popoverConfig} = usePopoverType(type);
 
     const popover = popoverConfig?.popover;
     const triggerElement = popoverConfig?.triggerRef?.current;
@@ -26,11 +72,6 @@ export function GlobalPopoverManager({}: {}) {
             getBounds: () => triggerElement?.getBoundingClientRect()!,
             getParent: () => triggerElement?.parentElement!,
         },
-        onDisappear: popoverConfig?.popoverOpts?.onDisappear
-            ? popoverConfig?.popoverOpts?.onDisappear
-            : () => {
-                  setPopoverConfig(null);
-              },
         overflowContainer: true,
         auto: true, // automatically find the best placement
         placement: popoverConfig?.popoverOpts?.placement ?? 'top-end', // we prefer to place the menu "top-end"
@@ -51,8 +92,8 @@ export function GlobalPopoverManager({}: {}) {
                 e.target instanceof HTMLElement &&
                 !(triggerElement === e.target || triggerElement?.contains(e.target)) &&
                 !(
-                    document.querySelector('#popoverContainer') === e.target ||
-                    document.querySelector('#popoverContainer')?.contains(e.target)
+                    document.querySelector(`#popoverContainer-${type}`) === e.target ||
+                    document.querySelector(`#popoverContainer-${type}`)?.contains(e.target)
                 ) &&
                 !(
                     document.querySelector('.payment-popover') === e.target ||
@@ -60,9 +101,10 @@ export function GlobalPopoverManager({}: {}) {
                 )
             ) {
                 if (!didImmediatelyOpenNewPopover.current) {
-                    setPopoverConfig(null);
+                    hidePopover();
                 }
                 document.removeEventListener('click', closePopoverAndDeregisterHandler);
+                document.removeEventListener('touchend', closePopoverAndDeregisterHandler);
             }
         }
 
@@ -72,11 +114,16 @@ export function GlobalPopoverManager({}: {}) {
                 didImmediatelyOpenNewPopover.current = false;
             });
             document.addEventListener('click', closePopoverAndDeregisterHandler);
+            document.addEventListener('touchend', closePopoverAndDeregisterHandler);
         }
     }, [popoverConfig]);
 
     return renderLayer(
-        <div {...layerProps} id={'popoverContainer'} style={{zIndex: 10, ...layerProps.style}}>
+        <div
+            {...layerProps}
+            id={`popoverContainer-${type}`}
+            style={{zIndex: Z_INDEX_BY_POPOVER_TYPE[type], ...layerProps.style}}
+        >
             {popover}
         </div>
     );

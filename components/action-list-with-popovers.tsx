@@ -1,6 +1,7 @@
 import {colors} from 'components/ui';
-import {GlobalPopoverContext} from 'context/global-popover-context';
-import React, {useContext, useRef} from 'react';
+import {GlobalPopoverContext, PopoverType, usePopoverType} from 'context/global-popover-context';
+import React, {useContext, useEffect, useRef} from 'react';
+import {useHover} from 'react-laag';
 import {PlacementType} from 'react-laag/dist/PlacementType';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
@@ -87,33 +88,39 @@ function ActionWithPopover<T extends {}>({
     isVertical,
     popoverPlacement,
 }: ActionWithPopoverProps<T>) {
-    const {setPopoverConfig, popoverConfig} = useContext(GlobalPopoverContext);
-    const ref = useRef<HTMLDivElement>(null);
+    const {showPopover, popoverConfig} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
+    const triggerRef = useRef<HTMLDivElement>(null);
+    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
+
+    useEffect(() => {
+        if (isOver) {
+            showPopover({
+                popover: <ActionPopoverComponent action={action} />,
+                triggerRef,
+                popoverOpts: {
+                    placement: popoverPlacement,
+                },
+            });
+        }
+        // we explicitly don't hide popover onMouseLeave here.
+        // the popover may contain an interactive component, so we want
+        // the user to be able to move their mouse into the popover and
+        // interact. the global key handle implemented by GlobalPopoverContext
+        // will still handle closing it out external clicks, though.
+    }, [isOver]);
 
     return (
         <Box
             marginRight={isVertical ? undefined : '4px'}
             marginBottom={isVertical ? '4px' : undefined}
         >
-            <Flex
-                alignItems="center"
-                ref={ref}
-                justifyContent="flex-end"
-                onMouseEnter={() => {
-                    setPopoverConfig({
-                        popover: <ActionPopoverComponent action={action} />,
-                        triggerRef: ref,
-                        popoverOpts: {
-                            placement: popoverPlacement,
-                        },
-                    });
-                }}
-            >
+            <Flex alignItems="center" ref={triggerRef} justifyContent="flex-end" {...hoverProps}>
                 <StylizedActionWrapper
                     id={`${JSON.stringify(action)}`}
                     emphasizeOnHover={emphasizeOnHover}
                     isHovering={
-                        popoverConfig?.triggerRef !== null && popoverConfig?.triggerRef === ref
+                        popoverConfig?.triggerRef !== null &&
+                        popoverConfig?.triggerRef === triggerRef
                     }
                 >
                     <ActionComponent action={action} />

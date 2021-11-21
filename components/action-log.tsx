@@ -9,8 +9,9 @@ import {GameStage} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {GameActionType} from 'GameActionState';
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getGameAction} from 'selectors/get-game-action';
@@ -23,29 +24,51 @@ import {getTextForMilestone} from './board/board-actions/milestones';
 import {getLogTextForStandardProject} from './board/board-actions/standard-projects';
 
 export const ActionLog = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const {showPopover, hidePopover, popoverConfig} = usePopoverType(PopoverType.ACTION_LOG);
+    const ref = useRef<HTMLButtonElement>(null);
+
+    function toggleLog() {
+        if (popoverConfig?.triggerRef === ref) {
+            hidePopover();
+        } else {
+            const rootEl = document.querySelector('#root');
+            if (!rootEl) {
+                throw new Error('could not find root element');
+            }
+            const clientRect = rootEl.getBoundingClientRect();
+            const maxHeight = clientRect.height - 72;
+            const maxWidth = clientRect.width - 32;
+
+            showPopover({
+                popover: (
+                    <TexturedCard
+                        className="action-log"
+                        borderRadius={5}
+                        bgColor="white"
+                        style={{
+                            overflow: 'hidden',
+                            boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
+                            zIndex: 5,
+                            height: Math.min(600, maxHeight),
+                            width: Math.min(500, maxWidth),
+                        }}
+                    >
+                        <LogPanel />
+                    </TexturedCard>
+                ),
+                triggerRef: ref,
+                popoverOpts: {
+                    placement: 'bottom-end',
+                },
+            });
+        }
+    }
 
     return (
         <React.Fragment>
-            <BlankButton onClick={() => setIsOpen(!isOpen)} style={{marginRight: 4}}>
+            <BlankButton ref={ref} onClick={() => toggleLog()} style={{marginRight: 4}}>
                 📜
             </BlankButton>
-            {isOpen && (
-                <TexturedCard
-                    borderRadius={5}
-                    bgColor="white"
-                    style={{
-                        overflow: 'hidden',
-                        boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
-                        position: 'absolute',
-                        top: 40,
-                        right: 40,
-                        zIndex: 5,
-                    }}
-                >
-                    <LogPanel />
-                </TexturedCard>
-            )}
         </React.Fragment>
     );
 };
@@ -60,8 +83,6 @@ export const SwitchColors = styled.div`
 
 export const LogPanelBase = styled(SwitchColors)`
     display: flex;
-    max-height: 600px;
-    max-width: 500px;
     overflow-y: auto;
     color: ${colors.TEXT_DARK_1};
     flex-direction: column;
@@ -372,7 +393,7 @@ const LogEntryInner = ({
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <span style={{marginLeft: 4, marginRight: 4}}>now has</span>
                             {Object.keys(gameAction.resource).map(resource => {
@@ -425,7 +446,7 @@ function logPropsAreEqual(props1, props2) {
     return props1?.items && props1?.items?.length === props2?.items?.length;
 }
 
-function PaymentIconography({payment}: {payment: NumericPropertyCounter<Resource>}) {
+function PaymentIconography({payment = {}}: {payment: NumericPropertyCounter<Resource>}) {
     return (
         <React.Fragment>
             {Object.entries(payment)

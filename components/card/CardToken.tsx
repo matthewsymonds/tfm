@@ -6,10 +6,10 @@ import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
-import {GlobalPopoverContext} from 'context/global-popover-context';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useHover} from 'react-laag';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
@@ -47,7 +47,7 @@ export const CardToggleToken = ({
 }: CardToggleTokenProps) => {
     const id = useComponentId();
     const color = getColorForCardType(card.type);
-    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
     const ref = useRef<HTMLLabelElement>(null);
 
@@ -55,15 +55,15 @@ export const CardToggleToken = ({
         if (!showCardOnHover) {
             return;
         }
-        setPopoverConfig(
-            isOver
-                ? {
-                      popover: <LiveCardComponent card={card} />,
-                      triggerRef: ref,
-                      popoverOpts: {placement: 'bottom-start'},
-                  }
-                : null
-        );
+        if (isOver) {
+            showPopover({
+                popover: <LiveCardComponent card={card} />,
+                triggerRef: ref,
+                popoverOpts: {placement: 'bottom-start'},
+            });
+        } else {
+            hidePopover();
+        }
     }, [isOver]);
 
     return (
@@ -104,7 +104,7 @@ export const CardTextToken = ({
     shouldUseFullWidth,
     showCardOnHover = true,
 }: CardTextTokenProps) => {
-    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const color = getColorForCardType(card.type);
     const ref = useRef<HTMLDivElement>(null);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
@@ -113,23 +113,18 @@ export const CardTextToken = ({
         if (!showCardOnHover) {
             return;
         }
-        setPopoverConfig(
-            isOver
-                ? {
-                      popover: <LiveCardComponent card={card} />,
-                      triggerRef: ref,
-                      popoverOpts: {
-                          placement: 'bottom-start',
-                          possiblePlacements: [
-                              'bottom-start',
-                              'bottom-end',
-                              'top-start',
-                              'top-end',
-                          ],
-                      },
-                  }
-                : null
-        );
+        if (isOver) {
+            showPopover({
+                popover: <LiveCardComponent card={card} />,
+                triggerRef: ref,
+                popoverOpts: {
+                    placement: 'bottom-start',
+                    possiblePlacements: ['bottom-start', 'bottom-end', 'top-start', 'top-end'],
+                },
+            });
+        } else {
+            hidePopover();
+        }
     }, [isOver]);
 
     return (
@@ -159,21 +154,21 @@ export const MiniatureCard = ({
     shouldUseFullWidth,
     canPlayInSpiteOfUI,
 }: MiniatureCardProps) => {
-    const {setPopoverConfig} = useContext(GlobalPopoverContext);
+    const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const color = getColorForCardType(card.type);
     const currentGeneration = useTypedSelector(state => state.common.generation);
     const ref = useRef<HTMLDivElement>(null);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
     useEffect(() => {
-        setPopoverConfig(
-            isOver
-                ? {
-                      popover: <LiveCardComponent card={card} />,
-                      triggerRef: ref,
-                  }
-                : null
-        );
+        if (isOver) {
+            showPopover({
+                popover: <LiveCardComponent card={card} />,
+                triggerRef: ref,
+            });
+        } else {
+            hidePopover();
+        }
     }, [isOver]);
 
     const hasBeenUsedThisRound =
