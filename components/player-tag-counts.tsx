@@ -78,7 +78,7 @@ function PlayerTagCounts({
         tag => {
             if ([TagFilterMode.ALL, TagFilterMode.BLUE, TagFilterMode.GREEN].includes(filterMode)) {
                 // if there's only one tag, don't do anything
-                if (tagCountsByName.length === 1) return;
+                if (Object.keys(tagCountsByName).length === 1) return;
                 // If everything is selected and user clicks a tag, assume they
                 // want to filter to see JUST that tag
                 setTagFilterConfig({filterMode: TagFilterMode.SUBSET, filteredTags: [tag]});
@@ -94,7 +94,7 @@ function PlayerTagCounts({
                         filteredTags: filteredTags.filter(t => t !== tag),
                     });
                 } else {
-                    if (filteredTags.length + 1 === tagCountsByName.length) {
+                    if (filteredTags.length + 1 === Object.keys(tagCountsByName).length) {
                         // if they've selected all the tags, go back to all mode
                         setTagFilterConfig({
                             filterMode: TagFilterMode.ALL,
@@ -110,7 +110,7 @@ function PlayerTagCounts({
                 }
             }
         },
-        [filteredTags.length, tagCountsByName.length]
+        [filteredTags.length, tagCountsByName]
     );
 
     return (
@@ -142,13 +142,13 @@ function PlayerTagCounts({
                 </AllButton>
             </Flex>
             <Flex flexWrap="wrap" flexDirection="row">
-                {tagCountsByName.map(tagCount => {
+                {Object.entries(tagCountsByName).map(tagCount => {
                     const [tag, count] = tagCount;
                     return (
                         <TagButton
                             key={tag}
                             onClick={() => toggleTag(tag)}
-                            isSelected={filteredTags.includes(tag)}
+                            isSelected={filteredTags.includes(tag as Tag)}
                             allSelected={filterMode === TagFilterMode.ALL}
                             style={{marginRight: 4}}
                         >

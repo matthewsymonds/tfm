@@ -13,6 +13,7 @@ export enum Tag {
     VENUS = 'tagVenus',
     WILD = 'tagWild',
     ANY = 'tagAny',
+    NONE = 'tagNone',
 }
 
 export type TagAmount = {

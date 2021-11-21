@@ -446,10 +446,10 @@ function logPropsAreEqual(props1, props2) {
     return props1?.items && props1?.items?.length === props2?.items?.length;
 }
 
-function PaymentIconography({payment = {}}: {payment: NumericPropertyCounter<Resource>}) {
+function PaymentIconography({payment}: {payment: NumericPropertyCounter<Resource>}) {
     return (
         <React.Fragment>
-            {Object.entries(payment)
+            {Object.entries(payment ?? {}) // legacy games may have `null` payment
                 .filter(([, amount]) => amount > 0)
                 .map(([resource, amount], index) => {
                     return (

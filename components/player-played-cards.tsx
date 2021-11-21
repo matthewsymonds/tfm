@@ -43,6 +43,10 @@ function PlayerPlayedCards({
                   ) {
                       return false;
                   }
+                  // special case the "No tag"
+                  if (filteredTags.includes(Tag.NONE) && hydratedCard.tags.length === 0) {
+                      return true;
+                  }
                   return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
               });
 

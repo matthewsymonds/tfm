@@ -3,7 +3,7 @@ import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import React from 'react';
 
-// icon, text color, bg color
+// icon, text color, bg color, classname
 const dict = {
     [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji animal'],
     [Tag.BUILDING]: ['', '#9e6c43', '#8b5e3d', '', 'building'],
@@ -19,6 +19,7 @@ const dict = {
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
     [Tag.WILD]: ['?', 'black', '#fefefe'],
     [Tag.ANY]: ['🌈', 'black', 'white', '', 'emoji'],
+    [Tag.NONE]: ['𝗫', 'black', 'white', '', 'emoji'],
     x: ['x', 'white', 'white'],
 };
 

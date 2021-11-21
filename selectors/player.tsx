@@ -8,27 +8,20 @@ export function getForcedActionsForPlayer(state: GameState, playerIndex: number)
     return player?.forcedActions ?? [];
 }
 
-export function getTagCountsByName(player: PlayerState) {
-    const tagCountsByName: Array<[Tag, number]> = [];
+export function getTagCountsByName(player: PlayerState): {[tag in Tag]?: number} {
+    const tagCountsByName: {[tag in Tag]?: number} = {};
     for (const card of getPlayedCards(player)) {
+        if (card.tags.length === 0) {
+            tagCountsByName[Tag.NONE] = (tagCountsByName[Tag.NONE] ?? 0) + 1;
+        }
         for (const tag of card.tags) {
             if (card.tags.includes(Tag.EVENT) && tag !== Tag.EVENT) {
+                // only count event tags on event cards
                 continue;
             }
-            let tagCount = tagCountsByName.find(tagCount => tagCount[0] === tag);
-            if (!tagCount) {
-                tagCount = [tag, 0];
-                tagCountsByName.push(tagCount);
-            }
-
-            tagCount[1]++;
+            tagCountsByName[tag] = (tagCountsByName[tag] ?? 0) + 1;
         }
     }
-
-    tagCountsByName.sort((alpha, beta) => {
-        // show biggest tag count first.
-        return beta[1] - alpha[1];
-    });
 
     return tagCountsByName;
 }
