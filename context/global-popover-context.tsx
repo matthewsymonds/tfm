@@ -31,8 +31,12 @@ export function usePopoverType(type: PopoverType) {
     const {popoverConfigByType, setPopoverConfigByType} = useContext(GlobalPopoverContext);
 
     return {
-        hidePopover() {
-            setPopoverConfigByType(type, null);
+        // pass null to blindly hide any popover of this type
+        // prefer passing a triggerRef, so we only attempt to hide a specific popover
+        hidePopover(triggerRefOrNull: React.RefObject<HTMLElement> | null) {
+            if (triggerRefOrNull && popoverConfigByType[type]?.triggerRef === triggerRefOrNull) {
+                setPopoverConfigByType(type, null);
+            }
         },
         showPopover(config: PopoverConfig) {
             setPopoverConfigByType(type, config);
@@ -54,6 +58,7 @@ export function GlobalPopoverManager({}: {}) {
 }
 
 const Z_INDEX_BY_POPOVER_TYPE: {[type in PopoverType]: number} = {
+    /** TOAST: 8 (see <ToastContainer /> */
     [PopoverType.ACTION_LIST_ITEM]: 9,
     [PopoverType.ACTION_LOG]: 10,
     [PopoverType.CARD]: 11,
@@ -89,6 +94,7 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
     useEffect(() => {
         function closePopoverAndDeregisterHandler(e: MouseEvent) {
             if (
+                popoverConfig &&
                 e.target instanceof HTMLElement &&
                 !(triggerElement === e.target || triggerElement?.contains(e.target)) &&
                 !(
@@ -101,7 +107,7 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
                 )
             ) {
                 if (!didImmediatelyOpenNewPopover.current) {
-                    hidePopover();
+                    hidePopover(popoverConfig.triggerRef);
                 }
                 document.removeEventListener('click', closePopoverAndDeregisterHandler);
                 document.removeEventListener('touchend', closePopoverAndDeregisterHandler);

@@ -49,7 +49,7 @@ export const CardToggleToken = ({
     const color = getColorForCardType(card.type);
     const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
-    const ref = useRef<HTMLLabelElement>(null);
+    const triggerRef = useRef<HTMLLabelElement>(null);
 
     useEffect(() => {
         if (!showCardOnHover) {
@@ -58,11 +58,11 @@ export const CardToggleToken = ({
         if (isOver) {
             showPopover({
                 popover: <LiveCardComponent card={card} />,
-                triggerRef: ref,
+                triggerRef,
                 popoverOpts: {placement: 'bottom-start'},
             });
         } else {
-            hidePopover();
+            hidePopover(triggerRef);
         }
     }, [isOver]);
 
@@ -78,7 +78,7 @@ export const CardToggleToken = ({
             />
             <CardTextTokenBase
                 htmlFor={id}
-                ref={ref}
+                ref={triggerRef}
                 as="label"
                 color={color}
                 margin={margin}
@@ -106,7 +106,7 @@ export const CardTextToken = ({
 }: CardTextTokenProps) => {
     const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const color = getColorForCardType(card.type);
-    const ref = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
     useEffect(() => {
@@ -116,21 +116,21 @@ export const CardTextToken = ({
         if (isOver) {
             showPopover({
                 popover: <LiveCardComponent card={card} />,
-                triggerRef: ref,
+                triggerRef,
                 popoverOpts: {
                     placement: 'bottom-start',
                     possiblePlacements: ['bottom-start', 'bottom-end', 'top-start', 'top-end'],
                 },
             });
         } else {
-            hidePopover();
+            hidePopover(triggerRef);
         }
     }, [isOver]);
 
     return (
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
             <CardTextTokenBase
-                ref={ref}
+                ref={triggerRef}
                 color={color}
                 margin={margin}
                 style={{
@@ -157,17 +157,17 @@ export const MiniatureCard = ({
     const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const color = getColorForCardType(card.type);
     const currentGeneration = useTypedSelector(state => state.common.generation);
-    const ref = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
     useEffect(() => {
         if (isOver) {
             showPopover({
                 popover: <LiveCardComponent card={card} />,
-                triggerRef: ref,
+                triggerRef,
             });
         } else {
-            hidePopover();
+            hidePopover(triggerRef);
         }
     }, [isOver]);
 
@@ -178,7 +178,7 @@ export const MiniatureCard = ({
         <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
             <Flex flexDirection="column" width={shouldUseFullWidth ? '100%' : undefined}>
                 <CardTextTokenBase
-                    ref={ref}
+                    ref={triggerRef}
                     color={color}
                     style={{
                         borderBottomLeftRadius: 0,

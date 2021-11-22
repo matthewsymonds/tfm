@@ -76,7 +76,7 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
                             milestone={action}
                             isClaimed={isClaimed(action)}
                             claimMilestone={(milestone, payment) => {
-                                hidePopover();
+                                hidePopover(null);
                                 claimMilestone(milestone, payment);
                             }}
                             claimedByPlayer={

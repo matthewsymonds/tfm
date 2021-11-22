@@ -8,6 +8,7 @@ import {Tag} from 'constants/tag';
 import {
     GameAction,
     GameActionClaimMilestone,
+    GameActionConvertResources,
     GameActionFundAward,
     GameActionGameUpdate,
     GameActionPass,
@@ -116,6 +117,7 @@ export type SerializedGameAction =
     | SerializedGameActionPlayCardAction
     | GameActionFundAward
     | GameActionClaimMilestone
+    | GameActionConvertResources
     | GameActionStandardProject
     | GameActionTrade
     | GameActionSkip
@@ -136,6 +138,7 @@ export function deserializeGameAction(serializedGameAction: SerializedGameAction
                 card: deserializeCard(serializedGameAction.card),
             };
         case GameActionType.AWARD:
+        case GameActionType.CONVERSION:
         case GameActionType.MILESTONE:
         case GameActionType.STANDARD_PROJECT:
         case GameActionType.TRADE:

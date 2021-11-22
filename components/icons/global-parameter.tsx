@@ -14,6 +14,7 @@ export const AllCapsIcon = styled.div<{
     margin?: number | string;
     borderRadius?: number;
     padding?: number;
+    isInline?: boolean;
 }>`
     height: ${props => props.size}px;
     line-height: ${props => props.size}px;
@@ -22,9 +23,8 @@ export const AllCapsIcon = styled.div<{
     font-size: ${props => Math.ceil((2 / 3) * props.size)}px;
     border-radius: ${props => props.borderRadius ?? 0}px;
     text-transform: uppercase;
-    font-kerning: 0.1rem;
-    padding: ${props => props.padding ?? 4}px;
-    display: flex;
+    padding: ${props => props.padding ?? 2}px;
+    display: ${props => (props.isInline ? 'inline-flex' : 'flex')};
     align-items: center;
     justify-content: center;
     letter-spacing: 0.1em;
@@ -46,13 +46,23 @@ export const GlobalParameterIcon = ({
             return <TileIcon type={TileType.OCEAN} size={(size * 4) / 3} margin={margin} />;
         case Parameter.OXYGEN:
             return (
-                <AllCapsIcon size={size} bgColor={colors.PARAMETERS[parameter]} margin={margin}>
+                <AllCapsIcon
+                    size={size - 4} // for padding
+                    bgColor={colors.PARAMETERS[parameter]}
+                    margin={margin}
+                    isInline={true}
+                >
                     O₂
                 </AllCapsIcon>
             );
         case Parameter.TEMPERATURE:
             return (
-                <AllCapsIcon size={size} bgColor={colors.PARAMETERS[parameter]} margin={margin}>
+                <AllCapsIcon
+                    size={size - 4} // for padding
+                    bgColor={colors.PARAMETERS[parameter]}
+                    margin={margin}
+                    isInline={true}
+                >
                     🌡
                 </AllCapsIcon>
             );

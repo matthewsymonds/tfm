@@ -87,7 +87,7 @@ export default function StandardProjectList({loggedInPlayer}: {loggedInPlayer: P
                             action: StandardProjectAction,
                             payment: Payment
                         ) => {
-                            hidePopover();
+                            hidePopover(null);
                             playStandardProjectAction(action, payment);
                         }}
                     />

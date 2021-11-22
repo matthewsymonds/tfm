@@ -9,6 +9,7 @@ export enum GameActionType {
     CARD_ACTION = 'cardAction',
     AWARD = 'award',
     MILESTONE = 'milestone',
+    CONVERSION = 'conversion',
     STANDARD_PROJECT = 'standardProject',
     TRADE = 'trade',
     SKIP = 'skip',
@@ -39,6 +40,11 @@ export type GameActionFundAward = SharedGameAction & {
     actionType: GameActionType.AWARD;
     award: Award;
     payment: NumericPropertyCounter<Resource>;
+};
+
+export type GameActionConvertResources = SharedGameAction & {
+    actionType: GameActionType.CONVERSION;
+    conversionType: 'heat' | 'plants';
 };
 
 export type GameActionClaimMilestone = SharedGameAction & {
@@ -82,6 +88,7 @@ export type GameAction =
     | GameActionPlayCardAction
     | GameActionFundAward
     | GameActionClaimMilestone
+    | GameActionConvertResources
     | GameActionStandardProject
     | GameActionTrade
     | GameActionSkip

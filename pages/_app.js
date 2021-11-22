@@ -111,7 +111,17 @@ export const GlobalStyles = createGlobalStyle`
     .player-boards-outer {
         width: 100%;
         grid-area: player-boards-outer;
-
+    }
+    .toast {
+        background: hsl(18deg 74% 88%);
+        color: #111111;
+        border-radius: 8px;
+        border-width: 2px;
+        border-style: solid;
+        border-color: ${colors.CARD_BORDER_1};
+        border-left-color: ${colors.CARD_BORDER_1};
+        border-bottom-color: ${colors.CARD_BORDER_2};
+        border-right-color: ${colors.CARD_BORDER_2};
     }
     .player-cards-and-tags-outer {
         width: 100%;

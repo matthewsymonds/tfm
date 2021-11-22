@@ -1,9 +1,12 @@
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
+import {GameActionType} from 'GameActionState';
 import React, {useContext, useEffect} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
-import {LogEntry} from './action-log';
+import {SerializedGameAction} from 'state-serialization';
+import {bucketLogItems, LogEntry} from './action-log';
+import {colors} from './ui';
 
 export const LogToast = () => {
     const context = useContext(AppContext);
@@ -11,6 +14,9 @@ export const LogToast = () => {
     const log = useTypedSelector(state => state.log);
     const gameName = useTypedSelector(state => state.name);
     const logLength = log.length;
+    const loggedInPlayerIndex = useTypedSelector(state =>
+        state.players.findIndex(player => player.username === context.getUsername())
+    );
 
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
@@ -32,29 +38,32 @@ export const LogToast = () => {
             return;
         }
 
-        const logItems = log
-            .slice(lastSeenLogItem - logLength)
-            .filter((entry): entry is string => typeof entry === 'string')
-            .filter(entry => !entry.startsWith('Generation')); // Hack
+        const logItemsToShow = log.slice(lastSeenLogItem - logLength);
+        const bucketedEntries = bucketLogItems(logItemsToShow).filter(bucket => {
+            const firstLogItem = bucket[0];
+            return (
+                typeof firstLogItem === 'string' ||
+                firstLogItem.actionType === GameActionType.GAME_UPDATE ||
+                firstLogItem.playerIndex !== loggedInPlayerIndex
+            );
+        });
 
-        if (logItems.join('').trim().length === 0) {
+        if (bucketedEntries.length === 0) {
             return;
         }
 
-        toast(
-            <>
-                {logItems.map((entry, entryIndex) => (
-                    <div key={`${entry}-${entryIndex}`}>
-                        <LogEntry
-                            items={[entry]}
-                            entryIndex={entryIndex}
-                            players={players}
-                            corporationNames={corporationNames}
-                        />
-                    </div>
-                ))}
-            </>
-        );
+        bucketedEntries.forEach((bucket, index) => {
+            toast(
+                <LogEntry
+                    items={bucket}
+                    entryIndex={index}
+                    players={players}
+                    corporationNames={corporationNames}
+                    shouldUsePadding={false}
+                />
+            );
+        });
+
         context.setLastSeenLogItem(logLength);
         return () => {
             toast.clearWaitingQueue();
@@ -65,5 +74,14 @@ export const LogToast = () => {
         return null;
     }
 
-    return <ToastContainer />;
+    return (
+        <ToastContainer
+            newestOnTop={true}
+            progressStyle={{
+                background: colors.DARK_ORANGE,
+            }}
+            toastClassName="toast"
+            style={{padding: 0, zIndex: 8}}
+        />
+    );
 };

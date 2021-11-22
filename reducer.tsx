@@ -232,7 +232,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
         draft.common.turn++;
         draft.log.push({
             actionType: GameActionType.GAME_UPDATE,
-            text: `Generation ${draft.common.generation}, turn ${draft.common.turn}`,
+            text: `📜 Generation ${draft.common.generation}, turn ${draft.common.turn}`,
         });
     }
 }

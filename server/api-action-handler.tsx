@@ -924,13 +924,15 @@ export class ApiActionHandler {
         resource,
         supplementalResources,
     }: {
-        resource: Resource;
+        resource: Resource.HEAT | Resource.PLANT;
         supplementalResources?: SupplementalResources;
     }) {
         const conversion = CONVERSIONS[resource];
         if (!conversion) {
             throw new Error('No conversion');
         }
+        const player = this.getLoggedInPlayer();
+
         const [canPlay, reason] = this.actionGuard.canDoConversion(
             conversion,
             supplementalResources
@@ -939,6 +941,11 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
 
+        this.addGameActionToLog({
+            actionType: GameActionType.CONVERSION,
+            playerIndex: player.index,
+            conversionType: resource === Resource.HEAT ? 'heat' : 'plants',
+        });
         this.playAction({action: conversion, state: this.state, supplementalResources});
         const gameStage = this.state.common.gameStage;
         if (gameStage === GameStage.ACTIVE_ROUND) {

@@ -23,16 +23,24 @@ export const PlayerIcon = ({
     size,
     style,
     border,
+    shouldDimForPassedPlayers = false,
 }: {
     playerIndex: number;
     size: number;
     style?: React.CSSProperties;
     border?: string;
+    shouldDimForPassedPlayers?: boolean;
 }) => {
     const color = PLAYER_COLORS[playerIndex];
     const passed = useTypedSelector(state => getHasPlayerPassed(playerIndex, state));
     return (
-        <PlayerIconBase size={size} color={color} border={border} passed={passed} style={style} />
+        <PlayerIconBase
+            size={size}
+            color={color}
+            border={border}
+            passed={shouldDimForPassedPlayers && passed}
+            style={style}
+        />
     );
 };
 

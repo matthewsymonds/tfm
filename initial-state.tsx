@@ -78,7 +78,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
 
     const base = {
         name,
-        log: ['Generation 1'] as string[],
+        log: ['📜 Generation 1'] as string[],
         common: {
             playerIndexOrderForGeneration: [] as number[],
             discardPile: [],

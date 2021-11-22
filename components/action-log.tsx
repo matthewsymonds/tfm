@@ -4,6 +4,7 @@ import {PlayerCorpAndIcon} from 'components/icons/player';
 import {ResourceIcon} from 'components/icons/resource';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
+import {Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
@@ -22,14 +23,40 @@ import {BlankButton} from './blank-button';
 import {getTextForAward} from './board/board-actions/awards';
 import {getTextForMilestone} from './board/board-actions/milestones';
 import {getLogTextForStandardProject} from './board/board-actions/standard-projects';
+import {GlobalParameterIcon} from './icons/global-parameter';
+import {TileIcon} from './icons/tile';
+
+export function bucketLogItems(
+    logItems: Array<SerializedGameAction>
+): Array<Array<SerializedGameAction>> {
+    const bucketedEntries: Array<Array<SerializedGameAction>> = [];
+    let currentBucket: Array<SerializedGameAction> = [];
+    logItems.forEach(entry => {
+        if (
+            typeof entry === 'string' ||
+            entry.actionType === GameActionType.PLAYER_RESOURCE_UPDATE
+        ) {
+            currentBucket.push(entry);
+        } else {
+            if (currentBucket.length > 0) {
+                bucketedEntries.push(currentBucket);
+            }
+            currentBucket = [entry];
+        }
+    });
+    if (currentBucket.length > 0) {
+        bucketedEntries.push(currentBucket);
+    }
+    return bucketedEntries;
+}
 
 export const ActionLog = () => {
     const {showPopover, hidePopover, popoverConfig} = usePopoverType(PopoverType.ACTION_LOG);
-    const ref = useRef<HTMLButtonElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
 
     function toggleLog() {
-        if (popoverConfig?.triggerRef === ref) {
-            hidePopover();
+        if (popoverConfig?.triggerRef === triggerRef) {
+            hidePopover(triggerRef);
         } else {
             const rootEl = document.querySelector('#root');
             if (!rootEl) {
@@ -56,7 +83,7 @@ export const ActionLog = () => {
                         <LogPanel />
                     </TexturedCard>
                 ),
-                triggerRef: ref,
+                triggerRef,
                 popoverOpts: {
                     placement: 'bottom-end',
                 },
@@ -66,7 +93,7 @@ export const ActionLog = () => {
 
     return (
         <React.Fragment>
-            <BlankButton ref={ref} onClick={() => toggleLog()} style={{marginRight: 4}}>
+            <BlankButton ref={triggerRef} onClick={() => toggleLog()} style={{marginRight: 4}}>
                 📜
             </BlankButton>
         </React.Fragment>
@@ -106,20 +133,7 @@ const LogPanel = () => {
         return null;
     }
 
-    const bucketedEntries: Array<Array<SerializedGameAction>> = [];
-    let currentBucket: Array<SerializedGameAction> = [];
-    log.forEach(entry => {
-        if (
-            typeof entry === 'string' ||
-            entry.actionType === GameActionType.PLAYER_RESOURCE_UPDATE
-        ) {
-            currentBucket.push(entry);
-        } else {
-            bucketedEntries.push(currentBucket);
-            currentBucket = [entry];
-        }
-    });
-    bucketedEntries.push(currentBucket);
+    const bucketedEntries = bucketLogItems(log);
 
     return (
         <LogPanelBase>
@@ -143,11 +157,13 @@ const LogEntryInner = ({
     entryIndex,
     players,
     corporationNames,
+    shouldUsePadding = true,
 }: {
     items: Array<SerializedGameAction>;
     entryIndex: number;
     players: PlayerState[];
     corporationNames: string[];
+    shouldUsePadding?: boolean;
 }) => {
     const innerElements: Array<React.ReactNode> = [];
     const gameActions = items.map(getGameAction);
@@ -227,7 +243,7 @@ const LogEntryInner = ({
                         );
                     } else {
                         innerElements.push(
-                            <Flex display="inline-flex" alignItems="center">
+                            <Flex display="inline" alignItems="center">
                                 <PlayerCorpAndIcon player={player} isInline />
                                 {isFree ? (
                                     <span style={{marginLeft: 4, marginRight: 4}}>played</span>
@@ -252,7 +268,7 @@ const LogEntryInner = ({
                     const payment = gameAction.payment ?? {};
 
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 {Object.keys(payment).length > 0 ? (
@@ -277,7 +293,7 @@ const LogEntryInner = ({
                     const {award, payment} = gameAction;
 
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
@@ -296,7 +312,7 @@ const LogEntryInner = ({
                     const {milestone, payment} = gameAction;
 
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
@@ -309,13 +325,39 @@ const LogEntryInner = ({
                     );
                     break;
                 }
+                case GameActionType.CONVERSION: {
+                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    if (!player) throw new Error('unknown player');
+                    const {conversionType} = gameAction;
+                    innerElements.push(
+                        <Flex display="inline" alignItems="center">
+                            <PlayerCorpAndIcon player={player} isInline />
+                            <span style={{marginLeft: 4}}>converted</span>
+                            {conversionType === 'heat' ? (
+                                <React.Fragment>
+                                    <span style={{marginLeft: 4, marginRight: 4}}>heat into</span>
+                                    <GlobalParameterIcon
+                                        parameter={Parameter.TEMPERATURE}
+                                        size={20}
+                                    />
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>
+                                    <span style={{marginLeft: 4, marginRight: 4}}>plants into</span>
+                                    <TileIcon type={TileType.GREENERY} size={20} />
+                                </React.Fragment>
+                            )}
+                        </Flex>
+                    );
+                    break;
+                }
                 case GameActionType.STANDARD_PROJECT: {
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
                     const {standardProject, payment} = gameAction;
 
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 {standardProject !== StandardProjectType.SELL_PATENTS && (
@@ -337,7 +379,7 @@ const LogEntryInner = ({
                     const {colonyName, payment} = gameAction;
 
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
@@ -354,7 +396,7 @@ const LogEntryInner = ({
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <span style={{marginLeft: 4, marginRight: 4}}>
                                 passed for this generation
@@ -367,7 +409,7 @@ const LogEntryInner = ({
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
-                        <Flex display="inline-flex" alignItems="center">
+                        <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <span style={{marginLeft: 4, marginRight: 4}}>
                                 skipped their 2nd action
@@ -379,7 +421,7 @@ const LogEntryInner = ({
                 case GameActionType.GAME_UPDATE: {
                     innerElements.push(
                         <Flex
-                            display="inline-flex"
+                            display="inline"
                             alignItems="center"
                             className="display"
                             style={{fontSize: '1rem'}}
@@ -393,28 +435,47 @@ const LogEntryInner = ({
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
-                        <Flex display="inline" alignItems="center">
-                            <PlayerCorpAndIcon player={player} isInline />
-                            <span style={{marginLeft: 4, marginRight: 4}}>now has</span>
-                            {Object.keys(gameAction.resource).map(resource => {
-                                return (
-                                    <span
+                        <Flex flexDirection="column">
+                            <Flex display="inline" alignItems="center">
+                                <PlayerCorpAndIcon player={player} isInline />
+                            </Flex>
+                            <Box display="grid">
+                                {[
+                                    Resource.MEGACREDIT,
+                                    Resource.STEEL,
+                                    Resource.TITANIUM,
+                                    Resource.PLANT,
+                                    Resource.ENERGY,
+                                    Resource.HEAT,
+                                ].map((resource, index) => (
+                                    <Flex
                                         key={resource}
+                                        justifyContent="center"
+                                        alignItems="center"
                                         style={{
-                                            display: 'inline-flex',
-                                            marginRight: 8,
-                                            alignItems: 'center',
-                                            fontWeight: 700,
+                                            margin: '4px 0',
+                                            gridColumn: (index + 1) % 3,
+                                            gridRow: index > 2 ? 2 : 1,
                                         }}
                                     >
-                                        <ResourceIcon
-                                            amount={gameAction.resource[resource]}
-                                            name={resource as Resource}
-                                            margin="0 0 0 2px"
-                                        />
-                                    </span>
-                                );
-                            })}
+                                        <span
+                                            key={resource}
+                                            style={{
+                                                display: 'inline',
+                                                marginRight: 8,
+                                                alignItems: 'center',
+                                                fontWeight: 700,
+                                            }}
+                                        >
+                                            <ResourceIcon
+                                                amount={gameAction.resource[resource]}
+                                                name={resource as Resource}
+                                                margin="0 0 0 2px"
+                                            />
+                                        </span>
+                                    </Flex>
+                                ))}
+                            </Box>
                         </Flex>
                     );
                     break;
@@ -426,7 +487,11 @@ const LogEntryInner = ({
     });
 
     return (
-        <Box key={`Log-entry-${entryIndex}`} padding="8px" fontSize="0.8rem">
+        <Box
+            key={`Log-entry-${entryIndex}`}
+            padding={shouldUsePadding ? '8px' : undefined}
+            fontSize="0.8rem"
+        >
             {innerElements.map((innerElement, index) =>
                 index === 0 ? (
                     <React.Fragment key={index}>{innerElement}</React.Fragment>

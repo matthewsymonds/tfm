@@ -396,7 +396,11 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                     )}
                                     <CorporationHeader>
                                         <Flex alignItems="center">
-                                            <PlayerIcon size={16} playerIndex={player.index} />
+                                            <PlayerIcon
+                                                size={16}
+                                                playerIndex={player.index}
+                                                shouldDimForPassedPlayers={true}
+                                            />
                                             <span
                                                 style={{
                                                     marginLeft: 8,

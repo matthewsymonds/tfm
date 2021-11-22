@@ -115,7 +115,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
                         <AwardPopover
                             award={action}
                             fundAward={(award, payment) => {
-                                hidePopover();
+                                hidePopover(null);
                                 fundAward(award, payment);
                             }}
                             loggedInPlayer={loggedInPlayer}
