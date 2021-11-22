@@ -38,7 +38,7 @@ export const InlineText = styled.span`
     text-align: center;
 `;
 export const TextWithMargin = styled(InlineText)<{margin?: string}>`
-    margin: ${props => props.margin ?? '0 4px'};
+    margin: ${props => props.margin ?? '0 2px'};
 `;
 export const IconographyRow = styled.div<{isInline?: boolean}>`
     display: ${props => (props.isInline ? 'inline-flex' : 'flex')};
@@ -210,7 +210,7 @@ export function ChangeResourceOptionIconography({
         elements.push(
             <ChangeResourceIconography
                 changeResource={{[resource]: quantity}}
-                opts={{...opts, isInline: true, showNumericQuantity: true}}
+                opts={{...opts, isInline: true}}
             />
         );
     });
@@ -308,7 +308,7 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
         let el = (
             <Flex alignItems="center">
                 {prefixElements.length > 0 && (
-                    <TextWithMargin margin="0 4px 0 0">{prefixElements}</TextWithMargin>
+                    <TextWithMargin margin="0 2px 0 0">{prefixElements}</TextWithMargin>
                 )}
                 {showNumericQuantity || resource === Resource.MEGACREDIT
                     ? resourceIconElement
@@ -459,7 +459,7 @@ function getMultiplierAndCustomElement(
         case VariableAmount.THIRD_FLOATERS:
             multiplierElement = (
                 <React.Fragment>
-                    <TextWithMargin margin="3px">3</TextWithMargin>
+                    <TextWithMargin>3</TextWithMargin>
                     <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
                 </React.Fragment>
             );
@@ -788,7 +788,7 @@ function DuplicateProductionIconography({
 
     return (
         <IconographyRow className="duplicate-production" isInline={opts?.isInline ?? false}>
-            <TextWithMargin margin="0 4px 0 0">Copy a </TextWithMargin>
+            <TextWithMargin margin="0 2px 0 0">Copy a </TextWithMargin>
             <TagIcon name={Tag.BUILDING} size={16} />
         </IconographyRow>
     );
@@ -827,7 +827,7 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
     if (hasDecreaseProduction || hasDecreaseAnyProduction) {
         rows.push(
             <React.Fragment>
-                <TextWithMargin margin="0 4px 0 0">-</TextWithMargin>
+                <TextWithMargin margin="0 2px 0 0">-</TextWithMargin>
                 <ChangeResourceIconography
                     changeResource={card.decreaseProduction ?? {}}
                     opts={{
@@ -1165,6 +1165,7 @@ export const BaseActionIconography = ({
     const temporaryParameterRequirementAdjustments =
         card instanceof CardModel ? card.temporaryParameterRequirementAdjustments : null;
     const choice = 'choice' in card ? card.choice : null;
+    console.log(card);
     const steps = 'steps' in card ? card.steps : null;
 
     return (

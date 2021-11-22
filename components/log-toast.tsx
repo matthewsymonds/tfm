@@ -4,7 +4,6 @@ import {GameActionType} from 'GameActionState';
 import React, {useContext, useEffect} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
-import {SerializedGameAction} from 'state-serialization';
 import {bucketLogItems, LogEntry} from './action-log';
 import {colors} from './ui';
 
@@ -81,7 +80,7 @@ export const LogToast = () => {
                 background: colors.DARK_ORANGE,
             }}
             toastClassName="toast"
-            style={{padding: 0, zIndex: 8}}
+            style={{padding: 4, zIndex: 8}}
         />
     );
 };

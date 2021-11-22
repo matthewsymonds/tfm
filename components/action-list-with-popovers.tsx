@@ -1,6 +1,6 @@
 import {colors} from 'components/ui';
-import {GlobalPopoverContext, PopoverType, usePopoverType} from 'context/global-popover-context';
-import React, {useContext, useEffect, useRef} from 'react';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
+import React, {useEffect, useRef} from 'react';
 import {useHover} from 'react-laag';
 import {PlacementType} from 'react-laag/dist/PlacementType';
 import styled from 'styled-components';

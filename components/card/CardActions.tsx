@@ -31,9 +31,7 @@ import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
-const ActionText = styled(CardText)`
-    margin-bottom: 4px;
-`;
+const ActionText = styled(CardText)``;
 
 const ActionsWrapper = styled.div`
     display: flex;

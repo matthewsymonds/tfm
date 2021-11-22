@@ -200,6 +200,18 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 </Flex>
             );
         }
+        if (action?.steps) {
+            return (
+                <Flex alignItems="center">
+                    {action?.steps.map((actionStep, index) => (
+                        <React.Fragment key={index}>
+                            {index > 0 && <div style={{width: 4}} />}
+                            {renderAction(actionStep)}
+                        </React.Fragment>
+                    ))}
+                </Flex>
+            );
+        }
         if (card.parameterRequirementAdjustments) {
             return (
                 <InlineText>+/-{Object.values(card.parameterRequirementAdjustments)[0]}</InlineText>

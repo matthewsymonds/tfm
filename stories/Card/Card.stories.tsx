@@ -70,7 +70,7 @@ const MiniCardTemplate: Story<{}> = args => {
                         // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
                         // .filter(c => c.name === 'Vitor')
                         .filter(c => c.type === CardType.ACTIVE)
-                        // .filter(c => c.name === 'Olympus Conference')
+                        // .filter(c => c.name === 'Mars University')
                         .map(cardConfig => {
                             const card = new CardModel(cardConfig);
                             card.storedResourceAmount = 3;
