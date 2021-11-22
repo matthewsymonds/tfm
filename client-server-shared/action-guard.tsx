@@ -884,8 +884,8 @@ export class ActionGuard {
         const {gameStage} = state.common;
         const player = this._getPlayerToConsider();
         if (
-            player.index !== state.common.controllingPlayerIndex ??
-            state.common.currentPlayerIndex
+            player.index !==
+            (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex)
         ) {
             return true;
         }
