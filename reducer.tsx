@@ -9,7 +9,9 @@ import {
     STARTING_STEP,
     STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
+import {Party} from 'constants/party';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
+import {Delegate, Turmoil} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameActionType} from 'GameActionState';
 import produce from 'immer';
@@ -47,12 +49,14 @@ import {
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToDuplicateProduction,
+    askUserToExchangeNeutralNonLeaderDelegate,
     askUserToFundAward,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceColony,
+    askUserToPlaceDelegatesInOneParty,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToPutAdditionalColonyTileIntoPlay,
@@ -70,12 +74,15 @@ import {
     discardPreludes,
     discardRevealedCards,
     draftCard,
+    exchangeChairman,
+    exchangeNeutralNonLeaderDelegate,
     fundAward,
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
     gainTradeFleet,
     increaseAndDecreaseColonyTileTracks,
+    increaseBaseInfluence,
     increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
@@ -92,6 +99,7 @@ import {
     payToPlayCardAction,
     payToPlayStandardProject,
     placeColony,
+    placeDelegatesInOneParty,
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
@@ -102,6 +110,7 @@ import {
     setGame,
     setIsNotSyncing,
     setIsSyncing,
+    setOceanAdjacencybonus,
     setPlantDiscount,
     setPreludes,
     skipAction,
@@ -1326,6 +1335,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.plantDiscount = action.payload.plantDiscount;
         }
 
+        if (setOceanAdjacencybonus.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.oceanAdjacencyBonus = action.payload.oceanAdjacencyBonus;
+        }
+
         if (applyExchangeRateChanges.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1488,6 +1503,73 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.increaseAndDecreaseColonyTileTracks = undefined;
         }
 
+        if (askUserToPlaceDelegatesInOneParty.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.placeDelegatesInOneParty = payload.numDelegates;
+        }
+
+        if (placeDelegatesInOneParty.match(action)) {
+            const {payload} = action;
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                const delegation = turmoil.delegations[payload.party];
+                if (delegation) {
+                    for (let i = 0; i < payload.numDelegates; i++) {
+                        const delegate = turmoil.delegateReserve[payload.playerIndex].pop();
+                        if (delegate) {
+                            delegation.push(delegate);
+                        }
+                    }
+                    determineNewLeader(delegation, payload.playerIndex);
+                    determineNewDominantParty(turmoil, payload.party);
+                }
+            }
+        }
+
+        if (increaseBaseInfluence.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.baseInfluence ||= 0;
+            player.baseInfluence += 1;
+        }
+
+        if (askUserToExchangeNeutralNonLeaderDelegate.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.exchangeNeutralNonLeaderDelegate = true;
+        }
+
+        if (exchangeNeutralNonLeaderDelegate.match(action)) {
+            const {payload} = action;
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                const delegation = turmoil.delegations[payload.party];
+                const neutralDelegateIndex = delegation.findIndex(
+                    delegate => delegate.playerIndex === undefined
+                );
+                if (neutralDelegateIndex >= 0) {
+                    const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
+                    if (delegateInReserve) {
+                        // We'll just let neutral delegates disappear and reappear as needed.
+                        delegation[neutralDelegateIndex] = delegateInReserve;
+                    }
+                }
+            }
+        }
+
+        if (exchangeChairman.match(action)) {
+            const {payload} = action;
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
+                if (delegateInReserve) {
+                    // We'll just let neutral delegates disappear and reappear as needed.
+                    turmoil.chairperson = delegateInReserve;
+                }
+            }
+        }
+
         if (announceReadyToStartRound.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1557,7 +1639,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         indexToConsider = (indexToConsider + 1) % draft.players.length;
                     } while (indexToConsider !== common.firstPlayerIndex);
                     if (playersWhoCanPlaceGreenery.length > 0) {
-                        draft.log.push('Greenery Placement');
+                        draft.log.push({
+                            actionType: GameActionType.GAME_UPDATE,
+                            text: '🌳 Greenery Placement',
+                        });
                         for (player of playersWhoCanPlaceGreenery) {
                             player.action = 1;
                         }
@@ -1693,6 +1778,28 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         }
     });
 };
+
+function determineNewLeader(delegation: Delegate[], playerIndex?: number) {
+    const leader = delegation[0];
+    const numLeaderDelegates = delegation.filter(
+        delegate => delegate.playerIndex === leader?.playerIndex
+    );
+    const numPlayerDelegates = delegation.filter(delegate => delegate.playerIndex === playerIndex);
+    if (numPlayerDelegates > numLeaderDelegates) {
+        const firstPlayerDelegateIndex = delegation.findIndex(
+            delegate => delegate.playerIndex === playerIndex
+        );
+        delegation[0] = delegation[firstPlayerDelegateIndex];
+        delegation[firstPlayerDelegateIndex] = leader;
+    }
+}
+
+function determineNewDominantParty(turmoil: Turmoil, recentlyGrownParty: Party) {
+    const {dominantParty, delegations} = turmoil;
+    if (delegations[recentlyGrownParty].length > delegations[dominantParty].length) {
+        turmoil.dominantParty = recentlyGrownParty;
+    }
+}
 
 const equalityFn = shallowEqual;
 

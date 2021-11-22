@@ -24,6 +24,7 @@ export enum TileType {
     OTHER = 'OTHER',
     RESTRICTED_AREA = 'RESTRICTED_AREA',
     MINING_AREA = 'MINING_AREA',
+    ANY_TILE = 'ANY_TILE',
 }
 
 // only set for certain cells

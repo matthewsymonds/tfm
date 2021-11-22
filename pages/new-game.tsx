@@ -26,6 +26,7 @@ export default function NewGame(props) {
     const [isVenusNextEnabled, setIsVenusNextEnabled] = useState(true);
     const [isPreludeEnabled, setIsPreludeEnabled] = useState(true);
     const [isColoniesEnabled, setIsColoniesEnabled] = useState(true);
+    const [isTurmoilEnabled, setIsTurmoilEnabled] = useState(true);
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -77,6 +78,9 @@ export default function NewGame(props) {
             }
             if (isColoniesEnabled) {
                 decks.push(Deck.COLONIES);
+            }
+            if (isTurmoilEnabled) {
+                decks.push(Deck.TURMOIL);
             }
         }
 
@@ -181,6 +185,15 @@ export default function NewGame(props) {
                             onChange={e => setIsColoniesEnabled(e.target.checked)}
                         />
                         Colonies
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={!isCorporateEraEnabled}
+                            checked={isCorporateEraEnabled && isTurmoilEnabled}
+                            onChange={e => setIsTurmoilEnabled(e.target.checked)}
+                        />
+                        Turmoil
                     </label>
                 </Flex>
                 <Box marginTop="32px">

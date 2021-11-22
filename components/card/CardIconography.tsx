@@ -1,4 +1,5 @@
 import {PlaceColony} from 'actions';
+import {Hexagon} from 'components/board/hexagon';
 import {Box, Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
@@ -6,12 +7,18 @@ import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import TexturedCard from 'components/textured-card';
+import {MiniPartyIcon} from 'components/turmoil';
 import {colors} from 'components/ui';
 import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
+import {isContestAmount} from 'constants/contest-amount';
+import {getSymbolForOperation, isOperationAmount, Operation} from 'constants/operation-amount';
+import {isProductionAmount} from 'constants/production-amount';
 import {PropertyCounter} from 'constants/property-counter';
 import {getResourceBorder, ResourceLocationType} from 'constants/resource';
+import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
@@ -20,6 +27,7 @@ import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
+import {renderArrow} from './CardActions';
 
 export const InlineText = styled.span`
     margin: 3px 0;
@@ -86,9 +94,7 @@ export function ChangeResourceIconography({
         ...opts,
     };
     const elements: Array<React.ReactNode> = [];
-    const shouldShowNegativeSymbol = (r: string) =>
-        opts?.isNegative && !(opts?.isProduction && r === Resource.MEGACREDIT);
-    const getShouldShowNumericQuantity = (resource: string, amount: number) => {
+    const shouldShowNumericQuantity = (amount: number, resource?: Resource) => {
         // never show number for MC (its special-cased and always shown in the icon itself)
         if (resource === Resource.MEGACREDIT) return false;
         // if the caller explicitly requested it, show number
@@ -107,242 +113,22 @@ export function ChangeResourceIconography({
         return false;
     };
 
+    const shouldShowNegativeSymbol = (r: Resource) =>
+        !!opts?.isNegative && !(opts?.isProduction && r === Resource.MEGACREDIT);
+
     let i = 0;
     for (let [resource, amount] of Object.entries(changeResource)) {
-        // HACK: this naively assumes all variable amounts are coded as "1 per X", where X may be
-        // "3 bacteria", "2 building tags", etc. If we ever want to support "Y per X", we'll need
-        // to modify this to determine what value to show as Y (instead of always showing 1)
-        const name = resource as Resource;
-        const resourceIconElement = (
-            <ResourceIcon
-                name={name}
-                size={16}
-                showRedBorder={opts.useRedBorder}
-                amount={
-                    resource === Resource.MEGACREDIT
-                        ? `${!shouldShowNegativeSymbol(resource) && opts.isNegative ? '-' : ''}${
-                              typeof amount === 'number' ? amount : 1
-                          }`
-                        : undefined
-                }
-                margin={0}
-                border={opts.isProduction ? getResourceBorder(name) : 'none'}
+        elements.push(
+            <RepresentAmountAndResource
+                resourceOnCard={resourceOnCard}
+                opts={opts}
+                shouldShowNegativeSymbol={shouldShowNegativeSymbol}
+                shouldShowNumericQuantity={shouldShowNumericQuantity}
+                resource={resource as Resource}
+                amount={amount}
+                key={i}
             />
         );
-        if (typeof amount === 'number') {
-            const shouldShowNumericQuantity = getShouldShowNumericQuantity(resource, amount);
-            const prefixElements = [
-                ...(opts.showStealText ? ['STEAL'] : []),
-                ...(shouldShowNegativeSymbol(resource) ? ['-'] : []),
-                ...(opts.shouldShowPlus ? ['+'] : []),
-                ...(shouldShowNumericQuantity ? [amount] : []),
-            ];
-            let el = (
-                <Flex alignItems="center">
-                    {prefixElements.length > 0 && (
-                        <TextWithMargin margin="0 4px 0 0">{prefixElements}</TextWithMargin>
-                    )}
-                    {shouldShowNumericQuantity || resource === Resource.MEGACREDIT
-                        ? resourceIconElement
-                        : Array(amount)
-                              .fill(null)
-                              .map((_, index) => (
-                                  <Flex key={index} marginLeft={index > 0 ? '6px' : '0px'}>
-                                      {resourceIconElement}
-                                  </Flex>
-                              ))}
-                </Flex>
-            );
-            elements.push(<React.Fragment>{el}</React.Fragment>);
-        } else {
-            let multiplierElement: React.ReactElement | null = null;
-            let customElement: React.ReactElement | null = null;
-            switch (amount) {
-                case VariableAmount.CITY_TILES_IN_PLAY:
-                    multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
-                    break;
-                case VariableAmount.ALL_EVENTS:
-                    multiplierElement = <TagIcon name={Tag.EVENT} size={16} />;
-                    break;
-                    break;
-                case VariableAmount.ALL_COLONIES:
-                    multiplierElement = <ColonyIcon size={16} />;
-                    break;
-                case VariableAmount.COLONIES:
-                    multiplierElement = <ColonyIcon size={16} />;
-                    break;
-
-                case VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE:
-                    customElement = (
-                        <Flex flexDirection="column" alignItems="center">
-                            <Flex alignItems="center" marginBottom="8px">
-                                <ResourceIcon name={Resource.PLANT} size={16} />
-                                <TextWithMargin>OR</TextWithMargin>
-                            </Flex>
-                            <Flex alignItems="center" justifyContent="center">
-                                <TextWithMargin>3</TextWithMargin>
-                                <TagIcon name={Tag.PLANT} size={16} />
-                                <TextWithMargin>:</TextWithMargin>
-                                <TextWithMargin>4</TextWithMargin>{' '}
-                                <ResourceIcon name={Resource.PLANT} size={16} />
-                            </Flex>
-                        </Flex>
-                    );
-                    break;
-                case VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE:
-                    customElement = (
-                        <Flex flexDirection="column" alignItems="center">
-                            <Flex alignItems="center" marginBottom="8px">
-                                <ResourceIcon name={Resource.CARD} size={16} />
-                                <TextWithMargin>OR</TextWithMargin>
-                            </Flex>
-                            <Flex alignItems="center" justifyContent="center">
-                                <TextWithMargin>3</TextWithMargin>
-                                <TagIcon name={Tag.VENUS} size={16} />
-                                <TextWithMargin>:</TextWithMargin>
-                                <TextWithMargin>3</TextWithMargin>{' '}
-                                <ResourceIcon name={Resource.CARD} size={16} />
-                            </Flex>
-                        </Flex>
-                    );
-                    break;
-                    break;
-                case VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS:
-                case VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS:
-                    customElement = (
-                        <React.Fragment>
-                            <ResourceIcon
-                                border={getResourceBorder(Resource.STEEL)}
-                                name={Resource.STEEL}
-                                size={16}
-                            />
-                            <TextWithMargin>OR</TextWithMargin>
-                            <ResourceIcon name={Resource.TITANIUM} size={16} />
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS:
-                case VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS:
-                    // we handle it in the _STEEL_BONUS variants of these enum values
-                    customElement = null;
-                    multiplierElement = null;
-                    break;
-                case VariableAmount.OPPONENTS_SPACE_TAGS:
-                    multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
-                    break;
-                case VariableAmount.THIRD_FLOATERS:
-                    multiplierElement = (
-                        <React.Fragment>
-                            <TextWithMargin margin="3px">3</TextWithMargin>
-                            <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.CITIES_ON_MARS:
-                    multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
-                    break;
-                case VariableAmount.CARDS_WITHOUT_TAGS:
-                    // @ts-ignore
-                    multiplierElement = <TagIcon name="x" size={16} />;
-                    break;
-                case VariableAmount.VENUS_AND_EARTH_TAGS:
-                    multiplierElement = (
-                        <React.Fragment>
-                            <TagIcon name={Tag.VENUS} size={16} />
-                            <TagIcon name={Tag.EARTH} size={16} />
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.USER_CHOICE_MIN_ZERO:
-                case VariableAmount.BASED_ON_USER_CHOICE:
-                    if (resource === Resource.MEGACREDIT) {
-                        customElement = (
-                            <React.Fragment>
-                                <TextWithMargin>+</TextWithMargin>
-                                <ResourceIcon name={resource as Resource} size={16} amount="X" />
-                            </React.Fragment>
-                        );
-                    } else {
-                        customElement = (
-                            <React.Fragment>
-                                <TextWithMargin>{opts.shouldShowPlus ? '+' : '+X'}</TextWithMargin>
-                                <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
-                            </React.Fragment>
-                        );
-                    }
-                    break;
-                case VariableAmount.USER_CHOICE:
-                    customElement = (
-                        <React.Fragment>
-                            <TextWithMargin>
-                                {shouldShowNegativeSymbol(resource) && '-'}X
-                            </TextWithMargin>
-                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.USER_CHOICE_UP_TO_ONE:
-                    customElement = (
-                        <React.Fragment>
-                            <TextWithMargin>-</TextWithMargin>
-                            <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.TRIPLE_BASED_ON_USER_CHOICE:
-                    customElement = (
-                        <ResourceIcon name={resource as Resource} size={16} amount="3X" />
-                    );
-                    break;
-                case VariableAmount.REVEALED_CARD_MICROBE:
-                    customElement = (
-                        <React.Fragment>
-                            <TagIcon name={Tag.MICROBE} size={16} />
-                            <span>*</span>
-                            <TextWithMargin>:</TextWithMargin>
-                            <ResourceIcon name={resource as Resource} size={16} />
-                        </React.Fragment>
-                    );
-                    break;
-                case VariableAmount.RESOURCES_ON_CARD:
-                    multiplierElement = <ResourceIcon name={resourceOnCard!} size={16} />;
-                    break;
-                case VariableAmount.RESOURCES_ON_CARD_MAX_4:
-                    multiplierElement = (
-                        <Flex display="inline-flex" justifyContent="center" alignItems="center">
-                            <ResourceIcon name={resourceOnCard!} size={16} />
-                            <InlineText>*</InlineText>
-                        </Flex>
-                    );
-                    break;
-                default:
-                    if (amount && isTagAmount(amount)) {
-                        multiplierElement = (
-                            <React.Fragment>
-                                {amount.dividedBy ? (
-                                    <InlineText>{amount.dividedBy}</InlineText>
-                                ) : null}
-                                <TagIcon name={amount.tag} size={16} />
-                            </React.Fragment>
-                        );
-                    } else {
-                        throw new Error('variable amount not supported: ' + amount);
-                    }
-            }
-
-            elements.push(
-                <Flex key={i} justifyContent="center" alignItems="center">
-                    {customElement}
-                    {multiplierElement && (
-                        <React.Fragment>
-                            {resourceIconElement}
-                            <TextWithMargin>/</TextWithMargin>
-                            {multiplierElement}
-                        </React.Fragment>
-                    )}
-                </Flex>
-            );
-        }
         i++;
     }
 
@@ -460,6 +246,386 @@ export function GainResourceIconography({
             opts={opts}
         />
     );
+}
+
+type RepresentAmountAndResourceProps = {
+    amount: Amount;
+    resource?: Resource;
+    resourceOnCard?: Resource;
+    shouldShowNumericQuantity?: (amount: number, resource?: Resource) => boolean;
+    shouldShowNegativeSymbol?: (resource?: Resource) => boolean;
+    opts: ChangeResourceOpts;
+    omitNumerator?: boolean;
+    includeParentheses?: boolean;
+    omitResourceIconography?: boolean;
+};
+
+export function RepresentAmountAndResource(props: RepresentAmountAndResourceProps) {
+    const {
+        opts,
+        amount,
+        resource,
+        shouldShowNumericQuantity,
+        shouldShowNegativeSymbol,
+        omitNumerator,
+        omitResourceIconography,
+    } = props;
+    // HACK: this naively assumes all variable amounts are coded as "1 per X", where X may be
+    // "3 bacteria", "2 building tags", etc. If we ever want to support "Y per X", we'll need
+    // to modify this to determine what value to show as Y (instead of always showing 1)
+    const name = resource as Resource;
+    const resourceIconElement = (
+        <ResourceIcon
+            name={name}
+            size={16}
+            showRedBorder={opts.useRedBorder}
+            amount={
+                resource === Resource.MEGACREDIT
+                    ? `${!shouldShowNegativeSymbol?.(resource) && opts.isNegative ? '-' : ''}${
+                          typeof amount === 'number' ? amount : 1
+                      }`
+                    : undefined
+            }
+            margin={0}
+            border={opts.isProduction ? getResourceBorder(name) : 'none'}
+        />
+    );
+    if (typeof amount === 'number') {
+        if (omitResourceIconography) {
+            return (
+                <Box display="inline-block" fontSize="14px">
+                    {amount}
+                </Box>
+            );
+        }
+        const showNumericQuantity = shouldShowNumericQuantity?.(amount, resource);
+        const prefixElements = [
+            ...(opts.showStealText ? ['STEAL'] : []),
+            ...(shouldShowNegativeSymbol?.(resource) ? ['-'] : []),
+            ...(opts.shouldShowPlus ? ['+'] : []),
+            ...(showNumericQuantity ? [amount] : []),
+        ];
+        let el = (
+            <Flex alignItems="center">
+                {prefixElements.length > 0 && (
+                    <TextWithMargin margin="0 4px 0 0">{prefixElements}</TextWithMargin>
+                )}
+                {showNumericQuantity || resource === Resource.MEGACREDIT
+                    ? resourceIconElement
+                    : Array(amount)
+                          .fill(null)
+                          .map((_, index) => (
+                              <Flex key={index} marginLeft={index > 0 ? '6px' : '0px'}>
+                                  {resourceIconElement}
+                              </Flex>
+                          ))}
+            </Flex>
+        );
+        return <React.Fragment>{el}</React.Fragment>;
+    } else {
+        const [multiplierElement, customElement] = getMultiplierAndCustomElement(props);
+        if (omitNumerator && multiplierElement) {
+            return multiplierElement;
+        }
+        return (
+            <Flex justifyContent="center" alignItems="center">
+                {customElement}
+                {multiplierElement && (
+                    <React.Fragment>
+                        {resourceIconElement}
+                        <TextWithMargin>/</TextWithMargin>
+                        {multiplierElement}
+                    </React.Fragment>
+                )}
+            </Flex>
+        );
+    }
+}
+
+function getMultiplierAndCustomElement(
+    props: RepresentAmountAndResourceProps
+): [React.ReactElement | null, React.ReactElement | null] {
+    const {
+        amount,
+        resource,
+        shouldShowNegativeSymbol,
+        opts,
+        resourceOnCard,
+        omitNumerator,
+        includeParentheses,
+    } = props;
+    let multiplierElement: React.ReactElement | null = null;
+    let customElement: React.ReactElement | null = null;
+    switch (amount) {
+        case VariableAmount.CITY_TILES_IN_PLAY:
+            multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
+            break;
+        case VariableAmount.TILES_ADJACENT_TO_OCEAN:
+            multiplierElement = (
+                <Flex alignItems="center" justifyContent="center">
+                    <TileIcon type={TileType.ANY_TILE} size={16} />
+                    <TileIcon type={TileType.OCEAN} size={16} />
+                </Flex>
+            );
+            break;
+        case VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES:
+            multiplierElement = (
+                <Flex justifyContent="center">
+                    <Box width="16px" height="16px">
+                        <Hexagon color={colors.DARK_ORANGE} hexRadius={8}></Hexagon>
+                    </Box>
+                    <TileIcon type={TileType.ANY_TILE} size={16} />
+                </Flex>
+            );
+            break;
+        case VariableAmount.ALL_EVENTS:
+            multiplierElement = <TagIcon name={Tag.EVENT} size={16} />;
+            break;
+        case VariableAmount.ALL_COLONIES:
+            multiplierElement = <ColonyIcon size={16} />;
+            break;
+        case VariableAmount.COLONIES:
+            multiplierElement = <ColonyIcon size={16} />;
+            break;
+
+        case VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE:
+            customElement = (
+                <Flex flexDirection="column" alignItems="center">
+                    <Flex alignItems="center" marginBottom="8px">
+                        <ResourceIcon name={Resource.PLANT} size={16} />
+                        <TextWithMargin>OR</TextWithMargin>
+                    </Flex>
+                    <Flex alignItems="center" justifyContent="center">
+                        <TextWithMargin>3</TextWithMargin>
+                        <TagIcon name={Tag.PLANT} size={16} />
+                        <TextWithMargin>:</TextWithMargin>
+                        <TextWithMargin>4</TextWithMargin>{' '}
+                        <ResourceIcon name={Resource.PLANT} size={16} />
+                    </Flex>
+                </Flex>
+            );
+            break;
+        case VariableAmount.TERRAFORM_RATING:
+            customElement = <TerraformRatingIcon size={16} />;
+            break;
+        case VariableAmount.BLUE_CARD:
+            multiplierElement = (
+                <TexturedCard height={15} width={10} borderRadius={2} bgColor={colors.CARD_ACTIVE}>
+                    {null}
+                </TexturedCard>
+            );
+            break;
+        case VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE:
+            customElement = (
+                <Flex flexDirection="column" alignItems="center">
+                    <Flex alignItems="center" marginBottom="8px">
+                        <ResourceIcon name={Resource.CARD} size={16} />
+                        <TextWithMargin>OR</TextWithMargin>
+                    </Flex>
+                    <Flex alignItems="center" justifyContent="center">
+                        <TextWithMargin>3</TextWithMargin>
+                        <TagIcon name={Tag.VENUS} size={16} />
+                        <TextWithMargin>:</TextWithMargin>
+                        <TextWithMargin>3</TextWithMargin>{' '}
+                        <ResourceIcon name={Resource.CARD} size={16} />
+                    </Flex>
+                </Flex>
+            );
+            break;
+            break;
+        case VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS:
+        case VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS:
+            customElement = (
+                <React.Fragment>
+                    <ResourceIcon
+                        border={getResourceBorder(Resource.STEEL)}
+                        name={Resource.STEEL}
+                        size={16}
+                    />
+                    <TextWithMargin>OR</TextWithMargin>
+                    <ResourceIcon name={Resource.TITANIUM} size={16} />
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS:
+        case VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS:
+            // we handle it in the _STEEL_BONUS variants of these enum values
+            customElement = null;
+            multiplierElement = null;
+            break;
+        case VariableAmount.OPPONENTS_SPACE_TAGS:
+            multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
+            break;
+        case VariableAmount.THIRD_FLOATERS:
+            multiplierElement = (
+                <React.Fragment>
+                    <TextWithMargin margin="3px">3</TextWithMargin>
+                    <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.CITIES_ON_MARS:
+            multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
+            break;
+        case VariableAmount.CARDS_WITHOUT_TAGS:
+            // @ts-ignore
+            multiplierElement = <TagIcon name="x" size={16} />;
+            break;
+        case VariableAmount.VENUS_AND_EARTH_TAGS:
+            multiplierElement = (
+                <React.Fragment>
+                    <TagIcon name={Tag.VENUS} size={16} />
+                    <TagIcon name={Tag.EARTH} size={16} />
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.USER_CHOICE_MIN_ZERO:
+        case VariableAmount.BASED_ON_USER_CHOICE:
+            if (resource === Resource.MEGACREDIT) {
+                customElement = (
+                    <React.Fragment>
+                        <TextWithMargin>+</TextWithMargin>
+                        <ResourceIcon name={resource as Resource} size={16} amount="X" />
+                    </React.Fragment>
+                );
+            } else {
+                customElement = (
+                    <React.Fragment>
+                        <TextWithMargin>{opts.shouldShowPlus ? '+' : '+X'}</TextWithMargin>
+                        <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                    </React.Fragment>
+                );
+            }
+            break;
+        case VariableAmount.USER_CHOICE:
+            customElement = (
+                <React.Fragment>
+                    <TextWithMargin>{shouldShowNegativeSymbol?.(resource) && '-'}X</TextWithMargin>
+                    <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.USER_CHOICE_UP_TO_ONE:
+            customElement = (
+                <React.Fragment>
+                    <TextWithMargin>-</TextWithMargin>
+                    <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.TRIPLE_BASED_ON_USER_CHOICE:
+            customElement = <ResourceIcon name={resource as Resource} size={16} amount="3X" />;
+            break;
+        case VariableAmount.REVEALED_CARD_MICROBE:
+            customElement = (
+                <React.Fragment>
+                    <TagIcon name={Tag.MICROBE} size={16} />
+                    <span>*</span>
+                    <TextWithMargin>:</TextWithMargin>
+                    <ResourceIcon name={resource as Resource} size={16} />
+                </React.Fragment>
+            );
+            break;
+        case VariableAmount.RESOURCES_ON_CARD:
+            multiplierElement = <ResourceIcon name={resourceOnCard!} size={16} />;
+            break;
+        case VariableAmount.RESOURCES_ON_CARD_MAX_4:
+            multiplierElement = (
+                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                    <ResourceIcon name={resourceOnCard!} size={16} />
+                    <InlineText>*</InlineText>
+                </Flex>
+            );
+            break;
+        case VariableAmount.INFLUENCE:
+            multiplierElement = (
+                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                    <InlineText>👥</InlineText>
+                </Flex>
+            );
+            break;
+        case VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE:
+            multiplierElement = (
+                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                    <MiniPartyIcon>👥</MiniPartyIcon>
+                </Flex>
+            );
+            break;
+        default:
+            if (amount && isTagAmount(amount)) {
+                multiplierElement = (
+                    <React.Fragment>
+                        {amount.dividedBy ? <InlineText>{amount.dividedBy}</InlineText> : null}
+                        <TagIcon name={amount.tag} size={16} />
+                    </React.Fragment>
+                );
+            } else if (amount && isOperationAmount(amount)) {
+                const operandElements = amount.operands.map((operand, index) => (
+                    <RepresentAmountAndResource
+                        {...props}
+                        amount={operand}
+                        omitNumerator={omitNumerator || index !== 0}
+                        includeParentheses={!omitNumerator}
+                        omitResourceIconography={index === 1}
+                    />
+                ));
+                const isMaxOrMin = [Operation.MAX, Operation.MIN].includes(amount.operation);
+
+                const prefix = includeParentheses ? (
+                    <Box display="inline-block" marginRight="2px">
+                        (
+                    </Box>
+                ) : (
+                    ''
+                );
+                const suffix = includeParentheses ? (
+                    <Box display="inline-block" marginLeft="2px">
+                        )
+                    </Box>
+                ) : (
+                    ''
+                );
+                const symbol = (
+                    <Box
+                        display="inline-block"
+                        marginLeft={isMaxOrMin ? '0px' : '4px'}
+                        marginRight="4px"
+                        fontWeight={!isMaxOrMin ? 'normal' : 'bold'}
+                        style={{whiteSpace: 'pre', fontVariant: 'all-small-caps'}}
+                    >
+                        {getSymbolForOperation(amount.operation)}
+                    </Box>
+                );
+                let internalElements: React.ReactElement[] = [];
+
+                for (let i = 0; i < amount.operands.length; i++) {
+                    internalElements.push(operandElements[i]);
+                    if (i < amount.operands.length - 1) {
+                        internalElements.push(
+                            <React.Fragment key={'symbol-' + i}>{symbol}</React.Fragment>
+                        );
+                    }
+                }
+                customElement = (
+                    <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                        {prefix}
+                        {internalElements}
+                        {suffix}
+                    </Flex>
+                );
+            } else if (amount && isProductionAmount(amount)) {
+                multiplierElement = (
+                    <ProductionIconography card={{increaseProduction: {[amount.production]: 1}}} />
+                );
+            } else if (amount && isResourceAmount(amount)) {
+                multiplierElement = (
+                    <GainResourceIconography gainResource={{[amount.resource]: 1}} />
+                );
+            } else {
+                throw new Error('variable amount not supported: ' + JSON.stringify(amount));
+            }
+    }
+    return [multiplierElement, customElement];
 }
 
 export function GainResourceWhenIncreaseProductionIconography() {
@@ -628,7 +794,7 @@ function DuplicateProductionIconography({
     );
 }
 
-export function ProductionIconography({card}: {card: Action}) {
+export function ProductionIconography({card, inline}: {card: Action; inline?: boolean}) {
     if (!doesActionHaveProductionIconography(card)) {
         return null;
     }
@@ -725,14 +891,18 @@ export function ProductionIconography({card}: {card: Action}) {
     return (
         <IconographyRow>
             <GroupedProductionWrapper>
-                <Flex flexDirection="column" justifyContent="center" alignItems="center">
+                <Flex
+                    flexDirection={inline ? 'row' : 'column'}
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     {rows.map((row, index) => (
                         <Flex
                             key={index}
                             alignItems="center"
                             justifyContent="center"
                             margin={`${PRODUCTION_PADDING}px`}
-                            marginTop={index > 0 ? '0' : `${PRODUCTION_PADDING}px`}
+                            marginTop={index > 0 && !inline ? '0' : `${PRODUCTION_PADDING}px`}
                         >
                             {row}
                         </Flex>
@@ -777,11 +947,47 @@ function IncreaseTerraformRatingIconography({
                     <TagIcon name={increaseTerraformRating.tag} size={16} />
                 </IconographyRow>
             );
-        } else {
-            throw new Error(
-                'unsupported variable amount in renderIncreaseTerraformRatingIconography'
+        }
+
+        if (isContestAmount(increaseTerraformRating)) {
+            return (
+                <>
+                    <IconographyRow className="increase-terraform-rating">
+                        <Flex alignItems="center">
+                            <Box
+                                display="inline-block"
+                                style={{fontVariant: 'small-caps'}}
+                                marginRight="4px"
+                            >
+                                {increaseTerraformRating.minimum ? 'min ' : ''}
+                            </Box>
+                            <RepresentAmountAndResource
+                                opts={{}}
+                                amount={increaseTerraformRating.contest}
+                            />
+                        </Flex>
+                    </IconographyRow>
+                    <IconographyRow className="increase-terraform-rating">
+                        <Flex alignItems="center">
+                            {renderArrow()}
+                            <IncreaseTerraformRatingIconography
+                                increaseTerraformRating={increaseTerraformRating.first}
+                            />
+                        </Flex>
+                        {increaseTerraformRating.second ? (
+                            <Flex>
+                                <Box display="inline-block">Second:</Box>
+                                <IncreaseTerraformRatingIconography
+                                    increaseTerraformRating={increaseTerraformRating.second}
+                                />
+                            </Flex>
+                        ) : null}
+                    </IconographyRow>
+                </>
             );
         }
+
+        throw new Error('unsupported variable amount in renderIncreaseTerraformRatingIconography');
     }
 }
 

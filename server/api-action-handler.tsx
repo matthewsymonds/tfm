@@ -12,12 +12,14 @@ import {
     askUserToChooseResourceActionDetails,
     askUserToDiscardCards,
     askUserToDuplicateProduction,
+    askUserToExchangeNeutralNonLeaderDelegate,
     askUserToFundAward,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
     askUserToMakeActionChoice,
     askUserToPlaceColony,
+    askUserToPlaceDelegatesInOneParty,
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToPutAdditionalColonyTileIntoPlay,
@@ -35,12 +37,15 @@ import {
     discardPreludes,
     discardRevealedCards,
     draftCard,
+    exchangeChairman,
+    exchangeNeutralNonLeaderDelegate,
     fundAward as fundAwardAction,
     gainResource,
     gainResourceWhenIncreaseProduction,
     gainStorableResource,
     gainTradeFleet,
     increaseAndDecreaseColonyTileTracks,
+    increaseBaseInfluence,
     increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
@@ -67,6 +72,7 @@ import {
     revealTakeAndDiscard,
     setCorporation,
     setGame,
+    setOceanAdjacencybonus,
     setPlantDiscount,
     setPreludes,
     skipAction,
@@ -111,6 +117,7 @@ import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
+import {Party} from 'constants/party';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
@@ -151,6 +158,7 @@ export interface EffectEvent {
     name?: string;
     victoryPoints?: Amount;
     placedColony?: boolean;
+    increasedTerraformRating?: boolean;
 }
 
 export type SupplementalResources = {name: string; quantity: number};
@@ -369,6 +377,12 @@ export class ApiActionHandler {
     private triggerEffectsFromIncreasedParameter(parameter: Parameter) {
         this.triggerEffects({
             increasedParameter: parameter,
+        });
+    }
+
+    private triggerEffectsFromIncreasedTerraformRating() {
+        this.triggerEffects({
+            increasedTerraformRating: true,
         });
     }
 
@@ -1031,7 +1045,7 @@ export class ApiActionHandler {
         const megacreditIncreaseFromOceans =
             getAdjacentCellsForCell(this.state, matchingCell).filter(cell => {
                 return cell.tile?.type === TileType.OCEAN;
-            }).length * 2;
+            }).length * (loggedInPlayer.oceanAdjacencyBonus ?? 2);
         if (megacreditIncreaseFromOceans) {
             this.queue.unshift(
                 this.createInitialGainResourceAction(
@@ -1408,7 +1422,10 @@ export class ApiActionHandler {
         let oceansInQueue = 0;
         for (const tilePlacement of action?.tilePlacements ?? []) {
             const isOcean = tilePlacement.type === TileType.OCEAN;
-            if (isOcean && numOceansPlacedSoFar + oceansInQueue > MAX_PARAMETERS[Parameter.OCEAN]) {
+            if (
+                isOcean &&
+                numOceansPlacedSoFar + oceansInQueue >= MAX_PARAMETERS[Parameter.OCEAN]
+            ) {
             } else {
                 items.push(askUserToPlaceTile(tilePlacement, playerIndex));
                 oceansInQueue += 1;
@@ -1643,6 +1660,7 @@ export class ApiActionHandler {
                 // Check every step along the way for bonuses!
                 for (let i = 1; i <= amount; i++) {
                     this.triggerEffectsFromIncreasedParameter(parameter);
+                    this.triggerEffectsFromIncreasedTerraformRating();
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
                     const newLevel =
@@ -1683,6 +1701,10 @@ export class ApiActionHandler {
             items.push(setPlantDiscount(action.plantDiscount, playerIndex));
         }
 
+        if (action.oceanAdjacencyBonus) {
+            items.push(setOceanAdjacencybonus(action.oceanAdjacencyBonus, playerIndex));
+        }
+
         if (action.revealTakeAndDiscard) {
             items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
         }
@@ -1704,6 +1726,43 @@ export class ApiActionHandler {
                     playerIndex
                 )
             );
+        }
+
+        if (action.placeDelegatesInOneParty) {
+            items.push(
+                askUserToPlaceDelegatesInOneParty(action.placeDelegatesInOneParty, playerIndex)
+            );
+        }
+        if (action.increasedInfluence) {
+            items.push(increaseBaseInfluence(action.increasedInfluence, playerIndex));
+        }
+        if (action.exchangeNeutralNonLeaderDelegate) {
+            // Count neutral non leader delegates.
+            // If there's only one, exchange it automatically.
+            // If there's more than one, ask user to make choice.
+            const {turmoil} = state.common;
+            const partiesWithNeutralNonLeaderDelegates: Party[] = [];
+            if (turmoil) {
+                const {delegations} = turmoil;
+                for (const delegation in delegations) {
+                    const [partyLeader, ...rest] = delegations[delegation];
+                    for (const delegate of rest) {
+                        if (delegate.playerIndex === undefined) {
+                            partiesWithNeutralNonLeaderDelegates.push(delegation as Party);
+                            break;
+                        }
+                    }
+                }
+                if (partiesWithNeutralNonLeaderDelegates.length === 1) {
+                    const [party] = partiesWithNeutralNonLeaderDelegates;
+                    items.push(exchangeNeutralNonLeaderDelegate(party, playerIndex));
+                } else {
+                    items.push(askUserToExchangeNeutralNonLeaderDelegate(playerIndex));
+                }
+            }
+        }
+        if (action.exchangeChairman) {
+            items.push(exchangeChairman(playerIndex));
         }
         if (withPriority) {
             queue.unshift(...items);
@@ -2174,6 +2233,9 @@ function getActionsFromEffect(
     if (trigger.placedTile) {
         if (trigger.onMars && event.cell?.type === CellType.OFF_MARS) return [];
         // Special case! Capital is a city.
+        if (trigger.placedTile === TileType.ANY_TILE && event.placedTile) {
+            return [effectAction];
+        }
         if (trigger.placedTile === TileType.CITY && event.placedTile === TileType.CAPITAL) {
             return [effectAction];
         }

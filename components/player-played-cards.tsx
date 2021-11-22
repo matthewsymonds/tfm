@@ -64,6 +64,8 @@ function PlayerPlayedCards({
             case CardType.CORPORATION:
                 activeCards.push(hydratedCard);
                 break;
+            case CardType.GLOBAL_EVENT:
+                break;
             default:
                 throw spawnExhaustiveSwitchError(hydratedCard.type);
         }

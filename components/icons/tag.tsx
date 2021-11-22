@@ -63,7 +63,7 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
             className = 'linux';
         }
     }
-    const fontSize = Math.ceil(size * 0.5);
+    const fontSize = size * 2;
     return (
         <Box
             border={'1px solid ' + tagProps.outerBackgroundColor ?? colors.CARD_BORDER_2}
@@ -91,13 +91,19 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
                 justifyContent="center"
                 className={'mid-' + tagProps.className}
             >
-                <Box
+                <Flex
                     textAlign="center"
                     color={tagProps.color}
                     className={'inner-' + tagProps.className}
+                    position="absolute"
+                    alignItems="center"
+                    justifyContent="center"
+                    height="100%"
+                    width="100%"
+                    inset={0}
                 >
-                    {tagProps.icon}
-                </Box>
+                    <Box transform="scale(25%)">{tagProps.icon}</Box>
+                </Flex>
             </Flex>
         </Box>
     );

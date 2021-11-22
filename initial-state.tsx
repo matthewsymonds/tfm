@@ -1,4 +1,6 @@
 import {getStartingColonies} from 'constants/colonies';
+import {initializeTurmoil} from 'constants/turmoil';
+import {SerializedState} from 'state-serialization';
 import {INITIAL_BOARD_STATE} from './constants/board';
 import {CardType, Deck} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
@@ -30,7 +32,7 @@ function DEV_cardOverrides() {
 }
 
 function DEV_corporationOverrides() {
-    const cardOverrides: Array<string> = ['Manutech'];
+    const cardOverrides: Array<string> = [];
     return cards.filter(card => {
         return cardOverrides.includes(card.name) && card.type === CardType.CORPORATION;
     });
@@ -75,8 +77,9 @@ export function getInitialState(players: string[], options: GameOptions, name: s
 
     const isPreludeEnabled = options.decks.includes(Deck.PRELUDE);
     const isColoniesEnabled = options.decks.includes(Deck.COLONIES);
+    const isTurmoilEnabled = options.decks.includes(Deck.TURMOIL);
 
-    const base = {
+    const base: SerializedState = {
         name,
         log: ['📜 Generation 1'] as string[],
         common: {
@@ -94,6 +97,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             firstPlayerIndex: 0,
             claimedMilestones: [],
             fundedAwards: [],
+            turmoil: undefined,
             colonies: isColoniesEnabled ? getStartingColonies(players.length) : [],
         },
         players: [] as PlayerState[],
@@ -174,6 +178,10 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             },
             fleets: isColoniesEnabled ? 1 : 0,
         });
+    }
+
+    if (isTurmoilEnabled) {
+        base.common.turmoil = initializeTurmoil(base.players);
     }
 
     base.common.playerIndexOrderForGeneration = base.players.map(player => player.index);

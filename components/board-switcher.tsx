@@ -9,10 +9,13 @@ import {Box} from './box';
 export enum DisplayBoard {
     MARS = 'mars',
     COLONIES = 'colonies',
+    TURMOIL = 'turmoil',
 }
 
 export const BOX_SHADOW_BASE = `0px 0px 5px 0px`;
 export const BOX_SHADOW_COLONIES = `${BOX_SHADOW_BASE} #ccc`;
+export const BOX_SHADOW_TURMOIL = `${BOX_SHADOW_BASE} gold`;
+
 const BOX_SHADOW_MARS = `${BOX_SHADOW_BASE} ${colors.DARK_ORANGE}`;
 
 const BoardSwitcherOuter = styled.div`
@@ -28,7 +31,8 @@ const BoardSwitcherOuter = styled.div`
         background: #333;
         padding: 8px;
 
-        &:nth-child(2) {
+        &:nth-child(2),
+        &:nth-child(3) {
             margin-top: 8px;
             @media (max-width: 895px) {
                 margin-top: 0px;
@@ -71,26 +75,44 @@ export function BoardSwitcher({
     const isColoniesEnabled = useTypedSelector(state => state.options?.decks ?? []).includes(
         Deck.COLONIES
     );
-    if (!isColoniesEnabled) {
+    const isTurmoilEnabled = useTypedSelector(state => state?.options?.decks ?? []).includes(
+        Deck.TURMOIL
+    );
+    if (!isColoniesEnabled && !isTurmoilEnabled) {
         return null;
     }
     return (
         <BoardSwitcherOuter>
             <Box
                 className="item display"
+                borderRadius="4px"
                 boxShadow={selectedBoard === DisplayBoard.MARS ? BOX_SHADOW_MARS : 'none'}
                 onClick={() => setDisplayBoard(DisplayBoard.MARS)}
             >
                 Mars
             </Box>
-            <Box
-                className="item display"
-                borderRadius="4px"
-                boxShadow={selectedBoard === DisplayBoard.COLONIES ? BOX_SHADOW_COLONIES : 'none'}
-                onClick={() => setDisplayBoard(DisplayBoard.COLONIES)}
-            >
-                Colonies
-            </Box>
+            {isColoniesEnabled ? (
+                <Box
+                    className="item display"
+                    borderRadius="4px"
+                    boxShadow={
+                        selectedBoard === DisplayBoard.COLONIES ? BOX_SHADOW_COLONIES : 'none'
+                    }
+                    onClick={() => setDisplayBoard(DisplayBoard.COLONIES)}
+                >
+                    Colonies
+                </Box>
+            ) : null}
+            {isTurmoilEnabled ? (
+                <Box
+                    className="item display"
+                    borderRadius="4px"
+                    boxShadow={selectedBoard === DisplayBoard.TURMOIL ? BOX_SHADOW_TURMOIL : 'none'}
+                    onClick={() => setDisplayBoard(DisplayBoard.TURMOIL)}
+                >
+                    Turmoil
+                </Box>
+            ) : null}
         </BoardSwitcherOuter>
     );
 }

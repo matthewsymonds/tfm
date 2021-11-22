@@ -13,6 +13,7 @@ import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
+import {Delegate, RequiredChairman} from 'constants/turmoil';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
@@ -125,6 +126,12 @@ export class ActionGuard {
 
         if (!this.doesPlayerHaveRequiredTags(card)) {
             return [false, 'Required tags not met'];
+        }
+
+        const meetsTurmoilRequirements = this.doesCardMeetTurmoilRequirements(card);
+
+        if (!meetsTurmoilRequirements[0]) {
+            return meetsTurmoilRequirements;
         }
 
         const ignoreGlobalRequirements =
@@ -1055,6 +1062,88 @@ export class ActionGuard {
         }
 
         return true;
+    }
+
+    private doesCardMeetTurmoilRequirements(card: Card): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
+        const {state} = this;
+        const {turmoil} = state.common;
+        if (!turmoil) {
+            return [true, 'Turmoil is not enabled in this game'];
+        }
+
+        if (card.requiredChairman) {
+            if (
+                card.requiredChairman === RequiredChairman.NEUTRAL &&
+                turmoil.chairperson.playerIndex !== undefined
+            ) {
+                return [false, 'Sitting chairperson is not neutral'];
+            }
+            if (
+                card.requiredChairman === RequiredChairman.YOU &&
+                turmoil.chairperson.playerIndex !== player.index
+            ) {
+                return [false, 'You are not chairperson'];
+            }
+        }
+        if (card.requiredPartyLeader) {
+            let partyLeaderFound = false;
+            for (const delegation in turmoil.delegations) {
+                const delegates: Delegate[] = turmoil.delegations[delegation];
+                // First delegate is the party chairperson.
+                // We'll enforce this through the game engine.
+                const [partyLeader] = delegates;
+                if (partyLeader?.playerIndex === player.index) {
+                    partyLeaderFound = true;
+                    break;
+                }
+            }
+            if (!partyLeaderFound) {
+                return [false, 'You are not a party leader'];
+            }
+        }
+
+        if (card.requiredPartyOrTwoDelegates) {
+            if (card.requiredPartyOrTwoDelegates !== turmoil.rulingParty) {
+                if (
+                    turmoil.delegations[card.requiredPartyOrTwoDelegates].filter(
+                        delegate => delegate.playerIndex === player.index
+                    ).length < 2
+                ) {
+                    return [false, 'Party is not ruling and you do not have 2 delegates there'];
+                }
+            }
+        }
+
+        if (card.exchangeNeutralNonLeaderDelegate) {
+            const remainingDelegates = turmoil.delegateReserve[player.index];
+            if (remainingDelegates.length === 0) {
+                return [false, 'No more delegates in reserve'];
+            }
+            let foundNeutralNonLeaderDelegate = false;
+            for (const delegation in turmoil.delegations) {
+                const delegates: Delegate[] = turmoil.delegations[delegation];
+                const [leader, ...rest] = delegates;
+                for (const delegate of rest) {
+                    if (delegate.playerIndex === undefined) {
+                        foundNeutralNonLeaderDelegate = true;
+                        break;
+                    }
+                }
+            }
+            if (!foundNeutralNonLeaderDelegate) {
+                return [false, 'No neutral non leader delegate available'];
+            }
+        }
+
+        if (card.exchangeChairman) {
+            const remainingDelegates = turmoil.delegateReserve[player.index];
+            if (remainingDelegates.length === 0) {
+                return [false, 'No more delegates in reserve'];
+            }
+        }
+
+        return [true, 'Good to go'];
     }
 }
 

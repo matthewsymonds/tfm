@@ -7,12 +7,10 @@ export const TileIcon = ({
     type,
     size = 16,
     margin = 0,
-    moveIconLeft = 0,
 }: {
     type: TileType;
     size?: number;
     margin?: number | string;
-    moveIconLeft?: number;
 }) => {
     return (
         <div
@@ -26,12 +24,10 @@ export const TileIcon = ({
                 <span
                     style={{
                         fontSize: `100px`,
-                        transform: `translateX(-1px) scale(${size / 200})`,
+                        transform: `scale(${size / 200})`,
                     }}
                 >
-                    <div style={{transform: `translateX(-${moveIconLeft}px)`}}>
-                        {getTileIcon(type)}
-                    </div>
+                    {getTileIcon(type)}
                 </span>
             </Hexagon>
         </div>

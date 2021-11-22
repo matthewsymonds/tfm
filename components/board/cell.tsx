@@ -14,7 +14,7 @@ interface CellProps {
     selectable?: boolean;
 }
 
-const getColor = (type: CellType) => {
+export const getCellColor = (type: CellType) => {
     switch (type) {
         case CellType.LAND:
         case CellType.OFF_MARS:
@@ -51,7 +51,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
     const bgColor =
         tile && typeof tile.ownerPlayerIndex === 'number' && !isLandClaim
             ? PLAYER_COLORS[tile?.ownerPlayerIndex]
-            : getColor(type);
+            : getCellColor(type);
 
     function renderTile(tile) {
         // Land claim is specially coded as a tile, but shouldn't show a tile.

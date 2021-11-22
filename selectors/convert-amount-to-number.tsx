@@ -7,9 +7,10 @@ import {
     isConditionAmount,
 } from 'constants/conditional-amount';
 import {ContestAmount, isContestAmount} from 'constants/contest-amount';
-import {LogicalOperator, LogicalOperatorWithConditions} from 'constants/logical-operator';
+import {GameStage} from 'constants/game';
 import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
 import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
+import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -30,7 +31,11 @@ export function convertAmountToNumber(
         const tags = amount.includeOpponents
             ? state.players.flatMap(player => getTags(player))
             : getTags(player);
-        const matchingTags = tags.filter(tag => tag === amount.tag || tag === Tag.WILD);
+        const matchingTags = tags.filter(
+            tag =>
+                tag === amount.tag ||
+                (state.common.gameStage === GameStage.ACTIVE_ROUND && tag === Tag.WILD)
+        );
         let extraTags = 0;
         if (card?.name) {
             const fullCard = getCard(card);
@@ -43,6 +48,9 @@ export function convertAmountToNumber(
     }
     if (isProductionAmount(amount)) {
         return convertProductionAmountToNumber(amount, state, player, card);
+    }
+    if (isResourceAmount(amount)) {
+        return convertResourceAmountToNumber(amount, state, player, card);
     }
     if (isOperationAmount(amount)) {
         return convertOperationAmountToNumber(amount, state, player, card);
@@ -69,6 +77,15 @@ export function convertProductionAmountToNumber(
     return Math.min(player.productions[amount.production], 0) ?? 0;
 }
 
+export function convertResourceAmountToNumber(
+    amount: ResourceAmount,
+    state: GameState,
+    player: PlayerState,
+    card?: SerializedCard
+) {
+    return Math.min(player.resources[amount.resource], 0) ?? 0;
+}
+
 export function convertOperationAmountToNumber(
     amount: OperationAmount,
     state: GameState,
@@ -76,36 +93,30 @@ export function convertOperationAmountToNumber(
     card?: SerializedCard
 ): number {
     const {operation, operands} = amount;
+    if (operands.length !== 2) {
+        return 0;
+    }
+
     const convertedOperands: number[] = operands.map(operand =>
         convertAmountToNumber(operand, state, player, card)
     );
+
+    if (typeof convertedOperands[0] !== 'number' || typeof convertedOperands[1] !== 'number') {
+        return 0;
+    }
 
     switch (operation) {
         case Operation.ADD:
             return convertedOperands.reduce((acc, operand) => acc + operand, 0);
         case Operation.SUBTRACT:
-            if (
-                typeof convertedOperands[0] !== 'number' ||
-                typeof convertedOperands[1] !== 'number'
-            ) {
-                return 0;
-            }
             // For convenience, never go below zero.
             return Math.min(convertedOperands[0] - convertedOperands[1], 0);
         case Operation.MULTIPLY:
             return convertedOperands.reduce((acc, operand) => acc * operand, 1);
         case Operation.DIVIDE:
-            if (
-                typeof convertedOperands[0] !== 'number' ||
-                typeof convertedOperands[1] !== 'number'
-            ) {
-                return 0;
-            }
-
             if (convertedOperands[1] === 0) {
                 return 0;
             }
-
             return Math.floor(convertedOperands[0] / convertedOperands[1]);
         case Operation.MAX:
             return Math.max(...convertedOperands);
@@ -125,9 +136,9 @@ export function convertConditionAmountToNumber(
     const {pass, fail} = amount;
     const passed = isConditionPassed(amount, state, player, card);
     if (passed) {
-        return convertAmountToNumber(pass, state, player, card);
+        return pass;
     } else {
-        return convertAmountToNumber(fail, state, player, card);
+        return fail;
     }
 }
 
@@ -147,27 +158,8 @@ export function isConditionPassed(
             );
             return first >= second;
         default:
-            return isLogicalOperatorPassed(condition, state, player, card);
+            throw spawnExhaustiveSwitchError(condition);
     }
-}
-
-export function isLogicalOperatorPassed(
-    amount: LogicalOperatorWithConditions,
-    state: GameState,
-    player: PlayerState,
-    card?: SerializedCard
-): boolean {
-    const {logicalOperator, conditions} = amount;
-
-    return (logicalOperator === LogicalOperator.OR ? conditions.some : conditions.every).bind(
-        conditions
-    )(condition => {
-        if ('logicalOperator' in condition) {
-            return isLogicalOperatorPassed(condition, state, player, card);
-        } else {
-            return isConditionPassed(condition, state, player, card);
-        }
-    });
 }
 
 export function convertContestAmountToNumber(
@@ -176,33 +168,34 @@ export function convertContestAmountToNumber(
     player: PlayerState,
     card?: SerializedCard
 ): number {
+    const multiplier = amount.minimum ? -1 : 1;
     if (state.players.length === 1) {
         const contest = convertAmountToNumber(amount.contest, state, player, card);
-        if (contest >= convertAmountToNumber(amount.soloFirst, state, player, card)) {
-            return convertAmountToNumber(amount.first, state, player, card);
+        if (contest * multiplier >= amount.soloFirst * multiplier) {
+            return amount.first;
         }
         if (
             typeof amount.soloSecond !== 'undefined' &&
-            contest >= convertAmountToNumber(amount.soloSecond, state, player, card)
+            contest * multiplier >= amount.soloSecond * multiplier
         ) {
-            return convertAmountToNumber(amount.second, state, player, card);
+            return amount.second;
         }
         return 0;
     }
     const playerResults: number[] = state.players.map(player => {
-        return convertAmountToNumber(amount.contest, state, player, card);
+        return convertAmountToNumber(amount.contest, state, player, card) * multiplier;
     });
 
     const firstPlace = Math.max(...playerResults);
 
     if (playerResults[player.index] === firstPlace) {
-        return convertAmountToNumber(amount.first, state, player, card);
+        return amount.first;
     }
 
     const secondPlace = Math.max(...playerResults.filter(result => result !== firstPlace));
 
     if (playerResults[player.index] === secondPlace) {
-        return convertAmountToNumber(amount.second, state, player, card);
+        return amount.second;
     }
 
     return 0;

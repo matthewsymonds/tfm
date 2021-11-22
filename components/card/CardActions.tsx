@@ -85,8 +85,9 @@ export function LookAtCards({text}: {text: string}) {
 
 export function renderRightSideOfArrow(
     action: Action,
-    card?: CardModel,
-    cardContext?: CardContext
+    storedResourceType?: Resource,
+    shouldShowPlusAllowed?: boolean,
+    inline?: boolean
 ) {
     const elements: Array<React.ReactNode> = [];
     if (action.stealResource) {
@@ -109,7 +110,10 @@ export function renderRightSideOfArrow(
     }
     if (action.increaseProduction) {
         elements.push(
-            <ProductionIconography card={{increaseProduction: action.increaseProduction}} />
+            <ProductionIconography
+                inline={inline}
+                card={{increaseProduction: action.increaseProduction}}
+            />
         );
     }
     if (action.increaseLowestProduction) {
@@ -134,8 +138,7 @@ export function renderRightSideOfArrow(
     if (action.gainResource) {
         // if this action also has a remove, lets explicitly mark the gain with a +
         const shouldShowPlus =
-            Object.keys(action?.removeResource ?? {}).length > 0 &&
-            cardContext !== CardContext.PLAYED_CARD;
+            Object.keys(action?.removeResource ?? {}).length > 0 && shouldShowPlusAllowed;
 
         elements.push(
             <GainResourceIconography
@@ -144,13 +147,13 @@ export function renderRightSideOfArrow(
                     isInline: true,
                     shouldShowPlus,
                 }}
-                resourceOnCard={card?.storedResourceType}
+                resourceOnCard={storedResourceType}
             />
         );
     }
     if (action.increaseTerraformRating) {
         if (action.increaseTerraformRating !== 1) {
-            throw new Error('render right side of error - ' + card?.name);
+            throw new Error('render right side of error - ');
         }
         elements.push(<TerraformRatingIcon size={16} />);
     }
@@ -188,7 +191,7 @@ export function renderRightSideOfArrow(
     );
 }
 
-export function renderLeftSideOfArrow(action: Action, card?: CardModel) {
+export function renderLeftSideOfArrow(action: Action) {
     const elements: Array<React.ReactNode> = [];
     if (action.cost) {
         elements.push(
@@ -283,7 +286,7 @@ export const CardActions = ({
     );
 };
 
-function renderArrow() {
+export function renderArrow() {
     return <TextWithMargin>➡</TextWithMargin>;
 }
 
@@ -347,9 +350,13 @@ function CardAction({
             isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
         >
             <Flex alignItems="center" justifyContent="center">
-                {renderLeftSideOfArrow(action, card)}
+                {renderLeftSideOfArrow(action)}
                 {renderArrow()}
-                {renderRightSideOfArrow(action, card, cardContext)}
+                {renderRightSideOfArrow(
+                    action,
+                    card.storedResourceType,
+                    cardContext !== CardContext.PLAYED_CARD
+                )}
             </Flex>
         </ActionContainer>
     );

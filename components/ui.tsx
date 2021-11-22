@@ -82,6 +82,7 @@ export const colors = {
     CARD_MIN_REQUIREMENT_BG: '#ffca83',
     CARD_VP_BG: 'hsl(15, 60%, 50%)',
     CARD_STORED_RESOURCES_BG: 'hsl(230, 60%, 75%)',
+    CARD_GLOBAL_EVENT: '#489cdb',
     GOLD: '#f5923b',
 };
 

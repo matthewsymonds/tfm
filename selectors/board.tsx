@@ -113,7 +113,7 @@ export function getCellsWithCitiesOnMars(state: GameState) {
     return getAllCellsOnMars(state).filter(hasCity);
 }
 
-function getAllCellsOnMars(state: GameState) {
+export function getAllCellsOnMars(state: GameState) {
     return state.common.board.flat().filter(cell => cellHelpers.onMars(cell));
 }
 

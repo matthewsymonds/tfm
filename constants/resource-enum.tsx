@@ -16,4 +16,5 @@ export enum Resource {
     ASTEROID = 'asteroid',
     ANY_STORABLE_RESOURCE = 'anyStorableResource',
     ANY_STANDARD_RESOURCE = 'anyStandardResource',
+    PRESERVATION = 'resourcePreservation',
 }

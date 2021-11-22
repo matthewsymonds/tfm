@@ -69,6 +69,7 @@ export type BasePlayerState = {
     };
     discounts: Discounts;
     plantDiscount?: number;
+    oceanAdjacencyBonus?: number;
     pendingChoice?: PendingChoice;
     pendingNextActionChoice?: AnyAction[];
     pendingActionReplay?: boolean;
@@ -86,4 +87,9 @@ export type BasePlayerState = {
     increaseAndDecreaseColonyTileTracks?: number;
     tradeForFree?: boolean;
     putAdditionalColonyTileIntoPlay?: boolean;
+
+    // Choose the party
+    placeDelegatesInOneParty?: number;
+    exchangeNeutralNonLeaderDelegate?: boolean;
+    baseInfluence?: number;
 };

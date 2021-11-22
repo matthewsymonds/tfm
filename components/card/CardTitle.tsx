@@ -15,17 +15,24 @@ export function getCardTitleColorForType(type: CardType) {
             return colors.CARD_PRELUDE;
         case CardType.CORPORATION:
             return colors.CARD_CORPORATION;
+        case CardType.GLOBAL_EVENT:
+            return colors.CARD_GLOBAL_EVENT;
         default:
             throw spawnExhaustiveSwitchError(type);
     }
 }
 
-export const GenericCardTitleBar = styled.div<{bgColor: string}>`
+export const GenericCardTitleBar = styled.div<{
+    bgColor: string;
+    justifyContent?: string;
+    textAlign?: string;
+    padding?: string;
+}>`
     display: flex;
     position: relative;
     align-items: center;
-    justify-content: center;
-    padding: 8px 0;
+    justify-content: ${props => props.justifyContent ?? 'center'};
+    padding: ;
     margin-top: 26px;
     border-top: 1px solid ${colors.CARD_BORDER_2};
     border-bottom: 1px solid ${colors.CARD_BORDER_2};
@@ -33,7 +40,8 @@ export const GenericCardTitleBar = styled.div<{bgColor: string}>`
     font-size: 16px;
     font-weight: 600;
     color: #f6f1eb;
-    text-align: center;
+    padding: ${props => props.padding ?? '8px 0'};
+    text-align: ${props => props.textAlign ?? 'center'};
     background-color: ${props => props.bgColor};
 `;
 

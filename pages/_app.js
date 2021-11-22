@@ -212,8 +212,8 @@ export const GlobalStyles = createGlobalStyle`
         clip-path: polygon(0 48%, 50% 0, 100% 48%, 100% 100%, 0 100%);
         width: 72%;
         height: 48%;
-        margin-bottom: 14%;
-        top: 42%;
+        position: relative;
+        transform: translateY(-15%);
     }
 
     .mid-emoji.jovian {
@@ -225,14 +225,7 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     .mac {
-        .inner-emoji {
-            &.lightning {
-                font-size: 2em;
-                transform: scale(0.5);
-            }
-        }
         .mid-science {
-            padding-bottom 0.05em;
         }
         .energy-icon {
             margin-right: 5%;

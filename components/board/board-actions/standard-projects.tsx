@@ -194,9 +194,9 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
         case StandardProjectType.AQUIFER:
             return <TileIcon type={TileType.OCEAN} size={24} />;
         case StandardProjectType.GREENERY:
-            return <TileIcon type={TileType.GREENERY} size={24} moveIconLeft={1.5} />;
+            return <TileIcon type={TileType.GREENERY} size={24} />;
         case StandardProjectType.CITY:
-            return <TileIcon type={TileType.CITY} size={24} moveIconLeft={1.5} />;
+            return <TileIcon type={TileType.CITY} size={24} />;
         case StandardProjectType.COLONY:
             return <ColonyIcon size={16} />;
         case StandardProjectType.VENUS:

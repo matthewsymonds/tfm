@@ -273,6 +273,8 @@ function getColorForCardType(cardType: CardType) {
             return colors.CARD_EVENT;
         case CardType.PRELUDE:
             return colors.CARD_PRELUDE;
+        case CardType.GLOBAL_EVENT:
+            return colors.CARD_GLOBAL_EVENT;
         default:
             throw spawnExhaustiveSwitchError(cardType);
     }

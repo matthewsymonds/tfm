@@ -113,6 +113,8 @@ export const getResourceSymbol = (resource: Resource) => {
             return '📦';
         case Resource.ANY_STANDARD_RESOURCE:
             return '?';
+        case Resource.PRESERVATION:
+            return 'P';
         default:
             throw spawnExhaustiveSwitchError(resource);
     }
@@ -167,6 +169,9 @@ export const getResourceName = (resource: Resource, shouldCapitalize: boolean = 
         case Resource.ANY_STANDARD_RESOURCE:
             resourceName = 'resource';
             break;
+        case Resource.PRESERVATION:
+            resourceName = 'preservation';
+            break;
         default:
             throw spawnExhaustiveSwitchError(resource);
     }
@@ -207,6 +212,7 @@ export const getResourceColor = (resource: Resource) => {
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
         case Resource.ANY_STANDARD_RESOURCE:
+        case Resource.PRESERVATION:
             return 'black';
         default:
             throw spawnExhaustiveSwitchError(resource);
@@ -230,6 +236,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
         case Resource.FIGHTER:
             return 'black';
         case Resource.HEAT:
+        case Resource.PRESERVATION:
             return '#ef2b2b';
         case Resource.MEGACREDIT:
             return '#fbe21e';

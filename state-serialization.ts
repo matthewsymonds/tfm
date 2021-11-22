@@ -169,6 +169,9 @@ export const censorGameState = (readonlyState: SerializedState, username: string
         state.common.deck = [];
         state.common.discardPile = [];
         state.common.preludes = [];
+        if (state.common.turmoil) {
+            state.common.turmoil.globalEvents = [];
+        }
         if (state.common.gameStage === GameStage.END_OF_GAME) {
             // No need to censor the game state anymore.
             // Out of performance concern, still don't include deck, preludes, or discard.

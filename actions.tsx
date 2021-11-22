@@ -1,6 +1,7 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
+import {Party} from 'constants/party';
 import {Tag} from 'constants/tag';
 import {GameAction} from 'GameActionState';
 import {AnyAction} from 'redux';
@@ -206,6 +207,14 @@ export const setPlantDiscount = withMatcher((plantDiscount: number, playerIndex:
     type: SET_PLANT_DISCOUNT,
     payload: {plantDiscount, playerIndex},
 }));
+
+const SET_OCEAN_ADJACENCY_BONUS = 'SET_OCEAN_ADJACENCY_BONUS';
+export const setOceanAdjacencybonus = withMatcher(
+    (oceanAdjacencyBonus: number, playerIndex: number) => ({
+        type: SET_OCEAN_ADJACENCY_BONUS,
+        payload: {oceanAdjacencyBonus, playerIndex},
+    })
+);
 
 const APPLY_EXCHANGE_RATE_CHANGES = 'APPLY_EXCHANGE_RATE_CHANGES';
 export const applyExchangeRateChanges = withMatcher(
@@ -626,6 +635,49 @@ export const askUserToChooseNextAction = withMatcher(
         payload: {playerIndex, actions},
     })
 );
+
+const ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY = 'ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY';
+export const askUserToPlaceDelegatesInOneParty = withMatcher(
+    (numDelegates: number, playerIndex: number) => ({
+        type: ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY,
+        payload: {numDelegates, playerIndex},
+    })
+);
+
+const PLACE_DELEGATES_IN_ONE_PARTY = 'PLACE_DELEGATES_IN_ONE_PARTY';
+export const placeDelegatesInOneParty = withMatcher(
+    (numDelegates: number, party: Party, playerIndex: number) => ({
+        type: PLACE_DELEGATES_IN_ONE_PARTY,
+        payload: {numDelegates, party, playerIndex},
+    })
+);
+
+const INCREASE_BASE_INFLUENCE = 'INCREASE_BASE_INFLUENCE';
+export const increaseBaseInfluence = withMatcher((increase: number, playerIndex: number) => ({
+    type: INCREASE_BASE_INFLUENCE,
+    payload: {increase, playerIndex},
+}));
+
+const ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE =
+    'ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
+export const askUserToExchangeNeutralNonLeaderDelegate = withMatcher((playerIndex: number) => ({
+    type: ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
+    payload: {playerIndex},
+}));
+
+const EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE = 'EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
+export const exchangeNeutralNonLeaderDelegate = withMatcher(
+    (party: Party, playerIndex: number) => ({
+        type: EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
+        payload: {party, playerIndex},
+    })
+);
+
+const EXCHANGE_CHAIRMAN = 'EXCHANGE_CHAIRMAN';
+export const exchangeChairman = withMatcher((playerIndex: number) => ({
+    type: EXCHANGE_CHAIRMAN,
+    payload: {playerIndex},
+}));
 
 const CLEAR_PENDING_NEXT_ACTION_CHOICE = 'CLEAR_PENDING_NEXT_ACTION_CHOICE';
 export const clearPendingActionChoice = withMatcher((playerIndex: number) => ({

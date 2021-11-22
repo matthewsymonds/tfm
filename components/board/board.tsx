@@ -2,6 +2,7 @@ import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
 import StandardProjectList from 'components/board/board-actions/standard-projects';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
+import {Turmoil} from 'components/turmoil';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, SpecialLocation} from 'constants/board';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -158,6 +159,9 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
 
     if (displayBoard === DisplayBoard.COLONIES) {
         return <Colonies />;
+    }
+    if (displayBoard === DisplayBoard.TURMOIL) {
+        return <Turmoil />;
     }
     return (
         <Box position="relative" width="100%">

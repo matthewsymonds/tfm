@@ -14,10 +14,12 @@ import {
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
+import {Party} from 'constants/party';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {ResourceLocationType} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
+import {RequiredChairman} from 'constants/turmoil';
 
 export class Card {
     isCard = true;
@@ -139,6 +141,17 @@ export class Card {
     // Productive Outpost
     gainAllColonyBonuses?: boolean;
 
+    // Turmoil Requirements
+    requiredChairman?: RequiredChairman;
+    requiredPartyLeader?: boolean;
+    requiredPartyOrTwoDelegates?: Party;
+
+    // Turmoil actions
+    placeDelegatesInOneParty?: number;
+    increasedInfluence?: number;
+    exchangeNeutralNonLeaderDelegate?: boolean;
+    exchangeChairman?: boolean;
+
     constructor(config: CardConfig) {
         // Hack to fix compile bug
         config.resources = {};
@@ -239,6 +252,15 @@ export class Card {
         this.increaseColonyTileTrackRange = config.increaseColonyTileTrackRange;
         this.increaseAndDecreaseColonyTileTracks = config.increaseAndDecreaseColonyTileTracks;
         this.gainAllColonyBonuses = config.gainAllColonyBonuses;
+
+        this.requiredChairman = config.requiredChairman;
+        this.requiredPartyLeader = config.requiredPartyLeader;
+        this.requiredPartyOrTwoDelegates = config.requiredPartyOrTwoDelegates;
+
+        this.placeDelegatesInOneParty = config.placeDelegatesInOneParty;
+        this.increasedInfluence = config.increasedInfluence;
+        this.exchangeNeutralNonLeaderDelegate = config.exchangeNeutralNonLeaderDelegate;
+        this.exchangeChairman = config.exchangeChairman;
     }
 }
 

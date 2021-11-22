@@ -1,18 +1,17 @@
 import {Amount} from './action';
-import {LogicalOperatorWithConditions} from './logical-operator';
 
 export enum Condition {
     GREATER_THAN_OR_EQUAL_TO = 'conditionGreaterThanOrEqualTo',
 }
 
 export type ConditionWithOperands = {
-    condition: Condition | LogicalOperatorWithConditions;
+    condition: Condition;
     operands?: Amount[];
 };
 
 export type ConditionAmount = ConditionWithOperands & {
-    pass: Amount;
-    fail: Amount;
+    pass: number;
+    fail: number;
 };
 
 export function isConditionAmount(amount: Amount): amount is ConditionAmount {
@@ -22,10 +21,7 @@ export function isConditionAmount(amount: Amount): amount is ConditionAmount {
     return 'condition' in amount;
 }
 
-export function condition(
-    condition: Condition | LogicalOperatorWithConditions,
-    ...operands: Amount[]
-): ConditionWithOperands {
+export function condition(condition: Condition, ...operands: Amount[]): ConditionWithOperands {
     return {
         condition,
         operands,

@@ -2,9 +2,11 @@ import {Action, Amount, PlayCardParams} from './action';
 import {Parameter, TileType} from './board';
 import {CardDiscounts, TagDiscounts} from './discounts';
 import {Effect} from './effect';
+import {Party} from './party';
 import {PropertyCounter} from './property-counter';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
+import {RequiredChairman} from './turmoil';
 
 export type RequiredTilePlacement = {
     type: TileType;
@@ -52,7 +54,10 @@ export interface CardConfig extends Action {
     tags: Tag[];
     type: CardType;
     victoryPoints?: Amount;
+    requiredChairman?: RequiredChairman;
+    requiredPartyLeader?: boolean;
     requiredGlobalParameter?: RequiredGlobalParameter;
+    requiredPartyOrTwoDelegates?: Party;
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
     requiredTilePlacements?: RequiredTilePlacement[];
@@ -97,6 +102,7 @@ export enum Deck {
     PRELUDE,
     PROMO,
     VENUS,
+    TURMOIL,
 }
 
 export enum CardType {
@@ -105,4 +111,5 @@ export enum CardType {
     CORPORATION,
     EVENT,
     PRELUDE,
+    GLOBAL_EVENT,
 }

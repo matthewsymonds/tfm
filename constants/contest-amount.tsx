@@ -2,10 +2,11 @@ import {Amount} from './action';
 
 export type ContestAmount = {
     contest: Amount;
-    first: Amount;
-    second: Amount;
-    soloFirst: Amount;
-    soloSecond?: Amount;
+    first: number;
+    second: number;
+    soloFirst: number;
+    soloSecond?: number;
+    minimum?: boolean;
 };
 
 export function isContestAmount(amount: Amount): amount is ContestAmount {

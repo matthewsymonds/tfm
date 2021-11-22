@@ -48,7 +48,7 @@ export enum CardContext {
     DISPLAY_ONLY = 'displayOnly', // card does not need to be interactive
 }
 
-const MainCardText = styled(CardText)`
+export const MainCardText = styled(CardText)`
     position: relative;
     display: block;
     margin: 4px;

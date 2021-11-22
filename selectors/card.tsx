@@ -8,6 +8,7 @@ import {
     ResourceLocationType,
     StorableResource,
 } from 'constants/resource';
+import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card} from 'models/card';
@@ -19,6 +20,7 @@ import {
     convertContestAmountToNumber,
     convertOperationAmountToNumber,
     convertProductionAmountToNumber,
+    convertResourceAmountToNumber,
 } from './convert-amount-to-number';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
@@ -56,6 +58,10 @@ export function getCardVictoryPoints(
 
     if (isProductionAmount(amount)) {
         return convertProductionAmountToNumber(amount, state, player, card);
+    }
+
+    if (isResourceAmount(amount)) {
+        return convertResourceAmountToNumber(amount, state, player, card);
     }
 
     const selector = VARIABLE_AMOUNT_SELECTORS[amount];

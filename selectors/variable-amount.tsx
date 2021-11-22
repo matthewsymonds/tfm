@@ -2,6 +2,7 @@ import {hasCity, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
+import {Delegate} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
 import {getLoggedInPlayer} from 'context/app-context';
 import {Card} from 'models/card';
@@ -11,6 +12,7 @@ import {
     findCellsWithTile,
     findCellWithTile,
     getAdjacentCellsForCell,
+    getAllCellsOnMars,
     getCellsWithCities,
     getCellsWithCitiesOnMars,
 } from './board';
@@ -89,6 +91,20 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return getAdjacentCellsForCell(state, capital).filter(cell => {
             return cell.tile?.type === TileType.OCEAN;
         }).length;
+    },
+    [VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES]: (
+        state: GameState,
+        player = getLoggedInPlayer(state)
+    ) => {
+        const playerCells = getAllCellsOnMars(state).filter(
+            cell => cell.tile?.ownerPlayerIndex === player.index
+        );
+        const emptyNeighbors = playerCells
+            .flatMap(cell => getAdjacentCellsForCell(state, cell))
+            .filter(cell => !cell.tile)
+            .map(cell => cell?.coords?.join(''));
+
+        return new Set(emptyNeighbors).size;
     },
     [VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS]: (state: GameState) => {
         const mining = findCellWithTile(state, TileType.MINING_AREA);
@@ -233,6 +249,47 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const colonies = state.common.colonies ?? [];
         return Math.floor(colonies.flatMap(colony => colony.colonies).length / 2);
     },
-    // TODO implement
-    [VariableAmount.INFLUENCE]: (state: GameState, player: PlayerState) => 1,
+    [VariableAmount.INFLUENCE]: (state: GameState, player: PlayerState) => {
+        const {turmoil} = state.common;
+        if (!turmoil) return 0;
+        const {index: playerIndex, baseInfluence} = player;
+        let influence = baseInfluence || 0;
+        const {dominantParty} = turmoil;
+        const dominantDelegation = turmoil.delegations[dominantParty];
+        const [leader, ...rest] = dominantDelegation;
+        if (leader.playerIndex === playerIndex) {
+            influence += 1;
+        }
+        if (rest.some(delegate => delegate.playerIndex === playerIndex)) {
+            influence += 1;
+        }
+        if (turmoil.chairperson.playerIndex === playerIndex) {
+            influence += 1;
+        }
+        return influence;
+    },
+    [VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE]: (
+        state: GameState,
+        player: PlayerState
+    ) => {
+        const {turmoil} = state.common;
+        if (!turmoil) return 0;
+        let count = 0;
+        for (const delegation in turmoil.delegations) {
+            const delegates: Delegate[] = turmoil.delegations[delegation];
+            if (delegates.some(delegate => delegate.playerIndex === player.index)) {
+                count += 1;
+            }
+        }
+        return count;
+    },
+    [VariableAmount.UNIQUE_TAGS]: (state: GameState, player: PlayerState) => {
+        return new Set(getTags(player)).size;
+    },
+    [VariableAmount.TERRAFORM_RATING]: (state: GameState, player: PlayerState) => {
+        return player.terraformRating;
+    },
+    [VariableAmount.BLUE_CARD]: (state: GameState, player: PlayerState) => {
+        return player.playedCards.filter(card => getCard(card).type === CardType.ACTIVE).length;
+    },
 };

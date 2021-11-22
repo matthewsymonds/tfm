@@ -7,6 +7,7 @@ import {OperationAmount} from './operation-amount';
 import {ProductionAmount} from './production-amount';
 import {NumericPropertyCounter, PropertyCounter} from './property-counter';
 import {ResourceLocationType} from './resource';
+import {ResourceAmount} from './resource-amount';
 import {Resource} from './resource-enum';
 import {Tag, TagAmount} from './tag';
 import {VariableAmount} from './variable-amount';
@@ -30,6 +31,7 @@ export type Amount =
     | TagAmount
     | OperationAmount
     | ConditionAmount
+    | ResourceAmount
     | ProductionAmount
     | ContestAmount;
 
@@ -120,6 +122,20 @@ export interface ActionWithoutSteps {
 
     // From turmoil Global Event: "Sponsored Products" (All cards with resources on them gain 1 resource.)
     increaseStoredResourceAmount?: number;
+
+    // Used for lobbying (1), cultural metropolis (2)
+    placeDelegatesInOneParty?: number;
+
+    // Extra influence.
+    increasedInfluence?: number;
+
+    // Recruitment
+    exchangeNeutralNonLeaderDelegate?: boolean;
+
+    // vote of no confidence
+    exchangeChairman?: boolean;
+
+    oceanAdjacencyBonus?: number;
 }
 
 export interface Action extends ActionWithoutSteps {

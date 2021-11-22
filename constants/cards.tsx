@@ -1,9 +1,12 @@
 import {Parameter, PlacementRequirement, t, TileType} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {CardConfig, CardType, Deck} from './card-types';
+import {double} from './operation-amount';
+import {Party} from './party';
 import {ResourceLocationType} from './resource';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
+import {RequiredChairman} from './turmoil';
 import {VariableAmount} from './variable-amount';
 
 export const cardConfigs: CardConfig[] = [
@@ -966,7 +969,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text:
-                'Each titanium you have is worth 1MC extra. Each steel you have is worth 1 MC extra.',
+                'Each titanium you have is worth 1 MC extra. Each steel you have is worth 1 MC extra.',
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -1059,7 +1062,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text: 'Spend 7MC to increase your energy production 1 step.',
+            text: 'Spend 7 MC to increase your energy production 1 step.',
             cost: 7,
             increaseProduction: {[Resource.ENERGY]: 1},
         },
@@ -1442,7 +1445,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {cardTags: [Tag.EVENT]},
             action: {gainResource: {[Resource.MEGACREDIT]: 3}},
-            text: 'After you play an event card, you gain 3MC',
+            text: 'After you play an event card, you gain 3 MC',
         },
         cost: 6,
         deck: Deck.CORPORATE,
@@ -1636,7 +1639,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 1,
         deck: Deck.CORPORATE,
         name: 'Hired Raiders',
-        text: 'Steal up to 2 steel, or 3MC from any player.',
+        text: 'Steal up to 2 steel, or 3 MC from any player.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         stealResource: {
@@ -2220,7 +2223,7 @@ export const cardConfigs: CardConfig[] = [
         increaseTerraformRating: 3,
     },
     {
-        effect: {text: 'When you play a space card, you pay 2MC less for it.'},
+        effect: {text: 'When you play a space card, you pay 2 MC less for it.'},
         cost: 10,
         deck: Deck.BASIC,
         name: 'Shuttles',
@@ -2630,7 +2633,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 0,
         deck: Deck.CORPORATE,
         name: 'Indentured Workers',
-        text: 'The next card you play this generation costs 8MC less.',
+        text: 'The next card you play this generation costs 8 MC less.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -1,
@@ -2668,7 +2671,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text: 'Spend 2MC to draw a card.',
+            text: 'Spend 2 MC to draw a card.',
             cost: 2,
             gainResource: {[Resource.CARD]: 1},
         },
@@ -4369,6 +4372,186 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 3},
     },
     {
+        cost: 2,
+        name: 'Aerial Lenses',
+        deck: Deck.TURMOIL,
+        requiredPartyOrTwoDelegates: Party.KELVINISTS,
+        removeResource: {[Resource.PLANT]: 2},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
+        increaseProduction: {[Resource.HEAT]: 2},
+        tags: [],
+        type: CardType.ACTIVE,
+        text:
+            'Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.',
+    },
+    {
+        cost: 0,
+        name: 'Banned Delegate',
+        deck: Deck.TURMOIL,
+        requiredChairman: RequiredChairman.YOU,
+        tags: [Tag.EVENT],
+        type: CardType.EVENT,
+        text: 'Requires that you are chairman. Remove any NON-LEADER delegate.',
+    },
+
+    {
+        cost: 20,
+        deck: Deck.TURMOIL,
+        name: 'Cultural Metropolis',
+        text:
+            'Requires that Unity is ruling or that you have 2 delegates there. Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile. Place 2 delegates in 1 party.',
+        tags: [Tag.BUILDING, Tag.CITY],
+        type: CardType.AUTOMATED,
+        decreaseProduction: {[Resource.ENERGY]: 1},
+        increaseProduction: {[Resource.MEGACREDIT]: 3},
+        tilePlacements: [t(TileType.CITY)],
+        placeDelegatesInOneParty: 2,
+        requiredPartyOrTwoDelegates: Party.UNITY,
+    },
+
+    {
+        cost: 20,
+        deck: Deck.TURMOIL,
+        name: 'Diaspora Movement',
+        text:
+            'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC for each Jovian tag in play.',
+        tags: [Tag.JOVIAN],
+        type: CardType.AUTOMATED,
+        gainResource: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true}},
+    },
+    {
+        name: 'Event Analysts',
+        deck: Deck.TURMOIL,
+        cost: 5,
+        tags: [Tag.SCIENCE],
+        increasedInfluence: 1,
+        type: CardType.ACTIVE,
+        text: 'You have influence +1.',
+    },
+    {
+        name: 'GMO Contract',
+        deck: Deck.TURMOIL,
+        cost: 3,
+        tags: [Tag.SCIENCE, Tag.MICROBE],
+        requiredPartyOrTwoDelegates: Party.GREENS,
+        effect: {
+            text: 'Each time you play a plant, animal, or microbe tag, including this, gain 2 MC.',
+            trigger: {tags: [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]},
+            action: {gainResource: {[Resource.MEGACREDIT]: 2}},
+        },
+        type: CardType.ACTIVE,
+    },
+    {
+        name: 'Martian Media Center',
+        deck: Deck.TURMOIL,
+        cost: 7,
+        tags: [Tag.BUILDING],
+        action: {
+            text: 'Pay 3 MC to add a delegate to any party.',
+            cost: 3,
+            placeDelegatesInOneParty: 1,
+        },
+        type: CardType.ACTIVE,
+    },
+    {
+        name: 'Parliament Hall',
+        deck: Deck.TURMOIL,
+        requiredPartyOrTwoDelegates: Party.MARS_FIRST,
+        cost: 8,
+        tags: [Tag.BUILDING],
+        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3}},
+        type: CardType.AUTOMATED,
+    },
+    {
+        name: 'PR Office',
+        deck: Deck.TURMOIL,
+        requiredPartyOrTwoDelegates: Party.UNITY,
+        increaseTerraformRating: 1,
+        gainResource: {[Resource.MEGACREDIT]: {tag: Tag.EARTH}},
+        type: CardType.AUTOMATED,
+        tags: [Tag.EARTH],
+        text:
+            'Requires that Unity are ruling or that you have 2 delegates there. Gain 1 TR. Gain 1 MC for each Earth tag you have, including this.',
+    },
+    {
+        name: 'Public Celebrations',
+        deck: Deck.TURMOIL,
+        type: CardType.EVENT,
+        requiredChairman: RequiredChairman.YOU,
+        victoryPoints: 2,
+        cost: 8,
+        text: 'Requires that you are chairman',
+        tags: [Tag.EVENT],
+    },
+    {
+        name: 'Recruitment',
+        deck: Deck.TURMOIL,
+        type: CardType.EVENT,
+        exchangeNeutralNonLeaderDelegate: true,
+        cost: 2,
+        tags: [Tag.EVENT],
+        text: 'Exchange one NEUTRAL NON-LEADER delegate with one of your own from the reserve',
+    },
+    {
+        name: 'Red Tourism Wave',
+        deck: Deck.TURMOIL,
+        cost: 3,
+        tags: [Tag.EARTH, Tag.EVENT],
+        type: CardType.EVENT,
+        requiredPartyOrTwoDelegates: Party.REDS,
+        gainResource: {[Resource.MEGACREDIT]: VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES},
+        text:
+            'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC from each EMPTY AREA ADJACENT TO YOUR TILES.',
+    },
+    {
+        name: 'Sponsored Mohole',
+        deck: Deck.TURMOIL,
+        cost: 5,
+        type: CardType.AUTOMATED,
+        requiredPartyOrTwoDelegates: Party.KELVINISTS,
+        tags: [Tag.BUILDING],
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        text:
+            'Requires that Kelvinists are ruling or that you have 2 delegates there. Increase your heat production 2 steps.',
+    },
+
+    {
+        name: 'Supported Research',
+        deck: Deck.TURMOIL,
+        cost: 3,
+        tags: [Tag.SCIENCE],
+        type: CardType.AUTOMATED,
+        requiredPartyOrTwoDelegates: Party.SCIENTISTS,
+        gainResource: {[Resource.CARD]: 2},
+        text:
+            'Requires that Scientists are ruling or that you have 2 delegates there. Draw 2 cards.',
+    },
+    {
+        name: 'Wildlife Dome',
+        deck: Deck.TURMOIL,
+        requiredPartyOrTwoDelegates: Party.GREENS,
+        cost: 15,
+        tags: [Tag.ANIMAL, Tag.PLANT, Tag.BUILDING],
+        tilePlacements: [t(TileType.GREENERY)],
+        type: CardType.AUTOMATED,
+        text:
+            'Requires that Greens are ruling or that you have 2 delegates there. Place a greenery tile and raise oxygen 1 step.',
+    },
+    {
+        name: 'Vote of No Confidence',
+        deck: Deck.TURMOIL,
+        cost: 5,
+        type: CardType.EVENT,
+        tags: [Tag.EVENT],
+        requiredChairman: RequiredChairman.NEUTRAL,
+        requiredPartyLeader: true,
+        exchangeChairman: true,
+        increaseTerraformRating: 1,
+        text:
+            'Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move you own delegate (from the reserve) there instead. Gain 1 TR.',
+    },
+
+    {
         deck: Deck.PRELUDE,
         name: 'Aquifer Turbines',
         text: 'Place an ocean tile. Increase your energy production 2 steps. Remove 3 MC.',
@@ -5172,5 +5355,85 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.CORPORATION,
         useStoredResourceAsHeat: 2,
         gainResource: {[Resource.MEGACREDIT]: 48},
+    },
+    {
+        type: CardType.CORPORATION,
+        deck: Deck.TURMOIL,
+        name: 'Lakefront Resorts',
+        gainResource: {[Resource.MEGACREDIT]: 54},
+        text: 'You start with 54 MC',
+        tags: [Tag.BUILDING],
+        effect: {
+            trigger: {placedTile: TileType.OCEAN},
+            action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
+            text:
+                'When any ocean tile is placed, increase your MC production 1 step. Your bonus for placing adjacent to oceans is 3 MC instead of 2 MC.',
+        },
+        oceanAdjacencyBonus: 3,
+    },
+    {
+        type: CardType.CORPORATION,
+        deck: Deck.TURMOIL,
+        name: 'Pristar',
+        gainResource: {[Resource.MEGACREDIT]: 53},
+        text: 'You start with 53 MC',
+        tags: [],
+        decreaseTerraformRating: 2,
+        storedResourceType: Resource.PRESERVATION,
+        victoryPoints: VariableAmount.RESOURCES_ON_CARD,
+        effect: {
+            text:
+                'During production phase, if you did not get TR so far this generation, add one preservation resource here and gain 6 MC',
+            trigger: {
+                noTerraformThisGeneration: true,
+            },
+            action: {
+                gainResource: {[Resource.PRESERVATION]: 1, [Resource.MEGACREDIT]: 6},
+                gainResourceTargetType: ResourceLocationType.THIS_CARD,
+            },
+        },
+    },
+    {
+        type: CardType.CORPORATION,
+        deck: Deck.TURMOIL,
+        name: 'Septum Tribus',
+        gainResource: {[Resource.MEGACREDIT]: 36},
+        text:
+            'You start with 36 MC. When you perform an action, the wild tag counts as any tag of your choice.',
+        tags: [Tag.WILD],
+        action: {
+            text: 'Gain 2 MC for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE.',
+            gainResource: {
+                [Resource.MEGACREDIT]: double(VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE),
+            },
+        },
+    },
+    {
+        type: CardType.CORPORATION,
+        deck: Deck.TURMOIL,
+        name: 'Terralabs Research',
+        gainResource: {[Resource.MEGACREDIT]: 14},
+        decreaseTerraformRating: 1,
+        text: 'You start with 14 MC. Lower your TR 1 step.',
+        tags: [Tag.SCIENCE, Tag.EARTH],
+        action: {
+            text: 'Buying cards to hand costs 1 MC.',
+        },
+        cardCost: 1,
+    },
+    {
+        type: CardType.CORPORATION,
+        deck: Deck.TURMOIL,
+        name: 'Utopia Invest',
+        gainResource: {[Resource.MEGACREDIT]: 40},
+        increaseProduction: {[Resource.TITANIUM]: 1, [Resource.STEEL]: 2},
+        text: 'You start with 40 MC. Increase your steel and titanium production 1 step each.',
+
+        tags: [Tag.BUILDING],
+        action: {
+            decreaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1},
+            gainResource: {[Resource.ANY_STANDARD_RESOURCE]: 4},
+        },
+        cardCost: 1,
     },
 ];

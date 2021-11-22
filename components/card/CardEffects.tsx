@@ -10,12 +10,13 @@ import {
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {ColonyIcon, TradeIcon, VictoryPointIcon} from 'components/icons/other';
+import {ColonyIcon, TerraformRatingIcon, TradeIcon, VictoryPointIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import {Action} from 'constants/action';
 import {Parameter, TileType} from 'constants/board';
+import {ExchangeRates} from 'constants/card-types';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
@@ -186,104 +187,6 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         );
     }
 
-    function renderTrigger(trigger: EffectTrigger | undefined) {
-        if (trigger?.tags) {
-            return (
-                <Flex>
-                    {trigger?.tags.map((tag, index) => (
-                        <React.Fragment key={`${tag}-${index}`}>
-                            {index > 0 && <TextWithMargin>/</TextWithMargin>}
-                            <TagIcon name={tag} size={16} />
-                        </React.Fragment>
-                    ))}
-                </Flex>
-            );
-        } else if (trigger?.cardTags) {
-            return (
-                <Flex>
-                    {trigger?.cardTags.map((tag, index) => (
-                        <TagIcon
-                            name={tag}
-                            size={16}
-                            key={`${tag}-${index}`}
-                            margin={index > 0 ? '0 0 0 4px' : '0'}
-                        />
-                    ))}
-                </Flex>
-            );
-        } else if (trigger?.placedTile) {
-            return (
-                <React.Fragment>
-                    <TileIcon type={trigger?.placedTile} size={16} />
-                    {trigger?.onMars && <TextWithMargin>*</TextWithMargin>}
-                </React.Fragment>
-            );
-        } else if (trigger?.cost) {
-            return (
-                <React.Fragment>
-                    <ResourceIcon
-                        name={Resource.MEGACREDIT}
-                        size={16}
-                        amount={`${trigger?.cost}`}
-                    />
-                    <ResourceIcon name={Resource.CARD} size={16} margin="0px 0px 0px 4px" />
-                </React.Fragment>
-            );
-        } else if (trigger?.increasedParameter) {
-            return <GlobalParameterIcon parameter={trigger?.increasedParameter} size={16} />;
-        } else if (trigger?.standardProject) {
-            // todo: Make this look nicer
-            return <IconizedText>STANDARD PROJECTS</IconizedText>;
-        } else if (trigger?.steelOrTitaniumPlacementBonus) {
-            return (
-                <Flex>
-                    <ResourceIcon name={Resource.STEEL} size={16} />
-                    <TextWithMargin>/</TextWithMargin>
-                    <ResourceIcon name={Resource.TITANIUM} size={16} />
-                </Flex>
-            );
-        } else if (trigger?.nonNegativeVictoryPointsIcon) {
-            return <VictoryPointIcon size={20}>?</VictoryPointIcon>;
-        } else if (trigger?.newTag) {
-            return <TagIcon name={Tag.ANY} size={16} />;
-        } else if (trigger?.placedColony) {
-            return <ColonyIcon size={16} />;
-        }
-
-        let parameterRequirementAdjustments = Object.keys(
-            card.parameterRequirementAdjustments ?? {}
-        ) as Parameter[];
-
-        if (!venus) {
-            parameterRequirementAdjustments = parameterRequirementAdjustments.filter(
-                parameter => parameter !== Parameter.VENUS
-            );
-        }
-
-        if (card.increaseColonyTileTrackRange) {
-            return <TradeIcon size={24} />;
-        }
-
-        if (parameterRequirementAdjustments.length > 0) {
-            const elements: Array<React.ReactNode> = [];
-            parameterRequirementAdjustments.map((parameter, index) => {
-                if (index > 0) {
-                    elements.push(<TextWithMargin>/</TextWithMargin>);
-                }
-                elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
-            });
-            return (
-                <Flex justifyContent="center" alignItems="center">
-                    {elements.map((el, i) => (
-                        <React.Fragment key={i}>{el}</React.Fragment>
-                    ))}
-                </Flex>
-            );
-        }
-
-        return null;
-    }
-
     function renderAction(action: Action | undefined) {
         if (action?.choice) {
             return (
@@ -313,24 +216,9 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
 
         return (
             <React.Fragment>
-                {renderLeftSideOfArrow(action, card)}
-                {renderRightSideOfArrow(action, card)}
+                {renderLeftSideOfArrow(action)}
+                {renderRightSideOfArrow(action, card.storedResourceType)}
             </React.Fragment>
-        );
-    }
-
-    function renderExchangeRates() {
-        return (
-            <Flex flexDirection="column">
-                {Object.entries(card.exchangeRates).map(([resource, amount], index) => (
-                    <IconographyRow key={resource} style={{marginTop: index > 0 ? '4px' : '0px'}}>
-                        <ResourceIcon name={resource as Resource} size={16} />
-                        <TextWithMargin>:</TextWithMargin>
-                        {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
-                        <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${amount}`} />
-                    </IconographyRow>
-                ))}
-            </Flex>
         );
     }
 
@@ -360,7 +248,8 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                     <EffectWrapper key={index}>
                         <Flex alignItems="center" justifyContent="center" flexWrap="wrap">
                             {/* Exchange rates (e.g. Advanced Alloys) */}
-                            {Object.keys(card.exchangeRates).length > 0 && renderExchangeRates()}
+                            {Object.keys(card.exchangeRates).length > 0 &&
+                                renderExchangeRates(card.exchangeRates)}
 
                             {/* Modified card cost (e.g. Polyphemos) */}
                             {card.cardCost && renderCardCost(card.cardCost)}
@@ -383,6 +272,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                             {doesCardHaveTriggerAction(card) && (
                                 <React.Fragment>
                                     {renderTrigger(effect.trigger)}
+                                    {renderOtherEffects(card, venus)}
                                     <Colon />
                                     {renderAction(effect.action)}
                                 </React.Fragment>
@@ -394,3 +284,119 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         </>
     );
 };
+
+export function renderExchangeRates(exchangeRates: ExchangeRates) {
+    return (
+        <Flex flexDirection="column">
+            {Object.entries(exchangeRates).map(([resource, amount], index) => (
+                <IconographyRow key={resource} style={{marginTop: index > 0 ? '4px' : '0px'}}>
+                    <ResourceIcon name={resource as Resource} size={16} />
+                    <TextWithMargin>:</TextWithMargin>
+                    {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
+                    <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${amount}`} />
+                </IconographyRow>
+            ))}
+        </Flex>
+    );
+}
+
+export function renderTrigger(trigger: EffectTrigger | undefined) {
+    if (!trigger) return null;
+    if (trigger?.tags) {
+        return (
+            <Flex>
+                {trigger?.tags.map((tag, index) => (
+                    <React.Fragment key={`${tag}-${index}`}>
+                        {index > 0 && <TextWithMargin>/</TextWithMargin>}
+                        <TagIcon name={tag} size={16} />
+                    </React.Fragment>
+                ))}
+            </Flex>
+        );
+    } else if (trigger?.cardTags) {
+        return (
+            <Flex>
+                {trigger?.cardTags.map((tag, index) => (
+                    <TagIcon
+                        name={tag}
+                        size={16}
+                        key={`${tag}-${index}`}
+                        margin={index > 0 ? '0 0 0 4px' : '0'}
+                    />
+                ))}
+            </Flex>
+        );
+    } else if (trigger?.placedTile) {
+        return (
+            <React.Fragment>
+                <TileIcon type={trigger?.placedTile} size={16} />
+                {trigger?.onMars && <TextWithMargin>*</TextWithMargin>}
+            </React.Fragment>
+        );
+    } else if (trigger?.cost) {
+        return (
+            <React.Fragment>
+                <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${trigger?.cost}`} />
+                <ResourceIcon name={Resource.CARD} size={16} margin="0px 0px 0px 4px" />
+            </React.Fragment>
+        );
+    } else if (trigger?.increasedParameter) {
+        return <GlobalParameterIcon parameter={trigger?.increasedParameter} size={16} />;
+    } else if (trigger?.standardProject) {
+        // todo: Make this look nicer
+        return <IconizedText>STANDARD PROJECTS</IconizedText>;
+    } else if (trigger?.steelOrTitaniumPlacementBonus) {
+        return (
+            <Flex>
+                <ResourceIcon name={Resource.STEEL} size={16} />
+                <TextWithMargin>/</TextWithMargin>
+                <ResourceIcon name={Resource.TITANIUM} size={16} />
+            </Flex>
+        );
+    } else if (trigger?.nonNegativeVictoryPointsIcon) {
+        return <VictoryPointIcon size={20}>?</VictoryPointIcon>;
+    } else if (trigger?.newTag) {
+        return <TagIcon name={Tag.ANY} size={16} />;
+    } else if (trigger?.placedColony) {
+        return <ColonyIcon size={16} />;
+    } else if (trigger?.increaseTerraformRating) {
+        return <TerraformRatingIcon size={16} />;
+    }
+
+    return null;
+}
+
+function renderOtherEffects(card: CardModel, venus?: boolean) {
+    let parameterRequirementAdjustments = Object.keys(
+        card.parameterRequirementAdjustments ?? {}
+    ) as Parameter[];
+
+    if (!venus) {
+        parameterRequirementAdjustments = parameterRequirementAdjustments.filter(
+            parameter => parameter !== Parameter.VENUS
+        );
+    }
+
+    if (card.increaseColonyTileTrackRange) {
+        return <TradeIcon size={24} />;
+    }
+
+    if (parameterRequirementAdjustments.length > 0) {
+        const elements: Array<React.ReactNode> = [];
+        parameterRequirementAdjustments.map((parameter, index) => {
+            if (index > 0) {
+                elements.push(<TextWithMargin>/</TextWithMargin>);
+            }
+            elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
+        });
+        return (
+            <Flex justifyContent="center" alignItems="center">
+                {elements.map((el, i) => (
+                    <React.Fragment key={i}>{el}</React.Fragment>
+                ))}
+            </Flex>
+        );
+    }
+
+    return null;
+}

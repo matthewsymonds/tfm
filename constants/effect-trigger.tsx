@@ -33,4 +33,8 @@ export interface EffectTrigger {
 
     // Aridor
     newTag?: boolean;
+
+    noTerraformThisGeneration?: boolean;
+
+    increaseTerraformRating?: boolean;
 }

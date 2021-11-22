@@ -65,6 +65,7 @@ interface BoxProps {
     flexWrap: string;
     lineHeight: string;
     opacity: number | string;
+    inset: number | string;
 }
 
 interface FlexProps extends BoxProps {
@@ -141,6 +142,7 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     flex-wrap: ${props => props.flexWrap};
     flex-grow: ${props => props.flexGrow};
     opacity: ${props => props.opacity};
+    inset: ${props => props.inset};
 `;
 
 export const Box = React.memo(BoxInternal);
