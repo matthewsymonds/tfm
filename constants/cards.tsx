@@ -4461,6 +4461,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3}},
         type: CardType.AUTOMATED,
+        victoryPoints: 1,
+        text:
+            'Requires that Mars First are ruling or that you have 2 delegates there. Increase your MC production 1 step for every 3 building tags you have, including this.',
     },
     {
         name: 'PR Office',

@@ -691,7 +691,10 @@ export class ActionGuard {
     ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
-            if (state.common.currentPlayerIndex === player.index) {
+            if (
+                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
+                player.index
+            ) {
                 return [false, 'Cannot play action before finalizing other choices'];
             }
             return [false, 'Cannot play out of turn'];
@@ -880,7 +883,10 @@ export class ActionGuard {
         }
         const {gameStage} = state.common;
         const player = this._getPlayerToConsider();
-        if (player.index !== state.common.currentPlayerIndex) {
+        if (
+            player.index !== state.common.controllingPlayerIndex ??
+            state.common.currentPlayerIndex
+        ) {
             return true;
         }
         if (gameStage !== GameStage.ACTIVE_ROUND && gameStage !== GameStage.GREENERY_PLACEMENT) {

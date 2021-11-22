@@ -30,7 +30,7 @@ import {VariableAmount} from 'constants/variable-amount';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React, {useContext} from 'react';
+import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-venus';
 import styled from 'styled-components';
