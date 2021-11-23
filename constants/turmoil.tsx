@@ -78,8 +78,5 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
 }
 
 function delegate(playerIndex?: number) {
-    if (playerIndex === undefined) {
-        return {};
-    }
     return {playerIndex};
 }

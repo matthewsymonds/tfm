@@ -5,6 +5,7 @@ import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
+import {PartySymbol} from 'components/turmoil';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {Resource} from 'constants/resource-enum';
@@ -52,6 +53,10 @@ function getCardRequirementText(card: CardModel) {
     } else if (card.minTerraformRating !== undefined) {
         text = String(card.minTerraformRating);
     } else if (card.requiredResources !== undefined) {
+        text = null;
+    } else if (card.requiredPartyOrTwoDelegates !== undefined) {
+        text = null;
+    } else if (card.requiredChairman !== undefined) {
         text = null;
     } else {
         throw new Error('Unhandled card requirement text');
@@ -137,6 +142,10 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 ))}
             </Flex>
         );
+    } else if (card.requiredPartyOrTwoDelegates) {
+        return <PartySymbol party={card.requiredPartyOrTwoDelegates} size={30} />;
+    } else if (card.requiredChairman) {
+        return <Flex padding="2px">👤</Flex>;
     } else {
         throw new Error('Unhandled card requirement text');
     }
@@ -149,7 +158,9 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
         card.requiredTilePlacements ||
         card.requiredTags ||
         card.minTerraformRating ||
-        card.requiredResources;
+        card.requiredResources ||
+        card.requiredPartyOrTwoDelegates ||
+        card.requiredChairman;
 
     if (!hasRequirement) {
         return null;

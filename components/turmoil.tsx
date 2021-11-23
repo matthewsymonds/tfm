@@ -2,7 +2,7 @@ import {ApiClient} from 'api-client';
 import {Action} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {getGlobalEvent} from 'constants/global-events';
-import {getParty, PartyConfig} from 'constants/party';
+import {getParty, PartyConfig, PARTY_CONFIGS, UNITY} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -35,7 +35,7 @@ function GlobalEventCard({name}: {name: string}) {
             <TexturedCard width={CARD_WIDTH - 20} height={CARD_HEIGHT - 30} borderWidth={2}>
                 <GenericCardTitleBar bgColor={colors.CARD_GLOBAL_EVENT} padding="4px 0">
                     <Box margin="0 4px">
-                        <PartySymbol party={globalEvent.top.party} right="auto" />
+                        <PartySymbol party={globalEvent.top.party} margin="0 auto 0 0" />
                     </Box>
                     <Box flexGrow="1" marginRight="4px">
                         {globalEvent.top.name}
@@ -46,7 +46,7 @@ function GlobalEventCard({name}: {name: string}) {
                         {globalEvent.bottom.name}
                     </Box>
                     <Box margin="0 4px">
-                        <PartySymbol party={globalEvent.bottom.party} left="auto" />
+                        <PartySymbol party={globalEvent.bottom.party} margin="0 0 0 auto" />
                     </Box>
                 </GenericCardTitleBar>
                 <MainCardText>{globalEvent.action.text}</MainCardText>
@@ -73,32 +73,24 @@ function EmptyGlobalEvent() {
     );
 }
 
-const PartyBase = styled.div<{background: string; left?: string; right?: string}>`
+const PartyBase = styled.div<{background: string; margin: string; size: number}>`
     color: #eee;
-    border-radius: 32px;
-    height: 30px;
-    min-width: 50px;
-    padding: 4px;
+    border-radius: ${props => props.size * 0.5}px;
+    line-height: ${props => props.size * 0.7}px;
+    height: ${props => props.size * 0.7}px;
+    width: ${props => props.size}px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    font-size: 24px;
-    text-shadow: 0px 0px 4px rgba(200, 200, 200, 0.4);
+    font-size: ${props => props.size * 0.4}px;
     background: ${props => props.background};
-    margin-left: ${props => props.left};
-    margin-right: ${props => props.right};
-    box-shadow: 0 0 0 1px rgba(100, 100, 100, 0.4);
-    &.overlapping {
+    margin: ${props => props.margin};
+    border: 1px solid ${colors.DARK_4};
+
+    &.unity > span {
         position: relative;
-        & > :first-child {
-            position: absolute;
-            left: 4px;
-        }
-        & > :last-child {
-            position: absolute;
-            right: 4px;
-        }
+        left: -${props => props.size * 0.1}px;
+        letter-spacing: -${props => props.size * 0.2}px;
     }
 `;
 
@@ -116,20 +108,28 @@ export const MiniPartyIcon = styled.div`
     }
 `;
 
-export function PartySymbol({party, left, right}: {party?: string; left?: string; right?: string}) {
-    const {color, symbol, className = '', repeatSymbol = false} = getParty(party ?? '') ?? {
+export function PartySymbol({
+    party,
+    margin = '0',
+    size = 50,
+}: {
+    party: string;
+    margin?: string;
+    size?: number;
+}) {
+    const {color, symbol} = getParty(party ?? '') ?? {
         symbol: '',
         color: 'gray',
     };
 
-    const numSymbolElements = repeatSymbol || 1;
-    let symbolElements: React.ReactElement[] = [];
-    for (let i = 0; i < numSymbolElements; i++) {
-        symbolElements.push(<div key={i}>{symbol}</div>);
-    }
     return (
-        <PartyBase background={color} left={left} right={right} className={className}>
-            {symbolElements}
+        <PartyBase
+            background={color}
+            margin={margin}
+            size={size}
+            className={party === UNITY ? 'unity' : ''}
+        >
+            <span>{symbol}</span>
         </PartyBase>
     );
 }

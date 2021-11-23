@@ -59,6 +59,7 @@
         "@types/react": "16.9.49",
         "@types/react-redux": "7.1.9",
         "@types/styled-components": "5.1.3",
+        "@types/mongoose": "^5.11.97",
         "babel-loader": "^8.1.0",
         "babel-plugin-styled-components": "1.11.1",
         "organize-imports-cli": "0.8.0",

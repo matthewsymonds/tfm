@@ -678,6 +678,20 @@ export const exchangeNeutralNonLeaderDelegate = withMatcher(
     })
 );
 
+const ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE = 'ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE';
+export const askUserToRemoveNonLeaderDelegate = withMatcher((playerIndex: number) => ({
+    type: ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE,
+    payload: {playerIndex},
+}));
+
+const REMOVE_NON_LEADER_DELEGATE = 'REMOVE_NON_LEADER_DELEGATE';
+export const removeNonLeaderDelegate = withMatcher(
+    (party: string, playerIndex: number, delegateToRemovePlayerIndex: number | undefined) => ({
+        type: REMOVE_NON_LEADER_DELEGATE,
+        payload: {party, delegateToRemovePlayerIndex, playerIndex},
+    })
+);
+
 const EXCHANGE_CHAIRMAN = 'EXCHANGE_CHAIRMAN';
 export const exchangeChairman = withMatcher((playerIndex: number) => ({
     type: EXCHANGE_CHAIRMAN,

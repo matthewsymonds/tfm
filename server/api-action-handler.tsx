@@ -13,6 +13,7 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
+    askUserToRemoveNonLeaderDelegate,
     askUserToFundAward,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
@@ -39,6 +40,7 @@ import {
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
+    removeNonLeaderDelegate,
     fundAward as fundAwardAction,
     gainResource,
     gainResourceWhenIncreaseProduction,
@@ -130,6 +132,7 @@ import {
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
+import {Delegate} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameAction, GameActionType} from 'GameActionState';
 import {Card} from 'models/card';
@@ -1774,6 +1777,45 @@ export class ApiActionHandler {
                     items.push(exchangeNeutralNonLeaderDelegate(party, playerIndex));
                 } else {
                     items.push(askUserToExchangeNeutralNonLeaderDelegate(playerIndex));
+                }
+            }
+        }
+        if (action.removeNonLeaderDelegate) {
+            // Count non leader delegates, unique by player index per party
+            // If there's only one, exchange it automatically.
+            // If there's more than one, ask user to make choice.
+            const {turmoil} = state.common;
+            if (turmoil) {
+                const nonLeaderDelegatePlayerIndicesByParty: Map<
+                    string,
+                    Set<number | undefined>
+                > = new Map(
+                    Object.keys(turmoil.delegations).map(partyName => [partyName, new Set()])
+                );
+                const {delegations} = turmoil;
+                for (const [partyName, delegation] of Object.entries(delegations)) {
+                    const [partyLeader, ...rest] = delegation;
+                    for (const delegate of rest) {
+                        nonLeaderDelegatePlayerIndicesByParty[partyName].add(delegate.playerIndex);
+                    }
+                }
+
+                const allNonLeaderDelegates = Array.from(
+                    nonLeaderDelegatePlayerIndicesByParty.entries()
+                ).flatMap(([partyName, nonLeaderPlayerIndices]) => {
+                    return Array.from(nonLeaderPlayerIndices).map(playerIndex => ({
+                        playerIndex,
+                        partyName,
+                    }));
+                });
+
+                if (allNonLeaderDelegates.length === 1) {
+                    const {partyName, playerIndex: delegatePlayerIndex} = allNonLeaderDelegates[0];
+                    items.push(
+                        removeNonLeaderDelegate(partyName, playerIndex, delegatePlayerIndex)
+                    );
+                } else {
+                    items.push(askUserToRemoveNonLeaderDelegate(playerIndex));
                 }
             }
         }

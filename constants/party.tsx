@@ -21,9 +21,7 @@ export type PartyConfig = {
     exchangeRates?: ExchangeRates;
     partyBonus: Action;
     symbol: string;
-    repeatSymbol?: number;
     color: string;
-    className?: string;
 };
 
 export const PARTY_CONFIGS: PartyConfig[] = [
@@ -37,7 +35,7 @@ export const PARTY_CONFIGS: PartyConfig[] = [
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING}},
         },
         symbol: '♂',
-        color: '#ab291a',
+        color: '#853e0c',
     },
     {
         name: SCIENTISTS,
@@ -49,7 +47,7 @@ export const PARTY_CONFIGS: PartyConfig[] = [
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.SCIENCE}},
         },
         symbol: '🧪',
-        color: 'darkgray',
+        color: 'white',
     },
     {
         name: UNITY,
@@ -61,10 +59,8 @@ export const PARTY_CONFIGS: PartyConfig[] = [
                 [Resource.MEGACREDIT]: sum({tag: Tag.VENUS}, {tag: Tag.EARTH}, {tag: Tag.JOVIAN}),
             },
         },
-        symbol: '◯',
+        symbol: '◯◯◯',
         color: 'linear-gradient(to right,#38388f,#3ca4c7,#38388f)',
-        repeatSymbol: 3,
-        className: 'overlapping',
     },
     {
         name: GREENS,

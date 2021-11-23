@@ -4391,6 +4391,7 @@ export const cardConfigs: CardConfig[] = [
         requiredChairman: RequiredChairman.YOU,
         tags: [Tag.EVENT],
         type: CardType.EVENT,
+        removeNonLeaderDelegate: true,
         text: 'Requires that you are chairman. Remove any NON-LEADER delegate.',
     },
 
@@ -4417,6 +4418,7 @@ export const cardConfigs: CardConfig[] = [
             'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC for each Jovian tag in play.',
         tags: [Tag.JOVIAN],
         type: CardType.AUTOMATED,
+        requiredPartyOrTwoDelegates: REDS,
         gainResource: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true}},
     },
     {
@@ -4426,6 +4428,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         increasedInfluence: 1,
         type: CardType.ACTIVE,
+        requiredPartyOrTwoDelegates: SCIENTISTS,
         effect: {text: 'You have influence +1.'},
         text: 'Requires that Scientists are ruling or that you have 2 delegates there.',
     },
@@ -4440,6 +4443,7 @@ export const cardConfigs: CardConfig[] = [
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]},
             action: {gainResource: {[Resource.MEGACREDIT]: 2}},
         },
+        text: 'Requires that Greens are ruling or that you have 2 delegates there.',
         type: CardType.ACTIVE,
     },
     {
@@ -4469,6 +4473,7 @@ export const cardConfigs: CardConfig[] = [
     {
         name: 'PR Office',
         deck: Deck.TURMOIL,
+        cost: 7,
         requiredPartyOrTwoDelegates: UNITY,
         increaseTerraformRating: 1,
         gainResource: {[Resource.MEGACREDIT]: {tag: Tag.EARTH}},

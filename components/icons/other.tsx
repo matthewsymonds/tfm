@@ -80,7 +80,7 @@ const InfluenceIconBase = styled.div<{size: number; margin: string}>`
 export const InfluenceIcon = ({size = 20, margin = '0'}: {size?: number; margin?: string}) => {
     return (
         <InfluenceIconBase size={size} margin={margin}>
-            <span style={{color: 'white'}}>👥</span>
+            <span style={{color: 'white'}}>👤</span>
         </InfluenceIconBase>
     );
 };

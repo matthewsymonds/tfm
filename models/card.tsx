@@ -150,6 +150,7 @@ export class Card {
     increasedInfluence?: number;
     exchangeNeutralNonLeaderDelegate?: boolean;
     exchangeChairman?: boolean;
+    removeNonLeaderDelegate?: boolean;
 
     constructor(config: CardConfig) {
         // Hack to fix compile bug
@@ -259,6 +260,7 @@ export class Card {
         this.placeDelegatesInOneParty = config.placeDelegatesInOneParty;
         this.increasedInfluence = config.increasedInfluence;
         this.exchangeNeutralNonLeaderDelegate = config.exchangeNeutralNonLeaderDelegate;
+        this.removeNonLeaderDelegate = config.removeNonLeaderDelegate;
         this.exchangeChairman = config.exchangeChairman;
     }
 }

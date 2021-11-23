@@ -91,5 +91,6 @@ export type BasePlayerState = {
     // Choose the party
     placeDelegatesInOneParty?: number;
     exchangeNeutralNonLeaderDelegate?: boolean;
+    removeNonLeaderDelegate?: boolean;
     baseInfluence?: number;
 };

@@ -40,24 +40,29 @@ async function connectionIsUp(): Promise<boolean> {
 
 connectionIsUp();
 
-const gamesSchema = new schema({
-    name: uniqueNameSchema,
-    state: {type: Object, index: true},
-    stateCheckpoint: {type: String},
-    players: {type: Array, default: [], index: true},
-    queue: {type: Array, default: []},
-    public: {type: Boolean, default: false},
-    createdAt: {
-        type: Date,
-        default: Date.now,
+const gamesSchema = new schema(
+    {
+        name: uniqueNameSchema,
+        state: {type: Object, index: true},
+        stateCheckpoint: {type: String},
+        players: {type: Array, default: [], index: true},
+        queue: {type: Array, default: []},
+        public: {type: Boolean, default: false},
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now,
+        },
+        currentPlayer: {type: String, default: ''},
+        lastSeenLogItem: {type: Array, default: []},
     },
-    updatedAt: {
-        type: Date,
-        default: Date.now,
-    },
-    currentPlayer: {type: String, default: ''},
-    lastSeenLogItem: {type: Array, default: []},
-});
+    {
+        minimize: false,
+    }
+);
 
 export let gamesModel;
 

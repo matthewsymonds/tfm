@@ -1170,6 +1170,19 @@ export class ActionGuard {
             }
         }
 
+        if (card.removeNonLeaderDelegate) {
+            let doesNonLeaderDelegateExist = false;
+            for (const delegation of Object.values(turmoil.delegations)) {
+                if (delegation.length > 1) {
+                    doesNonLeaderDelegateExist = true;
+                }
+            }
+
+            if (!doesNonLeaderDelegateExist) {
+                return [false, 'No non leader delegate available'];
+            }
+        }
+
         if (card.exchangeChairman) {
             const remainingDelegates = turmoil.delegateReserve[player.index];
             if (remainingDelegates.length === 0) {

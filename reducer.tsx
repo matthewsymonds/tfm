@@ -49,6 +49,7 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
+    askUserToRemoveNonLeaderDelegate,
     askUserToFundAward,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
@@ -75,6 +76,7 @@ import {
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
+    removeNonLeaderDelegate,
     fundAward,
     gainResource,
     gainResourceWhenIncreaseProduction,
@@ -248,7 +250,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Banned Delegate'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -1558,6 +1560,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             player.exchangeNeutralNonLeaderDelegate = true;
         }
+        if (askUserToRemoveNonLeaderDelegate.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.removeNonLeaderDelegate = true;
+        }
 
         if (exchangeNeutralNonLeaderDelegate.match(action)) {
             const {payload} = action;
@@ -1573,6 +1580,25 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         // We'll just let neutral delegates disappear and reappear as needed.
                         delegation[neutralDelegateIndex] = delegateInReserve;
                     }
+                }
+            }
+        }
+        if (removeNonLeaderDelegate.match(action)) {
+            const {payload} = action;
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                const delegation = turmoil.delegations[payload.party];
+                // look for the first matching delegate to remove
+                const delegateIndexToRemove = delegation.findIndex(
+                    delegate => delegate.playerIndex === payload.delegateToRemovePlayerIndex
+                );
+                // remove the delegate
+                const removedDelegate = delegation.splice(delegateIndexToRemove, 1)[0];
+                // return it to the playersr supply
+                if (removedDelegate.playerIndex !== undefined) {
+                    draft.common.turmoil?.delegateReserve[removedDelegate.playerIndex].push(
+                        removedDelegate
+                    );
                 }
             }
         }

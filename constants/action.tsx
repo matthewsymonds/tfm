@@ -132,6 +132,9 @@ export interface ActionWithoutSteps {
     // Recruitment
     exchangeNeutralNonLeaderDelegate?: boolean;
 
+    // Banned Delegate
+    removeNonLeaderDelegate?: boolean;
+
     // vote of no confidence
     exchangeChairman?: boolean;
 
