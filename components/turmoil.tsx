@@ -256,7 +256,7 @@ export function Turmoil() {
 
     const delegations: React.ReactElement[] = [];
     for (const delegation in turmoil.delegations) {
-        const party = PARTY_CONFIGS[delegation];
+        const party = getParty(delegation);
         const delegates = turmoil.delegations[delegation].map((delegate, index) => (
             <DelegateComponent delegate={delegate} isLeader={index === 0} key={index} />
         ));
