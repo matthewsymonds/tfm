@@ -134,7 +134,7 @@ export function PartySymbol({party, left, right}: {party?: string; left?: string
     );
 }
 
-function PartyPolicyInternal({party}: {party: string}) {
+function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boolean}) {
     const rulingPartyPolicy = getParty(party);
 
     if (rulingPartyPolicy.effect) {
@@ -160,7 +160,7 @@ function PartyPolicyInternal({party}: {party: string}) {
     if (rulingPartyPolicy.action) {
         const {action} = rulingPartyPolicy;
         return (
-            <TurmoilAction>
+            <TurmoilAction disabled={disabled}>
                 {renderLeftSideOfArrow(action)}
                 {renderArrow()}
                 {renderRightSideOfArrow(action, undefined, undefined, true)}
@@ -281,7 +281,7 @@ export function Turmoil() {
                 </Flex>
                 <Box>
                     <span style={{marginRight: '4px', fontSize: '10px'}}>Policy:</span>
-                    <PartyPolicy party={delegation} />
+                    <PartyPolicy party={delegation} disabled={true} />
                 </Box>
                 <Box>
                     <span style={{marginRight: '4px', fontSize: '10px'}}>Bonus:</span>
@@ -323,18 +323,94 @@ export function Turmoil() {
                     <EmptyGlobalEvent />
                 )}
             </Flex>
-            <Flex alignItems="flex-start" justifyContent="space-around" width="100%">
-                <Flex flexDirection="column" marginTop="8px" marginBottom="2px" alignItems="center">
-                    <h3 className="display">Ruling Policy</h3>
-                    <PartyPanel width="fit-content">
-                        <PartyPolicy party={turmoil.rulingParty} />
-                    </PartyPanel>
-                </Flex>
-                <Flex flexDirection="column" marginTop="8px" marginBottom="2px" alignItems="center">
-                    <h3 className="display">Chairperson</h3>
-                    <DelegateComponent delegate={turmoil.chairperson} isLeader={true} />
-                </Flex>
-            </Flex>
+            <Box display="table" width="100%">
+                <Box display="table-row">
+                    <Box display="table-cell">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                            margin="12px"
+                        >
+                            <h3 className="display">Ruling Policy</h3>
+                            <PartyPanel width="fit-content">
+                                <PartyPolicy party={turmoil.rulingParty} />
+                            </PartyPanel>
+                        </Flex>
+                    </Box>
+                    <Box display="table-cell">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                            margin="12px"
+                        >
+                            <h3 className="display">Chairperson</h3>
+                            <DelegateComponent delegate={turmoil.chairperson} isLeader={true} />
+                        </Flex>
+                    </Box>
+                </Box>
+                <Box display="table-row">
+                    <Box display="table-cell">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                            margin="12px"
+                        >
+                            <h3 className="display" style={{textAlign: 'center'}}>
+                                Lobby
+                            </h3>
+
+                            <Box margin="0 auto" fontSize="10px">
+                                {turmoil.lobby.map((delegate, index) =>
+                                    delegate ? (
+                                        <DelegateComponent
+                                            isLeader={false}
+                                            delegate={delegate}
+                                            key={index}
+                                        />
+                                    ) : null
+                                )}
+                                {turmoil.lobby.every(delegate => !delegate) ? (
+                                    <em>The lobby is empty.</em>
+                                ) : null}
+                            </Box>
+                        </Flex>
+                    </Box>
+                    <Box display="table-cell">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                            margin="12px"
+                        >
+                            <h3 className="display" style={{textAlign: 'center'}}>
+                                Delegate Reserve
+                            </h3>
+
+                            <Box margin="0 auto" fontSize="10px">
+                                {Object.keys(turmoil.delegateReserve).map(playerIndex => {
+                                    const delegates = turmoil.delegateReserve[playerIndex];
+                                    return (
+                                        <Flex key={playerIndex}>
+                                            {delegates.map((delegate, index) =>
+                                                delegate ? (
+                                                    <DelegateComponent
+                                                        isLeader={false}
+                                                        delegate={delegate}
+                                                        key={index}
+                                                    />
+                                                ) : null
+                                            )}
+                                        </Flex>
+                                    );
+                                })}
+                            </Box>
+                        </Flex>
+                    </Box>
+                </Box>
+            </Box>
             <Box marginTop="12px" margin="0 auto" width="100%">
                 <h3 className="display" style={{textAlign: 'center'}}>
                     Delegations

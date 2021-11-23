@@ -12,7 +12,7 @@ import {
     TextWithMargin,
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
-import {DelegateComponent, MiniDelegateComponent} from 'components/delegate';
+import {MiniDelegateComponent} from 'components/delegate';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';

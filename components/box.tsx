@@ -27,6 +27,7 @@ interface BoxProps {
     paddingRight: string;
     whiteSpace: string;
     textAlign: string;
+    verticalAlign: string;
     overflowY: string;
     overflowX: string;
     overflow: string;
@@ -104,6 +105,7 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     padding-right: ${props => props.paddingRight};
     white-space: ${props => props.whiteSpace};
     text-align: ${props => props.textAlign};
+    vertical-align: ${props => props.verticalAlign};
     overflow-y: ${props => props.overflowY};
     overflow-x: ${props => props.overflowX};
     overflow: ${props => props.overflow};
