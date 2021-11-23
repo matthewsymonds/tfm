@@ -1,14 +1,13 @@
 import {PLAYER_COLORS} from 'constants/game';
 import {Delegate} from 'constants/turmoil';
 import React from 'react';
-import {Flex} from './box';
+import {Box, Flex} from './box';
 
 export function DelegateComponent({delegate, isLeader}: {delegate: Delegate; isLeader: boolean}) {
     return (
         <Flex
             borderRadius="50%"
             borderWidth="3px"
-            marginRight="2px"
             width="12px"
             height="12px"
             lineHeight="16px"
@@ -27,5 +26,13 @@ export function DelegateComponent({delegate, isLeader}: {delegate: Delegate; isL
         >
             👤
         </Flex>
+    );
+}
+
+export function MiniDelegateComponent() {
+    return (
+        <Box width="12px" height="12px" lineHeight="16px" fontSize="20px">
+            👤
+        </Box>
     );
 }

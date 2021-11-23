@@ -257,7 +257,7 @@ type RepresentAmountAndResourceProps = {
     shouldShowNegativeSymbol?: (resource?: Resource) => boolean;
     opts: ChangeResourceOpts;
     omitNumerator?: boolean;
-    includeParentheses?: boolean;
+    includeBrackets?: boolean;
     omitResourceIconography?: boolean;
 };
 
@@ -353,7 +353,7 @@ function getMultiplierAndCustomElement(
         opts,
         resourceOnCard,
         omitNumerator,
-        includeParentheses,
+        includeBrackets,
     } = props;
     let multiplierElement: React.ReactElement | null = null;
     let customElement: React.ReactElement | null = null;
@@ -567,30 +567,36 @@ function getMultiplierAndCustomElement(
                         {...props}
                         amount={operand}
                         omitNumerator={omitNumerator || index !== 0}
-                        includeParentheses={!omitNumerator}
+                        includeBrackets={!omitNumerator}
                         omitResourceIconography={index === 1}
                     />
                 ));
                 const isMaxOrMin = [Operation.MAX, Operation.MIN].includes(amount.operation);
 
-                const prefix = includeParentheses ? (
-                    <Box display="inline-block" marginRight="2px">
-                        (
-                    </Box>
-                ) : (
-                    ''
-                );
-                const suffix = includeParentheses ? (
-                    <Box display="inline-block" marginLeft="2px">
-                        )
-                    </Box>
-                ) : (
-                    ''
-                );
+                const parentheses =
+                    amount.operation === Operation.SUBTRACT &&
+                    amount.operands.some(operand => typeof operand === 'number');
+
+                const prefix =
+                    includeBrackets || parentheses ? (
+                        <Box display="inline-block" marginRight="2px">
+                            {parentheses ? '(' : '['}
+                        </Box>
+                    ) : (
+                        ''
+                    );
+                const suffix =
+                    includeBrackets || parentheses ? (
+                        <Box display="inline-block" marginLeft="2px">
+                            {parentheses ? ')' : ']'}
+                        </Box>
+                    ) : (
+                        ''
+                    );
                 const symbol = (
                     <Box
                         display="inline-block"
-                        marginLeft={isMaxOrMin ? '0px' : '4px'}
+                        marginLeft={'4px'}
                         marginRight="4px"
                         fontWeight={!isMaxOrMin ? 'normal' : 'bold'}
                         style={{whiteSpace: 'pre', fontVariant: 'all-small-caps'}}
@@ -609,7 +615,12 @@ function getMultiplierAndCustomElement(
                     }
                 }
                 customElement = (
-                    <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                    <Flex
+                        display="inline-flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        flexWrap="wrap"
+                    >
                         {prefix}
                         {internalElements}
                         {suffix}

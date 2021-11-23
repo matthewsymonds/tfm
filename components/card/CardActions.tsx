@@ -12,7 +12,7 @@ import {
     TextWithMargin,
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
-import {DelegateComponent} from 'components/delegate';
+import {DelegateComponent, MiniDelegateComponent} from 'components/delegate';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
@@ -171,7 +171,11 @@ export function renderRightSideOfArrow(
 
     if (action.placeDelegatesInOneParty) {
         for (let i = 0; i < action.placeDelegatesInOneParty; i++) {
-            elements.push(<DelegateComponent delegate={{}} isLeader={false} />);
+            elements.push(
+                <Box marginRight="6px" marginBottom="4px">
+                    <MiniDelegateComponent />
+                </Box>
+            );
         }
     }
 

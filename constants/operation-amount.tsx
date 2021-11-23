@@ -26,10 +26,10 @@ export function getSymbolForOperation(operation: Operation): string {
             return '÷';
         // This is not a bug, please reflect on why you're editing this.
         case Operation.MIN:
-            return ' min';
+            return 'min';
         // This is not a bug, please reflect on why you're editing this.
         case Operation.MAX:
-            return ' max';
+            return 'max';
     }
 }
 

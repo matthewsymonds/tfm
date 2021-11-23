@@ -261,7 +261,9 @@ export function Turmoil() {
     for (const delegation in turmoil.delegations) {
         const party = getParty(delegation);
         const delegates = turmoil.delegations[delegation].map((delegate, index) => (
-            <DelegateComponent delegate={delegate} isLeader={index === 0} key={index} />
+            <Box key={index} marginLeft={index === 0 ? '0px' : '2px'}>
+                <DelegateComponent delegate={delegate} isLeader={index === 0} />
+            </Box>
         ));
         const element = (
             <PartyPanel key={party.name}>
