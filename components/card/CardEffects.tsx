@@ -110,7 +110,7 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 <ResourceIcon
                     name={Resource.MEGACREDIT}
                     size={16}
-                    amount={`${card.discounts.card}`}
+                    amount={`-${card.discounts.card}`}
                 />
             );
         }

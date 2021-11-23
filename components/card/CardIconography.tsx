@@ -432,7 +432,6 @@ function getMultiplierAndCustomElement(
                 </Flex>
             );
             break;
-            break;
         case VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS:
         case VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS:
             customElement = (
