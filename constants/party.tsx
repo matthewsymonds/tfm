@@ -7,26 +7,28 @@ import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
-export enum Party {
-    MARS_FIRST = 'partyMarsFirst',
-    SCIENTISTS = 'partyScientists',
-    UNITY = 'partyUnity',
-    GREENS = 'partyGreens',
-    REDS = 'partyReds',
-    KELVINISTS = 'partyKelvinists',
-}
-
-type PartyConfig = {
+export type PartyConfig = {
     name: string;
     effect?: Effect;
     action?: Action;
     exchangeRates?: ExchangeRates;
     partyBonus: Action;
+    symbol: string;
+    repeatSymbol?: number;
+    color: string;
+    className?: string;
 };
 
-export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
-    [Party.MARS_FIRST]: {
-        name: 'Mars First',
+export const MARS_FIRST = 'Mars First';
+export const SCIENTISTS = 'Scientists';
+export const UNITY = 'Unity';
+export const GREENS = 'Greens';
+export const REDS = 'Reds';
+export const KELVINISTS = 'Kelvinists';
+
+export const PARTY_CONFIGS: PartyConfig[] = [
+    {
+        name: MARS_FIRST,
         effect: {
             trigger: {placedTile: TileType.ANY_TILE},
             action: {gainResource: {[Resource.STEEL]: 1}},
@@ -34,9 +36,11 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
         partyBonus: {
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING}},
         },
+        symbol: '♂',
+        color: '#ab291a',
     },
-    [Party.SCIENTISTS]: {
-        name: 'Scientists',
+    {
+        name: SCIENTISTS,
         action: {
             cost: 10,
             gainResource: {[Resource.CARD]: 3},
@@ -44,9 +48,11 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
         partyBonus: {
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.SCIENCE}},
         },
+        symbol: '🧪',
+        color: 'darkgray',
     },
-    [Party.UNITY]: {
-        name: 'Unity',
+    {
+        name: UNITY,
         exchangeRates: {
             [Resource.TITANIUM]: 1,
         },
@@ -55,9 +61,13 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
                 [Resource.MEGACREDIT]: sum({tag: Tag.VENUS}, {tag: Tag.EARTH}, {tag: Tag.JOVIAN}),
             },
         },
+        symbol: '◯',
+        color: 'linear-gradient(to right,#38388f,#3ca4c7,#38388f)',
+        repeatSymbol: 3,
+        className: 'overlapping',
     },
-    [Party.GREENS]: {
-        name: 'Greens',
+    {
+        name: GREENS,
         effect: {
             trigger: {placedTile: TileType.GREENERY},
             action: {gainResource: {[Resource.MEGACREDIT]: 4}},
@@ -67,9 +77,11 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
                 [Resource.MEGACREDIT]: sum({tag: Tag.PLANT}, {tag: Tag.MICROBE}, {tag: Tag.ANIMAL}),
             },
         },
+        symbol: '🌲',
+        color: '#229522',
     },
-    [Party.REDS]: {
-        name: 'Reds',
+    {
+        name: REDS,
         effect: {
             trigger: {
                 increaseTerraformRating: true,
@@ -78,6 +90,8 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
                 removeResource: {[Resource.MEGACREDIT]: 3},
             },
         },
+        symbol: '🚩',
+        color: '#2a0e00',
         partyBonus: {
             increaseTerraformRating: {
                 contest: VariableAmount.TERRAFORM_RATING,
@@ -88,8 +102,8 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
             },
         },
     },
-    [Party.KELVINISTS]: {
-        name: 'Kelvinists',
+    {
+        name: KELVINISTS,
         action: {
             cost: 10,
             increaseProduction: {
@@ -102,5 +116,16 @@ export const PARTY_CONFIGS: {[k in Party]: PartyConfig} = {
                 [Resource.MEGACREDIT]: {production: Resource.HEAT},
             },
         },
+        symbol: '🔥',
+        color: '#363636',
     },
-};
+];
+
+const PARTY_CONFIGS_BY_NAME: {[key: string]: PartyConfig} = {};
+for (const partyConfig of PARTY_CONFIGS) {
+    PARTY_CONFIGS_BY_NAME[partyConfig.name] = partyConfig;
+}
+
+export function getParty(name: string) {
+    return PARTY_CONFIGS_BY_NAME[name];
+}

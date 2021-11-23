@@ -4,6 +4,7 @@ import {
     getPlayerOptionWrappers,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
+import {getLobbyingAction} from 'components/turmoil';
 import {Action, Payment} from 'constants/action';
 import {Award, Cell, Milestone, TilePlacement, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
@@ -1030,6 +1031,33 @@ export class ActionGuard {
         }
 
         return canTradeIgnoringPayment(player, name, this.state);
+    }
+
+    canLobby(): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
+        const {turmoil} = this.state.common;
+        if (!turmoil) return [false, 'Turmoil disabled'];
+        const action = getLobbyingAction(this.state, player);
+        if (this.shouldDisableUI(this.state)) {
+            return [false, 'Cannot lobby right now'];
+        }
+        if (action.cost) {
+            if (!this.canAffordActionCost(action, player)) {
+                return [false, 'Cannot afford to lobby'];
+            }
+            const delegatesInReserve = turmoil.delegateReserve[player.index];
+            if (delegatesInReserve.length === 0) {
+                return [false, 'No more delegates in reserve'];
+            }
+        } else {
+            const delegateInLobby = turmoil.lobby[player.index];
+            if (!delegateInLobby) {
+                // Your delegate won't get placed here only if all of them are out.
+                return [false, 'No delegate in lobby'];
+            }
+        }
+
+        return [true, 'Good to go'];
     }
 
     private arePreludesCorrect(selectedPreludes: Card[]) {

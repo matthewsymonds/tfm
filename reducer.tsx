@@ -9,7 +9,6 @@ import {
     STARTING_STEP,
     STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
-import {Party} from 'constants/party';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import {Delegate, Turmoil} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
@@ -127,6 +126,7 @@ import {getResourceName, isStorableResource} from './constants/resource';
 import {Resource} from './constants/resource-enum';
 import {StandardProjectType} from './constants/standard-project';
 import {getDiscountedCardCost} from './selectors/get-discounted-card-cost';
+
 export type Resources = {
     [Resource.MEGACREDIT]: number;
     [Resource.STEEL]: number;
@@ -1794,7 +1794,7 @@ function determineNewLeader(delegation: Delegate[], playerIndex?: number) {
     }
 }
 
-function determineNewDominantParty(turmoil: Turmoil, recentlyGrownParty: Party) {
+function determineNewDominantParty(turmoil: Turmoil, recentlyGrownParty: string) {
     const {dominantParty, delegations} = turmoil;
     if (delegations[recentlyGrownParty].length > delegations[dominantParty].length) {
         turmoil.dominantParty = recentlyGrownParty;

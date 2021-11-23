@@ -6,7 +6,7 @@ export enum Condition {
 
 export type ConditionWithOperands = {
     condition: Condition;
-    operands?: Amount[];
+    operands: Amount[];
 };
 
 export type ConditionAmount = ConditionWithOperands & {

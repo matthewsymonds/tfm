@@ -2,7 +2,7 @@ import {Parameter, PlacementRequirement, t, TileType} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {CardConfig, CardType, Deck} from './card-types';
 import {double} from './operation-amount';
-import {Party} from './party';
+import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 import {ResourceLocationType} from './resource';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
@@ -4375,7 +4375,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 2,
         name: 'Aerial Lenses',
         deck: Deck.TURMOIL,
-        requiredPartyOrTwoDelegates: Party.KELVINISTS,
+        requiredPartyOrTwoDelegates: KELVINISTS,
         removeResource: {[Resource.PLANT]: 2},
         removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
         increaseProduction: {[Resource.HEAT]: 2},
@@ -4406,7 +4406,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.MEGACREDIT]: 3},
         tilePlacements: [t(TileType.CITY)],
         placeDelegatesInOneParty: 2,
-        requiredPartyOrTwoDelegates: Party.UNITY,
+        requiredPartyOrTwoDelegates: UNITY,
     },
 
     {
@@ -4433,7 +4433,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         cost: 3,
         tags: [Tag.SCIENCE, Tag.MICROBE],
-        requiredPartyOrTwoDelegates: Party.GREENS,
+        requiredPartyOrTwoDelegates: GREENS,
         effect: {
             text: 'Each time you play a plant, animal, or microbe tag, including this, gain 2 MC.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]},
@@ -4456,7 +4456,7 @@ export const cardConfigs: CardConfig[] = [
     {
         name: 'Parliament Hall',
         deck: Deck.TURMOIL,
-        requiredPartyOrTwoDelegates: Party.MARS_FIRST,
+        requiredPartyOrTwoDelegates: MARS_FIRST,
         cost: 8,
         tags: [Tag.BUILDING],
         increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3}},
@@ -4468,7 +4468,7 @@ export const cardConfigs: CardConfig[] = [
     {
         name: 'PR Office',
         deck: Deck.TURMOIL,
-        requiredPartyOrTwoDelegates: Party.UNITY,
+        requiredPartyOrTwoDelegates: UNITY,
         increaseTerraformRating: 1,
         gainResource: {[Resource.MEGACREDIT]: {tag: Tag.EARTH}},
         type: CardType.AUTOMATED,
@@ -4501,7 +4501,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 3,
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
-        requiredPartyOrTwoDelegates: Party.REDS,
+        requiredPartyOrTwoDelegates: REDS,
         gainResource: {[Resource.MEGACREDIT]: VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES},
         text:
             'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC from each EMPTY AREA ADJACENT TO YOUR TILES.',
@@ -4511,7 +4511,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         cost: 5,
         type: CardType.AUTOMATED,
-        requiredPartyOrTwoDelegates: Party.KELVINISTS,
+        requiredPartyOrTwoDelegates: KELVINISTS,
         tags: [Tag.BUILDING],
         increaseProduction: {[Resource.MEGACREDIT]: 2},
         text:
@@ -4524,7 +4524,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 3,
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
-        requiredPartyOrTwoDelegates: Party.SCIENTISTS,
+        requiredPartyOrTwoDelegates: SCIENTISTS,
         gainResource: {[Resource.CARD]: 2},
         text:
             'Requires that Scientists are ruling or that you have 2 delegates there. Draw 2 cards.',
@@ -4532,7 +4532,7 @@ export const cardConfigs: CardConfig[] = [
     {
         name: 'Wildlife Dome',
         deck: Deck.TURMOIL,
-        requiredPartyOrTwoDelegates: Party.GREENS,
+        requiredPartyOrTwoDelegates: GREENS,
         cost: 15,
         tags: [Tag.ANIMAL, Tag.PLANT, Tag.BUILDING],
         tilePlacements: [t(TileType.GREENERY)],

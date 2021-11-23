@@ -10,7 +10,7 @@ import {
     subtract,
     sum,
 } from './operation-amount';
-import {Party} from './party';
+import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
@@ -23,12 +23,12 @@ export interface GlobalEvent {
 
 interface GlobalEventHalf {
     name: string;
-    party: Party;
+    party: string;
 }
 
 interface GlobalEventHalf {
     name: string;
-    party: Party;
+    party: string;
 }
 
 const triple = applyOperationAndOperand(Operation.MULTIPLY, 3);
@@ -38,9 +38,9 @@ const MAX_GLOBAL_EVENT_QUANTITY = 5;
 
 export const GLOBAL_EVENTS: GlobalEvent[] = [
     {
-        top: {party: Party.SCIENTISTS, name: 'AI Research'},
+        top: {party: SCIENTISTS, name: 'AI Research'},
         bottom: {
-            party: Party.MARS_FIRST,
+            party: MARS_FIRST,
             name: 'Solarnet Shutdown',
         },
         action: {
@@ -56,10 +56,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Antarctica Melts', party: Party.KELVINISTS},
+        top: {name: 'Antarctica Melts', party: KELVINISTS},
         bottom: {
             name: 'Red Influence',
-            party: Party.REDS,
+            party: REDS,
         },
         action: {
             text:
@@ -73,10 +73,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Bioengineering Boom', party: Party.GREENS},
+        top: {name: 'Bioengineering Boom', party: GREENS},
         bottom: {
             name: 'Spin-Off Products',
-            party: Party.SCIENTISTS,
+            party: SCIENTISTS,
         },
         action: {
             text: 'Gain 2 MC for each science tag (max 5) and influence.',
@@ -92,10 +92,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Charismatic WG President', party: Party.UNITY},
+        top: {name: 'Charismatic WG President', party: UNITY},
         bottom: {
             name: 'Interplanetary Trade',
-            party: Party.UNITY,
+            party: UNITY,
         },
         action: {
             text: 'Gain 2MC for each space tag (max 5) and influence.',
@@ -108,10 +108,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Corporate Alliance', party: Party.SCIENTISTS},
+        top: {name: 'Corporate Alliance', party: SCIENTISTS},
         bottom: {
             name: 'Sabotage',
-            party: Party.REDS,
+            party: REDS,
         },
         action: {
             text: 'Decrease steel and energy production 1 step each. Gain 1 steel per influence.',
@@ -123,10 +123,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Democratic Reform', party: Party.MARS_FIRST},
+        top: {name: 'Democratic Reform', party: MARS_FIRST},
         bottom: {
             name: 'Aquifer Released By Public Council',
-            party: Party.GREENS,
+            party: GREENS,
         },
         action: {
             text: 'First player places an ocean tile. Gain 1 plant and 1 steel per influence.',
@@ -139,10 +139,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Experimental Lifeforms', party: Party.GREENS},
+        top: {name: 'Experimental Lifeforms', party: GREENS},
         bottom: {
             name: 'Eco Sabotage',
-            party: Party.REDS,
+            party: REDS,
         },
         action: {
             text: 'Lose all plants except 3 + influence.',
@@ -155,10 +155,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Explore First Directive', party: Party.REDS},
+        top: {name: 'Explore First Directive', party: REDS},
         bottom: {
             name: 'Scientific Community',
-            party: Party.SCIENTISTS,
+            party: SCIENTISTS,
         },
         action: {
             text: 'Gain 1 MC for each card in hand (no limit) and influence.',
@@ -168,10 +168,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Free Academia Treaty', party: Party.SCIENTISTS},
+        top: {name: 'Free Academia Treaty', party: SCIENTISTS},
         bottom: {
             name: 'Diversity',
-            party: Party.SCIENTISTS,
+            party: SCIENTISTS,
         },
         action: {
             text:
@@ -187,10 +187,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Heat First Policy', party: Party.KELVINISTS},
+        top: {name: 'Heat First Policy', party: KELVINISTS},
         bottom: {
             name: 'Global Dust Storm',
-            party: Party.GREENS,
+            party: GREENS,
         },
         action: {
             text:
@@ -207,10 +207,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Increased Interplanetary Trade', party: Party.SCIENTISTS},
+        top: {name: 'Increased Interplanetary Trade', party: SCIENTISTS},
         bottom: {
             name: 'Solar Flare',
-            party: Party.KELVINISTS,
+            party: KELVINISTS,
         },
         action: {
             text: 'Lose 3 MC for each space tag (max 5, then reduced by influence).',
@@ -225,10 +225,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Independence Movement', party: Party.MARS_FIRST},
+        top: {name: 'Independence Movement', party: MARS_FIRST},
         bottom: {
             name: 'Riots',
-            party: Party.REDS,
+            party: REDS,
         },
         action: {
             text: 'Lose 4MC for each city tile (max 5, then reduced by influence).',
@@ -243,10 +243,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Local Terraforming Support', party: Party.GREENS},
+        top: {name: 'Local Terraforming Support', party: GREENS},
         bottom: {
             name: 'Successful Organisms',
-            party: Party.SCIENTISTS,
+            party: SCIENTISTS,
         },
         action: {
             text: 'Gain 1 plant per plant production (max 5) and influence.',
@@ -259,10 +259,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Minimal Impact Policy', party: Party.REDS},
+        top: {name: 'Minimal Impact Policy', party: REDS},
         bottom: {
             name: 'Dry Deserts',
-            party: Party.UNITY,
+            party: UNITY,
         },
         action: {
             text:
@@ -271,10 +271,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Mining Restrictions', party: Party.REDS},
+        top: {name: 'Mining Restrictions', party: REDS},
         bottom: {
             name: 'Asteroid Mining',
-            party: Party.UNITY,
+            party: UNITY,
         },
         action: {
             text: 'Gain 1 titanium for each Jovian tag (max 5) and influence.',
@@ -287,10 +287,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Mohole Lake', party: Party.KELVINISTS},
+        top: {name: 'Mohole Lake', party: KELVINISTS},
         bottom: {
             name: 'Snow Cover',
-            party: Party.KELVINISTS,
+            party: KELVINISTS,
         },
         action: {
             text: 'Decrease temperature 2 steps. Draw 1 card per influence.',
@@ -301,10 +301,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Moral Movement', party: Party.REDS},
+        top: {name: 'Moral Movement', party: REDS},
         bottom: {
             name: 'Strong Society',
-            party: Party.MARS_FIRST,
+            party: MARS_FIRST,
         },
         action: {
             text: 'Gain 2 MC for each city tile (max 5) and influence.',
@@ -319,10 +319,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Patera Boring', party: Party.SCIENTISTS},
+        top: {name: 'Patera Boring', party: SCIENTISTS},
         bottom: {
             name: 'Volcanic Eruptions',
-            party: Party.KELVINISTS,
+            party: KELVINISTS,
         },
         action: {
             text: 'Increase temperature 2 steps. Increase heat production 1 step per influence.',
@@ -333,10 +333,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Red Resistance', party: Party.REDS},
+        top: {name: 'Red Resistance', party: REDS},
         bottom: {
             name: 'Homeworld Support',
-            party: Party.KELVINISTS,
+            party: KELVINISTS,
         },
         action: {
             text: 'Gain 2 MC for each Earth tag (max 5) and influence.',
@@ -348,10 +348,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Rising Alloy Demand', party: Party.MARS_FIRST},
+        top: {name: 'Rising Alloy Demand', party: MARS_FIRST},
         bottom: {
             name: 'Miners on Strike',
-            party: Party.GREENS,
+            party: GREENS,
         },
         action: {
             text: 'Lose 1 titanium for each Jovian tag (max 5, then reduced by influence).',
@@ -364,10 +364,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Science Summit', party: Party.SCIENTISTS},
+        top: {name: 'Science Summit', party: SCIENTISTS},
         bottom: {
             name: 'Sponsored Products',
-            party: Party.GREENS,
+            party: GREENS,
         },
         action: {
             text:
@@ -377,8 +377,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Scientific Consensus', party: Party.KELVINISTS},
-        bottom: {name: 'Paradigm Breakdown', party: Party.REDS},
+        top: {name: 'Scientific Consensus', party: KELVINISTS},
+        bottom: {name: 'Paradigm Breakdown', party: REDS},
         action: {
             text: 'Discard 2 cards from hand. Gain 2 MC per influence.',
             removeResource: {
@@ -390,8 +390,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Scientific Progress', party: Party.SCIENTISTS},
-        bottom: {name: 'Productivity', party: Party.MARS_FIRST},
+        top: {name: 'Scientific Progress', party: SCIENTISTS},
+        bottom: {name: 'Productivity', party: MARS_FIRST},
         action: {
             text: 'Gain 1 steel for each steel production (max 5) and influence.',
             removeResource: {
@@ -403,8 +403,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Second Energy Crisis', party: Party.SCIENTISTS},
-        bottom: {name: 'Improved Energy Templates', party: Party.KELVINISTS},
+        top: {name: 'Second Energy Crisis', party: SCIENTISTS},
+        bottom: {name: 'Improved Energy Templates', party: KELVINISTS},
         action: {
             text:
                 'Increase energy production 1 step per 2 power tags (no limit). Influence counts as power tags.',
@@ -414,10 +414,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Self-Sufficiency Program', party: Party.GREENS},
+        top: {name: 'Self-Sufficiency Program', party: GREENS},
         bottom: {
             name: 'Election',
-            party: Party.MARS_FIRST,
+            party: MARS_FIRST,
         },
         action: {
             text:
@@ -436,16 +436,16 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Separatist Movement', party: Party.MARS_FIRST},
-        bottom: {name: 'War on Earth', party: Party.KELVINISTS},
+        top: {name: 'Separatist Movement', party: MARS_FIRST},
+        bottom: {name: 'War on Earth', party: KELVINISTS},
         action: {
             decreaseTerraformRating: subtract(4, VariableAmount.INFLUENCE),
             text: 'Reduce TR 4 steps. Each influence prevents 1 step.',
         },
     },
     {
-        top: {name: 'Solarnet', party: Party.SCIENTISTS},
-        bottom: {name: 'Celebrity Leaders', party: Party.GREENS},
+        top: {name: 'Solarnet', party: SCIENTISTS},
+        bottom: {name: 'Celebrity Leaders', party: GREENS},
         action: {
             text: 'Gain 2 MC for each event played (max 5) and influence.',
             gainResource: {
@@ -459,8 +459,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Terraforming Lobbying', party: Party.KELVINISTS},
-        bottom: {name: 'Generous Funding', party: Party.UNITY},
+        top: {name: 'Terraforming Lobbying', party: KELVINISTS},
+        bottom: {name: 'Generous Funding', party: UNITY},
         action: {
             text:
                 'Gain 2 MC for each influence and each complete set of 5 TR over 15 (max 5 sets).',
@@ -475,8 +475,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Thaw Mining', party: Party.KELVINISTS},
-        bottom: {name: 'Mud Slides', party: Party.GREENS},
+        top: {name: 'Thaw Mining', party: KELVINISTS},
+        bottom: {name: 'Mud Slides', party: GREENS},
         action: {
             text: 'Lose 4 MC for each tile adjacent to ocean (max 5, then reduced by influence).',
             removeResource: {
@@ -490,8 +490,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'Viral Modifications Approved', party: Party.GREENS},
-        bottom: {name: 'Pandemic', party: Party.MARS_FIRST},
+        top: {name: 'Viral Modifications Approved', party: GREENS},
+        bottom: {name: 'Pandemic', party: MARS_FIRST},
         action: {
             text: 'Lose 3 MC for each building tag (max 5, then reduced by influence).',
             removeResource: {
@@ -505,8 +505,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
     },
     {
-        top: {name: 'World Government Directives', party: Party.UNITY},
-        bottom: {name: 'Revolution', party: Party.MARS_FIRST},
+        top: {name: 'World Government Directives', party: UNITY},
+        bottom: {name: 'Revolution', party: MARS_FIRST},
         action: {
             text:
                 'Count Earth tags and ADD(!) influence. The player(s) with the most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more.',

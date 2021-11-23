@@ -12,6 +12,7 @@ import {
     TextWithMargin,
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
+import {DelegateComponent} from 'components/delegate';
 import {TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
@@ -42,7 +43,7 @@ const ActionsWrapper = styled.div`
     flex-direction: column;
 `;
 
-const ActionContainerBase = styled.button`
+export const ActionContainerBase = styled.button`
     background-color: initial;
     padding: 4px;
 
@@ -166,6 +167,12 @@ export function renderRightSideOfArrow(
     }
     if (action.lookAtCards) {
         elements.push(<LookAtCards text={action.text ?? 'Look at cards'} />);
+    }
+
+    if (action.placeDelegatesInOneParty) {
+        for (let i = 0; i < action.placeDelegatesInOneParty; i++) {
+            elements.push(<DelegateComponent delegate={{}} isLeader={false} />);
+        }
     }
 
     if (elements.length === 1) {

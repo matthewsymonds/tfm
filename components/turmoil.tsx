@@ -1,18 +1,29 @@
+import {ApiClient} from 'api-client';
+import {Action} from 'constants/action';
 import {Deck} from 'constants/card-types';
-import {PLAYER_COLORS} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
-import {Party, PARTY_CONFIGS} from 'constants/party';
-import {Delegate} from 'constants/turmoil';
+import {getParty, PartyConfig, PARTY_CONFIGS} from 'constants/party';
+import {Resource} from 'constants/resource-enum';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
-import {useTypedSelector} from 'reducer';
+import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from './card/Card';
-import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {
+    ActionContainerBase,
+    renderArrow,
+    renderLeftSideOfArrow,
+    renderRightSideOfArrow,
+} from './card/CardActions';
 import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';
+import {DelegateComponent} from './delegate';
+import PaymentPopover from './popovers/payment-popover';
 import TexturedCard from './textured-card';
 import {colors} from './ui';
 
@@ -105,58 +116,26 @@ export const MiniPartyIcon = styled.div`
     }
 `;
 
-export function PartySymbol({party, left, right}: {party?: Party; left?: string; right?: string}) {
-    switch (party) {
-        case Party.MARS_FIRST:
-            return (
-                <PartyBase background="#ab291a" left={left} right={right}>
-                    ♂
-                </PartyBase>
-            );
-        case Party.SCIENTISTS:
-            return (
-                <PartyBase background="darkgray" left={left} right={right}>
-                    🧪
-                </PartyBase>
-            );
-        case Party.UNITY:
-            return (
-                <PartyBase
-                    background="linear-gradient(to right,#38388f,#3ca4c7,#38388f)"
-                    left={left}
-                    right={right}
-                    className="overlapping"
-                >
-                    <div>◯</div>
-                    <div>◯</div>
-                    <div>◯</div>
-                </PartyBase>
-            );
-        case Party.GREENS:
-            return (
-                <PartyBase background="#229522" left={left} right={right}>
-                    🌲
-                </PartyBase>
-            );
-        case Party.REDS:
-            return (
-                <PartyBase background="#2a0e00" left={left} right={right}>
-                    🚩
-                </PartyBase>
-            );
-        case Party.KELVINISTS:
-            return (
-                <PartyBase background="#363636" left={left} right={right}>
-                    🔥
-                </PartyBase>
-            );
-        default:
-            return <PartyBase background="gray" left={left} right={right}></PartyBase>;
+export function PartySymbol({party, left, right}: {party?: string; left?: string; right?: string}) {
+    const {color, symbol, className = '', repeatSymbol = false} = getParty(party ?? '') ?? {
+        symbol: '',
+        color: 'gray',
+    };
+
+    const numSymbolElements = repeatSymbol ?? 1;
+    let symbolElements: React.ReactElement[] = [];
+    for (let i = 0; i < numSymbolElements; i++) {
+        symbolElements.push(<div key={i}>{symbol}</div>);
     }
+    return (
+        <PartyBase background={color} left={left} right={right} className={className}>
+            {symbolElements}
+        </PartyBase>
+    );
 }
 
-function PartyPolicyInternal({party}: {party: Party}) {
-    const rulingPartyPolicy = PARTY_CONFIGS[party];
+function PartyPolicyInternal({party}: {party: string}) {
+    const rulingPartyPolicy = getParty(party);
 
     if (rulingPartyPolicy.effect) {
         const {effect} = rulingPartyPolicy;
@@ -181,11 +160,11 @@ function PartyPolicyInternal({party}: {party: Party}) {
     if (rulingPartyPolicy.action) {
         const {action} = rulingPartyPolicy;
         return (
-            <Flex alignItems="center" justifyContent="center">
+            <TurmoilAction>
                 {renderLeftSideOfArrow(action)}
                 {renderArrow()}
                 {renderRightSideOfArrow(action, undefined, undefined, true)}
-            </Flex>
+            </TurmoilAction>
         );
     }
 
@@ -200,29 +179,63 @@ function PartyPolicy(props) {
     );
 }
 
-function DelegateComponent({delegate, isLeader}: {delegate: Delegate; isLeader: boolean}) {
-    return (
-        <Flex
-            borderRadius="50%"
-            borderWidth="1px"
-            width="12px"
-            height="12px"
-            lineHeight="16px"
-            fontSize="20px"
-            alignItems="center"
-            justifyContent="center"
-            textAlign="center"
-            borderColor={isLeader ? 'darkgray' : 'transparent'}
-            borderStyle="solid"
-            fontFamily="u1f400"
-            padding="6px"
-            background={
-                delegate?.playerIndex !== undefined
-                    ? PLAYER_COLORS[delegate.playerIndex]
-                    : 'transparent'
-            }
+export const LOBBYING_COST = 5;
+
+export function getLobbyingAction(state: GameState, player: PlayerState): Action {
+    const turmoil = state.common.turmoil!;
+    const freeDelegate = turmoil.lobby[player.index];
+    return {
+        cost: freeDelegate ? 0 : LOBBYING_COST,
+        placeDelegatesInOneParty: 1,
+    };
+}
+
+const TurmoilAction = styled(ActionContainerBase)`
+    display: flex;
+    align-items: center;
+`;
+
+function Lobbying({
+    party,
+    canLobby,
+    reason,
+    action,
+    apiClient,
+    player,
+}: {
+    party: PartyConfig;
+    canLobby: boolean;
+    reason: string;
+    action: Action;
+    apiClient: ApiClient;
+    player: PlayerState;
+}) {
+    const usePaymentPopover =
+        action.cost && player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0;
+
+    const button = (
+        <PaymentPopover
+            cost={action.cost ?? 0}
+            onConfirmPayment={payment => apiClient.lobbyAsync(party.name, payment)}
+            shouldHide={!usePaymentPopover || !canLobby}
         >
-            👤
+            <TurmoilAction
+                disabled={!canLobby}
+                onClick={() => canLobby && apiClient.lobbyAsync(party.name, {})}
+            >
+                {renderLeftSideOfArrow(action)}
+                {renderArrow()}
+                {renderRightSideOfArrow(action)}
+            </TurmoilAction>
+        </PaymentPopover>
+    );
+
+    return (
+        <Flex alignItems="center" justifyContent="center" flexDirection="column">
+            {button}
+            <Box fontSize="10px">
+                <em>{canLobby ? 'Add a delegate to ' + party.name : null}</em>
+            </Box>
         </Flex>
     );
 }
@@ -230,7 +243,16 @@ function DelegateComponent({delegate, isLeader}: {delegate: Delegate; isLeader: 
 export function Turmoil() {
     const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
     if (!isTurmoilEnabled) return null;
-    const turmoil = useTypedSelector(state => state.common.turmoil!);
+    const turmoil = useTypedSelector(state => state.common.turmoil);
+    if (!turmoil) return null;
+
+    const player = useLoggedInPlayer();
+    const actionGuard = useActionGuard(player.username);
+    const apiClient = useApiClient();
+
+    const [canLobby, reason] = actionGuard.canLobby();
+
+    const lobbying: Action = useTypedSelector(state => getLobbyingAction(state, player));
 
     const delegations: React.ReactElement[] = [];
     for (const delegation in turmoil.delegations) {
@@ -249,19 +271,29 @@ export function Turmoil() {
                 >
                     {party.name}
                     <Box position="absolute" right="0px" top="0px">
-                        <PartySymbol party={delegation as Party} />
+                        <PartySymbol party={delegation} />
                     </Box>
                 </Flex>
                 <Box>
                     <span style={{marginRight: '4px', fontSize: '10px'}}>Policy:</span>
-                    <PartyPolicy party={delegation as Party} />
+                    <PartyPolicy party={delegation} />
                 </Box>
                 <Box>
                     <span style={{marginRight: '4px', fontSize: '10px'}}>Bonus:</span>
                     <BaseActionIconography inline={true} card={party.partyBonus} />
                 </Box>
 
-                {delegates}
+                <Flex alignItems="center" justifyContent="center" marginBottom="8px">
+                    {delegates}
+                </Flex>
+                <Lobbying
+                    canLobby={canLobby}
+                    reason={reason}
+                    action={lobbying}
+                    apiClient={apiClient}
+                    player={player}
+                    party={party}
+                />
             </PartyPanel>
         );
         delegations.push(element);

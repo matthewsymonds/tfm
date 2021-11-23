@@ -23,6 +23,9 @@ import {StateHydrator} from 'server/state-hydrator';
 import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
+    lobbyAsync(name: string, payment: NumericPropertyCounter<Resource>): void {
+        throw new Error('Method not implemented.');
+    }
     actionHandler: ApiActionHandler;
     stateHydrator: StateHydrator;
     constructor(

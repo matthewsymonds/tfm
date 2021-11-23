@@ -1,7 +1,7 @@
 import {shuffle} from 'initial-state';
 import {PlayerState} from 'reducer';
 import {GLOBAL_EVENTS} from './global-events';
-import {Party} from './party';
+import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 
 export enum RequiredChairman {
     YOU = 'requiredChairmanYou',
@@ -13,7 +13,7 @@ export interface SerializedGlobalEvent {
 }
 
 export type Delegations = {
-    [p in Party]: Delegate[];
+    [party: string]: Delegate[];
 };
 
 export type Delegate = {playerIndex?: number};
@@ -31,8 +31,8 @@ export interface Turmoil {
     distantGlobalEvent: SerializedGlobalEvent;
     comingGlobalEvent: SerializedGlobalEvent;
     currentGlobalEvent?: SerializedGlobalEvent;
-    rulingParty: Party;
-    dominantParty: Party;
+    rulingParty: string;
+    dominantParty: string;
     delegations: Delegations;
     chairperson: Delegate;
     lobby: Delegate[];
@@ -45,12 +45,12 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
     const [first, second, ...rest] = globalEvents;
 
     const delegations: Delegations = {
-        [Party.MARS_FIRST]: [],
-        [Party.SCIENTISTS]: [],
-        [Party.UNITY]: [],
-        [Party.GREENS]: [],
-        [Party.REDS]: [],
-        [Party.KELVINISTS]: [],
+        [MARS_FIRST]: [],
+        [SCIENTISTS]: [],
+        [UNITY]: [],
+        [GREENS]: [],
+        [REDS]: [],
+        [KELVINISTS]: [],
     };
 
     delegations[first.top.party].push(delegate());
@@ -68,7 +68,7 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
         distantGlobalEvent: {name: second.top.name},
         comingGlobalEvent: {name: first.top.name},
         currentGlobalEvent: undefined,
-        rulingParty: Party.GREENS,
+        rulingParty: GREENS,
         dominantParty: first.top.party,
         delegations: delegations,
         chairperson: delegate(),

@@ -13,6 +13,7 @@ import {colors} from 'components/ui';
 import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
+import {Condition, isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
 import {getSymbolForOperation, isOperationAmount, Operation} from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
@@ -549,6 +550,8 @@ function getMultiplierAndCustomElement(
                     <MiniPartyIcon>👥</MiniPartyIcon>
                 </Flex>
             );
+        case VariableAmount.UNIQUE_TAGS:
+            customElement = <TagIcon name={Tag.ANY} size={16} />;
             break;
         default:
             if (amount && isTagAmount(amount)) {
@@ -620,6 +623,38 @@ function getMultiplierAndCustomElement(
                 multiplierElement = (
                     <GainResourceIconography gainResource={{[amount.resource]: 1}} />
                 );
+            } else if (amount && isConditionAmount(amount)) {
+                switch (amount.condition) {
+                    case Condition.GREATER_THAN_OR_EQUAL_TO:
+                        customElement = (
+                            <Flex flexDirection="column" alignItems="center">
+                                {amount.fail ? (
+                                    <Flex alignItems="center" marginBottom="8px">
+                                        <RepresentAmountAndResource
+                                            {...props}
+                                            amount={amount.fail}
+                                        />
+                                        <TextWithMargin>OR</TextWithMargin>
+                                    </Flex>
+                                ) : null}
+                                <Flex alignItems="center" justifyContent="center">
+                                    <RepresentAmountAndResource
+                                        {...props}
+                                        amount={amount.operands[1]}
+                                        omitResourceIconography={true}
+                                    />
+                                    <RepresentAmountAndResource
+                                        {...props}
+                                        amount={amount.operands[0]}
+                                        omitResourceIconography={true}
+                                    />
+                                    <TextWithMargin margin={'0 0 0 2px'}>:</TextWithMargin>
+                                    <RepresentAmountAndResource {...props} amount={amount.pass} />
+                                </Flex>
+                            </Flex>
+                        );
+                        break;
+                }
             } else {
                 throw new Error('variable amount not supported: ' + JSON.stringify(amount));
             }

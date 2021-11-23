@@ -1,7 +1,6 @@
 import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action-details';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {ExchangeRates} from 'constants/card-types';
-import {Party} from 'constants/party';
 import {Tag} from 'constants/tag';
 import {GameAction} from 'GameActionState';
 import {AnyAction} from 'redux';
@@ -646,7 +645,7 @@ export const askUserToPlaceDelegatesInOneParty = withMatcher(
 
 const PLACE_DELEGATES_IN_ONE_PARTY = 'PLACE_DELEGATES_IN_ONE_PARTY';
 export const placeDelegatesInOneParty = withMatcher(
-    (numDelegates: number, party: Party, playerIndex: number) => ({
+    (numDelegates: number, party: string, playerIndex: number) => ({
         type: PLACE_DELEGATES_IN_ONE_PARTY,
         payload: {numDelegates, party, playerIndex},
     })
@@ -667,7 +666,7 @@ export const askUserToExchangeNeutralNonLeaderDelegate = withMatcher((playerInde
 
 const EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE = 'EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
 export const exchangeNeutralNonLeaderDelegate = withMatcher(
-    (party: Party, playerIndex: number) => ({
+    (party: string, playerIndex: number) => ({
         type: EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
         payload: {party, playerIndex},
     })

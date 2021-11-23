@@ -117,7 +117,6 @@ import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
-import {Party} from 'constants/party';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
@@ -1741,14 +1740,14 @@ export class ApiActionHandler {
             // If there's only one, exchange it automatically.
             // If there's more than one, ask user to make choice.
             const {turmoil} = state.common;
-            const partiesWithNeutralNonLeaderDelegates: Party[] = [];
+            const partiesWithNeutralNonLeaderDelegates: string[] = [];
             if (turmoil) {
                 const {delegations} = turmoil;
                 for (const delegation in delegations) {
                     const [partyLeader, ...rest] = delegations[delegation];
                     for (const delegate of rest) {
                         if (delegate.playerIndex === undefined) {
-                            partiesWithNeutralNonLeaderDelegates.push(delegation as Party);
+                            partiesWithNeutralNonLeaderDelegates.push(delegation);
                             break;
                         }
                     }
