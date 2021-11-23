@@ -122,7 +122,7 @@ export function PartySymbol({party, left, right}: {party?: string; left?: string
         color: 'gray',
     };
 
-    const numSymbolElements = repeatSymbol ?? 1;
+    const numSymbolElements = repeatSymbol || 1;
     let symbolElements: React.ReactElement[] = [];
     for (let i = 0; i < numSymbolElements; i++) {
         symbolElements.push(<div key={i}>{symbol}</div>);
@@ -221,7 +221,10 @@ function Lobbying({
         >
             <TurmoilAction
                 disabled={!canLobby}
-                onClick={() => canLobby && apiClient.lobbyAsync(party.name, {})}
+                onClick={() =>
+                    canLobby &&
+                    apiClient.lobbyAsync(party.name, {[Resource.MEGACREDIT]: action.cost})
+                }
             >
                 {renderLeftSideOfArrow(action)}
                 {renderArrow()}

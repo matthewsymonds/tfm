@@ -7,6 +7,13 @@ import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
+export const MARS_FIRST = 'Mars First';
+export const SCIENTISTS = 'Scientists';
+export const UNITY = 'Unity';
+export const GREENS = 'Greens';
+export const REDS = 'Reds';
+export const KELVINISTS = 'Kelvinists';
+
 export type PartyConfig = {
     name: string;
     effect?: Effect;
@@ -18,13 +25,6 @@ export type PartyConfig = {
     color: string;
     className?: string;
 };
-
-export const MARS_FIRST = 'Mars First';
-export const SCIENTISTS = 'Scientists';
-export const UNITY = 'Unity';
-export const GREENS = 'Greens';
-export const REDS = 'Reds';
-export const KELVINISTS = 'Kelvinists';
 
 export const PARTY_CONFIGS: PartyConfig[] = [
     {

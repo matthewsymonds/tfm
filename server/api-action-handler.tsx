@@ -1204,6 +1204,10 @@ export class ApiActionHandler {
         this.handleTrade(colony, tradeIncome, /* withPriority = */ true);
     }
 
+    lobby({party, payment}: {party: string, payment: Payment}) {
+        const [canLobby, reason] = this.actionGuard.canLobby()
+    }
+
     private handleTrade(colony: string, tradeIncome: number, withPriority: boolean = false) {
         const player = this.getLoggedInPlayer();
 

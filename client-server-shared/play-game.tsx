@@ -122,6 +122,9 @@ export function playGame(
         case ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY:
             actionHandler.completePutAdditionalColonyTileIntoPlay(payload);
             break;
+        case ApiActionType.API_LOBBY:
+            actionHandler.lobby(payload);
+            break;
         case ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION:
             actionHandler.completeChooseNextAction(payload);
             break;

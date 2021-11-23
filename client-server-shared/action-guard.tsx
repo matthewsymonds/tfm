@@ -1033,7 +1033,7 @@ export class ActionGuard {
         return canTradeIgnoringPayment(player, name, this.state);
     }
 
-    canLobby(): CanPlayAndReason {
+    canLobby(payment: Payment = this._getPlayerToConsider().resources): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {turmoil} = this.state.common;
         if (!turmoil) return [false, 'Turmoil disabled'];

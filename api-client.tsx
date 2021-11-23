@@ -23,9 +23,6 @@ import {StateHydrator} from 'server/state-hydrator';
 import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
-    lobbyAsync(name: string, payment: NumericPropertyCounter<Resource>): void {
-        throw new Error('Method not implemented.');
-    }
     actionHandler: ApiActionHandler;
     stateHydrator: StateHydrator;
     constructor(
@@ -334,6 +331,11 @@ export class ApiClient implements GameActionHandler {
     async completeChooseNextActionAsync(actionIndex: number, payment?: Payment) {
         const payload = {actionIndex, payment};
         await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION, payload);
+    }
+
+    async lobbyAsync(party: string, payment: Payment) {
+        const payload = {party, payment};
+        await this.makeApiCall(ApiActionType.API_LOBBY, payload);
     }
 
     async startOverAsync() {
