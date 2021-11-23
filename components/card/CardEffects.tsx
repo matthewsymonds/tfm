@@ -10,7 +10,13 @@ import {
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {ColonyIcon, TerraformRatingIcon, TradeIcon, VictoryPointIcon} from 'components/icons/other';
+import {
+    ColonyIcon,
+    InfluenceIcon,
+    TerraformRatingIcon,
+    TradeIcon,
+    VictoryPointIcon,
+} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
@@ -252,6 +258,8 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
 
     // We use the CardEffects component for more than just traditional effects with triggers
     // and actions - it's the catch-all component for all passive logistics.
+    // There's plenty of one-off jank here due to the sheer number of effects. They're roughly
+    // categorized, but more work could probably be done here to clean it up.
     return (
         <>
             {textElements}
@@ -265,6 +273,14 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
 
                             {/* Modified card cost (e.g. Polyphemos) */}
                             {card.cardCost && renderCardCost(card.cardCost)}
+
+                            {/* Increased influence e.g. Event Analysts */}
+                            {card.increasedInfluence && (
+                                <React.Fragment>
+                                    <TextWithMargin>+</TextWithMargin>
+                                    <InfluenceIcon margin="0 4px" />
+                                </React.Fragment>
+                            )}
 
                             {/* Card discounts (e.g. Research Outpost) */}
                             {doesCardHaveDiscounts(card) && renderDiscounts()}

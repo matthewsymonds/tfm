@@ -4380,7 +4380,7 @@ export const cardConfigs: CardConfig[] = [
         removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
         increaseProduction: {[Resource.HEAT]: 2},
         tags: [],
-        type: CardType.ACTIVE,
+        type: CardType.AUTOMATED,
         text:
             'Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.',
     },
@@ -4426,7 +4426,8 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         increasedInfluence: 1,
         type: CardType.ACTIVE,
-        text: 'You have influence +1.',
+        effect: {text: 'You have influence +1.'},
+        text: 'Requires that Scientists are ruling or that you have 2 delegates there.',
     },
     {
         name: 'GMO Contract',

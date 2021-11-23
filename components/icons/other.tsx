@@ -40,7 +40,52 @@ export const TradeIcon = ({size = 16, margin = 0}: {size?: number; margin?: stri
     );
 };
 
-const Circle = styled.div<{size: number; margin: string | number}>`
+const InfluenceIconBase = styled.div<{size: number; margin: string}>`
+    align-items: center;
+    background-color: black;
+    display: flex;
+    height: ${props => props.size}px;
+    width: ${props => props.size}px;
+    justify-content: center;
+    margin: ${props => props.margin};
+    position: relative;
+    transform: rotate(45deg);
+
+    &::before,
+    &::after {
+        background-color: black;
+        content: '';
+        display: block;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: -1;
+    }
+
+    &::before {
+        transform: rotate(30deg);
+    }
+
+    &::after {
+        transform: rotate(60deg);
+    }
+
+    span {
+        transform: rotate(-45deg);
+    }
+`;
+
+export const InfluenceIcon = ({size = 20, margin = '0'}: {size?: number; margin?: string}) => {
+    return (
+        <InfluenceIconBase size={size} margin={margin}>
+            <span style={{color: 'white'}}>👥</span>
+        </InfluenceIconBase>
+    );
+};
+
+const VictoryPointCircle = styled.div<{size: number; margin: string | number}>`
     border-radius: 50%;
     height: ${props => props.size}px;
     width: ${props => props.size}px;
@@ -64,8 +109,8 @@ export const VictoryPointIcon = ({
     margin?: string | number;
 }>) => {
     return (
-        <Circle size={size} margin={margin}>
+        <VictoryPointCircle size={size} margin={margin}>
             {children}
-        </Circle>
+        </VictoryPointCircle>
     );
 };

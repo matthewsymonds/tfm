@@ -3,7 +3,7 @@ import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
 import {MiniatureCard} from 'components/card/CardToken';
 import {Award} from 'constants/board';
-import {CardType} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
@@ -19,8 +19,8 @@ const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
             // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
-            // .filter(c => c.name === 'Virus')
-            // .filter(c => [Deck.VENUS, Deck.PRELUDE, Deck.COLONIES].includes(c.deck))
+            // .filter(c => c.name === 'Event Analysts')
+            .filter(c => [Deck.TURMOIL].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;
