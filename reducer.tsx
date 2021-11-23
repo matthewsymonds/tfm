@@ -94,6 +94,7 @@ import {
     noopAction,
     passGeneration,
     payForCards,
+    payToLobby,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
@@ -1088,6 +1089,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
+        if (payToLobby.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            const {payment} = payload;
+            for (const resource in payment) {
+                player.resources[resource] -= payment[resource];
+                if (player.resources[resource] < 0) {
+                    throw new Error('Resource cannot go below zero');
+                }
+            }
+        }
+
         if (claimMilestone.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1516,7 +1529,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 const delegation = turmoil.delegations[payload.party];
                 if (delegation) {
                     for (let i = 0; i < payload.numDelegates; i++) {
-                        const delegate = turmoil.delegateReserve[payload.playerIndex].pop();
+                        let delegate: Delegate | undefined;
+                        if (payload.allowLobby && turmoil.lobby[payload.playerIndex]) {
+                            delegate = turmoil.lobby[payload.playerIndex];
+                            delete turmoil.lobby[payload.playerIndex];
+                        } else {
+                            delegate = turmoil.delegateReserve[payload.playerIndex].pop();
+                        }
                         if (delegate) {
                             delegation.push(delegate);
                         }

@@ -1042,11 +1042,11 @@ export class ActionGuard {
             return [false, 'Cannot lobby right now'];
         }
         if (action.cost) {
-            if (!this.canAffordActionCost(action, player)) {
+            if (!this.canAffordActionCost(action, player, payment)) {
                 return [false, 'Cannot afford to lobby'];
             }
             const delegatesInReserve = turmoil.delegateReserve[player.index];
-            if (delegatesInReserve.length === 0) {
+            if (delegatesInReserve.length < action.placeDelegatesInOneParty) {
                 return [false, 'No more delegates in reserve'];
             }
         } else {

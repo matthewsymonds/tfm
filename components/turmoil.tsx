@@ -2,7 +2,7 @@ import {ApiClient} from 'api-client';
 import {Action} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {getGlobalEvent} from 'constants/global-events';
-import {getParty, PartyConfig, PARTY_CONFIGS} from 'constants/party';
+import {getParty, PartyConfig} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -181,7 +181,7 @@ function PartyPolicy(props) {
 
 export const LOBBYING_COST = 5;
 
-export function getLobbyingAction(state: GameState, player: PlayerState): Action {
+export function getLobbyingAction(state: GameState, player: PlayerState) {
     const turmoil = state.common.turmoil!;
     const freeDelegate = turmoil.lobby[player.index];
     return {

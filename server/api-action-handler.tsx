@@ -60,10 +60,12 @@ import {
     passGeneration,
     PAUSE_ACTIONS,
     payForCards,
+    payToLobby,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
     placeColony,
+    placeDelegatesInOneParty,
     placeTile,
     removeForcedActionFromPlayer,
     removeResource,
@@ -94,6 +96,7 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
+import {getLobbyingAction} from 'components/turmoil';
 import {
     Action,
     ActionType,
@@ -1204,8 +1207,18 @@ export class ApiActionHandler {
         this.handleTrade(colony, tradeIncome, /* withPriority = */ true);
     }
 
-    lobby({party, payment}: {party: string, payment: Payment}) {
-        const [canLobby, reason] = this.actionGuard.canLobby()
+    lobby({party, payment}: {party: string; payment: Payment}) {
+        const [canLobby, reason] = this.actionGuard.canLobby(payment);
+        if (!canLobby) {
+            throw new Error(reason);
+        }
+
+        const player = this.getLoggedInPlayer();
+        const {placeDelegatesInOneParty: numDelegates} = getLobbyingAction(this.state, player);
+        this.queue.push(payToLobby(payment, player.index));
+        this.queue.push(placeDelegatesInOneParty(numDelegates, party, true, player.index));
+        this.queue.push(completeAction(player.index));
+        this.processQueue();
     }
 
     private handleTrade(colony: string, tradeIncome: number, withPriority: boolean = false) {

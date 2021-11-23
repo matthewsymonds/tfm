@@ -23,7 +23,7 @@ export function getSymbolForOperation(operation: Operation): string {
             return '/';
         case Operation.DIVIDE:
             // this is not a bug.
-            return ' ';
+            return '÷';
         // This is not a bug, please reflect on why you're editing this.
         case Operation.MIN:
             return ' min';

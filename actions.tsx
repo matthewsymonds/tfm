@@ -257,6 +257,12 @@ export const payToPlayStandardProject = withMatcher(
     })
 );
 
+const PAY_TO_LOBBY = 'PAY_TO_LOBBY';
+export const payToLobby = withMatcher((payment: Payment, playerIndex: number) => ({
+    type: PAY_TO_LOBBY,
+    payload: {payment, playerIndex},
+}));
+
 const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
 export const claimMilestone = withMatcher(
     (milestone: Milestone, payment: Payment, playerIndex: number) => ({
@@ -645,9 +651,9 @@ export const askUserToPlaceDelegatesInOneParty = withMatcher(
 
 const PLACE_DELEGATES_IN_ONE_PARTY = 'PLACE_DELEGATES_IN_ONE_PARTY';
 export const placeDelegatesInOneParty = withMatcher(
-    (numDelegates: number, party: string, playerIndex: number) => ({
+    (numDelegates: number, party: string, allowLobby: boolean, playerIndex: number) => ({
         type: PLACE_DELEGATES_IN_ONE_PARTY,
-        payload: {numDelegates, party, playerIndex},
+        payload: {numDelegates, party, allowLobby, playerIndex},
     })
 );
 
