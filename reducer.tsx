@@ -1542,7 +1542,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             delegation.push(delegate);
                         }
                     }
-                    determineNewLeader(delegation, payload.playerIndex);
+                    determineNewLeader(turmoil, payload.party);
                     determineNewDominantParty(turmoil, payload.party);
                 }
             }
@@ -1581,6 +1581,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         delegation[neutralDelegateIndex] = delegateInReserve;
                     }
                 }
+                determineNewLeader(turmoil, payload.party);
             }
         }
         if (removeNonLeaderDelegate.match(action)) {
@@ -1600,6 +1601,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         removedDelegate
                     );
                 }
+                determineNewLeader(turmoil, payload.party);
             }
         }
 
@@ -1824,22 +1826,25 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
     });
 };
 
-function determineNewLeader(delegation: Delegate[], playerIndex?: number) {
-    const leader = delegation[0];
-    const numLeaderDelegates = delegation.filter(
-        delegate => delegate.playerIndex === leader?.playerIndex
-    );
-    const numPlayerDelegates = delegation.filter(delegate => delegate.playerIndex === playerIndex);
-    if (numPlayerDelegates > numLeaderDelegates) {
-        const firstPlayerDelegateIndex = delegation.findIndex(
-            delegate => delegate.playerIndex === playerIndex
-        );
-        delegation[0] = delegation[firstPlayerDelegateIndex];
-        delegation[firstPlayerDelegateIndex] = leader;
+function determineNewLeader(turmoil: WritableDraft<Turmoil>, party: string) {
+    const NEUTRAL_PARTY = 999;
+    const delegateCountByPlayerIndex: {[key: number]: number} = {};
+
+    for (const delegate of turmoil.delegations[party]) {
+        const playerIndexOrNeutral = delegate.playerIndex ?? NEUTRAL_PARTY;
+        delegateCountByPlayerIndex[playerIndexOrNeutral] ??= 0;
+        delegateCountByPlayerIndex[playerIndexOrNeutral]++;
     }
+
+    turmoil.delegations[party].sort((delegate1, delegate2) => {
+        return (
+            delegateCountByPlayerIndex[delegate2.playerIndex ?? NEUTRAL_PARTY] -
+            delegateCountByPlayerIndex[delegate1.playerIndex ?? NEUTRAL_PARTY]
+        );
+    });
 }
 
-function determineNewDominantParty(turmoil: Turmoil, recentlyGrownParty: string) {
+function determineNewDominantParty(turmoil: WritableDraft<Turmoil>, recentlyGrownParty: string) {
     const {dominantParty, delegations} = turmoil;
     if (delegations[recentlyGrownParty].length > delegations[dominantParty].length) {
         turmoil.dominantParty = recentlyGrownParty;
