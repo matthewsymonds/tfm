@@ -7,13 +7,8 @@ import {
     MilestonesAwardsBoardSwitcherWrapper,
 } from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
-import {PlayerIcon} from 'components/icons/player';
 import {PlayerHand} from 'components/player-hand';
-import PlayerPanel from 'components/player-panel/player-bottom-panel';
-import {ScorePopover} from 'components/popovers/score-popover';
-import {PlayerResourceBoard} from 'components/player-panel/player-resource-board';
 import {TopBar} from 'components/top-bar';
-import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
@@ -35,9 +30,7 @@ import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision
 import styled from 'styled-components';
 import {useIsomorphicLayoutEffect} from './action-log';
 import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
-import {Controller} from 'swiper';
-import {Swiper, SwiperSlide} from 'swiper/react';
-import {AskUserToChooseNextAction, getPlayerIndex} from './ask-user-to-choose-next-action';
+import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToGainStandardResources} from './ask-user-to-gain-standard-resources';
@@ -55,7 +48,6 @@ import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
-import {PlayerResourcePanel} from './player-resource-panel';
 import {PlayerPanels} from './player-panel/player-panels';
 
 const PromptTitle = styled.h3`
