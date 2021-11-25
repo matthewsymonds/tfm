@@ -36,5 +36,5 @@ export interface EffectTrigger {
 
     noTerraformThisGeneration?: boolean;
 
-    increaseTerraformRating?: boolean;
+    increasedTerraformRating?: boolean;
 }

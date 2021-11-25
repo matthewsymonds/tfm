@@ -18,6 +18,15 @@ const storableResources = [
     Resource.ANY_STORABLE_RESOURCE,
 ] as const;
 
+export const STANDARD_RESOURCES = [
+    Resource.MEGACREDIT,
+    Resource.STEEL,
+    Resource.TITANIUM,
+    Resource.PLANT,
+    Resource.ENERGY,
+    Resource.HEAT,
+];
+
 export type StorableResource = typeof storableResources[number];
 
 export function isStorableResource(resource: any): resource is StorableResource {

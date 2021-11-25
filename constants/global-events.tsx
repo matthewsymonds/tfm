@@ -267,7 +267,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         action: {
             text:
                 'First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.',
-            // TODO: remove 1 ocean, gain 1 standard resource per influence.
+            removeTile: TileType.OCEAN,
+            gainStandardResources: VariableAmount.INFLUENCE,
         },
     },
     {
@@ -394,9 +395,6 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         bottom: {name: 'Productivity', party: MARS_FIRST},
         action: {
             text: 'Gain 1 steel for each steel production (max 5) and influence.',
-            removeResource: {
-                [Resource.CARD]: 2,
-            },
             gainResource: {
                 [Resource.STEEL]: sum({production: Resource.STEEL}, VariableAmount.INFLUENCE),
             },

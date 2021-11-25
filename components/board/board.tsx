@@ -149,6 +149,9 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
     const actionGuard = useActionGuard();
 
     function handleClick(cell: CellModel) {
+        if (loggedInPlayer.pendingTileRemoval) {
+            apiClient.completeRemoveTileAsync({cell});
+        }
         if (!actionGuard.canCompletePlaceTile(cell)[0]) {
             return;
         }

@@ -13,7 +13,7 @@ import {
 } from 'components/card/CardIconography';
 import {CardText} from 'components/card/CardText';
 import {MiniDelegateComponent} from 'components/delegate';
-import {TerraformRatingIcon} from 'components/icons/other';
+import {InfluenceIcon, TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
 import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
@@ -126,6 +126,22 @@ export function renderRightSideOfArrow(
             />
         );
     }
+    if (action.gainStandardResources) {
+        elements.push(
+            <GainResourceOptionIconography
+                gainResourceOption={{
+                    [Resource.MEGACREDIT]: 1,
+                    [Resource.STEEL]: 1,
+                    [Resource.TITANIUM]: 1,
+                    [Resource.PLANT]: 1,
+                    [Resource.ENERGY]: 1,
+                    [Resource.HEAT]: 1,
+                }}
+            />
+        );
+        elements.push(<TextWithMargin>/</TextWithMargin>);
+        elements.push(<InfluenceIcon />);
+    }
     if (action.increaseParameter) {
         elements.push(
             <IncreaseParameterIconography increaseParameter={action.increaseParameter} />
@@ -164,6 +180,9 @@ export function renderRightSideOfArrow(
                 ))}
             </React.Fragment>
         );
+    }
+    if (action.removeTile) {
+        elements.push(<TileIcon type={action.removeTile} size={24} showRedBorder={true} />);
     }
     if (action.lookAtCards) {
         elements.push(<LookAtCards text={action.text ?? 'Look at cards'} />);

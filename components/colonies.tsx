@@ -222,7 +222,7 @@ export function Colonies() {
         return (
             <Box
                 key={index + '-' + firstSelectedColony.name}
-                padding="1px"
+                padding="2px"
                 color={
                     tradeIncome.gainResource?.[Resource.MEGACREDIT] ||
                     tradeIncome.increaseProduction?.[Resource.MEGACREDIT]
@@ -235,7 +235,6 @@ export function Colonies() {
             >
                 <BaseActionIconography
                     card={tradeIncome}
-                    inline
                     reverse
                     shouldShowPlus={!!tradeIncome.removeResource}
                 />

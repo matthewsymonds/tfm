@@ -7,16 +7,19 @@ export const TileIcon = ({
     type,
     size = 16,
     margin = 0,
+    showRedBorder,
 }: {
     type: TileType;
     size?: number;
     margin?: number | string;
+    showRedBorder?: boolean;
 }) => {
     return (
         <div
             style={{
                 margin,
                 width: `${size}px`,
+                border: showRedBorder ? '2px solid red' : 'initial',
             }}
         >
             <Hexagon hexRadius={size / 2} color={getTileBgColor(type)}>

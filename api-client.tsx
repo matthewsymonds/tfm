@@ -220,6 +220,10 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_COMPLETE_PLACE_TILE, payload);
     }
 
+    async completeRemoveTileAsync(payload: {cell: Cell}): Promise<void> {
+        await this.makeApiCall(ApiActionType.API_COMPLETE_REMOVE_TILE, payload);
+    }
+
     async completeChooseResourceActionDetailsAsync({
         option,
         variableAmount,
@@ -279,6 +283,11 @@ export class ApiClient implements GameActionHandler {
     async increaseLowestProductionAsync({production}: {production: Resource}) {
         const payload = {production};
         await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION, payload);
+    }
+
+    async gainStandardResourcesAsync({resources}: {resources: NumericPropertyCounter<Resource>}) {
+        const payload = {resources};
+        await this.makeApiCall(ApiActionType.API_GAIN_STANDARD_RESOURCES, payload);
     }
 
     async tradeAsync({

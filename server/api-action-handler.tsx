@@ -13,7 +13,6 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
-    askUserToRemoveNonLeaderDelegate,
     askUserToFundAward,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
@@ -24,15 +23,19 @@ import {
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToPutAdditionalColonyTileIntoPlay,
+    askUserToRemoveNonLeaderDelegate,
+    askUserToRemoveTile,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone as claimMilestoneAction,
     clearPendingActionChoice,
     completeAction,
     completeChooseNextAction,
+    completeGainStandardResources,
     completeIncreaseLowestProduction,
     completeTradeForFree,
     completeUserToPutAdditionalColonyTileIntoPlay,
+    decreaseParameter,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -40,7 +43,6 @@ import {
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
-    removeNonLeaderDelegate,
     fundAward as fundAwardAction,
     gainResource,
     gainResourceWhenIncreaseProduction,
@@ -70,8 +72,10 @@ import {
     placeDelegatesInOneParty,
     placeTile,
     removeForcedActionFromPlayer,
+    removeNonLeaderDelegate,
     removeResource,
     removeStorableResource,
+    removeTile,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
     setCorporation,
@@ -122,17 +126,18 @@ import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
+import {getParty} from 'constants/party';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {
     isStorableResource,
     ResourceAndAmount,
     ResourceLocationType,
+    STANDARD_RESOURCES,
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
-import {Delegate} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameAction, GameActionType} from 'GameActionState';
 import {Card} from 'models/card';
@@ -149,6 +154,7 @@ import {
     getIsPlayerMakingDecisionExceptForNextActionChoice,
 } from 'selectors/get-is-player-making-decision';
 import {getPlayedCards} from 'selectors/get-played-cards';
+import {isActionPhase} from 'selectors/is-action-phase';
 import {getForcedActionsForPlayer} from 'selectors/player';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {SerializedCard} from 'state-serialization';
@@ -423,6 +429,43 @@ export class ApiActionHandler {
                 });
                 this.playActionSteps(action);
             }
+        }
+
+        this.triggerRulingPartyPolicyIfNeeded(event, playedCard);
+    }
+
+    triggerRulingPartyPolicyIfNeeded(event: EffectEvent, playedCard?: Card) {
+        const {state} = this;
+        const {turmoil} = state.common;
+        if (!turmoil) return;
+
+        if (!isActionPhase(state)) {
+            return;
+        }
+
+        const party = getParty(turmoil.rulingParty);
+
+        const {effect} = party;
+        if (!effect) return;
+
+        const player = this.getLoggedInPlayer();
+
+        const actions = getActionsFromEffect(
+            event,
+            effect.trigger,
+            effect.action,
+            player,
+            player.index
+        );
+        for (const action of actions) {
+            this.playAction({
+                action,
+                playedCard,
+                state,
+                thisPlayerIndex: player.index,
+                withPriority: !!event.placedTile,
+            });
+            this.playActionSteps(action);
         }
     }
 
@@ -1079,6 +1122,15 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
+    completeRemoveTile({cell}: {cell: Cell}) {
+        const [canCompleteRemoveTile, reason] = this.actionGuard.canCompleteRemoveTile(cell);
+        if (!canCompleteRemoveTile) {
+            throw new Error(reason);
+        }
+        this.dispatch(removeTile(cell, this.loggedInPlayerIndex));
+        this.processQueue();
+    }
+
     completePutAdditionalColonyTileIntoPlay({colony}: {colony: string}) {
         const [
             canCompletePutAdditionalColonyTileIntoPlay,
@@ -1146,6 +1198,38 @@ export class ApiActionHandler {
             increaseProduction(production, player.pendingIncreaseLowestProduction, player.index),
             completeIncreaseLowestProduction(player.index)
         );
+        this.processQueue();
+    }
+
+    gainStandardResources({resources}: {resources: NumericPropertyCounter<Resource>}) {
+        const player = this.getLoggedInPlayer();
+        if (!player.pendingGainStandardResources) {
+            throw new Error('Cannot gain standard resources right now');
+        }
+
+        const quantity = convertAmountToNumber(
+            player.pendingGainStandardResources,
+            this.state,
+            player
+        );
+
+        let totalResources = 0;
+        for (const resource of STANDARD_RESOURCES) {
+            totalResources += resources?.[resource] ?? 0;
+        }
+
+        if (totalResources !== quantity) {
+            throw new Error('Not asking for the right number of standard resources');
+        }
+
+        for (const resource of STANDARD_RESOURCES) {
+            const quantity = resources?.[resource];
+            if (quantity) {
+                this.queue.unshift(gainResource(resource, quantity, player.index));
+            }
+        }
+
+        this.queue.unshift(completeGainStandardResources(player.index));
         this.processQueue();
     }
 
@@ -1451,6 +1535,19 @@ export class ApiActionHandler {
             }
         }
 
+        if (action.removeTile) {
+            if (playerIndex === state.common.firstPlayerIndex) {
+                const cells = state.common.board
+                    .flat()
+                    .filter(cell => cell?.tile?.type === action.removeTile);
+                if (cells.length === 1) {
+                    items.push(removeTile(cells[0], playerIndex));
+                } else if (cells.length > 1) {
+                    items.push(askUserToRemoveTile(action.removeTile, playerIndex));
+                }
+            }
+        }
+
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
             items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
         }
@@ -1679,7 +1776,6 @@ export class ApiActionHandler {
                 // Check every step along the way for bonuses!
                 for (let i = 1; i <= amount; i++) {
                     this.triggerEffectsFromIncreasedParameter(parameter);
-                    this.triggerEffectsFromIncreasedTerraformRating();
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
                     const newLevel =
@@ -1711,8 +1807,30 @@ export class ApiActionHandler {
             }
         }
 
+        if (action.decreaseParameter) {
+            for (const parameter in action.decreaseParameter) {
+                items.push(
+                    decreaseParameter(
+                        parameter as Parameter,
+                        action.decreaseParameter[parameter],
+                        playerIndex
+                    )
+                );
+            }
+        }
+
         if (terraformRatingIncrease) {
-            items.push(increaseTerraformRating(terraformRatingIncrease, playerIndex));
+            // We need to know how many terraforming steps happen to do the reds action.
+            const numericTerraformRatingIncrease = convertAmountToNumber(
+                terraformRatingIncrease,
+                state,
+                this.getLoggedInPlayer(),
+                playedCard
+            );
+            items.push(increaseTerraformRating(numericTerraformRatingIncrease, playerIndex));
+            for (let i = 0; i < numericTerraformRatingIncrease; i++) {
+                this.triggerEffectsFromIncreasedTerraformRating();
+            }
         }
 
         // TODO: Move this to `applyDiscounts`, change `plantDiscount` to a new discount type
@@ -2337,6 +2455,11 @@ function getActionsFromEffect(
     if (trigger.increasedParameter) {
         if (event.increasedParameter !== trigger.increasedParameter) return [];
 
+        return [effectAction];
+    }
+
+    if (trigger.increasedTerraformRating) {
+        if (!event.increasedTerraformRating) return [];
         return [effectAction];
     }
 

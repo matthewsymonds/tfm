@@ -148,6 +148,11 @@ export function getValidPlacementsForRequirement(
     tilePlacement: TilePlacement | undefined,
     player: PlayerState
 ) {
+    if (player.pendingTileRemoval) {
+        return state.common.board
+            .flat()
+            .filter(cell => cell?.tile?.type === player.pendingTileRemoval);
+    }
     if (!tilePlacement) return [];
     return getPossibleValidPlacementsForRequirement(
         state,

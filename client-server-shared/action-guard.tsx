@@ -724,7 +724,18 @@ export class ActionGuard {
         ];
     }
 
-    getMatchingCell(cell: Cell, pendingTilePlacement: TilePlacement): Cell | undefined {
+    canCompleteRemoveTile(
+        cell: Cell,
+        pendingTileRemoval: TileType | undefined = this._getPlayerToConsider().pendingTileRemoval
+    ): CanPlayAndReason {
+        if (!pendingTileRemoval) {
+            return [false, 'Player cannot remove a tile'];
+        }
+
+        return [!!this.getMatchingCell(cell), 'Not a valid removal location'];
+    }
+
+    getMatchingCell(cell: Cell, pendingTilePlacement?: TilePlacement): Cell | undefined {
         const player = this._getPlayerToConsider();
         const validPlacements = getValidPlacementsForRequirement(
             this.state,

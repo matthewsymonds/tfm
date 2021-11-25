@@ -1,7 +1,7 @@
 import {Action} from './action';
 import {TileType} from './board';
 import {ExchangeRates} from './card-types';
-import {Effect} from './effect';
+import {CompleteEffect} from './effect';
 import {sum} from './operation-amount';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
@@ -16,7 +16,7 @@ export const KELVINISTS = 'Kelvinists';
 
 export type PartyConfig = {
     name: string;
-    effect?: Effect;
+    effect?: CompleteEffect;
     action?: Action;
     exchangeRates?: ExchangeRates;
     partyBonus: Action;
@@ -30,6 +30,7 @@ export const PARTY_CONFIGS: PartyConfig[] = [
         effect: {
             trigger: {placedTile: TileType.ANY_TILE},
             action: {gainResource: {[Resource.STEEL]: 1}},
+            text: 'When you place a tile, gain 1 steel.',
         },
         partyBonus: {
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING}},
@@ -67,6 +68,7 @@ export const PARTY_CONFIGS: PartyConfig[] = [
         effect: {
             trigger: {placedTile: TileType.GREENERY},
             action: {gainResource: {[Resource.MEGACREDIT]: 4}},
+            text: 'When you place a greenery, gain 4 MC.',
         },
         partyBonus: {
             gainResource: {
@@ -80,11 +82,12 @@ export const PARTY_CONFIGS: PartyConfig[] = [
         name: REDS,
         effect: {
             trigger: {
-                increaseTerraformRating: true,
+                increasedTerraformRating: true,
             },
             action: {
                 removeResource: {[Resource.MEGACREDIT]: 3},
             },
+            text: 'When you increase your terraform rating, lose 3 MC for each step increased.',
         },
         symbol: '🚩',
         color: '#2a0e00',

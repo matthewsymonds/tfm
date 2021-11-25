@@ -5093,7 +5093,7 @@ export const cardConfigs: CardConfig[] = [
             },
         ],
         deck: Deck.BASIC,
-        name: 'Tharsis Republic',
+        name: 'sc',
         text: 'You start with 40 MC. As your first action in the game, place a city tile.',
         tags: [Tag.BUILDING],
         type: CardType.CORPORATION,

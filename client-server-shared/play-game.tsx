@@ -66,6 +66,9 @@ export function playGame(
         case ApiActionType.API_COMPLETE_PLACE_TILE:
             actionHandler.completePlaceTile(payload);
             break;
+        case ApiActionType.API_COMPLETE_REMOVE_TILE:
+            actionHandler.completeRemoveTile(payload);
+            break;
         case ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS:
             const option = deserializeResourceOptionAction(payload.option, actionHandler.state);
             actionHandler.completeChooseResourceActionDetails({
@@ -106,6 +109,9 @@ export function playGame(
             break;
         case ApiActionType.API_INCREASE_LOWEST_PRODUCTION:
             actionHandler.increaseLowestProduction(payload);
+            break;
+        case ApiActionType.API_GAIN_STANDARD_RESOURCES:
+            actionHandler.gainStandardResources(payload);
             break;
         case ApiActionType.API_TRADE:
             actionHandler.trade(payload);

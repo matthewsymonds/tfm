@@ -40,6 +40,7 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import {AskUserToChooseNextAction, getPlayerIndex} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
+import {AskUserToGainStandardResources} from './ask-user-to-gain-standard-resources';
 import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increase-and-decrease-colony-tile-tracks';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
@@ -97,6 +98,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         state =>
             loggedInPlayer.pendingPlayCardFromHand ||
             loggedInPlayer.pendingTilePlacement ||
+            loggedInPlayer.pendingTileRemoval ||
             loggedInPlayer.placeColony ||
             loggedInPlayer.tradeForFree ||
             loggedInPlayer.fundAward
@@ -122,6 +124,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 loggedInPlayer.pendingTilePlacement.type
             )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile.`;
         }
+    } else if (loggedInPlayer.pendingTileRemoval) {
+        actionBarPromptText = `Remove ${aAnOrThe(
+            loggedInPlayer.pendingTileRemoval
+        )} ${getHumanReadableTileName(loggedInPlayer.pendingTileRemoval)} tile.`;
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund an award for free';
     } else if (loggedInPlayer.placeColony) {
@@ -210,6 +216,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
                 );
                 break;
+            case !!loggedInPlayer.pendingGainStandardResources:
+                actionOverlayElement = <AskUserToGainStandardResources player={loggedInPlayer} />;
+                break;
             case !!loggedInPlayer.pendingDiscard:
                 actionOverlayElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
                 break;
@@ -242,6 +251,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingTilePlacement:
+                actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
+                break;
+            case !!loggedInPlayer.pendingTileRemoval:
                 actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
                 break;
             case !!loggedInPlayer.pendingResourceActionDetails:

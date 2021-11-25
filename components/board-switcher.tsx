@@ -67,10 +67,15 @@ export function BoardSwitcher({
     useEffect(() => {
         if (player.placeColony || player.tradeForFree) {
             setDisplayBoard(DisplayBoard.COLONIES);
-        } else if (player.pendingTilePlacement) {
+        } else if (player.pendingTilePlacement || player.pendingTileRemoval) {
             setDisplayBoard(DisplayBoard.MARS);
         }
-    }, [player.placeColony, player.pendingTilePlacement, player.tradeForFree]);
+    }, [
+        player.placeColony,
+        player.pendingTilePlacement,
+        player.pendingTileRemoval,
+        player.tradeForFree,
+    ]);
 
     const isColoniesEnabled = useTypedSelector(state => state.options?.decks ?? []).includes(
         Deck.COLONIES

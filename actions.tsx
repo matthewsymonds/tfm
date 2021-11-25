@@ -7,7 +7,7 @@ import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';
-import {Award, Cell, Milestone, Parameter, Tile, TilePlacement} from './constants/board';
+import {Award, Cell, Milestone, Parameter, Tile, TilePlacement, TileType} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {PropertyCounter} from './constants/property-counter';
 import {ResourceAndAmount, ResourceLocationType} from './constants/resource';
@@ -165,6 +165,20 @@ export const gainResource = withMatcher(
     })
 );
 
+const ASK_USER_TO_GAIN_STANDARD_RESOURCES = 'ASK_USER_TO_GAIN_STANDARD_RESOURCES';
+export const askUserToGainStandardResources = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: ASK_USER_TO_GAIN_STANDARD_RESOURCES,
+        payload: {amount, playerIndex},
+    })
+);
+
+const COMPLETE_GAIN_STANDARD_RESOURCES = 'COMPLETE_GAIN_STANDARD_RESOURCES';
+export const completeGainStandardResources = withMatcher((playerIndex: number) => ({
+    type: COMPLETE_GAIN_STANDARD_RESOURCES,
+    payload: {playerIndex},
+}));
+
 const GAIN_STORABLE_RESOURCE = 'GAIN_STORABLE_RESOURCE';
 export const gainStorableResource = withMatcher(
     (resource: Resource, amount: Amount, card: SerializedCard, playerIndex: number) => ({
@@ -311,6 +325,14 @@ export const askUserToPlaceTile = withMatcher(
     }
 );
 
+export const ASK_USER_TO_REMOVE_TILE = 'ASK_USER_TO_REMOVE_TILE';
+export const askUserToRemoveTile = withMatcher((tileType: TileType, playerIndex: number) => {
+    return {
+        type: ASK_USER_TO_REMOVE_TILE,
+        payload: {playerIndex, tileType},
+    };
+});
+
 const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
 export const askUserToDiscardCards = withMatcher(
     (
@@ -411,6 +433,12 @@ export const placeTile = withMatcher((tile: Tile, cell: Cell, playerIndex: numbe
     payload: {tile, cell, playerIndex},
 }));
 
+const REMOVE_TILE = 'REMOVE_TILE';
+export const removeTile = withMatcher((cell: Cell, playerIndex: number) => ({
+    type: REMOVE_TILE,
+    payload: {cell, playerIndex},
+}));
+
 const INCREASE_PARAMETER = 'INCREASE_PARAMETER';
 export const increaseParameter = withMatcher(
     (parameter: Parameter, amount: number, playerIndex: number) => ({
@@ -419,8 +447,16 @@ export const increaseParameter = withMatcher(
     })
 );
 
+const DECREASE_PARAMETER = 'DECREASE_PARAMETER';
+export const decreaseParameter = withMatcher(
+    (parameter: Parameter, amount: number, playerIndex: number) => ({
+        type: DECREASE_PARAMETER,
+        payload: {parameter, amount, playerIndex},
+    })
+);
+
 const INCREASE_TERRAFORM_RATING = 'INCREASE_TERRAFORM_RATING';
-export const increaseTerraformRating = withMatcher((amount: Amount, playerIndex: number) => ({
+export const increaseTerraformRating = withMatcher((amount: number, playerIndex: number) => ({
     type: INCREASE_TERRAFORM_RATING,
     payload: {amount, playerIndex},
 }));
@@ -732,6 +768,10 @@ export const PAUSE_ACTIONS = [
     ASK_USER_TO_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
     ASK_USER_TO_TRADE_FOR_FREE,
     ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+    ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
+    ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE,
+    ASK_USER_TO_CHOOSE_NEXT_ACTION,
+    ASK_USER_TO_REMOVE_TILE,
 ];
 
 export const NEGATIVE_ACTIONS = [

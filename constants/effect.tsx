@@ -8,3 +8,5 @@ export interface Effect {
     action?: Action;
     text?: string; // this is optional exclusively for tharsis right now
 }
+
+export type CompleteEffect = Required<Effect>;

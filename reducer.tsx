@@ -9,6 +9,7 @@ import {
     STARTING_STEP,
     STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
+import {PARTY_CONFIGS} from 'constants/party';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
 import {Delegate, Turmoil} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
@@ -49,8 +50,8 @@ import {
     askUserToDiscardCards,
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
-    askUserToRemoveNonLeaderDelegate,
     askUserToFundAward,
+    askUserToGainStandardResources,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
@@ -60,15 +61,19 @@ import {
     askUserToPlaceTile,
     askUserToPlayCardFromHand,
     askUserToPutAdditionalColonyTileIntoPlay,
+    askUserToRemoveNonLeaderDelegate,
+    askUserToRemoveTile,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
     claimMilestone,
     clearPendingActionChoice,
     completeAction,
     completeChooseNextAction,
+    completeGainStandardResources,
     completeIncreaseLowestProduction,
     completeTradeForFree,
     completeUserToPutAdditionalColonyTileIntoPlay,
+    decreaseParameter,
     decreaseProduction,
     discardCards,
     discardPreludes,
@@ -76,7 +81,6 @@ import {
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
-    removeNonLeaderDelegate,
     fundAward,
     gainResource,
     gainResourceWhenIncreaseProduction,
@@ -104,8 +108,10 @@ import {
     placeDelegatesInOneParty,
     placeTile,
     removeForcedActionFromPlayer,
+    removeNonLeaderDelegate,
     removeResource,
     removeStorableResource,
+    removeTile,
     revealAndDiscardTopCards,
     revealTakeAndDiscard,
     setCorporation,
@@ -123,7 +129,7 @@ import {
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {getParameterName, Parameter, TileType} from './constants/board';
-import {GameStage, MAX_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {getResourceName, isStorableResource} from './constants/resource';
 import {Resource} from './constants/resource-enum';
@@ -282,17 +288,39 @@ function handleParameterIncrease(
     const startingAmount = draft.common.parameters[parameter];
     const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
     const change = newAmount - startingAmount;
-    const userTerraformRatingChange = change / scale;
+    const steps = change / scale;
     draft.common.parameters[parameter] = newAmount;
-    player.terraformRating += userTerraformRatingChange;
-    if (userTerraformRatingChange) {
+    player.terraformRating += steps;
+    if (steps) {
         player.terraformedThisGeneration = true;
     }
     if (change && parameter !== Parameter.OCEAN) {
         draft.log.push(
-            `${corporationName} increased ${getParameterName(
-                parameter
-            )} ${userTerraformRatingChange} ${stepsPlural(userTerraformRatingChange)}`
+            `${corporationName} increased ${getParameterName(parameter)} ${steps} ${stepsPlural(
+                steps
+            )}`
+        );
+    }
+}
+
+function handleParameterDecrease(
+    draft: GameState,
+    parameter: Parameter,
+    amount: number,
+    corporationName: string
+) {
+    const scale = PARAMETER_STEPS[parameter];
+    const decrease = amount * scale;
+    const startingAmount = draft.common.parameters[parameter];
+    const newAmount = Math.max(MIN_PARAMETERS[parameter], startingAmount - decrease);
+    const change = startingAmount - newAmount;
+    const steps = change / scale;
+    draft.common.parameters[parameter] = newAmount;
+    if (change && parameter !== Parameter.OCEAN) {
+        draft.log.push(
+            `${corporationName} decreased ${getParameterName(parameter)} ${steps} ${stepsPlural(
+                steps
+            )}`
         );
     }
 }
@@ -757,6 +785,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.pendingIncreaseLowestProduction = payload.amount;
         }
 
+        if (askUserToGainStandardResources.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingGainStandardResources = payload.amount;
+        }
+
         if (gainResourceWhenIncreaseProduction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1197,6 +1231,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
+        if (askUserToRemoveTile.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingTileRemoval = payload.tileType;
+        }
+
         if (askUserToChooseResourceActionDetails.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1302,11 +1342,46 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             );
             draft.common.mostRecentTilePlacementCell = matchingCell;
         }
+        if (removeTile.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingTileRemoval = undefined;
+            const matchingCell = draft.common.board.flat().find(cell => {
+                if (cell.specialName) {
+                    return cell.specialName === payload.cell.specialName;
+                }
+                const coords = cell.coords || [];
+                if (!payload.cell.coords) {
+                    return false;
+                }
+                return coords[0] === payload.cell.coords[0] && coords[1] === payload.cell.coords[1];
+            });
+            if (matchingCell?.tile) {
+                const {tile} = matchingCell;
+                matchingCell.tile = undefined;
+
+                draft.log.push(
+                    `${corporationName} removed ${aAnOrThe(tile.type)} ${getHumanReadableTileName(
+                        tile.type
+                    )} tile`
+                );
+                if (tile.type === TileType.OCEAN) {
+                    draft.common.parameters[Parameter.OCEAN] -= 1;
+                }
+            }
+        }
         if (increaseParameter.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {parameter, amount} = payload;
             handleParameterIncrease(draft, player, parameter, amount, corporationName);
+        }
+
+        if (decreaseParameter.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            const {parameter, amount} = payload;
+            handleParameterDecrease(draft, parameter, amount, corporationName);
         }
 
         if (increaseTerraformRating.match(action)) {
@@ -1315,13 +1390,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
 
             const {amount} = payload;
-            const quantity = convertAmountToNumber(amount, state, player, mostRecentlyPlayedCard);
-            const newRating = player.terraformRating + quantity;
+            const newRating = player.terraformRating + amount;
             draft.log.push(
-                `${corporationName} increased their terraform rating by ${quantity} to ${newRating}`
+                `${corporationName} increased their terraform rating by ${amount} to ${newRating}`
             );
             player.terraformRating = newRating;
-            if (quantity) {
+            if (amount) {
                 player.terraformedThisGeneration = true;
             }
         }
@@ -1543,7 +1617,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         }
                     }
                     determineNewLeader(turmoil, payload.party);
-                    determineNewDominantParty(turmoil, payload.party);
+                    determineNewDominantParty(turmoil);
                 }
             }
         }
@@ -1582,6 +1656,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     }
                 }
                 determineNewLeader(turmoil, payload.party);
+                determineNewDominantParty(turmoil);
             }
         }
         if (removeNonLeaderDelegate.match(action)) {
@@ -1594,7 +1669,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     delegate => delegate.playerIndex === payload.delegateToRemovePlayerIndex
                 );
                 // remove the delegate
-                const removedDelegate = delegation.splice(delegateIndexToRemove, 1)[0];
+                const [removedDelegate] = delegation.splice(delegateIndexToRemove, 1);
                 // return it to the playersr supply
                 if (removedDelegate.playerIndex !== undefined) {
                     draft.common.turmoil?.delegateReserve[removedDelegate.playerIndex].push(
@@ -1602,6 +1677,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 }
                 determineNewLeader(turmoil, payload.party);
+                determineNewDominantParty(turmoil);
             }
         }
 
@@ -1758,6 +1834,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player.pendingIncreaseLowestProduction = undefined;
         }
 
+        if (completeGainStandardResources.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            player.pendingGainStandardResources = undefined;
+        }
+
         if (completeAction.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -1844,11 +1926,30 @@ function determineNewLeader(turmoil: WritableDraft<Turmoil>, party: string) {
     });
 }
 
-function determineNewDominantParty(turmoil: WritableDraft<Turmoil>, recentlyGrownParty: string) {
-    const {dominantParty, delegations} = turmoil;
-    if (delegations[recentlyGrownParty].length > delegations[dominantParty].length) {
-        turmoil.dominantParty = recentlyGrownParty;
+function determineNewDominantParty(turmoil: WritableDraft<Turmoil>) {
+    const {dominantParty: currentDominantParty, delegations} = turmoil;
+    // Count clockwise to find the new party with the most delegates.
+    const startingIndex = PARTY_CONFIGS.findIndex(config => config.name === currentDominantParty);
+    let mostDelegates = delegations[currentDominantParty].length;
+    let newDominantParty = currentDominantParty;
+    // Go clockwise from current dominant party!
+    for (let i = startingIndex; i < PARTY_CONFIGS.length; i++) {
+        const party = PARTY_CONFIGS[i].name;
+        const delegates = delegations[party];
+        if (delegates.length > mostDelegates) {
+            mostDelegates = delegates.length;
+            newDominantParty = party;
+        }
     }
+    for (let i = 0; i < startingIndex; i++) {
+        const party = PARTY_CONFIGS[i].name;
+        const delegates = delegations[party];
+        if (delegates.length > mostDelegates) {
+            mostDelegates = delegates.length;
+            newDominantParty = party;
+        }
+    }
+    turmoil.dominantParty = newDominantParty;
 }
 
 const equalityFn = shallowEqual;

@@ -2,7 +2,7 @@ import {ApiClient} from 'api-client';
 import {Action} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {getGlobalEvent} from 'constants/global-events';
-import {getParty, PartyConfig, PARTY_CONFIGS, UNITY} from 'constants/party';
+import {getParty, PartyConfig, UNITY} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -273,8 +273,14 @@ export function Turmoil() {
                     width="100%"
                     marginBottom="8px"
                     alignItems="center"
+                    flexDirection="column"
                 >
                     {party.name}
+                    {turmoil.dominantParty === party.name ? (
+                        <Box fontStyle="italic" fontSize="12px">
+                            This party is dominant.
+                        </Box>
+                    ) : null}
                     <Box position="absolute" right="0px" top="0px">
                         <PartySymbol party={delegation} />
                     </Box>

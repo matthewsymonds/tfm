@@ -387,7 +387,7 @@ export function renderTrigger(trigger: EffectTrigger | undefined) {
         return <TagIcon name={Tag.ANY} size={16} />;
     } else if (trigger?.placedColony) {
         return <ColonyIcon size={16} />;
-    } else if (trigger?.increaseTerraformRating) {
+    } else if (trigger?.increasedTerraformRating) {
         return <TerraformRatingIcon size={16} />;
     }
 

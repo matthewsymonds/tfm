@@ -382,6 +382,9 @@ function getMultiplierAndCustomElement(
         case VariableAmount.ALL_EVENTS:
             multiplierElement = <TagIcon name={Tag.EVENT} size={16} />;
             break;
+        case VariableAmount.PLAYER_EVENTS:
+            multiplierElement = <TagIcon name={Tag.EVENT} size={16} />;
+            break;
         case VariableAmount.ALL_COLONIES:
             multiplierElement = <ColonyIcon size={16} />;
             break;

@@ -3,7 +3,7 @@ import {ResourceActionType} from 'components/ask-user-to-confirm-resource-action
 import {Tag} from 'constants/tag';
 import {AnyAction} from 'redux';
 import {Action, Amount, PlayCardParams} from './constants/action';
-import {Parameter, TilePlacement} from './constants/board';
+import {Parameter, TilePlacement, TileType} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {NumericPropertyCounter} from './constants/property-counter';
 import {ResourceAndAmount, ResourceLocationType} from './constants/resource';
@@ -78,6 +78,7 @@ export type BasePlayerState = {
     temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     gainResourceWhenIncreaseProduction?: number;
     pendingIncreaseLowestProduction?: number;
+    pendingGainStandardResources?: Amount;
     // colonies
     fleets: number;
 
@@ -93,4 +94,6 @@ export type BasePlayerState = {
     exchangeNeutralNonLeaderDelegate?: boolean;
     removeNonLeaderDelegate?: boolean;
     baseInfluence?: number;
+
+    pendingTileRemoval?: TileType;
 };

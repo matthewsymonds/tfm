@@ -1,5 +1,5 @@
 import {PlaceColony} from 'actions';
-import {Parameter, TilePlacement} from './board';
+import {Parameter, TilePlacement, TileType} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {ConditionAmount} from './conditional-amount';
 import {ContestAmount} from './contest-amount';
@@ -139,6 +139,10 @@ export interface ActionWithoutSteps {
     exchangeChairman?: boolean;
 
     oceanAdjacencyBonus?: number;
+
+    gainStandardResources?: Amount;
+
+    removeTile?: TileType;
 }
 
 export interface Action extends ActionWithoutSteps {

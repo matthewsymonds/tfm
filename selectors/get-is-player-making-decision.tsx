@@ -23,6 +23,7 @@ export function getIsPlayerMakingDecisionExceptForNextActionChoice(
         const pendingActions =
             state.common.revealedCards.length > 0 ||
             loggedInPlayer.pendingTilePlacement ||
+            loggedInPlayer.pendingTileRemoval ||
             loggedInPlayer.pendingCardSelection ||
             loggedInPlayer.pendingResourceActionDetails ||
             loggedInPlayer.pendingChoice ||
@@ -35,6 +36,9 @@ export function getIsPlayerMakingDecisionExceptForNextActionChoice(
             loggedInPlayer.increaseAndDecreaseColonyTileTracks ||
             loggedInPlayer.tradeForFree ||
             loggedInPlayer.putAdditionalColonyTileIntoPlay ||
+            loggedInPlayer.placeDelegatesInOneParty ||
+            loggedInPlayer.removeNonLeaderDelegate ||
+            loggedInPlayer.exchangeNeutralNonLeaderDelegate ||
             state.common.gameStage === GameStage.END_OF_GAME ||
             loggedInPlayer.pendingDiscard;
 
