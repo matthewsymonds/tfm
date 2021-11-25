@@ -9,9 +9,9 @@ import {
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerIcon} from 'components/icons/player';
 import {PlayerHand} from 'components/player-hand';
-import PlayerPanel from 'components/player-panel';
+import PlayerPanel from 'components/player-panel/player-bottom-panel';
 import {ScorePopover} from 'components/popovers/score-popover';
-import {PlayerResourceBoard} from 'components/resource';
+import {PlayerResourceBoard} from 'components/player-panel/player-resource-board';
 import {TopBar} from 'components/top-bar';
 import {colors} from 'components/ui';
 import {TileType} from 'constants/board';
@@ -35,7 +35,9 @@ import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision
 import styled from 'styled-components';
 import {useIsomorphicLayoutEffect} from './action-log';
 import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
-import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
+import {Controller} from 'swiper';
+import {Swiper, SwiperSlide} from 'swiper/react';
+import {AskUserToChooseNextAction, getPlayerIndex} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
 import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increase-and-decrease-colony-tile-tracks';
@@ -52,80 +54,12 @@ import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
+import {PlayerResourcePanel} from './player-resource-panel';
+import {PlayerPanels} from './player-panel/player-panels';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
 `;
-
-const CorporationHeader = styled.h2`
-    display: inline-flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-    color: #fff;
-    cursor: pointer;
-    margin-top: 0px;
-    margin-bottom: 0px;
-`;
-
-const CorporationHeaderOuter = styled.div<{selected: boolean}>`
-    display: inline-block;
-    position: relative;
-    margin-right: 16px;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    padding: 8px;
-    background: ${props => (props.selected ? colors.DARK_3 : 'transparent')};
-    border: 1px solid ${props => (props.selected ? colors.PANEL_BORDER : 'transparent')};
-    border-radius: 4px;
-`;
-
-const TerraformRating = styled.span`
-    display: inline-flex;
-    cursor: pointer;
-    color: ${colors.GOLD};
-    margin-left: 4px;
-    &:hover {
-        opacity: 0.75;
-        border: none;
-        background: none !important;
-    }
-    &:active {
-        opacity: 1;
-    }
-`;
-
-const FirstPlayerToken = styled.div`
-    position: absolute;
-    display: flex;
-    font-family: 'Open Sans', sans-serif;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9em;
-    color: #292929;
-    border-radius: 100%;
-    border: 1px solid #545454;
-    width: 20px;
-    height: 20px;
-    top: -10px;
-    right: -10px;
-    background-color: ${colors.LIGHT_ORANGE};
-`;
-
-function getFontSizeForCorporation(string) {
-    if (string.length > 24) {
-        return '0.65em';
-    } else if (string.length > 20) {
-        return '0.7em';
-    } else if (string.length > 15) {
-        return '0.8em';
-    } else if (string.length > 10) {
-        return '0.85em';
-    } else {
-        return '0.9em';
-    }
-}
 
 export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     /**
@@ -135,10 +69,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const gameName = useTypedSelector(state => state.name);
     const loggedInPlayer = useLoggedInPlayer();
     const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
-    const firstPlayerIndex = useTypedSelector(state => state.common.firstPlayerIndex);
-    const isCorporationSelection = useTypedSelector(
-        state => state.common.gameStage === GameStage.CORPORATION_SELECTION
-    );
     const [popoverConfigByType, setPopoverConfigByType] = useState<PopoverConfigByType>({});
 
     /**
@@ -374,83 +304,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         {actionOverlayElement}
                     </ActionOverlay>
                 )}
-                <Box paddingTop="8px" className="active-round-outer" flex="auto">
-                    <div className="empty-space-left" />
-                    <div className="empty-space-right" />
-                    <Box
-                        className="player-boards-outer"
-                        overflowX="auto"
-                        flexShrink="0"
-                        paddingTop="4px"
-                    >
-                        <Flex className="player-boards" width="fit-content">
-                            {players.map((player, index) => (
-                                <CorporationHeaderOuter
-                                    selected={index === selectedPlayerIndex}
-                                    className="display"
-                                    key={index}
-                                    onClick={() => setSelectedPlayerIndex(index)}
-                                >
-                                    {index === firstPlayerIndex && (
-                                        <FirstPlayerToken>1</FirstPlayerToken>
-                                    )}
-                                    <CorporationHeader>
-                                        <Flex alignItems="center">
-                                            <PlayerIcon
-                                                size={16}
-                                                playerIndex={player.index}
-                                                shouldDimForPassedPlayers={true}
-                                            />
-                                            <span
-                                                style={{
-                                                    marginLeft: 8,
-                                                    fontSize: getFontSizeForCorporation(
-                                                        player.corporation.name || player.username
-                                                    ),
-                                                }}
-                                                title={`${player.corporation.name ?? ''} (${
-                                                    player.username
-                                                })`}
-                                            >
-                                                {player.corporation.name || player.username}
-                                            </span>
-                                        </Flex>
-                                        <ScorePopover playerIndex={player.index}>
-                                            <TerraformRating>
-                                                {player.terraformRating} TR
-                                            </TerraformRating>
-                                        </ScorePopover>
-                                    </CorporationHeader>
-                                    {!isCorporationSelection && (
-                                        <PlayerResourceBoard
-                                            player={player}
-                                            isLoggedInPlayer={player.index === loggedInPlayer.index}
-                                        />
-                                    )}
-                                </CorporationHeaderOuter>
-                            ))}
-                        </Flex>
-                    </Box>
-                    <Box className="player-cards-and-tags-outer" marginBottom="8px">
-                        {shouldHidePlayerDetails ? null : (
-                            <Flex
-                                flexGrow="1"
-                                flexWrap="wrap"
-                                background={colors.DARK_3}
-                                border={`1px solid ${colors.PANEL_BORDER}`}
-                                borderRadius="4px"
-                                justifyContent="center"
-                                boxSizing="border-box"
-                                overflowY="auto"
-                                width="100%"
-                                className="player-cards-and-tags"
-                            >
-                                <Flex margin="2px" flexGrow="1">
-                                    <PlayerPanel player={players[selectedPlayerIndex]} />
-                                </Flex>
-                            </Flex>
-                        )}
-                    </Box>
+
+                <Box className="active-round-outer" paddingTop="8px" flex="auto">
                     <GlobalParams parameters={parameters} />
                     <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
                     <MilestonesAwardsBoardSwitcherWrapper className="milestones-awards-board-switcher-wrapper">
@@ -465,6 +320,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                             <AwardsList loggedInPlayer={loggedInPlayer} />
                         </AwardsAndMilestones>
                     </MilestonesAwardsBoardSwitcherWrapper>
+                </Box>
+                <Box className="player-panels" paddingTop="4px" width="100%" padding="0 0 100px 0">
+                    <PlayerPanels />
                 </Box>
             </Flex>
             <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />

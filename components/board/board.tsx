@@ -112,7 +112,7 @@ export const Board = ({
     const windowWidth = useWindowWidth();
 
     return (
-        <Box className="board">
+        <Box className="board" maxWidth="100%">
             <BoardOuter>
                 {windowWidth <= 895 && (
                     <Flex width="100%" justifyContent="center">

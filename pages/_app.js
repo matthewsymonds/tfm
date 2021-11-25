@@ -84,19 +84,14 @@ export const GlobalStyles = createGlobalStyle`
         align-items: flex-start;
         min-width: min(450px, 100%);
         grid-template-columns: 2fr 11fr 2fr;
-        grid-template-areas:
-          "global-params board milestones-awards-board-switcher-wrapper"
-          "player-boards-outer player-boards-outer player-boards-outer"
-          "empty-space-left player-cards-and-tags-outer empty-space-right";
+        grid-template-areas: 
+            "global-params board milestones-awards-board-switcher-wrapper";
         @media (max-width: 895px) {
             grid-template-areas:
               "board board board"
               "global-params global-params global-params"
-              "milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper"
-              "player-boards-outer player-boards-outer player-boards-outer"
-              "player-cards-and-tags-outer player-cards-and-tags-outer player-cards-and-tags-outer";
+              "milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper";
         }
-        padding-bottom: 100px;
         box-sizing: border-box;
     }
     .global-params {
@@ -107,10 +102,6 @@ export const GlobalStyles = createGlobalStyle`
     }
     .milestones-awards-board-switcher-wrapper {
         grid-area: milestones-awards-board-switcher-wrapper;
-    }
-    .player-boards-outer {
-        width: 100%;
-        grid-area: player-boards-outer;
     }
     .toast {
         background: hsl(18deg 74% 88%);
@@ -123,32 +114,10 @@ export const GlobalStyles = createGlobalStyle`
         border-bottom-color: ${colors.CARD_BORDER_2};
         border-right-color: ${colors.CARD_BORDER_2};
     }
-    .player-cards-and-tags-outer {
-        width: 100%;
-        box-sizing: border-box;
-        @media (max-width: 895px) {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-        grid-area: player-cards-and-tags-outer;
-    }
-    .player-cards-and-tags {
-        align-self: flex-start;
-        @media (max-width: 895px) {
-            align-self: center;
-        }
-    }
     .board-wrapper {
         width: calc(100% - 16px);
         padding-left: 8px;
         padding-right: 8px;
-    }
-    .player-boards {
-        justify-content: center;
-        padding-left: 16px;
-        flex-direction: row;
-        margin-left: auto;
-        margin-right: auto;
     }
     .ellipsis {
         white-space: nowrap;

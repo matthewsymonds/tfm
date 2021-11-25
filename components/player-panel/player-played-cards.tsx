@@ -1,7 +1,7 @@
 import {Flex} from 'components/box';
 import {CardContext} from 'components/card/Card';
 import {CardTextToken, MiniatureCard} from 'components/card/CardToken';
-import {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
+import {TagFilterConfig, TagFilterMode} from 'components/player-panel/player-tag-counts';
 import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';

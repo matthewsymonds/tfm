@@ -1,24 +1,36 @@
 import {Flex} from 'components/box';
-import PlayerPlayedCards from 'components/player-played-cards';
-import PlayerTagCounts, {TagFilterConfig, TagFilterMode} from 'components/player-tag-counts';
+import PlayerPlayedCards from 'components/player-panel/player-played-cards';
+import PlayerTagCounts, {
+    TagFilterConfig,
+    TagFilterMode,
+} from 'components/player-panel/player-tag-counts';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {CorporationSelector} from './corporation-selector';
+import {CorporationSelector} from '../corporation-selector';
+import {colors} from '../ui';
 
 type PlayerPanelProps = {
     player: PlayerState;
+    isSelected: boolean;
 };
 
-const OuterWrapper = styled(Flex)`
+const OuterWrapper = styled.div<{isSelected: boolean}>`
+    display: flex;
+    transition: all 300ms ease-in-out;
+    opacity: ${props => (props.isSelected ? 1 : 0.25)};
+    background ${props => (props.isSelected ? colors.DARK_3 : 'transparent')};
+    border: ${props =>
+        props.isSelected ? `1px solid ${colors.PANEL_BORDER}` : '1px solid transparent'};
+    borderRadius: 4;
+    boxSizing: border-box;
     flex-direction: column;
     justify-content: stretch;
     align-items: flex-start;
     padding: 8px;
-    /* background: hsl(0, 0%, 20%); */
-    width: 100%;
+    margin: 0 8px;
 `;
 
 const CardsInHandMessage = styled.div`
@@ -26,11 +38,10 @@ const CardsInHandMessage = styled.div`
     font-size: 11px;
 `;
 
-const PlayerPanel = ({player}: PlayerPanelProps) => {
+export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
     /**
      * State (todo: use selectors everywhere instead)
      */
-    const playerPanelRef = useRef<HTMLDivElement>(null);
     const [tagFilterConfig, setTagFilterConfig] = useState<TagFilterConfig>({
         filterMode: TagFilterMode.ALL,
         filteredTags: [],
@@ -68,7 +79,7 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
     ) : null;
 
     return (
-        <OuterWrapper ref={playerPanelRef} id={`player-board-${player.index}`}>
+        <OuterWrapper isSelected={isSelected} id={`player-board-${player.index}`}>
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}
                 {fleets}
@@ -87,5 +98,3 @@ const PlayerPanel = ({player}: PlayerPanelProps) => {
         </OuterWrapper>
     );
 };
-
-export default PlayerPanel;
