@@ -5,17 +5,20 @@ import {PLAYER_COLORS} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
-import {Pane, Popover, Position} from 'evergreen-ui';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {usePrevious} from 'hooks/use-previous';
 import {Card} from 'models/card';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
+import {getDoesActionPaymentRequireUserInput} from 'selectors/get-does-action-payment-require-user-input';
 import {getMoney} from 'selectors/get-money';
 import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
 
 const PaymentPopoverBase = styled.div`
     padding: 16px;
@@ -85,6 +88,51 @@ type PaymentPopoverRowProps = {
     disable?: boolean;
 };
 
+export function usePaymentPopover<T extends HTMLElement>({
+    onConfirmPayment,
+    opts,
+}: PaymentPopoverProps): {
+    collectPaymentAndPerformAction: () => void;
+    triggerRef: React.RefObject<T>;
+} {
+    const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
+    const triggerRef = useRef<T>(null);
+    const loggedInPlayer = useLoggedInPlayer();
+
+    const cost =
+        opts.type === 'card' ? getDiscountedCardCost(opts.card, loggedInPlayer) : opts.cost ?? 0;
+
+    function collectPaymentAndPerformAction() {
+        showPopover({
+            triggerRef,
+            popover: (
+                <PaymentPopover
+                    onConfirmPayment={(payment, conditionalPayments) => {
+                        onConfirmPayment(payment, conditionalPayments);
+                        hidePopover(triggerRef);
+                    }}
+                    opts={opts}
+                />
+            ),
+        });
+    }
+
+    if (opts.type === 'card' && doesCardPaymentRequirePlayerInput(loggedInPlayer, opts.card)) {
+        return {collectPaymentAndPerformAction, triggerRef};
+    }
+    if (
+        opts.type === 'action' &&
+        getDoesActionPaymentRequireUserInput(loggedInPlayer, opts.action)
+    ) {
+        return {collectPaymentAndPerformAction, triggerRef};
+    }
+
+    return {
+        collectPaymentAndPerformAction: () => onConfirmPayment({[Resource.MEGACREDIT]: cost}, []),
+        triggerRef,
+    };
+}
+
 function PaymentPopoverRow({
     resource,
     currentQuantity,
@@ -142,48 +190,57 @@ function PaymentPopoverRow({
     );
 }
 
+type PaymentOpts =
+    // For playing a card. Accounts for:
+    //   - discounts
+    //   - metals/build tags/space tags
+    //   - conditional payment
+    | {
+          type: 'card';
+          card: Card;
+      }
+    // For playing an action. Accounts for:
+    //   - `acceptedPayment`
+    | {
+          type: 'action';
+          cost?: number;
+          action: Action;
+      };
+
 // payment popover is used for cards, card actions, standard projects, milestones, and awards.
-// either `card` or `cost` will be defined in props. we need the full card in order to determine
+// either `card` or `cost` will always be defined in props. we need the full card in order to determine
 // tag discounts and alternate payments (steel / titanium).
-type BasePaymentPopoverProps = {
+type PaymentPopoverProps = {
     onConfirmPayment: (
         payment: NumericPropertyCounter<Resource>,
-        conditionalPayments: number[]
+        conditionalPayments?: Array<number> | null
     ) => void;
-    children: React.ReactNode;
-    shouldHide?: boolean;
+    opts: PaymentOpts;
 };
-type CardPaymentPopoverProps = BasePaymentPopoverProps & {
-    cost?: undefined;
-    card: Card;
-    action?: Action;
-};
-type CardActionPaymentPopoverProps = BasePaymentPopoverProps & {
-    cost: number;
-    card?: undefined;
-    action?: Action;
-};
-type PaymentPopoverProps = CardPaymentPopoverProps | CardActionPaymentPopoverProps;
 
-export default function PaymentPopover({
-    onConfirmPayment,
-    children,
-    card,
-    action,
-    cost,
-    shouldHide,
-}: PaymentPopoverProps) {
+export default function PaymentPopover(props: PaymentPopoverProps) {
     const player = useLoggedInPlayer();
-    const actionGuard = useActionGuard(player.username);
+    const actionGuard = useActionGuard();
+
+    let cost;
+    switch (props.opts.type) {
+        case 'card':
+            cost = getDiscountedCardCost(props.opts.card, player);
+            break;
+        case 'action':
+            cost = cost || 0;
+            break;
+        default:
+            throw spawnExhaustiveSwitchError(props.opts);
+    }
+
+    const cardOrUndefined = props.opts.type === 'card' ? props.opts.card : undefined;
+    const actionOrUndefined = props.opts.type === 'action' ? props.opts.action : undefined;
     const playerMoney = useTypedSelector(state => getMoney(state, player));
     const conditionalPayment = useTypedSelector(() =>
-        getConditionalPaymentWithResourceInfo(player, card)
+        getConditionalPaymentWithResourceInfo(player, cardOrUndefined)
     );
     const {resources, exchangeRates} = player;
-    let actionCost = cost || 0;
-    if (card) {
-        actionCost = getDiscountedCardCost(card, player);
-    }
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
@@ -193,7 +250,7 @@ export default function PaymentPopover({
 
     const numMC = Math.min(
         playerMoney,
-        Math.max(0, actionCost - calculateRunningTotalWithoutMegacredits())
+        Math.max(0, cost - calculateRunningTotalWithoutMegacredits())
     );
 
     // Ensure the popover doesn't let you pay with resources you no longer have.
@@ -212,11 +269,11 @@ export default function PaymentPopover({
         ...conditionalPayment.map(payment => payment.resourceAmount),
     ]);
 
-    const prevActionCost = usePrevious(actionCost);
+    const prevCost = usePrevious(cost);
 
     useEffect(() => {
         // If the action cost decreases (e.g. removing a picked card), reset the pickers so the player is not overpaying.
-        if (actionCost < (prevActionCost ?? 0)) {
+        if (cost < (prevCost ?? 0)) {
             handleDecrease(Resource.STEEL, numSteel);
             handleDecrease(Resource.TITANIUM, numTitanium);
             handleDecrease(Resource.HEAT, numHeat);
@@ -225,15 +282,7 @@ export default function PaymentPopover({
                 handleDecrease(payment.resourceType, numConditionalPayment[i]);
             }
         }
-    }, [actionCost, prevActionCost]);
-
-    // Ensure when actionCost changes the payment popover reflects the cost change.
-
-    if (shouldHide) {
-        return <React.Fragment>{children}</React.Fragment>;
-    }
-
-    const runningTotalWithoutMegacredits = calculateRunningTotalWithoutMegacredits();
+    }, [cost, prevCost]);
 
     function handleDecrease(resource: Resource, quantity = 1) {
         if (quantity <= 0) return;
@@ -271,19 +320,19 @@ export default function PaymentPopover({
         const runningTotal = calculateRunningTotal();
         switch (resource) {
             case Resource.TITANIUM:
-                if (runningTotal >= actionCost && numMC === 0) return;
+                if (runningTotal >= cost && numMC === 0) return;
                 if (numTitanium < resources[Resource.TITANIUM]) {
                     setNumTitanium(numTitanium + 1);
                 }
                 return;
             case Resource.STEEL:
-                if (runningTotal >= actionCost && numMC === 0) return;
+                if (runningTotal >= cost && numMC === 0) return;
                 if (numSteel < resources[Resource.STEEL]) {
                     setNumSteel(numSteel + 1);
                 }
                 return;
             case Resource.HEAT:
-                if (runningTotal >= actionCost && numMC === 0) return;
+                if (runningTotal >= cost && numMC === 0) return;
                 if (numHeat < resources[Resource.HEAT]) {
                     setNumHeat(numHeat + 1);
                 }
@@ -292,7 +341,7 @@ export default function PaymentPopover({
                 const index = conditionalPayment.findIndex(
                     payment => payment.resourceType === resource
                 );
-                if (runningTotal >= actionCost && numMC === 0) return;
+                if (runningTotal >= cost && numMC === 0) return;
                 const payment = conditionalPayment[index];
                 if (numConditionalPayment[index] < payment.resourceAmount) {
                     const newNumConditionalPayment = [...numConditionalPayment];
@@ -329,220 +378,94 @@ export default function PaymentPopover({
     }
 
     const runningTotal = calculateRunningTotal();
-    const isValidPayment = actionCost <= runningTotal;
-
-    return (
-        <Popover
-            position={Position.RIGHT}
-            content={({close}) => (
-                <PaymentPopoverBase className="payment-popover">
-                    <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
-                        <span>Cost: {actionCost}</span>
-                        <span className="running-total">
-                            <em
-                                style={{
-                                    color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
-                                }}
-                            >
-                                Current: {runningTotal}
-                            </em>
-                        </span>
-                    </PaymentPopoverSummaryRow>
-                    <Box marginBottom="4px" fontSize="12px">
-                        With <em>{numMC} MC</em> and...
-                    </Box>
-                    <div className="payment-rows">
-                        {(card?.tags.includes(Tag.BUILDING) ||
-                            action?.acceptedPayment?.includes(Resource.STEEL)) &&
-                            resources[Resource.STEEL] > 0 && (
-                                <PaymentPopoverRow
-                                    currentQuantity={numSteel}
-                                    resource={Resource.STEEL}
-                                    availableQuantity={resources[Resource.STEEL]}
-                                    handleIncrease={handleIncrease}
-                                    handleDecrease={handleDecrease}
-                                    numMC={numMC}
-                                    playerMoney={playerMoney}
-                                />
-                            )}
-                        {(card?.tags.includes(Tag.SPACE) ||
-                            action?.acceptedPayment?.includes(Resource.TITANIUM)) &&
-                            resources[Resource.TITANIUM] > 0 && (
-                                <PaymentPopoverRow
-                                    resource={Resource.TITANIUM}
-                                    currentQuantity={numTitanium}
-                                    availableQuantity={resources[Resource.TITANIUM]}
-                                    handleIncrease={handleIncrease}
-                                    handleDecrease={handleDecrease}
-                                    numMC={numMC}
-                                    playerMoney={playerMoney}
-                                />
-                            )}
-                        {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
-                            <PaymentPopoverRow
-                                resource={Resource.HEAT}
-                                currentQuantity={numHeat}
-                                availableQuantity={resources[Resource.HEAT]}
-                                handleIncrease={handleIncrease}
-                                handleDecrease={handleDecrease}
-                                numMC={numMC}
-                                playerMoney={playerMoney}
-                            />
-                        )}
-                        {conditionalPayment.map((payment, index) => (
-                            <PaymentPopoverRow
-                                key={payment.name}
-                                resource={payment.resourceType}
-                                currentQuantity={numConditionalPayment[index]}
-                                availableQuantity={payment.resourceAmount}
-                                handleIncrease={handleIncrease}
-                                handleDecrease={handleDecrease}
-                                numMC={numMC}
-                                playerMoney={playerMoney}
-                                name={payment.name}
-                            />
-                        ))}
-                    </div>
-                    <PaymentPopoverConfirmationButton
-                        disabled={!isValidPayment}
-                        onClick={() => {
-                            onConfirmPayment(
-                                {
-                                    [Resource.MEGACREDIT]: numMC,
-                                    [Resource.STEEL]: numSteel,
-                                    [Resource.TITANIUM]: numTitanium,
-                                    [Resource.HEAT]: numHeat,
-                                },
-                                numConditionalPayment
-                            );
-                            close();
-                        }}
-                    >
-                        Confirm
-                    </PaymentPopoverConfirmationButton>
-                </PaymentPopoverBase>
-            )}
-        >
-            <Pane>{children}</Pane>
-        </Popover>
-    );
-}
-
-type HeatPaymentPopoverProps = {
-    onConfirmPayment: (payment: NumericPropertyCounter<Resource>) => void;
-    useStoredResourcesAsHeatCard: Card;
-    cost: number;
-    children: React.ReactNode;
-};
-
-export function HeatPaymentPopover({
-    onConfirmPayment,
-    children,
-    useStoredResourcesAsHeatCard,
-    cost,
-}: HeatPaymentPopoverProps) {
-    const player = useLoggedInPlayer();
-    const playerHeat = useTypedSelector(state => player.resources[Resource.HEAT]);
-    const [numStoredResource, setNumStoredResource] = useState(0);
-    const totalStoredResource = useStoredResourcesAsHeatCard.storedResourceAmount!;
-    const resource = useStoredResourcesAsHeatCard.storedResourceType!;
-
-    const numHeat = Math.min(playerHeat, Math.max(0, cost - calculateRunningTotalWithoutHeat()));
-
-    function handleDecrease(resource: Resource, quantity = 1) {
-        if (quantity <= 0) return;
-        if (numStoredResource > 0) {
-            setNumStoredResource(numStoredResource - quantity);
-        }
-    }
-
-    function handleIncrease(resource: Resource) {
-        const runningTotal = calculateRunningTotal();
-        if (runningTotal >= cost && numHeat === 0) return;
-        if (numStoredResource < totalStoredResource) {
-            setNumStoredResource(numStoredResource + 1);
-        }
-    }
-
-    // Ensure the popover doesn't let you pay with resources you no longer have.
-    useEffect(() => {
-        handleDecrease(resource, numStoredResource - totalStoredResource);
-    }, [totalStoredResource]);
-
-    const prevCost = usePrevious(cost);
-
-    useEffect(() => {
-        // If the cost decreases (e.g. removing a picked card), reset the pickers so the player is not overpaying.
-        if (cost < (prevCost ?? 0)) {
-            handleDecrease(resource, numStoredResource);
-        }
-    }, [cost, prevCost]);
-
-    // Ensure when cost changes the payment popover reflects the cost change
-
-    function calculateRunningTotal() {
-        return (
-            numHeat +
-            numStoredResource * (useStoredResourcesAsHeatCard.useStoredResourceAsHeat ?? 0)
-        );
-    }
-
-    function calculateRunningTotalWithoutHeat() {
-        return numStoredResource * (useStoredResourcesAsHeatCard.useStoredResourceAsHeat ?? 0);
-    }
-
-    const runningTotal = calculateRunningTotal();
     const isValidPayment = cost <= runningTotal;
 
     return (
-        <Popover
-            position={Position.RIGHT}
-            content={({close}) => (
-                <PaymentPopoverBase>
-                    <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
-                        <span>Cost: {cost} heat</span>
-                        <span className="running-total">
-                            <em
-                                style={{
-                                    color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
-                                }}
-                            >
-                                Current: {runningTotal}
-                            </em>
-                        </span>
-                    </PaymentPopoverSummaryRow>
-                    <Box marginBottom="4px" fontSize="12px">
-                        With <em>{numHeat} heat</em> and...
-                    </Box>
-                    <div className="payment-rows">
-                        <PaymentPopoverRow
-                            resource={resource}
-                            currentQuantity={numStoredResource}
-                            availableQuantity={totalStoredResource}
-                            handleIncrease={handleIncrease}
-                            handleDecrease={handleDecrease}
-                            numMC={numHeat}
-                            playerMoney={playerHeat}
-                            name={useStoredResourcesAsHeatCard.name}
-                            disable={runningTotal > cost}
-                        />
-                    </div>
-                    <PaymentPopoverConfirmationButton
-                        disabled={!isValidPayment}
-                        onClick={() => {
-                            onConfirmPayment({
-                                [resource]: numStoredResource,
-                                [Resource.HEAT]: numHeat,
-                            });
-                            close();
+        <PaymentPopoverBase className="payment-popover">
+            <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
+                <span>Cost: {cost}</span>
+                <span className="running-total">
+                    <em
+                        style={{
+                            color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
                         }}
                     >
-                        Confirm
-                    </PaymentPopoverConfirmationButton>
-                </PaymentPopoverBase>
-            )}
-        >
-            <Pane>{children}</Pane>
-        </Popover>
+                        Current: {runningTotal}
+                    </em>
+                </span>
+            </PaymentPopoverSummaryRow>
+            <Box marginBottom="4px" fontSize="12px">
+                With <em>{numMC} MC</em> and...
+            </Box>
+            <div className="payment-rows">
+                {(cardOrUndefined?.tags.includes(Tag.BUILDING) ||
+                    actionOrUndefined?.acceptedPayment?.includes(Resource.STEEL)) &&
+                    resources[Resource.STEEL] > 0 && (
+                        <PaymentPopoverRow
+                            currentQuantity={numSteel}
+                            resource={Resource.STEEL}
+                            availableQuantity={resources[Resource.STEEL]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                            numMC={numMC}
+                            playerMoney={playerMoney}
+                        />
+                    )}
+                {(cardOrUndefined?.tags.includes(Tag.SPACE) ||
+                    actionOrUndefined?.acceptedPayment?.includes(Resource.TITANIUM)) &&
+                    resources[Resource.TITANIUM] > 0 && (
+                        <PaymentPopoverRow
+                            resource={Resource.TITANIUM}
+                            currentQuantity={numTitanium}
+                            availableQuantity={resources[Resource.TITANIUM]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                            numMC={numMC}
+                            playerMoney={playerMoney}
+                        />
+                    )}
+                {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
+                    <PaymentPopoverRow
+                        resource={Resource.HEAT}
+                        currentQuantity={numHeat}
+                        availableQuantity={resources[Resource.HEAT]}
+                        handleIncrease={handleIncrease}
+                        handleDecrease={handleDecrease}
+                        numMC={numMC}
+                        playerMoney={playerMoney}
+                    />
+                )}
+                {conditionalPayment.map((payment, index) => (
+                    <PaymentPopoverRow
+                        key={payment.name}
+                        resource={payment.resourceType}
+                        currentQuantity={numConditionalPayment[index]}
+                        availableQuantity={payment.resourceAmount}
+                        handleIncrease={handleIncrease}
+                        handleDecrease={handleDecrease}
+                        numMC={numMC}
+                        playerMoney={playerMoney}
+                        name={payment.name}
+                    />
+                ))}
+            </div>
+            <PaymentPopoverConfirmationButton
+                disabled={!isValidPayment}
+                onClick={() => {
+                    props.onConfirmPayment(
+                        {
+                            [Resource.MEGACREDIT]: numMC,
+                            [Resource.STEEL]: numSteel,
+                            [Resource.TITANIUM]: numTitanium,
+                            [Resource.HEAT]: numHeat,
+                        },
+                        numConditionalPayment
+                    );
+                    close();
+                }}
+            >
+                Confirm
+            </PaymentPopoverConfirmationButton>
+        </PaymentPopoverBase>
     );
 }

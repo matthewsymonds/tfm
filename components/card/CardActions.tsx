@@ -18,7 +18,7 @@ import {MiniDelegateComponent} from 'components/delegate';
 import {InfluenceIcon, TerraformRatingIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
-import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
+import {usePaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Action} from 'constants/action';
 import {PropertyCounter} from 'constants/property-counter';
@@ -29,7 +29,6 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {PlayerState} from 'reducer';
-import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
@@ -416,10 +415,8 @@ function ActionContainer({
     cardContext,
     action,
     playAction,
-    playActionWithSupplementalResources,
     canPlay,
     isOwnedByLoggedInPlayer,
-    loggedInPlayer,
     children,
 }: {
     cardContext: CardContext;
@@ -434,61 +431,25 @@ function ActionContainer({
     loggedInPlayer: PlayerState | null;
     children: React.ReactNode;
 }) {
-    const playedCard = cardContext === CardContext.PLAYED_CARD;
-    const doesActionRequireUserInput =
-        (action.acceptedPayment &&
-            action.acceptedPayment.some(
-                resource => (loggedInPlayer?.resources[resource] ?? 0) > 0
-            )) ||
-        (loggedInPlayer?.corporation.name === 'Helion' &&
-            loggedInPlayer?.resources[Resource.HEAT] > 0);
+    const isPlayedCard = cardContext === CardContext.PLAYED_CARD;
+    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
+        onConfirmPayment: payment => {
+            playAction(action, payment);
+        },
+        opts: {
+            type: 'action',
+            action,
+            cost: action.cost,
+        },
+    });
 
-    if (
-        canPlay &&
-        isOwnedByLoggedInPlayer &&
-        playedCard &&
-        action.cost &&
-        doesActionRequireUserInput
-    ) {
-        return (
-            <PaymentPopover
-                cost={action.cost}
-                action={action}
-                onConfirmPayment={payment => playAction(action, payment)}
-            >
-                <ActionContainerBase>{children}</ActionContainerBase>
-            </PaymentPopover>
-        );
-    }
-
-    const heatCost = action?.removeResource?.[Resource.HEAT];
-
-    if (canPlay && isOwnedByLoggedInPlayer && playedCard && heatCost) {
-        const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(loggedInPlayer);
-        if (useStoredResourcesAsHeatCard) {
-            const resource = useStoredResourcesAsHeatCard.storedResourceType;
-            const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
-            if (resource && quantity) {
-                return (
-                    <HeatPaymentPopover
-                        cost={heatCost as number}
-                        useStoredResourcesAsHeatCard={useStoredResourcesAsHeatCard}
-                        onConfirmPayment={payment =>
-                            playActionWithSupplementalResources(action, {
-                                name: useStoredResourcesAsHeatCard.name,
-                                quantity: (payment[resource] ?? 0) as number,
-                            })
-                        }
-                    >
-                        <ActionContainerBase>{children}</ActionContainerBase>
-                    </HeatPaymentPopover>
-                );
-            }
-        }
-    }
-
+    const shouldDisable = !canPlay || !isPlayedCard || !isOwnedByLoggedInPlayer;
     return (
-        <ActionContainerBase disabled={!canPlay || !playedCard} onClick={() => playAction(action)}>
+        <ActionContainerBase
+            ref={triggerRef}
+            disabled={shouldDisable}
+            onClick={collectPaymentAndPerformAction}
+        >
             {children}
         </ActionContainerBase>
     );

@@ -12,7 +12,6 @@ import {canPlaceColony} from 'selectors/can-build-colony';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {BOX_SHADOW_BASE} from './board-switcher';
-import PaymentPopover from './popovers/payment-popover';
 
 export function ColonySwitcher({
     colonies,
@@ -277,39 +276,6 @@ export function Colonies() {
             Confirm
         </button>
     );
-
-    const doesActionRequireUserInput =
-        loggedInPlayer.corporation.name === 'Helion' &&
-        selectedPayment === Resource.MEGACREDIT &&
-        loggedInPlayer?.resources[Resource.HEAT] > 0 &&
-        !canTradeForFree;
-
-    if (doesActionRequireUserInput) {
-        const innerTradeButton = tradeButton;
-        tradeButton = () => {
-            if (payment) {
-                onClick = () => {};
-                return (
-                    <PaymentPopover
-                        key={payment.resource}
-                        cost={payment.quantity}
-                        onConfirmPayment={paymentResources => {
-                            apiClient.tradeAsync({
-                                payment: payment.resource,
-                                colony: firstSelectedColony.name,
-                                numHeat: paymentResources[Resource.HEAT] ?? 0,
-                                tradeIncome: selectedTradeIncome,
-                            });
-                        }}
-                    >
-                        {innerTradeButton()}
-                    </PaymentPopover>
-                );
-            } else {
-                return innerTradeButton();
-            }
-        };
-    }
 
     const colonyTiles = (
         <FilteredColonies colonies={colonies} selectedColonies={selectedColonies} />

@@ -3,7 +3,6 @@ import {AskUserToMakeChoice} from 'components/ask-user-to-make-choice';
 import {CardSelector} from 'components/card-selector';
 import {CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
-import PaymentPopover from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -168,12 +167,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         return state.players[passSourceIndex];
     });
 
-    const usePaymentPopover =
-        pendingCardSelection.isBuyingCards &&
-        player.corporation.name === 'Helion' &&
-        player.resources[Resource.HEAT] > 0 &&
-        selectedCards.length;
-
     return (
         <Box color={colors.TEXT_LIGHT_1} margin="8px">
             {possibleCorporations.length > 0 && (
@@ -302,20 +295,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             }
                         />
                         <Flex justifyContent="center" margin="8px 0 16px">
-                            <PaymentPopover
-                                cost={selectedCards.length * (player.cardCost ?? 3)}
-                                onConfirmPayment={payment => handleConfirmCardSelection(payment)}
-                                shouldHide={!usePaymentPopover || shouldDisableConfirmCardSelection}
+                            <button
+                                disabled={shouldDisableConfirmCardSelection}
+                                onClick={() => handleConfirmCardSelection()}
                             >
-                                <button
-                                    disabled={shouldDisableConfirmCardSelection}
-                                    onClick={() =>
-                                        !usePaymentPopover && handleConfirmCardSelection()
-                                    }
-                                >
-                                    {cardSelectionButtonText}
-                                </button>
-                            </PaymentPopover>
+                                {cardSelectionButtonText}
+                            </button>
                         </Flex>
                     </Flex>
                 )}

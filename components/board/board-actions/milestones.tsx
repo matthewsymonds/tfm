@@ -5,7 +5,6 @@ import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {getMilestone, getMilestones} from 'constants/milestones';
@@ -147,8 +146,6 @@ function MilestonePopover({
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
-    const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' && loggedInPlayer.resources[Resource.HEAT] > 0;
 
     return (
         <TexturedCard width={200}>
@@ -184,20 +181,13 @@ function MilestonePopover({
                 )}
                 {canPlay && (
                     <Flex justifyContent="center" marginBottom="8px">
-                        <PaymentPopover
-                            cost={8}
-                            onConfirmPayment={payment => claimMilestone(milestone, payment)}
-                            shouldHide={!showPaymentPopover}
+                        <CardButton
+                            onClick={() => {
+                                claimMilestone(milestone, {[Resource.MEGACREDIT]: 8});
+                            }}
                         >
-                            <CardButton
-                                onClick={() => {
-                                    !showPaymentPopover &&
-                                        claimMilestone(milestone, {[Resource.MEGACREDIT]: 8});
-                                }}
-                            >
-                                Claim {milestone}
-                            </CardButton>
-                        </PaymentPopover>
+                            Claim {milestone}
+                        </CardButton>
                     </Flex>
                 )}
             </Flex>

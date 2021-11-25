@@ -14,7 +14,6 @@ import {ColonyIcon} from 'components/icons/other';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TileIcon} from 'components/icons/tile';
-import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Payment} from 'constants/action';
@@ -122,11 +121,6 @@ function StandardProjectTooltip({
     const cost = getCostForStandardProject(action, loggedInPlayer);
     const [canPlay, reason] = actionGuard.canPlayStandardProject(action);
 
-    const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' &&
-        loggedInPlayer.resources[Resource.HEAT] > 0 &&
-        action.cost;
-
     return (
         <TexturedCard width={200} height={225}>
             <GenericCardTitleBar bgColor={'#d67500'}>
@@ -154,24 +148,16 @@ function StandardProjectTooltip({
             )}
             {canPlay && (
                 <Flex justifyContent="center" marginBottom="8px">
-                    <PaymentPopover
-                        cost={cost}
-                        onConfirmPayment={payment => playStandardProjectAction(action, payment)}
-                        shouldHide={!showPaymentPopover}
+                    <CardButton
+                        width={150}
+                        onClick={() => {
+                            playStandardProjectAction(action, {
+                                [Resource.MEGACREDIT]: cost,
+                            });
+                        }}
                     >
-                        <CardButton
-                            width={150}
-                            onClick={() => {
-                                if (!showPaymentPopover) {
-                                    playStandardProjectAction(action, {
-                                        [Resource.MEGACREDIT]: cost,
-                                    });
-                                }
-                            }}
-                        >
-                            {getButtonTextForStandardProject(action.type)}
-                        </CardButton>
-                    </PaymentPopover>
+                        {getButtonTextForStandardProject(action.type)}
+                    </CardButton>
                 </Flex>
             )}
         </TexturedCard>

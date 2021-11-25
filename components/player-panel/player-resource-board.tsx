@@ -1,18 +1,15 @@
-import {Box, Flex} from 'components/box';
+import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
-import {GameStage} from 'constants/game';
-import {getResourceSymbol} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
-import {PlayerState, useTypedSelector} from 'reducer';
-import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
-import {SupplementalResources} from 'server/api-action-handler';
+import {PlayerState} from 'reducer';
 import styled, {keyframes} from 'styled-components';
 
 const plantBgCycle = keyframes`
@@ -68,26 +65,64 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointer
     }
 `;
 
+function useConvertibleResource(
+    resource: Resource,
+    player: PlayerState
+): {
+    canConvert: boolean;
+    handleConversionClick: null | (() => void);
+} {
+    const apiClient = useApiClient();
+    const loggedInPlayer = useLoggedInPlayer();
+    const actionGuard = useActionGuard(player.username);
+    const conversion = CONVERSIONS[resource];
+
+    if (!conversion) {
+        return {canConvert: false, handleConversionClick: null};
+    }
+
+    const [canDoConversionInSpiteOfUI] = actionGuard.canDoConversionInSpiteOfUI(conversion);
+    // - when looking at another players board, we never need to handle conversion click
+    // - when looking at your own board, but you don't have enough resources,
+    //   we also don't need to handle conversion click
+    if (loggedInPlayer.index !== player.index || !canDoConversionInSpiteOfUI) {
+        return {
+            canConvert: canDoConversionInSpiteOfUI,
+            handleConversionClick: null,
+        };
+    }
+
+    let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
+    if (!canDoConversion) {
+        return {
+            canConvert: false,
+            handleConversionClick: null,
+        };
+    } else {
+        return {
+            canConvert: true,
+            handleConversionClick: () => {
+                apiClient.doConversionAsync({
+                    resource: Resource.HEAT,
+                });
+            },
+        };
+    }
+}
+
 export type ResourceBoardCellProps = {
     resource: Resource;
-    amount: number;
-    production: number;
-    handleOnClick?: () => void;
-    showConversionAnimation?: boolean;
-    showPointerCursor?: boolean;
-    isLoggedInPlayer?: boolean;
-    children?: React.ReactNode;
+    player: PlayerState;
 };
 
-export const ResourceBoardCell = ({
-    amount,
-    production,
-    resource,
-    showConversionAnimation,
-    showPointerCursor,
-    handleOnClick,
-    children,
-}: ResourceBoardCellProps) => {
+export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) => {
+    const loggedInPlayer = useLoggedInPlayer();
+    const isLoggedInPlayer = loggedInPlayer.index === player.index;
+    const amount = player.resources[resource];
+    const production = player.productions[resource];
+    const {canConvert, handleConversionClick} = useConvertibleResource(resource, player);
+
+    const showConversionAnimation = canConvert;
     let className = 'display';
     if (showConversionAnimation) {
         if (resource === Resource.PLANT) className += ' canDoPlantConversion';
@@ -97,8 +132,8 @@ export const ResourceBoardCell = ({
     return (
         <ResourceBoardCellBase
             className={className}
-            onClick={handleOnClick}
-            showPointerCursor={showPointerCursor}
+            onClick={() => handleConversionClick?.()}
+            showPointerCursor={isLoggedInPlayer && canConvert}
         >
             <Flex
                 alignSelf="stretch"
@@ -118,11 +153,6 @@ export const ResourceBoardCell = ({
                 style={{gridArea: '0 / 1 / 0 / 2'}}
             >
                 {amount}
-                {children ? (
-                    <Box marginLeft="2px" right="0">
-                        {children}
-                    </Box>
-                ) : null}
             </Flex>
             <Flex
                 alignSelf="stretch"
@@ -153,116 +183,22 @@ type PlayerResourceBoardProps = {
     isLoggedInPlayer: boolean;
 };
 
-export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBoardProps) => {
-    const apiClient = useApiClient();
-    const actionGuard = useActionGuard(player.username);
-
-    const isEndOfGame = useTypedSelector(state => state.common.gameStage === GameStage.END_OF_GAME);
-
+export const PlayerResourceBoard = ({player}: PlayerResourceBoardProps) => {
     return (
         <Flex flexDirection="column" marginTop="4px">
             <ResourceBoard>
                 <ResourceBoardRow>
                     {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resource => {
                         return (
-                            <ResourceBoardCell
-                                key={resource}
-                                resource={resource}
-                                amount={player.resources[resource]}
-                                production={player.productions[resource]}
-                            />
+                            <ResourceBoardCell key={resource} resource={resource} player={player} />
                         );
                     })}
                 </ResourceBoardRow>
                 <ResourceBoardRow>
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
-                        const conversion = CONVERSIONS[resource];
-                        let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
-                        let canDoConversionInSpiteOfUI = false;
-                        if (conversion) {
-                            [
-                                canDoConversionInSpiteOfUI,
-                                reason,
-                            ] = actionGuard.canDoConversionInSpiteOfUI(conversion);
-                        }
-
-                        let handleOnClick = () => {
-                            if (isLoggedInPlayer && canDoConversion) {
-                                apiClient.doConversionAsync({resource});
-                            }
-                        };
-
-                        const doConversionWithSupplementalResources = (
-                            supplementalResources: SupplementalResources
-                        ) => {
-                            apiClient.doConversionAsync({resource, supplementalResources});
-                        };
-
-                        const element = (children?: React.ReactNode) => (
-                            <ResourceBoardCell
-                                key={resource}
-                                resource={resource}
-                                amount={player.resources[resource]}
-                                production={player.productions[resource]}
-                                showPointerCursor={canDoConversion && isLoggedInPlayer}
-                                showConversionAnimation={canDoConversionInSpiteOfUI && !isEndOfGame}
-                                handleOnClick={handleOnClick}
-                            >
-                                {children}
-                            </ResourceBoardCell>
+                        return (
+                            <ResourceBoardCell key={resource} resource={resource} player={player} />
                         );
-
-                        if (resource === Resource.HEAT && canDoConversion && isLoggedInPlayer) {
-                            const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(
-                                player
-                            );
-                            if (useStoredResourcesAsHeatCard) {
-                                const storedResource =
-                                    useStoredResourcesAsHeatCard.storedResourceType;
-                                const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
-                                if (storedResource && quantity) {
-                                    const heatCost = conversion?.removeResource[Resource.HEAT];
-                                    handleOnClick = () => {};
-                                    return (
-                                        <HeatPaymentPopover
-                                            cost={heatCost as number}
-                                            key={resource}
-                                            useStoredResourcesAsHeatCard={
-                                                useStoredResourcesAsHeatCard
-                                            }
-                                            onConfirmPayment={payment => {
-                                                doConversionWithSupplementalResources({
-                                                    name: useStoredResourcesAsHeatCard.name,
-                                                    quantity: (payment[storedResource] ??
-                                                        0) as number,
-                                                });
-                                            }}
-                                        >
-                                            {element(
-                                                <Flex
-                                                    flexDirection="row"
-                                                    alignItems="center"
-                                                    transform="scale(80%)"
-                                                >
-                                                    <Box marginRight="2px">
-                                                        {
-                                                            useStoredResourcesAsHeatCard.storedResourceAmount
-                                                        }
-                                                    </Box>
-                                                    <div>
-                                                        {getResourceSymbol(
-                                                            useStoredResourcesAsHeatCard.storedResourceType!
-                                                        )}
-                                                    </div>
-                                                </Flex>
-                                            )}
-                                        </HeatPaymentPopover>
-                                    );
-                                }
-                            }
-                        }
-
-                        return element();
                     })}
                 </ResourceBoardRow>
             </ResourceBoard>

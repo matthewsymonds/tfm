@@ -4,7 +4,6 @@ import {CardButton} from 'components/card/CardButton';
 import {GenericCardCost} from 'components/card/CardCost';
 import {GenericCardTitleBar} from 'components/card/CardTitle';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {getAward, getAwards} from 'constants/awards';
@@ -188,10 +187,6 @@ export function AwardPopover({
     const awardConfig = getAward(award);
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canFundAward(award);
-    const showPaymentPopover =
-        loggedInPlayer.corporation.name === 'Helion' &&
-        loggedInPlayer.resources[Resource.HEAT] > 0 &&
-        !loggedInPlayer.fundAward;
 
     return (
         <TexturedCard width={200}>
@@ -231,21 +226,13 @@ export function AwardPopover({
                 )}
                 {canPlay && (
                     <Flex justifyContent="center" marginBottom="8px">
-                        <PaymentPopover
-                            cost={cost}
-                            onConfirmPayment={payment => fundAward(award, payment)}
-                            shouldHide={!showPaymentPopover}
+                        <CardButton
+                            onClick={() => {
+                                fundAward(award, {[Resource.MEGACREDIT]: cost});
+                            }}
                         >
-                            <CardButton
-                                onClick={() => {
-                                    if (!showPaymentPopover) {
-                                        fundAward(award, {[Resource.MEGACREDIT]: cost});
-                                    }
-                                }}
-                            >
-                                Fund {awardConfig.name}
-                            </CardButton>
-                        </PaymentPopover>
+                            Fund {awardConfig.name}
+                        </CardButton>
                     </Flex>
                 )}
             </Flex>

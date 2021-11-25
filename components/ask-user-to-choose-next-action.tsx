@@ -45,7 +45,6 @@ import {
     RemoveResourceIconography,
 } from './card/CardIconography';
 import {TileIcon} from './icons/tile';
-import PaymentPopover from './popovers/payment-popover';
 import {colors} from './ui';
 
 function createActionIcon(action: AnyAction) {
@@ -284,22 +283,6 @@ function getElement(
         </button>
     );
 
-    if (
-        player.corporation.name === 'Helion' &&
-        removeResource.match(action) &&
-        action.payload.resource === Resource.MEGACREDIT
-    ) {
-        element = (
-            <PaymentPopover
-                cost={action.payload.amount}
-                onConfirmPayment={payment => handleChooseNextAction(apiClient, index, payment)}
-                shouldHide={false}
-            >
-                {element}
-            </PaymentPopover>
-        );
-    }
-
     element = (
         <Box margin="8px" key={index} height="100%">
             {element}
@@ -319,7 +302,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const unusedActions = actions.filter(Boolean).filter(action => !!createActionIcon(action));
 
     const hasUnpaidActions = useTypedSelector(state =>
-        hasUnpaidResources(unusedActions, state, player, actionGuard)
+        hasUnpaidResources(unusedActions, state, player)
     );
 
     let hasDisabledAction = false;
@@ -345,7 +328,17 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
                 loggedInPlayer.index
             );
             if (element) {
-                elements.push(element);
+                elements.push(
+                    <Box margin="8px" height="100%">
+                        <button
+                            style={{padding: '4px', height: '100%'}}
+                            disabled={isDisabled}
+                            onClick={() => handleChooseNextAction(apiClient, i)}
+                        >
+                            {createActionIcon(actions[i])}
+                        </button>
+                    </Box>
+                );
                 if (isDisabled) {
                     hasDisabledAction = true;
                 }

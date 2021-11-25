@@ -24,7 +24,6 @@ import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';
 import {DelegateComponent} from './delegate';
-import PaymentPopover from './popovers/payment-popover';
 import TexturedCard from './textured-card';
 import {colors} from './ui';
 
@@ -226,15 +225,8 @@ function Lobbying({
     apiClient: ApiClient;
     player: PlayerState;
 }) {
-    const usePaymentPopover =
-        action.cost && player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0;
-
-    const button = (
-        <PaymentPopover
-            cost={action.cost ?? 0}
-            onConfirmPayment={payment => apiClient.lobbyAsync(party.name, payment)}
-            shouldHide={!usePaymentPopover || !canLobby}
-        >
+    return (
+        <Flex alignItems="center" justifyContent="center" flexDirection="column">
             <TurmoilAction
                 disabled={!canLobby}
                 onClick={() =>
@@ -246,12 +238,6 @@ function Lobbying({
                 {renderArrow()}
                 {renderRightSideOfArrow(action)}
             </TurmoilAction>
-        </PaymentPopover>
-    );
-
-    return (
-        <Flex alignItems="center" justifyContent="center" flexDirection="column">
-            {button}
             <Box fontSize="10px">
                 <em>{canLobby ? 'Add a delegate to ' + party.name : null}</em>
             </Box>

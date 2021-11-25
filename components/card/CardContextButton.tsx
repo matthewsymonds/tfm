@@ -3,16 +3,13 @@ import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {CardButton} from 'components/card/CardButton';
-import PaymentPopover, {HeatPaymentPopover} from 'components/popovers/payment-popover';
+import {usePaymentPopover} from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
-import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
-import {getDiscountedCardCost} from 'selectors/get-discounted-card-cost';
-import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {isActiveRound} from 'selectors/is-active-round';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -29,6 +26,10 @@ export function CardContextButton({
     apiClient: ApiClient;
     loggedInPlayer: PlayerState;
 }) {
+    let buttonContent: React.ReactNode | null;
+    const isSyncing = useTypedSelector(state => state.syncing);
+    const activeRound = useTypedSelector(state => isActiveRound(state));
+
     function playCard(payment: PropertyCounter<Resource>, conditionalPayments?: number[]) {
         apiClient.playCardAsync({
             name: card.name,
@@ -37,10 +38,15 @@ export function CardContextButton({
         });
     }
 
-    let buttonContent: React.ReactNode | null;
-    const isSyncing = useTypedSelector(state => state.syncing);
-    const activeRound = useTypedSelector(state => isActiveRound(state));
-    const discountedCardCost = getDiscountedCardCost(card, loggedInPlayer);
+    const {collectPaymentAndPerformAction, triggerRef: paymentTriggerRef} = usePaymentPopover<
+        HTMLButtonElement
+    >({
+        onConfirmPayment: playCard,
+        opts: {
+            type: 'card',
+            card,
+        },
+    });
 
     switch (cardContext) {
         case CardContext.NONE:
@@ -50,6 +56,7 @@ export function CardContextButton({
         case CardContext.SELECT_TO_PLAY:
             {
                 const [canPlay, reason] = actionGuard.canPlayCard(card);
+
                 if (!canPlay) {
                     buttonContent = (
                         <Tooltip
@@ -69,56 +76,15 @@ export function CardContextButton({
                             </div>
                         </Tooltip>
                     );
-                } else if (doesCardPaymentRequirePlayerInput(loggedInPlayer, card)) {
-                    buttonContent = (
-                        <PaymentPopover card={card} onConfirmPayment={playCard}>
-                            <CardButton>Play</CardButton>
-                        </PaymentPopover>
-                    );
                 } else {
-                    const heatCost = card?.removeResource?.[Resource.HEAT] ?? 0;
-                    if (heatCost) {
-                        const useStoredResourcesAsHeatCard = getUseStoredResourcesAsHeatCard(
-                            loggedInPlayer
-                        );
-                        if (useStoredResourcesAsHeatCard) {
-                            const resource = useStoredResourcesAsHeatCard.storedResourceType;
-                            const quantity = useStoredResourcesAsHeatCard.storedResourceAmount;
-                            if (resource && quantity) {
-                                buttonContent = (
-                                    <HeatPaymentPopover
-                                        cost={heatCost as number}
-                                        useStoredResourcesAsHeatCard={useStoredResourcesAsHeatCard}
-                                        onConfirmPayment={payment => {
-                                            apiClient.playCardAsync({
-                                                name: card.name,
-                                                payment: {
-                                                    [Resource.MEGACREDIT]: discountedCardCost,
-                                                },
-                                                supplementalResources: {
-                                                    name: useStoredResourcesAsHeatCard.name,
-                                                    quantity: payment[resource] ?? 0,
-                                                },
-                                            });
-                                        }}
-                                    >
-                                        <CardButton>Play</CardButton>
-                                    </HeatPaymentPopover>
-                                );
-                            }
-                        }
-                    }
-                    if (!buttonContent) {
-                        buttonContent = (
-                            <CardButton
-                                onClick={() =>
-                                    playCard({[Resource.MEGACREDIT]: discountedCardCost})
-                                }
-                            >
-                                Play
-                            </CardButton>
-                        );
-                    }
+                    buttonContent = (
+                        <CardButton
+                            ref={paymentTriggerRef}
+                            onClick={collectPaymentAndPerformAction}
+                        >
+                            Play
+                        </CardButton>
+                    );
                 }
             }
             break;
