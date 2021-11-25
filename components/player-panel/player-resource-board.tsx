@@ -1,5 +1,6 @@
 import {Box, Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
+import {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
@@ -13,7 +14,6 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {getUseStoredResourcesAsHeatCard} from 'selectors/get-stored-resources-as-card';
 import {SupplementalResources} from 'server/api-action-handler';
 import styled, {keyframes} from 'styled-components';
-import {HeatPaymentPopover} from 'components/popovers/payment-popover';
 
 const plantBgCycle = keyframes`
     0% {

@@ -1,13 +1,13 @@
-import React from 'react';
-import {PlayerState, useTypedSelector} from 'reducer';
 import {Flex} from 'components/box';
-import {colors} from 'components/ui';
-import styled from 'styled-components';
 import {PlayerIcon} from 'components/icons/player';
-import {ScorePopover} from 'components/popovers/score-popover';
 import {PlayerResourceBoard} from 'components/player-panel/player-resource-board';
+import {ScorePopover} from 'components/popovers/score-popover';
+import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React from 'react';
+import {PlayerState, useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 
 const FirstPlayerToken = styled.div`
     position: absolute;

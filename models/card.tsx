@@ -89,6 +89,9 @@ export class Card {
     increaseParameter?: NumericPropertyCounter<Parameter>;
     /** e.g. "Raise your TR 1 step" */
     increaseTerraformRating?: Amount;
+
+    // Comes from Turmoil events
+    decreaseTerraformRating?: Amount;
     /** e.g. "Add 1 animal to THIS CARD" */
     gainResourceTargetType?: ResourceLocationType;
     stealResource?: PropertyCounter<Resource>;
@@ -193,6 +196,8 @@ export class Card {
         this.decreaseAnyProduction = config.decreaseAnyProduction;
         this.increaseParameter = config.increaseParameter;
         this.increaseTerraformRating = config.increaseTerraformRating;
+        this.decreaseTerraformRating = config.decreaseTerraformRating;
+
         this.requiredTags = config.requiredTags;
         const {tags = {}, cards = {}, ...rest} = config.discounts ?? {};
         this.discounts = {

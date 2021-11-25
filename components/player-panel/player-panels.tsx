@@ -1,10 +1,10 @@
 import {useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import SwiperCore, {Controller, Mousewheel} from 'swiper';
-import {Swiper, SwiperSlide} from 'swiper/react';
 import 'swiper/css';
-import {PlayerTopPanel} from './player-top-panel';
+import {Swiper, SwiperSlide} from 'swiper/react';
 import {PlayerBottomPanel} from './player-bottom-panel';
+import {PlayerTopPanel} from './player-top-panel';
 
 export const PlayerPanels = () => {
     const players = useTypedSelector(state => state.players);

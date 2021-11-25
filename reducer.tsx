@@ -75,6 +75,7 @@ import {
     completeUserToPutAdditionalColonyTileIntoPlay,
     decreaseParameter,
     decreaseProduction,
+    decreaseTerraformRating,
     discardCards,
     discardPreludes,
     discardRevealedCards,
@@ -1387,7 +1388,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (increaseTerraformRating.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
 
             const {amount} = payload;
             const newRating = player.terraformRating + amount;
@@ -1398,6 +1398,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (amount) {
                 player.terraformedThisGeneration = true;
             }
+        }
+
+        if (decreaseTerraformRating.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+
+            const {amount} = payload;
+            const newRating = player.terraformRating - amount;
+            draft.log.push(
+                `${corporationName} decreased their terraform rating by ${amount} to ${newRating}`
+            );
+            player.terraformRating = newRating;
         }
 
         if (applyDiscounts.match(action)) {

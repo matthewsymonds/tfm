@@ -963,8 +963,10 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
 
 function IncreaseTerraformRatingIconography({
     increaseTerraformRating,
+    red,
 }: {
     increaseTerraformRating: Amount | undefined;
+    red?: boolean;
 }) {
     if (!increaseTerraformRating) return null;
 
@@ -976,7 +978,7 @@ function IncreaseTerraformRatingIconography({
                         .fill(null)
                         .map((_, index) => (
                             <Flex key={index} margin="0 4px">
-                                <TerraformRatingIcon />
+                                <TerraformRatingIcon red={red} />
                             </Flex>
                         ))}
                 </IconographyRow>
@@ -987,7 +989,7 @@ function IncreaseTerraformRatingIconography({
         if (isTagAmount(increaseTerraformRating)) {
             return (
                 <IconographyRow className="increase-terraform-rating">
-                    <TerraformRatingIcon size={16} />
+                    <TerraformRatingIcon size={16} red={red} />
                     <InlineText>/</InlineText>
                     {increaseTerraformRating.dividedBy ? (
                         <InlineText>{increaseTerraformRating.dividedBy}</InlineText>
@@ -1019,6 +1021,7 @@ function IncreaseTerraformRatingIconography({
                         <Flex alignItems="center">
                             {renderArrow()}
                             <IncreaseTerraformRatingIconography
+                                red={red}
                                 increaseTerraformRating={increaseTerraformRating.first}
                             />
                         </Flex>
@@ -1026,6 +1029,7 @@ function IncreaseTerraformRatingIconography({
                             <Flex>
                                 <Box display="inline-block">Second:</Box>
                                 <IncreaseTerraformRatingIconography
+                                    red={red}
                                     increaseTerraformRating={increaseTerraformRating.second}
                                 />
                             </Flex>
@@ -1205,6 +1209,7 @@ export const BaseActionIconography = ({
         gainResourceTargetType,
         stealResource,
         increaseTerraformRating,
+        decreaseTerraformRating,
         revealTakeAndDiscard,
         opponentsGainResource,
     } = card;
@@ -1304,6 +1309,14 @@ export const BaseActionIconography = ({
                 <div>
                     <IncreaseTerraformRatingIconography
                         increaseTerraformRating={increaseTerraformRating}
+                    />
+                </div>
+            )}
+            {decreaseTerraformRating && (
+                <div>
+                    <IncreaseTerraformRatingIconography
+                        increaseTerraformRating={decreaseTerraformRating}
+                        red={true}
                     />
                 </div>
             )}

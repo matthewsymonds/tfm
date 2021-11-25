@@ -37,6 +37,7 @@ import {
     completeUserToPutAdditionalColonyTileIntoPlay,
     decreaseParameter,
     decreaseProduction,
+    decreaseTerraformRating,
     discardCards,
     discardPreludes,
     discardRevealedCards,
@@ -1831,6 +1832,16 @@ export class ApiActionHandler {
             for (let i = 0; i < numericTerraformRatingIncrease; i++) {
                 this.triggerEffectsFromIncreasedTerraformRating();
             }
+        }
+
+        if (action.decreaseTerraformRating) {
+            const decrease = convertAmountToNumber(
+                action.decreaseTerraformRating,
+                state,
+                this.getLoggedInPlayer(),
+                playedCard
+            );
+            items.push(decreaseTerraformRating(decrease, playerIndex));
         }
 
         // TODO: Move this to `applyDiscounts`, change `plantDiscount` to a new discount type

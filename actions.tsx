@@ -461,6 +461,12 @@ export const increaseTerraformRating = withMatcher((amount: number, playerIndex:
     payload: {amount, playerIndex},
 }));
 
+const DECREASE_TERRAFORM_RATING = 'DECREASE_TERRAFORM_RATING';
+export const decreaseTerraformRating = withMatcher((amount: number, playerIndex: number) => ({
+    type: DECREASE_TERRAFORM_RATING,
+    payload: {amount, playerIndex},
+}));
+
 // Player announces she is ready to start round.
 const ANNOUNCE_READY_TO_START_ROUND = 'ANNOUNCE_READY_TO_START_ROUND';
 export const announceReadyToStartRound = withMatcher((playerIndex: number) => ({
