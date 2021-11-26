@@ -19,6 +19,7 @@ type PlayerPanelProps = {
 
 const OuterWrapper = styled.div<{isSelected: boolean}>`
     display: flex;
+    position: relative;
     transition: all 300ms ease-in-out;
     opacity: ${props => (props.isSelected ? 1 : 0.25)};
     background ${props => (props.isSelected ? colors.DARK_3 : 'transparent')};
@@ -36,6 +37,14 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
 const CardsInHandMessage = styled.div`
     color: #ccc;
     font-size: 11px;
+`;
+
+const NoClickOverlay = styled.div`
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 3;
 `;
 
 export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
@@ -80,6 +89,7 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
 
     return (
         <OuterWrapper isSelected={isSelected} id={`player-board-${player.index}`}>
+            {!isSelected && <NoClickOverlay />}
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}
                 {fleets}

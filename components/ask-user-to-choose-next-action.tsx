@@ -348,7 +348,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
             <h3>{isLoggedInPlayersTurn ? 'Please choose the next effect:' : 'Please wait...'}</h3>
             <Box height="fit-content" alignItems="center" width="100%" flexWrap="wrap">
                 {playerElements}
-                {hasDisabledAction ? (
+                {hasDisabledAction && isLoggedInPlayersTurn ? (
                     <div>
                         ...or, you may{' '}
                         <button onClick={() => handleStartOver(apiClient)}>start over</button>

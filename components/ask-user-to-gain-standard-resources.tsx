@@ -20,17 +20,10 @@ function ResourceChooser({
     max: number;
 }) {
     return (
-        <Box>
-            <ResourceIcon name={resource} />
-            <input
-                type="number"
-                min={0}
-                style={{margin: '4px'}}
-                value={quantity}
-                max={max}
-                onChange={onChange}
-            ></input>
-        </Box>
+        <Flex alignItems="center" justifyContent="center">
+            <ResourceIcon margin={4} size={10} name={resource} />
+            <input type="number" min={0} value={quantity} max={max} onChange={onChange}></input>
+        </Flex>
     );
 }
 
