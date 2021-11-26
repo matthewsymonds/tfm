@@ -1484,7 +1484,9 @@ export class ApiActionHandler {
     startOver(checkpoint?: GameState) {
         const playerIndex = this.getLoggedInPlayerIndex();
 
-        if (playerIndex !== this.state.common.currentPlayerIndex) {
+        const {currentPlayerIndex, controllingPlayerIndex} = this.state.common;
+
+        if (playerIndex !== (controllingPlayerIndex ?? currentPlayerIndex)) {
             throw new Error('Cannot start over as not current player');
         }
         if (this.state.common.gameStage !== GameStage.ACTIVE_ROUND) {

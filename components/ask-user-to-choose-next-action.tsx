@@ -256,7 +256,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
     const actions = player?.pendingNextActionChoice ?? [];
 
-    const unusedActions = actions.filter(Boolean);
+    const unusedActions = actions.filter(Boolean).filter(action => !!createActionIcon(action));
 
     const hasUnpaidActions = hasUnpaidResources(unusedActions, state, player);
 
@@ -328,9 +328,9 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
         }
         const playerElement = (
             <Box key={playerIndex} padding={'4px'}>
-                {playerIndices.length > 1 ? (
+                {playerIndices.length === 1 && playerIndices[0] === player.index ? null : (
                     <em>{state.players[playerIndex].corporation.name}:</em>
-                ) : null}
+                )}
                 <Flex>{elements}</Flex>
             </Box>
         );
