@@ -93,7 +93,7 @@ export const getResourceSymbol = (resource: Resource) => {
         case Resource.ANIMAL:
             return '🐶';
         case Resource.ASTEROID:
-            return '☄️';
+            return '🪨';
         case Resource.CAMP:
             return '🏠';
         case Resource.CARD:
