@@ -26,13 +26,15 @@ export const PlayerPanels = () => {
         const element: HTMLDivElement | null = document.querySelector(
             '#player-board-unique-' + topIndex
         );
-        if (element && swiper?.activeIndex === topIndex) {
-            element?.parentElement?.scroll({
-                left: element.offsetLeft - element.clientWidth / 2,
+        const parent = element?.parentElement;
+
+        if (parent) {
+            parent.scroll({
+                left: element.offsetLeft - element.offsetWidth / 2,
                 behavior: 'smooth',
             });
         }
-    }, [swiper, topIndex, swiper?.activeIndex]);
+    }, [topIndex]);
 
     useEffect(() => {
         const handler = () => {
