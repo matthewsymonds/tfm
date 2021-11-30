@@ -8,6 +8,7 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
+import {NoClickOverlay} from './player-bottom-panel';
 
 const FirstPlayerToken = styled.div`
     position: absolute;
@@ -98,6 +99,7 @@ export const PlayerTopPanel = ({
             }}
             className="display"
         >
+            {!isSelected && <NoClickOverlay />}
             {isFirstPlayer && <FirstPlayerToken>1</FirstPlayerToken>}
             <CorporationHeader>
                 <Flex alignItems="center">

@@ -39,12 +39,13 @@ const CardsInHandMessage = styled.div`
     font-size: 11px;
 `;
 
-const NoClickOverlay = styled.div`
+export const NoClickOverlay = styled.div`
     position: absolute;
     inset: 0;
     height: 100%;
     width: 100%;
     z-index: 3;
+    cursor: pointer;
 `;
 
 export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
