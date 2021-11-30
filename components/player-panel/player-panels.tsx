@@ -22,23 +22,17 @@ export const PlayerPanels = () => {
     const loggedInPlayer = useLoggedInPlayer();
     const [swiper, setSwiper] = useState<SwiperCore | null>(null);
     const [topIndex, setTopIndex] = useState(loggedInPlayer.index);
-    useEffect(() => {
-        const element: HTMLDivElement | null = document.querySelector(
-            '#player-board-unique-' + topIndex
-        );
-        const parent = element?.parentElement;
-
-        if (parent) {
-            parent.scroll({
-                left: element.offsetLeft - element.offsetWidth / 2,
-                behavior: 'smooth',
-            });
-        }
-    }, [topIndex]);
 
     useEffect(() => {
         const handler = () => {
-            setTopIndex(swiper?.activeIndex ?? topIndex);
+            const newIndex = swiper?.activeIndex ?? topIndex;
+            setTopIndex(newIndex);
+            const element: HTMLDivElement | null = document.querySelector(
+                '#player-board-unique-' + newIndex
+            );
+            if (element) {
+                element.scrollIntoView({behavior: 'smooth', inline: 'center', block: 'nearest'});
+            }
         };
         swiper?.on('slideChange', handler);
         return () => swiper?.off('slideChange', handler);
@@ -92,7 +86,10 @@ export const PlayerPanels = () => {
                         }}
                     >
                         {({isActive}) => (
-                            <PlayerBottomPanel player={player} isSelected={topIndex === i} />
+                            <PlayerBottomPanel
+                                player={player}
+                                isSelected={(swiper?.activeIndex ?? topIndex) === i}
+                            />
                         )}
                     </SwiperSlide>
                 ))}
