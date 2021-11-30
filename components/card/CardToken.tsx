@@ -158,7 +158,7 @@ export const MiniatureCard = ({
     const color = getColorForCardType(card.type);
     const currentGeneration = useTypedSelector(state => state.common.generation);
     const triggerRef = useRef<HTMLDivElement>(null);
-    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
+    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0, hideOnScroll: true});
 
     useEffect(() => {
         if (isOver) {

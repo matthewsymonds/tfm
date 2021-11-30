@@ -1,64 +1,96 @@
-import {useState} from 'react';
+import {Box, Flex} from 'components/box';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import styled from 'styled-components';
 import SwiperCore, {Controller, Mousewheel} from 'swiper';
 import 'swiper/css';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import {PlayerBottomPanel} from './player-bottom-panel';
 import {PlayerTopPanel} from './player-top-panel';
 
+const PlayerBoardsContainer = styled(Flex)`
+    &::before,
+    &::after {
+        content: '';
+        flex: 1;
+    }
+`;
+
 export const PlayerPanels = () => {
     const players = useTypedSelector(state => state.players);
-    const [topSwiper, setTopSwiper] = useState<SwiperCore | null>(null);
-    const [bottomSwiper, setBottomSwiper] = useState<SwiperCore | null>(null);
-    const [sharedSwiperProps] = useState<React.ComponentProps<typeof Swiper>>(() => ({
+    const loggedInPlayer = useLoggedInPlayer();
+    const [swiper, setSwiper] = useState<SwiperCore | null>(null);
+    const [topIndex, setTopIndex] = useState(loggedInPlayer.index);
+    useEffect(() => {
+        const element: HTMLDivElement | null = document.querySelector(
+            '#player-board-unique-' + topIndex
+        );
+        if (element && swiper?.activeIndex === topIndex) {
+            element?.parentElement?.scroll({
+                left: element.offsetLeft - element.clientWidth / 2,
+                behavior: 'smooth',
+            });
+        }
+    }, [swiper, topIndex, swiper?.activeIndex]);
+
+    useEffect(() => {
+        const handler = () => {
+            setTopIndex(swiper?.activeIndex ?? topIndex);
+        };
+        swiper?.on('slideChange', handler);
+        return () => swiper?.off('slideChange', handler);
+    }, [swiper]);
+
+    const swiperProps = {
         scrollbar: {draggable: true},
         spaceBetween: 16,
         centeredSlides: true,
         mousewheel: {
             forceToAxis: true,
         },
+        initialSlide: loggedInPlayer.index,
         modules: [Controller, Mousewheel],
-    }));
+    };
 
     return (
         <div>
-            <Swiper
-                controller={{control: bottomSwiper ?? undefined}}
-                onSwiper={setTopSwiper}
-                slidesPerView="auto"
-                {...sharedSwiperProps}
-            >
+            <PlayerBoardsContainer overflowX="auto" width="100%">
                 {players.map((player, i) => (
-                    <SwiperSlide
-                        onClick={() => topSwiper?.slideTo(player.index)}
+                    <Box
                         key={i}
+                        id={'player-board-unique-' + i}
                         style={{
-                            width: 252,
+                            width: 264,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                         }}
+                        onClick={() => {
+                            swiper?.slideTo(i);
+                        }}
                     >
-                        {({isActive}) => <PlayerTopPanel player={player} isSelected={isActive} />}
-                    </SwiperSlide>
+                        <PlayerTopPanel player={player} isSelected={topIndex === i} />
+                    </Box>
                 ))}
-            </Swiper>
+            </PlayerBoardsContainer>
+
             <Swiper
-                controller={{control: topSwiper ?? undefined}}
-                onSwiper={setBottomSwiper}
+                controller={{control: swiper ?? undefined}}
+                onSwiper={setSwiper}
                 slidesPerView="auto"
-                {...sharedSwiperProps}
+                {...swiperProps}
             >
                 {players.map((player, i) => (
                     <SwiperSlide
-                        onClick={() => topSwiper?.slideTo(player.index)}
+                        onClick={() => swiper?.slideTo(player.index)}
                         key={i}
                         style={{
-                            maxWidth: 800,
+                            maxWidth: 929,
                         }}
                     >
                         {({isActive}) => (
-                            <PlayerBottomPanel player={player} isSelected={isActive} />
+                            <PlayerBottomPanel player={player} isSelected={topIndex === i} />
                         )}
                     </SwiperSlide>
                 ))}

@@ -4,7 +4,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
-import {Box, Flex} from './box';
+import {Flex} from './box';
 import {ResourceIcon} from './icons/resource';
 import {colors} from './ui';
 
