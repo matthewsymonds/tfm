@@ -1218,7 +1218,6 @@ export const BaseActionIconography = ({
     const temporaryParameterRequirementAdjustments =
         card instanceof CardModel ? card.temporaryParameterRequirementAdjustments : null;
     const choice = 'choice' in card ? card.choice : null;
-    console.log(card);
     const steps = 'steps' in card ? card.steps : null;
 
     return (

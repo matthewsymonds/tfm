@@ -27,16 +27,22 @@ export const PlayerPanels = () => {
         const handler = () => {
             const newIndex = swiper?.activeIndex ?? topIndex;
             setTopIndex(newIndex);
-            const element: HTMLDivElement | null = document.querySelector(
-                '#player-board-unique-' + newIndex
-            );
-            if (element) {
-                element.scrollIntoView({behavior: 'smooth', inline: 'center', block: 'nearest'});
-            }
         };
         swiper?.on('slideChange', handler);
         return () => swiper?.off('slideChange', handler);
     }, [swiper]);
+
+    useEffect(() => {
+        const element: HTMLDivElement | null = document.querySelector(
+            '#player-board-unique-' + topIndex
+        );
+        const parent = element?.parentElement;
+        if (element && parent) {
+            const scrollLeft =
+                element.offsetLeft - parent.offsetWidth / 2 + element.offsetWidth / 2;
+            parent.scrollTo({left: scrollLeft, behavior: 'smooth'});
+        }
+    }, [topIndex]);
 
     const swiperProps = {
         scrollbar: {draggable: true},
