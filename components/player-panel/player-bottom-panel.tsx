@@ -25,7 +25,7 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     background ${props => (props.isSelected ? colors.DARK_3 : 'transparent')};
     border: ${props =>
         props.isSelected ? `1px solid ${colors.PANEL_BORDER}` : '1px solid transparent'};
-    borderRadius: 4;
+    border-radius: 4px;
     boxSizing: border-box;
     flex-direction: column;
     justify-content: stretch;
@@ -93,7 +93,7 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
             {!isSelected && <NoClickOverlay />}
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}
-                {fleets}
+                {!isCorporationSelection && fleets}
             </Flex>
             {!isCorporationSelection && (
                 <React.Fragment>

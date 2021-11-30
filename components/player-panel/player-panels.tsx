@@ -66,6 +66,8 @@ export const PlayerPanels = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            marginLeft: i === 0 ? 0 : '8px',
+                            marginRight: i === players.length - 1 ? 0 : '8px',
                         }}
                         onClick={() => {
                             swiper?.slideTo(i);
