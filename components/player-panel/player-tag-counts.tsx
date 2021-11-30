@@ -115,7 +115,7 @@ function PlayerTagCounts({
 
     return (
         <Flex margin="8px 0" alignItems="center" justifyContent="space-between" width="100%">
-            <Flex flexWrap="wrap">
+            <Flex flexWrap="wrap" flexShrink="0">
                 <AllButton
                     onClick={() =>
                         setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []})

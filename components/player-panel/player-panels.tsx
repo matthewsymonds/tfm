@@ -46,7 +46,6 @@ export const PlayerPanels = () => {
 
     const swiperProps = {
         scrollbar: {draggable: true},
-        spaceBetween: 16,
         centeredSlides: true,
         mousewheel: {
             forceToAxis: true,
@@ -63,7 +62,7 @@ export const PlayerPanels = () => {
                         key={i}
                         id={'player-board-unique-' + i}
                         style={{
-                            width: 264,
+                            width: 252,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -88,7 +87,7 @@ export const PlayerPanels = () => {
                         onClick={() => swiper?.slideTo(player.index)}
                         key={i}
                         style={{
-                            maxWidth: 929,
+                            maxWidth: 800,
                         }}
                     >
                         {({isActive}) => (
