@@ -86,10 +86,7 @@ export const PlayerPanels = () => {
                         }}
                     >
                         {({isActive}) => (
-                            <PlayerBottomPanel
-                                player={player}
-                                isSelected={(swiper?.activeIndex ?? topIndex) === i}
-                            />
+                            <PlayerBottomPanel player={player} isSelected={isActive} />
                         )}
                     </SwiperSlide>
                 ))}
