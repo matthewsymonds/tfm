@@ -38,14 +38,7 @@ export const LogToast = () => {
         }
 
         const logItemsToShow = log.slice(lastSeenLogItem - logLength);
-        const bucketedEntries = bucketLogItems(logItemsToShow).filter(bucket => {
-            const firstLogItem = bucket[0];
-            return (
-                typeof firstLogItem === 'string' ||
-                firstLogItem.actionType === GameActionType.GAME_UPDATE ||
-                firstLogItem.playerIndex !== loggedInPlayerIndex
-            );
-        });
+        const bucketedEntries = bucketLogItems(logItemsToShow);
 
         if (bucketedEntries.length === 0) {
             return;
@@ -80,7 +73,7 @@ export const LogToast = () => {
                 background: colors.DARK_ORANGE,
             }}
             toastClassName="toast"
-            style={{padding: 4, zIndex: 8}}
+            style={{padding: 4, zIndex: 20}}
         />
     );
 };

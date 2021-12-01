@@ -45,15 +45,20 @@ function GameInner() {
             router.push('/new-game');
             return;
         }
-        const existingTimestamp = store.getState()?.timestamp ?? 0;
-        const newTimestamp = game.state?.timestamp ?? 0;
-        if (newTimestamp > existingTimestamp) {
-            // So...we've seen examples of the state going one step backward in time.
-            // We generally don't want that.
-            // While the root cause is being fleshed out and squashed,
-            // we can alleviate a lot of the pain with this check.
-            dispatch(setGame(game.state));
-        }
+        batch(() => {
+            const existingTimestamp = store.getState()?.timestamp ?? 0;
+            const newTimestamp = game.state?.timestamp ?? 0;
+            if (newTimestamp > existingTimestamp) {
+                // So...we've seen examples of the state going one step backward in time.
+                // We generally don't want that.
+                // While the root cause is being fleshed out and squashed,
+                // we can alleviate a lot of the pain with this check.
+                dispatch(setGame(game.state));
+            }
+            if (game.lastSeenLogItem > context.getLastSeenLogItem()) {
+                context.setLastSeenLogItem(game.lastSeenLogItem);
+            }
+        });
     };
     function handleRetrievedYourTurnGames(result: {games: Array<{name: string}>}) {
         setYourTurnGames(result.games.map(game => game.name));

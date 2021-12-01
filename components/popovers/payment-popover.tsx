@@ -6,6 +6,7 @@ import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Pane, Popover, Position} from 'evergreen-ui';
+import {useActionGuard} from 'hooks/use-action-guard';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {usePrevious} from 'hooks/use-previous';
 import {Card} from 'models/card';
@@ -173,6 +174,7 @@ export default function PaymentPopover({
     shouldHide,
 }: PaymentPopoverProps) {
     const player = useLoggedInPlayer();
+    const actionGuard = useActionGuard(player.username);
     const playerMoney = useTypedSelector(state => getMoney(state, player));
     const conditionalPayment = useTypedSelector(() =>
         getConditionalPaymentWithResourceInfo(player, card)
@@ -304,8 +306,8 @@ export default function PaymentPopover({
     function calculateRunningTotal() {
         return (
             numMC +
-            numSteel * exchangeRates[Resource.STEEL] +
-            numTitanium * exchangeRates[Resource.TITANIUM] +
+            numSteel * actionGuard.getExchangeRate(Resource.STEEL) +
+            numTitanium * actionGuard.getExchangeRate(Resource.TITANIUM) +
             numHeat * 1 +
             numConditionalPayment.reduce(
                 (acc, quantity, index) => acc + quantity * conditionalPayment[index].rate,
@@ -316,8 +318,8 @@ export default function PaymentPopover({
 
     function calculateRunningTotalWithoutMegacredits() {
         return (
-            numSteel * exchangeRates[Resource.STEEL] +
-            numTitanium * exchangeRates[Resource.TITANIUM] +
+            numSteel * actionGuard.getExchangeRate(Resource.STEEL) +
+            numTitanium * actionGuard.getExchangeRate(Resource.TITANIUM) +
             numHeat * 1 +
             numConditionalPayment.reduce(
                 (acc, quantity, index) => acc + quantity * conditionalPayment[index].rate,

@@ -11,6 +11,7 @@ import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
+import {getParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
@@ -362,14 +363,28 @@ export class ActionGuard {
 
         for (const acceptedPaymentType of acceptedPayment) {
             cost -=
-                player.exchangeRates[acceptedPaymentType] * (payment?.[acceptedPaymentType] ?? 0);
+                this.getExchangeRate(acceptedPaymentType) * (payment?.[acceptedPaymentType] ?? 0);
         }
 
         if (player.corporation.name === 'Helion') {
-            cost -= player.exchangeRates[Resource.HEAT] * (payment?.[Resource.HEAT] ?? 0);
+            cost -= this.getExchangeRate(Resource.HEAT) * (payment?.[Resource.HEAT] ?? 0);
         }
 
         return cost <= (payment?.[Resource.MEGACREDIT] ?? 0);
+    }
+
+    getExchangeRate(resource: Resource) {
+        const player = this._getPlayerToConsider();
+        const {state} = this;
+        let turmoilExchangeRateIncrease = 0;
+
+        const {turmoil} = state.common;
+        if (turmoil) {
+            const {exchangeRates} = getParty(turmoil.rulingParty);
+            turmoilExchangeRateIncrease = exchangeRates?.[resource] ?? 0;
+        }
+
+        return player.exchangeRates[resource] + turmoilExchangeRateIncrease;
     }
 
     canAffordCard(
@@ -382,17 +397,17 @@ export class ActionGuard {
 
         const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
         if (isBuildingCard) {
-            cost -= player.exchangeRates[Resource.STEEL] * (payment?.[Resource.STEEL] ?? 0);
+            cost -= this.getExchangeRate(Resource.STEEL) * (payment?.[Resource.STEEL] ?? 0);
         }
 
         const isSpaceCard = card.tags.some(tag => tag === Tag.SPACE);
         if (isSpaceCard) {
-            cost -= player.exchangeRates[Resource.TITANIUM] * (payment?.[Resource.TITANIUM] ?? 0);
+            cost -= this.getExchangeRate(Resource.TITANIUM) * (payment?.[Resource.TITANIUM] ?? 0);
         }
 
         const playerIsHelion = player.corporation.name === 'Helion';
         if (playerIsHelion) {
-            cost -= player.exchangeRates[Resource.HEAT] * (payment?.[Resource.HEAT] ?? 0);
+            cost -= this.getExchangeRate(Resource.HEAT) * (payment?.[Resource.HEAT] ?? 0);
         }
         for (const payment of conditionalPayment) {
             cost -= payment.resourceAmount * payment.rate;
