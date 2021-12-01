@@ -26,6 +26,7 @@ import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
+import {isVariableAmount} from 'selectors/is-variable-amount';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {renderArrow} from './CardActions';
@@ -275,7 +276,7 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
     // "3 bacteria", "2 building tags", etc. If we ever want to support "Y per X", we'll need
     // to modify this to determine what value to show as Y (instead of always showing 1)
     const name = resource as Resource;
-    const resourceIconElement = (
+    const resourceIconElement = omitResourceIconography ? undefined : (
         <ResourceIcon
             name={name}
             size={16}
@@ -541,7 +542,7 @@ function getMultiplierAndCustomElement(
             );
             break;
         case VariableAmount.INFLUENCE:
-            multiplierElement = (
+            customElement = (
                 <Flex display="inline-flex" justifyContent="center" alignItems="center">
                     <InlineText>👥</InlineText>
                 </Flex>
@@ -977,8 +978,12 @@ function IncreaseTerraformRatingIconography({
                     {Array(increaseTerraformRating)
                         .fill(null)
                         .map((_, index) => (
-                            <Flex key={index} margin="0 4px">
-                                <TerraformRatingIcon red={red} />
+                            <Flex
+                                key={index}
+                                margin="0 4px"
+                                border={red ? '2px solid red' : 'none'}
+                            >
+                                <TerraformRatingIcon />
                             </Flex>
                         ))}
                 </IconographyRow>
@@ -989,7 +994,9 @@ function IncreaseTerraformRatingIconography({
         if (isTagAmount(increaseTerraformRating)) {
             return (
                 <IconographyRow className="increase-terraform-rating">
-                    <TerraformRatingIcon size={16} red={red} />
+                    <Box border={red ? '2px solid red' : 'none'}>
+                        <TerraformRatingIcon size={16} />
+                    </Box>
                     <InlineText>/</InlineText>
                     {increaseTerraformRating.dividedBy ? (
                         <InlineText>{increaseTerraformRating.dividedBy}</InlineText>
@@ -1036,6 +1043,47 @@ function IncreaseTerraformRatingIconography({
                         ) : null}
                     </IconographyRow>
                 </>
+            );
+        }
+        if (isOperationAmount(increaseTerraformRating)) {
+            const amount = increaseTerraformRating;
+            const operandElements = amount.operands.map((operand, index) => (
+                <RepresentAmountAndResource
+                    key={index}
+                    amount={operand}
+                    omitResourceIconography={true}
+                    includeBrackets={true}
+                    opts={{}}
+                />
+            ));
+            const symbol = (
+                <Flex
+                    marginLeft={'4px'}
+                    marginRight="4px"
+                    alignItems="center"
+                    style={{whiteSpace: 'pre', fontVariant: 'all-small-caps'}}
+                >
+                    {getSymbolForOperation(amount.operation)}
+                </Flex>
+            );
+            let internalElements: React.ReactElement[] = [];
+
+            for (let i = 0; i < amount.operands.length; i++) {
+                internalElements.push(operandElements[i]);
+                if (i !== amount.operands.length - 1) {
+                    internalElements.push(
+                        <React.Fragment key={`symbol-` + i}>{symbol}</React.Fragment>
+                    );
+                }
+            }
+
+            return (
+                <IconographyRow className="increase-terraform-rating">
+                    <Flex alignItems="center" height={'20px'}>
+                        {internalElements}
+                        <IncreaseTerraformRatingIconography increaseTerraformRating={1} red={red} />
+                    </Flex>
+                </IconographyRow>
             );
         }
 

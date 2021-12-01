@@ -249,6 +249,61 @@ export function getPlayerIndex(action: AnyAction) {
         : payload.playerIndex;
 }
 
+function getElement(
+    actions: AnyAction[],
+    index: number,
+    player: PlayerState,
+    state: GameState,
+    hasUnpaidActions: boolean,
+    actionGuard: ActionGuard,
+    apiClient: ApiClient
+): [React.ReactNode, boolean] {
+    const playerIndex = player.index;
+    const action = actions[index];
+    if (!action) return [null, false];
+    if (getPlayerIndex(action) !== playerIndex) return [null, false];
+
+    const actionElement = createActionIcon(action);
+    if (!actionElement) return [null, false];
+    const canPlayAction = canPlayActionNext(action, state, player, hasUnpaidActions, actionGuard);
+
+    const isDisabled = !canPlayAction;
+
+    let element = (
+        <button
+            style={{padding: '4px', height: '100%'}}
+            disabled={!canPlayAction}
+            onClick={() => handleChooseNextAction(apiClient, index)}
+        >
+            {actionElement}
+        </button>
+    );
+
+    if (
+        player.corporation.name === 'Helion' &&
+        removeResource.match(action) &&
+        action.payload.resource === Resource.MEGACREDIT
+    ) {
+        element = (
+            <PaymentPopover
+                cost={action.payload.amount}
+                onConfirmPayment={payment => handleChooseNextAction(apiClient, index, payment)}
+                shouldHide={false}
+            >
+                {element}
+            </PaymentPopover>
+        );
+    }
+
+    element = (
+        <Box margin="8px" key={index} height="100%">
+            {element}
+        </Box>
+    );
+
+    return [element, isDisabled];
+}
+
 export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const actionGuard = useActionGuard();
     const state = useTypedSelector(state => state);
@@ -271,60 +326,21 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     for (const playerIndex of playerIndices) {
         let elements: React.ReactNode[] = [];
         for (let i = 0; i < actions.length; i++) {
-            const index = i;
-            const action = actions[index];
-            if (!action) continue;
-            if (getPlayerIndex(action) !== playerIndex) continue;
-
-            const actionElement = createActionIcon(action);
-            if (!actionElement) continue;
-            const canPlayAction = canPlayActionNext(
-                action,
-                state,
+            const [element, isDisabled] = getElement(
+                actions,
+                i,
                 player,
+                state,
                 hasUnpaidActions,
-                actionGuard
+                actionGuard,
+                apiClient
             );
-
-            if (!canPlayAction) {
-                hasDisabledAction = true;
+            if (element) {
+                elements.push(element);
+                if (isDisabled) {
+                    hasDisabledAction = true;
+                }
             }
-
-            let element = (
-                <button
-                    style={{padding: '4px', height: '100%'}}
-                    disabled={!canPlayAction}
-                    onClick={() => handleChooseNextAction(apiClient, index)}
-                >
-                    {actionElement}
-                </button>
-            );
-
-            if (
-                player.corporation.name === 'Helion' &&
-                removeResource.match(action) &&
-                action.payload.resource === Resource.MEGACREDIT
-            ) {
-                element = (
-                    <PaymentPopover
-                        cost={action.payload.amount}
-                        onConfirmPayment={payment =>
-                            handleChooseNextAction(apiClient, index, payment)
-                        }
-                        shouldHide={false}
-                    >
-                        {element}
-                    </PaymentPopover>
-                );
-            }
-
-            element = (
-                <Box margin="8px" key={index} height="100%">
-                    {element}
-                </Box>
-            );
-
-            elements.push(element);
         }
         const playerElement = (
             <Box key={playerIndex} padding={'4px'}>

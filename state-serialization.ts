@@ -171,6 +171,7 @@ export const censorGameState = (readonlyState: SerializedState, username: string
         state.common.preludes = [];
         if (state.common.turmoil) {
             state.common.turmoil.globalEvents = [];
+            state.common.turmoil.oldGlobalEvents = [];
         }
         if (state.common.gameStage === GameStage.END_OF_GAME) {
             // No need to censor the game state anymore.

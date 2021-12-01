@@ -4363,15 +4363,6 @@ export const cardConfigs: CardConfig[] = [
         discounts: {tags: {[Tag.SPACE]: 4}},
     },
     {
-        deck: Deck.PRELUDE,
-        name: 'Allied Bank',
-        text: 'Increase your MC production 4 steps. Gain 3 MC.',
-        tags: [Tag.EARTH],
-        type: CardType.PRELUDE,
-        increaseProduction: {[Resource.MEGACREDIT]: 4},
-        gainResource: {[Resource.MEGACREDIT]: 3},
-    },
-    {
         cost: 2,
         name: 'Aerial Lenses',
         deck: Deck.TURMOIL,
@@ -4559,7 +4550,15 @@ export const cardConfigs: CardConfig[] = [
         text:
             'Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move you own delegate (from the reserve) there instead. Gain 1 TR.',
     },
-
+    {
+        deck: Deck.PRELUDE,
+        name: 'Allied Bank',
+        text: 'Increase your MC production 4 steps. Gain 3 MC.',
+        tags: [Tag.EARTH],
+        type: CardType.PRELUDE,
+        increaseProduction: {[Resource.MEGACREDIT]: 4},
+        gainResource: {[Resource.MEGACREDIT]: 3},
+    },
     {
         deck: Deck.PRELUDE,
         name: 'Aquifer Turbines',

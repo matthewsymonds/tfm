@@ -19,6 +19,7 @@ export interface GlobalEvent {
     top: GlobalEventHalf;
     bottom: GlobalEventHalf;
     action: Action & {text: string};
+    firstPlayerAction?: Action;
 }
 
 interface GlobalEventHalf {
@@ -130,12 +131,14 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
         action: {
             text: 'First player places an ocean tile. Gain 1 plant and 1 steel per influence.',
-
-            tilePlacements: [t(TileType.OCEAN)],
             gainResource: {
                 [Resource.PLANT]: VariableAmount.INFLUENCE,
                 [Resource.STEEL]: VariableAmount.INFLUENCE,
             },
+        },
+        firstPlayerAction: {
+            tilePlacements: [t(TileType.OCEAN)],
+            noParameterBonuses: true,
         },
     },
     {
@@ -267,8 +270,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         action: {
             text:
                 'First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.',
-            removeTile: TileType.OCEAN,
             gainStandardResources: VariableAmount.INFLUENCE,
+        },
+        firstPlayerAction: {
+            removeTile: TileType.OCEAN,
         },
     },
     {
@@ -327,10 +332,13 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
         action: {
             text: 'Increase temperature 2 steps. Increase heat production 1 step per influence.',
-            increaseParameter: {[Parameter.TEMPERATURE]: 2},
             increaseProduction: {
                 [Resource.HEAT]: VariableAmount.INFLUENCE,
             },
+        },
+        firstPlayerAction: {
+            increaseParameter: {[Parameter.TEMPERATURE]: 2},
+            noParameterBonuses: true,
         },
     },
     {

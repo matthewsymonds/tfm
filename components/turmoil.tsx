@@ -1,5 +1,6 @@
 import {ApiClient} from 'api-client';
-import {Action} from 'constants/action';
+import {ActionGuard} from 'client-server-shared/action-guard';
+import {Action, Payment} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {getGlobalEvent} from 'constants/global-events';
 import {getParty, PartyConfig, UNITY} from 'constants/party';
@@ -50,6 +51,11 @@ function GlobalEventCard({name}: {name: string}) {
                     </Box>
                 </GenericCardTitleBar>
                 <MainCardText>{globalEvent.action.text}</MainCardText>
+                {globalEvent.firstPlayerAction ? (
+                    <Box margin="8px">
+                        <BaseActionIconography card={globalEvent.firstPlayerAction} />
+                    </Box>
+                ) : null}
                 <BaseActionIconography card={globalEvent.action} />
             </TexturedCard>
         </Box>
@@ -173,7 +179,13 @@ function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boole
 
 function PartyPolicy(props) {
     return (
-        <Flex display="inline-flex" flexGrow="1">
+        <Flex
+            display="inline-flex"
+            flexGrow="1"
+            boxShadow={props.canClick ? '0px 0px 38px 5px #ccc' : 'none'}
+            onClick={props.onClick}
+            cursor={props.canClick ? 'pointer' : 'auto'}
+        >
             <PartyPolicyInternal {...props} />
         </Flex>
     );
@@ -243,6 +255,52 @@ function Lobbying({
     );
 }
 
+export function canClickDelegate(state: GameState, player: PlayerState, index: number) {
+    const {turmoil} = state.common;
+    if (!turmoil) return false;
+
+    if (player.removeNonLeaderDelegate) {
+        return index !== 0;
+    }
+    return false;
+}
+
+export function canClickParty(state: GameState, player: PlayerState, party: string) {
+    const {turmoil} = state.common;
+    if (!turmoil) return false;
+
+    if (player.exchangeNeutralNonLeaderDelegate) {
+        const [, ...delegation] = turmoil.delegations[party];
+        return delegation.some(delegate => delegate.playerIndex == undefined);
+    }
+    if (player.placeDelegatesInOneParty) {
+        return true;
+    }
+    return false;
+}
+
+export function canClickPolicy(
+    state: GameState,
+    actionGuard: ActionGuard,
+    player: PlayerState,
+    payment: Payment
+) {
+    const {turmoil} = state.common;
+    if (!turmoil) return false;
+
+    const {action} = getParty(turmoil.rulingParty);
+
+    if (!action) {
+        return false;
+    }
+
+    if (!actionGuard.canAffordActionCost(action, player, payment)) {
+        return false;
+    }
+
+    return actionGuard.canPlayAction(action, state)[0];
+}
+
 export function Turmoil() {
     const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
     if (!isTurmoilEnabled) return null;
@@ -257,16 +315,59 @@ export function Turmoil() {
 
     const lobbying: Action = useTypedSelector(state => getLobbyingAction(state, player));
 
+    const state = useTypedSelector(state => state);
+
+    function handleClickDelegate(party: string, index: number) {
+        if (!canClickDelegate(state, player, index)) {
+            return;
+        }
+        if (player.removeNonLeaderDelegate) {
+            apiClient.completeRemoveNonLeaderDelegateAsync(party, index);
+            return;
+        }
+    }
+
+    function handleClickParty(party: string) {
+        if (!canClickParty(state, player, party)) {
+            return;
+        }
+        if (player.exchangeNeutralNonLeaderDelegate) {
+            apiClient.completeExchangeNeutralNonLeaderDelegateAsync(party);
+            return;
+        }
+        if (player.placeDelegatesInOneParty) {
+            apiClient.completePlaceDelegatesInOnePartyAsync(party);
+            return;
+        }
+    }
+
+    function handleClickPolicy(payment: Payment) {
+        if (!canClickPolicy(state, actionGuard, player, payment)) {
+            return;
+        }
+
+        apiClient.doRulingPolicyActionAsync(payment);
+    }
+
     const delegations: React.ReactElement[] = [];
     for (const delegation in turmoil.delegations) {
         const party = getParty(delegation);
         const delegates = turmoil.delegations[delegation].map((delegate, index) => (
             <Box key={index} marginLeft={index === 0 ? '0px' : '2px'}>
-                <DelegateComponent delegate={delegate} isLeader={index === 0} />
+                <DelegateComponent
+                    delegate={delegate}
+                    isLeader={index === 0}
+                    canClick={canClickDelegate(state, player, index)}
+                    onClick={() => handleClickDelegate(delegation, index)}
+                />
             </Box>
         ));
         const element = (
-            <PartyPanel key={party.name}>
+            <PartyPanel
+                key={party.name}
+                canClick={canClickParty(state, player, party.name)}
+                onClick={() => handleClickParty(party.name)}
+            >
                 <Flex
                     className="display"
                     position="relative"
@@ -310,6 +411,15 @@ export function Turmoil() {
         delegations.push(element);
     }
 
+    const party = getParty(turmoil.rulingParty);
+
+    const partyActionCost = party?.action?.cost ?? 0;
+
+    const usePaymentPopover =
+        partyActionCost &&
+        player.corporation.name === 'Helion' &&
+        player.resources[Resource.HEAT] > 0;
+    const canDoPolicy = canClickPolicy(state, actionGuard, player, player.resources);
     return (
         <Flex
             color={colors.LIGHT_2}
@@ -340,7 +450,24 @@ export function Turmoil() {
                         >
                             <h3 className="display">Ruling Policy</h3>
                             <PartyPanel width="fit-content">
-                                <PartyPolicy party={turmoil.rulingParty} />
+                                <PaymentPopover
+                                    cost={partyActionCost}
+                                    onConfirmPayment={payment =>
+                                        apiClient.lobbyAsync(party.name, payment)
+                                    }
+                                    shouldHide={!usePaymentPopover || !canDoPolicy}
+                                >
+                                    <PartyPolicy
+                                        party={turmoil.rulingParty}
+                                        canClick={canDoPolicy}
+                                        onClick={() =>
+                                            !usePaymentPopover &&
+                                            handleClickPolicy({
+                                                [Resource.MEGACREDIT]: partyActionCost,
+                                            })
+                                        }
+                                    />
+                                </PaymentPopover>
                             </PartyPanel>
                         </Flex>
                     </Box>
@@ -432,6 +559,8 @@ export function Turmoil() {
 
 const PartyPanel = props => (
     <Box
+        onClick={props.onClick}
+        boxShadow={props.canClick ? '0px 0px 38px 5px #000000' : 'none'}
         padding="4px"
         fontSize="20px"
         borderRadius="4px"

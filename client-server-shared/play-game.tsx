@@ -131,6 +131,18 @@ export function playGame(
         case ApiActionType.API_LOBBY:
             actionHandler.lobby(payload);
             break;
+        case ApiActionType.API_COMPLETE_PLACE_DELEGATE_IN_ONE_PARTY:
+            actionHandler.completePlaceDelegateInOneParty(payload);
+            break;
+        case ApiActionType.API_COMPLETE_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE:
+            actionHandler.completeExchangeNeutralNonLeaderDelegate(payload);
+            break;
+        case ApiActionType.API_COMPLETE_REMOVE_NON_LEADER_DELEGATE:
+            actionHandler.completeRemoveNonLeaderDelegate(payload);
+            break;
+        case ApiActionType.API_DO_RULING_POLICY_ACTION:
+            actionHandler.doRulingPolicyAction(payload);
+            break;
         case ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION:
             actionHandler.completeChooseNextAction(payload);
             break;
@@ -144,4 +156,5 @@ export function playGame(
             throw spawnExhaustiveSwitchError(type);
     }
     actionHandler.handleForcedActionsIfNeeded(originalState);
+    actionHandler.handleTurmoilIfNeeded();
 }

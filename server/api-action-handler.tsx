@@ -56,6 +56,7 @@ import {
     increaseProduction,
     increaseTerraformRating,
     makeActionChoice,
+    makePartyRuling,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
@@ -65,7 +66,7 @@ import {
     passGeneration,
     PAUSE_ACTIONS,
     payForCards,
-    payToLobby,
+    makePayment,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
@@ -87,6 +88,8 @@ import {
     skipAction,
     skipChoice,
     useBlueCardActionAlreadyUsedThisGeneration,
+    wrapUpTurmoil,
+    makeLogItem,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
@@ -103,7 +106,7 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
-import {getLobbyingAction} from 'components/turmoil';
+import {canClickPolicy, getLobbyingAction} from 'components/turmoil';
 import {
     Action,
     ActionType,
@@ -126,6 +129,7 @@ import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
+import {getGlobalEvent} from 'constants/global-events';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {getParty} from 'constants/party';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
@@ -261,6 +265,68 @@ export class ApiActionHandler {
         }
     }
 
+    handleTurmoilIfNeeded() {
+        if (!this.state.timeForTurmoil || !this.state.common.turmoil) {
+            return;
+        }
+
+        this.queue.push(
+            makeLogItem({
+                actionType: GameActionType.GAME_UPDATE,
+                text: `⚔️ Turmoil`,
+            })
+        );
+
+        // Decrease everyone's terraform rating one step.
+        for (const player of this.state.players) {
+            this.queue.push(decreaseTerraformRating(1, player.index));
+        }
+
+        const {turmoil} = this.state.common;
+
+        // Is there a current global event? If so, play the action.
+        if (turmoil.currentGlobalEvent) {
+            const globalEvent = getGlobalEvent(turmoil.currentGlobalEvent.name);
+            if (globalEvent) {
+                this.queue.push(
+                    makeLogItem({
+                        actionType: GameActionType.GAME_UPDATE,
+                        text: `⚔️ Global Event: ${globalEvent.bottom.name}`,
+                    })
+                );
+                const {action, firstPlayerAction} = globalEvent;
+                for (const player of this.state.players) {
+                    this.playAction({
+                        action,
+                        thisPlayerIndex: player.index,
+                        state: this.state,
+                    });
+                }
+                if (firstPlayerAction) {
+                    this.playAction({
+                        action: firstPlayerAction,
+                        thisPlayerIndex: this.state.common.firstPlayerIndex,
+                        state: this.state,
+                    });
+                }
+            }
+        }
+
+        this.queue.push(makePartyRuling(turmoil.dominantParty));
+        const rulingParty = getParty(turmoil.dominantParty);
+        if (rulingParty) {
+            for (const player of this.state.players) {
+                this.playAction({
+                    action: rulingParty.partyBonus,
+                    thisPlayerIndex: player.index,
+                    state: this.state,
+                });
+            }
+        }
+        this.queue.push(wrapUpTurmoil());
+        this.processQueue();
+    }
+
     playCard({
         serializedCard,
         payment,
@@ -389,6 +455,9 @@ export class ApiActionHandler {
     private triggerEffectsFromIncreasedParameter(parameter: Parameter) {
         this.triggerEffects({
             increasedParameter: parameter,
+        });
+        this.triggerEffects({
+            increasedTerraformRating: true,
         });
     }
 
@@ -1074,7 +1143,7 @@ export class ApiActionHandler {
         const type = pendingTilePlacement!.type!;
         this.triggerEffectsFromTilePlacement(type, cell);
 
-        const tilePlacementBonus = getTilePlacementBonus(matchingCell);
+        const tilePlacementBonus = getTilePlacementBonus(matchingCell, pendingTilePlacement);
         for (const bonus of tilePlacementBonus) {
             this.queue.unshift(
                 this.createInitialGainResourceAction(
@@ -1085,7 +1154,7 @@ export class ApiActionHandler {
             );
         }
         const action = matchingCell.action;
-        if (action) {
+        if (action && !pendingTilePlacement.noBonuses) {
             this.playAction({
                 action,
                 state,
@@ -1095,7 +1164,7 @@ export class ApiActionHandler {
             getAdjacentCellsForCell(this.state, matchingCell).filter(cell => {
                 return cell.tile?.type === TileType.OCEAN;
             }).length * (loggedInPlayer.oceanAdjacencyBonus ?? 2);
-        if (megacreditIncreaseFromOceans) {
+        if (megacreditIncreaseFromOceans && !pendingTilePlacement.noBonuses) {
             this.queue.unshift(
                 this.createInitialGainResourceAction(
                     Resource.MEGACREDIT,
@@ -1113,6 +1182,7 @@ export class ApiActionHandler {
                     increaseParameter: {
                         [parameterForTile as Parameter]: 1,
                     },
+                    noParameterBonuses: pendingTilePlacement.noBonuses,
                 },
                 withPriority: true,
             });
@@ -1303,9 +1373,94 @@ export class ApiActionHandler {
 
         const player = this.getLoggedInPlayer();
         const {placeDelegatesInOneParty: numDelegates} = getLobbyingAction(this.state, player);
-        this.queue.push(payToLobby(payment, player.index));
+        this.queue.push(makePayment(payment, player.index));
         this.queue.push(placeDelegatesInOneParty(numDelegates, party, true, player.index));
         this.queue.push(completeAction(player.index));
+        this.processQueue();
+    }
+
+    completePlaceDelegateInOneParty({party}: {party: string}) {
+        const player = this.getLoggedInPlayer();
+        if (!player.placeDelegatesInOneParty) {
+            throw new Error('Cannot place delegates right now');
+        }
+        const {turmoil} = this.state.common;
+        if (!turmoil) {
+            throw new Error('Turmoil disabled');
+        }
+
+        if (!turmoil.delegations[party]) {
+            throw new Error('party delegation does not exist');
+        }
+
+        this.queue.unshift(
+            placeDelegatesInOneParty(player.placeDelegatesInOneParty, party, false, player.index)
+        );
+        this.processQueue();
+    }
+
+    completeExchangeNeutralNonLeaderDelegate({party}: {party: string}) {
+        const player = this.getLoggedInPlayer();
+        if (!player.exchangeNeutralNonLeaderDelegate) {
+            throw new Error('Cannot remove non leader delegate right now');
+        }
+        const {turmoil} = this.state.common;
+        if (!turmoil) {
+            throw new Error('Turmoil disabled');
+        }
+
+        const [, ...delegation] = turmoil.delegations[party] ?? [];
+        if (!delegation.some(delegate => delegate.playerIndex == undefined)) {
+            throw new Error('No neutral non leader delegate to exchange');
+        }
+
+        this.queue.unshift(exchangeNeutralNonLeaderDelegate(party, player.index));
+        this.processQueue();
+    }
+
+    completeRemoveNonLeaderDelegate({party, index}: {party: string; index: number}) {
+        const player = this.getLoggedInPlayer();
+        if (!player.removeNonLeaderDelegate) {
+            throw new Error('Cannot remove non leader delegate right now');
+        }
+        const {turmoil} = this.state.common;
+        if (!turmoil) {
+            throw new Error('Turmoil disabled');
+        }
+
+        const delegate = turmoil.delegations[party][index];
+        if (!delegate) {
+            throw new Error('invalid delegate selection');
+        }
+
+        this.queue.unshift(removeNonLeaderDelegate(party, player.index, index));
+        this.processQueue();
+    }
+
+    doRulingPolicyAction({payment}: {payment: Payment}) {
+        if (!canClickPolicy(this.state, this.actionGuard, this.getLoggedInPlayer(), payment)) {
+            throw new Error('Cannot do ruling policy');
+        }
+
+        const {turmoil} = this.state.common;
+        if (!turmoil) {
+            throw new Error('turmoil disabled');
+        }
+
+        const party = getParty(turmoil.rulingParty);
+
+        if (party) {
+            const {action} = party;
+            if (action) {
+                this.queue.push(makePayment(payment, this.loggedInPlayerIndex));
+                this.playAction({
+                    action,
+                    thisPlayerIndex: this.loggedInPlayerIndex,
+                    state: this.state,
+                });
+            }
+        }
+        this.queue.push(completeAction(this.loggedInPlayerIndex));
         this.processQueue();
     }
 
@@ -1533,7 +1688,12 @@ export class ApiActionHandler {
                 numOceansPlacedSoFar + oceansInQueue >= MAX_PARAMETERS[Parameter.OCEAN]
             ) {
             } else {
-                items.push(askUserToPlaceTile(tilePlacement, playerIndex));
+                items.push(
+                    askUserToPlaceTile(
+                        {...tilePlacement, noBonuses: action.noParameterBonuses},
+                        playerIndex
+                    )
+                );
                 oceansInQueue += 1;
             }
         }
@@ -1775,7 +1935,14 @@ export class ApiActionHandler {
                 if (!amount) {
                     continue;
                 }
-                items.push(increaseParameter(parameter as Parameter, amount, playerIndex));
+                items.push(
+                    increaseParameter(
+                        parameter as Parameter,
+                        amount,
+                        playerIndex,
+                        !!action.noParameterBonuses
+                    )
+                );
                 // Check every step along the way for bonuses!
                 for (let i = 1; i <= amount; i++) {
                     this.triggerEffectsFromIncreasedParameter(parameter);
@@ -1784,7 +1951,7 @@ export class ApiActionHandler {
                     const newLevel =
                         i * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
                     const bonus = PARAMETER_BONUSES[parameter][newLevel];
-                    if (bonus?.increaseParameter) {
+                    if (!action.noParameterBonuses && bonus?.increaseParameter) {
                         for (const parameter in bonus.increaseParameter) {
                             increaseParametersWithBonuses[parameter] +=
                                 bonus.increaseParameter[parameter];
@@ -1792,12 +1959,18 @@ export class ApiActionHandler {
                         // combine the bonus parameter increase with the rest of the parameter increases.
                         // That way an oxygen can trigger a temperature which triggers an
                         // ocean.
-                    } else if (bonus?.increaseTerraformRating) {
+                    } else if (!action.noParameterBonuses && bonus?.increaseTerraformRating) {
                         // combine terraform increases into one action/log message.
                         (terraformRatingIncrease as number) += bonus.increaseTerraformRating as number;
                     } else if (bonus) {
+                        if (
+                            action.noParameterBonuses &&
+                            (bonus.gainResource || bonus.increaseProduction)
+                        ) {
+                            continue;
+                        }
                         const playActionParams: PlayActionParams = {
-                            action: bonus,
+                            action: {...bonus, noParameterBonuses: action.noParameterBonuses},
                             state,
                             parent,
                             playedCard,
@@ -1879,9 +2052,12 @@ export class ApiActionHandler {
         }
 
         if (action.placeDelegatesInOneParty) {
-            items.push(
-                askUserToPlaceDelegatesInOneParty(action.placeDelegatesInOneParty, playerIndex)
-            );
+            const delegatesInReserve = state.common.turmoil?.delegateReserve[playerIndex] ?? [];
+            if (delegatesInReserve.length > 0) {
+                items.push(
+                    askUserToPlaceDelegatesInOneParty(action.placeDelegatesInOneParty, playerIndex)
+                );
+            }
         }
         if (action.increasedInfluence) {
             items.push(increaseBaseInfluence(action.increasedInfluence, playerIndex));
@@ -1897,7 +2073,7 @@ export class ApiActionHandler {
                 for (const delegation in delegations) {
                     const [partyLeader, ...rest] = delegations[delegation];
                     for (const delegate of rest) {
-                        if (delegate.playerIndex === undefined) {
+                        if (delegate.playerIndex == undefined) {
                             partiesWithNeutralNonLeaderDelegates.push(delegation);
                             break;
                         }
@@ -2594,6 +2770,7 @@ export function getTotalProductionDecreased(items: AnyAction[], state: GameState
 }
 
 export function hasUnpaidResources(items: AnyAction[], state: GameState, player: PlayerState) {
+    items = items.filter(Boolean);
     const totalResourceOwed = getTotalResourcesOwed(items, state, player);
     const totalProductionDecreased = getTotalProductionDecreased(items, state);
 

@@ -347,6 +347,29 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_LOBBY, payload);
     }
 
+    async completeExchangeNeutralNonLeaderDelegateAsync(party: string) {
+        const payload = {party};
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
+            payload
+        );
+    }
+
+    async completePlaceDelegatesInOnePartyAsync(party: string) {
+        const payload = {party};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_PLACE_DELEGATE_IN_ONE_PARTY, payload);
+    }
+
+    async completeRemoveNonLeaderDelegateAsync(party: string, index: number) {
+        const payload = {party, index};
+        await this.makeApiCall(ApiActionType.API_COMPLETE_REMOVE_NON_LEADER_DELEGATE, payload);
+    }
+
+    async doRulingPolicyActionAsync(payment: Payment) {
+        const payload = {payment};
+        await this.makeApiCall(ApiActionType.API_DO_RULING_POLICY_ACTION, payload);
+    }
+
     async startOverAsync() {
         const payload = {};
         await this.makeApiCall(ApiActionType.API_START_OVER, payload);

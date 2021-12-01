@@ -164,6 +164,7 @@ export type TilePlacement = {
     // By default, cards can be played even if the tile they would place cannot be played.
     // This behavior is overridden for asterisked cards (e.g. Urbanized Area).
     isRequired: boolean;
+    noBonuses?: boolean;
 };
 
 const DEFAULT_PLACEMENT_REQUIREMENTS = {
@@ -363,7 +364,11 @@ INITIAL_BOARD_STATE.forEach((row, rowIndex) => {
     });
 });
 
-export function getTilePlacementBonus(cell: Cell): Array<{resource: Resource; amount: number}> {
+export function getTilePlacementBonus(
+    cell: Cell,
+    tilePlacement: TilePlacement
+): Array<{resource: Resource; amount: number}> {
+    if (tilePlacement.noBonuses) return [];
     const bonuses = cell.bonus || [];
     const uniqueBonuses = new Set(bonuses);
 

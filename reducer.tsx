@@ -9,9 +9,10 @@ import {
     STARTING_STEP,
     STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
+import {getGlobalEvent} from 'constants/global-events';
 import {PARTY_CONFIGS} from 'constants/party';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
-import {Delegate, Turmoil} from 'constants/turmoil';
+import {delegate, Delegate, Turmoil} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameActionType} from 'GameActionState';
 import produce from 'immer';
@@ -94,6 +95,7 @@ import {
     increaseProduction,
     increaseTerraformRating,
     makeActionChoice,
+    makePartyRuling,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
@@ -101,7 +103,7 @@ import {
     noopAction,
     passGeneration,
     payForCards,
-    payToLobby,
+    makePayment,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
@@ -127,6 +129,8 @@ import {
     stealResource,
     stealStorableResource,
     useBlueCardActionAlreadyUsedThisGeneration,
+    wrapUpTurmoil,
+    makeLogItem,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {getParameterName, Parameter, TileType} from './constants/board';
@@ -282,7 +286,8 @@ function handleParameterIncrease(
     player: PlayerState,
     parameter: Parameter,
     amount: number,
-    corporationName: string
+    corporationName: string,
+    noTerraformIncrease: boolean
 ) {
     const scale = PARAMETER_STEPS[parameter];
     const increase = amount * scale;
@@ -291,9 +296,11 @@ function handleParameterIncrease(
     const change = newAmount - startingAmount;
     const steps = change / scale;
     draft.common.parameters[parameter] = newAmount;
-    player.terraformRating += steps;
-    if (steps) {
-        player.terraformedThisGeneration = true;
+    if (!noTerraformIncrease) {
+        player.terraformRating += steps;
+        if (steps) {
+            player.terraformedThisGeneration = true;
+        }
     }
     if (change && parameter !== Parameter.OCEAN) {
         draft.log.push(
@@ -302,6 +309,18 @@ function handleParameterIncrease(
             )}`
         );
     }
+}
+
+function handleTerraformRatingIncrease(
+    player: PlayerState,
+    amount: number,
+    draft: WritableDraft<GameState>
+) {
+    const newRating = player.terraformRating + amount;
+    draft.log.push(
+        `${player.corporation.name} increased their terraform rating by ${amount} to ${newRating}`
+    );
+    player.terraformRating = newRating;
 }
 
 function handleParameterDecrease(
@@ -313,6 +332,13 @@ function handleParameterDecrease(
     const scale = PARAMETER_STEPS[parameter];
     const decrease = amount * scale;
     const startingAmount = draft.common.parameters[parameter];
+    if (startingAmount === MAX_PARAMETERS[parameter]) {
+        draft.log.push(
+            `${corporationName} did not decrease ${getParameterName(
+                parameter
+            )} because it has reached its maximum value`
+        );
+    }
     const newAmount = Math.max(MIN_PARAMETERS[parameter], startingAmount - decrease);
     const change = startingAmount - newAmount;
     const steps = change / scale;
@@ -1126,7 +1152,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
-        if (payToLobby.match(action)) {
+        if (makePayment.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
             const {payment} = payload;
@@ -1374,8 +1400,15 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (increaseParameter.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            const {parameter, amount} = payload;
-            handleParameterIncrease(draft, player, parameter, amount, corporationName);
+            const {parameter, amount, noTerraformIncrease} = payload;
+            handleParameterIncrease(
+                draft,
+                player,
+                parameter,
+                amount,
+                corporationName,
+                noTerraformIncrease
+            );
         }
 
         if (decreaseParameter.match(action)) {
@@ -1388,14 +1421,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (increaseTerraformRating.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-
             const {amount} = payload;
-            const newRating = player.terraformRating + amount;
-            draft.log.push(
-                `${corporationName} increased their terraform rating by ${amount} to ${newRating}`
-            );
-            player.terraformRating = newRating;
             if (amount) {
+                handleTerraformRatingIncrease(player, payload.amount, draft);
+
                 player.terraformedThisGeneration = true;
             }
         }
@@ -1405,11 +1434,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             const {amount} = payload;
-            const newRating = player.terraformRating - amount;
-            draft.log.push(
-                `${corporationName} decreased their terraform rating by ${amount} to ${newRating}`
-            );
-            player.terraformRating = newRating;
+            const newRating = Math.max(player.terraformRating - amount, 0);
+            if (newRating !== player.terraformRating) {
+                draft.log.push(
+                    `${corporationName} decreased their terraform rating by ${amount} to ${newRating}`
+                );
+                player.terraformRating = newRating;
+            }
         }
 
         if (applyDiscounts.match(action)) {
@@ -1613,6 +1644,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (placeDelegatesInOneParty.match(action)) {
             const {payload} = action;
             const {turmoil} = draft.common;
+            player = getPlayer(draft, payload);
+            player.placeDelegatesInOneParty = undefined;
             if (turmoil) {
                 const delegation = turmoil.delegations[payload.party];
                 if (delegation) {
@@ -1628,8 +1661,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             delegation.push(delegate);
                         }
                     }
-                    determineNewLeader(turmoil, payload.party);
-                    determineNewDominantParty(turmoil);
+                    draft.log.push(
+                        `${corporationName} placed ${payload.numDelegates} delegate${
+                            payload.numDelegates === 1 ? '' : 's'
+                        } in ${payload.party}`
+                    );
+                    determineNewLeader(turmoil, payload.party, draft);
+                    determineNewDominantParty(turmoil, draft);
                 }
             }
         }
@@ -1655,10 +1693,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (exchangeNeutralNonLeaderDelegate.match(action)) {
             const {payload} = action;
             const {turmoil} = draft.common;
+            player = getPlayer(draft, payload);
             if (turmoil) {
                 const delegation = turmoil.delegations[payload.party];
                 const neutralDelegateIndex = delegation.findIndex(
-                    delegate => delegate.playerIndex === undefined
+                    delegate => delegate.playerIndex == undefined
                 );
                 if (neutralDelegateIndex >= 0) {
                     const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
@@ -1667,13 +1706,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         delegation[neutralDelegateIndex] = delegateInReserve;
                     }
                 }
-                determineNewLeader(turmoil, payload.party);
-                determineNewDominantParty(turmoil);
+                draft.log.push(
+                    `${corporationName} replaced a neutral delegate in ${payload.party} with one of their own`
+                );
+                determineNewLeader(turmoil, payload.party, draft);
+                determineNewDominantParty(turmoil, draft);
             }
+            player.exchangeNeutralNonLeaderDelegate = undefined;
         }
         if (removeNonLeaderDelegate.match(action)) {
             const {payload} = action;
             const {turmoil} = draft.common;
+            player = getPlayer(draft, payload);
             if (turmoil) {
                 const delegation = turmoil.delegations[payload.party];
                 // look for the first matching delegate to remove
@@ -1683,14 +1727,24 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 // remove the delegate
                 const [removedDelegate] = delegation.splice(delegateIndexToRemove, 1);
                 // return it to the playersr supply
-                if (removedDelegate.playerIndex !== undefined) {
+                if (removedDelegate.playerIndex != undefined) {
                     draft.common.turmoil?.delegateReserve[removedDelegate.playerIndex].push(
                         removedDelegate
                     );
+                    draft.log.push(
+                        `${corporationName} removed a ${
+                            draft.players[removedDelegate.playerIndex].corporation.name
+                        } from ${payload.party}`
+                    );
+                } else {
+                    draft.log.push(
+                        `${corporationName} removed a neutral delegate from ${payload.party}`
+                    );
                 }
-                determineNewLeader(turmoil, payload.party);
-                determineNewDominantParty(turmoil);
+                determineNewLeader(turmoil, payload.party, draft);
+                determineNewDominantParty(turmoil, draft);
             }
+            player.removeNonLeaderDelegate = undefined;
         }
 
         if (exchangeChairman.match(action)) {
@@ -1701,8 +1755,100 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (delegateInReserve) {
                     // We'll just let neutral delegates disappear and reappear as needed.
                     turmoil.chairperson = delegateInReserve;
+                    draft.log.push(
+                        `${corporationName} replaced the chairman with a delegate of theirs from the reserve`
+                    );
                 }
             }
+        }
+
+        if (makePartyRuling.match(action)) {
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                turmoil.rulingParty = turmoil.dominantParty;
+                const [leader, ...rest] = turmoil.delegations[turmoil.dominantParty];
+                const currentChairperson = turmoil.chairperson;
+                if (currentChairperson.playerIndex != undefined) {
+                    turmoil.delegateReserve[currentChairperson.playerIndex].push(
+                        currentChairperson
+                    );
+                }
+                turmoil.chairperson = leader;
+                if (turmoil.chairperson.playerIndex != undefined) {
+                    const player = draft.players[turmoil.chairperson.playerIndex];
+                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
+                    handleTerraformRatingIncrease(player, 1, draft);
+                }
+                for (const delegate of rest) {
+                    if (delegate.playerIndex != undefined) {
+                        turmoil.delegateReserve[delegate.playerIndex].push(delegate);
+                    }
+                }
+                draft.log.push(`${turmoil.rulingParty} became ruling party`);
+                draft.log.push(`${turmoil.dominantParty} was cleared`);
+                turmoil.delegations[turmoil.dominantParty] = [];
+                determineNewDominantParty(turmoil, draft);
+            }
+        }
+
+        if (wrapUpTurmoil.match(action)) {
+            const {turmoil} = draft.common;
+            if (turmoil) {
+                // Restore lobby
+                for (const player of draft.players) {
+                    if (!turmoil.lobby[player.index]) {
+                        const [first, ...rest] = turmoil.delegateReserve[player.index];
+                        if (first) {
+                            turmoil.lobby[player.index] = first;
+                            turmoil.delegateReserve[player.index] = rest;
+                        }
+                    }
+                }
+                const {
+                    distantGlobalEvent: oldDistantGlobalEvent,
+                    comingGlobalEvent: oldComingGlobalEvent,
+                    currentGlobalEvent: oldCurrentGlobalEvent,
+                } = turmoil;
+                if (oldCurrentGlobalEvent) {
+                    turmoil.oldGlobalEvents.push(oldCurrentGlobalEvent);
+                }
+                turmoil.currentGlobalEvent = oldComingGlobalEvent;
+                let fullEvent = getGlobalEvent(turmoil.currentGlobalEvent.name);
+                if (fullEvent?.bottom.party) {
+                    turmoil.delegations[fullEvent.bottom.party].push(delegate());
+                    draft.log.push(
+                        `${fullEvent.bottom.party} gained a neutral delegate (now has ${
+                            turmoil.delegations[fullEvent.bottom.party].length
+                        } delegates)`
+                    );
+                    determineNewLeader(turmoil, fullEvent.bottom.party, draft);
+                    determineNewDominantParty(turmoil, draft);
+                }
+                turmoil.comingGlobalEvent = oldDistantGlobalEvent;
+                let newDistantGlobalEvent = turmoil.globalEvents.shift();
+                if (!newDistantGlobalEvent) {
+                    turmoil.globalEvents = turmoil.oldGlobalEvents;
+                    shuffle(turmoil.globalEvents);
+                    turmoil.oldGlobalEvents = [];
+                    newDistantGlobalEvent = turmoil.globalEvents.shift();
+                }
+                if (newDistantGlobalEvent) {
+                    fullEvent = getGlobalEvent(newDistantGlobalEvent.name);
+                    if (fullEvent) {
+                        turmoil.delegations[fullEvent.top.party].push(delegate());
+                        draft.log.push(
+                            `${fullEvent.top.party} gained a neutral delegate (now has ${
+                                turmoil.delegations[fullEvent.top.party].length
+                            } delegates)`
+                        );
+                        turmoil.distantGlobalEvent = newDistantGlobalEvent;
+                        determineNewLeader(turmoil, fullEvent.top.party, draft);
+                        determineNewDominantParty(turmoil, draft);
+                    }
+                }
+            }
+            draft.timeForTurmoil = false;
+            handleSetupNextGeneration(draft);
         }
 
         if (announceReadyToStartRound.match(action)) {
@@ -1788,52 +1934,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     } else {
                         common.gameStage = GameStage.END_OF_GAME;
                     }
+                } else if (draft.common.turmoil) {
+                    // Do nothing for now. We'll need to do lots of complex stuff
+                    // for turmoil that's not all automatic.
+                    draft.timeForTurmoil = true;
                 } else {
-                    // shift the turn order by 1
-                    const oldTurnOrder = state.common.playerIndexOrderForGeneration;
-                    draft.common.playerIndexOrderForGeneration = [
-                        ...oldTurnOrder.slice(1),
-                        oldTurnOrder[0],
-                    ];
-                    common.firstPlayerIndex = (common.firstPlayerIndex + 1) % draft.players.length;
-                    common.currentPlayerIndex = common.firstPlayerIndex;
-                    common.turn = 1;
-                    common.generation++;
-                    draft.log.push({
-                        actionType: GameActionType.GAME_UPDATE,
-                        text: `📜 Start of Generation ${common.generation}`,
-                    });
-                    common.gameStage = draft.options?.isDraftingEnabled
-                        ? GameStage.DRAFTING
-                        : GameStage.BUY_OR_DISCARD;
-
-                    for (player of draft.players) {
-                        player.pendingCardSelection = {
-                            possibleCards: handleDrawCards(draft, 4),
-                            isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
-                            draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
-                        };
-                        setSyncingTrueIfClient(draft);
-                        if (process.env.NODE_ENV === 'development') {
-                            const bonuses = [
-                                ...draft.common.deck,
-                                ...draft.common.discardPile,
-                            ].filter(card => bonusNames.includes(card.name));
-                            // (hack for debugging)
-                            const deleted = player.pendingCardSelection.possibleCards.splice(
-                                0,
-                                bonuses.length,
-                                ...bonuses
-                            );
-                            draft.common.deck = draft.common.deck.filter(
-                                card => !bonusNames.includes(card.name)
-                            );
-                            draft.common.discardPile = draft.common.discardPile.filter(
-                                card => !bonusNames.includes(card.name)
-                            );
-                            draft.common.discardPile.push(...deleted);
-                        }
-                    }
+                    handleSetupNextGeneration(draft);
                 }
             } else {
                 handleChangeCurrentPlayer(state, draft);
@@ -1890,6 +1996,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
         }
 
+        if (makeLogItem.match(action)) {
+            draft.log.push(action.payload.item);
+        }
+
         const maybePlayerIndex = action.payload?.playerIndex;
         if (typeof maybePlayerIndex === 'number') {
             const player = getPlayer(draft, action.payload);
@@ -1920,10 +2030,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
     });
 };
 
-function determineNewLeader(turmoil: WritableDraft<Turmoil>, party: string) {
+function determineNewLeader(
+    turmoil: WritableDraft<Turmoil>,
+    party: string,
+    draft: WritableDraft<GameState>
+) {
     const NEUTRAL_PARTY = 999;
     const delegateCountByPlayerIndex: {[key: number]: number} = {};
-
+    const [oldLeader] = turmoil.delegations[party];
     for (const delegate of turmoil.delegations[party]) {
         const playerIndexOrNeutral = delegate.playerIndex ?? NEUTRAL_PARTY;
         delegateCountByPlayerIndex[playerIndexOrNeutral] ??= 0;
@@ -1936,16 +2050,29 @@ function determineNewLeader(turmoil: WritableDraft<Turmoil>, party: string) {
             delegateCountByPlayerIndex[delegate1.playerIndex ?? NEUTRAL_PARTY]
         );
     });
+    const [newLeader] = turmoil.delegations[party];
+
+    if (oldLeader.playerIndex !== newLeader.playerIndex) {
+        if (newLeader.playerIndex == undefined) {
+            draft.log.push(`A neutral delegate now leads ${party}`);
+        } else {
+            const corporationName = draft.players[newLeader.playerIndex].corporation.name;
+            draft.log.push(`A delegate from ${corporationName} now leads ${party}`);
+        }
+    }
 }
 
-function determineNewDominantParty(turmoil: WritableDraft<Turmoil>) {
+function determineNewDominantParty(
+    turmoil: WritableDraft<Turmoil>,
+    draft: WritableDraft<GameState>
+) {
     const {dominantParty: currentDominantParty, delegations} = turmoil;
     // Count clockwise to find the new party with the most delegates.
     const startingIndex = PARTY_CONFIGS.findIndex(config => config.name === currentDominantParty);
     let mostDelegates = delegations[currentDominantParty].length;
     let newDominantParty = currentDominantParty;
     // Go clockwise from current dominant party!
-    for (let i = startingIndex; i < PARTY_CONFIGS.length; i++) {
+    for (let i = startingIndex; i >= 0; i--) {
         const party = PARTY_CONFIGS[i].name;
         const delegates = delegations[party];
         if (delegates.length > mostDelegates) {
@@ -1953,7 +2080,7 @@ function determineNewDominantParty(turmoil: WritableDraft<Turmoil>) {
             newDominantParty = party;
         }
     }
-    for (let i = 0; i < startingIndex; i++) {
+    for (let i = PARTY_CONFIGS.length - 1; i > startingIndex; i--) {
         const party = PARTY_CONFIGS[i].name;
         const delegates = delegations[party];
         if (delegates.length > mostDelegates) {
@@ -1962,6 +2089,52 @@ function determineNewDominantParty(turmoil: WritableDraft<Turmoil>) {
         }
     }
     turmoil.dominantParty = newDominantParty;
+    if (newDominantParty !== currentDominantParty) {
+        draft.log.push(`${newDominantParty} became dominant`);
+    }
+}
+
+function handleSetupNextGeneration(draft: WritableDraft<GameState>) {
+    // shift the turn order by 1
+    const oldTurnOrder = draft.common.playerIndexOrderForGeneration;
+    const {common} = draft;
+    common.playerIndexOrderForGeneration = [...oldTurnOrder.slice(1), oldTurnOrder[0]];
+    common.firstPlayerIndex = (common.firstPlayerIndex + 1) % draft.players.length;
+    common.currentPlayerIndex = common.firstPlayerIndex;
+    common.turn = 1;
+    common.generation++;
+    draft.log.push({
+        actionType: GameActionType.GAME_UPDATE,
+        text: `📜 Start of Generation ${common.generation}`,
+    });
+    common.gameStage = draft.options?.isDraftingEnabled
+        ? GameStage.DRAFTING
+        : GameStage.BUY_OR_DISCARD;
+
+    for (const player of draft.players) {
+        player.pendingCardSelection = {
+            possibleCards: handleDrawCards(draft, 4),
+            isBuyingCards: draft.options?.isDraftingEnabled ? false : true,
+            draftPicks: draft.options?.isDraftingEnabled ? [] : undefined,
+        };
+        setSyncingTrueIfClient(draft);
+        if (process.env.NODE_ENV === 'development') {
+            const bonuses = [...draft.common.deck, ...draft.common.discardPile].filter(card =>
+                bonusNames.includes(card.name)
+            );
+            // (hack for debugging)
+            const deleted = player.pendingCardSelection.possibleCards.splice(
+                0,
+                bonuses.length,
+                ...bonuses
+            );
+            draft.common.deck = draft.common.deck.filter(card => !bonusNames.includes(card.name));
+            draft.common.discardPile = draft.common.discardPile.filter(
+                card => !bonusNames.includes(card.name)
+            );
+            draft.common.discardPile.push(...deleted);
+        }
+    }
 }
 
 const equalityFn = shallowEqual;

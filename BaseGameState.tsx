@@ -15,4 +15,5 @@ export type BaseGameState = {
     name: string;
     actionCount?: number;
     logLength?: number;
+    timeForTurmoil?: boolean;
 };

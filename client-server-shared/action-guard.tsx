@@ -1057,7 +1057,7 @@ export class ActionGuard {
                 return [false, 'Cannot afford to lobby'];
             }
             const delegatesInReserve = turmoil.delegateReserve[player.index];
-            if (delegatesInReserve.length < action.placeDelegatesInOneParty) {
+            if (delegatesInReserve.length === 0) {
                 return [false, 'No more delegates in reserve'];
             }
         } else {
@@ -1170,7 +1170,7 @@ export class ActionGuard {
                 const delegates: Delegate[] = turmoil.delegations[delegation];
                 const [leader, ...rest] = delegates;
                 for (const delegate of rest) {
-                    if (delegate.playerIndex === undefined) {
+                    if (delegate.playerIndex == undefined) {
                         foundNeutralNonLeaderDelegate = true;
                         break;
                     }

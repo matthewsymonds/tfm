@@ -28,9 +28,11 @@ const NUM_PLAYER_DELEGATES = 7;
 
 export interface Turmoil {
     globalEvents: SerializedGlobalEvent[];
+    oldGlobalEvents: SerializedGlobalEvent[];
     distantGlobalEvent: SerializedGlobalEvent;
     comingGlobalEvent: SerializedGlobalEvent;
     currentGlobalEvent?: SerializedGlobalEvent;
+    pastGlobalEvents?: SerializedGlobalEvent[];
     rulingParty: string;
     dominantParty: string;
     delegations: Delegations;
@@ -65,6 +67,7 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
 
     return {
         globalEvents: rest.map(event => ({name: event.top.name})),
+        oldGlobalEvents: [],
         distantGlobalEvent: {name: second.top.name},
         comingGlobalEvent: {name: first.top.name},
         currentGlobalEvent: undefined,
@@ -77,6 +80,6 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
     };
 }
 
-function delegate(playerIndex?: number) {
+export function delegate(playerIndex?: number) {
     return {playerIndex};
 }

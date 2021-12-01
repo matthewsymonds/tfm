@@ -71,6 +71,7 @@ export interface ActionWithoutSteps {
     lookAtCards?: LookAtCardsConfig;
     tilePlacements?: TilePlacement[];
     increaseParameter?: ParameterCounter;
+    noParameterBonuses?: boolean;
     decreaseParameter?: ParameterCounter;
     increaseTerraformRating?: Amount;
     decreaseTerraformRating?: Amount;

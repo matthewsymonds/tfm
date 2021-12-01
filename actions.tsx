@@ -271,9 +271,9 @@ export const payToPlayStandardProject = withMatcher(
     })
 );
 
-const PAY_TO_LOBBY = 'PAY_TO_LOBBY';
-export const payToLobby = withMatcher((payment: Payment, playerIndex: number) => ({
-    type: PAY_TO_LOBBY,
+const MAKE_PAYMENT = 'MAKE_PAYMENT';
+export const makePayment = withMatcher((payment: Payment, playerIndex: number) => ({
+    type: MAKE_PAYMENT,
     payload: {payment, playerIndex},
 }));
 
@@ -441,9 +441,9 @@ export const removeTile = withMatcher((cell: Cell, playerIndex: number) => ({
 
 const INCREASE_PARAMETER = 'INCREASE_PARAMETER';
 export const increaseParameter = withMatcher(
-    (parameter: Parameter, amount: number, playerIndex: number) => ({
+    (parameter: Parameter, amount: number, playerIndex: number, noTerraformIncrease: boolean) => ({
         type: INCREASE_PARAMETER,
-        payload: {parameter, amount, playerIndex},
+        payload: {parameter, amount, playerIndex, noTerraformIncrease},
     })
 );
 
@@ -734,6 +734,18 @@ export const removeNonLeaderDelegate = withMatcher(
     })
 );
 
+const MAKE_PARTY_RULING = 'MAKE_PARTY_RULING';
+export const makePartyRuling = withMatcher((party: string) => ({
+    type: MAKE_PARTY_RULING,
+    payload: {party},
+}));
+
+const WRAP_UP_TURMOIL = 'WRAP_UP_TURMOIL';
+export const wrapUpTurmoil = withMatcher(() => ({
+    type: WRAP_UP_TURMOIL,
+    payload: {},
+}));
+
 const EXCHANGE_CHAIRMAN = 'EXCHANGE_CHAIRMAN';
 export const exchangeChairman = withMatcher((playerIndex: number) => ({
     type: EXCHANGE_CHAIRMAN,
@@ -757,6 +769,12 @@ const NOOP_ACTION = 'NOOP_ACTION';
 export const noopAction = withMatcher(() => ({
     type: NOOP_ACTION,
     payload: {},
+}));
+
+const LOG = 'LOG';
+export const makeLogItem = withMatcher((item: GameAction) => ({
+    type: LOG,
+    payload: {item},
 }));
 
 export const PAUSE_ACTIONS = [

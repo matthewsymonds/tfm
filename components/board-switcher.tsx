@@ -69,12 +69,21 @@ export function BoardSwitcher({
             setDisplayBoard(DisplayBoard.COLONIES);
         } else if (player.pendingTilePlacement || player.pendingTileRemoval) {
             setDisplayBoard(DisplayBoard.MARS);
+        } else if (
+            player.placeDelegatesInOneParty ||
+            player.removeNonLeaderDelegate ||
+            player.exchangeNeutralNonLeaderDelegate
+        ) {
+            setDisplayBoard(DisplayBoard.TURMOIL);
         }
     }, [
         player.placeColony,
         player.pendingTilePlacement,
         player.pendingTileRemoval,
         player.tradeForFree,
+        player.placeDelegatesInOneParty,
+        player.removeNonLeaderDelegate,
+        player.exchangeNeutralNonLeaderDelegate,
     ]);
 
     const isColoniesEnabled = useTypedSelector(state => state.options?.decks ?? []).includes(

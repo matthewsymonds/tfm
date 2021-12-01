@@ -23,6 +23,10 @@ export enum ApiActionType {
     API_COMPLETE_INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'apiCompleteIncreaseAndDecreaseColonyTileTracks',
     API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY = 'apiCompletePutAdditionalColonyTileIntoPlay',
     API_LOBBY = 'apiLobby',
+    API_COMPLETE_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE = 'apiCompleteExchangeNeutralNonLeaderDelegate',
+    API_COMPLETE_REMOVE_NON_LEADER_DELEGATE = 'apiCompleteRemoveNonLeaderDelegate',
+    API_COMPLETE_PLACE_DELEGATE_IN_ONE_PARTY = 'apiCompletePlaceDelegateInOneParty',
+    API_DO_RULING_POLICY_ACTION = 'apiDoRulingPolicyAction',
     API_COMPLETE_CHOOSE_NEXT_ACTION = 'apiCompleteChooseNextAction',
     API_START_OVER = 'apiStartOver',
 }

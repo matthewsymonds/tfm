@@ -7,14 +7,12 @@ import styled from 'styled-components';
 export const TerraformRatingIcon = ({
     size = 16,
     margin = 0,
-    red,
 }: {
     size?: number;
     margin?: string | number;
-    red?: boolean;
 }) => {
     return (
-        <AllCapsIcon size={size} bgColor={red ? colors.TEXT_ERROR : '#f59038'} margin={margin}>
+        <AllCapsIcon size={size} bgColor={'#f59038'} margin={margin}>
             TR
         </AllCapsIcon>
     );
