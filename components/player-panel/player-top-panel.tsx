@@ -87,7 +87,6 @@ export const PlayerTopPanel = ({
             style={{
                 display: 'inline-block',
                 position: 'relative',
-                margin: 8,
                 padding: 8,
                 opacity: isSelected ? 1 : 0.25,
                 transition: 'all 300ms ease-in-out',

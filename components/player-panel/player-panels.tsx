@@ -55,19 +55,17 @@ export const PlayerPanels = () => {
     };
 
     return (
-        <div>
-            <PlayerBoardsContainer overflowX="auto" width="100%">
+        <Box>
+            <PlayerBoardsContainer overflowX="auto" width="100%" id="player-boards-container">
                 {players.map((player, i) => (
                     <Box
                         key={i}
                         id={'player-board-unique-' + i}
                         style={{
-                            width: 252,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginLeft: i === 0 ? 0 : '8px',
-                            marginRight: i === players.length - 1 ? 0 : '8px',
+                            margin: 8,
                         }}
                         onClick={() => {
                             swiper?.slideTo(i);
@@ -88,9 +86,7 @@ export const PlayerPanels = () => {
                     <SwiperSlide
                         onClick={() => swiper?.slideTo(player.index)}
                         key={i}
-                        style={{
-                            maxWidth: 800,
-                        }}
+                        style={{maxWidth: 804}}
                     >
                         {({isActive}) => (
                             <PlayerBottomPanel player={player} isSelected={isActive} />
@@ -98,6 +94,6 @@ export const PlayerPanels = () => {
                     </SwiperSlide>
                 ))}
             </Swiper>
-        </div>
+        </Box>
     );
 };
