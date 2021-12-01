@@ -56,7 +56,9 @@ import {
     increaseProduction,
     increaseTerraformRating,
     makeActionChoice,
+    makeLogItem,
     makePartyRuling,
+    makePayment,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
@@ -66,7 +68,6 @@ import {
     passGeneration,
     PAUSE_ACTIONS,
     payForCards,
-    makePayment,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
@@ -89,7 +90,6 @@ import {
     skipChoice,
     useBlueCardActionAlreadyUsedThisGeneration,
     wrapUpTurmoil,
-    makeLogItem,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
@@ -1589,7 +1589,9 @@ export class ApiActionHandler {
         }
         const usedActions = actions.filter(Boolean);
         const hasUnpaidActions = hasUnpaidResources(usedActions, state, player);
-        if (!canPlayActionNext(action, this.state, player, hasUnpaidActions, this.actionGuard)) {
+        if (
+            !canPlayActionNext(action, this.state, player.index, hasUnpaidActions, this.actionGuard)
+        ) {
             throw new Error('Cannot play this action next');
         }
         this.dispatch(completeChooseNextAction(actionIndex, player.index));

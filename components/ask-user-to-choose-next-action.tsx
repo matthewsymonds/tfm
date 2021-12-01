@@ -172,19 +172,17 @@ export function userCannotChooseAction(action: AnyAction): boolean {
 export function canPlayActionNext(
     action: AnyAction,
     state: GameState,
-    player: PlayerState,
+    loggedInPlayerIndex: number,
     hasUnpaidActions: boolean,
     actionGuard: ActionGuard
 ) {
-    if (player.index !== state.common.currentPlayerIndex) {
-        return false;
-    }
     if (
-        state.common.controllingPlayerIndex !== undefined &&
-        player.index !== state.common.controllingPlayerIndex
+        loggedInPlayerIndex !==
+        (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex)
     ) {
         return false;
     }
+
     if (increaseProduction.match(action)) {
         return true;
     } else if (decreaseProduction.match(action)) {
@@ -256,7 +254,8 @@ function getElement(
     state: GameState,
     hasUnpaidActions: boolean,
     actionGuard: ActionGuard,
-    apiClient: ApiClient
+    apiClient: ApiClient,
+    loggedInPlayerIndex: number
 ): [React.ReactNode, boolean] {
     const playerIndex = player.index;
     const action = actions[index];
@@ -265,7 +264,13 @@ function getElement(
 
     const actionElement = createActionIcon(action);
     if (!actionElement) return [null, false];
-    const canPlayAction = canPlayActionNext(action, state, player, hasUnpaidActions, actionGuard);
+    const canPlayAction = canPlayActionNext(
+        action,
+        state,
+        loggedInPlayerIndex,
+        hasUnpaidActions,
+        actionGuard
+    );
 
     const isDisabled = !canPlayAction;
 
@@ -324,6 +329,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const playerElements: React.ReactNode[] = [];
 
     for (const playerIndex of playerIndices) {
+        const player = state.players[playerIndex];
         let elements: React.ReactNode[] = [];
         for (let i = 0; i < actions.length; i++) {
             const [element, isDisabled] = getElement(
@@ -333,7 +339,8 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
                 state,
                 hasUnpaidActions,
                 actionGuard,
-                apiClient
+                apiClient,
+                loggedInPlayer.index
             );
             if (element) {
                 elements.push(element);

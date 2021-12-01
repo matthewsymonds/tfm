@@ -26,7 +26,6 @@ import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
-import {isVariableAmount} from 'selectors/is-variable-amount';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {renderArrow} from './CardActions';

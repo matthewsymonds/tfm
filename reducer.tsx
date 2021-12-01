@@ -95,7 +95,9 @@ import {
     increaseProduction,
     increaseTerraformRating,
     makeActionChoice,
+    makeLogItem,
     makePartyRuling,
+    makePayment,
     markCardActionAsPlayed,
     moveCardFromHandToPlayArea,
     moveColonyTileTrack,
@@ -103,7 +105,6 @@ import {
     noopAction,
     passGeneration,
     payForCards,
-    makePayment,
     payToPlayCard,
     payToPlayCardAction,
     payToPlayStandardProject,
@@ -130,7 +131,6 @@ import {
     stealStorableResource,
     useBlueCardActionAlreadyUsedThisGeneration,
     wrapUpTurmoil,
-    makeLogItem,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {getParameterName, Parameter, TileType} from './constants/board';
