@@ -33,8 +33,12 @@ function GlobalEventCard({name}: {name: string}) {
     if (!globalEvent) return null;
     return (
         <Box marginLeft="4px" marginRight="4px">
-            <TexturedCard width={CARD_WIDTH - 20} height={CARD_HEIGHT - 30} borderWidth={2}>
-                <GenericCardTitleBar bgColor={colors.CARD_GLOBAL_EVENT} padding="4px 0">
+            <TexturedCard width={CARD_WIDTH - 20} height={CARD_HEIGHT} borderWidth={2}>
+                <GenericCardTitleBar
+                    bgColor={colors.CARD_GLOBAL_EVENT}
+                    padding="4px 0"
+                    marginTop="16px"
+                >
                     <Box margin="0 4px">
                         <PartySymbol party={globalEvent.top.party} margin="0 auto 0 0" />
                     </Box>
@@ -42,7 +46,7 @@ function GlobalEventCard({name}: {name: string}) {
                         {globalEvent.top.name}
                     </Box>
                 </GenericCardTitleBar>
-                <GenericCardTitleBar bgColor={colors.CARD_EVENT} padding="4px 0">
+                <GenericCardTitleBar bgColor={colors.CARD_EVENT} padding="4px 0" marginTop="16px">
                     <Box flexGrow="1" marginLeft="4px">
                         {globalEvent.bottom.name}
                     </Box>

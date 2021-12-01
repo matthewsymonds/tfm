@@ -189,7 +189,7 @@ export const getResourceName = (resource: Resource, shouldCapitalize: boolean = 
         : resourceName;
 };
 
-export const getResourceColor = (resource: Resource) => {
+export const getResourceColor = (resource: Resource): string => {
     switch (resource) {
         case Resource.ANIMAL:
             return 'brown';

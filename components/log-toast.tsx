@@ -1,6 +1,5 @@
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import {GameActionType} from 'GameActionState';
 import React, {useContext, useEffect} from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import {useTypedSelector} from 'reducer';

@@ -7,6 +7,10 @@ export function isActionPhase(state: GameState) {
         return false;
     }
 
+    if (state.timeForTurmoil) {
+        return false;
+    }
+
     if (!state.options.decks.includes(Deck.PRELUDE)) {
         return true;
     }

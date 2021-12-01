@@ -600,7 +600,9 @@ export class ApiActionHandler {
     ) {
         const currentPlayerIndex = this.state.common.currentPlayerIndex;
         const shouldMakeNextChoice =
-            !overrideShouldMakeNextChoice && this.shouldMakeUserChooseNextAction(items);
+            !overrideShouldMakeNextChoice &&
+            !this.state.timeForTurmoil &&
+            this.shouldMakeUserChooseNextAction(items);
         if (shouldMakeNextChoice) {
             if (processingExistingItems) {
                 return;

@@ -5,7 +5,7 @@ import {
     applyOperationAndOperand,
     divide,
     double,
-    max,
+    min,
     Operation,
     subtract,
     sum,
@@ -49,7 +49,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
                     subtract(
-                        max(VariableAmount.BLUE_CARD, MAX_GLOBAL_EVENT_QUANTITY),
+                        min(VariableAmount.BLUE_CARD, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -67,7 +67,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
                 'Lose 3 MC for every 5 TR over 10 (max 5 sets). Increase MC production 1 step per influence.',
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
-                    max(divide(subtract(VariableAmount.TERRAFORM_RATING, 10), 5), 5)
+                    min(divide(subtract(VariableAmount.TERRAFORM_RATING, 10), 5), 5)
                 ),
             },
             increaseProduction: {[Resource.MEGACREDIT]: VariableAmount.INFLUENCE},
@@ -85,7 +85,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
-                        max({tag: Tag.SCIENCE}, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tag: Tag.SCIENCE}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -103,7 +103,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
 
             gainResource: {
                 [Resource.MEGACREDIT]: double(
-                    sum(max({tag: Tag.SPACE}, MAX_GLOBAL_EVENT_QUANTITY), VariableAmount.INFLUENCE)
+                    sum(min({tag: Tag.SPACE}, MAX_GLOBAL_EVENT_QUANTITY), VariableAmount.INFLUENCE)
                 ),
             },
         },
@@ -202,7 +202,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
                 [Resource.HEAT]: {resource: Resource.HEAT},
                 [Resource.MEGACREDIT]: double(
                     subtract(
-                        max({tag: Tag.BUILDING}, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tag: Tag.BUILDING}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -220,7 +220,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
                     subtract(
-                        max({tag: Tag.SPACE}, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tag: Tag.SPACE}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -238,7 +238,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: quadruple(
                     subtract(
-                        max(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
+                        min(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -255,7 +255,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text: 'Gain 1 plant per plant production (max 5) and influence.',
             gainResource: {
                 [Resource.PLANT]: sum(
-                    max({production: Resource.PLANT}, MAX_GLOBAL_EVENT_QUANTITY),
+                    min({production: Resource.PLANT}, MAX_GLOBAL_EVENT_QUANTITY),
                     VariableAmount.INFLUENCE
                 ),
             },
@@ -286,7 +286,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text: 'Gain 1 titanium for each Jovian tag (max 5) and influence.',
             gainResource: {
                 [Resource.TITANIUM]: sum(
-                    max({tag: Tag.JOVIAN}, MAX_GLOBAL_EVENT_QUANTITY),
+                    min({tag: Tag.JOVIAN}, MAX_GLOBAL_EVENT_QUANTITY),
                     VariableAmount.INFLUENCE
                 ),
             },
@@ -317,7 +317,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
-                        max(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
+                        min(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -351,7 +351,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text: 'Gain 2 MC for each Earth tag (max 5) and influence.',
             gainResource: {
                 [Resource.MEGACREDIT]: double(
-                    sum(max({tag: Tag.EARTH}, MAX_GLOBAL_EVENT_QUANTITY), VariableAmount.INFLUENCE)
+                    sum(min({tag: Tag.EARTH}, MAX_GLOBAL_EVENT_QUANTITY), VariableAmount.INFLUENCE)
                 ),
             },
         },
@@ -366,7 +366,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text: 'Lose 1 titanium for each Jovian tag (max 5, then reduced by influence).',
             removeResource: {
                 [Resource.TITANIUM]: subtract(
-                    max({tag: Tag.JOVIAN}, MAX_GLOBAL_EVENT_QUANTITY),
+                    min({tag: Tag.JOVIAN}, MAX_GLOBAL_EVENT_QUANTITY),
                     VariableAmount.INFLUENCE
                 ),
             },
@@ -457,7 +457,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
-                        max(VariableAmount.PLAYER_EVENTS, MAX_GLOBAL_EVENT_QUANTITY),
+                        min(VariableAmount.PLAYER_EVENTS, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -473,7 +473,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
-                        max(divide(subtract(VariableAmount.TERRAFORM_RATING, 15), 5), 5),
+                        min(divide(subtract(VariableAmount.TERRAFORM_RATING, 15), 5), 5),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -488,7 +488,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: quadruple(
                     subtract(
-                        max(VariableAmount.TILES_ADJACENT_TO_OCEAN, MAX_GLOBAL_EVENT_QUANTITY),
+                        min(VariableAmount.TILES_ADJACENT_TO_OCEAN, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -503,7 +503,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
                     subtract(
-                        max({tag: Tag.BUILDING}, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tag: Tag.BUILDING}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),

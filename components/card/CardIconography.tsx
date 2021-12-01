@@ -329,14 +329,16 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
             return multiplierElement;
         }
         return (
-            <Flex justifyContent="center" alignItems="center">
+            <Flex justifyContent="center" alignItems="center" flexWrap="wrap">
                 {customElement}
-                {multiplierElement && (
+                {multiplierElement && resourceIconElement ? (
                     <React.Fragment>
                         {resourceIconElement}
-                        <TextWithMargin>/</TextWithMargin>
+                        {<TextWithMargin>/</TextWithMargin>}
                         {multiplierElement}
                     </React.Fragment>
+                ) : (
+                    <React.Fragment>{multiplierElement}</React.Fragment>
                 )}
             </Flex>
         );
@@ -354,6 +356,7 @@ function getMultiplierAndCustomElement(
         resourceOnCard,
         omitNumerator,
         includeBrackets,
+        omitResourceIconography,
     } = props;
     let multiplierElement: React.ReactElement | null = null;
     let customElement: React.ReactElement | null = null;
@@ -572,7 +575,7 @@ function getMultiplierAndCustomElement(
                         key={index}
                         omitNumerator={omitNumerator || index !== 0}
                         includeBrackets={!omitNumerator}
-                        omitResourceIconography={index === 1}
+                        omitResourceIconography={omitResourceIconography || index === 1}
                     />
                 ));
                 const isMaxOrMin = [Operation.MAX, Operation.MIN].includes(amount.operation);
@@ -1008,9 +1011,9 @@ function IncreaseTerraformRatingIconography({
 
         if (isContestAmount(increaseTerraformRating)) {
             return (
-                <>
+                <Flex flexDirection="column">
                     <IconographyRow className="increase-terraform-rating">
-                        <Flex alignItems="center">
+                        <Flex alignItems="center" flexWrap="wrap">
                             <Box
                                 display="inline-block"
                                 style={{fontVariant: 'small-caps'}}
@@ -1020,29 +1023,33 @@ function IncreaseTerraformRatingIconography({
                             </Box>
                             <RepresentAmountAndResource
                                 opts={{}}
+                                omitResourceIconography={true}
                                 amount={increaseTerraformRating.contest}
                             />
                         </Flex>
                     </IconographyRow>
                     <IconographyRow className="increase-terraform-rating">
-                        <Flex alignItems="center">
+                        <Flex alignItems="center" flexWrap="wrap" justifyContent="flex-end">
                             {renderArrow()}
                             <IncreaseTerraformRatingIconography
                                 red={red}
                                 increaseTerraformRating={increaseTerraformRating.first}
                             />
                         </Flex>
-                        {increaseTerraformRating.second ? (
-                            <Flex>
+                    </IconographyRow>
+                    {increaseTerraformRating.second ? (
+                        <IconographyRow className="increase-terraform-rating">
+                            <Flex flexWrap="wrap" justifyContent="flex-end">
+                                {renderArrow()}
                                 <Box display="inline-block">Second:</Box>
                                 <IncreaseTerraformRatingIconography
                                     red={red}
                                     increaseTerraformRating={increaseTerraformRating.second}
                                 />
                             </Flex>
-                        ) : null}
-                    </IconographyRow>
-                </>
+                        </IconographyRow>
+                    ) : null}
+                </Flex>
             );
         }
         if (isOperationAmount(increaseTerraformRating)) {

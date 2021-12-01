@@ -27,13 +27,14 @@ export const GenericCardTitleBar = styled.div<{
     justifyContent?: string;
     textAlign?: string;
     padding?: string;
+    marginTop?: string;
 }>`
     display: flex;
     position: relative;
     align-items: center;
     justify-content: ${props => props.justifyContent ?? 'center'};
     padding: ;
-    margin-top: 26px;
+    margin-top: ${props => props.marginTop ?? '26px'};
     border-top: 1px solid ${colors.CARD_BORDER_2};
     border-bottom: 1px solid ${colors.CARD_BORDER_2};
     font-family: 'Ubuntu Condensed', sans-serif;

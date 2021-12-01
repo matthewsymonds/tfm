@@ -194,7 +194,8 @@ export function convertContestAmountToNumber(
 
     const secondPlace = Math.max(...playerResults.filter(result => result !== firstPlace));
 
-    if (playerResults[player.index] === secondPlace) {
+    const numPlayersWithFirstPlace = playerResults.filter(result => result === firstPlace).length;
+    if (playerResults[player.index] === secondPlace && numPlayersWithFirstPlace === 1) {
         return amount.second;
     }
 
