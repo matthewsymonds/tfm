@@ -110,7 +110,7 @@ export function convertOperationAmountToNumber(
             return convertedOperands.reduce((acc, operand) => acc + operand, 0);
         case Operation.SUBTRACT:
             // For convenience, never go below zero.
-            return Math.min(convertedOperands[0] - convertedOperands[1], 0);
+            return Math.max(convertedOperands[0] - convertedOperands[1], 0);
         case Operation.MULTIPLY:
             return convertedOperands.reduce((acc, operand) => acc * operand, 1);
         case Operation.DIVIDE:
