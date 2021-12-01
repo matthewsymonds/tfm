@@ -39,7 +39,7 @@ function DEV_corporationOverrides() {
 }
 
 function DEV_preludeOverides() {
-    const cardOverrides: Array<string> = ['Great Aquifer'];
+    const cardOverrides: Array<string> = [];
     return cards.filter(card => {
         return cardOverrides.includes(card.name) && card.type === CardType.PRELUDE;
     });

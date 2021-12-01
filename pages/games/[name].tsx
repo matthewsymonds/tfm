@@ -4,7 +4,7 @@ import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import Router, {useRouter} from 'next/router';
+import {useRouter} from 'next/router';
 import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
 import React, {useContext, useEffect, useState} from 'react';
 import {batch, useDispatch, useStore} from 'react-redux';
@@ -185,14 +185,14 @@ export default function Game(props) {
     const headers = {};
     const {query} = router;
     useEffect(() => {
-        getInitialProps({query, headers, isServer, setGame: setGameDispatch});
+        getInitialProps({query, headers, isServer, setGame: setGameDispatch, router});
     }, [query?.name]);
 
     return <GameMiddle />;
 }
 
 const getInitialProps = async ctx => {
-    const {query, headers, isServer, setGame} = ctx;
+    const {query, headers, isServer, setGame, router} = ctx;
 
     try {
         const response = await fetch(getGamePath(isServer, query, headers), {
@@ -202,7 +202,7 @@ const getInitialProps = async ctx => {
         const game = await response.json();
         setGame(game);
     } catch (error) {
-        Router.push('/login');
+        isServer ? null : router.push('/login');
     }
 };
 

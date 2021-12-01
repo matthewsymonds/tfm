@@ -569,6 +569,7 @@ function getMultiplierAndCustomElement(
                     <RepresentAmountAndResource
                         {...props}
                         amount={operand}
+                        key={index}
                         omitNumerator={omitNumerator || index !== 0}
                         includeBrackets={!omitNumerator}
                         omitResourceIconography={index === 1}
