@@ -417,9 +417,42 @@ function getMultiplierAndCustomElement(
             break;
         case VariableAmount.BLUE_CARD:
             multiplierElement = (
-                <TexturedCard height={15} width={10} borderRadius={2} bgColor={colors.CARD_ACTIVE}>
-                    {null}
-                </TexturedCard>
+                <Box>
+                    <TexturedCard
+                        height={20}
+                        width={15}
+                        borderRadius={2}
+                        borderWidth={1}
+                        bgColor={colors.CARD_ACTIVE}
+                    >
+                        <Flex alignItems="center" justifyContent="center" height="100%">
+                            <TagIcon name={Tag.EARTH} />
+                        </Flex>
+                    </TexturedCard>
+                </Box>
+            );
+            break;
+        case VariableAmount.CARDS_IN_HAND:
+            multiplierElement = (
+                <Flex justifyContent="space-around">
+                    {[colors.CARD_AUTOMATED, colors.CARD_ACTIVE, colors.CARD_EVENT].map(
+                        (color, index) => (
+                            <Box marginLeft={index === 0 ? 0 : '4px'} key={color}>
+                                <TexturedCard
+                                    height={20}
+                                    width={15}
+                                    borderRadius={2}
+                                    borderWidth={1}
+                                    bgColor={color}
+                                >
+                                    <Flex alignItems="center" justifyContent="center" height="100%">
+                                        <TagIcon name={Tag.EARTH} />
+                                    </Flex>
+                                </TexturedCard>
+                            </Box>
+                        )
+                    )}
+                </Flex>
             );
             break;
         case VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE:
@@ -544,11 +577,16 @@ function getMultiplierAndCustomElement(
             );
             break;
         case VariableAmount.INFLUENCE:
-            customElement = (
+            const element = (
                 <Flex display="inline-flex" justifyContent="center" alignItems="center">
                     <InlineText>👥</InlineText>
                 </Flex>
             );
+            if (omitResourceIconography) {
+                customElement = element;
+            } else {
+                multiplierElement = element;
+            }
             break;
         case VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE:
             multiplierElement = (
@@ -965,7 +1003,7 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
     );
 }
 
-function IncreaseTerraformRatingIconography({
+export function IncreaseTerraformRatingIconography({
     increaseTerraformRating,
     red,
 }: {

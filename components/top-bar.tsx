@@ -13,6 +13,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import React, {forwardRef} from 'react';
 import {useTypedSelector} from 'reducer';
+import {isDrafting as isDraftingSelector} from 'selectors/drafting';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
 
@@ -79,7 +80,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                 state.common.controllingPlayerIndex === loggedInPlayerIndex ||
                 state.common.controllingPlayerIndex === undefined
         );
-        const isDrafting = useTypedSelector(state => gameStage === GameStage.DRAFTING);
+        const isDrafting = useTypedSelector(isDraftingSelector);
         const isBuyOrDiscard = useTypedSelector(state => gameStage === GameStage.BUY_OR_DISCARD);
         const isGreeneryPlacement = useTypedSelector(
             state => gameStage === GameStage.GREENERY_PLACEMENT

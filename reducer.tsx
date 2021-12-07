@@ -93,6 +93,7 @@ import {
     increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
+    increaseStoredResourceAmount,
     increaseTerraformRating,
     makeActionChoice,
     makeLogItem,
@@ -374,13 +375,21 @@ function handleDrawCards(draft: GameState, numCards: number) {
 const handleGainResource = (
     player: PlayerState,
     draft: GameState,
-    resource: Resource,
+    resource: Resource | undefined,
     amount: Amount,
     corporationName: string,
     parentName?: string
 ) => {
     if (isStorableResource(resource)) {
         return;
+    }
+
+    if (resource === Resource.BASED_ON_PRODUCTION_DECREASE) {
+        resource = player.mostRecentProductionDecrease;
+    }
+
+    if (!resource) {
+        throw new Error('resource not specified');
     }
 
     mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
@@ -391,18 +400,17 @@ const handleGainResource = (
 
     const quantity = convertAmountToNumber(amount, draft, player, cardToConsider);
 
-    if (resource === Resource.CARD) {
+    if (resource === Resource.CARD && quantity) {
         // Sometimes we list cards as a resource.
         // handle as a draw action.
         player.cards.push(...handleDrawCards(draft, quantity));
         draft.log.push(`${corporationName} drew ${quantity} ${cardsPlural(quantity)}`);
         return;
     }
-    if (isStorableResource(resource)) {
-        return;
-    }
     player.resources[resource] += quantity;
-    draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
+    if (quantity) {
+        draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
+    }
 };
 
 export const reducer = (state: GameState | null = null, action: AnyAction) => {
@@ -745,6 +753,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             let targetPlayer = draft.players[payload.targetPlayerIndex];
 
             targetPlayer.productions[payload.resource] -= decrease;
+            targetPlayer.mostRecentProductionDecrease = payload.resource;
             if (targetPlayer === player) {
                 draft.log.push(
                     `${corporationName} decreased their ${getResourceName(
@@ -783,6 +792,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 mostRecentlyPlayedCard
             );
             player.productions[payload.resource] += increase;
+            if (player.mostRecentProductionDecrease) {
+                player.mostRecentProductionDecrease = undefined;
+            }
             const card = mostRecentlyPlayedCard;
             if (increase && (card.name === 'Mining Rights' || card.name === 'Mining Area')) {
                 // Record the production increase for the purpose of robotic workforce.
@@ -992,6 +1004,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 corporationName,
                 payload.parentName
             );
+            player.mostRecentProductionDecrease = undefined;
         }
 
         if (gainStorableResource.match(action)) {
@@ -1015,6 +1028,20 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         card.storedResourceType
                     )} to ${draftCard.name}`
                 );
+            }
+        }
+
+        if (increaseStoredResourceAmount.match(action)) {
+            const {payload} = action;
+            player = getPlayer(draft, payload);
+            for (const card of player.playedCards) {
+                if (card.storedResourceAmount) {
+                    card.storedResourceAmount += convertAmountToNumber(
+                        payload.amount,
+                        draft,
+                        player
+                    );
+                }
             }
         }
 
@@ -1666,7 +1693,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             payload.numDelegates === 1 ? '' : 's'
                         } in ${payload.party}`
                     );
-                    determineNewLeader(turmoil, payload.party, draft);
+                    const [oldLeader] = delegation;
+                    determineNewLeader(turmoil, payload.party, draft, oldLeader.playerIndex);
                     determineNewDominantParty(turmoil, draft);
                 }
             }
@@ -1696,20 +1724,22 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             if (turmoil) {
                 const delegation = turmoil.delegations[payload.party];
-                const neutralDelegateIndex = delegation.findIndex(
+                const [leader, ...rest] = delegation;
+                const neutralDelegateIndex = rest.findIndex(
                     delegate => delegate.playerIndex == undefined
                 );
+                const currentLeaderIndex = delegation[0].playerIndex;
                 if (neutralDelegateIndex >= 0) {
                     const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
                     if (delegateInReserve) {
                         // We'll just let neutral delegates disappear and reappear as needed.
-                        delegation[neutralDelegateIndex] = delegateInReserve;
+                        delegation[neutralDelegateIndex + 1] = delegateInReserve;
                     }
                 }
                 draft.log.push(
                     `${corporationName} replaced a neutral delegate in ${payload.party} with one of their own`
                 );
-                determineNewLeader(turmoil, payload.party, draft);
+                determineNewLeader(turmoil, payload.party, draft, currentLeaderIndex);
                 determineNewDominantParty(turmoil, draft);
             }
             player.exchangeNeutralNonLeaderDelegate = undefined;
@@ -1720,12 +1750,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             if (turmoil) {
                 const delegation = turmoil.delegations[payload.party];
-                // look for the first matching delegate to remove
-                const delegateIndexToRemove = delegation.findIndex(
-                    delegate => delegate.playerIndex === payload.delegateToRemovePlayerIndex
-                );
+                const [leader] = delegation;
                 // remove the delegate
-                const [removedDelegate] = delegation.splice(delegateIndexToRemove, 1);
+                const [removedDelegate] = delegation.splice(payload.delegateIndex, 1);
                 // return it to the playersr supply
                 if (removedDelegate.playerIndex != undefined) {
                     draft.common.turmoil?.delegateReserve[removedDelegate.playerIndex].push(
@@ -1741,7 +1768,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         `${corporationName} removed a neutral delegate from ${payload.party}`
                     );
                 }
-                determineNewLeader(turmoil, payload.party, draft);
+                determineNewLeader(turmoil, payload.party, draft, leader.playerIndex);
                 determineNewDominantParty(turmoil, draft);
             }
             player.removeNonLeaderDelegate = undefined;
@@ -1804,26 +1831,32 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         }
                     }
                 }
+
                 const {
                     distantGlobalEvent: oldDistantGlobalEvent,
                     comingGlobalEvent: oldComingGlobalEvent,
                     currentGlobalEvent: oldCurrentGlobalEvent,
                 } = turmoil;
+
                 if (oldCurrentGlobalEvent) {
+                    turmoil.oldGlobalEvents = turmoil.oldGlobalEvents ?? [];
                     turmoil.oldGlobalEvents.push(oldCurrentGlobalEvent);
                 }
+
                 turmoil.currentGlobalEvent = oldComingGlobalEvent;
                 let fullEvent = getGlobalEvent(turmoil.currentGlobalEvent.name);
                 if (fullEvent?.bottom.party) {
+                    const [leader] = turmoil.delegations[fullEvent.bottom.party];
                     turmoil.delegations[fullEvent.bottom.party].push(delegate());
                     draft.log.push(
                         `${fullEvent.bottom.party} gained a neutral delegate (now has ${
                             turmoil.delegations[fullEvent.bottom.party].length
                         } delegates)`
                     );
-                    determineNewLeader(turmoil, fullEvent.bottom.party, draft);
+                    determineNewLeader(turmoil, fullEvent.bottom.party, draft, leader?.playerIndex);
                     determineNewDominantParty(turmoil, draft);
                 }
+
                 turmoil.comingGlobalEvent = oldDistantGlobalEvent;
                 let newDistantGlobalEvent = turmoil.globalEvents.shift();
                 if (!newDistantGlobalEvent) {
@@ -1835,6 +1868,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (newDistantGlobalEvent) {
                     fullEvent = getGlobalEvent(newDistantGlobalEvent.name);
                     if (fullEvent) {
+                        const [leader] = turmoil.delegations[fullEvent.bottom.party];
                         turmoil.delegations[fullEvent.top.party].push(delegate());
                         draft.log.push(
                             `${fullEvent.top.party} gained a neutral delegate (now has ${
@@ -1842,7 +1876,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             } delegates)`
                         );
                         turmoil.distantGlobalEvent = newDistantGlobalEvent;
-                        determineNewLeader(turmoil, fullEvent.top.party, draft);
+                        determineNewLeader(
+                            turmoil,
+                            fullEvent.top.party,
+                            draft,
+                            leader?.playerIndex
+                        );
                         determineNewDominantParty(turmoil, draft);
                     }
                 }
@@ -1856,6 +1895,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             player.action = 1;
             player.pendingCardSelection = undefined;
+            player.terraformedThisGeneration = false;
             handleEnterActiveRound(draft);
         }
 
@@ -1889,7 +1929,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.action = 0;
             player.previousCardsInHand = player.cards.length;
-            player.terraformedThisGeneration = false;
             player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
 
             // Check if all other players have also passed
@@ -2033,11 +2072,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 function determineNewLeader(
     turmoil: WritableDraft<Turmoil>,
     party: string,
-    draft: WritableDraft<GameState>
+    draft: WritableDraft<GameState>,
+    leaderPlayerIndex: number | undefined
 ) {
     const NEUTRAL_PARTY = 999;
     const delegateCountByPlayerIndex: {[key: number]: number} = {};
-    const [oldLeader] = turmoil.delegations[party];
     for (const delegate of turmoil.delegations[party]) {
         const playerIndexOrNeutral = delegate.playerIndex ?? NEUTRAL_PARTY;
         delegateCountByPlayerIndex[playerIndexOrNeutral] ??= 0;
@@ -2051,8 +2090,7 @@ function determineNewLeader(
         );
     });
     const [newLeader] = turmoil.delegations[party];
-
-    if (oldLeader.playerIndex !== newLeader.playerIndex) {
+    if (leaderPlayerIndex !== newLeader.playerIndex) {
         if (newLeader.playerIndex == undefined) {
             draft.log.push(`A neutral delegate now leads ${party}`);
         } else {

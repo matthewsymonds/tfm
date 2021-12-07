@@ -24,6 +24,10 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
 import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
+import {
+    isDrafting as isDraftingSelector,
+    isWaitingOnOthersToDraft as isWaitingOnOthersToDraftSelector,
+} from 'selectors/drafting';
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
@@ -93,12 +97,14 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             loggedInPlayer.pendingTileRemoval ||
             loggedInPlayer.placeColony ||
             loggedInPlayer.tradeForFree ||
-            loggedInPlayer.fundAward
+            loggedInPlayer.fundAward ||
+            loggedInPlayer.placeDelegatesInOneParty ||
+            loggedInPlayer.removeNonLeaderDelegate ||
+            loggedInPlayer.exchangeNeutralNonLeaderDelegate
     );
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
-    const shouldHidePlayerDetails = useTypedSelector(
-        state => isPlayerMakingDecision && !hideOverlay && isActionOverlayVisible
-    );
+    const isWaitingOnOthersToDraft = useTypedSelector(isWaitingOnOthersToDraftSelector);
+    const isDrafting = useTypedSelector(isDraftingSelector);
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Choose your corporation and starting cards';
@@ -128,6 +134,21 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Select a colony to trade with for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
         actionBarPromptText = 'Increase and decrease colony tile tracks';
+    } else if (loggedInPlayer.placeDelegatesInOneParty) {
+        const plural = loggedInPlayer.placeDelegatesInOneParty > 1;
+        actionBarPromptText = `Place ${loggedInPlayer.placeDelegatesInOneParty} delegate${
+            plural ? 's' : ''
+        } in one party`;
+    } else if (loggedInPlayer.removeNonLeaderDelegate) {
+        actionBarPromptText = 'Remove a non-leader delegate';
+    } else if (loggedInPlayer.exchangeNeutralNonLeaderDelegate) {
+        actionBarPromptText = 'Exchange a neutral non-leader delegate with one of your own';
+    } else if (isWaitingOnOthersToDraft) {
+        actionBarPromptText = 'Waiting to draft';
+    } else if (isDrafting) {
+        actionBarPromptText = 'Please draft your next card';
+    } else if (loggedInPlayer.pendingCardSelection) {
+        actionBarPromptText = 'Please select your cards';
     } else {
         actionBarPromptText = 'Complete your action';
     }

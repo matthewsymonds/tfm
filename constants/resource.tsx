@@ -119,9 +119,9 @@ export const getResourceSymbol = (resource: Resource) => {
         case Resource.TITANIUM:
             return '☆';
         case Resource.ANY_STORABLE_RESOURCE:
-            return '📦';
         case Resource.ANY_STANDARD_RESOURCE:
-            return '?';
+        case Resource.BASED_ON_PRODUCTION_DECREASE:
+            return '📦';
         case Resource.PRESERVATION:
             return 'P';
         default:
@@ -176,6 +176,7 @@ export const getResourceName = (resource: Resource, shouldCapitalize: boolean = 
             break;
         case Resource.ANY_STORABLE_RESOURCE:
         case Resource.ANY_STANDARD_RESOURCE:
+        case Resource.BASED_ON_PRODUCTION_DECREASE:
             resourceName = 'resource';
             break;
         case Resource.PRESERVATION:
@@ -221,6 +222,7 @@ export const getResourceColor = (resource: Resource): string => {
             return 'yellow';
         case Resource.ANY_STORABLE_RESOURCE:
         case Resource.ANY_STANDARD_RESOURCE:
+        case Resource.BASED_ON_PRODUCTION_DECREASE:
         case Resource.PRESERVATION:
             return 'black';
         default:
@@ -261,6 +263,7 @@ export const getResourceBackgroundColor = (resource: Resource) => {
             return 'black';
         case Resource.ANY_STORABLE_RESOURCE:
         case Resource.ANY_STANDARD_RESOURCE:
+        case Resource.BASED_ON_PRODUCTION_DECREASE:
             return 'white';
         default:
             throw spawnExhaustiveSwitchError(resource);

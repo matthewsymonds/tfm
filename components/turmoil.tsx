@@ -366,12 +366,9 @@ export function Turmoil() {
                 />
             </Box>
         ));
+        const canClick = canClickParty(state, player, party.name);
         const element = (
-            <PartyPanel
-                key={party.name}
-                canClick={canClickParty(state, player, party.name)}
-                onClick={() => handleClickParty(party.name)}
-            >
+            <PartyPanel key={party.name}>
                 <Flex
                     className="display"
                     position="relative"
@@ -380,7 +377,16 @@ export function Turmoil() {
                     alignItems="center"
                     flexDirection="column"
                 >
-                    {party.name}
+                    <PartyTitle
+                        onClick={() => handleClickParty(party.name)}
+                        background="transparent"
+                        padding="2px"
+                        borderRadius="4px"
+                        boxShadow={canClick ? '0px 0px 38px 5px #000000' : 'none'}
+                        cursor={canClick ? 'pointer' : 'auto'}
+                    >
+                        {party.name}
+                    </PartyTitle>
                     {turmoil.dominantParty === party.name ? (
                         <Box fontStyle="italic" fontSize="12px">
                             This party is dominant.
@@ -563,7 +569,6 @@ export function Turmoil() {
 
 const PartyPanel = props => (
     <Box
-        onClick={props.onClick}
         boxShadow={props.canClick ? '0px 0px 38px 5px #000000' : 'none'}
         padding="4px"
         fontSize="20px"
@@ -573,3 +578,9 @@ const PartyPanel = props => (
         {...props}
     />
 );
+
+const PartyTitle = styled(Box)`
+    &:hover {
+        box-shadow: none;
+    }
+`;

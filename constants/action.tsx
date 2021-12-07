@@ -96,6 +96,8 @@ export interface ActionWithoutSteps {
     // For manutech
     gainResourceWhenIncreaseProduction?: number;
 
+    gainResourcesIfNotTerraformedThisGeneration?: ResourceCounter;
+
     // For viron
     useBlueCardActionAlreadyUsedThisGeneration?: boolean;
 

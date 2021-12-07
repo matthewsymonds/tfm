@@ -15,6 +15,7 @@ export type BasePlayerState = {
     index: number;
     // For UNMI
     terraformedThisGeneration?: boolean;
+    mostRecentProductionDecrease?: Resource;
     username: string;
     action: number; // 1 or 2.
     terraformRating: number;

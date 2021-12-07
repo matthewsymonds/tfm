@@ -187,6 +187,12 @@ export const gainStorableResource = withMatcher(
     })
 );
 
+const INCREASE_STORED_RESOURCE_AMOUNT = 'INCREASE_STORED_RESOURCE_AMOUNT';
+export const increaseStoredResourceAmount = withMatcher((amount: Amount, playerIndex: number) => ({
+    type: INCREASE_STORED_RESOURCE_AMOUNT,
+    payload: {amount, playerIndex},
+}));
+
 const STEAL_RESOURCE = 'STEAL_RESOURCE';
 export const stealResource = withMatcher(
     (resource: Resource, amount: Amount, playerIndex: number, victimPlayerIndex: number) => ({
@@ -728,9 +734,9 @@ export const askUserToRemoveNonLeaderDelegate = withMatcher((playerIndex: number
 
 const REMOVE_NON_LEADER_DELEGATE = 'REMOVE_NON_LEADER_DELEGATE';
 export const removeNonLeaderDelegate = withMatcher(
-    (party: string, playerIndex: number, delegateToRemovePlayerIndex: number | undefined) => ({
+    (party: string, playerIndex: number, delegateIndex: number) => ({
         type: REMOVE_NON_LEADER_DELEGATE,
-        payload: {party, delegateToRemovePlayerIndex, playerIndex},
+        payload: {party, delegateIndex, playerIndex},
     })
 );
 

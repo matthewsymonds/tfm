@@ -49,7 +49,9 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointer
     display: grid;
     grid-template-columns: repeat(3, 24px);
     grid-template-rows: 24px;
+    width: fit-content;
     align-items: center;
+    flex-grow: 1;
     margin: 4px 4px 0px 0;
     font-size: 14px;
     background-color: ${colors.LIGHTEST_BG};
@@ -109,11 +111,18 @@ export const ResourceBoardCell = ({
             <Flex
                 alignSelf="stretch"
                 alignItems="center"
+                flexDirection="column"
                 justifyContent="center"
+                flexWrap="wrap"
+                flexShrink={1}
                 style={{gridArea: '0 / 1 / 0 / 2'}}
             >
                 {amount}
-                {children ? <Box marginLeft="2px">{children}</Box> : null}
+                {children ? (
+                    <Box marginLeft="2px" right="0">
+                        {children}
+                    </Box>
+                ) : null}
             </Flex>
             <Flex
                 alignSelf="stretch"
@@ -231,7 +240,7 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                                         >
                                             {element(
                                                 <Flex
-                                                    flexDirection="column"
+                                                    flexDirection="row"
                                                     alignItems="center"
                                                     transform="scale(80%)"
                                                 >

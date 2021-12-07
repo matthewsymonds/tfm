@@ -1,5 +1,7 @@
 import {Action} from 'constants/action';
 import {MinimumProductions} from 'constants/game';
+import {STANDARD_RESOURCES} from 'constants/resource';
+import {Resource} from 'constants/resource-enum';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {convertAmountToNumber} from './convert-amount-to-number';
@@ -17,9 +19,21 @@ export function meetsProductionRequirements(
     const {decreaseProduction, decreaseAnyProduction} = action;
 
     for (const production in decreaseProduction) {
-        const decrease = convertAmountToNumber(decreaseProduction[production], state, player);
-        const newLevel = player.productions[production] - decrease;
-        return newLevel >= MinimumProductions[production];
+        const productions =
+            production === Resource.ANY_STANDARD_RESOURCE ? STANDARD_RESOURCES : [production];
+        if (
+            productions.some(resource => {
+                const decrease = convertAmountToNumber(
+                    decreaseProduction[production],
+                    state,
+                    player
+                );
+                const newLevel = player.productions[resource] - decrease;
+                return newLevel < MinimumProductions[production];
+            })
+        ) {
+            return false;
+        }
     }
 
     for (const production in decreaseAnyProduction) {

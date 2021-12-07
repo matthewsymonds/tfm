@@ -1,9 +1,11 @@
 import {Box, Flex} from 'components/box';
 import {CardContext} from 'components/card/Card';
 import {
+    Colon,
     GainResourceIconography,
     GainResourceOptionIconography,
     IncreaseParameterIconography,
+    IncreaseTerraformRatingIconography,
     InlineText,
     ProductionIconography,
     RemoveResourceIconography,
@@ -164,6 +166,26 @@ export function renderRightSideOfArrow(
                 }}
                 resourceOnCard={storedResourceType}
             />
+        );
+    }
+    if (action.gainResourcesIfNotTerraformedThisGeneration) {
+        // if this action also has a remove, lets explicitly mark the gain with a +
+        const shouldShowPlus =
+            Object.keys(action?.removeResource ?? {}).length > 0 && shouldShowPlusAllowed;
+
+        elements.push(
+            <React.Fragment>
+                <IncreaseTerraformRatingIconography red={true} increaseTerraformRating={1} />
+                <Colon />
+                <GainResourceIconography
+                    gainResource={action.gainResourcesIfNotTerraformedThisGeneration}
+                    opts={{
+                        isInline: true,
+                        shouldShowPlus,
+                    }}
+                    resourceOnCard={storedResourceType}
+                />
+            </React.Fragment>
         );
     }
     if (action.increaseTerraformRating) {

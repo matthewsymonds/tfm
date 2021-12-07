@@ -54,6 +54,7 @@ import {
     increaseColonyTileTrackRange,
     increaseParameter,
     increaseProduction,
+    increaseStoredResourceAmount,
     increaseTerraformRating,
     makeActionChoice,
     makeLogItem,
@@ -268,6 +269,29 @@ export class ApiActionHandler {
     handleTurmoilIfNeeded() {
         if (!this.state.timeForTurmoil || !this.state.common.turmoil) {
             return;
+        }
+
+        // Pristar
+        for (const player of this.state.players) {
+            if (player.terraformedThisGeneration) {
+                for (const playedCard of player.playedCards) {
+                    const fullCard = getCard(playedCard);
+                    if (fullCard.gainResourcesIfNotTerraformedThisGeneration) {
+                        for (const resource in fullCard.gainResourcesIfNotTerraformedThisGeneration) {
+                            this.queue.push(
+                                this.createInitialGainResourceAction(
+                                    resource as Resource,
+                                    fullCard.gainResourcesIfNotTerraformedThisGeneration[resource],
+                                    player.index,
+                                    fullCard,
+                                    fullCard,
+                                    fullCard.gainResourceTargetType
+                                )
+                            );
+                        }
+                    }
+                }
+            }
         }
 
         this.queue.push(
@@ -638,6 +662,7 @@ export class ApiActionHandler {
             let item;
             while (items.length > 0) {
                 item = items.shift();
+
                 if (!item) {
                     continue;
                 }
@@ -1814,6 +1839,12 @@ export class ApiActionHandler {
             items.push(gainResourceWhenIncreaseProduction(playerIndex));
         }
 
+        if (action.increaseStoredResourceAmount) {
+            items.push(
+                increaseStoredResourceAmount(action.increaseStoredResourceAmount, playerIndex)
+            );
+        }
+
         for (const production in action.increaseProduction) {
             items.push(
                 increaseProduction(
@@ -2107,7 +2138,11 @@ export class ApiActionHandler {
                 for (const [partyName, delegation] of Object.entries(delegations)) {
                     const [partyLeader, ...rest] = delegation;
                     for (const delegate of rest) {
-                        nonLeaderDelegatePlayerIndicesByParty[partyName].add(delegate.playerIndex);
+                        const playerIndexSet = nonLeaderDelegatePlayerIndicesByParty.get(partyName);
+
+                        if (playerIndexSet) {
+                            playerIndexSet.add(delegate.playerIndex);
+                        }
                     }
                 }
 
@@ -2121,10 +2156,9 @@ export class ApiActionHandler {
                 });
 
                 if (allNonLeaderDelegates.length === 1) {
-                    const {partyName, playerIndex: delegatePlayerIndex} = allNonLeaderDelegates[0];
-                    items.push(
-                        removeNonLeaderDelegate(partyName, playerIndex, delegatePlayerIndex)
-                    );
+                    const {partyName} = allNonLeaderDelegates[0];
+                    // Has to be delegate 1 (leader is delegate 0)
+                    items.push(removeNonLeaderDelegate(partyName, playerIndex, 1));
                 } else {
                     items.push(askUserToRemoveNonLeaderDelegate(playerIndex));
                 }
@@ -2145,7 +2179,14 @@ export class ApiActionHandler {
         queue = this.queue
     ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
-        const numCardsToDiscard = action.removeResource?.[Resource.CARD] ?? 0;
+        const player = this.state.players[playerIndex];
+        let numCardsToDiscard = action.removeResource?.[Resource.CARD] ?? 0;
+
+        if (typeof numCardsToDiscard === 'number') {
+            if (player.cards.length < numCardsToDiscard) {
+                numCardsToDiscard = player.cards.length;
+            }
+        }
 
         if (numCardsToDiscard) {
             queue.push(
@@ -2180,7 +2221,8 @@ export class ApiActionHandler {
                     production as Resource,
                     action.decreaseProduction[production],
                     playerIndex,
-                    parent
+                    parent,
+                    playedCard
                 )
             );
         }
@@ -2319,7 +2361,8 @@ export class ApiActionHandler {
         resource: Resource,
         amount: Amount,
         playerIndex: number,
-        parent?: Card
+        parent?: Card,
+        playedCard?: Card
     ) {
         const resourceAndAmounts = [{resource, amount}];
         const actionType = 'decreaseProduction';
@@ -2350,7 +2393,13 @@ export class ApiActionHandler {
         } else if (options.length === 0) {
             return noopAction();
         } else {
-            return decreaseProduction(resource, amount, playerIndex);
+            return askUserToChooseResourceActionDetails({
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+                playedCard,
+                playerIndex,
+            });
         }
     }
 

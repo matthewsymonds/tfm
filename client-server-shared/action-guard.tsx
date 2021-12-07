@@ -1135,7 +1135,7 @@ export class ActionGuard {
         if (card.requiredChairman) {
             if (
                 card.requiredChairman === RequiredChairman.NEUTRAL &&
-                turmoil.chairperson.playerIndex !== undefined
+                turmoil.chairperson.playerIndex != undefined
             ) {
                 return [false, 'Sitting chairperson is not neutral'];
             }

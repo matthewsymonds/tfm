@@ -4154,7 +4154,6 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE, Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: 1,
-        // TODO ensure Solar Probe science tag is added to count
         gainResource: {[Resource.CARD]: {tag: Tag.SCIENCE, dividedBy: 3}},
     },
     {
@@ -5372,7 +5371,7 @@ export const cardConfigs: CardConfig[] = [
         text: 'You start with 54 MC',
         tags: [Tag.BUILDING],
         effect: {
-            trigger: {placedTile: TileType.OCEAN},
+            trigger: {placedTile: TileType.OCEAN, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
             text:
                 'When any ocean tile is placed, increase your MC production 1 step. Your bonus for placing adjacent to oceans is 3 MC instead of 2 MC.',
@@ -5384,7 +5383,8 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         name: 'Pristar',
         gainResource: {[Resource.MEGACREDIT]: 53},
-        text: 'You start with 53 MC',
+        text:
+            'You start with 53 MC. Decrease your TR 2 steps. 1 VP per preservation resource here.',
         tags: [],
         decreaseTerraformRating: 2,
         storedResourceType: Resource.PRESERVATION,
@@ -5392,14 +5392,12 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             text:
                 'During production phase, if you did not get TR so far this generation, add one preservation resource here and gain 6 MC',
-            trigger: {
-                noTerraformThisGeneration: true,
-            },
-            action: {
-                gainResource: {[Resource.PRESERVATION]: 1, [Resource.MEGACREDIT]: 6},
-                gainResourceTargetType: ResourceLocationType.THIS_CARD,
-            },
         },
+        gainResourcesIfNotTerraformedThisGeneration: {
+            [Resource.PRESERVATION]: 1,
+            [Resource.MEGACREDIT]: 6,
+        },
+        gainResourceTargetType: ResourceLocationType.THIS_CARD,
     },
     {
         type: CardType.CORPORATION,
@@ -5439,8 +5437,9 @@ export const cardConfigs: CardConfig[] = [
 
         tags: [Tag.BUILDING],
         action: {
+            text: 'Decrease any production to gain 4 resources of that kind.',
             decreaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1},
-            gainResource: {[Resource.ANY_STANDARD_RESOURCE]: 4},
+            gainResource: {[Resource.BASED_ON_PRODUCTION_DECREASE]: 4},
         },
         cardCost: 1,
     },

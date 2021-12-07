@@ -21,6 +21,7 @@ import {
     PROTECTED_HABITAT_RESOURCE,
     ResourceAndAmount,
     ResourceLocationType,
+    STANDARD_RESOURCES,
 } from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
@@ -305,33 +306,38 @@ function getOptionsForDecreaseProduction(
     player: PlayerState
 ): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
+    let resources = resource === Resource.ANY_STANDARD_RESOURCE ? STANDARD_RESOURCES : [resource];
+
     let maxAmount: number;
+
+    const isVariable = amount === VariableAmount.USER_CHOICE_MIN_ZERO;
 
     if (amount === VariableAmount.USER_CHOICE_MIN_ZERO) {
         // insulation-specific
         maxAmount = player.productions[resource];
     } else {
+        maxAmount = amount as number;
+    }
+
+    return resources.flatMap(resource => {
         if (player.productions[resource] - MinimumProductions[resource] < (amount as number)) {
             // Not enough production
             return [];
         }
-        maxAmount = amount as number;
-    }
 
-    const isVariable = amount === VariableAmount.USER_CHOICE_MIN_ZERO;
+        const text = formatText({quantity: maxAmount, resource, actionType: 'decreaseProduction'});
 
-    const text = formatText({quantity: maxAmount, resource, actionType: 'decreaseProduction'});
-
-    return [
-        {
-            location: player,
-            quantity: maxAmount,
-            resource,
-            isVariable,
-            actionType: 'decreaseProduction',
-            text,
-        },
-    ];
+        return [
+            {
+                location: player,
+                quantity: maxAmount,
+                resource,
+                isVariable,
+                actionType: 'decreaseProduction',
+                text,
+            },
+        ];
+    });
 }
 
 function getOptionsForStorableResource(
@@ -486,7 +492,7 @@ function getOptionsForRegularResource(
     resourceAndAmount: ResourceAndAmount,
     player: PlayerState
 ): ResourceActionOption[] {
-    const {amount, resource} = resourceAndAmount;
+    let {amount, resource} = resourceAndAmount;
     let maxAmount: number;
     if (actionType === 'gainResource') {
         maxAmount = amount as number;
@@ -501,6 +507,10 @@ function getOptionsForRegularResource(
     const isVariable = amount === VariableAmount.USER_CHOICE;
 
     const text = formatText({quantity: maxAmount, resource, actionType});
+
+    if (resource === Resource.BASED_ON_PRODUCTION_DECREASE && player.mostRecentProductionDecrease) {
+        resource = player.mostRecentProductionDecrease;
+    }
 
     return [
         {

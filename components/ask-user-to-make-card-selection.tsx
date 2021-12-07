@@ -4,7 +4,6 @@ import {CardSelector} from 'components/card-selector';
 import {CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
 import {PlayerCorpAndIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
-import {GameStage} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -12,6 +11,10 @@ import {useApiClient} from 'hooks/use-api-client';
 import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {
+    isDrafting as isDraftingSelector,
+    isWaitingOnOthersToDraft as isWaitingOnOthersToDraftSelector,
+} from 'selectors/drafting';
 import {getCard} from 'selectors/get-card';
 import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
@@ -59,7 +62,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
-    const isDrafting = useTypedSelector(state => state.common.gameStage === GameStage.DRAFTING);
+    const isDrafting = useTypedSelector(isDraftingSelector);
     const isSyncing = useTypedSelector(state => state.syncing);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
@@ -138,10 +141,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     );
 
     // hide card selector while waiting on others to pick cards
-    const isWaitingOnOthersToDraft =
-        isDrafting &&
-        pendingCardSelection.possibleCards.length + (pendingCardSelection.draftPicks?.length ?? 0) >
-            4;
+    const isWaitingOnOthersToDraft = useTypedSelector(isWaitingOnOthersToDraftSelector);
 
     const playersWhoNeedToDraft: Array<PlayerState> = [];
     if (isWaitingOnOthersToDraft) {

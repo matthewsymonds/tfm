@@ -1,5 +1,12 @@
 import {PlaceColony} from 'actions';
-import {Action, ActionType, Amount, LookAtCardsConfig, PlayCardParams} from 'constants/action';
+import {
+    Action,
+    ActionType,
+    Amount,
+    LookAtCardsConfig,
+    PlayCardParams,
+    ResourceCounter,
+} from 'constants/action';
 import {Parameter, TilePlacement} from 'constants/board';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {
@@ -66,6 +73,8 @@ export class Card {
     gainResourceOption?: PropertyCounter<Resource>;
     /** e.g. Manutech */
     gainResourceWhenIncreaseProduction?: number;
+    /** e.g. Pristar */
+    gainResourcesIfNotTerraformedThisGeneration?: ResourceCounter;
     /** e.g. "Remove 5 MC" */
     /** e.g. "Remove up to 5 plants from any player" */
     removeResource?: PropertyCounter<Resource>;
@@ -154,6 +163,8 @@ export class Card {
     exchangeNeutralNonLeaderDelegate?: boolean;
     exchangeChairman?: boolean;
     removeNonLeaderDelegate?: boolean;
+
+    oceanAdjacencyBonus?: number;
 
     constructor(config: CardConfig) {
         // Hack to fix compile bug
@@ -251,6 +262,8 @@ export class Card {
         this.useStoredResourceAsHeat = config.useStoredResourceAsHeat;
         this.gainTradeFleet = config.gainTradeFleet;
         this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
+        this.gainResourcesIfNotTerraformedThisGeneration =
+            config.gainResourcesIfNotTerraformedThisGeneration;
         this.choice = config.choice;
 
         this.playCard = config.playCard;
@@ -267,6 +280,7 @@ export class Card {
         this.exchangeNeutralNonLeaderDelegate = config.exchangeNeutralNonLeaderDelegate;
         this.removeNonLeaderDelegate = config.removeNonLeaderDelegate;
         this.exchangeChairman = config.exchangeChairman;
+        this.oceanAdjacencyBonus = config.oceanAdjacencyBonus;
     }
 }
 

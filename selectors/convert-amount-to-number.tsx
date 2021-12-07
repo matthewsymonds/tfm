@@ -93,10 +93,6 @@ export function convertOperationAmountToNumber(
     card?: SerializedCard
 ): number {
     const {operation, operands} = amount;
-    if (operands.length !== 2) {
-        return 0;
-    }
-
     const convertedOperands: number[] = operands.map(operand =>
         convertAmountToNumber(operand, state, player, card)
     );
