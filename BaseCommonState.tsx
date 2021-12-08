@@ -1,6 +1,6 @@
 import {Colony} from 'constants/colonies';
 import {Turmoil} from 'constants/turmoil';
-import {Award, Board, Cell, Milestone, Parameter} from './constants/board';
+import {Award, Board, Cell, Parameter} from './constants/board';
 import {GameStage} from './constants/game';
 import {Card} from './models/card';
 
@@ -13,7 +13,7 @@ export type BaseCommonState = {
     revealedCards: Card[];
     gameStage: GameStage;
     generation: number;
-    claimedMilestones: {claimedByPlayerIndex: number; milestone: Milestone}[];
+    claimedMilestones: {claimedByPlayerIndex: number; milestone: string}[];
     fundedAwards: {fundedByPlayerIndex: number; award: Award}[];
     turn: number;
     firstPlayerIndex: number;

@@ -21,7 +21,6 @@ import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
 import {getTextForAward} from './board/board-actions/awards';
-import {getTextForMilestone} from './board/board-actions/milestones';
 import {getLogTextForStandardProject} from './board/board-actions/standard-projects';
 import {GlobalParameterIcon} from './icons/global-parameter';
 import {TileIcon} from './icons/tile';
@@ -317,9 +316,7 @@ const LogEntryInner = ({
                             <React.Fragment>
                                 <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
                                 <PaymentIconography payment={payment} />
-                                <span style={{marginLeft: 4}}>
-                                    to claim {getTextForMilestone(milestone)}
-                                </span>
+                                <span style={{marginLeft: 4}}>to claim {milestone}</span>
                             </React.Fragment>
                         </Flex>
                     );

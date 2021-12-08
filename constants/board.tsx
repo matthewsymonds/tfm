@@ -349,20 +349,204 @@ const INITIAL_BOARD_STATE: Cell[][] = [
     ],
 ];
 
-INITIAL_BOARD_STATE.push([
+const ELYSIUM: Cell[][] = [
+    [
+        water(),
+        water([Resource.TITANIUM]),
+        water([Resource.CARD]),
+        water([Resource.STEEL]),
+        land([Resource.CARD]),
+    ],
+    [
+        land([Resource.TITANIUM], SpecialLocation.VOLCANIC, 'Hecatus Tholus'),
+        land(),
+        land(),
+        water(),
+        water(),
+        land([Resource.STEEL, Resource.STEEL]),
+    ],
+    [
+        land([Resource.TITANIUM, Resource.TITANIUM], SpecialLocation.VOLCANIC, 'Elysium Mons'),
+        land(),
+        land([Resource.CARD]),
+        land(),
+        water([Resource.PLANT]),
+        water(),
+        land(
+            [Resource.CARD, Resource.CARD, Resource.CARD],
+            SpecialLocation.VOLCANIC,
+            'Olympus Mons'
+        ),
+    ],
+    [
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        water([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT]),
+        water([Resource.PLANT]),
+        water([Resource.PLANT]),
+        land([Resource.STEEL, Resource.PLANT]),
+    ],
+    [
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        water([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.TITANIUM], SpecialLocation.VOLCANIC, 'Arsia Mons'),
+    ],
+    [
+        land([Resource.STEEL]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land(),
+    ],
+    [
+        land([Resource.TITANIUM]),
+        land([Resource.STEEL]),
+        land(),
+        land(),
+        land([Resource.STEEL]),
+        land(),
+        land(),
+    ],
+    [
+        land([Resource.STEEL, Resource.STEEL]),
+        land(),
+        land(),
+        land(),
+        land([Resource.STEEL, Resource.STEEL]),
+        land(),
+    ],
+    [
+        land([Resource.STEEL]),
+        land(),
+        land([Resource.CARD]),
+        land([Resource.CARD]),
+        land([Resource.STEEL, Resource.STEEL]),
+    ],
+];
+
+const HELLAS: Cell[][] = [
+    [
+        water([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.STEEL]),
+        land([Resource.PLANT]),
+    ],
+    [
+        water([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT, Resource.STEEL]),
+        land([Resource.PLANT]),
+        land([Resource.PLANT]),
+    ],
+    [
+        water([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.STEEL]),
+        land([Resource.STEEL]),
+        land(),
+        land([Resource.PLANT, Resource.PLANT]),
+        land([Resource.PLANT, Resource.CARD]),
+    ],
+    [
+        water([Resource.PLANT]),
+        land([Resource.PLANT]),
+        land([Resource.STEEL]),
+        land([Resource.STEEL, Resource.STEEL]),
+        land([Resource.STEEL]),
+        water([Resource.PLANT]),
+        water([Resource.PLANT]),
+        land([Resource.PLANT]),
+    ],
+    [
+        land([Resource.CARD]),
+        land(),
+        land(),
+        land([Resource.STEEL, Resource.STEEL]),
+        land(),
+        water([Resource.CARD]),
+        water([Resource.HEAT, Resource.HEAT, Resource.HEAT]),
+        water(),
+        land([Resource.PLANT]),
+    ],
+    [
+        land([Resource.TITANIUM]),
+        land(),
+        land([Resource.STEEL]),
+        land(),
+        land(),
+        water(),
+        water([Resource.STEEL]),
+        land(),
+    ],
+    [
+        water([Resource.TITANIUM, Resource.TITANIUM]),
+        land(),
+        land(),
+        land([Resource.CARD]),
+        land(),
+        land(),
+        land([Resource.TITANIUM]),
+    ],
+    [
+        land([Resource.STEEL]),
+        land([Resource.CARD]),
+        land([Resource.HEAT, Resource.HEAT]),
+        land([Resource.HEAT, Resource.HEAT]),
+        land([Resource.TITANIUM]),
+        land([Resource.TITANIUM]),
+    ],
+    [
+        land(),
+        land([Resource.HEAT, Resource.HEAT]),
+        {
+            type: CellType.LAND,
+            action: {
+                removeResource: {
+                    [Resource.MEGACREDIT]: 6,
+                },
+                tilePlacements: [t(TileType.OCEAN)],
+            },
+        },
+        land([Resource.HEAT, Resource.HEAT]),
+        land(),
+    ],
+];
+
+const OFF_MARS_CITIES = [
     offMars([], SpecialLocation.PHOBOS, 'Phobos'),
     offMars([], SpecialLocation.GANYMEDE, 'Ganymede'),
     offMars([], SpecialLocation.DAWN_CITY, 'Dawn City'),
     offMars([], SpecialLocation.LUNA_METROPOLIS, 'Luna Metropolis'),
     offMars([], SpecialLocation.MAXWELL_BASE, 'Maxwell Base'),
     offMars([], SpecialLocation.STRATOPOLIS, 'Stratopolis'),
-]);
+];
 
-INITIAL_BOARD_STATE.forEach((row, rowIndex) => {
-    row.forEach((cell, cellIndex) => {
-        cell.coords = [rowIndex, cellIndex];
-    });
-});
+INITIAL_BOARD_STATE.push(OFF_MARS_CITIES);
+
+ELYSIUM.push(OFF_MARS_CITIES);
+
+HELLAS.push(OFF_MARS_CITIES);
+
+[INITIAL_BOARD_STATE, ELYSIUM, HELLAS].forEach(board =>
+    board.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+            cell.coords = [rowIndex, cellIndex];
+        });
+    })
+);
 
 export function getTilePlacementBonus(
     cell: Cell,
@@ -380,6 +564,17 @@ export function getTilePlacementBonus(
     });
 }
 
+export function getBoard(name?: string): Cell[][] {
+    if (name === 'Hellas') {
+        return HELLAS;
+    }
+    if (name === 'Elysium') {
+        return ELYSIUM;
+    }
+
+    return INITIAL_BOARD_STATE;
+}
+
 export type Board = Cell[][];
 
-export {INITIAL_BOARD_STATE};
+export {INITIAL_BOARD_STATE, ELYSIUM, HELLAS};

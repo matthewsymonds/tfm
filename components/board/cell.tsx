@@ -1,4 +1,5 @@
 import {Box, Flex} from 'components/box';
+import {BaseActionIconography} from 'components/card/CardIconography';
 import {ResourceIcon} from 'components/icons/resource';
 import {getTileBgColor} from 'components/icons/tile';
 import {Square} from 'components/square';
@@ -123,6 +124,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                 >
                     {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
                     {tile && renderTile(tile)}
+                    {cell.action && <BaseActionIconography card={cell.action} />}
                 </Flex>
             </Hexagon>
         </>

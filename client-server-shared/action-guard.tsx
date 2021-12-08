@@ -6,11 +6,12 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLobbyingAction} from 'components/turmoil';
 import {Action, Payment} from 'constants/action';
-import {Award, Cell, Milestone, TilePlacement, TileType} from 'constants/board';
+import {Award, Cell, TilePlacement, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
+import {getMilestone} from 'constants/milestones';
 import {getParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
@@ -37,7 +38,6 @@ import {meetsColonyPlacementRequirements} from 'selectors/meets-colony-placement
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
 import {meetsTilePlacementRequirements} from 'selectors/meets-tile-placement-requirements';
-import {milestoneQuantitySelectors, minMilestoneQuantity} from 'selectors/milestone-selectors';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import {getTags} from 'selectors/variable-amount';
 import {SupplementalResources} from 'server/api-action-handler';
@@ -212,7 +212,7 @@ export class ActionGuard {
         return [cost <= megacredits + heat, 'Cannot afford standard project'];
     }
 
-    canClaimMilestone(milestone: Milestone): CanPlayAndReason {
+    canClaimMilestone(milestone: string): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
@@ -241,13 +241,15 @@ export class ActionGuard {
             return [false, 'Cannot afford'];
         }
 
-        return [
-            milestoneQuantitySelectors[milestone](player, state) >= minMilestoneQuantity[milestone],
-            'Milestone not reached',
-        ];
+        const milestoneConfig = getMilestone(milestone);
+
+        const minQuantity = convertAmountToNumber(milestoneConfig.quantity, state, player);
+        const quantity = convertAmountToNumber(milestoneConfig.amount, state, player);
+
+        return [quantity >= minQuantity, 'Milestone not reached'];
     }
 
-    isMilestoneClaimed(milestone: Milestone): boolean {
+    isMilestoneClaimed(milestone: string): boolean {
         return this.state.common.claimedMilestones.some(claim => claim.milestone === milestone);
     }
 

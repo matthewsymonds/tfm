@@ -11,7 +11,7 @@ import {
     serializeResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
-import {Award, Cell, Milestone} from 'constants/board';
+import {Award, Cell} from 'constants/board';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -188,7 +188,7 @@ export class ApiClient implements GameActionHandler {
     }
 
     async claimMilestoneAsync(payload: {
-        milestone: Milestone;
+        milestone: string;
         payment: NumericPropertyCounter<Resource>;
     }): Promise<void> {
         await this.makeApiCall(ApiActionType.API_CLAIM_MILESTONE, payload);

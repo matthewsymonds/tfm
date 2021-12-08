@@ -1,4 +1,4 @@
-import {Award, Milestone} from 'constants/board';
+import {Award} from 'constants/board';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
@@ -49,7 +49,7 @@ export type GameActionConvertResources = SharedGameAction & {
 
 export type GameActionClaimMilestone = SharedGameAction & {
     actionType: GameActionType.MILESTONE;
-    milestone: Milestone;
+    milestone: string;
     payment: NumericPropertyCounter<Resource>;
 };
 

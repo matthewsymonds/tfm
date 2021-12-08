@@ -9,6 +9,7 @@ import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
 import {Milestone} from 'constants/board';
+import {getMilestone, getMilestones} from 'constants/milestones';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
@@ -17,8 +18,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';
 import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
-import {milestoneQuantitySelectors} from 'selectors/milestone-selectors';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
 
 const MilestoneHeader = styled.div`
@@ -43,23 +43,19 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
         }))
     );
 
-    const claimMilestone = (milestone: Milestone, payment: NumericPropertyCounter<Resource>) => {
+    const claimMilestone = (milestone: string, payment: NumericPropertyCounter<Resource>) => {
         if (canPlay(milestone)) {
             apiClient.claimMilestoneAsync({milestone, payment});
         }
     };
 
-    let milestones = Object.values(Milestone);
-    const venus = useTypedSelector(isPlayingVenus);
-    if (!venus) {
-        milestones = milestones.filter(milestone => milestone !== Milestone.HOVERLORD);
-    }
+    const milestones = useTypedSelector(state => getMilestones(state));
 
     return (
         <AwardsMilestonesLayout>
             <MilestoneHeader className="display">Milestones</MilestoneHeader>
             <Box position="relative" className="width-full overflow-auto">
-                <ActionListWithPopovers<Milestone>
+                <ActionListWithPopovers<string>
                     actions={milestones}
                     emphasizeOnHover={canPlay}
                     popoverPlacement={windowWidth > 895 ? 'left-center' : 'top-center'}
@@ -109,7 +105,7 @@ function MilestoneBadge({
     canClaim,
     isClaimed,
 }: {
-    milestone: Milestone;
+    milestone: string;
     canClaim: boolean;
     isClaimed: boolean;
 }) {
@@ -125,7 +121,7 @@ function MilestoneBadge({
                     <PlayerIcon playerIndex={claimedByPlayerIndex} size={10} />
                 </div>
             )}
-            <span>{getTextForMilestone(milestone)}</span>
+            <span>{milestone}</span>
         </MilestoneBadgeContainer>
     );
 }
@@ -141,11 +137,11 @@ function MilestonePopover({
     claimedByPlayer,
     claimMilestone,
 }: {
-    milestone: Milestone;
+    milestone: string;
     isClaimed: boolean;
     loggedInPlayer: PlayerState;
     claimedByPlayer: PlayerState | null;
-    claimMilestone: (action: Milestone, payment: NumericPropertyCounter<Resource>) => void;
+    claimMilestone: (action: string, payment: NumericPropertyCounter<Resource>) => void;
 }) {
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
@@ -155,9 +151,7 @@ function MilestonePopover({
     return (
         <TexturedCard width={200}>
             <Flex flexDirection="column">
-                <GenericCardTitleBar bgColor={'#d67500'}>
-                    {getTextForMilestone(milestone)}
-                </GenericCardTitleBar>
+                <GenericCardTitleBar bgColor={'#d67500'}>{milestone}</GenericCardTitleBar>
                 {isClaimed ? <GenericCardCost cost="-" /> : <GenericCardCost cost={8} />}
                 <Flex alignItems="center" margin="4px" marginBottom="8px" fontSize="13px">
                     <MilestoneRankings milestone={milestone} />
@@ -199,7 +193,7 @@ function MilestonePopover({
                                         claimMilestone(milestone, {[Resource.MEGACREDIT]: 8});
                                 }}
                             >
-                                Claim {getTextForMilestone(milestone)}
+                                Claim {milestone}
                             </CardButton>
                         </PaymentPopover>
                     </Flex>
@@ -207,25 +201,6 @@ function MilestonePopover({
             </Flex>
         </TexturedCard>
     );
-}
-
-export function getTextForMilestone(milestone: Milestone) {
-    switch (milestone) {
-        case Milestone.BUILDER:
-            return 'Builder';
-        case Milestone.GARDENER:
-            return 'Gardener';
-        case Milestone.PLANNER:
-            return 'Planner';
-        case Milestone.TERRAFORMER:
-            return 'Terraformer';
-        case Milestone.MAYOR:
-            return 'Mayor';
-        case Milestone.HOVERLORD:
-            return 'Hoverlord';
-        default:
-            throw new Error('Unrecognized milestone');
-    }
 }
 
 function getRequirementTextForMilestone(milestone: Milestone) {
@@ -247,18 +222,19 @@ function getRequirementTextForMilestone(milestone: Milestone) {
     }
 }
 
-function MilestoneRankings({milestone}: {milestone: Milestone}) {
+function MilestoneRankings({milestone}: {milestone: string}) {
     const players = useTypedSelector(state => state.players);
+    const milestoneConfig = getMilestone(milestone);
 
     return (
         <Flex flexDirection="column" width="100%">
             <Flex alignItems="center" marginBottom="8px" style={{fontSize: 14}}>
-                <span>{getRequirementTextForMilestone(milestone)}</span>
+                <span>{milestoneConfig.requirementText}</span>
             </Flex>
             {players.map(player => {
-                const quantity = useTypedSelector(state =>
-                    milestoneQuantitySelectors[milestone](player, state)
-                );
+                const quantity = useTypedSelector(state => {
+                    return convertAmountToNumber(milestoneConfig.amount, state, player);
+                });
                 return (
                     <Flex
                         key={player.index}

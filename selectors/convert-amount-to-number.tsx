@@ -1,5 +1,5 @@
 import {Amount} from 'constants/action';
-import {CardType} from 'constants/card-types';
+import {CardType, Deck} from 'constants/card-types';
 import {
     Condition,
     ConditionAmount,
@@ -12,10 +12,12 @@ import {isOperationAmount, Operation, OperationAmount} from 'constants/operation
 import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
 import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';
 import {Tag} from 'constants/tag';
+import {isTileAmount, TileAmount} from 'constants/tile-amount';
 import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import {SerializedCard} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
+import {getAllCellsOwnedByCurrentPlayer} from './board';
 import {getCard} from './get-card';
 import {isTagAmount} from './is-tag-amount';
 import {isVariableAmount} from './is-variable-amount';
@@ -46,6 +48,9 @@ export function convertAmountToNumber(
         }
         return Math.floor((matchingTags.length + extraTags) / (amount.dividedBy ?? 1));
     }
+    if (isTileAmount(amount)) {
+        return convertTileAmountToNumber(amount, state, player);
+    }
     if (isProductionAmount(amount)) {
         return convertProductionAmountToNumber(amount, state, player, card);
     }
@@ -66,6 +71,16 @@ export function convertAmountToNumber(
     const amountGetter = VARIABLE_AMOUNT_SELECTORS[amount];
     if (!amountGetter) return 0;
     return amountGetter(state, player, card) || 0;
+}
+
+export function convertTileAmountToNumber(
+    amount: TileAmount,
+    state: GameState,
+    player: PlayerState
+) {
+    return getAllCellsOwnedByCurrentPlayer(state, player).filter(
+        cell => cell?.tile?.type === amount.tile
+    ).length;
 }
 
 export function convertProductionAmountToNumber(
@@ -153,6 +168,8 @@ export function isConditionPassed(
                 convertAmountToNumber(operand, state, player, card)
             );
             return first >= second;
+        case Condition.TURMOIL:
+            return state.options.decks.includes(Deck.TURMOIL);
         default:
             throw spawnExhaustiveSwitchError(condition);
     }

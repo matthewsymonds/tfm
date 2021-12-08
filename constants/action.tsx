@@ -10,6 +10,7 @@ import {ResourceLocationType} from './resource';
 import {ResourceAmount} from './resource-amount';
 import {Resource} from './resource-enum';
 import {Tag, TagAmount} from './tag';
+import {TileAmount} from './tile-amount';
 import {VariableAmount} from './variable-amount';
 
 export type ResourceCounter = PropertyCounter<Resource>;
@@ -29,6 +30,7 @@ export type Amount =
     | number
     | VariableAmount
     | TagAmount
+    | TileAmount
     | OperationAmount
     | ConditionAmount
     | ResourceAmount

@@ -2,6 +2,7 @@ import {Amount} from './action';
 
 export enum Condition {
     GREATER_THAN_OR_EQUAL_TO = 'conditionGreaterThanOrEqualTo',
+    TURMOIL = 'conditionTurmoil',
 }
 
 export type ConditionWithOperands = {

@@ -78,6 +78,12 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                         <ResourceIcon name={Resource.FLOATER} size={16} />
                     </CenteredText>
                 );
+            case VariableAmount.FLOATERS:
+                return (
+                    <CenteredText>
+                        <ResourceIcon name={Resource.FLOATER} size={16} />
+                    </CenteredText>
+                );
             case VariableAmount.QUARTER_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>

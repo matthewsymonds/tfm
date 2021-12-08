@@ -432,6 +432,23 @@ function getMultiplierAndCustomElement(
                 </Box>
             );
             break;
+        case VariableAmount.GREEN_CARD:
+            multiplierElement = (
+                <Box>
+                    <TexturedCard
+                        height={20}
+                        width={15}
+                        borderRadius={2}
+                        borderWidth={1}
+                        bgColor={colors.CARD_AUTOMATED}
+                    >
+                        <Flex alignItems="center" justifyContent="center" height="100%">
+                            <TagIcon name={Tag.EARTH} />
+                        </Flex>
+                    </TexturedCard>
+                </Box>
+            );
+            break;
         case VariableAmount.CARDS_IN_HAND:
             multiplierElement = (
                 <Flex justifyContent="space-around">
@@ -502,6 +519,9 @@ function getMultiplierAndCustomElement(
                     <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
                 </React.Fragment>
             );
+            break;
+        case VariableAmount.FLOATERS:
+            multiplierElement = <ResourceIcon name={Resource.FLOATER} size={16} amount={1} />;
             break;
         case VariableAmount.CITIES_ON_MARS:
             multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
@@ -681,6 +701,11 @@ function getMultiplierAndCustomElement(
                 );
             } else if (amount && isConditionAmount(amount)) {
                 switch (amount.condition) {
+                    case Condition.TURMOIL:
+                        customElement = (
+                            <RepresentAmountAndResource {...props} amount={amount.fail} />
+                        );
+                        break;
                     case Condition.GREATER_THAN_OR_EQUAL_TO:
                         customElement = (
                             <Flex flexDirection="column" alignItems="center">

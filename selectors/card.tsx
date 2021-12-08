@@ -11,6 +11,7 @@ import {
 import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
+import {isTileAmount} from 'constants/tile-amount';
 import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
@@ -21,6 +22,7 @@ import {
     convertOperationAmountToNumber,
     convertProductionAmountToNumber,
     convertResourceAmountToNumber,
+    convertTileAmountToNumber,
 } from './convert-amount-to-number';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
@@ -43,6 +45,9 @@ export function getCardVictoryPoints(
         // Wild tags do not count here.
         const matchingTags = tags.filter(tag => tag === amount.tag);
         return Math.floor(matchingTags.length / (amount.dividedBy ?? 1));
+    }
+    if (isTileAmount(amount)) {
+        return convertTileAmountToNumber(amount, state, player);
     }
     if (isOperationAmount(amount)) {
         return convertOperationAmountToNumber(amount, state, player, card);

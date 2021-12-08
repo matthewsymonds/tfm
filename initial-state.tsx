@@ -1,7 +1,7 @@
 import {getStartingColonies} from 'constants/colonies';
 import {initializeTurmoil} from 'constants/turmoil';
 import {SerializedState} from 'state-serialization';
-import {INITIAL_BOARD_STATE} from './constants/board';
+import {getBoard} from './constants/board';
 import {CardType, Deck} from './constants/card-types';
 import {GameStage, MIN_PARAMETERS} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
@@ -92,7 +92,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             deck,
             preludes,
             parameters: MIN_PARAMETERS,
-            board: INITIAL_BOARD_STATE,
+            board: getBoard(options.board),
             currentPlayerIndex: 0,
             firstPlayerIndex: 0,
             claimedMilestones: [],

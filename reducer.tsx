@@ -1,6 +1,5 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
 import {getTextForAward} from 'components/board/board-actions/awards';
-import {getTextForMilestone} from 'components/board/board-actions/milestones';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
@@ -179,6 +178,7 @@ export type GameOptions = {
     isDraftingEnabled: boolean;
     decks: Deck[];
     soloCorporationName?: string;
+    board?: string;
 };
 
 export type PendingChoice = {
@@ -1203,9 +1203,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 claimedByPlayerIndex: player.index,
                 milestone: milestone,
             });
-            draft.log.push(
-                `${corporationName} claimed ${getTextForMilestone(payload.milestone)} milestone`
-            );
+            draft.log.push(`${corporationName} claimed ${payload.milestone} milestone`);
         }
 
         if (fundAward.match(action)) {

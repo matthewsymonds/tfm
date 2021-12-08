@@ -101,10 +101,6 @@ function getAvailableCells(state: GameState, player: PlayerState) {
     return state.common.board.flat().filter(cell => isAvailable(state, cell, player));
 }
 
-function getTakenCells(state: GameState, player: PlayerState) {
-    return state.common.board.flat().filter(cell => !isAvailable(state, cell, player));
-}
-
 function getAvailableCellsOnMars(state: GameState, player: PlayerState) {
     return getAvailableCells(state, player).filter(cell => cellHelpers.onMars(cell));
 }

@@ -187,6 +187,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         }
         return Math.floor(numFloaters / 3);
     },
+    [VariableAmount.THIRD_FLOATERS]: (state: GameState, player: PlayerState, card?: Card) =>
+        Math.floor(getTotalFloaters(state, player, card) / 3),
+    [VariableAmount.FLOATERS]: getTotalFloaters,
     [VariableAmount.QUARTER_RESOURCES_ON_CARD]: (
         state: GameState,
         player: PlayerState,
@@ -292,4 +295,54 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.BLUE_CARD]: (state: GameState, player: PlayerState) => {
         return player.playedCards.filter(card => getCard(card).type === CardType.ACTIVE).length;
     },
+    [VariableAmount.GREEN_CARD]: (state: GameState, player: PlayerState) => {
+        return player.playedCards.filter(card => getCard(card).type === CardType.AUTOMATED).length;
+    },
+    [VariableAmount.REQUIREMENT_CARDS]: (state: GameState, player: PlayerState) => {
+        return player.playedCards
+            .map(card => getCard(card))
+            .filter(card => {
+                const someRequirement =
+                    card.requiredChairman ||
+                    card.requiredPartyLeader ||
+                    card.requiredGlobalParameter ||
+                    card.requiredPartyOrTwoDelegates ||
+                    card.requiredProduction ||
+                    card.requiredTags ||
+                    card.requiredTilePlacements ||
+                    card.requiredResources;
+                return !!someRequirement;
+            }).length;
+    },
+    [VariableAmount.TILES_ON_BOTTOM_TWO_ROWS]: (state: GameState, player: PlayerState) => {
+        const {board} = state.common;
+        // Exclude bottom row which is used for off mars cities.
+        const indexOfLastRow = board.length - 2;
+        const relevantRows = [indexOfLastRow, indexOfLastRow - 1].map(rowIndex => board[rowIndex]);
+
+        let count = 0;
+        for (const row of relevantRows) {
+            for (const cell of row) {
+                if (
+                    cell?.tile?.ownerPlayerIndex === player.index &&
+                    cell?.tile?.type !== TileType.RESTRICTED_AREA
+                ) {
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    },
 };
+
+export function getTotalFloaters(state: GameState, player: PlayerState, card?: Card) {
+    let numFloaters = 0;
+    for (const card of player.playedCards) {
+        const fullCard = getCard(card);
+        if (fullCard.storedResourceType !== Resource.FLOATER) {
+            continue;
+        }
+        numFloaters += card.storedResourceAmount ?? 0;
+    }
+    return numFloaters;
+}
