@@ -80,7 +80,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                 state.common.controllingPlayerIndex === loggedInPlayerIndex ||
                 state.common.controllingPlayerIndex === undefined
         );
-        const isDrafting = useTypedSelector(isDraftingSelector);
+        const isDrafting = useTypedSelector(state => isDraftingSelector(state));
         const isBuyOrDiscard = useTypedSelector(state => gameStage === GameStage.BUY_OR_DISCARD);
         const isGreeneryPlacement = useTypedSelector(
             state => gameStage === GameStage.GREENERY_PLACEMENT

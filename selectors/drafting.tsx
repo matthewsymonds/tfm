@@ -7,10 +7,16 @@ export function isDrafting(state: GameState) {
 }
 
 export function isWaitingOnOthersToDraft(state: GameState) {
-    if (!isDrafting(state)) return false;
     const player = useLoggedInPlayer();
+
+    if (!isDrafting(state)) return false;
+
     const {pendingCardSelection} = player;
     if (!pendingCardSelection) return false;
 
-    pendingCardSelection.possibleCards.length + (pendingCardSelection.draftPicks?.length ?? 0) > 4;
+    return (
+        (pendingCardSelection.possibleCards.length ?? 0) +
+            (pendingCardSelection.draftPicks?.length ?? 0) >
+        4
+    );
 }

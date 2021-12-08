@@ -62,7 +62,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
 
     const dispatch = useDispatch();
     const apiClient = useApiClient();
-    const isDrafting = useTypedSelector(isDraftingSelector);
+    const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     const isSyncing = useTypedSelector(state => state.syncing);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
@@ -141,7 +141,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     );
 
     // hide card selector while waiting on others to pick cards
-    const isWaitingOnOthersToDraft = useTypedSelector(isWaitingOnOthersToDraftSelector);
+    const isWaitingOnOthersToDraft = useTypedSelector(state =>
+        isWaitingOnOthersToDraftSelector(state)
+    );
 
     const playersWhoNeedToDraft: Array<PlayerState> = [];
     if (isWaitingOnOthersToDraft) {

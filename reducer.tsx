@@ -2177,5 +2177,7 @@ function handleSetupNextGeneration(draft: WritableDraft<GameState>) {
 
 const equalityFn = shallowEqual;
 
-export const useTypedSelector: TypedUseSelectorHook<GameState> = selector =>
-    useSelector(selector, equalityFn);
+export const useTypedSelector: TypedUseSelectorHook<GameState> = selector => {
+    return useSelector(selector, equalityFn);
+    return useSelector(selector, equalityFn);
+};

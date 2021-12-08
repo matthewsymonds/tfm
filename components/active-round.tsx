@@ -103,8 +103,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             loggedInPlayer.exchangeNeutralNonLeaderDelegate
     );
     const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
-    const isWaitingOnOthersToDraft = useTypedSelector(isWaitingOnOthersToDraftSelector);
-    const isDrafting = useTypedSelector(isDraftingSelector);
+    const isWaitingOnOthersToDraft = useTypedSelector(state =>
+        isWaitingOnOthersToDraftSelector(state)
+    );
+    const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Choose your corporation and starting cards';
