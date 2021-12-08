@@ -11,8 +11,8 @@ const API_KEY = process.env.MAILGUN_PRIVATE_API_KEY;
 
 const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
 
-const getLink = (name: string, length?: number) =>
-    `<a href=https://${DOMAIN}/games/${name}>${name}${length ? ` [${length}]` : ''}</a>`;
+const getLink = (name: string, count?: number) =>
+    `<a href=https://${DOMAIN}/games/${name}>${name}${count ? ` [${count}]` : ''}</a>`;
 
 const getNumGamesMessage = (yourTurnGames: NamedGame[]) =>
     `It is your turn in ${yourTurnGames.length} game${yourTurnGames.length === 1 ? '' : 's'}`;
@@ -22,7 +22,7 @@ const getTitle = (yourTurnGames: NamedGame[], notYouPlayers: string[]) =>
 
 const getMessage = (yourTurnGames: NamedGame[]) =>
     `<div>${getNumGamesMessage(yourTurnGames)}: ${yourTurnGames
-        .map(({name, length}) => getLink(name, length))
+        .map(({name, count}) => getLink(name, count))
         .join(', ')}</div>`;
 
 export async function handleEmail(players: string[]) {
