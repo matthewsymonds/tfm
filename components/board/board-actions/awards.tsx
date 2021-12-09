@@ -55,7 +55,7 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
                 let fundedByPlayer;
                 if (isFunded) {
                     const {fundedByPlayerIndex} = state.common.fundedAwards.find(
-                        fa => fa.award === award
+                        fa => fa.award.toLowerCase() === award.toLowerCase()
                     )!;
                     fundedByPlayer = state.players[fundedByPlayerIndex];
                 }
@@ -148,8 +148,9 @@ function AwardBadge({
     isFunded: boolean;
 }) {
     const fundedByPlayerIndex =
-        useTypedSelector(state => state.common.fundedAwards.find(fa => fa.award === award))
-            ?.fundedByPlayerIndex ?? null;
+        useTypedSelector(state =>
+            state.common.fundedAwards.find(fa => fa.award.toLowerCase() === award.toLowerCase())
+        )?.fundedByPlayerIndex ?? null;
 
     const awardConfig = getAward(award);
 
@@ -281,7 +282,9 @@ function AwardRankings({award}: {award: string}) {
 }
 
 function getCostForAward(award: string, state: GameState) {
-    const fundedIndex = state.common.fundedAwards.findIndex(config => config.award === award);
+    const fundedIndex = state.common.fundedAwards.findIndex(
+        config => config.award.toLowerCase() === award.toLowerCase()
+    );
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];
     } else {

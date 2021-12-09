@@ -75,8 +75,9 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
                                 claimMilestone(milestone, payment);
                             }}
                             claimedByPlayer={
-                                claimedMilestones.find(cm => cm.milestone === action)
-                                    ?.claimedByPlayer ?? null
+                                claimedMilestones.find(
+                                    cm => cm.milestone.toLowerCase() === action.toLowerCase()
+                                )?.claimedByPlayer ?? null
                             }
                             loggedInPlayer={loggedInPlayer}
                         />
@@ -110,7 +111,9 @@ function MilestoneBadge({
 }) {
     const claimedByPlayerIndex =
         useTypedSelector(state =>
-            state.common.claimedMilestones.find(cm => cm.milestone === milestone)
+            state.common.claimedMilestones.find(
+                cm => cm.milestone.toLowerCase() === milestone.toLowerCase()
+            )
         )?.claimedByPlayerIndex ?? null;
 
     return (

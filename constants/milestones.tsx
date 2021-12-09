@@ -119,11 +119,11 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
 
 const MILESTONE_CONFIGS_BY_NAME: {[name: string]: MilestoneConfig} = {};
 for (const milestone of MILESTONE_CONFIGS) {
-    MILESTONE_CONFIGS_BY_NAME[milestone.name] = milestone;
+    MILESTONE_CONFIGS_BY_NAME[milestone.name.toLowerCase()] = milestone;
 }
 
 export function getMilestone(name: string): MilestoneConfig {
-    const found = MILESTONE_CONFIGS_BY_NAME[name];
+    const found = MILESTONE_CONFIGS_BY_NAME[name.toLowerCase()];
     if (!found) throw new Error('milestone not found');
     return found;
 }

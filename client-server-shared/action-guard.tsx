@@ -262,7 +262,9 @@ export class ActionGuard {
     }
 
     isMilestoneClaimed(milestone: string): boolean {
-        return this.state.common.claimedMilestones.some(claim => claim.milestone === milestone);
+        return this.state.common.claimedMilestones.some(
+            claim => claim.milestone.toLowerCase() === milestone.toLowerCase()
+        );
     }
 
     canFundAward(award: string): CanPlayAndReason {
@@ -302,7 +304,9 @@ export class ActionGuard {
     }
 
     isAwardFunded(award: string) {
-        return this.state.common.fundedAwards.some(claim => claim.award === award);
+        return this.state.common.fundedAwards.some(
+            claim => claim.award.toLowerCase() === award.toLowerCase()
+        );
     }
 
     canSkipAction(): CanPlayAndReason {
