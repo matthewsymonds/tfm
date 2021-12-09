@@ -7,7 +7,7 @@ import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';
-import {Award, Cell, Parameter, Tile, TilePlacement, TileType} from './constants/board';
+import {Cell, Parameter, Tile, TilePlacement, TileType} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {PropertyCounter} from './constants/property-counter';
 import {ResourceAndAmount, ResourceLocationType} from './constants/resource';
@@ -292,7 +292,7 @@ export const claimMilestone = withMatcher(
 );
 
 const FUND_AWARD = 'FUND_AWARD';
-export const fundAward = withMatcher((award: Award, payment: Payment, playerIndex: number) => ({
+export const fundAward = withMatcher((award: string, payment: Payment, playerIndex: number) => ({
     type: FUND_AWARD,
     payload: {award, payment, playerIndex},
 }));

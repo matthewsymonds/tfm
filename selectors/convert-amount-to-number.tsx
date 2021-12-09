@@ -89,7 +89,7 @@ export function convertProductionAmountToNumber(
     player: PlayerState,
     card?: SerializedCard
 ) {
-    return Math.min(player.productions[amount.production], 0) ?? 0;
+    return Math.max(player.productions[amount.production], 0) ?? 0;
 }
 
 export function convertResourceAmountToNumber(
@@ -98,7 +98,7 @@ export function convertResourceAmountToNumber(
     player: PlayerState,
     card?: SerializedCard
 ) {
-    return Math.min(player.resources[amount.resource], 0) ?? 0;
+    return Math.max(player.resources[amount.resource], 0) ?? 0;
 }
 
 export function convertOperationAmountToNumber(

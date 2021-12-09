@@ -1,4 +1,3 @@
-import {Award} from 'constants/board';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
@@ -38,7 +37,7 @@ export type GameActionPlayCardAction = SharedGameAction & {
 
 export type GameActionFundAward = SharedGameAction & {
     actionType: GameActionType.AWARD;
-    award: Award;
+    award: string;
     payment: NumericPropertyCounter<Resource>;
 };
 

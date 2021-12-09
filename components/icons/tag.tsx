@@ -19,7 +19,7 @@ const dict = {
     [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
     [Tag.WILD]: ['?', 'black', '#fefefe'],
     [Tag.ANY]: ['🌈', 'black', 'white', '', 'emoji'],
-    [Tag.NONE]: ['𝗫', 'black', 'white', '', 'emoji'],
+    [Tag.NONE]: ['', 'black', 'white', '', 'emoji'],
     x: ['x', 'white', 'white'],
 };
 

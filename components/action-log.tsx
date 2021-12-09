@@ -4,6 +4,7 @@ import {PlayerCorpAndIcon} from 'components/icons/player';
 import {ResourceIcon} from 'components/icons/resource';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
+import {getAward} from 'constants/awards';
 import {Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
@@ -20,7 +21,6 @@ import {SerializedGameAction} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
-import {getTextForAward} from './board/board-actions/awards';
 import {getLogTextForStandardProject} from './board/board-actions/standard-projects';
 import {GlobalParameterIcon} from './icons/global-parameter';
 import {TileIcon} from './icons/tile';
@@ -291,15 +291,15 @@ const LogEntryInner = ({
                     if (!player) throw new Error('unknown player');
                     const {award, payment} = gameAction;
 
+                    const awardConfig = getAward(award);
+
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
                                 <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
                                 <PaymentIconography payment={payment} />
-                                <span style={{marginLeft: 4}}>
-                                    to fund {getTextForAward(award)}
-                                </span>
+                                <span style={{marginLeft: 4}}>to fund {awardConfig.name}</span>
                             </React.Fragment>
                         </Flex>
                     );

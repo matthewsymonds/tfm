@@ -7,7 +7,7 @@ import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
-import {Award} from 'constants/board';
+import {getAward, getAwards} from 'constants/awards';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
@@ -16,8 +16,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useWindowWidth} from 'hooks/use-window-width';
 import React from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
-import {awardToQuantity} from 'selectors/score';
+import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
 
 export const AwardsMilestonesLayout = styled.div`
@@ -47,9 +46,11 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
     const windowWidth = useWindowWidth();
     const {hidePopover} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
 
+    const awards = useTypedSelector(state => getAwards(state));
+
     const awardConfigsByAward = useTypedSelector(
         state =>
-            Object.values(Award).reduce((acc, award) => {
+            awards.reduce((acc, award) => {
                 const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
                 let fundedByPlayer;
                 if (isFunded) {
@@ -76,11 +77,11 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
         }
     );
 
-    const canPlay = award => actionGuard.canFundAward(award)[0];
-    const isFunded = award => actionGuard.isAwardFunded(award);
+    const canPlay = (award: string) => actionGuard.canFundAward(award)[0];
+    const isFunded = (award: string) => actionGuard.isAwardFunded(award);
     const isFree = loggedInPlayer.fundAward;
 
-    const fundAward = (award: Award, payment: NumericPropertyCounter<Resource>) => {
+    const fundAward = (award: string, payment: NumericPropertyCounter<Resource>) => {
         if (canPlay(award)) {
             if (isFree) {
                 apiClient.fundAwardAsync({award, payment: {}});
@@ -90,16 +91,11 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
         }
     };
 
-    let awards = Object.values(Award);
-    const venus = useTypedSelector(isPlayingVenus);
-    if (!venus) {
-        awards = awards.filter(award => award !== Award.VENUPHILE);
-    }
     return (
         <AwardsMilestonesLayout>
             <AwardHeader className="display">Awards</AwardHeader>
             <Box position="relative" className="width-full overflow-auto">
-                <ActionListWithPopovers<Award>
+                <ActionListWithPopovers<string>
                     actions={awards}
                     emphasizeOnHover={canPlay}
                     popoverPlacement={windowWidth > 895 ? 'left-center' : 'top-center'}
@@ -147,13 +143,15 @@ function AwardBadge({
     canFund,
     isFunded,
 }: {
-    award: Award;
+    award: string;
     canFund: boolean;
     isFunded: boolean;
 }) {
     const fundedByPlayerIndex =
         useTypedSelector(state => state.common.fundedAwards.find(fa => fa.award === award))
             ?.fundedByPlayerIndex ?? null;
+
+    const awardConfig = getAward(award);
 
     return (
         <AwardBadgeContainer className="display" canFund={canFund} isFunded={isFunded}>
@@ -162,7 +160,7 @@ function AwardBadge({
                     <PlayerIcon playerIndex={fundedByPlayerIndex} size={10} />
                 </div>
             )}
-            <span>{getTextForAward(award)}</span>
+            <span>{awardConfig.name}</span>
         </AwardBadgeContainer>
     );
 }
@@ -179,13 +177,14 @@ export function AwardPopover({
     fundedByPlayer,
     fundAward,
 }: {
-    award: Award;
+    award: string;
     loggedInPlayer: PlayerState;
     cost: number;
     isFunded: boolean;
     fundedByPlayer?: PlayerState;
-    fundAward: (action: Award, payment: NumericPropertyCounter<Resource>) => void;
+    fundAward: (action: string, payment: NumericPropertyCounter<Resource>) => void;
 }) {
+    const awardConfig = getAward(award);
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canFundAward(award);
     const showPaymentPopover =
@@ -196,9 +195,7 @@ export function AwardPopover({
     return (
         <TexturedCard width={200}>
             <Flex flexDirection="column">
-                <GenericCardTitleBar bgColor={'#d67500'}>
-                    {getTextForAward(award)}
-                </GenericCardTitleBar>
+                <GenericCardTitleBar bgColor={'#d67500'}>{awardConfig.name}</GenericCardTitleBar>
                 {isFunded ? (
                     <GenericCardCost cost="-" />
                 ) : (
@@ -245,7 +242,7 @@ export function AwardPopover({
                                     }
                                 }}
                             >
-                                Fund {getTextForAward(award)}
+                                Fund {awardConfig.name}
                             </CardButton>
                         </PaymentPopover>
                     </Flex>
@@ -255,15 +252,18 @@ export function AwardPopover({
     );
 }
 
-function AwardRankings({award}: {award: Award}) {
+function AwardRankings({award}: {award: string}) {
     const players = useTypedSelector(state => state.players);
+    const awardConfig = getAward(award);
     return (
         <Flex flexDirection="column" width="100%">
             <Flex alignItems="center" marginBottom="8px" style={{fontSize: 14}}>
-                <span>{getRequirementTextForAward(award)}</span>
+                <span>{awardConfig.description}</span>
             </Flex>
             {players.map(player => {
-                const quantity = useTypedSelector(state => awardToQuantity[award](player, state));
+                const quantity = useTypedSelector(state =>
+                    convertAmountToNumber(awardConfig.amount, state, player)
+                );
                 return (
                     <Flex
                         key={player.index}
@@ -280,45 +280,7 @@ function AwardRankings({award}: {award: Award}) {
     );
 }
 
-export function getTextForAward(award: Award) {
-    switch (award) {
-        case Award.BANKER:
-            return 'Banker';
-        case Award.LANDLORD:
-            return 'Landlord';
-        case Award.MINER:
-            return 'Miner';
-        case Award.SCIENTIST:
-            return 'Scientist';
-        case Award.THERMALIST:
-            return 'Thermalist';
-        case Award.VENUPHILE:
-            return 'Venuphile';
-        default:
-            throw new Error('Unrecognized award');
-    }
-}
-
-function getRequirementTextForAward(award: Award) {
-    switch (award) {
-        case Award.BANKER:
-            return 'Player with the most MC production wins.';
-        case Award.LANDLORD:
-            return 'Player with the most tiles (on or off Mars) wins.';
-        case Award.MINER:
-            return 'Player with the most titanium and steel resources wins.';
-        case Award.SCIENTIST:
-            return 'Player with the most science tags wins.';
-        case Award.THERMALIST:
-            return 'Player with the most heat resources wins.';
-        case Award.VENUPHILE:
-            return 'Player with the most Venus tags wins.';
-        default:
-            throw new Error('Unrecognized award');
-    }
-}
-
-function getCostForAward(award: Award, state: GameState) {
+function getCostForAward(award: string, state: GameState) {
     const fundedIndex = state.common.fundedAwards.findIndex(config => config.award === award);
     if (fundedIndex !== -1) {
         return [8, 14, 20][fundedIndex];

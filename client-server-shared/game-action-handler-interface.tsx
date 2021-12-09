@@ -1,6 +1,6 @@
 import {ResourceActionOption} from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
-import {Award, Cell} from 'constants/board';
+import {Cell} from 'constants/board';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -47,7 +47,7 @@ export interface GameActionHandler {
         payment?: PropertyCounter<Resource>;
     }): Promise<void>;
 
-    fundAwardAsync(payload: {award: Award; payment?: PropertyCounter<Resource>}): Promise<void>;
+    fundAwardAsync(payload: {award: string; payment?: PropertyCounter<Resource>}): Promise<void>;
 
     doConversionAsync(payload: {
         resource: Resource;

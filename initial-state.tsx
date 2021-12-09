@@ -78,10 +78,14 @@ export function getInitialState(players: string[], options: GameOptions, name: s
     const isPreludeEnabled = options.decks.includes(Deck.PRELUDE);
     const isColoniesEnabled = options.decks.includes(Deck.COLONIES);
     const isTurmoilEnabled = options.decks.includes(Deck.TURMOIL);
+    const {boardNames} = options;
+    shuffle(boardNames);
+    const [boardName] = boardNames;
 
     const base: SerializedState = {
         name,
         log: ['📜 Generation 1'] as string[],
+        boardName,
         common: {
             playerIndexOrderForGeneration: [] as number[],
             discardPile: [],
@@ -92,7 +96,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             deck,
             preludes,
             parameters: MIN_PARAMETERS,
-            board: getBoard(options.board),
+            board: getBoard(boardName),
             currentPlayerIndex: 0,
             firstPlayerIndex: 0,
             claimedMilestones: [],

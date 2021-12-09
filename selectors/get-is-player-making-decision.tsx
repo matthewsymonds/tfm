@@ -21,7 +21,9 @@ export function getIsPlayerMakingDecisionExceptForNextActionChoice(
 ): boolean {
     try {
         const pendingActions =
-            state.common.revealedCards.length > 0 ||
+            (state.common.revealedCards.length > 0 &&
+                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
+                    loggedInPlayer.index) ||
             loggedInPlayer.pendingTilePlacement ||
             loggedInPlayer.pendingTileRemoval ||
             loggedInPlayer.pendingCardSelection ||

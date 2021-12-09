@@ -48,24 +48,6 @@ export const RESERVED_LOCATIONS = [
     SpecialLocation.STRATOPOLIS,
 ];
 
-export enum Milestone {
-    TERRAFORMER = 'terraformer',
-    MAYOR = 'mayor',
-    GARDENER = 'gardener',
-    BUILDER = 'builder',
-    PLANNER = 'planner',
-    HOVERLORD = 'hoverlord',
-}
-
-export enum Award {
-    LANDLORD = 'landlord',
-    BANKER = 'banker',
-    SCIENTIST = 'scientist',
-    THERMALIST = 'thermalist',
-    MINER = 'miner',
-    VENUPHILE = 'venuphile',
-}
-
 export enum PlacementRequirement {
     CITY = 'placementCity', // normal city requirement (not touching another city)
     CITY_ADJACENT = 'placementCityAdjacent', // e.g. industrial center

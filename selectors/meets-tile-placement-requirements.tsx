@@ -10,7 +10,8 @@ export function meetsTilePlacementRequirements(
     action: Action,
     state: GameState,
     _player: PlayerState | null,
-    parent?: Card
+    parent?: Card,
+    sourceCard?: Card
 ): boolean {
     if (!action.tilePlacements) return true;
 
@@ -19,7 +20,8 @@ export function meetsTilePlacementRequirements(
     for (const tilePlacement of action.tilePlacements) {
         if (
             tilePlacement.type === TileType.OCEAN &&
-            getNumOceans(state) === MAX_PARAMETERS[Parameter.OCEAN]
+            getNumOceans(state) === MAX_PARAMETERS[Parameter.OCEAN] &&
+            !sourceCard
         ) {
             return false;
         }

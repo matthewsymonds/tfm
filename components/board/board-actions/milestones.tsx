@@ -8,7 +8,6 @@ import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import PaymentPopover from 'components/popovers/payment-popover';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
-import {Milestone} from 'constants/board';
 import {getMilestone, getMilestones} from 'constants/milestones';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -201,25 +200,6 @@ function MilestonePopover({
             </Flex>
         </TexturedCard>
     );
-}
-
-function getRequirementTextForMilestone(milestone: Milestone) {
-    switch (milestone) {
-        case Milestone.BUILDER:
-            return 'Requires 8 building tags';
-        case Milestone.GARDENER:
-            return 'Requires 3 greeneries';
-        case Milestone.PLANNER:
-            return 'Requires 16 cards in hand';
-        case Milestone.TERRAFORMER:
-            return 'Requires 35 terraform rating';
-        case Milestone.MAYOR:
-            return 'Requires 3 cities';
-        case Milestone.HOVERLORD:
-            return 'Requires 7 floaters';
-        default:
-            throw new Error('Unrecognized milestone');
-    }
 }
 
 function MilestoneRankings({milestone}: {milestone: string}) {

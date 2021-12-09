@@ -2,7 +2,7 @@ import {Meta, Story} from '@storybook/react';
 import {AwardPopover} from 'components/board/board-actions/awards';
 import {Card, CardContext} from 'components/card/Card';
 import {MiniatureCard} from 'components/card/CardToken';
-import {Award} from 'constants/board';
+import {DEFAULT_AWARDS} from 'constants/awards';
 import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -38,9 +38,11 @@ Default.args = {};
 const AwardCardTemplate: Story<{}> = args => {
     const loggedInPlayer = useLoggedInPlayer();
 
+    const awards = DEFAULT_AWARDS;
+
     return (
         <div style={{display: 'flex', flexWrap: 'wrap'}}>
-            {Object.values(Award).map(award => (
+            {awards.map(award => (
                 <AwardPopover
                     key={award}
                     award={award}

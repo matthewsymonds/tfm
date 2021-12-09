@@ -1,13 +1,14 @@
-import {Award, TileType} from 'constants/board';
+import {getAward} from 'constants/awards';
+import {TileType} from 'constants/board';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {GameState, PlayerState} from 'reducer';
 import {
     getAdjacentCellsForCell,
-    getAllCellsOwnedByCurrentPlayer,
     getCellsWithCitiesOnMars,
     getGreeneriesForPlayer,
 } from 'selectors/board';
+import {convertAmountToNumber} from './convert-amount-to-number';
 import {getTags} from './variable-amount';
 
 export function getGreeneryScore(state: GameState, playerIndex: number) {
@@ -54,20 +55,13 @@ export function getPlayerSteelAndTitanium(player: PlayerState) {
     return player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM];
 }
 
-export const awardToQuantity = {
-    [Award.BANKER]: getPlayerMegacreditProduction,
-    [Award.THERMALIST]: getPlayerHeat,
-    [Award.SCIENTIST]: getPlayerScienceTags,
-    [Award.LANDLORD]: (player: PlayerState, state: GameState) =>
-        getAllCellsOwnedByCurrentPlayer(state, player).length,
-    [Award.MINER]: getPlayerSteelAndTitanium,
-    [Award.VENUPHILE]: getPlayerVenusTags,
-};
-
 export function getAwardScore(state: GameState, playerIndex: number) {
     let awardScoreTotal = 0;
+
     state.common.fundedAwards.forEach(fundedAward => {
-        const getQuantity = awardToQuantity[fundedAward.award];
+        const awardConfig = getAward(fundedAward.award);
+        const getQuantity = (player: PlayerState, state: GameState) =>
+            convertAmountToNumber(awardConfig.amount, state, player);
 
         const mappingFn: (
             player: PlayerState

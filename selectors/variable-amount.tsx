@@ -13,6 +13,7 @@ import {
     findCellWithTile,
     getAdjacentCellsForCell,
     getAllCellsOnMars,
+    getAllCellsOwnedByCurrentPlayer,
     getCellsWithCities,
     getCellsWithCitiesOnMars,
 } from './board';
@@ -69,6 +70,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             return 0;
         }
         return getAdjacentCellsForCell(state, commercialDistrict).filter(hasCity).length;
+    },
+    [VariableAmount.PLAYER_TILES]: (state: GameState, player: PlayerState) => {
+        return getAllCellsOwnedByCurrentPlayer(state, player).length;
     },
     [VariableAmount.TILES_ADJACENT_TO_OCEAN]: (
         state: GameState,
@@ -147,6 +151,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.RESOURCES_ON_CARD]: (state: GameState, player: PlayerState, card?: Card) => {
         return card?.storedResourceAmount!;
+    },
+    [VariableAmount.RESOURCES_ON_CARDS]: (state: GameState, player: PlayerState) => {
+        return player.playedCards.reduce((acc, card) => acc + (card.storedResourceAmount ?? 0), 0);
     },
     [VariableAmount.RESOURCES_ON_CARD_MAX_4]: (
         state: GameState,
@@ -292,6 +299,14 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     [VariableAmount.TERRAFORM_RATING]: (state: GameState, player: PlayerState) => {
         return player.terraformRating;
     },
+    [VariableAmount.CARDS_IN_HAND]: (state: GameState, player: PlayerState) => {
+        return player.cards.length;
+    },
+    [VariableAmount.CARDS_IN_PLAY_COSTING_AT_LEAST_20]: (state: GameState, player: PlayerState) => {
+        return player.playedCards.filter(card => {
+            return (getCard(card).cost ?? 0) >= 20;
+        }).length;
+    },
     [VariableAmount.BLUE_CARD]: (state: GameState, player: PlayerState) => {
         return player.playedCards.filter(card => getCard(card).type === CardType.ACTIVE).length;
     },
@@ -315,23 +330,10 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
             }).length;
     },
     [VariableAmount.TILES_ON_BOTTOM_TWO_ROWS]: (state: GameState, player: PlayerState) => {
-        const {board} = state.common;
-        // Exclude bottom row which is used for off mars cities.
-        const indexOfLastRow = board.length - 2;
-        const relevantRows = [indexOfLastRow, indexOfLastRow - 1].map(rowIndex => board[rowIndex]);
-
-        let count = 0;
-        for (const row of relevantRows) {
-            for (const cell of row) {
-                if (
-                    cell?.tile?.ownerPlayerIndex === player.index &&
-                    cell?.tile?.type !== TileType.RESTRICTED_AREA
-                ) {
-                    count += 1;
-                }
-            }
-        }
-        return count;
+        return getTilesOnBottomRows(state, player, 2);
+    },
+    [VariableAmount.TILES_ON_BOTTOM_FOUR_ROWS]: (state: GameState, player: PlayerState) => {
+        return getTilesOnBottomRows(state, player, 4);
     },
 };
 
@@ -345,4 +347,28 @@ export function getTotalFloaters(state: GameState, player: PlayerState, card?: C
         numFloaters += card.storedResourceAmount ?? 0;
     }
     return numFloaters;
+}
+
+function getTilesOnBottomRows(state: GameState, player: PlayerState, numRows: number): number {
+    const {board} = state.common;
+    // Exclude bottom row which is used for off mars cities.
+    const indexOfLastRow = board.length - 1;
+    let relevantRowIndexes: number[] = [];
+    for (let i = 0; i < numRows; i++) {
+        relevantRowIndexes.push(indexOfLastRow - i);
+    }
+    const relevantRows = relevantRowIndexes.map(rowIndex => board[rowIndex]);
+
+    let count = 0;
+    for (const row of relevantRows) {
+        for (const cell of row) {
+            if (
+                cell?.tile?.ownerPlayerIndex === player.index &&
+                cell?.tile?.type !== TileType.RESTRICTED_AREA
+            ) {
+                count += 1;
+            }
+        }
+    }
+    return count;
 }

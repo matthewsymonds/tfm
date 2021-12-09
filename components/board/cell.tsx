@@ -124,7 +124,11 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                 >
                     {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
                     {tile && renderTile(tile)}
-                    {cell.action && <BaseActionIconography card={cell.action} />}
+                    {!tile && cell.action && (
+                        <Box transform="scale(0.75)" height="100%" width="100%">
+                            <BaseActionIconography card={cell.action} />
+                        </Box>
+                    )}
                 </Flex>
             </Hexagon>
         </>

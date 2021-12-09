@@ -6,12 +6,13 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLobbyingAction} from 'components/turmoil';
 import {Action, Payment} from 'constants/action';
-import {Award, Cell, TilePlacement, TileType} from 'constants/board';
+import {getAwards} from 'constants/awards';
+import {Cell, TilePlacement, TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
-import {getMilestone} from 'constants/milestones';
+import {getMilestone, getMilestones} from 'constants/milestones';
 import {getParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
@@ -34,6 +35,7 @@ import {getMoney} from 'selectors/get-money';
 import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
+import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {meetsColonyPlacementRequirements} from 'selectors/meets-colony-placement-requirements';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
@@ -190,6 +192,10 @@ export class ActionGuard {
             return [canPlay, reason];
         }
 
+        if (standardProjectAction?.type === StandardProjectType.VENUS && !isPlayingVenus(state)) {
+            return [false, 'Not playing venus'];
+        }
+
         if (!isActiveRound(state)) {
             return [false, 'Cannot play standard project outside active round'];
         }
@@ -217,6 +223,12 @@ export class ActionGuard {
         const {state} = this;
 
         if (this.shouldDisableUI()) return [false, 'Cannot claim milestone right now'];
+
+        const validMilestones = getMilestones(state);
+
+        if (validMilestones.indexOf(milestone) < 0) {
+            return [false, 'Not a valid milestone'];
+        }
 
         // Is it availiable?
         if (state.common.claimedMilestones.length === 3) {
@@ -253,12 +265,18 @@ export class ActionGuard {
         return this.state.common.claimedMilestones.some(claim => claim.milestone === milestone);
     }
 
-    canFundAward(award: Award): CanPlayAndReason {
+    canFundAward(award: string): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
         if (!isActiveRound(state)) {
             return [false, 'Cannot fund award when it is not active round'];
+        }
+
+        const validAwards = getAwards(state);
+
+        if (validAwards.indexOf(award) < 0) {
+            return [false, 'Cannot fund this award'];
         }
 
         if (player.fundAward && state.common.currentPlayerIndex === player.index) {
@@ -283,7 +301,7 @@ export class ActionGuard {
         return [cost <= megacredits + heat, 'Cannot afford to fund award'];
     }
 
-    isAwardFunded(award: Award) {
+    isAwardFunded(award: string) {
         return this.state.common.fundedAwards.some(claim => claim.award === award);
     }
 
@@ -1252,7 +1270,7 @@ export function canPlayActionInSpiteOfUI(
         return [false, 'Does not have required production'];
     }
 
-    if (!meetsTilePlacementRequirements(action, state, player, parent)) {
+    if (!meetsTilePlacementRequirements(action, state, player, parent, sourceCard)) {
         return [false, 'Cannot place tile'];
     }
 

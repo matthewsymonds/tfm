@@ -27,6 +27,12 @@ export default function NewGame(props) {
     const [isPreludeEnabled, setIsPreludeEnabled] = useState(true);
     const [isColoniesEnabled, setIsColoniesEnabled] = useState(true);
     const [isTurmoilEnabled, setIsTurmoilEnabled] = useState(true);
+    const [isTharsisEnabled, setIsTharsisEnabled] = useState(true);
+    const [isHellasEnabled, setIsHellasEnabled] = useState(true);
+    const [isElysiumEnabled, setIsElysiumEnabled] = useState(true);
+    const numEnabledBoards = [isTharsisEnabled, isHellasEnabled, isElysiumEnabled].filter(Boolean)
+        .length;
+
     const router = useRouter();
 
     const [usernames, setUsernames] = useState<string[]>([session.username]);
@@ -67,6 +73,7 @@ export default function NewGame(props) {
         const players = usernames;
 
         const decks: Deck[] = [Deck.BASIC];
+        let boardNames: string[] = ['Tharsis'];
         if (isCorporateEraEnabled) {
             decks.push(Deck.CORPORATE);
             // Doesn't make much sense to play with expansions if corporate era is off.
@@ -82,8 +89,18 @@ export default function NewGame(props) {
             if (isTurmoilEnabled) {
                 decks.push(Deck.TURMOIL);
             }
-        }
 
+            boardNames = [];
+            if (isTharsisEnabled) {
+                boardNames.push('Tharsis');
+            }
+            if (isHellasEnabled) {
+                boardNames.push('Hellas');
+            }
+            if (isElysiumEnabled) {
+                boardNames.push('Elysium');
+            }
+        }
         const result = await makePostCall('/api/games', {
             name: gameName,
             players,
@@ -91,6 +108,7 @@ export default function NewGame(props) {
                 isDraftingEnabled,
                 decks,
                 soloCorporationName,
+                boardNames,
             },
         });
         if (result.error) {
@@ -194,6 +212,44 @@ export default function NewGame(props) {
                             onChange={e => setIsTurmoilEnabled(e.target.checked)}
                         />
                         Turmoil
+                    </label>
+                </Flex>
+                <Flex flexDirection="column" margin="16px 0">
+                    <h3>Boards</h3>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={isTharsisEnabled && numEnabledBoards === 1}
+                            checked={isTharsisEnabled}
+                            onChange={e => setIsTharsisEnabled(e.target.checked)}
+                        />
+                        Tharsis
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={
+                                !isCorporateEraEnabled ||
+                                (isCorporateEraEnabled && isHellasEnabled && numEnabledBoards === 1)
+                            }
+                            checked={isCorporateEraEnabled && isHellasEnabled}
+                            onChange={e => setIsHellasEnabled(e.target.checked)}
+                        />
+                        Hellas
+                    </label>
+                    <label style={{marginLeft: 4}}>
+                        <input
+                            type="checkbox"
+                            disabled={
+                                !isCorporateEraEnabled ||
+                                (isCorporateEraEnabled &&
+                                    isElysiumEnabled &&
+                                    numEnabledBoards === 1)
+                            }
+                            checked={isCorporateEraEnabled && isElysiumEnabled}
+                            onChange={e => setIsElysiumEnabled(e.target.checked)}
+                        />
+                        Elysium
                     </label>
                 </Flex>
                 <Box marginTop="32px">

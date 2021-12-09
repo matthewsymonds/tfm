@@ -1,5 +1,5 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
-import {getTextForAward} from 'components/board/board-actions/awards';
+import {getAward} from 'constants/awards';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
@@ -178,7 +178,7 @@ export type GameOptions = {
     isDraftingEnabled: boolean;
     decks: Deck[];
     soloCorporationName?: string;
-    board?: string;
+    boardNames: string[];
 };
 
 export type PendingChoice = {
@@ -262,7 +262,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Search For Life'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
@@ -1218,7 +1218,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 fundedByPlayerIndex: player.index,
                 award: award,
             });
-            draft.log.push(`${corporationName} funded ${getTextForAward(payload.award)} award`);
+            const awardConfig = getAward(award);
+            draft.log.push(`${corporationName} funded ${awardConfig.name}`);
             player.fundAward = undefined;
         }
 

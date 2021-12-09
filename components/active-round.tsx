@@ -279,10 +279,12 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     />
                 );
                 break;
-            case revealedCards.length > 0:
+            case revealedCards.length > 0 &&
+                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
+                    loggedInPlayer.index:
                 actionOverlayElement = (
                     <Flex flexDirection="column">
-                        <span style={{marginBottom: 16}}>
+                        <span style={{marginBottom: 16, color: '#ccc'}}>
                             Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
                         </span>
                         <Flex flexWrap="wrap">

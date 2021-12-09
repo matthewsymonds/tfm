@@ -116,15 +116,7 @@ import {
     ParameterCounter,
     Payment,
 } from 'constants/action';
-import {
-    Award,
-    Cell,
-    CellType,
-    getTilePlacementBonus,
-    Milestone,
-    Parameter,
-    TileType,
-} from 'constants/board';
+import {Cell, CellType, getTilePlacementBonus, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {CONVERSIONS} from 'constants/conversion';
@@ -608,7 +600,7 @@ export class ApiActionHandler {
             }
         }
 
-        if (hasUnpaidResources(items, this.state, player)) {
+        if (hasUnpaidResources(items, this.state, player, this.actionGuard)) {
             return true;
         }
 
@@ -972,7 +964,7 @@ export class ApiActionHandler {
     }
 
     continueAfterRevealingCards() {
-        this.queue.push(discardRevealedCards());
+        this.queue.unshift(discardRevealedCards());
         this.processQueue();
     }
 
@@ -1032,7 +1024,7 @@ export class ApiActionHandler {
         milestone,
         payment,
     }: {
-        milestone: Milestone;
+        milestone: string;
         payment: NumericPropertyCounter<Resource>;
     }) {
         const [canPlay, reason] = this.actionGuard.canClaimMilestone(milestone);
@@ -1055,7 +1047,7 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    fundAward({award, payment}: {award: Award; payment: NumericPropertyCounter<Resource>}) {
+    fundAward({award, payment}: {award: string; payment: NumericPropertyCounter<Resource>}) {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
         if (!canPlay) {
@@ -1615,7 +1607,7 @@ export class ApiActionHandler {
             throw new Error('User cannot choose action');
         }
         const usedActions = actions.filter(Boolean);
-        const hasUnpaidActions = hasUnpaidResources(usedActions, state, player);
+        const hasUnpaidActions = hasUnpaidResources(usedActions, state, player, this.actionGuard);
         if (
             !canPlayActionNext(action, this.state, player.index, hasUnpaidActions, this.actionGuard)
         ) {
@@ -1678,7 +1670,7 @@ export class ApiActionHandler {
         }
         const player = this.getLoggedInPlayer();
         const items = player.pendingNextActionChoice ?? [];
-        if (!hasUnpaidResources(items, this.state, player)) {
+        if (!hasUnpaidResources(items, this.state, player, this.actionGuard)) {
             throw new Error('Start over not implemented outside debt scenario yet.');
         }
         if (checkpoint) {
@@ -2750,7 +2742,8 @@ export function isNegativeAction(action: {type: string}): boolean {
 export function getTotalResourcesOwed(
     items: AnyAction[],
     state: GameState,
-    player: PlayerState
+    player: PlayerState,
+    actionGuard: ActionGuard
 ): Payment {
     const totalResourceOwed: Payment = {};
 
@@ -2763,7 +2756,7 @@ export function getTotalResourcesOwed(
             const tilePlacement = askUserToPlaceTile.match(item);
             return (
                 tilePlacement &&
-                this.actionGuard.canCompletePlaceTile(cell, item.payload.tilePlacement)
+                actionGuard.canCompletePlaceTile(cell, item.payload.tilePlacement)[0]
             );
         })
     );
@@ -2822,9 +2815,14 @@ export function getTotalProductionDecreased(items: AnyAction[], state: GameState
     return totalProductionDecreased;
 }
 
-export function hasUnpaidResources(items: AnyAction[], state: GameState, player: PlayerState) {
+export function hasUnpaidResources(
+    items: AnyAction[],
+    state: GameState,
+    player: PlayerState,
+    actionGuard: ActionGuard
+) {
     items = items.filter(Boolean);
-    const totalResourceOwed = getTotalResourcesOwed(items, state, player);
+    const totalResourceOwed = getTotalResourcesOwed(items, state, player, actionGuard);
     const totalProductionDecreased = getTotalProductionDecreased(items, state);
 
     for (const resource in totalResourceOwed) {
