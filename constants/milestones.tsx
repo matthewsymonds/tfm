@@ -88,8 +88,15 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     {
         name: 'Generalist',
         requirementText: 'Requires all 6 productions increased by 1 step',
-        amount: min(...STANDARD_RESOURCES.map(resource => ({production: resource}))),
-        quantity: 1,
+        amount: sum(
+            ...STANDARD_RESOURCES.map(resource => ({
+                condition: Condition.GREATER_THAN_OR_EQUAL_TO,
+                operands: [{production: resource}, 1],
+                pass: 1,
+                fail: 0,
+            }))
+        ),
+        quantity: 6,
     },
     {
         name: 'Specialist',
@@ -112,7 +119,7 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     {
         name: 'Legend',
         requirementText: 'Requires 5 played event cards',
-        amount: sum(VariableAmount.PLAYER_EVENTS),
+        amount: VariableAmount.PLAYER_EVENTS,
         quantity: 5,
     },
 ];
