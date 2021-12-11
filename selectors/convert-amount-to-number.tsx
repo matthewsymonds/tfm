@@ -19,6 +19,7 @@ import {SerializedCard} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
 import {getAllCellsOwnedByCurrentPlayer} from './board';
 import {getCard} from './get-card';
+import {isActionPhase} from './is-action-phase';
 import {isTagAmount} from './is-tag-amount';
 import {isVariableAmount} from './is-variable-amount';
 
@@ -34,9 +35,7 @@ export function convertAmountToNumber(
             ? state.players.flatMap(player => getTags(player))
             : getTags(player);
         const matchingTags = tags.filter(
-            tag =>
-                tag === amount.tag ||
-                (state.common.gameStage === GameStage.ACTIVE_ROUND && tag === Tag.WILD)
+            tag => tag === amount.tag || (tag === Tag.WILD && isActionPhase(state))
         );
         let extraTags = 0;
         if (card?.name) {
