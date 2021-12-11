@@ -229,18 +229,40 @@ export function getPossibleValidPlacementsForRequirement(
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_STEEL) ||
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
             );
-        case PlacementRequirement.VOLCANIC:
-            return getAvailableCells(state, player).filter(cell =>
+        case PlacementRequirement.VOLCANIC: {
+            const volcanic = getAvailableCells(state, player).filter(cell =>
                 cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
             );
+            if (volcanic.length === 0) return getAvailableLandCellsOnMars(state, player);
+            return volcanic;
+        }
+        case PlacementRequirement.VOLCANIC_CITY: {
+            const volcanic = getAvailableCells(state, player).filter(cell =>
+                cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
+            );
+            if (volcanic.length === 0) {
+                return getAvailableLandCellsOnMars(state, player).filter(cell =>
+                    getAdjacentCellsForCell(state, cell).every(
+                        adjCell => !cellHelpers.containsCity(adjCell)
+                    )
+                );
+            }
+            return volcanic;
+        }
         case PlacementRequirement.PHOBOS:
             return state.common.board
                 .flat()
                 .filter(cell => cell.specialLocation === SpecialLocation.PHOBOS);
         case PlacementRequirement.NOCTIS:
-            return state.common.board
+            const noctis = state.common.board
                 .flat()
                 .filter(cell => cell.specialLocation === SpecialLocation.NOCTIS);
+            if (noctis.length === 1) return noctis;
+            return getAvailableLandCellsOnMars(state, player).filter(cell =>
+                getAdjacentCellsForCell(state, cell).every(
+                    adjCell => !cellHelpers.containsCity(adjCell)
+                )
+            );
         case PlacementRequirement.GANYMEDE:
             return state.common.board
                 .flat()

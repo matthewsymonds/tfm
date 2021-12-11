@@ -3,7 +3,7 @@ import {isPlayingVenus} from 'selectors/is-playing-venus';
 import {Amount} from './action';
 import {TileType} from './board';
 import {Condition} from './conditional-amount';
-import {max, min, sum} from './operation-amount';
+import {max, sum} from './operation-amount';
 import {STANDARD_RESOURCES} from './resource';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';

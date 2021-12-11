@@ -41,13 +41,6 @@ export default async (req, res) => {
                     await game.save();
                 } catch (error) {}
             }
-            // if (game.name === 'try_search_for_life_2') {
-            //     let obj = game.toObject();
-            //     delete obj._id;
-            //     obj.name = 'try_search_for_life_4';
-            //     const docClone = new gamesModel(obj);
-            //     await docClone.save();
-            // }
             let loggedInPlayerIndex = game.state.players.findIndex(
                 player => player.username === username
             );

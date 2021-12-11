@@ -68,6 +68,7 @@ export enum PlacementRequirement {
     STEEL_OR_TITANIUM_PLAYER_ADJACENT = 'placementSteelOrTitaniumPlayerAdjacent',
     STRATOPOLIS = 'stratopolis',
     VOLCANIC = 'placementVolcanic',
+    VOLCANIC_CITY = 'placementVolcanicCity',
 }
 
 export const getTileIcon = (type: TileType) => {

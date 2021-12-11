@@ -4885,7 +4885,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.VOLCANIC, true)],
+        tilePlacements: [t(TileType.CITY, PlacementRequirement.VOLCANIC_CITY, true)],
     },
     {
         cost: 9,
