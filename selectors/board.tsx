@@ -230,14 +230,16 @@ export function getPossibleValidPlacementsForRequirement(
                     cellHelpers.hasAttribute(cell, CellAttribute.HAS_TITANIUM)
             );
         case PlacementRequirement.VOLCANIC: {
-            const volcanic = getAvailableCells(state, player).filter(cell =>
+            const volcanic = getAllCellsOnMars(state).filter(cell =>
                 cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
             );
             if (volcanic.length === 0) return getAvailableLandCellsOnMars(state, player);
-            return volcanic;
+            return getAvailableCells(state, player).filter(cell =>
+                cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
+            );
         }
         case PlacementRequirement.VOLCANIC_CITY: {
-            const volcanic = getAvailableCells(state, player).filter(cell =>
+            const volcanic = getAllCellsOnMars(state).filter(cell =>
                 cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
             );
             if (volcanic.length === 0) {
@@ -247,7 +249,9 @@ export function getPossibleValidPlacementsForRequirement(
                     )
                 );
             }
-            return volcanic;
+            return getAvailableCells(state, player).filter(cell =>
+                cellHelpers.hasAttribute(cell, CellAttribute.VOLCANIC)
+            );
         }
         case PlacementRequirement.PHOBOS:
             return state.common.board
