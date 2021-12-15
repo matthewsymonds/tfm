@@ -45,12 +45,6 @@ export const revealTakeAndDiscard = withMatcher(
     })
 );
 
-const DISCARD_REVEALED_CARDS = 'DISCARD_REVEALED_CARDS';
-export const discardRevealedCards = withMatcher(() => ({
-    type: DISCARD_REVEALED_CARDS,
-    payload: {},
-}));
-
 const DISCARD_CARDS = 'DISCARD_CARDS';
 export const discardCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
     type: DISCARD_CARDS,

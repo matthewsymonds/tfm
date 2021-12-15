@@ -7,7 +7,6 @@ import {
     isConditionAmount,
 } from 'constants/conditional-amount';
 import {ContestAmount, isContestAmount} from 'constants/contest-amount';
-import {GameStage} from 'constants/game';
 import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
 import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
 import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';

@@ -78,7 +78,6 @@ import {
     decreaseTerraformRating,
     discardCards,
     discardPreludes,
-    discardRevealedCards,
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
@@ -592,13 +591,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     `Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`
                 );
             }
-        }
-
-        if (discardRevealedCards.match(action)) {
-            // Step 2. Discard the revealed cards.
-            draft.common.discardPile.push(...draft.common.revealedCards);
-            draft.log.push(`Discarded ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
-            draft.common.revealedCards = [];
         }
 
         if (revealTakeAndDiscard.match(action)) {
@@ -2002,6 +1994,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.pendingResourceActionDetails = undefined;
             draft.pendingVariableAmount = undefined;
+            draft.common.revealedCards = [];
             player.action = (player.action % 2) + 1;
 
             // Did the player just complete their second action?
