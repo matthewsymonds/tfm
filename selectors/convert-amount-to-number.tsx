@@ -33,9 +33,14 @@ export function convertAmountToNumber(
         const tags = amount.includeOpponents
             ? state.players.flatMap(player => getTags(player))
             : getTags(player);
-        const matchingTags = tags.filter(
-            tag => tag === amount.tag || (tag === Tag.WILD && isActionPhase(state))
-        );
+        const amountTagAndMaybeWildcard = [amount.tag];
+        if (
+            (isActionPhase(state) && typeof amount.includeWildcard === 'undefined') ||
+            amount.includeWildcard
+        ) {
+            amountTagAndMaybeWildcard.push(Tag.WILD);
+        }
+        const matchingTags = tags.filter(tag => amountTagAndMaybeWildcard.includes(tag));
         let extraTags = 0;
         if (card?.name) {
             const fullCard = getCard(card);

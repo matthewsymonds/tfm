@@ -14,6 +14,7 @@ import {
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
     askUserToFundAward,
+    askUserToGainStandardResources,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
@@ -1225,7 +1226,7 @@ export class ApiActionHandler {
             reason,
         ] = this.actionGuard.canCompletePutAdditionalColonyTileIntoPlay(colony);
         if (!canCompletePutAdditionalColonyTileIntoPlay) {
-            throw new Error('reason');
+            throw new Error(reason);
         }
 
         const loggedInPlayer = this.getLoggedInPlayer();
@@ -1698,6 +1699,9 @@ export class ApiActionHandler {
                     action.gainResourceTargetType
                 )
             );
+        }
+        if (action.gainStandardResources) {
+            items.push(askUserToGainStandardResources(action.gainStandardResources, playerIndex));
         }
         const numOceansPlacedSoFar = getNumOceans(state);
         let oceansInQueue = 0;
