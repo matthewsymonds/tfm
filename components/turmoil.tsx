@@ -410,7 +410,12 @@ export function Turmoil() {
                     <BaseActionIconography inline={true} card={party.partyBonus} />
                 </Box>
 
-                <Flex alignItems="center" justifyContent="center" marginBottom="8px">
+                <Flex
+                    alignItems="center"
+                    justifyContent="center"
+                    marginBottom="8px"
+                    flexWrap="wrap"
+                >
                     {delegates}
                 </Flex>
                 <Lobbying
