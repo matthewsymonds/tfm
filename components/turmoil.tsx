@@ -2,6 +2,7 @@ import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Action, Payment} from 'constants/action';
 import {Deck} from 'constants/card-types';
+import {GameStage} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
 import {getParty, PartyConfig, UNITY} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
@@ -289,8 +290,12 @@ export function canClickPolicy(
     player: PlayerState,
     payment: Payment
 ) {
-    const {turmoil} = state.common;
+    const {turmoil, gameStage} = state.common;
     if (!turmoil) return false;
+
+    if (gameStage !== GameStage.ACTIVE_ROUND) {
+        return false;
+    }
 
     const {action} = getParty(turmoil.rulingParty);
 
@@ -470,6 +475,7 @@ export function Turmoil() {
                                     <PartyPolicy
                                         party={turmoil.rulingParty}
                                         canClick={canDoPolicy}
+                                        disabled={!canDoPolicy}
                                         onClick={() =>
                                             !usePaymentPopover &&
                                             handleClickPolicy({
