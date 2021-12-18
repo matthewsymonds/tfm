@@ -1839,10 +1839,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (fullEvent?.bottom.party) {
                     const [leader] = turmoil.delegations[fullEvent.bottom.party];
                     turmoil.delegations[fullEvent.bottom.party].push(delegate());
+                    const numDelegates = turmoil.delegations[fullEvent.bottom.party].length;
                     draft.log.push(
-                        `${fullEvent.bottom.party} gained a neutral delegate (now has ${
-                            turmoil.delegations[fullEvent.bottom.party].length
-                        } delegates)`
+                        `${
+                            fullEvent.bottom.party
+                        } gained a neutral delegate (now has ${numDelegates} delegate${
+                            numDelegates === 1 ? '' : 's'
+                        })`
                     );
                     determineNewLeader(turmoil, fullEvent.bottom.party, draft, leader?.playerIndex);
                     determineNewDominantParty(turmoil, draft);
@@ -1861,10 +1864,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     if (fullEvent) {
                         const [leader] = turmoil.delegations[fullEvent.bottom.party];
                         turmoil.delegations[fullEvent.top.party].push(delegate());
+                        const numDelegates = turmoil.delegations[fullEvent.top.party].length;
                         draft.log.push(
-                            `${fullEvent.top.party} gained a neutral delegate (now has ${
-                                turmoil.delegations[fullEvent.top.party].length
-                            } delegates)`
+                            `${
+                                fullEvent.top.party
+                            } gained a neutral delegate (now has ${numDelegates} delegate${
+                                numDelegates === 1 ? '' : 's'
+                            })`
                         );
                         turmoil.distantGlobalEvent = newDistantGlobalEvent;
                         determineNewLeader(
