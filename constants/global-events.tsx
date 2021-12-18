@@ -182,7 +182,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: {
                     condition: Condition.GREATER_THAN_OR_EQUAL_TO,
-                    operands: [VariableAmount.UNIQUE_TAGS, 9],
+                    operands: [sum(VariableAmount.UNIQUE_TAGS, VariableAmount.INFLUENCE), 9],
                     pass: 10,
                     fail: 0,
                 },
