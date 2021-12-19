@@ -69,7 +69,6 @@ export default function MilestonesList({loggedInPlayer}: {loggedInPlayer: Player
                     ActionPopoverComponent={({action}) => (
                         <MilestonePopover
                             milestone={action}
-                            isClaimed={isClaimed(action)}
                             claimMilestone={(milestone, payment) => {
                                 hidePopover(null);
                                 claimMilestone(milestone, payment);
@@ -132,19 +131,18 @@ const ErrorText = styled.span`
     color: ${colors.TEXT_ERROR};
 `;
 
-function MilestonePopover({
+export function MilestonePopover({
     milestone,
-    isClaimed,
     loggedInPlayer,
     claimedByPlayer,
     claimMilestone,
 }: {
     milestone: string;
-    isClaimed: boolean;
     loggedInPlayer: PlayerState;
     claimedByPlayer: PlayerState | null;
     claimMilestone: (action: string, payment: NumericPropertyCounter<Resource>) => void;
 }) {
+    const isClaimed = milestone => actionGuard.isMilestoneClaimed(milestone);
     const actionGuard = useActionGuard();
     const [canPlay, reason] = actionGuard.canClaimMilestone(milestone);
     const showPaymentPopover =
@@ -167,7 +165,7 @@ function MilestonePopover({
                         fontSize="15px"
                     >
                         <span style={{marginRight: 2}}>Claimed by</span>
-                        <PlayerCorpAndIcon player={claimedByPlayer} />
+                        <PlayerCorpAndIcon player={claimedByPlayer} style={{fontSize: '0.8em'}} />
                     </Flex>
                 )}
                 {!canPlay && reason && !isClaimed && (

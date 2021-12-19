@@ -85,12 +85,13 @@ export const GlobalStyles = createGlobalStyle`
         min-width: min(450px, 100%);
         grid-template-columns: 2fr 11fr 2fr;
         grid-template-areas: 
-            "global-params board milestones-awards-board-switcher-wrapper";
+            "global-params board board-switcher-wrapper action-table";
         @media (max-width: 895px) {
             grid-template-areas:
               "board board board"
               "global-params global-params global-params"
-              "milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper milestones-awards-board-switcher-wrapper";
+              "board-switcher-wrapper board-switcher-wrapper board-switcher-wrapper"
+              "action-table action-table action-table";
         }
         box-sizing: border-box;
     }
@@ -100,8 +101,11 @@ export const GlobalStyles = createGlobalStyle`
     .board {
         grid-area: board;
     }
-    .milestones-awards-board-switcher-wrapper {
-        grid-area: milestones-awards-board-switcher-wrapper;
+    .board-switcher-wrapper {
+        grid-area: board-switcher-wrapper;
+    }
+    .action-table {
+        grid-area: action-table;
     }
     .toast {
         background: hsl(18deg 74% 88%);

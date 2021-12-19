@@ -12,8 +12,10 @@ export const colors = {
     LIGHT_4: 'hsl(0, 0%, 70%)', // darkest
 
     // text
-    TEXT_LIGHT_1: '#ccc',
-    TEXT_DARK_1: '#111111',
+    TEXT_LIGHT_1: 'hsl(0, 0%, 80%)',
+    TEXT_LIGHT_2: 'hsl(0, 0%, 60%)',
+    TEXT_LIGHT_3: 'hsl(0, 0%, 50%)',
+    TEXT_DARK_1: 'hsl(0, 0%, 7%)',
     TEXT_ERROR: 'maroon',
 
     // navbar

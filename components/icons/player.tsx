@@ -5,9 +5,14 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {getHasPlayerPassed} from 'selectors/get-has-player-passed';
 import styled from 'styled-components';
 
-const PlayerIconBase = styled.div<{size: number; color: string; passed: boolean; border?: string}>`
-    width: ${props => props.size}px;
-    height: ${props => props.size}px;
+const PlayerIconBase = styled.div<{
+    size: number | string;
+    color: string;
+    passed: boolean;
+    border?: string;
+}>`
+    width: ${props => (typeof props.size === 'number' ? `${props.size}px` : props.size)};
+    height: ${props => (typeof props.size === 'number' ? `${props.size}px` : props.size)};
     background-color: ${props => props.color};
     opacity: ${props => (props.passed ? 0.5 : 1)};
     border: 1px solid ${props => props.border || colors.LIGHT_1};
@@ -26,7 +31,7 @@ export const PlayerIcon = ({
     shouldDimForPassedPlayers = false,
 }: {
     playerIndex: number;
-    size: number;
+    size: number | string;
     style?: React.CSSProperties;
     border?: string;
     shouldDimForPassedPlayers?: boolean;
@@ -64,22 +69,30 @@ export const PlayerCorpAndIcon = ({
         text = `${text} (${player.username})`;
     }
 
-    const playerIconStyle: React.CSSProperties = isInline
-        ? {
-              position: 'relative',
-              top: 2,
-          }
-        : {};
+    const playerIconStyle: React.CSSProperties = {
+        ...(isInline
+            ? {
+                  position: 'relative',
+                  top: 2,
+              }
+            : {}),
+    };
 
+    const fontSize = style?.fontSize ?? '0.8em';
     return (
         <Flex
             display="inline-flex"
             alignItems={isInline ? 'baseline' : 'center'}
             justifyContent="center"
-            style={{...style, fontWeight: style?.fontWeight ?? '700'}}
+            style={{...style, fontSize: fontSize, fontWeight: style?.fontWeight ?? '500'}}
         >
-            <PlayerIcon playerIndex={player.index} size={12} style={playerIconStyle} />
-            <span style={{marginLeft: 4, color: color ?? 'black'}}>{text}</span>
+            <PlayerIcon
+                border={color}
+                playerIndex={player.index}
+                size={fontSize}
+                style={playerIconStyle}
+            />
+            <span style={{marginLeft: 4, color: color ?? colors.TEXT_DARK_1}}>{text}</span>
         </Flex>
     );
 };

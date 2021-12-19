@@ -10,7 +10,7 @@ export const BlankButton = styled.button<{
     margin: 0;
     text-decoration: none;
     background: ${props => props.bgColor ?? 'transparent'};
-    color: ${props => props.textColor ?? 'black'};
+    color: unset;
     font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
     cursor: pointer;
@@ -24,7 +24,7 @@ export const BlankButton = styled.button<{
         outline-offset: -4px;
     }
 
-    &:active {
+    &:active:not([disabled]) {
         transform: scale(0.95);
     }
 `;

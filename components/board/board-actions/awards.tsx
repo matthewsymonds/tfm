@@ -40,17 +40,10 @@ const AwardHeader = styled.div`
     color: ${colors.GOLD};
 `;
 
-export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
-    const apiClient = useApiClient();
-    const actionGuard = useActionGuard();
-    const windowWidth = useWindowWidth();
-    const {hidePopover} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
-
-    const awards = useTypedSelector(state => getAwards(state));
-
-    const awardConfigsByAward = useTypedSelector(
+export const useAwardConfigsByAward = () => {
+    return useTypedSelector(
         state =>
-            awards.reduce((acc, award) => {
+            getAwards(state).reduce((acc, award) => {
                 const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
                 let fundedByPlayer;
                 if (isFunded) {
@@ -76,6 +69,17 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
             return true;
         }
     );
+};
+
+export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerState}) {
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+    const windowWidth = useWindowWidth();
+    const {hidePopover} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
+
+    const awards = useTypedSelector(state => getAwards(state));
+
+    const awardConfigsByAward = useAwardConfigsByAward();
 
     const canPlay = (award: string) => actionGuard.canFundAward(award)[0];
     const isFunded = (award: string) => actionGuard.isAwardFunded(award);
@@ -116,7 +120,6 @@ export default function AwardsList({loggedInPlayer}: {loggedInPlayer: PlayerStat
                             }}
                             loggedInPlayer={loggedInPlayer}
                             cost={isFree ? 0 : awardConfigsByAward[action].cost}
-                            isFunded={isFunded(action)}
                             fundedByPlayer={awardConfigsByAward[action].fundedByPlayer}
                         />
                     )}
@@ -174,19 +177,18 @@ export function AwardPopover({
     award,
     loggedInPlayer,
     cost,
-    isFunded,
     fundedByPlayer,
     fundAward,
 }: {
     award: string;
     loggedInPlayer: PlayerState;
     cost: number;
-    isFunded: boolean;
     fundedByPlayer?: PlayerState;
     fundAward: (action: string, payment: NumericPropertyCounter<Resource>) => void;
 }) {
     const awardConfig = getAward(award);
     const actionGuard = useActionGuard();
+    const isFunded = (award: string) => actionGuard.isAwardFunded(award);
     const [canPlay, reason] = actionGuard.canFundAward(award);
     const showPaymentPopover =
         loggedInPlayer.corporation.name === 'Helion' &&

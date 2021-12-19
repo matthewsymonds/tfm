@@ -34,6 +34,7 @@ import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision
 import styled from 'styled-components';
 import {useIsomorphicLayoutEffect} from './action-log';
 import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
+import {ActionTable} from './action-table';
 import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
 import {AskUserToFundAward} from './ask-user-to-fund-award';
@@ -337,17 +338,18 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 <Box className="active-round-outer" paddingTop="8px" flex="auto">
                     <GlobalParams parameters={parameters} />
                     <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
-                    <MilestonesAwardsBoardSwitcherWrapper className="milestones-awards-board-switcher-wrapper">
+                    <ActionTable />
+                    <MilestonesAwardsBoardSwitcherWrapper className="board-switcher-wrapper">
                         {windowWidth > 895 && (
                             <BoardSwitcher
                                 setDisplayBoard={setDisplayBoard}
                                 selectedBoard={displayBoard}
                             />
                         )}
-                        <AwardsAndMilestones>
-                            <MilestonesList loggedInPlayer={loggedInPlayer} />
+                        {/* <AwardsAndMilestones>
+                                <MilestonesList loggedInPlayer={loggedInPlayer} />
                             <AwardsList loggedInPlayer={loggedInPlayer} />
-                        </AwardsAndMilestones>
+                        </AwardsAndMilestones> */}
                     </MilestonesAwardsBoardSwitcherWrapper>
                 </Box>
                 <Box className="player-panels" paddingTop="4px" width="100%" padding="0 0 100px 0">
