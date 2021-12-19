@@ -328,7 +328,7 @@ export class ApiActionHandler {
             }
         }
 
-        this.queue.push(makePartyRuling(turmoil.dominantParty));
+        this.queue.push(makePartyRuling());
         const rulingParty = getParty(turmoil.dominantParty);
         if (rulingParty) {
             for (const player of this.state.players) {

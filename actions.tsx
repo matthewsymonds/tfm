@@ -735,9 +735,9 @@ export const removeNonLeaderDelegate = withMatcher(
 );
 
 const MAKE_PARTY_RULING = 'MAKE_PARTY_RULING';
-export const makePartyRuling = withMatcher((party: string) => ({
+export const makePartyRuling = withMatcher(() => ({
     type: MAKE_PARTY_RULING,
-    payload: {party},
+    payload: {},
 }));
 
 const WRAP_UP_TURMOIL = 'WRAP_UP_TURMOIL';

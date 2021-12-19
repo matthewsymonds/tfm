@@ -1792,11 +1792,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 }
                 turmoil.chairperson = leader;
-                if (turmoil.chairperson.playerIndex != undefined) {
-                    const player = draft.players[turmoil.chairperson.playerIndex];
-                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
-                    handleTerraformRatingIncrease(player, 1, draft);
-                }
                 for (const delegate of rest) {
                     if (delegate.playerIndex != undefined) {
                         turmoil.delegateReserve[delegate.playerIndex].push(delegate);
@@ -1812,6 +1807,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (wrapUpTurmoil.match(action)) {
             const {turmoil} = draft.common;
             if (turmoil) {
+                if (turmoil.chairperson.playerIndex != undefined) {
+                    const player = draft.players[turmoil.chairperson.playerIndex];
+                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
+                    handleTerraformRatingIncrease(player, 1, draft);
+                }
                 // Restore lobby
                 for (const player of draft.players) {
                     if (!turmoil.lobby[player.index]) {
