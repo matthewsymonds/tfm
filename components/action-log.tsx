@@ -325,12 +325,12 @@ const LogEntryInner = ({
                 case GameActionType.CONVERSION: {
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
-                    const {conversionType} = gameAction;
+                    const {conversionName} = gameAction;
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <span style={{marginLeft: 4}}>converted</span>
-                            {conversionType === 'heat' ? (
+                            {conversionName === 'Heat to Temperature' && (
                                 <React.Fragment>
                                     <span style={{marginLeft: 4, marginRight: 4}}>heat into</span>
                                     <GlobalParameterIcon
@@ -338,7 +338,8 @@ const LogEntryInner = ({
                                         size={20}
                                     />
                                 </React.Fragment>
-                            ) : (
+                            )}
+                            {conversionName === 'Plants to Greenery' && (
                                 <React.Fragment>
                                     <span style={{marginLeft: 4, marginRight: 4}}>plants into</span>
                                     <TileIcon type={TileType.GREENERY} size={20} />

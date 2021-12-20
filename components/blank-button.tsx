@@ -19,6 +19,14 @@ export const BlankButton = styled.button<{
     -webkit-appearance: none;
     -moz-appearance: none;
 
+    &:disabled {
+        opacity: 0.3;
+    }
+
+    &:hover {
+        background: ${props => props.bgColorHover ?? 'transparent'};
+    }
+
     &:focus {
         outline: 1px solid #fff;
         outline-offset: -4px;

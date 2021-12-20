@@ -3,7 +3,7 @@ import {Box, Flex} from 'components/box';
 import Button from 'components/controls/button';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
-import {CONVERSIONS} from 'constants/conversion';
+import {DEFAULT_CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -125,7 +125,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
 
         const color = `linear-gradient(to right, ${topBarColor} 0px, rgba(255,255,255,0) 250px);`;
 
-        const greeneryPlacementText = actionGuard.canDoConversion(CONVERSIONS[Resource.PLANT])[0]
+        const greeneryPlacementText = actionGuard.canDoConversion(
+            DEFAULT_CONVERSIONS[Resource.PLANT]
+        )[0]
             ? 'You may place a greenery.'
             : 'Cannot place any more greeneries.';
 

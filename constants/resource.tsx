@@ -49,6 +49,7 @@ export enum ResourceLocationType {
     JOVIAN_CARD = 'jovianCard',
     ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE = 'anyPlayerWithTileAdjacentToMostRecentlyPlacedTile',
     ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE = 'anyCardWithNonzeroStorableResource',
+    OWN_CORPORATION = 'ownCorporation',
 }
 
 export const USER_CHOICE_LOCATION_TYPES = [

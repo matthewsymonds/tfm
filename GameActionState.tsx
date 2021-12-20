@@ -1,3 +1,4 @@
+import {ConversionName} from 'constants/conversion';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
@@ -43,7 +44,7 @@ export type GameActionFundAward = SharedGameAction & {
 
 export type GameActionConvertResources = SharedGameAction & {
     actionType: GameActionType.CONVERSION;
-    conversionType: 'heat' | 'plants';
+    conversionName: ConversionName;
 };
 
 export type GameActionClaimMilestone = SharedGameAction & {

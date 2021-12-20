@@ -30,6 +30,7 @@ export enum VariableAmount {
     MINING_AREA_CELL_HAS_TITANIUM_BONUS = 'miningAreaCellHasTitaniumBonus',
     MINING_RIGHTS_CELL_HAS_STEEL_BONUS = 'miningRightsCellHasSteelBonus',
     MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS = 'miningRightsCellHasTitaniumBonus',
+    DOUBLE_BASED_ON_USER_CHOICE = 'doubleBasedOnUserChoice',
     TRIPLE_BASED_ON_USER_CHOICE = 'tripleBasedOnUserChoice',
     THREE_IF_ONE_OR_MORE_RESOURCES = 'threeIfOneOrMoreResources',
     FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE = 'fourIfThreePlantTagsElseOne',

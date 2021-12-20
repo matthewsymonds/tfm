@@ -3,7 +3,7 @@ import {ResourceIcon} from 'components/icons/resource';
 import {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
-import {CONVERSIONS} from 'constants/conversion';
+import {DEFAULT_CONVERSIONS} from 'constants/conversion';
 import {GameStage} from 'constants/game';
 import {getResourceSymbol} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
@@ -176,7 +176,7 @@ export const PlayerResourceBoard = ({player, isLoggedInPlayer}: PlayerResourceBo
                 </ResourceBoardRow>
                 <ResourceBoardRow>
                     {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
-                        const conversion = CONVERSIONS[resource];
+                        const conversion = DEFAULT_CONVERSIONS[resource];
                         let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
                         let canDoConversionInSpiteOfUI = false;
                         if (conversion) {

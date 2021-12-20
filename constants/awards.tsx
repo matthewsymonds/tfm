@@ -16,84 +16,84 @@ export interface AwardConfig {
 export const AWARD_CONFIGS: AwardConfig[] = [
     {
         name: 'Banker',
-        description: 'Player with the most MC production wins.',
+        description: 'Highest MC production wins',
         amount: {production: Resource.MEGACREDIT},
     },
     {
         name: 'Landlord',
-        description: 'Player with the most tiles (on or off Mars) wins.',
+        description: 'Most tiles (on or off Mars) wins',
         amount: VariableAmount.PLAYER_TILES,
     },
     {
         name: 'Miner',
-        description: 'Player with the most titanium and steel resources wins.',
+        description: 'Most titanium and steel resources wins',
         amount: sum({resource: Resource.STEEL}, {resource: Resource.TITANIUM}),
     },
     {
         name: 'Scientist',
-        description: 'Player with the most science tags wins.',
+        description: 'Most science tags wins',
         amount: {tag: Tag.SCIENCE},
     },
     {
         name: 'Thermalist',
-        description: 'Player with the most heat resources wins.',
+        description: 'Most heat resources wins',
         amount: {resource: Resource.HEAT},
     },
     {
         name: 'Venuphile',
-        description: 'Player with the most Venus tags wins.',
+        description: 'Most Venus tags wins',
         amount: {tag: Tag.VENUS},
     },
     // Hellas
     {
         name: 'Cultivator',
-        description: 'Player with the most greenery tiles wins.',
+        description: 'Most greenery tiles wins',
         amount: {tile: TileType.GREENERY},
     },
     {
         name: 'Magnate',
-        description: 'Player with the most automated (green) cards wins.',
+        description: 'Most automated (green) cards wins',
         amount: VariableAmount.GREEN_CARD,
     },
     {
         name: 'Space Baron',
-        description: 'Player with the most space tags wins.',
+        description: 'Most space tags wins',
         amount: {tag: Tag.SPACE},
     },
     {
         name: 'Excentric',
-        description: 'Player with the most resources on cards wins.',
+        description: 'Most resources on cards wins',
         amount: VariableAmount.RESOURCES_ON_CARDS,
     },
     {
         name: 'Contractor',
-        description: 'Player with the most building tags wins.',
+        description: 'Player with the most building tags wins',
         amount: {tag: Tag.BUILDING},
     },
     // Elysium
     {
         name: 'Celebrity',
-        description: 'Player with most cards in play costing at least 20 MC wins.',
+        description: 'Most cards in play costing at least 20 MC wins',
         amount: VariableAmount.CARDS_IN_PLAY_COSTING_AT_LEAST_20,
     },
     {
         name: 'Industrialist',
-        description: 'Player with most steel and energy resources wins.',
+        description: 'Most steel and energy resources wins',
         amount: sum({resource: Resource.STEEL}, {resource: Resource.ENERGY}),
     },
     {
         name: 'Desert Settler',
-        description: 'Player with most tiles in bottom 4 rows wins.',
+        description: 'Most tiles in bottom 4 rows wins',
         amount: VariableAmount.TILES_ON_BOTTOM_FOUR_ROWS,
     },
     {
         name: 'Estate Dealer',
-        description: 'Player with most tiles adjacent to oceans wins',
+        description: 'Most tiles adjacent to oceans wins',
         amount: VariableAmount.TILES_ADJACENT_TO_OCEAN,
     },
     {
         name: 'Benefactor',
-        description: 'Player with the highest terraform rating wins.',
+        description: 'Highest TR at end of final round wins',
         amount: VariableAmount.TERRAFORM_RATING,
     },
 ];

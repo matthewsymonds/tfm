@@ -14,6 +14,7 @@ import {ChangeResourceIconography} from 'components/card/CardIconography';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {Amount} from 'constants/action';
+import {CardType} from 'constants/card-types';
 import {MinimumProductions} from 'constants/game';
 import {
     getResourceName,
@@ -87,6 +88,7 @@ function getPlayersToConsider(
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
         case ResourceLocationType.LAST_PLAYED_CARD:
         case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
+        case ResourceLocationType.OWN_CORPORATION:
             return [player];
         case ResourceLocationType.VENUS_CARD:
         case ResourceLocationType.JOVIAN_CARD:
@@ -363,6 +365,11 @@ function getOptionsForStorableResource(
         case ResourceLocationType.THIS_CARD:
             cards = [originalCard];
             break;
+        case ResourceLocationType.OWN_CORPORATION: {
+            const playedCards = getPlayedCards(player);
+            cards = playedCards.filter(card => card.type === CardType.CORPORATION);
+            break;
+        }
         case ResourceLocationType.LAST_PLAYED_CARD: {
             const playedCards = getPlayedCards(player);
             // don't use the filtered list, because it's explicitly the last card played
@@ -670,7 +677,7 @@ function OptionComponent({
     }
 
     if (option.card && isStorableResource(option.resource)) {
-        max = option.card.storedResourceAmount;
+        max = option.quantity;
     }
 
     const [variableAmount, setVariableAmount] = useState(Math.min(1, max));

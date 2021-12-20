@@ -2002,14 +2002,20 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.pendingResourceActionDetails = undefined;
             draft.pendingVariableAmount = undefined;
-            player.action = (player.action % 2) + 1;
 
-            // Did the player just complete their second action?
-            // And is it not greenery placement?
-            // their turn is over.
-            if (player.action === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT) {
-                // It's the next player's turn
-                handleChangeCurrentPlayer(state, draft);
+            if (payload.shouldIncrementActionCounter) {
+                player.action = (player.action % 2) + 1;
+
+                // Did the player just complete their second action?
+                // And is it not greenery placement?
+                // their turn is over.
+                if (
+                    player.action === 1 &&
+                    draft.common.gameStage !== GameStage.GREENERY_PLACEMENT
+                ) {
+                    // It's the next player's turn
+                    handleChangeCurrentPlayer(state, draft);
+                }
             }
         }
 

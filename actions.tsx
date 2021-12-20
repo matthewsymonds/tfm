@@ -486,10 +486,12 @@ export const announceReadyToStartRound = withMatcher((playerIndex: number) => ({
 // If the active player is now the start player,
 // increments the turn.
 const COMPLETE_ACTION = 'COMPLETE_ACTION';
-export const completeAction = withMatcher((playerIndex: number) => ({
-    type: COMPLETE_ACTION,
-    payload: {playerIndex},
-}));
+export const completeAction = withMatcher(
+    (playerIndex: number, shouldIncrementActionCounter: boolean = true) => ({
+        type: COMPLETE_ACTION,
+        payload: {playerIndex, shouldIncrementActionCounter},
+    })
+);
 
 // If this is the player's second action. (Also used to skip playing a card if you cannot play card).
 const SKIP_ACTION = 'SKIP_ACTION';

@@ -33,12 +33,6 @@ export const GlobalStyles = createGlobalStyle`
     html, body {
         height: 100%;
     }
-    div[aria-hidden="true"] {
-        position: absolute;
-        left: 0;
-        top: 0;
-        transform: translate(-100%, -100%);
-    }
     #__next, #root, #__next > div {
         height: 100%;
         min-height: 100%;
@@ -85,7 +79,8 @@ export const GlobalStyles = createGlobalStyle`
         min-width: min(450px, 100%);
         grid-template-columns: 2fr 11fr 2fr;
         grid-template-areas: 
-            "global-params board board-switcher-wrapper action-table";
+            "global-params board board-switcher-wrapper"
+            "action-table action-table action-table";
         @media (max-width: 895px) {
             grid-template-areas:
               "board board board"

@@ -46,6 +46,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     // You can play insulation just to get the card out, but not change any production.
     [VariableAmount.USER_CHOICE_MIN_ZERO]: () => 0,
     [VariableAmount.BASED_ON_USER_CHOICE]: (state: GameState) => state.pendingVariableAmount!,
+    [VariableAmount.DOUBLE_BASED_ON_USER_CHOICE]: (state: GameState) =>
+        state.pendingVariableAmount! * 2,
     [VariableAmount.TRIPLE_BASED_ON_USER_CHOICE]: (state: GameState) =>
         state.pendingVariableAmount! * 3,
     [VariableAmount.ALL_EVENTS]: (state: GameState) => {
