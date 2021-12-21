@@ -45,7 +45,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             name: 'Solarnet Shutdown',
         },
         action: {
-            text: 'Lose 3 MC for each blue card (max 5, then reduced by influence.',
+            text: 'Lose 3 MC for each blue card (max 5, then reduced by influence).',
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
                     subtract(
@@ -182,7 +182,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: {
                     condition: Condition.GREATER_THAN_OR_EQUAL_TO,
-                    operands: [VariableAmount.UNIQUE_TAGS, 9],
+                    operands: [sum(VariableAmount.UNIQUE_TAGS, VariableAmount.INFLUENCE), 9],
                     pass: 10,
                     fail: 0,
                 },
@@ -197,7 +197,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
         action: {
             text:
-                'Lose all heat. Lose 2 MC for each building tag (max 5, then reduced by influnece.',
+                'Lose all heat. Lose 2 MC for each building tag (max 5, then reduced by influence).',
             removeResource: {
                 [Resource.HEAT]: {resource: Resource.HEAT},
                 [Resource.MEGACREDIT]: double(

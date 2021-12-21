@@ -107,7 +107,11 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     {
         name: 'Ecologist',
         requirementText: '4 bio-tags (plant, animal, or microbe)',
-        amount: sum({tag: Tag.PLANT}, {tag: Tag.ANIMAL}, {tag: Tag.MICROBE}),
+        amount: sum(
+            {tag: Tag.PLANT, includeWildcard: true},
+            {tag: Tag.ANIMAL, includeWildcard: false},
+            {tag: Tag.MICROBE, includeWildcard: false}
+        ),
         quantity: 4,
     },
     {

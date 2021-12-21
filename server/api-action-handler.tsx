@@ -14,6 +14,7 @@ import {
     askUserToDuplicateProduction,
     askUserToExchangeNeutralNonLeaderDelegate,
     askUserToFundAward,
+    askUserToGainStandardResources,
     askUserToIncreaseAndDecreaseColonyTileTracks,
     askUserToIncreaseLowestProduction,
     askUserToLookAtCards,
@@ -40,7 +41,6 @@ import {
     decreaseTerraformRating,
     discardCards,
     discardPreludes,
-    discardRevealedCards,
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
@@ -259,10 +259,6 @@ export class ApiActionHandler {
     }
 
     handleTurmoilIfNeeded() {
-        if (!this.state.timeForTurmoil || !this.state.common.turmoil) {
-            return;
-        }
-
         // Pristar
         for (const player of this.state.players) {
             if (player.terraformedThisGeneration) {
@@ -284,6 +280,10 @@ export class ApiActionHandler {
                     }
                 }
             }
+        }
+
+        if (!this.state.timeForTurmoil || !this.state.common.turmoil) {
+            return;
         }
 
         this.queue.push(
@@ -328,7 +328,7 @@ export class ApiActionHandler {
             }
         }
 
-        this.queue.push(makePartyRuling(turmoil.dominantParty));
+        this.queue.push(makePartyRuling());
         const rulingParty = getParty(turmoil.dominantParty);
         if (rulingParty) {
             for (const player of this.state.players) {
@@ -372,7 +372,7 @@ export class ApiActionHandler {
         this.addGameActionToLog({
             actionType: GameActionType.CARD,
             playerIndex,
-            card,
+            card: {name: card.name},
             payment,
         });
 
@@ -776,7 +776,7 @@ export class ApiActionHandler {
         this.addGameActionToLog({
             actionType: GameActionType.CARD_ACTION,
             playerIndex: player.index,
-            card: parent,
+            card: {name: parent.name},
             payment,
             choiceIndex,
         });
@@ -964,7 +964,6 @@ export class ApiActionHandler {
     }
 
     continueAfterRevealingCards() {
-        this.queue.unshift(discardRevealedCards());
         this.processQueue();
     }
 
@@ -1219,7 +1218,7 @@ export class ApiActionHandler {
             reason,
         ] = this.actionGuard.canCompletePutAdditionalColonyTileIntoPlay(colony);
         if (!canCompletePutAdditionalColonyTileIntoPlay) {
-            throw new Error('reason');
+            throw new Error(reason);
         }
 
         const loggedInPlayer = this.getLoggedInPlayer();
@@ -1675,6 +1674,7 @@ export class ApiActionHandler {
         queue = this.queue
     ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
+        const player = state.players[playerIndex];
         const items: Array<AnyAction> = [];
         // Must happen first (search for life "gains resource" based on discarded card)
         if (action.revealAndDiscardTopCards) {
@@ -1691,6 +1691,9 @@ export class ApiActionHandler {
                     action.gainResourceTargetType
                 )
             );
+        }
+        if (action.gainStandardResources) {
+            items.push(askUserToGainStandardResources(action.gainStandardResources, playerIndex));
         }
         const numOceansPlacedSoFar = getNumOceans(state);
         let oceansInQueue = 0;
@@ -1839,7 +1842,7 @@ export class ApiActionHandler {
             );
         }
         if (action.increaseLowestProduction) {
-            const lowestProductions = getLowestProductions(this.getLoggedInPlayer());
+            const lowestProductions = getLowestProductions(player);
             if (lowestProductions.length === 1) {
                 items.push(
                     increaseProduction(
@@ -2019,7 +2022,7 @@ export class ApiActionHandler {
             const numericTerraformRatingIncrease = convertAmountToNumber(
                 terraformRatingIncrease,
                 state,
-                this.getLoggedInPlayer(),
+                player,
                 playedCard
             );
             items.push(increaseTerraformRating(numericTerraformRatingIncrease, playerIndex));
@@ -2032,7 +2035,7 @@ export class ApiActionHandler {
             const decrease = convertAmountToNumber(
                 action.decreaseTerraformRating,
                 state,
-                this.getLoggedInPlayer(),
+                player,
                 playedCard
             );
             items.push(decreaseTerraformRating(decrease, playerIndex));

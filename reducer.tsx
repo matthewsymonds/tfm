@@ -78,7 +78,6 @@ import {
     decreaseTerraformRating,
     discardCards,
     discardPreludes,
-    discardRevealedCards,
     draftCard,
     exchangeChairman,
     exchangeNeutralNonLeaderDelegate,
@@ -592,13 +591,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     `Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`
                 );
             }
-        }
-
-        if (discardRevealedCards.match(action)) {
-            // Step 2. Discard the revealed cards.
-            draft.common.discardPile.push(...draft.common.revealedCards);
-            draft.log.push(`Discarded ${draft.common.revealedCards.map(c => c.name).join(', ')}`);
-            draft.common.revealedCards = [];
         }
 
         if (revealTakeAndDiscard.match(action)) {
@@ -1800,11 +1792,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     );
                 }
                 turmoil.chairperson = leader;
-                if (turmoil.chairperson.playerIndex != undefined) {
-                    const player = draft.players[turmoil.chairperson.playerIndex];
-                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
-                    handleTerraformRatingIncrease(player, 1, draft);
-                }
                 for (const delegate of rest) {
                     if (delegate.playerIndex != undefined) {
                         turmoil.delegateReserve[delegate.playerIndex].push(delegate);
@@ -1820,6 +1807,11 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (wrapUpTurmoil.match(action)) {
             const {turmoil} = draft.common;
             if (turmoil) {
+                if (turmoil.chairperson.playerIndex != undefined) {
+                    const player = draft.players[turmoil.chairperson.playerIndex];
+                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
+                    handleTerraformRatingIncrease(player, 1, draft);
+                }
                 // Restore lobby
                 for (const player of draft.players) {
                     if (!turmoil.lobby[player.index]) {
@@ -1847,10 +1839,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (fullEvent?.bottom.party) {
                     const [leader] = turmoil.delegations[fullEvent.bottom.party];
                     turmoil.delegations[fullEvent.bottom.party].push(delegate());
+                    const numDelegates = turmoil.delegations[fullEvent.bottom.party].length;
                     draft.log.push(
-                        `${fullEvent.bottom.party} gained a neutral delegate (now has ${
-                            turmoil.delegations[fullEvent.bottom.party].length
-                        } delegates)`
+                        `${
+                            fullEvent.bottom.party
+                        } gained a neutral delegate (now has ${numDelegates} delegate${
+                            numDelegates === 1 ? '' : 's'
+                        })`
                     );
                     determineNewLeader(turmoil, fullEvent.bottom.party, draft, leader?.playerIndex);
                     determineNewDominantParty(turmoil, draft);
@@ -1869,10 +1864,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     if (fullEvent) {
                         const [leader] = turmoil.delegations[fullEvent.bottom.party];
                         turmoil.delegations[fullEvent.top.party].push(delegate());
+                        const numDelegates = turmoil.delegations[fullEvent.top.party].length;
                         draft.log.push(
-                            `${fullEvent.top.party} gained a neutral delegate (now has ${
-                                turmoil.delegations[fullEvent.top.party].length
-                            } delegates)`
+                            `${
+                                fullEvent.top.party
+                            } gained a neutral delegate (now has ${numDelegates} delegate${
+                                numDelegates === 1 ? '' : 's'
+                            })`
                         );
                         turmoil.distantGlobalEvent = newDistantGlobalEvent;
                         determineNewLeader(
@@ -2002,6 +2000,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.pendingResourceActionDetails = undefined;
             draft.pendingVariableAmount = undefined;
+            draft.common.revealedCards = [];
 
             if (payload.shouldIncrementActionCounter) {
                 player.action = (player.action % 2) + 1;

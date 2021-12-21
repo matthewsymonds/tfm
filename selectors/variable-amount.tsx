@@ -354,7 +354,7 @@ export function getTotalFloaters(state: GameState, player: PlayerState, card?: C
 function getTilesOnBottomRows(state: GameState, player: PlayerState, numRows: number): number {
     const {board} = state.common;
     // Exclude bottom row which is used for off mars cities.
-    const indexOfLastRow = board.length - 1;
+    const indexOfLastRow = board.length - 2;
     let relevantRowIndexes: number[] = [];
     for (let i = 0; i < numRows; i++) {
         relevantRowIndexes.push(indexOfLastRow - i);

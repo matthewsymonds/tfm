@@ -2,7 +2,6 @@ import {ConversionName} from 'constants/conversion';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
-import {Card} from 'models/card';
 
 export enum GameActionType {
     CARD = 'card',
@@ -25,13 +24,13 @@ type SharedGameAction = {
 
 export type GameActionPlayCard = SharedGameAction & {
     actionType: GameActionType.CARD;
-    card: Card;
+    card: {name: string};
     payment: NumericPropertyCounter<Resource>;
 };
 
 export type GameActionPlayCardAction = SharedGameAction & {
     actionType: GameActionType.CARD_ACTION;
-    card: Card;
+    card: {name: string};
     payment?: NumericPropertyCounter<Resource> | null;
     choiceIndex?: number;
 };
