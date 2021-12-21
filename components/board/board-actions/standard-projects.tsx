@@ -164,25 +164,25 @@ function StandardProjectTooltip({
     );
 }
 
-function StandardProjectActionIcon({actionType}: {actionType: StandardProjectType}) {
+export function StandardProjectActionIcon({actionType}: {actionType: StandardProjectType}) {
     switch (actionType) {
         case StandardProjectType.SELL_PATENTS:
             return (
-                <React.Fragment>
+                <Flex>
                     <span style={{marginRight: 2}}>-</span>
-                    <ResourceIcon name={Resource.CARD} size={18} />
-                </React.Fragment>
+                    <ResourceIcon name={Resource.CARD} size={15} />
+                </Flex>
             );
         case StandardProjectType.POWER_PLANT:
             return <ProductionIcon name={Resource.ENERGY} size={24} paddingSize={3} />;
         case StandardProjectType.ASTEROID:
-            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={17} />;
+            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={24} />;
         case StandardProjectType.AQUIFER:
-            return <TileIcon type={TileType.OCEAN} size={24} />;
+            return <TileIcon type={TileType.OCEAN} size={21} />;
         case StandardProjectType.GREENERY:
-            return <TileIcon type={TileType.GREENERY} size={24} />;
+            return <TileIcon type={TileType.GREENERY} size={21} />;
         case StandardProjectType.CITY:
-            return <TileIcon type={TileType.CITY} size={24} />;
+            return <TileIcon type={TileType.CITY} size={21} />;
         case StandardProjectType.COLONY:
             return <ColonyIcon size={16} />;
         case StandardProjectType.VENUS:
@@ -265,7 +265,7 @@ export function getButtonTextForStandardProject(standardProject: StandardProject
     }
 }
 
-function getCostForStandardProject(action: StandardProjectAction, player: PlayerState) {
+export function getCostForStandardProject(action: StandardProjectAction, player: PlayerState) {
     switch (action.type) {
         case StandardProjectType.SELL_PATENTS:
             return 0;

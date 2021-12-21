@@ -125,7 +125,7 @@ export const Board = ({
 
                 <BoardMid>
                     <BoardInner displayBoard={displayBoard} />
-                    <StandardProjectList loggedInPlayer={loggedInPlayer} />
+                    {/* <StandardProjectList loggedInPlayer={loggedInPlayer} /> */}
                 </BoardMid>
             </BoardOuter>
         </Box>

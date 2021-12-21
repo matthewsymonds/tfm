@@ -20,4 +20,5 @@ export type TagAmount = {
     tag: Tag;
     dividedBy?: number;
     includeOpponents?: boolean;
+    includeWildcard?: boolean;
 };

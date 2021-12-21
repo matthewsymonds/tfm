@@ -45,12 +45,6 @@ export const revealTakeAndDiscard = withMatcher(
     })
 );
 
-const DISCARD_REVEALED_CARDS = 'DISCARD_REVEALED_CARDS';
-export const discardRevealedCards = withMatcher(() => ({
-    type: DISCARD_REVEALED_CARDS,
-    payload: {},
-}));
-
 const DISCARD_CARDS = 'DISCARD_CARDS';
 export const discardCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
     type: DISCARD_CARDS,
@@ -167,7 +161,7 @@ export const gainResource = withMatcher(
 
 const ASK_USER_TO_GAIN_STANDARD_RESOURCES = 'ASK_USER_TO_GAIN_STANDARD_RESOURCES';
 export const askUserToGainStandardResources = withMatcher(
-    (amount: number, playerIndex: number) => ({
+    (amount: Amount, playerIndex: number) => ({
         type: ASK_USER_TO_GAIN_STANDARD_RESOURCES,
         payload: {amount, playerIndex},
     })
@@ -486,10 +480,12 @@ export const announceReadyToStartRound = withMatcher((playerIndex: number) => ({
 // If the active player is now the start player,
 // increments the turn.
 const COMPLETE_ACTION = 'COMPLETE_ACTION';
-export const completeAction = withMatcher((playerIndex: number) => ({
-    type: COMPLETE_ACTION,
-    payload: {playerIndex},
-}));
+export const completeAction = withMatcher(
+    (playerIndex: number, shouldIncrementActionCounter: boolean = true) => ({
+        type: COMPLETE_ACTION,
+        payload: {playerIndex, shouldIncrementActionCounter},
+    })
+);
 
 // If this is the player's second action. (Also used to skip playing a card if you cannot play card).
 const SKIP_ACTION = 'SKIP_ACTION';
@@ -741,9 +737,9 @@ export const removeNonLeaderDelegate = withMatcher(
 );
 
 const MAKE_PARTY_RULING = 'MAKE_PARTY_RULING';
-export const makePartyRuling = withMatcher((party: string) => ({
+export const makePartyRuling = withMatcher(() => ({
     type: MAKE_PARTY_RULING,
-    payload: {party},
+    payload: {},
 }));
 
 const WRAP_UP_TURMOIL = 'WRAP_UP_TURMOIL';

@@ -1,13 +1,10 @@
 import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
-import {HeatPaymentPopover} from 'components/popovers/payment-popover';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
-import {useApiClient} from 'hooks/use-api-client';
-import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import {PlayerState} from 'reducer';
 import styled, {keyframes} from 'styled-components';
@@ -53,7 +50,6 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointer
     font-size: 14px;
     background-color: ${colors.LIGHTEST_BG};
     border: 1px solid #222;
-    cursor: ${props => (props.showPointerCursor ? 'pointer' : 'default')};
 
     &.canDoPlantConversion {
         animation: ${plantBgCycle} 4s ease-in-out infinite;
@@ -65,64 +61,22 @@ const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointer
     }
 `;
 
-function useConvertibleResource(
-    resource: Resource,
-    player: PlayerState
-): {
-    canConvert: boolean;
-    handleConversionClick: null | (() => void);
-} {
-    const apiClient = useApiClient();
-    const loggedInPlayer = useLoggedInPlayer();
-    const actionGuard = useActionGuard(player.username);
-    const conversion = CONVERSIONS[resource];
-
-    if (!conversion) {
-        return {canConvert: false, handleConversionClick: null};
-    }
-
-    const [canDoConversionInSpiteOfUI] = actionGuard.canDoConversionInSpiteOfUI(conversion);
-    // - when looking at another players board, we never need to handle conversion click
-    // - when looking at your own board, but you don't have enough resources,
-    //   we also don't need to handle conversion click
-    if (loggedInPlayer.index !== player.index || !canDoConversionInSpiteOfUI) {
-        return {
-            canConvert: canDoConversionInSpiteOfUI,
-            handleConversionClick: null,
-        };
-    }
-
-    let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
-    if (!canDoConversion) {
-        return {
-            canConvert: false,
-            handleConversionClick: null,
-        };
-    } else {
-        return {
-            canConvert: true,
-            handleConversionClick: () => {
-                apiClient.doConversionAsync({
-                    resource: Resource.HEAT,
-                });
-            },
-        };
-    }
-}
-
 export type ResourceBoardCellProps = {
     resource: Resource;
     player: PlayerState;
 };
 
 export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) => {
-    const loggedInPlayer = useLoggedInPlayer();
-    const isLoggedInPlayer = loggedInPlayer.index === player.index;
+    const actionGuard = useActionGuard(player.username);
     const amount = player.resources[resource];
     const production = player.productions[resource];
-    const {canConvert, handleConversionClick} = useConvertibleResource(resource, player);
+    const conversion = CONVERSIONS[resource];
 
-    const showConversionAnimation = canConvert;
+    let showConversionAnimation = false;
+    if (conversion) {
+        [showConversionAnimation] = actionGuard.canDoConversionInSpiteOfUI(conversion);
+    }
+
     let className = 'display';
     if (showConversionAnimation) {
         if (resource === Resource.PLANT) className += ' canDoPlantConversion';
@@ -130,11 +84,7 @@ export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) =>
     }
 
     return (
-        <ResourceBoardCellBase
-            className={className}
-            onClick={() => handleConversionClick?.()}
-            showPointerCursor={isLoggedInPlayer && canConvert}
-        >
+        <ResourceBoardCellBase className={className}>
             <Flex
                 alignSelf="stretch"
                 alignItems="center"

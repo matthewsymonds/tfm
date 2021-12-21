@@ -1,4 +1,5 @@
 import {Amount} from 'constants/action';
+import {CardType} from 'constants/card-types';
 import {isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
 import {isOperationAmount} from 'constants/operation-amount';
@@ -171,6 +172,10 @@ export function getAllowedCardsForResourceAction({
             return result;
         case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
             return getAllPlayedCardsWithNonZeroStorableResource(player);
+        case ResourceLocationType.OWN_CORPORATION:
+            return player.playedCards
+                .filter(card => getCard(card).type === CardType.CORPORATION)
+                .map(getCard);
         case ResourceLocationType.ANY_PLAYER:
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:

@@ -1,5 +1,7 @@
+import {GameState} from 'reducer';
 import {Action, ActionType} from './action';
 import {Parameter, PlacementRequirement, TileType} from './board';
+import {Deck} from './card-types';
 import {Resource} from './resource-enum';
 import {VariableAmount} from './variable-amount';
 
@@ -106,3 +108,20 @@ export const standardProjectActions: StandardProjectAction[] = [
         placeColony: {mayBeRepeatColony: false},
     },
 ];
+
+export function getStandardProjects(state: GameState): Array<StandardProjectAction> {
+    const venus = state.options?.decks.includes(Deck.VENUS);
+    const colonies = state.options?.decks.includes(Deck.VENUS);
+
+    let actions = [...standardProjectActions];
+
+    if (!venus) {
+        actions = actions.filter(action => action.type !== StandardProjectType.VENUS);
+    }
+
+    if (!colonies) {
+        actions = actions.filter(action => action.type !== StandardProjectType.COLONY);
+    }
+
+    return actions;
+}

@@ -12,6 +12,7 @@ import {
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {Payment} from 'constants/action';
 import {Cell} from 'constants/board';
+import {Conversion} from 'constants/conversion';
 import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
@@ -201,10 +202,7 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_FUND_AWARD, payload);
     }
 
-    async doConversionAsync(payload: {
-        resource: Resource;
-        supplementalResources?: SupplementalResources;
-    }): Promise<void> {
+    async doConversionAsync(payload: {conversion: Conversion}): Promise<void> {
         await this.makeApiCall(ApiActionType.API_DO_CONVERSION, payload);
     }
 

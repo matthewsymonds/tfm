@@ -55,7 +55,7 @@ const MegacreditIcon = styled.div<{
     height: ${props => props.size}px;
     width: ${props => props.size}px;
     color: ${colors.TEXT_DARK_1};
-    font-size: ${props => (props.size ? props.size * 0.75 : '12')}px;
+    font-size: ${props => (props.size ? props.size * 0.6 : '12')}px;
     box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
     border-radius: 3px;
     background-color: ${colors.MEGACREDIT};

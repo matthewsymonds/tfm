@@ -394,6 +394,9 @@ function getMultiplierAndCustomElement(
         case VariableAmount.COLONIES:
             multiplierElement = <ColonyIcon size={16} />;
             break;
+        case VariableAmount.PLANT_CONVERSION_AMOUNT:
+            customElement = <ResourceIcon name={Resource.PLANT} size={16} />;
+            break;
 
         case VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE:
             customElement = (
@@ -574,6 +577,9 @@ function getMultiplierAndCustomElement(
             break;
         case VariableAmount.TRIPLE_BASED_ON_USER_CHOICE:
             customElement = <ResourceIcon name={resource as Resource} size={16} amount="3X" />;
+            break;
+        case VariableAmount.DOUBLE_BASED_ON_USER_CHOICE:
+            customElement = <ResourceIcon name={resource as Resource} size={16} amount="2X" />;
             break;
         case VariableAmount.REVEALED_CARD_MICROBE:
             customElement = (

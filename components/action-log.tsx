@@ -16,6 +16,7 @@ import {GameActionType} from 'GameActionState';
 import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
 import {PlayerState, useTypedSelector} from 'reducer';
+import {getCard} from 'selectors/get-card';
 import {getGameAction} from 'selectors/get-game-action';
 import {SerializedGameAction} from 'state-serialization';
 import styled from 'styled-components';
@@ -230,14 +231,15 @@ const LogEntryInner = ({
                 case GameActionType.CARD: {
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
-                    const {card, payment} = gameAction;
+                    const {payment} = gameAction;
+                    const card = getCard(gameAction.card);
                     const isFree = Object.values(payment).reduce((a, b) => a + b, 0) === 0;
 
                     if (card.type === CardType.CORPORATION) {
                         innerElements.push(
                             <Box display="inline">
                                 <span>{player.username} selected </span>
-                                <CardTextToken card={gameAction.card} margin="0px" />
+                                <CardTextToken card={card} margin="0px" />
                             </Box>
                         );
                     } else {
@@ -263,7 +265,7 @@ const LogEntryInner = ({
                 case GameActionType.CARD_ACTION: {
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
-                    const {card} = gameAction;
+                    const card = getCard(gameAction.card);
                     const payment = gameAction.payment ?? {};
 
                     innerElements.push(
@@ -325,12 +327,12 @@ const LogEntryInner = ({
                 case GameActionType.CONVERSION: {
                     const player = players.find(p => p.index === gameAction.playerIndex);
                     if (!player) throw new Error('unknown player');
-                    const {conversionType} = gameAction;
+                    const {conversionName} = gameAction;
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <span style={{marginLeft: 4}}>converted</span>
-                            {conversionType === 'heat' ? (
+                            {conversionName === 'Heat to Temperature' && (
                                 <React.Fragment>
                                     <span style={{marginLeft: 4, marginRight: 4}}>heat into</span>
                                     <GlobalParameterIcon
@@ -338,7 +340,8 @@ const LogEntryInner = ({
                                         size={20}
                                     />
                                 </React.Fragment>
-                            ) : (
+                            )}
+                            {conversionName === 'Plants to Greenery' && (
                                 <React.Fragment>
                                     <span style={{marginLeft: 4, marginRight: 4}}>plants into</span>
                                     <TileIcon type={TileType.GREENERY} size={20} />

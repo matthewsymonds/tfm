@@ -446,6 +446,22 @@ export class ActionGuard {
     ): CanPlayAndReason {
         if (!conversion) return [false, 'No conversion available'];
         const parent: Card | undefined = undefined;
+        const player = this._getPlayerToConsider();
+
+        if (
+            conversion.name === 'Floaters to Heat (Stormcraft)' &&
+            player.corporation.name !== 'Stormcraft Incorporated'
+        ) {
+            return [false, 'Only Stormcraft Incorporated can convert floaters to heat'];
+        }
+
+        if (
+            conversion.name === 'Heat to Megacredit (Helion)' &&
+            player.corporation.name !== 'Helion'
+        ) {
+            return [false, 'Only Helion can convert heat to megacredits'];
+        }
+
         return this.canPlayAction(conversion, this.state, parent, supplementalResources);
     }
 

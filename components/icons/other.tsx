@@ -20,7 +20,14 @@ export const TerraformRatingIcon = ({
 
 export const ColonyIcon = ({size = 16, margin = 0}: {size?: number; margin?: string | number}) => {
     return (
-        <AllCapsIcon size={size} bgColor="#ccc" margin={margin} borderRadius={12} padding={3}>
+        <AllCapsIcon
+            style={{color: colors.TEXT_DARK_1}}
+            size={size}
+            bgColor="#ccc"
+            margin={margin}
+            borderRadius={12}
+            padding={3}
+        >
             COL
         </AllCapsIcon>
     );

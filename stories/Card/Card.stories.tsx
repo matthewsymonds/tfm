@@ -48,7 +48,6 @@ const AwardCardTemplate: Story<{}> = args => {
                     award={award}
                     loggedInPlayer={loggedInPlayer}
                     cost={14}
-                    isFunded={false}
                     fundAward={() => {}}
                 />
             ))}
