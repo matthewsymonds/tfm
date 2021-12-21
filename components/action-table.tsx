@@ -1,21 +1,31 @@
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
+import {Payment} from 'constants/action';
 import {getAward, getAwards} from 'constants/awards';
+import {
+    Conversion,
+    DEFAULT_CONVERSIONS,
+    HELION_CONVERSION,
+    STORMCRAFT_CONVERSION,
+} from 'constants/conversion';
 import {getMilestone, getMilestones} from 'constants/milestones';
+import {NumericPropertyCounter} from 'constants/property-counter';
+import {Resource} from 'constants/resource-enum';
 import {
     getStandardProjects,
     StandardProjectAction,
     StandardProjectType,
 } from 'constants/standard-project';
-import AnimateHeight from 'react-animate-height';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
+import AnimateHeight from 'react-animate-height';
 import {useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
-import {BlankButton} from './blank-button';
 import {throttle} from 'throttle-debounce';
+import spawnExhaustiveSwitchError from 'utils';
+import {BlankButton} from './blank-button';
 import {useAwardConfigsByAward} from './board/board-actions/awards';
 import {
     getCostForStandardProject,
@@ -23,20 +33,10 @@ import {
     StandardProjectActionIcon,
 } from './board/board-actions/standard-projects';
 import {Flex} from './box';
-import {colors} from './ui';
-import {ResourceIcon} from './icons/resource';
-import {Resource} from 'constants/resource-enum';
-import PaymentPopover from './popovers/payment-popover';
-import {NumericPropertyCounter} from 'constants/property-counter';
-import spawnExhaustiveSwitchError from 'utils';
-import {Payment} from 'constants/action';
-import {
-    Conversion,
-    DEFAULT_CONVERSIONS,
-    HELION_CONVERSION,
-    STORMCRAFT_CONVERSION,
-} from 'constants/conversion';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {ResourceIcon} from './icons/resource';
+import PaymentPopover from './popovers/payment-popover';
+import {colors} from './ui';
 
 const actionTypes = ['Milestones', 'Awards', 'Std Projects', 'Conversions'] as Array<ActionType>;
 type ActionType = 'Awards' | 'Milestones' | 'Std Projects' | 'Conversions';
@@ -87,67 +87,68 @@ export function ActionTable() {
     });
 
     return (
-        <Flex
-            flexDirection="column"
-            className="action-table"
-            style={{
-                borderRadius: 3,
-                border: '1px solid rgb(80, 80, 80)',
-                background: 'rgb(53, 53, 53)',
-                margin: '8px 8px 0',
-                maxWidth: 500,
-                width: '100%',
-                justifySelf: 'center',
-            }}
-        >
-            <Flex justifyContent="center" padding="8px 0">
-                {actionTypes.map(actionType => (
-                    <Flex
-                        margin="0 4px 0 0"
-                        padding="2px 4px"
-                        style={{
-                            borderRadius: 6,
-                            ...(selectedAction === actionType && !isCollapsed
-                                ? {
-                                      background: `${colors.GOLD}`,
-                                      border: `1px solid ${colors.GOLD}`,
-                                      color: colors.TEXT_DARK_1,
-                                      fontWeight: 600,
-                                  }
-                                : {border: '1px solid transparent', color: colors.GOLD}),
-                        }}
-                    >
-                        <ActionTableHeader
-                            onClick={() => {
-                                if (actionType !== selectedAction) {
-                                    const prevIndex =
-                                        prevSelectedSubItemIndexByActionType[actionType];
-                                    setIsCollapsed(false);
-                                    setSelectedActionAndSubActionIndex([actionType, prevIndex]);
-                                } else {
-                                    setIsCollapsed(!isCollapsed);
-                                }
+        <Flex className="action-table" padding="0 8px" marginTop="8px">
+            <Flex
+                flexDirection="column"
+                style={{
+                    borderRadius: 3,
+                    border: '1px solid rgb(80, 80, 80)',
+                    background: 'rgb(53, 53, 53)',
+                    maxWidth: 500,
+                    width: '100%',
+                    justifySelf: 'center',
+                }}
+            >
+                <Flex justifyContent="center" padding="8px 0">
+                    {actionTypes.map(actionType => (
+                        <Flex
+                            key={actionType}
+                            margin="0 4px 0 0"
+                            padding="2px 4px"
+                            style={{
+                                borderRadius: 6,
+                                ...(selectedAction === actionType && !isCollapsed
+                                    ? {
+                                          background: `${colors.GOLD}`,
+                                          border: `1px solid ${colors.GOLD}`,
+                                          color: colors.TEXT_DARK_1,
+                                          fontWeight: 600,
+                                      }
+                                    : {border: '1px solid transparent', color: colors.GOLD}),
                             }}
                         >
-                            {actionType}
-                        </ActionTableHeader>
-                    </Flex>
-                ))}
-            </Flex>
-            <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table">
-                <Flex justifyContent="center">
-                    <ActionTableInner
-                        selectedActionAndSubActionIndex={selectedActionAndSubActionIndex}
-                        onSelectNewSubItem={(index: number) => {
-                            setSelectedActionAndSubActionIndex([selectedAction, index]);
-                            setPrevSelectedSubItemIndexByActionType({
-                                ...prevSelectedSubItemIndexByActionType,
-                                [selectedAction]: index,
-                            });
-                        }}
-                    />
+                            <ActionTableHeader
+                                onClick={() => {
+                                    if (actionType !== selectedAction) {
+                                        const prevIndex =
+                                            prevSelectedSubItemIndexByActionType[actionType];
+                                        setIsCollapsed(false);
+                                        setSelectedActionAndSubActionIndex([actionType, prevIndex]);
+                                    } else {
+                                        setIsCollapsed(!isCollapsed);
+                                    }
+                                }}
+                            >
+                                {actionType}
+                            </ActionTableHeader>
+                        </Flex>
+                    ))}
                 </Flex>
-            </AnimateHeight>
+                <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table">
+                    <Flex justifyContent="center">
+                        <ActionTableInner
+                            selectedActionAndSubActionIndex={selectedActionAndSubActionIndex}
+                            onSelectNewSubItem={(index: number) => {
+                                setSelectedActionAndSubActionIndex([selectedAction, index]);
+                                setPrevSelectedSubItemIndexByActionType({
+                                    ...prevSelectedSubItemIndexByActionType,
+                                    [selectedAction]: index,
+                                });
+                            }}
+                        />
+                    </Flex>
+                </AnimateHeight>
+            </Flex>
         </Flex>
     );
 }
@@ -188,11 +189,12 @@ function ActionTableInner({
                         flexDirection="column"
                         overflow="auto"
                         style={{
-                            borderRight: `1px solid ${colors.LIGHTEST_BG}`,
+                            borderRight: `1px solid ${colors.DARK_4}`,
                         }}
                     >
-                        {subItems?.map((_, index) => (
+                        {subItems?.map((subItem, index) => (
                             <CategoryListItem
+                                key={subItem}
                                 onClick={() => onSelectNewSubItem(index)}
                                 onMouseEnter={() => {
                                     throttledSetHoverItem(index);
@@ -265,6 +267,7 @@ function ActionTableInner({
 
                         return (
                             <PaymentPopover
+                                key={(subItem as StandardProjectAction).type}
                                 cost={cost}
                                 onConfirmPayment={payment =>
                                     playStandardProjectAction(subItem, payment)
@@ -331,6 +334,7 @@ function ActionTableInner({
 
                         return (
                             <ConversionButton
+                                key={(subItem as Conversion).name}
                                 bgColorHover={colors.DARK_4}
                                 onClick={doConversion}
                                 disabled={!canDoConversion}
@@ -368,7 +372,7 @@ const ConversionButton = styled(BlankButton)`
     border-radius: 3px;
     margin: 4px 8px;
     padding: 4px 8px;
-    font-size: 0.8em;
+    font-size: 0.7em;
     display: flex;
     flex: 1 1 0;
     flex-direction: column;
@@ -437,7 +441,6 @@ function ActionTableSubItem({
             fundedByPlayer: state.players[fa.fundedByPlayerIndex],
         }))
     );
-    const actionGuard = useActionGuard();
 
     const categoryName = (
         <span

@@ -352,7 +352,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         </AwardsAndMilestones> */}
                     </MilestonesAwardsBoardSwitcherWrapper>
                 </Box>
-                <Box className="player-panels" paddingTop="4px" width="100%" padding="0 0 100px 0">
+                <Box className="player-panels" width="100%" padding="0 0 100px 0">
                     <PlayerPanels />
                 </Box>
             </Flex>

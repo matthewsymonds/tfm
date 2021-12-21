@@ -21,6 +21,7 @@ export const BlankButton = styled.button<{
 
     &:disabled {
         opacity: 0.3;
+        cursor: default;
     }
 
     &:hover {

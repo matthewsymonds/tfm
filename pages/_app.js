@@ -101,6 +101,11 @@ export const GlobalStyles = createGlobalStyle`
     }
     .action-table {
         grid-area: action-table;
+
+        width: 500px;
+        @media (max-width: 895px) {
+            width: 100%;
+        }
     }
     .toast {
         background: hsl(18deg 74% 88%);
