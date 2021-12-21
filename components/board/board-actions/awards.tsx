@@ -199,7 +199,7 @@ export function AwardPopover({
         <TexturedCard width={200}>
             <Flex flexDirection="column">
                 <GenericCardTitleBar bgColor={'#d67500'}>{awardConfig.name}</GenericCardTitleBar>
-                {isFunded ? (
+                {isFunded(award) ? (
                     <GenericCardCost cost="-" />
                 ) : (
                     <GenericCardCost cost={cost} originalCost={cost === 8 ? undefined : cost - 6} />

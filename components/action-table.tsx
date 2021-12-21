@@ -87,7 +87,12 @@ export function ActionTable() {
     });
 
     return (
-        <Flex className="action-table" padding="0 8px" marginTop="8px">
+        <Flex
+            className="action-table"
+            padding="0 8px"
+            marginTop="8px"
+            style={{justifySelf: 'center'}}
+        >
             <Flex
                 flexDirection="column"
                 style={{
@@ -134,7 +139,7 @@ export function ActionTable() {
                         </Flex>
                     ))}
                 </Flex>
-                <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table">
+                <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table-inner">
                     <Flex justifyContent="center">
                         <ActionTableInner
                             selectedActionAndSubActionIndex={selectedActionAndSubActionIndex}
@@ -581,6 +586,10 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             <PlayerCorpAndIcon
                                 player={claimedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
+                                style={{
+                                    fontWeight: 500,
+                                    fontSize: '0.7em',
+                                }}
                             />
                         )}
                     </Flex>
@@ -712,6 +721,10 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             </PaymentPopover>
                         ) : (
                             <PlayerCorpAndIcon
+                                style={{
+                                    fontSize: '0.7em',
+                                    fontWeight: 500,
+                                }}
                                 player={awardConfigsByAward[award].fundedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
                             />
@@ -757,9 +770,8 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                                             player={player}
                                             color={colors.TEXT_LIGHT_1}
                                             style={{
-                                                fontWeight: 400,
-                                                fontSize: 12,
-                                                color: colors.TEXT_LIGHT_1,
+                                                fontWeight: 500,
+                                                fontSize: '0.7em',
                                             }}
                                         />
                                         <span

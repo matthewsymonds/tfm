@@ -152,7 +152,7 @@ export function MilestonePopover({
         <TexturedCard width={200}>
             <Flex flexDirection="column">
                 <GenericCardTitleBar bgColor={'#d67500'}>{milestone}</GenericCardTitleBar>
-                {isClaimed ? <GenericCardCost cost="-" /> : <GenericCardCost cost={8} />}
+                {isClaimed(milestone) ? <GenericCardCost cost="-" /> : <GenericCardCost cost={8} />}
                 <Flex alignItems="center" margin="4px" marginBottom="8px" fontSize="13px">
                     <MilestoneRankings milestone={milestone} />
                 </Flex>

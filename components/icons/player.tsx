@@ -78,13 +78,14 @@ export const PlayerCorpAndIcon = ({
             : {}),
     };
 
-    const fontSize = style?.fontSize ?? '0.8em';
+    const fontSize = style?.fontSize ?? '1em';
+    const fontWeight = style?.fontWeight ?? '700';
     return (
         <Flex
             display="inline-flex"
             alignItems={isInline ? 'baseline' : 'center'}
             justifyContent="center"
-            style={{...style, fontSize: fontSize, fontWeight: style?.fontWeight ?? '500'}}
+            style={{...style, fontSize, fontWeight}}
         >
             <PlayerIcon
                 border={color}
