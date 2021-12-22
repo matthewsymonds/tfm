@@ -47,8 +47,6 @@ import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {BoardSwitcher, DisplayBoard} from './board-switcher';
-import AwardsList from './board/board-actions/awards';
-import MilestonesList from './board/board-actions/milestones';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
@@ -346,10 +344,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                 selectedBoard={displayBoard}
                             />
                         )}
-                        {/* <AwardsAndMilestones>
-                                <MilestonesList loggedInPlayer={loggedInPlayer} />
-                            <AwardsList loggedInPlayer={loggedInPlayer} />
-                        </AwardsAndMilestones> */}
                     </MilestonesAwardsBoardSwitcherWrapper>
                 </Box>
                 <Box className="player-panels" width="100%" padding="0 0 100px 0">

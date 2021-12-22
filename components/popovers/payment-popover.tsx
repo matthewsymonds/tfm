@@ -109,7 +109,8 @@ export function usePaymentPopover<T extends HTMLElement>({
                 <PaymentPopover
                     onConfirmPayment={(payment, conditionalPayments) => {
                         onConfirmPayment(payment, conditionalPayments);
-                        hidePopover(triggerRef);
+                        hidePopover(null);
+                        debugger;
                     }}
                     opts={opts}
                 />
@@ -228,7 +229,7 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
             cost = getDiscountedCardCost(props.opts.card, player);
             break;
         case 'action':
-            cost = cost || 0;
+            cost = props.opts.cost || 0;
             break;
         default:
             throw spawnExhaustiveSwitchError(props.opts);
@@ -307,7 +308,6 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                 const index = conditionalPayment.findIndex(
                     payment => payment.resourceType === resource
                 );
-                const payment = conditionalPayment[index];
                 if (numConditionalPayment[index] > 0) {
                     const newNumConditionalPayment = [...numConditionalPayment];
                     newNumConditionalPayment[index] -= quantity;

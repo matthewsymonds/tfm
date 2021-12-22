@@ -35,7 +35,7 @@ import {
 import {Flex} from './box';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
 import {ResourceIcon} from './icons/resource';
-import PaymentPopover from './popovers/payment-popover';
+import PaymentPopover, {usePaymentPopover} from './popovers/payment-popover';
 import {colors} from './ui';
 
 const actionTypes = ['Milestones', 'Awards', 'Std Projects', 'Conversions'] as Array<ActionType>;
@@ -158,6 +158,95 @@ export function ActionTable() {
     );
 }
 
+function FundAwardButton({award}: {award: string}) {
+    const actionGuard = useActionGuard();
+    const apiClient = useApiClient();
+    const canPlay = actionGuard.canFundAward(award)[0];
+    const awardConfigsByAward = useAwardConfigsByAward();
+    const loggedInPlayer = useLoggedInPlayer();
+
+    const isFree = loggedInPlayer.fundAward;
+    const cost = isFree ? 0 : awardConfigsByAward[award].cost;
+    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
+        onConfirmPayment: payment => {
+            if (canPlay) {
+                if (isFree) {
+                    apiClient.fundAwardAsync({award, payment: {}});
+                } else {
+                    apiClient.fundAwardAsync({award, payment});
+                }
+            }
+        },
+        opts: {
+            type: 'action',
+            cost,
+            action: {},
+        },
+    });
+
+    return (
+        <BlankButton
+            disabled={!canPlay}
+            ref={triggerRef}
+            style={{
+                opacity: canPlay ? 1 : 0.3,
+                backgroundColor: colors.LIGHT_2,
+                fontSize: '0.6em',
+                borderRadius: 2,
+                padding: '0 4px',
+                height: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+            onClick={collectPaymentAndPerformAction}
+        >
+            <span>Fund</span>
+            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={12} />
+        </BlankButton>
+    );
+}
+
+function ClaimMilestoneButton({milestone}: {milestone: string}) {
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+    const canPlay = actionGuard.canClaimMilestone(milestone)[0];
+    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
+        onConfirmPayment: payment => {
+            if (canPlay) {
+                apiClient.claimMilestoneAsync({milestone, payment});
+            }
+        },
+        opts: {
+            type: 'action',
+            cost: 8,
+            action: {},
+        },
+    });
+
+    return (
+        <BlankButton
+            ref={triggerRef}
+            disabled={!canPlay}
+            style={{
+                opacity: canPlay ? 1 : 0.3,
+                backgroundColor: colors.LIGHT_2,
+                fontSize: '0.6em',
+                borderRadius: 2,
+                padding: '0 4px',
+                height: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+            onClick={collectPaymentAndPerformAction}
+        >
+            <span>Claim</span>
+            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={12} />
+        </BlankButton>
+    );
+}
+
 const ActionTableHeader = styled(BlankButton)`
     text-transform: uppercase;
     white-space: nowrap;
@@ -182,7 +271,6 @@ function ActionTableInner({
     const throttledSetHoverItem = useMemo(() => throttle(100, setHoverItem), [setHoverItem]);
     const actionGuard = useActionGuard();
     const apiClient = useApiClient();
-    const loggedInPlayer = useLoggedInPlayer();
 
     switch (selectedAction) {
         case 'Awards':
@@ -252,74 +340,7 @@ function ActionTableInner({
                     overflow="auto"
                 >
                     {subItems?.map(subItem => {
-                        const canPlay = actionGuard.canPlayStandardProject(subItem)[0];
-                        const playStandardProjectAction = (
-                            standardProjectAction: StandardProjectAction,
-                            payment: Payment
-                        ) => {
-                            if (canPlay) {
-                                apiClient.playStandardProjectAsync({
-                                    payment,
-                                    standardProjectAction,
-                                });
-                            }
-                        };
-                        const cost = getCostForStandardProject(subItem, loggedInPlayer);
-                        const showPaymentPopover =
-                            loggedInPlayer.corporation.name === 'Helion' &&
-                            loggedInPlayer.resources[Resource.HEAT] > 0 &&
-                            cost;
-
-                        return (
-                            <PaymentPopover
-                                key={(subItem as StandardProjectAction).type}
-                                cost={cost}
-                                onConfirmPayment={payment =>
-                                    playStandardProjectAction(subItem, payment)
-                                }
-                                shouldHide={!showPaymentPopover}
-                            >
-                                <StandardProjectButton
-                                    bgColorHover={colors.DARK_4}
-                                    disabled={!canPlay}
-                                    onClick={() => {
-                                        playStandardProjectAction(subItem, {
-                                            [Resource.MEGACREDIT]: cost,
-                                        });
-                                    }}
-                                >
-                                    <Flex
-                                        flexDirection="column"
-                                        alignItems="center"
-                                        justifyContent="space-between"
-                                        position="relative"
-                                    >
-                                        <div className="standard-project-icon">
-                                            <StandardProjectActionIcon
-                                                actionType={(subItem as StandardProjectAction).type}
-                                            />
-                                        </div>
-                                        <div className="standard-project-cost">
-                                            <ResourceIcon
-                                                name={Resource.MEGACREDIT}
-                                                amount={
-                                                    (subItem as StandardProjectAction).type ===
-                                                    StandardProjectType.SELL_PATENTS
-                                                        ? '+X'
-                                                        : cost
-                                                }
-                                                size={20}
-                                            />
-                                        </div>
-                                        <span style={{marginTop: 2}}>
-                                            {getTextForStandardProject(
-                                                (subItem as StandardProjectAction).type
-                                            )}
-                                        </span>
-                                    </Flex>
-                                </StandardProjectButton>
-                            </PaymentPopover>
-                        );
+                        return <StandardProjectButton standardProjectAction={subItem} />;
                     })}
                 </Flex>
             );
@@ -385,7 +406,69 @@ const ConversionButton = styled(BlankButton)`
     align-items: center;
 `;
 
-const StandardProjectButton = styled(BlankButton)`
+function StandardProjectButton({
+    standardProjectAction,
+}: {
+    standardProjectAction: StandardProjectAction;
+}) {
+    const actionGuard = useActionGuard();
+    const apiClient = useApiClient();
+    const loggedInPlayer = useLoggedInPlayer();
+    const canPlay = actionGuard.canPlayStandardProject(standardProjectAction)[0];
+    const cost = getCostForStandardProject(standardProjectAction, loggedInPlayer);
+
+    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
+        onConfirmPayment: payment => {
+            if (canPlay) {
+                apiClient.playStandardProjectAsync({
+                    payment,
+                    standardProjectAction,
+                });
+            }
+        },
+        opts: {
+            type: 'action',
+            cost,
+            action: {},
+        },
+    });
+
+    return (
+        <StandardProjectButtonInner
+            ref={triggerRef}
+            bgColorHover={colors.DARK_4}
+            disabled={!canPlay}
+            onClick={collectPaymentAndPerformAction}
+        >
+            <Flex
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="space-between"
+                position="relative"
+            >
+                <div className="standard-project-icon">
+                    <StandardProjectActionIcon actionType={standardProjectAction.type} />
+                </div>
+                <div className="standard-project-cost">
+                    <ResourceIcon
+                        name={Resource.MEGACREDIT}
+                        amount={
+                            standardProjectAction.type === StandardProjectType.SELL_PATENTS
+                                ? '+X'
+                                : cost
+                        }
+                        size={20}
+                    />
+                </div>
+                <span style={{marginTop: 2}}>
+                    {getTextForStandardProject(standardProjectAction.type)}
+                </span>
+            </Flex>
+        </StandardProjectButtonInner>
+    );
+}
+
+const StandardProjectButtonInner = styled(BlankButton)`
     color: ${colors.TEXT_LIGHT_1};
     border-radius: 3px;
     margin: 4px;
@@ -528,15 +611,10 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
         case 'Milestones': {
             const milestone = subItems?.[subItemIndex] as string;
             const milestoneConfig = getMilestone(milestone);
-
             const claimedByPlayer =
                 claimedMilestones.find(cm => cm.milestone.toLowerCase() === milestone.toLowerCase())
                     ?.claimedByPlayer ?? null;
-            const canPlay = actionGuard.canClaimMilestone(milestone)[0];
 
-            const showPaymentPopover =
-                loggedInPlayer.corporation.name === 'Helion' &&
-                loggedInPlayer.resources[Resource.HEAT] > 0;
             return (
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
                     <Flex justifyContent="space-between" width="100%" alignItems="center">
@@ -550,38 +628,7 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             {milestone}
                         </h3>
                         {claimedByPlayer === null ? (
-                            <PaymentPopover
-                                cost={8}
-                                onConfirmPayment={payment => {
-                                    if (canPlay) {
-                                        apiClient.claimMilestoneAsync({milestone, payment});
-                                    }
-                                }}
-                                shouldHide={!showPaymentPopover}
-                            >
-                                <BlankButton
-                                    disabled={!canPlay}
-                                    style={{
-                                        opacity: canPlay ? 1 : 0.3,
-                                        backgroundColor: colors.LIGHT_2,
-                                        fontSize: '0.6em',
-                                        borderRadius: 2,
-                                        padding: '0 4px',
-                                        height: 20,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    <span>Claim</span>
-                                    <ResourceIcon
-                                        margin="0 0 0 4px"
-                                        name={Resource.MEGACREDIT}
-                                        amount={8}
-                                        size={12}
-                                    />
-                                </BlankButton>
-                            </PaymentPopover>
+                            <ClaimMilestoneButton milestone={milestone} />
                         ) : (
                             <PlayerCorpAndIcon
                                 player={claimedByPlayer}
@@ -656,24 +703,7 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
         }
         case 'Awards': {
             const award = subItems?.[subItemIndex] as string;
-            const canPlay = actionGuard.canFundAward(award)[0];
-
-            const isFree = loggedInPlayer.fundAward;
             const awardConfig = getAward(award);
-            const cost = isFree ? 0 : awardConfigsByAward[award].cost;
-            const fundAward = (award: string, payment: NumericPropertyCounter<Resource>) => {
-                if (canPlay) {
-                    if (isFree) {
-                        apiClient.fundAwardAsync({award, payment: {}});
-                    } else {
-                        apiClient.fundAwardAsync({award, payment});
-                    }
-                }
-            };
-            const showPaymentPopover =
-                loggedInPlayer.corporation.name === 'Helion' &&
-                loggedInPlayer.resources[Resource.HEAT] > 0 &&
-                !loggedInPlayer.fundAward;
 
             return (
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
@@ -688,37 +718,7 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             {award}
                         </h3>
                         {[null, undefined].includes(awardConfigsByAward[award]?.fundedByPlayer) ? (
-                            <PaymentPopover
-                                cost={cost}
-                                onConfirmPayment={payment => {
-                                    fundAward(award, payment);
-                                }}
-                                shouldHide={!showPaymentPopover}
-                            >
-                                <BlankButton
-                                    disabled={!canPlay}
-                                    style={{
-                                        opacity: canPlay ? 1 : 0.3,
-                                        backgroundColor: colors.LIGHT_2,
-                                        fontSize: '0.6em',
-                                        borderRadius: 2,
-                                        padding: '0 4px',
-                                        height: 20,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                    onClick={() => fundAward(award, {[Resource.MEGACREDIT]: cost})}
-                                >
-                                    <span>Fund</span>
-                                    <ResourceIcon
-                                        margin="0 0 0 4px"
-                                        name={Resource.MEGACREDIT}
-                                        amount={8}
-                                        size={12}
-                                    />
-                                </BlankButton>
-                            </PaymentPopover>
+                            <FundAwardButton award={award} />
                         ) : (
                             <PlayerCorpAndIcon
                                 style={{

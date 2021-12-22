@@ -25,6 +25,7 @@ import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';
 import {DelegateComponent} from './delegate';
+import {usePaymentPopover} from './popovers/payment-popover';
 import TexturedCard from './textured-card';
 import {colors} from './ui';
 
@@ -421,10 +422,11 @@ export function Turmoil() {
 
     const partyActionCost = party?.action?.cost ?? 0;
 
-    const usePaymentPopover =
-        partyActionCost &&
-        player.corporation.name === 'Helion' &&
-        player.resources[Resource.HEAT] > 0;
+    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover({
+        onConfirmPayment: handleClickPolicy,
+        opts: {type: 'action', cost: partyActionCost, action: {}},
+    });
+
     const canDoPolicy = canClickPolicy(state, actionGuard, player, player.resources);
     return (
         <Flex
@@ -456,25 +458,13 @@ export function Turmoil() {
                         >
                             <h3 className="display">Ruling Policy</h3>
                             <PartyPanel width="fit-content">
-                                <PaymentPopover
-                                    cost={partyActionCost}
-                                    onConfirmPayment={payment =>
-                                        apiClient.lobbyAsync(party.name, payment)
-                                    }
-                                    shouldHide={!usePaymentPopover || !canDoPolicy}
-                                >
-                                    <PartyPolicy
-                                        party={turmoil.rulingParty}
-                                        canClick={canDoPolicy}
-                                        disabled={!canDoPolicy}
-                                        onClick={() =>
-                                            !usePaymentPopover &&
-                                            handleClickPolicy({
-                                                [Resource.MEGACREDIT]: partyActionCost,
-                                            })
-                                        }
-                                    />
-                                </PaymentPopover>
+                                <PartyPolicy
+                                    party={turmoil.rulingParty}
+                                    canClick={canDoPolicy}
+                                    ref={triggerRef}
+                                    disabled={!canDoPolicy}
+                                    onClick={collectPaymentAndPerformAction}
+                                />
                             </PartyPanel>
                         </Flex>
                     </Box>

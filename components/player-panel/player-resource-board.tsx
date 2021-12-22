@@ -2,7 +2,7 @@ import {Flex} from 'components/box';
 import {ResourceIcon} from 'components/icons/resource';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
-import {CONVERSIONS} from 'constants/conversion';
+import {DEFAULT_CONVERSIONS} from 'constants/conversion';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import React from 'react';
@@ -70,7 +70,7 @@ export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) =>
     const actionGuard = useActionGuard(player.username);
     const amount = player.resources[resource];
     const production = player.productions[resource];
-    const conversion = CONVERSIONS[resource];
+    const conversion = DEFAULT_CONVERSIONS[resource];
 
     let showConversionAnimation = false;
     if (conversion) {
