@@ -104,7 +104,7 @@ export const GlobalStyles = createGlobalStyle`
 
         width: 500px;
         @media (max-width: 895px) {
-            width: 100%;
+            width: calc(100% - 16px);
         }
     }
     .toast {
