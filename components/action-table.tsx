@@ -714,7 +714,7 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                                     <ResourceIcon
                                         margin="0 0 0 4px"
                                         name={Resource.MEGACREDIT}
-                                        amount={8}
+                                        amount={cost}
                                         size={12}
                                     />
                                 </BlankButton>
