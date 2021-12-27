@@ -572,6 +572,12 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                     }}
+                                    onClick={() =>
+                                        apiClient.claimMilestoneAsync({
+                                            milestone,
+                                            payment: {[Resource.MEGACREDIT]: 8},
+                                        })
+                                    }
                                 >
                                     <span>Claim</span>
                                     <ResourceIcon
