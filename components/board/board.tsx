@@ -1,5 +1,4 @@
 import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
-import StandardProjectList from 'components/board/board-actions/standard-projects';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
 import {Turmoil} from 'components/turmoil';

@@ -119,7 +119,7 @@ import {
 import {Cell, CellType, getTilePlacementBonus, Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
-import {Conversion, DEFAULT_CONVERSIONS} from 'constants/conversion';
+import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';

@@ -302,7 +302,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const unusedActions = actions.filter(Boolean).filter(action => !!createActionIcon(action));
 
     const hasUnpaidActions = useTypedSelector(state =>
-        hasUnpaidResources(unusedActions, state, player)
+        hasUnpaidResources(unusedActions, state, player, actionGuard)
     );
 
     let hasDisabledAction = false;

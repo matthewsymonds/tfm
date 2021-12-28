@@ -1,6 +1,6 @@
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import {Payment} from 'constants/action';
 import {getAward, getAwards} from 'constants/awards';
+import {Parameter, TileType} from 'constants/board';
 import {
     Conversion,
     DEFAULT_CONVERSIONS,
@@ -8,7 +8,6 @@ import {
     STORMCRAFT_CONVERSION,
 } from 'constants/conversion';
 import {getMilestone, getMilestones} from 'constants/milestones';
-import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {
     getStandardProjects,
@@ -20,22 +19,20 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {useCallback, useMemo, useState} from 'react';
 import AnimateHeight from 'react-animate-height';
-import {useTypedSelector} from 'reducer';
+import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
 import {throttle} from 'throttle-debounce';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
-import {useAwardConfigsByAward} from './board/board-actions/awards';
-import {
-    getCostForStandardProject,
-    getTextForStandardProject,
-    StandardProjectActionIcon,
-} from './board/board-actions/standard-projects';
 import {Flex} from './box';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {GlobalParameterIcon} from './icons/global-parameter';
+import {ColonyIcon} from './icons/other';
+import {ProductionIcon} from './icons/production';
 import {ResourceIcon} from './icons/resource';
-import PaymentPopover, {usePaymentPopover} from './popovers/payment-popover';
+import {TileIcon} from './icons/tile';
+import {usePaymentPopover} from './popovers/payment-popover';
 import {colors} from './ui';
 
 const actionTypes = ['Milestones', 'Awards', 'Std Projects', 'Conversions'] as Array<ActionType>;
@@ -157,6 +154,37 @@ export function ActionTable() {
         </Flex>
     );
 }
+
+export const useAwardConfigsByAward = () => {
+    return useTypedSelector(
+        state =>
+            getAwards(state).reduce((acc, award) => {
+                const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
+                let fundedByPlayer;
+                if (isFunded) {
+                    const {fundedByPlayerIndex} = state.common.fundedAwards.find(
+                        fa => fa.award.toLowerCase() === award.toLowerCase()
+                    )!;
+                    fundedByPlayer = state.players[fundedByPlayerIndex];
+                }
+                acc[award] = {
+                    isFunded,
+                    cost: getCostForAward(award, state),
+                    fundedByPlayer,
+                };
+                return acc;
+            }, {}),
+        (prev, next) => {
+            // Brief equality check.
+            for (const award in prev) {
+                if (prev[award].fundedByPlayer !== next[award].fundedByPlayer) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    );
+};
 
 function FundAwardButton({award}: {award: string}) {
     const actionGuard = useActionGuard();
@@ -793,5 +821,77 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
 
         default:
             throw new Error('Unsupported action type for detail view');
+    }
+}
+
+function getCostForAward(award: string, state: GameState) {
+    const fundedIndex = state.common.fundedAwards.findIndex(
+        config => config.award.toLowerCase() === award.toLowerCase()
+    );
+    if (fundedIndex !== -1) {
+        return [8, 14, 20][fundedIndex];
+    } else {
+        return [8, 14, 20, 20][state.common.fundedAwards.length];
+    }
+}
+
+function getCostForStandardProject(action: StandardProjectAction, player: PlayerState) {
+    switch (action.type) {
+        case StandardProjectType.SELL_PATENTS:
+            return 0;
+        case StandardProjectType.POWER_PLANT:
+            return action.cost - player.discounts.standardProjectPowerPlant;
+        default:
+            return action.cost;
+    }
+}
+function getTextForStandardProject(standardProject: StandardProjectType) {
+    switch (standardProject) {
+        case StandardProjectType.SELL_PATENTS:
+            return 'Sell patents';
+        case StandardProjectType.POWER_PLANT:
+            return 'Power plant';
+        case StandardProjectType.ASTEROID:
+            return 'Asteroid';
+        case StandardProjectType.AQUIFER:
+            return 'Aquifer';
+        case StandardProjectType.GREENERY:
+            return 'Greenery';
+        case StandardProjectType.CITY:
+            return 'City';
+        case StandardProjectType.VENUS:
+            return 'Venus';
+        case StandardProjectType.COLONY:
+            return 'Colony';
+        default:
+            throw spawnExhaustiveSwitchError(standardProject);
+    }
+}
+
+function StandardProjectActionIcon({actionType}: {actionType: StandardProjectType}) {
+    switch (actionType) {
+        case StandardProjectType.SELL_PATENTS:
+            return (
+                <Flex>
+                    <span style={{marginRight: 2}}>-</span>
+                    <ResourceIcon name={Resource.CARD} size={15} />
+                </Flex>
+            );
+        case StandardProjectType.POWER_PLANT:
+            return <ProductionIcon name={Resource.ENERGY} size={24} paddingSize={3} />;
+        case StandardProjectType.ASTEROID:
+            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={24} />;
+        case StandardProjectType.AQUIFER:
+            return <TileIcon type={TileType.OCEAN} size={21} />;
+        case StandardProjectType.GREENERY:
+            return <TileIcon type={TileType.GREENERY} size={21} />;
+        case StandardProjectType.CITY:
+            return <TileIcon type={TileType.CITY} size={21} />;
+        case StandardProjectType.COLONY:
+            return <ColonyIcon size={16} />;
+        case StandardProjectType.VENUS:
+            return <GlobalParameterIcon parameter={Parameter.VENUS} size={17} />;
+        default:
+            throw spawnExhaustiveSwitchError(actionType);
     }
 }

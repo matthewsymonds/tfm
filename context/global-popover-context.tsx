@@ -36,7 +36,11 @@ export function usePopoverType(type: PopoverType) {
         // pass null to blindly hide any popover of this type
         // prefer passing a triggerRef, so we only attempt to hide a specific popover
         hidePopover(triggerRefOrNull: React.RefObject<HTMLElement> | null) {
-            if (triggerRefOrNull && popoverConfigByType[type]?.triggerRef === triggerRefOrNull) {
+            debugger;
+            if (
+                triggerRefOrNull === null ||
+                popoverConfigByType[type]?.triggerRef === triggerRefOrNull
+            ) {
                 setPopoverConfigByType(type, null);
             }
         },

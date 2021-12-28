@@ -109,8 +109,9 @@ export function usePaymentPopover<T extends HTMLElement>({
                 <PaymentPopover
                     onConfirmPayment={(payment, conditionalPayments) => {
                         onConfirmPayment(payment, conditionalPayments);
+                        // close all payment popovers. we can't pass the triggerRef here
+                        // because the trigger card may no longer be mounted
                         hidePopover(null);
-                        debugger;
                     }}
                     opts={opts}
                 />

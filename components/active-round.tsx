@@ -1,11 +1,7 @@
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
-import {
-    AwardsAndMilestones,
-    Board,
-    MilestonesAwardsBoardSwitcherWrapper,
-} from 'components/board/board';
+import {Board, MilestonesAwardsBoardSwitcherWrapper} from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerHand} from 'components/player-hand';
 import {TopBar} from 'components/top-bar';
