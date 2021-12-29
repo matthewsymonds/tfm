@@ -111,6 +111,10 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
                 !(
                     document.querySelector('.payment-popover') === e.target ||
                     document.querySelector('.payment-popover')?.contains(e.target)
+                ) &&
+                !(
+                    e.target instanceof HTMLInputElement &&
+                    Array.from(e.target.labels ?? []).some(label => label === triggerElement)
                 )
             ) {
                 if (!didImmediatelyOpenNewPopover.current) {
@@ -129,6 +133,11 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
             document.addEventListener('click', closePopoverAndDeregisterHandler);
             document.addEventListener('touchend', closePopoverAndDeregisterHandler);
         }
+
+        return () => {
+            document.removeEventListener('click', closePopoverAndDeregisterHandler);
+            document.removeEventListener('touchend', closePopoverAndDeregisterHandler);
+        };
     }, [popoverConfig]);
 
     return renderLayer(
