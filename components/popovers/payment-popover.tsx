@@ -462,7 +462,6 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                         },
                         numConditionalPayment
                     );
-                    close();
                 }}
             >
                 Confirm
