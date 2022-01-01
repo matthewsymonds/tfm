@@ -12,9 +12,6 @@ export const LogToast = () => {
     const log = useTypedSelector(state => state.log);
     const gameName = useTypedSelector(state => state.name);
     const logLength = log.length;
-    const loggedInPlayerIndex = useTypedSelector(state =>
-        state.players.findIndex(player => player.username === context.getUsername())
-    );
 
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
@@ -51,7 +48,8 @@ export const LogToast = () => {
                     players={players}
                     corporationNames={corporationNames}
                     shouldUsePadding={false}
-                />
+                />,
+                {style: {margin: 4}}
             );
         });
 
@@ -73,6 +71,7 @@ export const LogToast = () => {
             }}
             toastClassName="toast"
             style={{padding: 4, zIndex: 20}}
+            autoClose={7000}
         />
     );
 };

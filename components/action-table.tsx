@@ -368,7 +368,12 @@ function ActionTableInner({
                     overflow="auto"
                 >
                     {subItems?.map(subItem => {
-                        return <StandardProjectButton standardProjectAction={subItem} />;
+                        return (
+                            <StandardProjectButton
+                                standardProjectAction={subItem}
+                                key={(subItem as StandardProjectAction).type}
+                            />
+                        );
                     })}
                 </Flex>
             );
