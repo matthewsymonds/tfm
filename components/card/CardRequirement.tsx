@@ -12,6 +12,7 @@ import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 
 const MAX_TAG_SPREAD = 3;
@@ -145,7 +146,11 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
     } else if (card.requiredPartyOrTwoDelegates) {
         return <PartySymbol party={card.requiredPartyOrTwoDelegates} size={30} />;
     } else if (card.requiredChairman) {
-        return <Flex padding="2px">👤</Flex>;
+        return (
+            <Flex padding="2px">
+                <Twemoji options={{className: 'emoji delegate'}}>👤</Twemoji>
+            </Flex>
+        );
     } else {
         throw new Error('Unhandled card requirement text');
     }

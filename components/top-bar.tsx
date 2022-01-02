@@ -12,6 +12,7 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
 import React, {forwardRef} from 'react';
+import Twemoji from 'react-twemoji';
 import {useTypedSelector} from 'reducer';
 import {isDrafting as isDraftingSelector} from 'selectors/drafting';
 import styled from 'styled-components';
@@ -219,7 +220,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                 </Flex>
                 <Flex marginLeft="auto">
                     <ActionLog />
-                    <BlankButton onClick={() => router.push('/')}>🏠</BlankButton>
+                    <BlankButton onClick={() => router.push('/')}>
+                        <Twemoji>🏠</Twemoji>
+                    </BlankButton>
                 </Flex>
             </TopBarBase>
         );

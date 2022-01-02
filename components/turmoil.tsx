@@ -11,6 +11,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
+import Twemoji from 'react-twemoji';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
@@ -98,7 +99,7 @@ const PartyBase = styled.div<{background: string; margin: string; size: number}>
     margin: ${props => props.margin};
     border: 1px solid ${colors.DARK_4};
 
-    &.unity > span {
+    &.unity > * {
         position: relative;
         left: -${props => props.size * 0.1}px;
         letter-spacing: -${props => props.size * 0.2}px;
@@ -140,7 +141,9 @@ export function PartySymbol({
             size={size}
             className={party === UNITY ? 'unity' : ''}
         >
-            <span>{symbol}</span>
+            <Twemoji>
+                <span>{symbol}</span>
+            </Twemoji>
         </PartyBase>
     );
 }
@@ -182,7 +185,14 @@ function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boole
     return null;
 }
 
-function PartyPolicy(props) {
+type PartyPolicyProps = {
+    party: string;
+    canClick?: boolean;
+    disabled?: boolean;
+    onClick?: Function;
+};
+
+const PartyPolicy = React.forwardRef((props: PartyPolicyProps, ref) => {
     return (
         <Flex
             display="inline-flex"
@@ -194,7 +204,7 @@ function PartyPolicy(props) {
             <PartyPolicyInternal {...props} />
         </Flex>
     );
-}
+});
 
 export const LOBBYING_COST = 5;
 
@@ -215,17 +225,13 @@ const TurmoilAction = styled(ActionContainerBase)`
 function Lobbying({
     party,
     canLobby,
-    reason,
     action,
     apiClient,
-    player,
 }: {
     party: PartyConfig;
     canLobby: boolean;
-    reason: string;
     action: Action;
     apiClient: ApiClient;
-    player: PlayerState;
 }) {
     return (
         <Flex alignItems="center" justifyContent="center" flexDirection="column">
@@ -235,6 +241,7 @@ function Lobbying({
                     canLobby &&
                     apiClient.lobbyAsync(party.name, {[Resource.MEGACREDIT]: action.cost})
                 }
+                style={{paddingBottom: '4px'}}
             >
                 {renderLeftSideOfArrow(action)}
                 {renderArrow()}
@@ -407,10 +414,8 @@ export function Turmoil() {
                 </Flex>
                 <Lobbying
                     canLobby={canLobby}
-                    reason={reason}
                     action={lobbying}
                     apiClient={apiClient}
-                    player={player}
                     party={party}
                 />
             </PartyPanel>

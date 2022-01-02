@@ -20,6 +20,12 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
+    img.emoji {
+        height: 1em;
+        width: 1em;
+        margin: 0;
+        vertical-align: -0.1em;
+     }
     iframe {
         border: 0;
         padding: 0;
@@ -159,13 +165,10 @@ export const GlobalStyles = createGlobalStyle`
 
     .outer-emoji.jovian {
         transform: rotate(45deg);
-        &.mac {
-            transform: rotate(-45deg);
-        }
     }
 
     .mid-city.emoji {
-        font-size: 2.75em;
+        font-size: 2em;
     }
 
     .outer-space-tag {
@@ -189,29 +192,16 @@ export const GlobalStyles = createGlobalStyle`
         transform: translateY(-15%);
     }
 
+    img.delegate {
+        margin: 0;
+    }
+
     .mid-emoji.jovian {
-        font-size: 3.3em;
+        font-size: 3.6em;
     }
     .mid-science {
         font-family: "Source Sans Pro", Segoe UI Symbol;
         font-size: 2em;
-    }
-
-    .mac {
-        .mid-science {
-        }
-        .energy-icon {
-            margin-right: 5%;
-        }
-
-        .heat-icon {
-            margin-right: 2px;
-            margin-bottom: 1px;
-        }
-        
-        .card-icon {
-            margin-right: 1px;
-        }
     }
 `;
 

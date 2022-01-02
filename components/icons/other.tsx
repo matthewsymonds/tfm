@@ -1,6 +1,7 @@
 import {AllCapsIcon} from 'components/icons/global-parameter';
 import {colors} from 'components/ui';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 
 // TODO: make proper icons for these
@@ -87,7 +88,9 @@ const InfluenceIconBase = styled.div<{size: number; margin: string}>`
 export const InfluenceIcon = ({size = 20, margin = '0'}: {size?: number; margin?: string}) => {
     return (
         <InfluenceIconBase size={size} margin={margin}>
-            <span style={{color: 'white'}}>👤</span>
+            <Twemoji options={{className: 'emoji delegate'}}>
+                <span>👤</span>
+            </Twemoji>
         </InfluenceIconBase>
     );
 };

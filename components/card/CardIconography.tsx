@@ -25,6 +25,7 @@ import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
@@ -605,7 +606,9 @@ function getMultiplierAndCustomElement(
         case VariableAmount.INFLUENCE:
             const element = (
                 <Flex display="inline-flex" justifyContent="center" alignItems="center">
-                    <InlineText>👥</InlineText>
+                    <InlineText>
+                        <Twemoji>👥</Twemoji>
+                    </InlineText>
                 </Flex>
             );
             if (omitResourceIconography) {
@@ -617,7 +620,9 @@ function getMultiplierAndCustomElement(
         case VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE:
             multiplierElement = (
                 <Flex display="inline-flex" justifyContent="center" alignItems="center">
-                    <MiniPartyIcon>👥</MiniPartyIcon>
+                    <MiniPartyIcon>
+                        <Twemoji>👥</Twemoji>
+                    </MiniPartyIcon>
                 </Flex>
             );
         case VariableAmount.UNIQUE_TAGS:
