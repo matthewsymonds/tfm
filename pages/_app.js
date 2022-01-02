@@ -24,7 +24,7 @@ export const GlobalStyles = createGlobalStyle`
         height: 1em;
         width: 1em;
         margin: 0;
-        vertical-align: -0.1em;
+        vertical-align: -0.15em;
      }
     iframe {
         border: 0;
