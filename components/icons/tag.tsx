@@ -66,8 +66,8 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
             className = 'linux';
         }
     }
-    const fontSize = size * 2;
-    const baseIcon = <Box transform="scale(25%)">{tagProps.icon}</Box>;
+    const fontSize = size / 2;
+    const baseIcon = <Box>{tagProps.icon}</Box>;
 
     return (
         <Box
@@ -105,6 +105,7 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
                     justifyContent="center"
                     height="100%"
                     width="100%"
+                    lineHeight="4em"
                     inset={0}
                 >
                     {PLAIN_ICONS.includes(tagProps.icon) ? baseIcon : <Twemoji>{baseIcon}</Twemoji>}
