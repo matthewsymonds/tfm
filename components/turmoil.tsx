@@ -134,6 +134,8 @@ export function PartySymbol({
         color: 'gray',
     };
 
+    const baseSymbol = <span>{symbol}</span>;
+
     return (
         <PartyBase
             background={color}
@@ -141,9 +143,13 @@ export function PartySymbol({
             size={size}
             className={party === UNITY ? 'unity' : ''}
         >
-            <Twemoji>
-                <span>{symbol}</span>
-            </Twemoji>
+            {symbol === '♂' ? (
+                <Box fontFamily='"Source Sans Pro", Segoe UI Symbol' fontSize="1.4em">
+                    {baseSymbol}
+                </Box>
+            ) : (
+                <Twemoji>{baseSymbol}</Twemoji>
+            )}
         </PartyBase>
     );
 }
@@ -314,7 +320,7 @@ export function Turmoil() {
     const actionGuard = useActionGuard(player.username);
     const apiClient = useApiClient();
 
-    const [canLobby, reason] = actionGuard.canLobby();
+    const [canLobby] = actionGuard.canLobby();
 
     const lobbying: Action = useTypedSelector(state => getLobbyingAction(state, player));
 
