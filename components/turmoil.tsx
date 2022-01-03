@@ -468,7 +468,7 @@ export function Turmoil() {
                             margin="12px"
                         >
                             <h3 className="display">Ruling Policy</h3>
-                            <PartyPanel width="fit-content">
+                            <PartyPanel width="fit-content" display="flex">
                                 <PartyPolicy
                                     party={turmoil.rulingParty}
                                     canClick={canDoPolicy}
