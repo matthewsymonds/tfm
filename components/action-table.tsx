@@ -118,7 +118,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     const player = useLoggedInPlayer();
 
     useEffect(() => {
-        if (player.placeColony || player.tradeForFree) {
+        if (player.tradeForFree) {
             setSelectedActionAndSubActionIndex(['Colonies', 0]);
         } else if (
             player.placeDelegatesInOneParty ||
@@ -128,7 +128,6 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             setSelectedActionAndSubActionIndex(['Turmoil', 0]);
         }
     }, [
-        player.placeColony,
         player.tradeForFree,
         player.placeDelegatesInOneParty,
         player.removeNonLeaderDelegate,
@@ -142,7 +141,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     }, [actionPrompt?.text, actionPrompt?.buttonNeeded]);
 
     const visibleActionTypes = actionTypes.filter(actionType =>
-        actionPrompt.buttonNeeded ? true : actionType !== 'Prompt'
+        actionPrompt.buttonNeeded && actionPrompt.element ? true : actionType !== 'Prompt'
     );
 
     return (

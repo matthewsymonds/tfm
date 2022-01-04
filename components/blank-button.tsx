@@ -1,9 +1,13 @@
+import React from 'react';
 import styled from 'styled-components';
+import spawnExhaustiveSwitchError from 'utils';
+import {colors} from './ui';
 
 export const BlankButton = styled.button<{
     bgColor?: string;
     bgColorHover?: string;
     textColor?: string;
+    scaleOnClick?: boolean;
 }>`
     display: inline-block;
     border: none;
@@ -25,7 +29,7 @@ export const BlankButton = styled.button<{
     }
 
     &:hover {
-        background: ${props => props.bgColorHover ?? props.bgColor ?? 'transparent'};
+        ${props => (props.bgColorHover ? `background: ${props.bgColorHover};` : '')}
     }
 
     &:focus {
@@ -34,6 +38,6 @@ export const BlankButton = styled.button<{
     }
 
     &:active:not([disabled]) {
-        transform: scale(0.95);
+        ${props => (props.scaleOnClick === false ? '' : 'transform: scale(0.95);')}
     }
 `;

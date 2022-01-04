@@ -8,16 +8,16 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {useRef, useState} from 'react';
-import {useHover} from 'react-laag';
 import {useTypedSelector} from 'reducer';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import styled from 'styled-components';
 import {Arrow} from './arrow';
-import {BlankButton} from './blank-button';
 import {Box, Flex} from './box';
+import {Button} from './button';
 import {BaseActionIconography} from './card/CardIconography';
 import {ResourceIcon} from './icons/resource';
+import {SelectButtons} from './select-buttons';
 import {colors} from './ui';
 
 const COLONY_PLACEMENT_BONUS_BORDER = 'rgba(40,40,40,.5)';
@@ -118,14 +118,6 @@ const ColonyPlanet = styled.div<{
     filter: blur(${props => props.blur ?? 0}px);
 `;
 
-const TradePaymentButton = styled(BlankButton)`
-    border: 2px solid ${colors.DARK_3};
-
-    border-radius: 3px;
-    margin-right: 4px;
-    padding: 4px;
-`;
-
 function TradePaymentPopover({
     colony,
     hidePopover,
@@ -135,92 +127,99 @@ function TradePaymentPopover({
 }) {
     const player = useLoggedInPlayer();
     const eligibleTradeIncomes = getEligibleTradeIncomes(colony, player);
-    const [tradeIncome, setTradeIncome] = useState(eligibleTradeIncomes[0]);
+    const [selectedTradeIncome, setSelectedTradeIncome] = useState(
+        eligibleTradeIncomes[eligibleTradeIncomes.length - 1]
+    );
     const validTradePayments = getValidTradePayment(player);
+    const [selectedTradePayment, setSelectedTradePayment] = useState(validTradePayments[0]);
     const actionGuard = useActionGuard();
+    const hydratedColony = getColony(colony);
     const apiClient = useApiClient();
     const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(colony.name);
 
     return (
         <Flex
             padding="8px"
-            background={colors.LIGHT_1}
-            opacity={0.95}
-            boxShadow={`0 0 0 2px ${colors.LIGHT_5}, 1px 1px 4px 4px ${colors.LIGHT_5}`}
-            borderRadius="3px"
+            background={colors.LIGHT_3}
+            boxShadow={`0 0 0 2px ${colors.DARK_3}`}
             flexDirection="column"
-            width="200px"
         >
-            <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>Select trade payment</span>
-            {eligibleTradeIncomes.length > 1 && (
-                <Flex marginBottom="8px">
-                    {eligibleTradeIncomes.map((stepIndex, index) => {
-                        const tradeIncome = colony.tradeIncome[stepIndex];
+            {eligibleTradeIncomes.length > 0 && (
+                <Flex marginBottom="16px" flexDirection="column">
+                    <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>
+                        Select trade bonus
+                    </span>
 
-                        return (
-                            <Box
-                                key={stepIndex + '-' + colony.name}
-                                padding="2px"
-                                color={
-                                    tradeIncome.gainResource?.[Resource.MEGACREDIT] ||
-                                    tradeIncome.increaseProduction?.[Resource.MEGACREDIT]
-                                        ? '#333'
-                                        : '#ccc'
-                                }
-                                cursor={canTrade && !selected ? 'pointer' : 'auto'}
-                                onClick={onClick}
-                                border={border}
-                            >
-                                <BaseActionIconography
-                                    card={tradeIncome}
-                                    reverse
-                                    shouldShowPlus={!!tradeIncome.removeResource}
-                                />
-                            </Box>
-                        );
-                    })}
+                    <Flex>
+                        <SelectButtons
+                            selectedItem={selectedTradeIncome}
+                            setSelectedItem={newIndex => setSelectedTradeIncome(newIndex)}
+                            items={eligibleTradeIncomes}
+                            itemRenderer={item => {
+                                const thisTradeIncome = hydratedColony.tradeIncome[item];
+
+                                return (
+                                    <BaseActionIconography
+                                        card={thisTradeIncome}
+                                        reverse
+                                        shouldShowPlus={!!thisTradeIncome.removeResource}
+                                    />
+                                );
+                            }}
+                        />
+                    </Flex>
                 </Flex>
             )}
-            {canTradeForFree ? (
-                <TradePaymentButton
-                    bgColorHover={colors.DARK_3}
+            <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>Select trade payment</span>
+            <Flex>
+                <SelectButtons
+                    items={validTradePayments}
+                    selectedItem={selectedTradePayment}
+                    itemRenderer={payment => {
+                        return (
+                            <BaseActionIconography
+                                card={{
+                                    gainResource: {[payment.resource]: payment.quantity},
+                                }}
+                            />
+                        );
+                    }}
+                    setSelectedItem={item => {
+                        setSelectedTradePayment(item);
+                    }}
+                    isSelected={item => {
+                        return selectedTradePayment.resource === item.resource;
+                    }}
+                />
+            </Flex>
+            <Flex marginTop="12px" width="100px" justifySelf="center" alignSelf="center">
+                <Button
+                    variant="bordered"
                     onClick={() => {
-                        apiClient.tradeForFreeAsync({
-                            colony: colony.name,
-                            tradeIncome,
-                        });
+                        if (canTradeForFree) {
+                            apiClient.tradeForFreeAsync({
+                                colony: colony.name,
+                                tradeIncome: selectedTradeIncome,
+                            });
+                        } else {
+                            apiClient.tradeAsync({
+                                colony: colony.name,
+                                tradeIncome: selectedTradeIncome,
+                                payment: selectedTradePayment.resource,
+                            });
+                        }
+                        hidePopover();
                     }}
                 >
-                    Trade for free
-                </TradePaymentButton>
-            ) : (
-                <React.Fragment>
-                    {validTradePayments.map(payment => (
-                        <TradePaymentButton
-                            key={payment.resource}
-                            bgColorHover={colors.DARK_3}
-                            onClick={() => {
-                                apiClient.tradeAsync({
-                                    payment: payment.resource,
-                                    colony: colony.name,
-                                    tradeIncome,
-                                });
-                                hidePopover();
-                            }}
-                        >
-                            <BaseActionIconography
-                                card={{gainResource: {[payment.resource]: payment.quantity}}}
-                            />
-                        </TradePaymentButton>
-                    ))}
-                </React.Fragment>
-            )}
+                    Trade{canTradeForFree ? ' for free' : ''}
+                </Button>
+            </Flex>
         </Flex>
     );
 }
 
 export function ColonyComponent({colony: serializedColony}: {colony: SerializedColony}) {
-    const triggerRef = useRef<HTMLElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
     const actionGuard = useActionGuard();
     const [canTrade] = actionGuard.canTrade(serializedColony.name);
     const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
@@ -228,7 +227,9 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         showPopover({
             popover: (
                 <TradePaymentPopover
-                    hidePopover={() => hidePopover(triggerRef)}
+                    hidePopover={() => {
+                        hidePopover(null);
+                    }}
                     colony={serializedColony}
                 />
             ),
@@ -248,7 +249,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         );
 
         return (
-            <Box position="absolute" right="60px" top="15px" zIndex={4} transform="rotate(220deg)">
+            <Box position="absolute" right="100px" top="15px" zIndex={4} transform="rotate(220deg)">
                 <Arrow
                     lineHeight={36}
                     lineWidth={14}
@@ -260,6 +261,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         );
     });
     const colony = getColony(serializedColony);
+    console.log(triggerRef);
     return (
         <ColonyBase
             backgroundColor={colony.borderColor}
@@ -400,26 +402,25 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                         })}
                 </Flex>
             </ColonyTileInner>
-            <Flex position="absolute" right="40px" top="32px" flexDirection="column">
-                <ColonyButton ref={triggerRef} disabled={!canTrade} onClick={handleClickTrade}>
+            <Flex
+                ref={triggerRef}
+                position="absolute"
+                right="40px"
+                top="32px"
+                flexDirection="column"
+            >
+                <Button
+                    disabled={!canTrade}
+                    onClick={handleClickTrade}
+                    size="small"
+                    variant="default"
+                >
                     Trade
-                </ColonyButton>
+                </Button>
             </Flex>
         </ColonyBase>
     );
 }
-
-const ColonyButton = styled(BlankButton)`
-    background: ${colors.LIGHT_1};
-    color: ${colors.TEXT_DARK_1};
-    border-radius: 3px;
-    font-size: 0.8em;
-    box-shadow: 2px 2px 1px ${colors.DARK_1};
-
-    &:hover&:not(disabled) {
-        background: ${colors.LIGHT_2};
-    }
-`;
 
 function getPlacementBonuses(placementBonus: Action | null) {
     if (!placementBonus) return null;
