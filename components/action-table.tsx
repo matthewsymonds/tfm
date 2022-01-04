@@ -17,7 +17,7 @@ import {
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import AnimateHeight from 'react-animate-height';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
@@ -25,18 +25,38 @@ import styled from 'styled-components';
 import {throttle} from 'throttle-debounce';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
-import {Flex} from './box';
+import {Box, Flex} from './box';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {Colonies} from './colonies';
 import {GlobalParameterIcon} from './icons/global-parameter';
 import {ColonyIcon} from './icons/other';
 import {ProductionIcon} from './icons/production';
 import {ResourceIcon} from './icons/resource';
 import {TileIcon} from './icons/tile';
+import {PlayerPanels} from './player-panel/player-panels';
 import {usePaymentPopover} from './popovers/payment-popover';
+import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes = ['Milestones', 'Awards', 'Std Projects', 'Conversions'] as Array<ActionType>;
-type ActionType = 'Awards' | 'Milestones' | 'Std Projects' | 'Conversions';
+const actionTypes = [
+    'Prompt',
+    'Players',
+    'Standard Projects',
+    'Milestones',
+    'Awards',
+    'Conversions',
+    'Colonies',
+    'Turmoil',
+] as Array<ActionType>;
+type ActionType =
+    | 'Prompt'
+    | 'Players'
+    | 'Awards'
+    | 'Milestones'
+    | 'Standard Projects'
+    | 'Conversions'
+    | 'Colonies'
+    | 'Turmoil';
 
 function useActionSubItems(selectedAction: ActionType) {
     const loggedInPlayer = useLoggedInPlayer();
@@ -46,7 +66,7 @@ function useActionSubItems(selectedAction: ActionType) {
             return getAwards(state);
         } else if (selectedAction === 'Milestones') {
             return getMilestones(state);
-        } else if (selectedAction === 'Std Projects') {
+        } else if (selectedAction === 'Standard Projects') {
             return getStandardProjects(state);
         } else if (selectedAction === 'Conversions') {
             const conversions = Object.values(DEFAULT_CONVERSIONS);
@@ -67,78 +87,139 @@ const CategoryListItem = styled(Flex)`
     }
 `;
 
-export function ActionTable() {
+const TABLE_ITEMS = ['Milestones', 'Awards'];
+
+type ActionPrompt = {
+    text?: string | null;
+    element?: React.ReactElement | null;
+    buttonNeeded: boolean;
+};
+
+type ActionTableProps = {actionPrompt: ActionPrompt};
+
+export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
+    actionPrompt,
+}: ActionTableProps) => {
     const [selectedActionAndSubActionIndex, setSelectedActionAndSubActionIndex] = useState<
         [ActionType, number]
-    >(['Awards', 0]);
+    >(['Prompt', 0]);
     const [selectedAction] = selectedActionAndSubActionIndex;
-    const [isCollapsed, setIsCollapsed] = useState(true);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [
         prevSelectedSubItemIndexByActionType,
         setPrevSelectedSubItemIndexByActionType,
     ] = useState({
         Awards: 0,
         Milestones: 0,
-        'Std Projects': 0,
+        'Standard Projects': 0,
         Conversions: 0,
     });
+
+    const player = useLoggedInPlayer();
+
+    useEffect(() => {
+        if (player.placeColony || player.tradeForFree) {
+            setSelectedActionAndSubActionIndex(['Colonies', 0]);
+        } else if (
+            player.placeDelegatesInOneParty ||
+            player.removeNonLeaderDelegate ||
+            player.exchangeNeutralNonLeaderDelegate
+        ) {
+            setSelectedActionAndSubActionIndex(['Turmoil', 0]);
+        }
+    }, [
+        player.placeColony,
+        player.tradeForFree,
+        player.placeDelegatesInOneParty,
+        player.removeNonLeaderDelegate,
+        player.exchangeNeutralNonLeaderDelegate,
+    ]);
+
+    useEffect(() => {
+        if (!actionPrompt?.text || !actionPrompt?.buttonNeeded) {
+            setSelectedActionAndSubActionIndex(['Players', 0]);
+        }
+    }, [actionPrompt?.text, actionPrompt?.buttonNeeded]);
+
+    const visibleActionTypes = actionTypes.filter(actionType =>
+        actionPrompt.buttonNeeded ? true : actionType !== 'Prompt'
+    );
 
     return (
         <Flex
             className="action-table"
-            padding="0 8px"
-            marginTop="8px"
+            flexDirection="column"
+            alignItems="flex-start"
+            marginLeft="8px"
+            marginRight="8px"
+            marginBottom="8px"
+            width="100%"
+            maxWidth="100%"
             style={{justifySelf: 'center'}}
         >
+            <Flex
+                justifyContent="flex-start"
+                width="100%"
+                flexWrap="wrap"
+                flexShrink="0"
+                padding="6px 0"
+                marginLeft="8px"
+                marginRight="8px"
+            >
+                {visibleActionTypes.map((actionType, index) => (
+                    <Flex
+                        key={actionType}
+                        margin="0 4px 4px 0"
+                        padding="2px 4px"
+                        style={{
+                            borderRadius: 6,
+                            ...(selectedAction === actionType && !isCollapsed
+                                ? {
+                                      background: `${colors.GOLD}`,
+                                      border: `1px solid ${colors.GOLD}`,
+                                      color: colors.TEXT_DARK_1,
+                                      fontWeight: 600,
+                                  }
+                                : {border: '1px solid transparent', color: colors.GOLD}),
+                        }}
+                    >
+                        <ActionTableHeader
+                            onClick={() => {
+                                if (actionType !== selectedAction) {
+                                    const prevIndex =
+                                        prevSelectedSubItemIndexByActionType[actionType];
+                                    setIsCollapsed(false);
+                                    setSelectedActionAndSubActionIndex([actionType, prevIndex]);
+                                } else {
+                                    setIsCollapsed(!isCollapsed);
+                                }
+                            }}
+                        >
+                            {actionType === 'Prompt' ? actionPrompt?.text : actionType}
+                        </ActionTableHeader>
+                    </Flex>
+                ))}
+            </Flex>
             <Flex
                 flexDirection="column"
                 style={{
                     borderRadius: 3,
-                    border: '1px solid rgb(80, 80, 80)',
-                    background: 'rgb(53, 53, 53)',
-                    maxWidth: 500,
+                    border: TABLE_ITEMS.includes(selectedAction)
+                        ? '1px solid rgb(80, 80, 80)'
+                        : '1px solid transparent',
+                    background: TABLE_ITEMS.includes(selectedAction)
+                        ? 'rgb(53, 53, 53)'
+                        : 'transparent',
+                    maxWidth: TABLE_ITEMS.includes(selectedAction) ? 500 : 'initial',
                     width: '100%',
                     justifySelf: 'center',
                 }}
             >
-                <Flex justifyContent="center" padding="8px 0">
-                    {actionTypes.map(actionType => (
-                        <Flex
-                            key={actionType}
-                            margin="0 4px 0 0"
-                            padding="2px 4px"
-                            style={{
-                                borderRadius: 6,
-                                ...(selectedAction === actionType && !isCollapsed
-                                    ? {
-                                          background: `${colors.GOLD}`,
-                                          border: `1px solid ${colors.GOLD}`,
-                                          color: colors.TEXT_DARK_1,
-                                          fontWeight: 600,
-                                      }
-                                    : {border: '1px solid transparent', color: colors.GOLD}),
-                            }}
-                        >
-                            <ActionTableHeader
-                                onClick={() => {
-                                    if (actionType !== selectedAction) {
-                                        const prevIndex =
-                                            prevSelectedSubItemIndexByActionType[actionType];
-                                        setIsCollapsed(false);
-                                        setSelectedActionAndSubActionIndex([actionType, prevIndex]);
-                                    } else {
-                                        setIsCollapsed(!isCollapsed);
-                                    }
-                                }}
-                            >
-                                {actionType}
-                            </ActionTableHeader>
-                        </Flex>
-                    ))}
-                </Flex>
                 <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table-inner">
-                    <Flex justifyContent="center">
+                    <Flex>
                         <ActionTableInner
+                            actionType={selectedActionAndSubActionIndex[0]}
+                            actionPrompt={actionPrompt}
                             selectedActionAndSubActionIndex={selectedActionAndSubActionIndex}
                             onSelectNewSubItem={(index: number) => {
                                 setSelectedActionAndSubActionIndex([selectedAction, index]);
@@ -153,7 +234,7 @@ export function ActionTable() {
             </Flex>
         </Flex>
     );
-}
+};
 
 export const useAwardConfigsByAward = () => {
     return useTypedSelector(
@@ -281,14 +362,19 @@ const ActionTableHeader = styled(BlankButton)`
     padding: 0;
     letter-spacing: 0.05em;
     font-size: 11px;
+    margin-bottom: 2px;
 `;
 
 function ActionTableInner({
     selectedActionAndSubActionIndex,
     onSelectNewSubItem,
+    actionPrompt,
+    actionType,
 }: {
     selectedActionAndSubActionIndex: [ActionType, number];
     onSelectNewSubItem: (subItemIndex: number) => void;
+    actionPrompt: ActionPrompt;
+    actionType: ActionType;
 }) {
     const [selectedAction, selectedSubActionIndex] = selectedActionAndSubActionIndex;
     const subItems = useActionSubItems(selectedAction);
@@ -301,10 +387,18 @@ function ActionTableInner({
     const apiClient = useApiClient();
 
     switch (selectedAction) {
+        case 'Prompt':
+            return actionPrompt?.element ?? null;
+        case 'Players':
+            return (
+                <Box width="100%">
+                    <PlayerPanels />
+                </Box>
+            );
         case 'Awards':
         case 'Milestones':
             return (
-                <Flex maxWidth="500px" width="100%">
+                <Flex width="100%">
                     <Flex
                         flex="0 0 30%"
                         flexDirection="column"
@@ -358,15 +452,9 @@ function ActionTableInner({
                     </Flex>
                 </Flex>
             );
-        case 'Std Projects':
+        case 'Standard Projects':
             return (
-                <Flex
-                    flexWrap="wrap"
-                    justifyContent="center"
-                    alignItems="center"
-                    width="100%"
-                    overflow="auto"
-                >
+                <Flex flexWrap="wrap" alignItems="center" width="100%" overflow="auto">
                     {subItems?.map(subItem => {
                         return (
                             <StandardProjectButton
@@ -384,7 +472,6 @@ function ActionTableInner({
                         let [canDoConversion, reason] = actionGuard.canDoConversion(
                             subItem as Conversion
                         );
-                        console.log(reason);
                         function doConversion() {
                             if (canDoConversion) {
                                 apiClient.doConversionAsync({conversion: subItem as Conversion});
@@ -405,6 +492,10 @@ function ActionTableInner({
                     })}
                 </Flex>
             );
+        case 'Colonies':
+            return <Colonies />;
+        case 'Turmoil':
+            return <Turmoil />;
         default:
             throw spawnExhaustiveSwitchError(selectedAction);
     }

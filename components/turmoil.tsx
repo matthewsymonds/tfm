@@ -443,12 +443,13 @@ export function Turmoil() {
         <Flex
             color={colors.LIGHT_2}
             flexDirection="column"
-            margin="4px"
+            margin="4px auto"
             flex="1 1 0px"
             alignItems="center"
             width="100%"
+            maxWidth="576px"
         >
-            <h2 className="display">Global Events</h2>
+            <h2 className="display no-margin-top">Global Events</h2>
             <Flex flexWrap="wrap" width="100%" alignItems="center" justifyContent="center">
                 <GlobalEventCard name={turmoil.distantGlobalEvent.name} />
                 <GlobalEventCard name={turmoil.comingGlobalEvent.name} />

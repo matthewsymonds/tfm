@@ -1,4 +1,4 @@
-import {BoardSwitcher, DisplayBoard} from 'components/board-switcher';
+import {DisplayBoard} from 'components/board-switcher';
 import {Box, Flex} from 'components/box';
 import {Colonies} from 'components/colonies';
 import {Turmoil} from 'components/turmoil';
@@ -15,10 +15,12 @@ import styled from 'styled-components';
 import {Cell} from './cell';
 import OffMarsCities, {OffMarsCity} from './off-mars-cities';
 
+export const MAX_BOARD_WIDTH = 562;
+
 const CircleOuter = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: 698px;
+    max-width: ${MAX_BOARD_WIDTH}px;
 `;
 
 const Circle = styled.div`
@@ -92,7 +94,6 @@ const BoardMid = styled.div`
     flex-grow: 1;
     flex-direction: column;
     align-items: center;
-    max-width: 698px;
     @media (max-width: 895px) {
         margin-left: auto;
         margin-right: auto;
@@ -111,20 +112,10 @@ export const Board = ({
     const windowWidth = useWindowWidth();
 
     return (
-        <Box className="board" maxWidth="100%">
+        <Box className="board" flexGrow="1" maxWidth={MAX_BOARD_WIDTH + 'px'} width="100%">
             <BoardOuter>
-                {windowWidth <= 895 && (
-                    <Flex width="100%" justifyContent="center">
-                        <BoardSwitcher
-                            setDisplayBoard={setDisplayBoard}
-                            selectedBoard={displayBoard}
-                        />
-                    </Flex>
-                )}
-
                 <BoardMid>
                     <BoardInner displayBoard={displayBoard} />
-                    {/* <StandardProjectList loggedInPlayer={loggedInPlayer} /> */}
                 </BoardMid>
             </BoardOuter>
         </Box>

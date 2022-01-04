@@ -115,7 +115,6 @@ const GlobalParamWrapper = styled.div`
     flex-direction: column;
     margin-right: 8px;
     margin-left: 8px;
-    padding-right: 34px;
     .global-param-icon {
         margin-right: 4px;
         margin-left: 4px;
@@ -156,7 +155,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const venus = useTypedSelector(isPlayingVenus);
     return (
         <GlobalParamWrapper className="global-params">
-            <Flex className="textLight1" fontSize="12px" marginBottom="1px">
+            <Flex className="textLight1 round-text" fontSize="12px" marginBottom="1px">
                 {roundText}
             </Flex>
             <Box display="inline-block" width="100%">
