@@ -136,10 +136,12 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     ]);
 
     useEffect(() => {
-        if (!actionPrompt?.text || !actionPrompt?.element || !actionPrompt?.buttonNeeded) {
+        if (!actionPrompt?.element || !actionPrompt?.buttonNeeded) {
             setSelectedActionAndSubActionIndex(['Players', 0]);
+        } else {
+            setSelectedActionAndSubActionIndex(['Prompt', 0]);
         }
-    }, [actionPrompt?.text, actionPrompt?.buttonNeeded]);
+    }, [!actionPrompt?.buttonNeeded, !actionPrompt?.element]);
 
     const visibleActionTypes = actionTypes.filter(actionType =>
         actionPrompt.buttonNeeded && actionPrompt.element ? true : actionType !== 'Prompt'
@@ -167,7 +169,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                 marginLeft="8px"
                 marginRight="8px"
             >
-                {visibleActionTypes.map((actionType, index) => (
+                {visibleActionTypes.map(actionType => (
                     <Flex
                         key={actionType}
                         margin="0 4px 4px 0"
@@ -196,7 +198,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                                 }
                             }}
                         >
-                            {actionType === 'Prompt' ? actionPrompt?.text : actionType}
+                            {actionType === 'Prompt' ? actionPrompt?.text ?? 'Action' : actionType}
                         </ActionTableHeader>
                     </Flex>
                 ))}
