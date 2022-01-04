@@ -98,7 +98,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         isWaitingOnOthersToDraftSelector(state)
     );
     const isDrafting = useTypedSelector(state => isDraftingSelector(state));
-    let actionBarPromptText: string | null;
+    let actionBarPromptText: string | null = null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Corporation Selection';
     } else if (gameStage === GameStage.END_OF_GAME) {
@@ -140,10 +140,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Draft';
     } else if (isDrafting) {
         actionBarPromptText = 'Draft';
-    } else if (loggedInPlayer.pendingCardSelection) {
-        actionBarPromptText = 'Select cards';
-    } else {
-        actionBarPromptText = 'Action';
     }
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
@@ -275,7 +271,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 bottom="0px"
                 padding="0 0 100px 0"
             >
-                <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
+                <TopBar text={actionBarPromptText} ref={topBarRef} yourTurnGames={yourTurnGames} />
 
                 <Box className="active-round-outer" flex="auto">
                     <ActionTable

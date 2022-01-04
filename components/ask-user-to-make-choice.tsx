@@ -19,7 +19,7 @@ export function AskUserToMakeChoice(props: {
     children: ReactNode;
     orientation?: 'horizontal' | 'vertical';
 }) {
-    const {children, orientation = 'horizontal'} = props;
+    const {children, orientation = 'vertical'} = props;
     const card = props.card ? getCard(props.card) : undefined;
     const playedCard = props.playedCard ? getCard(props.playedCard) : undefined;
     let triggerDetails;

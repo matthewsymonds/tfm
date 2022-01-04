@@ -389,7 +389,7 @@ function ActionTableInner({
 
     switch (selectedAction) {
         case 'Prompt':
-            return actionPrompt?.element ?? null;
+            return <Flex flexDirection="column">{actionPrompt?.element ?? null}</Flex>;
         case 'Players':
             return (
                 <Box width="100%">

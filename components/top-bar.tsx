@@ -44,8 +44,8 @@ const CorporationName = styled(Flex)`
     font-weight: bold;
 `;
 
-export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
-    ({yourTurnGames}, ref) => {
+export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?: string | null}>(
+    ({yourTurnGames, text}, ref) => {
         const currentGame = useTypedSelector(state => state.name);
 
         const router = useRouter();
@@ -168,7 +168,8 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                         {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
                             <div>Please choose your cards.</div>
                         )}
-                        {!syncing && playing && <>Action {action} of 2</>}
+                        {text ? <>{text}.</> : null}
+                        {!syncing && playing && !text && <>Action {action} of 2</>}
                         {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
                             isActiveRound &&
                             !isLoggedInPlayerPassed && (
