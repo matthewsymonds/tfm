@@ -17,7 +17,7 @@ type PlayerPanelProps = {
     isSelected: boolean;
 };
 
-const OuterWrapper = styled.div<{isSelected: boolean; last: boolean}>`
+const OuterWrapper = styled.div<{isSelected: boolean}>`
     display: flex;
     position: relative;
     transition: all 300ms ease-in-out;
@@ -31,7 +31,6 @@ const OuterWrapper = styled.div<{isSelected: boolean; last: boolean}>`
     justify-content: stretch;
     align-items: flex-start;
     padding: 8px;
-    margin-right: ${props => (props.last ? '0px' : '8px')};
 `;
 
 const CardsInHandMessage = styled.div`
@@ -91,11 +90,7 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
     ) : null;
 
     return (
-        <OuterWrapper
-            isSelected={isSelected}
-            id={`player-board-${player.index}`}
-            last={player.index === numPlayers - 1}
-        >
+        <OuterWrapper isSelected={isSelected} id={`player-board-${player.index}`}>
             {!isSelected && <NoClickOverlay />}
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}

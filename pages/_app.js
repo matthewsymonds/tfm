@@ -109,7 +109,6 @@ export const GlobalStyles = createGlobalStyle`
     .action-table {
         width: 790px;
         @media (max-width: 1400px) {
-            width: 1180px;
             max-width: calc(100% - 16px);
             margin-top: 8px;
             margin-left: auto;
