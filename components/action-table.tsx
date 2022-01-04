@@ -136,13 +136,13 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     ]);
 
     useEffect(() => {
-        if (!actionPrompt?.text || !actionPrompt?.buttonNeeded) {
+        if (!actionPrompt?.text || !actionPrompt?.element || !actionPrompt?.buttonNeeded) {
             setSelectedActionAndSubActionIndex(['Players', 0]);
         }
     }, [actionPrompt?.text, actionPrompt?.buttonNeeded]);
 
     const visibleActionTypes = actionTypes.filter(actionType =>
-        actionPrompt.buttonNeeded ? true : actionType !== 'Prompt'
+        actionPrompt.buttonNeeded && actionPrompt.element ? true : actionType !== 'Prompt'
     );
 
     return (
@@ -153,6 +153,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             marginLeft="8px"
             marginRight="8px"
             marginBottom="8px"
+            marginTop="4px"
             width="100%"
             maxWidth="100%"
             style={{justifySelf: 'center'}}
