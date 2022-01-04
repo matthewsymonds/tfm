@@ -119,7 +119,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     const player = useLoggedInPlayer();
 
     useEffect(() => {
-        if (player.placeColony || player.tradeForFree) {
+        if (player.tradeForFree) {
             setSelectedActionAndSubActionIndex(['Colonies', 0]);
         } else if (
             player.placeDelegatesInOneParty ||
@@ -129,7 +129,6 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             setSelectedActionAndSubActionIndex(['Turmoil', 0]);
         }
     }, [
-        player.placeColony,
         player.tradeForFree,
         player.placeDelegatesInOneParty,
         player.removeNonLeaderDelegate,
