@@ -22,7 +22,7 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     position: relative;
     transition: all 300ms ease-in-out;
     opacity: ${props => (props.isSelected ? 1 : 0.25)};
-    background ${props => (props.isSelected ? colors.DARK_3 : 'transparent')};
+    background ${props => (props.isSelected ? colors.DARK_2 : 'transparent')};
     border: ${props =>
         props.isSelected ? `1px solid ${colors.PANEL_BORDER}` : '1px solid transparent'};
     border-radius: 4px;

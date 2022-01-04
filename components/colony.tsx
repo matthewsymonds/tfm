@@ -93,6 +93,10 @@ const ColonyTitle = styled.h1`
     background: linear-gradient(90deg, rgb(128 181 193 / 35%) 0%, rgba(0, 0, 0, 0) 55%);
     color: #111;
     letter-spacing: 0.2px;
+
+    // Ensure the title is in front of the planet.
+    position: absolute;
+    z-index: 1;
 `;
 
 const ColonyPlanet = styled.div<{
@@ -261,7 +265,6 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         );
     });
     const colony = getColony(serializedColony);
-    console.log(triggerRef);
     return (
         <ColonyBase
             backgroundColor={colony.borderColor}
@@ -408,6 +411,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                 right="40px"
                 top="32px"
                 flexDirection="column"
+                zIndex="2"
             >
                 <Button
                     disabled={!canTrade}

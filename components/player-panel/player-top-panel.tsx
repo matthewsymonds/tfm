@@ -90,7 +90,7 @@ export const PlayerTopPanel = ({
                 padding: 8,
                 opacity: isSelected ? 1 : 0.25,
                 transition: 'all 300ms ease-in-out',
-                background: isSelected ? colors.DARK_3 : 'transparent',
+                background: isSelected ? colors.DARK_2 : 'transparent',
                 borderWidth: 1,
                 borderStyle: 'solid',
                 borderColor: isSelected ? colors.PANEL_BORDER : 'transparent',
