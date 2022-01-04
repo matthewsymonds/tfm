@@ -249,7 +249,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         );
 
         return (
-            <Box position="absolute" right="100px" top="15px" zIndex={4} transform="rotate(220deg)">
+            <Box position="absolute" right="80px" top="15px" zIndex={4} transform="rotate(220deg)">
                 <Arrow
                     lineHeight={36}
                     lineWidth={14}
