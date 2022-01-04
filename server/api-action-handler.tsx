@@ -1325,7 +1325,7 @@ export class ApiActionHandler {
         tradeIncome: number;
         numHeat: number;
     }) {
-        const [canTrade, reason] = this.actionGuard.canTrade(payment, colony, numHeat);
+        const [canTrade, reason] = this.actionGuard.canTradeWithPayment(payment, colony, numHeat);
 
         if (!canTrade) {
             throw new Error(reason);
