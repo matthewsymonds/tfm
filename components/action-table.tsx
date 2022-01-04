@@ -149,19 +149,21 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     );
     const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
 
-    const visibleActionTypes = actionTypes.filter(actionType => {
-        if (actionType === 'Prompt') {
-            return !!(actionPrompt.buttonNeeded && actionPrompt.element);
-        }
-        if (actionType === 'Colonies') {
-            return isColoniesEnabled;
-        }
-        if (actionType === 'Turmoil') {
-            return isTurmoilEnabled;
-        }
+    const visibleActionTypes = useTypedSelector(state =>
+        actionTypes.filter(actionType => {
+            if (actionType === 'Prompt') {
+                return !!(actionPrompt.buttonNeeded && actionPrompt.element);
+            }
+            if (actionType === 'Colonies') {
+                return isColoniesEnabled;
+            }
+            if (actionType === 'Turmoil') {
+                return isTurmoilEnabled;
+            }
 
-        return true;
-    });
+            return true;
+        })
+    );
 
     return (
         <Flex

@@ -56,8 +56,6 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
         filteredTags: [],
     });
 
-    const numPlayers = useTypedSelector(state => state.players.length);
-
     const isColoniesEnabled = useTypedSelector(state =>
         state.options?.decks.includes(Deck.COLONIES)
     );
