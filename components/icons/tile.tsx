@@ -2,6 +2,7 @@ import {Hexagon} from 'components/board/hexagon';
 import {colors} from 'components/ui';
 import {getTileIcon, Parameter, TileType} from 'constants/board';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 
 export const TileIcon = ({
     type,
@@ -30,7 +31,7 @@ export const TileIcon = ({
                         transform: `scale(${size / 200})`,
                     }}
                 >
-                    {getTileIcon(type)}
+                    <Twemoji>{getTileIcon(type)}</Twemoji>
                 </span>
             </Hexagon>
         </div>

@@ -1,6 +1,7 @@
 import {PLAYER_COLORS} from 'constants/game';
 import {Delegate} from 'constants/turmoil';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 
@@ -44,15 +45,23 @@ export function DelegateComponent({
                     : 'transparent'
             }
         >
-            👤
+            <Box filter="grayscale(100%) brightness(50%)">
+                <Twemoji options={{className: 'emoji delegate'}}>👤</Twemoji>
+            </Box>
         </DelegateBase>
     );
 }
 
 export function MiniDelegateComponent() {
     return (
-        <Box width="12px" height="12px" lineHeight="16px" fontSize="20px">
-            👤
+        <Box
+            width="12px"
+            height="12px"
+            lineHeight="16px"
+            fontSize="20px"
+            filter="grayscale(100%) brightness(50%)"
+        >
+            <Twemoji options={{className: 'emoji delegate'}}>👤</Twemoji>
         </Box>
     );
 }

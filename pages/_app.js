@@ -1,3 +1,4 @@
+import {MAX_BOARD_WIDTH} from 'components/board/board';
 import {Box} from 'components/box';
 import {MarsHeader} from 'components/mars-header';
 import {colors} from 'components/ui';
@@ -20,6 +21,12 @@ export const GlobalStyles = createGlobalStyle`
         background: ${colors.MAIN_BG};
         overscroll-behavior: none;
     }
+    img.emoji {
+        height: 1em;
+        width: 1em;
+        margin: 0;
+        vertical-align: -0.15em;
+     }
     iframe {
         border: 0;
         padding: 0;
@@ -73,38 +80,57 @@ export const GlobalStyles = createGlobalStyle`
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round-outer {
-        max-width: 929px;
-        display: grid;
-        align-items: flex-start;
-        min-width: min(450px, 100%);
-        grid-template-columns: 2fr 11fr 2fr;
-        grid-template-areas: 
-            "global-params board board-switcher-wrapper"
-            "action-table action-table action-table";
-        @media (max-width: 895px) {
-            grid-template-areas:
-              "board board board"
-              "global-params global-params global-params"
-              "board-switcher-wrapper board-switcher-wrapper board-switcher-wrapper"
-              "action-table action-table action-table";
-        }
+        display: flex;
+        flex-wrap: wrap;
         box-sizing: border-box;
+        justify-content: center;
+        width: 100%;
+        @media (max-width: 1400px) {
+            flex-direction: column-reverse;
+            flex-wrap: nowrap;
+        }
     }
-    .global-params {
-        grid-area: global-params;
+    .board-and-params {
+        justify-content: flex-end;
+        margin-left: auto;
+        flex-grow: 1;
+        @media (max-width: 1400px) {
+            justify-content: center;
+            flex-grow: 0;
+            width: 100%;
+        }
+        @media (max-width: 895px) {
+            flex-direction: column;
+        }
     }
-    .board {
-        grid-area: board;
-    }
-    .board-switcher-wrapper {
-        grid-area: board-switcher-wrapper;
+    .no-margin-top {
+        margin-top: 0;
     }
     .action-table {
-        grid-area: action-table;
-
-        width: 500px;
+        width: 790px;
+        @media (max-width: 1400px) {
+            width: 1180px
+            max-width: calc(100% - 16px);
+            margin-top: 8px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+    .board {
+        max-width: ${MAX_BOARD_WIDTH}px;
+        @media (max-width: 1400px) {
+            align-self: center;
+        }
         @media (max-width: 895px) {
-            width: calc(100% - 16px);
+            margin: 8px auto;
+        }
+    }
+    .round-text {
+        justify-content: flex-end;
+        @media (max-width: 895px) {
+            justify-content: flex-start;
+            margin-left: 4px;
+            margin-top: 4px;
         }
     }
     .toast {
@@ -159,13 +185,10 @@ export const GlobalStyles = createGlobalStyle`
 
     .outer-emoji.jovian {
         transform: rotate(45deg);
-        &.mac {
-            transform: rotate(-45deg);
-        }
     }
 
     .mid-city.emoji {
-        font-size: 2.75em;
+        font-size: 2em;
     }
 
     .outer-space-tag {
@@ -189,29 +212,16 @@ export const GlobalStyles = createGlobalStyle`
         transform: translateY(-15%);
     }
 
+    img.delegate {
+        margin: 0;
+    }
+
     .mid-emoji.jovian {
-        font-size: 3.3em;
+        font-size: 3.6em;
     }
     .mid-science {
         font-family: "Source Sans Pro", Segoe UI Symbol;
         font-size: 2em;
-    }
-
-    .mac {
-        .mid-science {
-        }
-        .energy-icon {
-            margin-right: 5%;
-        }
-
-        .heat-icon {
-            margin-right: 2px;
-            margin-bottom: 1px;
-        }
-        
-        .card-icon {
-            margin-right: 1px;
-        }
     }
 `;
 

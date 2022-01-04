@@ -2,6 +2,7 @@ import {Box, Flex} from 'components/box';
 import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 
 // icon, text color, bg color, classname
 const dict = {
@@ -22,6 +23,8 @@ const dict = {
     [Tag.NONE]: ['', 'black', 'white', '', 'emoji'],
     x: ['x', 'white', 'white'],
 };
+
+const PLAIN_ICONS = ['⚛', '⬇'];
 
 type TagProps = {
     icon: string;
@@ -63,7 +66,9 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
             className = 'linux';
         }
     }
-    const fontSize = size * 2;
+    const fontSize = size / 2;
+    const baseIcon = <Box>{tagProps.icon}</Box>;
+
     return (
         <Box
             border={'1px solid ' + tagProps.outerBackgroundColor ?? colors.CARD_BORDER_2}
@@ -100,9 +105,10 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
                     justifyContent="center"
                     height="100%"
                     width="100%"
+                    lineHeight="4em"
                     inset={0}
                 >
-                    <Box transform="scale(25%)">{tagProps.icon}</Box>
+                    {PLAIN_ICONS.includes(tagProps.icon) ? baseIcon : <Twemoji>{baseIcon}</Twemoji>}
                 </Flex>
             </Flex>
         </Box>

@@ -17,7 +17,7 @@ type PlayerPanelProps = {
     isSelected: boolean;
 };
 
-const OuterWrapper = styled.div<{isSelected: boolean}>`
+const OuterWrapper = styled.div<{isSelected: boolean; last: boolean}>`
     display: flex;
     position: relative;
     transition: all 300ms ease-in-out;
@@ -31,7 +31,7 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     justify-content: stretch;
     align-items: flex-start;
     padding: 8px;
-    margin: 0 8px;
+    margin-right: ${props => (props.last ? '0px' : '8px')};
 `;
 
 const CardsInHandMessage = styled.div`
@@ -56,6 +56,8 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
         filterMode: TagFilterMode.ALL,
         filteredTags: [],
     });
+
+    const numPlayers = useTypedSelector(state => state.players.length);
 
     const isColoniesEnabled = useTypedSelector(state =>
         state.options?.decks.includes(Deck.COLONIES)
@@ -89,7 +91,11 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
     ) : null;
 
     return (
-        <OuterWrapper isSelected={isSelected} id={`player-board-${player.index}`}>
+        <OuterWrapper
+            isSelected={isSelected}
+            id={`player-board-${player.index}`}
+            last={player.index === numPlayers - 1}
+        >
             {!isSelected && <NoClickOverlay />}
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}

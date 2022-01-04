@@ -15,6 +15,7 @@ import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {GameActionType} from 'GameActionState';
 import React, {useEffect, useLayoutEffect, useRef} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
+import Twemoji from 'react-twemoji';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {getGameAction} from 'selectors/get-game-action';
@@ -93,7 +94,7 @@ export const ActionLog = () => {
     return (
         <React.Fragment>
             <BlankButton ref={triggerRef} onClick={() => toggleLog()} style={{marginRight: 4}}>
-                📜
+                <Twemoji>📜</Twemoji>
             </BlankButton>
         </React.Fragment>
     );
@@ -425,7 +426,7 @@ const LogEntryInner = ({
                             className="display"
                             style={{fontSize: '1rem'}}
                         >
-                            {gameAction.text}
+                            <Twemoji>{gameAction.text}</Twemoji>
                         </Flex>
                     );
                     break;

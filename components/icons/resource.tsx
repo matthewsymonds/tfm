@@ -7,6 +7,7 @@ import {
 } from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 
 interface ResourceIconBaseProps {
@@ -102,7 +103,9 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
                 border={border}
                 unit={unit}
             >
-                <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
+                <Twemoji>
+                    <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
+                </Twemoji>
             </ResourceIconBase>
         </React.Fragment>
     );

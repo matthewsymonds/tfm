@@ -9,7 +9,6 @@ import {colors} from './ui';
 export const ChoiceWrapper = styled.div<{orientation: 'horizontal' | 'vertical'}>`
     display: flex;
     width: 100%;
-    margin-top: 16px;
     flex-direction: ${props => (props.orientation === 'horizontal' ? 'row' : 'column')};
     flex-wrap: wrap;
 `;

@@ -76,7 +76,7 @@ export const PARTY_CONFIGS: PartyConfig[] = [
             },
         },
         symbol: '🌲',
-        color: '#229522',
+        color: '#a3f9a3',
     },
     {
         name: REDS,

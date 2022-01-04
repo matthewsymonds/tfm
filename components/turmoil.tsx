@@ -11,6 +11,7 @@ import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
+import Twemoji from 'react-twemoji';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
@@ -98,7 +99,7 @@ const PartyBase = styled.div<{background: string; margin: string; size: number}>
     margin: ${props => props.margin};
     border: 1px solid ${colors.DARK_4};
 
-    &.unity > span {
+    &.unity > * {
         position: relative;
         left: -${props => props.size * 0.1}px;
         letter-spacing: -${props => props.size * 0.2}px;
@@ -133,6 +134,8 @@ export function PartySymbol({
         color: 'gray',
     };
 
+    const baseSymbol = <span>{symbol}</span>;
+
     return (
         <PartyBase
             background={color}
@@ -140,7 +143,13 @@ export function PartySymbol({
             size={size}
             className={party === UNITY ? 'unity' : ''}
         >
-            <span>{symbol}</span>
+            {symbol === '♂' ? (
+                <Box fontFamily='"Source Sans Pro", Segoe UI Symbol' fontSize="1.4em">
+                    {baseSymbol}
+                </Box>
+            ) : (
+                <Twemoji>{baseSymbol}</Twemoji>
+            )}
         </PartyBase>
     );
 }
@@ -182,7 +191,14 @@ function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boole
     return null;
 }
 
-function PartyPolicy(props) {
+type PartyPolicyProps = {
+    party: string;
+    canClick?: boolean;
+    disabled?: boolean;
+    onClick?: Function;
+};
+
+const PartyPolicy = React.forwardRef((props: PartyPolicyProps, ref) => {
     return (
         <Flex
             display="inline-flex"
@@ -194,7 +210,7 @@ function PartyPolicy(props) {
             <PartyPolicyInternal {...props} />
         </Flex>
     );
-}
+});
 
 export const LOBBYING_COST = 5;
 
@@ -215,17 +231,13 @@ const TurmoilAction = styled(ActionContainerBase)`
 function Lobbying({
     party,
     canLobby,
-    reason,
     action,
     apiClient,
-    player,
 }: {
     party: PartyConfig;
     canLobby: boolean;
-    reason: string;
     action: Action;
     apiClient: ApiClient;
-    player: PlayerState;
 }) {
     return (
         <Flex alignItems="center" justifyContent="center" flexDirection="column">
@@ -235,6 +247,7 @@ function Lobbying({
                     canLobby &&
                     apiClient.lobbyAsync(party.name, {[Resource.MEGACREDIT]: action.cost})
                 }
+                style={{paddingBottom: '4px'}}
             >
                 {renderLeftSideOfArrow(action)}
                 {renderArrow()}
@@ -307,7 +320,7 @@ export function Turmoil() {
     const actionGuard = useActionGuard(player.username);
     const apiClient = useApiClient();
 
-    const [canLobby, reason] = actionGuard.canLobby();
+    const [canLobby] = actionGuard.canLobby();
 
     const lobbying: Action = useTypedSelector(state => getLobbyingAction(state, player));
 
@@ -407,10 +420,8 @@ export function Turmoil() {
                 </Flex>
                 <Lobbying
                     canLobby={canLobby}
-                    reason={reason}
                     action={lobbying}
                     apiClient={apiClient}
-                    player={player}
                     party={party}
                 />
             </PartyPanel>
@@ -432,12 +443,13 @@ export function Turmoil() {
         <Flex
             color={colors.LIGHT_2}
             flexDirection="column"
-            margin="4px"
+            margin="4px auto"
             flex="1 1 0px"
             alignItems="center"
             width="100%"
+            maxWidth="576px"
         >
-            <h2 className="display">Global Events</h2>
+            <h2 className="display no-margin-top">Global Events</h2>
             <Flex flexWrap="wrap" width="100%" alignItems="center" justifyContent="center">
                 <GlobalEventCard name={turmoil.distantGlobalEvent.name} />
                 <GlobalEventCard name={turmoil.comingGlobalEvent.name} />
@@ -457,7 +469,7 @@ export function Turmoil() {
                             margin="12px"
                         >
                             <h3 className="display">Ruling Policy</h3>
-                            <PartyPanel width="fit-content">
+                            <PartyPanel width="fit-content" display="flex">
                                 <PartyPolicy
                                     party={turmoil.rulingParty}
                                     canClick={canDoPolicy}

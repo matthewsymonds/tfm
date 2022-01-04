@@ -1,7 +1,7 @@
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
-import {Board, MilestonesAwardsBoardSwitcherWrapper} from 'components/board/board';
+import {Board} from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerHand} from 'components/player-hand';
 import {TopBar} from 'components/top-bar';
@@ -17,8 +17,7 @@ import {
 } from 'context/global-popover-context';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import {useWindowWidth} from 'hooks/use-window-width';
-import React, {ReactElement, useEffect, useLayoutEffect, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {
     isDrafting as isDraftingSelector,
@@ -28,8 +27,6 @@ import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import styled from 'styled-components';
-import {useIsomorphicLayoutEffect} from './action-log';
-import {ActionOverlay, ActionOverlayTopBar} from './action-overlay';
 import {ActionTable} from './action-table';
 import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
 import {AskUserToDuplicateProduction} from './ask-user-to-confirm-duplicate-production';
@@ -42,12 +39,11 @@ import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
-import {BoardSwitcher, DisplayBoard} from './board-switcher';
+import {DisplayBoard} from './board-switcher';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
-import {PlayerPanels} from './player-panel/player-panels';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -104,102 +100,60 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     let actionBarPromptText: string | null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
-        actionBarPromptText = 'Choose your corporation and starting cards';
+        actionBarPromptText = 'Corporation Selection';
     } else if (gameStage === GameStage.END_OF_GAME) {
-        actionBarPromptText = null;
+        actionBarPromptText = 'Game End';
     } else if (loggedInPlayer.pendingPlayCardFromHand) {
-        actionBarPromptText = 'Play a card from hand';
+        actionBarPromptText = 'Play card from hand';
     } else if (loggedInPlayer.putAdditionalColonyTileIntoPlay) {
-        actionBarPromptText = 'Put an additional colony into play.';
+        actionBarPromptText = 'Add colony';
     } else if (loggedInPlayer.pendingTilePlacement) {
         if (loggedInPlayer.pendingTilePlacement.type === TileType.LAND_CLAIM) {
-            actionBarPromptText = 'Claim an unreserved area.';
+            actionBarPromptText = 'Claim unreserved area.';
         } else {
             actionBarPromptText = `Place ${aAnOrThe(
                 loggedInPlayer.pendingTilePlacement.type
-            )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile.`;
+            )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile`;
         }
     } else if (loggedInPlayer.pendingTileRemoval) {
         actionBarPromptText = `Remove ${aAnOrThe(
             loggedInPlayer.pendingTileRemoval
-        )} ${getHumanReadableTileName(loggedInPlayer.pendingTileRemoval)} tile.`;
+        )} ${getHumanReadableTileName(loggedInPlayer.pendingTileRemoval)} tile`;
     } else if (loggedInPlayer.fundAward) {
-        actionBarPromptText = 'Fund an award for free';
+        actionBarPromptText = 'Fund award';
     } else if (loggedInPlayer.placeColony) {
-        actionBarPromptText = 'Place a colony';
+        actionBarPromptText = 'Place colony';
     } else if (loggedInPlayer.tradeForFree) {
-        actionBarPromptText = 'Select a colony to trade with for free';
+        actionBarPromptText = 'Trade for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
-        actionBarPromptText = 'Increase and decrease colony tile tracks';
+        actionBarPromptText = 'Action';
     } else if (loggedInPlayer.placeDelegatesInOneParty) {
         const plural = loggedInPlayer.placeDelegatesInOneParty > 1;
         actionBarPromptText = `Place ${loggedInPlayer.placeDelegatesInOneParty} delegate${
             plural ? 's' : ''
-        } in one party`;
+        }`;
     } else if (loggedInPlayer.removeNonLeaderDelegate) {
-        actionBarPromptText = 'Remove a non-leader delegate';
+        actionBarPromptText = 'Remove non-leader delegate';
     } else if (loggedInPlayer.exchangeNeutralNonLeaderDelegate) {
-        actionBarPromptText = 'Exchange a neutral non-leader delegate with one of your own';
+        actionBarPromptText = 'Exchange neutral non-leader-delegate';
     } else if (isWaitingOnOthersToDraft) {
-        actionBarPromptText = 'Waiting to draft';
+        actionBarPromptText = 'Draft';
     } else if (isDrafting) {
-        actionBarPromptText = 'Please draft your next card';
+        actionBarPromptText = 'Draft';
     } else if (loggedInPlayer.pendingCardSelection) {
-        actionBarPromptText = 'Please select your cards';
+        actionBarPromptText = 'Select cards';
     } else {
-        actionBarPromptText = 'Complete your action';
+        actionBarPromptText = 'Action';
     }
-
-    const [isActionOverlayVisible, setIsActionOverlayVisible] = useState(
-        !showBoardFirstInActionPrompt
-    );
-
-    useEffect(() => {
-        if (!hideOverlay && !showBoardFirstInActionPrompt) {
-            setIsActionOverlayVisible(true);
-        }
-    }, [!hideOverlay && !showBoardFirstInActionPrompt]);
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
     const logLength = useTypedSelector(state => state.logLength);
-    const [topBarHeight, setTopBarHeight] = useState(48);
     const parameters = useTypedSelector(state => state.common.parameters);
-    const windowWidth = useWindowWidth();
     const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
-
-    useLayoutEffect(() => {
-        if (topBarRef.current) {
-            setTopBarHeight(topBarRef.current.offsetHeight);
-        }
-        const handleResize = function (this: Window, event: UIEvent) {
-            if (topBarRef.current) {
-                setTopBarHeight(topBarRef.current.offsetHeight);
-            }
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [topBarRef.current?.offsetHeight]);
-
-    useEffect(() => {
-        if (topBarRef.current) {
-            setTopBarHeight(topBarRef.current.offsetHeight);
-        }
-    }, [topBarRef.current, logLength]);
 
     const playerCardsString = useTypedSelector(state =>
         state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
     );
-
-    useIsomorphicLayoutEffect(() => {
-        if (typeof document === 'undefined') return;
-        if (isActionOverlayVisible && isPlayerMakingDecision) {
-            window.requestAnimationFrame(() => {
-                topBarRef.current?.scrollIntoView();
-            });
-        }
-        document.body.style.overflow =
-            isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay ? 'hidden' : 'initial';
-    }, [isActionOverlayVisible && isPlayerMakingDecision && !hideOverlay, topBarRef.current]);
 
     const actionOverlayElement = useTypedSelector(state => {
         let actionOverlayElement: ReactElement | null = null;
@@ -314,36 +268,27 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         >
             <GlobalPopoverManager />
             <LogToast />
-            <Flex flexDirection="column" alignItems="center" flex="auto" bottom="0px">
+            <Flex
+                flexDirection="column"
+                alignItems="center"
+                flex="auto"
+                bottom="0px"
+                padding="0 0 100px 0"
+            >
                 <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
-                {isPlayerMakingDecision && (
-                    <ActionOverlayTopBar
-                        hideOverlay={!!hideOverlay}
-                        setIsVisible={() => setIsActionOverlayVisible(!isActionOverlayVisible)}
-                        promptText={actionBarPromptText ?? ''}
-                    />
-                )}
-                {isPlayerMakingDecision && !hideOverlay && (
-                    <ActionOverlay isVisible={isActionOverlayVisible} topBarHeight={topBarHeight}>
-                        {actionOverlayElement}
-                    </ActionOverlay>
-                )}
 
-                <Box className="active-round-outer" paddingTop="8px" flex="auto">
-                    <GlobalParams parameters={parameters} />
-                    <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
-                    <ActionTable />
-                    <MilestonesAwardsBoardSwitcherWrapper className="board-switcher-wrapper">
-                        {windowWidth > 895 && (
-                            <BoardSwitcher
-                                setDisplayBoard={setDisplayBoard}
-                                selectedBoard={displayBoard}
-                            />
-                        )}
-                    </MilestonesAwardsBoardSwitcherWrapper>
-                </Box>
-                <Box className="player-panels" width="100%" padding="0 0 100px 0">
-                    <PlayerPanels />
+                <Box className="active-round-outer" flex="auto">
+                    <ActionTable
+                        actionPrompt={{
+                            element: actionOverlayElement,
+                            text: actionBarPromptText,
+                            buttonNeeded: !showBoardFirstInActionPrompt,
+                        }}
+                    />
+                    <Flex className="board-and-params">
+                        <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
+                        <GlobalParams parameters={parameters} />
+                    </Flex>
                 </Box>
             </Flex>
             <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />

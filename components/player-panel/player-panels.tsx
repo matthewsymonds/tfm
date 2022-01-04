@@ -9,13 +9,7 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import {PlayerBottomPanel} from './player-bottom-panel';
 import {PlayerTopPanel} from './player-top-panel';
 
-const PlayerBoardsContainer = styled(Flex)`
-    &::before,
-    &::after {
-        content: '';
-        flex: 1;
-    }
-`;
+const PlayerBoardsContainer = styled(Flex)``;
 
 export const PlayerPanels = () => {
     const players = useTypedSelector(state => state.players);
@@ -46,7 +40,7 @@ export const PlayerPanels = () => {
 
     const swiperProps = {
         scrollbar: {draggable: true},
-        centeredSlides: true,
+        centeredSlides: false,
         mousewheel: {
             forceToAxis: true,
         },
@@ -65,7 +59,10 @@ export const PlayerPanels = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            margin: 8,
+                            marginLeft: i === 0 ? 0 : 8,
+                            marginRight: i === players.length - 1 ? 0 : 8,
+                            marginTop: 8,
+                            marginBottom: 8,
                         }}
                         onClick={() => {
                             swiper?.slideTo(i);
@@ -75,7 +72,6 @@ export const PlayerPanels = () => {
                     </Box>
                 ))}
             </PlayerBoardsContainer>
-
             <Swiper
                 controller={{control: swiper ?? undefined}}
                 onSwiper={setSwiper}
@@ -86,7 +82,7 @@ export const PlayerPanels = () => {
                     <SwiperSlide
                         onClick={() => swiper?.slideTo(player.index)}
                         key={i}
-                        style={{maxWidth: 804}}
+                        style={{maxWidth: '804px'}}
                     >
                         {({isActive}) => (
                             <PlayerBottomPanel player={player} isSelected={isActive} />

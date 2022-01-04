@@ -7,6 +7,7 @@ import {Cell as CellModel, CellType, getTileIcon, TileType} from 'constants/boar
 import {PLAYER_COLORS} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 import {Hexagon} from './hexagon';
 
@@ -80,7 +81,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                     right="0"
                     bottom="0"
                 >
-                    {getTileIcon(tile.type)}
+                    <Twemoji>{getTileIcon(tile.type)}</Twemoji>
                 </Flex>
             </Hexagon>
         );

@@ -4,6 +4,7 @@ import {colors} from 'components/ui';
 import {Parameter, TileType} from 'constants/board';
 import {Tag} from 'constants/tag';
 import React from 'react';
+import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -63,7 +64,7 @@ export const GlobalParameterIcon = ({
                     margin={margin}
                     isInline={true}
                 >
-                    🌡
+                    <Twemoji>🌡</Twemoji>
                 </AllCapsIcon>
             );
         default:
