@@ -10,6 +10,7 @@ export const colors = {
     LIGHT_2: 'hsl(0, 0%, 90%)',
     LIGHT_3: 'hsl(0, 0%, 80%)',
     LIGHT_4: 'hsl(0, 0%, 70%)', // darkest
+    LIGHT_5: 'hsl(0, 0%, 60%)', // darkest
 
     // text
     TEXT_LIGHT_1: 'hsl(0, 0%, 80%)',

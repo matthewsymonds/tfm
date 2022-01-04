@@ -1052,7 +1052,20 @@ export class ActionGuard {
         );
     }
 
-    canTrade(
+    canTrade(colonyName: string) {
+        if (this.shouldDisableUI()) {
+            return [false, 'Cannot trade right now'];
+        }
+        const player = this._getPlayerToConsider();
+        const validTradePayments = getValidTradePayment(player);
+
+        if (validTradePayments.length === 0) {
+            return [false, 'No valid payments'];
+        }
+        return canTradeIgnoringPayment(player, colonyName, this.state);
+    }
+
+    canTradeWithPayment(
         payment: Resource,
         name: string,
         numHeat = this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0

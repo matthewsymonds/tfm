@@ -101,7 +101,7 @@ COLONIES.push({
         increaseProduction: {[Resource.STEEL]: 1},
     },
     planetColor: '#cbcade',
-    borderColor: '#34375f',
+    borderColor: '#5c62af',
     planetSize: 24,
     planetPosition: {right: 40, top: 24},
     backgroundColor: '#222',

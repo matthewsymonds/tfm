@@ -25,7 +25,7 @@ export const BlankButton = styled.button<{
     }
 
     &:hover {
-        background: ${props => props.bgColorHover ?? 'transparent'};
+        background: ${props => props.bgColorHover ?? props.bgColor ?? 'transparent'};
     }
 
     &:focus {

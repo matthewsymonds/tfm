@@ -3,13 +3,22 @@ import {getColony, MAX_NUM_COLONIES, SerializedColony} from 'constants/colonies'
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
-import React from 'react';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import React, {useRef, useState} from 'react';
+import {useHover} from 'react-laag';
 import {useTypedSelector} from 'reducer';
+import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
+import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import styled from 'styled-components';
 import {Arrow} from './arrow';
+import {BlankButton} from './blank-button';
 import {Box, Flex} from './box';
 import {BaseActionIconography} from './card/CardIconography';
 import {ResourceIcon} from './icons/resource';
+import {colors} from './ui';
 
 const COLONY_PLACEMENT_BONUS_BORDER = 'rgba(40,40,40,.5)';
 const COLONY_PLACEMENT_BONUS_BORDER_STARTING_STEP =
@@ -31,15 +40,17 @@ const Cube = styled.div<{color?: string}>`
     position: absolute;
 `;
 
-const ColonyBase = styled.div<{backgroundColor: string; reverseBackground?: boolean}>`
+const ColonyBase = styled.div<{
+    backgroundColor: string;
+    reverseBackground?: boolean;
+}>`
     width: 300px;
     height: 156px;
     display: flex;
     border-radius: 82px;
     flex-shrink: 0;
     background: gray;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 4px 8px;
     position: relative;
     position: relative;
     border-size: 4px;
@@ -64,13 +75,11 @@ const ColonyTileInner = styled.div<{backgroundColor: string; reverseBackground?:
     justify-self: center;
     border-radius: 82px;
     position: absolute;
-    z-index: 1;
     overflow: hidden;
 `;
 
 const ColonyTitle = styled.h1`
     align-self: flex-start;
-    z-index: 3;
     justify-self: flex-start;
     text-transform: uppercase;
     text-align: left;
@@ -104,13 +113,129 @@ const ColonyPlanet = styled.div<{
         ${props => (!props.reverseBackground ? '#333' : props.backgroundColor)} 100%
     );
     position: absolute;
-    z-index: -1;
     top: ${props => props.position.top * 1.5}px;
     right: ${props => props.position.right * 1.5}px;
     filter: blur(${props => props.blur ?? 0}px);
 `;
 
+const TradePaymentButton = styled(BlankButton)`
+    border: 2px solid ${colors.DARK_3};
+
+    border-radius: 3px;
+    margin-right: 4px;
+    padding: 4px;
+`;
+
+function TradePaymentPopover({
+    colony,
+    hidePopover,
+}: {
+    colony: SerializedColony;
+    hidePopover: () => void;
+}) {
+    const player = useLoggedInPlayer();
+    const eligibleTradeIncomes = getEligibleTradeIncomes(colony, player);
+    const [tradeIncome, setTradeIncome] = useState(eligibleTradeIncomes[0]);
+    const validTradePayments = getValidTradePayment(player);
+    const actionGuard = useActionGuard();
+    const apiClient = useApiClient();
+    const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(colony.name);
+
+    return (
+        <Flex
+            padding="8px"
+            background={colors.LIGHT_1}
+            opacity={0.95}
+            boxShadow={`0 0 0 2px ${colors.LIGHT_5}, 1px 1px 4px 4px ${colors.LIGHT_5}`}
+            borderRadius="3px"
+            flexDirection="column"
+            width="200px"
+        >
+            <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>Select trade payment</span>
+            {eligibleTradeIncomes.length > 1 && (
+                <Flex marginBottom="8px">
+                    {eligibleTradeIncomes.map((stepIndex, index) => {
+                        const tradeIncome = colony.tradeIncome[stepIndex];
+
+                        return (
+                            <Box
+                                key={stepIndex + '-' + colony.name}
+                                padding="2px"
+                                color={
+                                    tradeIncome.gainResource?.[Resource.MEGACREDIT] ||
+                                    tradeIncome.increaseProduction?.[Resource.MEGACREDIT]
+                                        ? '#333'
+                                        : '#ccc'
+                                }
+                                cursor={canTrade && !selected ? 'pointer' : 'auto'}
+                                onClick={onClick}
+                                border={border}
+                            >
+                                <BaseActionIconography
+                                    card={tradeIncome}
+                                    reverse
+                                    shouldShowPlus={!!tradeIncome.removeResource}
+                                />
+                            </Box>
+                        );
+                    })}
+                </Flex>
+            )}
+            {canTradeForFree ? (
+                <TradePaymentButton
+                    bgColorHover={colors.DARK_3}
+                    onClick={() => {
+                        apiClient.tradeForFreeAsync({
+                            colony: colony.name,
+                            tradeIncome,
+                        });
+                    }}
+                >
+                    Trade for free
+                </TradePaymentButton>
+            ) : (
+                <React.Fragment>
+                    {validTradePayments.map(payment => (
+                        <TradePaymentButton
+                            key={payment.resource}
+                            bgColorHover={colors.DARK_3}
+                            onClick={() => {
+                                apiClient.tradeAsync({
+                                    payment: payment.resource,
+                                    colony: colony.name,
+                                    tradeIncome,
+                                });
+                                hidePopover();
+                            }}
+                        >
+                            <BaseActionIconography
+                                card={{gainResource: {[payment.resource]: payment.quantity}}}
+                            />
+                        </TradePaymentButton>
+                    ))}
+                </React.Fragment>
+            )}
+        </Flex>
+    );
+}
+
 export function ColonyComponent({colony: serializedColony}: {colony: SerializedColony}) {
+    const triggerRef = useRef<HTMLElement>(null);
+    const actionGuard = useActionGuard();
+    const [canTrade] = actionGuard.canTrade(serializedColony.name);
+    const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
+    function handleClickTrade() {
+        showPopover({
+            popover: (
+                <TradePaymentPopover
+                    hidePopover={() => hidePopover(triggerRef)}
+                    colony={serializedColony}
+                />
+            ),
+            triggerRef,
+            popoverOpts: {},
+        });
+    }
     const tradeFleet = useTypedSelector(state => {
         if (!serializedColony.lastTrade) return null;
 
@@ -275,9 +400,26 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                         })}
                 </Flex>
             </ColonyTileInner>
+            <Flex position="absolute" right="40px" top="32px" flexDirection="column">
+                <ColonyButton ref={triggerRef} disabled={!canTrade} onClick={handleClickTrade}>
+                    Trade
+                </ColonyButton>
+            </Flex>
         </ColonyBase>
     );
 }
+
+const ColonyButton = styled(BlankButton)`
+    background: ${colors.LIGHT_1};
+    color: ${colors.TEXT_DARK_1};
+    border-radius: 3px;
+    font-size: 0.8em;
+    box-shadow: 2px 2px 1px ${colors.DARK_1};
+
+    &:hover&:not(disabled) {
+        background: ${colors.LIGHT_2};
+    }
+`;
 
 function getPlacementBonuses(placementBonus: Action | null) {
     if (!placementBonus) return null;
