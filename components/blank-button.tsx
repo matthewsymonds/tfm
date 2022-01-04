@@ -1,7 +1,4 @@
-import React from 'react';
 import styled from 'styled-components';
-import spawnExhaustiveSwitchError from 'utils';
-import {colors} from './ui';
 
 export const BlankButton = styled.button<{
     bgColor?: string;

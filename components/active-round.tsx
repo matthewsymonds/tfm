@@ -1,4 +1,3 @@
-import {askUserToPlaceColony} from 'actions';
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
@@ -36,11 +35,11 @@ import {AskUserToGainStandardResources} from './ask-user-to-gain-standard-resour
 import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increase-and-decrease-colony-tile-tracks';
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
+import {AskUserToPlaceColony} from './ask-user-to-place-colony';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
-import {AskUserToPlaceColony} from './ask-user-to-place-colony';
 import {DisplayBoard} from './board-switcher';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';

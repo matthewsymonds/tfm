@@ -1,8 +1,8 @@
+import React from 'react';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {colors} from './ui';
 import {BlankButton} from './blank-button';
-import React from 'react';
+import {colors} from './ui';
 
 type ButtonVariant = 'default' | 'bordered';
 type ButtonSize = 'default' | 'small';

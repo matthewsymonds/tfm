@@ -1,18 +1,11 @@
-import {Box, Flex} from 'components/box';
-import {BaseActionIconography} from 'components/card/CardIconography';
+import {Flex} from 'components/box';
 import {ColonyComponent} from 'components/colony';
-import {AcceptedTradePayment, getColony, SerializedColony} from 'constants/colonies';
+import {SerializedColony} from 'constants/colonies';
 import {Resource} from 'constants/resource-enum';
-import {useActionGuard} from 'hooks/use-action-guard';
-import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
-import {useHover} from 'react-laag';
 import {useTypedSelector} from 'reducer';
-import {canPlaceColony} from 'selectors/can-build-colony';
-import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
-import {BOX_SHADOW_BASE} from './board-switcher';
 
 export function ColonySwitcher({
     colonies,

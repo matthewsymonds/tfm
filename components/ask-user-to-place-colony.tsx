@@ -1,13 +1,10 @@
-import {AskUserToMakeChoice} from './ask-user-to-make-choice';
-import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
+import {useApiClient} from 'hooks/use-api-client';
+import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {canPlaceColony} from 'selectors/can-build-colony';
-import {BlankButton} from './blank-button';
-import {Button} from './button';
-
-import React from 'react';
+import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 import {Flex} from './box';
-import {useApiClient} from 'hooks/use-api-client';
+import {Button} from './button';
 
 export function AskUserToPlaceColony({player}: {player: PlayerState}) {
     const colonies = useTypedSelector(state => state.common.colonies ?? []);
