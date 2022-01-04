@@ -71,10 +71,17 @@ function PlayerPlayedCards({
         }
     });
     let eventIndex = 0;
+    const numCards = player.playedCards.length;
     return (
         <Flex flexDirection="column" width="100%" ref={containerRef}>
             <ResponsiveMasonry
-                columnsCountBreakPoints={{260: 2, 390: 3, 520: 4, 650: 5, 780: 5, 910: 6}}
+                columnsCountBreakPoints={{
+                    260: Math.min(numCards, 2),
+                    390: Math.min(numCards, 3),
+                    520: Math.min(numCards, 4),
+                    780: Math.min(numCards, 5),
+                    910: Math.min(numCards, 6),
+                }}
             >
                 <Masonry gutter="6px">
                     {activeCards.map(card => {
