@@ -1,6 +1,7 @@
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {getAward, getAwards} from 'constants/awards';
 import {Parameter, TileType} from 'constants/board';
+import {Deck} from 'constants/card-types';
 import {
     Conversion,
     DEFAULT_CONVERSIONS,
@@ -143,9 +144,24 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
         }
     }, [!actionPrompt?.buttonNeeded, !actionPrompt?.element]);
 
-    const visibleActionTypes = actionTypes.filter(actionType =>
-        actionPrompt.buttonNeeded && actionPrompt.element ? true : actionType !== 'Prompt'
+    const isColoniesEnabled = useTypedSelector(state =>
+        state.options.decks.includes(Deck.COLONIES)
     );
+    const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
+
+    const visibleActionTypes = actionTypes.filter(actionType => {
+        if (actionType === 'Prompt') {
+            return !!(actionPrompt.buttonNeeded && actionPrompt.element);
+        }
+        if (actionType === 'Colonies') {
+            return isColoniesEnabled;
+        }
+        if (actionType === 'Turmoil') {
+            return isTurmoilEnabled;
+        }
+
+        return true;
+    });
 
     return (
         <Flex
