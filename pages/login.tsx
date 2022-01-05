@@ -1,12 +1,29 @@
 import {makePostCall} from 'api-calls';
 import {getPath} from 'client-server-shared/get-path';
-import {CenteredLink} from 'components/centered';
-import {Input, SubmitInput} from 'components/input';
+import {Box} from 'components/box';
+import {Button} from 'components/button';
+import {Input} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
+import {colors} from 'components/ui';
 import {useInput} from 'hooks/use-input';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
+import {Container, InnerLink, MidContainer, Title, TitleAndButton} from 'pages';
+import {InnerContainer} from 'pages/new-game';
 import {useCallback, useState} from 'react';
+import {ErrorText} from './signup';
+
+export const AlternativeLink = ({href, text}: {href: string; text: string}) => {
+    return (
+        <Box color={colors.TEXT_LIGHT_1} marginTop="8px" cursor="pointer" className="display">
+            <Link href={href} passHref>
+                <InnerLink>
+                    <em>{text}</em>
+                </InnerLink>
+            </Link>
+        </Box>
+    );
+};
 
 export default function Login() {
     const [username, updateUsername] = useInput('');
@@ -31,34 +48,42 @@ export default function Login() {
     );
 
     return (
-        <>
-            <h3>Log in</h3>
-            <Link href="/signup" passHref>
-                <CenteredLink>or Sign up</CenteredLink>
-            </Link>
-            <MaybeVisible visible={!!error}>
-                <h4>
-                    <em>{error || 'Username or password did not match. Please try again.'}</em>
-                </h4>
-            </MaybeVisible>
-            <form onSubmit={handleSubmit}>
-                <Input
-                    autoFocus
-                    name="username"
-                    autoComplete="username"
-                    value={username}
-                    onChange={updateUsername}
-                />
-                <Input
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={updatePassword}
-                />
-                <SubmitInput />
-            </form>
-        </>
+        <Container>
+            <MidContainer>
+                <Title />
+                <TitleAndButton text="Log in">
+                    <AlternativeLink href={'/signup'} text="Sign up instead" />
+                </TitleAndButton>
+
+                <InnerContainer>
+                    <MaybeVisible visible={!!error}>
+                        <ErrorText>
+                            <em>{error}</em>
+                        </ErrorText>
+                    </MaybeVisible>
+
+                    <form onSubmit={handleSubmit}>
+                        <Input
+                            autoFocus
+                            name="username"
+                            autoComplete="username"
+                            value={username}
+                            onChange={updateUsername}
+                        />
+                        <Input
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={updatePassword}
+                        />
+                        <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
+                            <Button type="submit">Log in</Button>
+                        </Box>
+                    </form>
+                </InnerContainer>
+            </MidContainer>
+        </Container>
     );
 }
 

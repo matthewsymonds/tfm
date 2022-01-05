@@ -68,6 +68,11 @@ interface BoxProps {
     opacity: number | string;
     inset: number | string;
     filter: string;
+    borderTopLeftRadius: string;
+    borderTopRightRadius: string;
+    borderBottomLeftRadius: string;
+    borderBottomRightRadius: string;
+    borderBottomColor: string;
 }
 
 interface FlexProps extends BoxProps {
@@ -147,6 +152,11 @@ const BoxInternal = styled.div<Partial<BoxProps>>`
     opacity: ${props => props.opacity};
     inset: ${props => props.inset};
     filter: ${props => props.filter};
+    border-top-left-radius: ${props => props.borderTopLeftRadius};
+    border-top-right-radius: ${props => props.borderTopRightRadius};
+    border-bottom-left-radius: ${props => props.borderBottomLeftRadius};
+    border-bottom-right-radius: ${props => props.borderBottomRightRadius};
+    border-bottom-color: ${props => props.borderBottomColor};
 `;
 
 export const Box = React.memo(BoxInternal);

@@ -566,7 +566,7 @@ export function Turmoil() {
     );
 }
 
-const PartyPanel = props => (
+const PartyPanelInternal = props => (
     <Box
         boxShadow={props.canClick ? '0px 0px 38px 5px #000000' : 'none'}
         padding="4px"
@@ -577,6 +577,8 @@ const PartyPanel = props => (
         {...props}
     />
 );
+
+const PartyPanel = React.memo(PartyPanelInternal);
 
 const PartyTitle = styled(Box)`
     &:hover {

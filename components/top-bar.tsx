@@ -157,58 +157,63 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                 <Flex alignItems="center" padding="2px" marginRight="4px" flexWrap="wrap">
                     <CorporationName>{loggedInPlayer.corporation.name}</CorporationName>
                     <Box display="inline" marginRight="4px">
-                        {isLoggedInPlayerPassed && 'You have passed.'}
-                        {isEndOfGame && 'The game has ended.'}
-                        {!isActiveRound &&
-                            !isEndOfGame &&
-                            !isGreeneryPlacement &&
-                            !hasPendingCardSelection &&
-                            'Waiting to start generation.'}
-                        {syncing && <em>Saving...</em>}
-                        {(isBuyOrDiscard || isDrafting) && hasPendingCardSelection && !syncing && (
-                            <div>Please choose your cards.</div>
-                        )}
-                        {text ? <>{text}.</> : null}
-                        {!syncing && playing && !text && <>Action {action} of 2</>}
-                        {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
-                            isActiveRound &&
-                            !isLoggedInPlayerPassed && (
-                                <React.Fragment>
-                                    <Box
-                                        display="inline-block"
-                                        style={{marginRight: 4, color: 'white'}}
-                                    >
-                                        Waiting for
-                                    </Box>
-                                    <PlayerCorpAndIcon
-                                        player={currentPlayer}
-                                        color="white"
-                                        isInline={true}
-                                    />
-                                    <Box
-                                        display="inline-block"
-                                        style={{marginLeft: 0, color: 'white'}}
-                                    >
-                                        ...
-                                    </Box>
-                                </React.Fragment>
+                        <Box display="inline-block" marginRight="4px">
+                            {isLoggedInPlayerPassed && 'You have passed.'}
+                            {isEndOfGame && 'The game has ended.'}
+                            {!isActiveRound &&
+                                !isEndOfGame &&
+                                !isGreeneryPlacement &&
+                                !hasPendingCardSelection &&
+                                'Waiting to start generation.'}
+                            {syncing && <em>Saving...</em>}
+                            {(isBuyOrDiscard || isDrafting) &&
+                                hasPendingCardSelection &&
+                                !syncing && <div>Please choose your cards.</div>}
+                            {!syncing && playing && !text && <>Action {action} of 2</>}
+                            {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
+                                isActiveRound &&
+                                !isLoggedInPlayerPassed && (
+                                    <React.Fragment>
+                                        <Box
+                                            display="inline-block"
+                                            style={{marginRight: 4, color: 'white'}}
+                                        >
+                                            Waiting for
+                                        </Box>
+                                        <PlayerCorpAndIcon
+                                            player={currentPlayer}
+                                            color="white"
+                                            isInline={true}
+                                        />
+                                        <Box
+                                            display="inline-block"
+                                            style={{marginLeft: 0, color: 'white'}}
+                                        >
+                                            ...
+                                        </Box>
+                                    </React.Fragment>
+                                )}
+                            {isLoggedInPlayersTurn && isGreeneryPlacement && (
+                                <Box display="inline-block">{greeneryPlacementText}</Box>
                             )}
-                        {isLoggedInPlayersTurn && isGreeneryPlacement && (
-                            <Box display="inline-block">{greeneryPlacementText}</Box>
-                        )}
-                        {canSkip && (
-                            <Button onClick={() => apiClient.skipActionAsync()} margin="0 0 0 8px">
-                                Skip
-                            </Button>
-                        )}
-                        {canPass && (
-                            <Button
-                                onClick={() => apiClient.passGenerationAsync()}
-                                margin="0 0 0 8px"
-                            >
-                                Pass
-                            </Button>
-                        )}
+                            {canSkip && (
+                                <Button
+                                    onClick={() => apiClient.skipActionAsync()}
+                                    margin="0 0 0 8px"
+                                >
+                                    Skip
+                                </Button>
+                            )}
+                            {canPass && (
+                                <Button
+                                    onClick={() => apiClient.passGenerationAsync()}
+                                    margin="0 0 0 8px"
+                                >
+                                    Pass
+                                </Button>
+                            )}
+                        </Box>
+                        {text ? <em>{text}.</em> : null}
                     </Box>
                     {yourTurnMessage ? (
                         <Box color="#ddd">

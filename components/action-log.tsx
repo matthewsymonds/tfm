@@ -100,7 +100,7 @@ export const ActionLog = () => {
     );
 };
 
-export const SwitchColors = styled.div`
+const SwitchColors = styled.div`
     > * > * {
         &:nth-child(even) {
             background-color: hsla(0, 0%, 50%, 25%);

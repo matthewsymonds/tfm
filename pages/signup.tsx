@@ -1,11 +1,20 @@
 import {makePostCall} from 'api-calls';
-import {CenteredLink} from 'components/centered';
-import {Input, SubmitInput} from 'components/input';
+import {Box} from 'components/box';
+import {Button} from 'components/button';
+import {Input} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
 import {useInput} from 'hooks/use-input';
 import {useRouter} from 'next/dist/client/router';
-import Link from 'next/link';
+import {Container, MidContainer, Title, TitleAndButton} from 'pages';
 import {useCallback, useState} from 'react';
+import styled from 'styled-components';
+import {AlternativeLink} from './login';
+import {InnerContainer} from './new-game';
+
+export const ErrorText = styled.h4`
+    margin-top: 4px;
+    margin-bottom: 4px;
+`;
 
 export default function Signup() {
     const [username, updateUsername] = useInput('');
@@ -53,61 +62,66 @@ export default function Signup() {
     }, []);
 
     const passwordValidationVisible = mayShowPasswordValidation && password.length < 8;
-    const confirmPasswordValidationVisible =
-        mayShowConfirmPasswordValidation && password !== confirmPassword;
+    const mismatchPasswords = mayShowConfirmPasswordValidation && password !== confirmPassword;
 
     return (
-        <>
-            <h3>Sign up</h3>
-            <Link href="/login" passHref>
-                <CenteredLink>or Log In</CenteredLink>
-            </Link>
-            <MaybeVisible textAlign="center" visible={!!error}>
-                <h4>
-                    <em>{error || 'Something went wrong'}</em>
-                </h4>
-            </MaybeVisible>
-            <form onSubmit={handleSubmit}>
-                <Input
-                    autoFocus
-                    name="username"
-                    autoComplete="username"
-                    value={username}
-                    onChange={updateUsername}
-                />
-                <Input
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={updateEmail}
-                />
-                <Input
-                    name="password"
-                    autoComplete="new-password"
-                    type="password"
-                    value={password}
-                    onChange={updatePassword}
-                    onBlur={handleSetShowPasswordValidation}
-                    pattern=".{8,}"
-                />
-                <MaybeVisible textAlign="center" visible={passwordValidationVisible}>
-                    <em>Password must be at least 8 characters.</em>
-                </MaybeVisible>
-                <Input
-                    name="Confirm password"
-                    type="password"
-                    autoComplete="off"
-                    value={confirmPassword}
-                    onChange={updateConfirmPassword}
-                    onBlur={handleSetShowConfirmPasswordValidation}
-                    pattern={password}
-                />
-                <MaybeVisible visible={confirmPasswordValidationVisible}>
-                    <em>Passwords must match.</em>
-                </MaybeVisible>
-                <SubmitInput />
-            </form>
-        </>
+        <Container>
+            <MidContainer>
+                <Title />
+                <TitleAndButton text="Sign up">
+                    <AlternativeLink href={'/login'} text="Log in instead" />
+                </TitleAndButton>
+                <InnerContainer>
+                    <MaybeVisible textAlign="center" visible={!!error}>
+                        <ErrorText>
+                            <em>{error || 'Something went wrong'}</em>
+                        </ErrorText>
+                    </MaybeVisible>
+                    <form onSubmit={handleSubmit}>
+                        <Input
+                            autoFocus
+                            name="username"
+                            autoComplete="username"
+                            value={username}
+                            onChange={updateUsername}
+                        />
+                        <Input
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            value={email}
+                            onChange={updateEmail}
+                        />
+                        <Input
+                            name="password"
+                            autoComplete="new-password"
+                            type="password"
+                            value={password}
+                            onChange={updatePassword}
+                            onBlur={handleSetShowPasswordValidation}
+                            pattern=".{8,}"
+                        />
+                        <MaybeVisible textAlign="center" visible={passwordValidationVisible}>
+                            <em>Password must be at least 8 characters.</em>
+                        </MaybeVisible>
+                        <Input
+                            name="Confirm password"
+                            type="password"
+                            autoComplete="off"
+                            value={confirmPassword}
+                            onChange={updateConfirmPassword}
+                            onBlur={handleSetShowConfirmPasswordValidation}
+                            pattern={password}
+                        />
+                        <MaybeVisible visible={mismatchPasswords}>
+                            <em>Passwords must match.</em>
+                        </MaybeVisible>
+                        <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
+                            <Button type="submit">Sign up</Button>
+                        </Box>
+                    </form>
+                </InnerContainer>
+            </MidContainer>
+        </Container>
     );
 }

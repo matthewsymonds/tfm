@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {MouseEventHandler} from 'react';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
@@ -13,12 +13,18 @@ export function Button({
     disabled,
     variant = 'default',
     size = 'default',
-}: React.PropsWithChildren<{
-    onClick: () => void;
-    variant?: ButtonVariant;
-    size?: ButtonSize;
-    disabled?: boolean;
-}>) {
+}: React.PropsWithChildren<
+    {
+        variant?: ButtonVariant;
+        size?: ButtonSize;
+        disabled?: boolean;
+    } & (
+        | {
+              onClick: MouseEventHandler<HTMLButtonElement>;
+          }
+        | {type: 'submit'; onClick?: undefined}
+    )
+>) {
     switch (variant) {
         case 'default':
             return (

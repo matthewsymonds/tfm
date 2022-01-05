@@ -10,4 +10,5 @@ export const MaybeVisible = styled.div<MaybeVisibleProps>`
     visibility: ${props => (props.visible ? 'visible' : 'hidden')};
     align-self: stretch;
     text-align: ${props => props.textAlign ?? 'left'};
+    margin-bottom: 8px;
 `;

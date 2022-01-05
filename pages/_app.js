@@ -1,14 +1,11 @@
 import {MAX_BOARD_WIDTH} from 'components/board/board';
 import {Box} from 'components/box';
-import {MarsHeader} from 'components/mars-header';
 import {colors} from 'components/ui';
 import {AppContext, appContext} from 'context/app-context';
 import {Fonts} from 'fonts';
 import withRedux from 'next-redux-wrapper';
 import App from 'next/app';
 import Head from 'next/head';
-import {useRouter} from 'next/router';
-import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
 import {makeStore} from 'store';
@@ -225,23 +222,7 @@ export const GlobalStyles = createGlobalStyle`
 `;
 
 function InnerAppComponent({Component, pageProps, session}) {
-    const router = useRouter();
-    const [path, setPath] = useState(router.pathname ?? '');
-    useEffect(() => {
-        setPath(router.pathname);
-        if (typeof history !== 'undefined') {
-            history.scrollRestoration = 'manual';
-        }
-    }, [router.pathname]);
-    if (router.pathname.includes('games')) {
-        return <Component {...pageProps} session={session} />;
-    }
-    return (
-        <>
-            <MarsHeader />
-            <Component {...pageProps} session={session} />
-        </>
-    );
+    return <Component {...pageProps} session={session} />;
 }
 
 export const PROTOCOL_HOST_DELIMITER = '://';
