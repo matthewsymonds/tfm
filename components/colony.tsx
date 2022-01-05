@@ -226,6 +226,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
     const triggerRef = useRef<HTMLButtonElement>(null);
     const actionGuard = useActionGuard();
     const [canTrade] = actionGuard.canTrade(serializedColony.name);
+    const [canTradeForFree] = actionGuard.canTradeForFree(serializedColony.name);
     const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
     function handleClickTrade() {
         showPopover({
@@ -414,7 +415,7 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                 zIndex="2"
             >
                 <Button
-                    disabled={!canTrade}
+                    disabled={!canTrade && !canTradeForFree}
                     onClick={handleClickTrade}
                     size="small"
                     variant="default"
