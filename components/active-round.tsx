@@ -256,6 +256,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
 
     if (!players[selectedPlayerIndex]) return null;
 
+    const buttonNeeded = !showBoardFirstInActionPrompt;
+
     return (
         <GlobalPopoverContext.Provider
             value={{
@@ -274,14 +276,18 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 bottom="0px"
                 padding="0 0 100px 0"
             >
-                <TopBar text={actionBarPromptText} ref={topBarRef} yourTurnGames={yourTurnGames} />
+                <TopBar
+                    text={buttonNeeded ? '' : actionBarPromptText}
+                    ref={topBarRef}
+                    yourTurnGames={yourTurnGames}
+                />
 
                 <Box className="active-round-outer" flex="auto">
                     <ActionTable
                         actionPrompt={{
                             element: actionOverlayElement,
                             text: actionBarPromptText,
-                            buttonNeeded: !showBoardFirstInActionPrompt,
+                            buttonNeeded,
                         }}
                     />
                     <Flex className="board-and-params">

@@ -31,7 +31,7 @@ export function AskUserToPutAdditionalColonyTileIntoPlay({player}: {player: Play
                 marginRight="auto"
             >
                 <Box width="340px" margin="4px" marginBottom="16px">
-                    <div>Select an additional colony to put into play:</div>
+                    <Box marginBottom="8px">Select an additional colony to put into play:</Box>
                     <ColonySwitcher
                         colonies={otherColonies}
                         selectedColonies={selectedColonies}
