@@ -174,28 +174,34 @@ function TradePaymentPopover({
                     </Flex>
                 </Flex>
             )}
-            <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>Select trade payment</span>
-            <Flex>
-                <SelectButtons
-                    items={validTradePayments}
-                    selectedItem={selectedTradePayment}
-                    itemRenderer={payment => {
-                        return (
-                            <BaseActionIconography
-                                card={{
-                                    gainResource: {[payment.resource]: payment.quantity},
-                                }}
-                            />
-                        );
-                    }}
-                    setSelectedItem={item => {
-                        setSelectedTradePayment(item);
-                    }}
-                    isSelected={item => {
-                        return selectedTradePayment.resource === item.resource;
-                    }}
-                />
-            </Flex>
+            {!canTradeForFree ? (
+                <>
+                    <span style={{marginBottom: 8, color: colors.TEXT_DARK_1}}>
+                        Select trade payment
+                    </span>
+                    <Flex>
+                        <SelectButtons
+                            items={validTradePayments}
+                            selectedItem={selectedTradePayment}
+                            itemRenderer={payment => {
+                                return (
+                                    <BaseActionIconography
+                                        card={{
+                                            gainResource: {[payment.resource]: payment.quantity},
+                                        }}
+                                    />
+                                );
+                            }}
+                            setSelectedItem={item => {
+                                setSelectedTradePayment(item);
+                            }}
+                            isSelected={item => {
+                                return selectedTradePayment.resource === item.resource;
+                            }}
+                        />
+                    </Flex>
+                </>
+            ) : null}
             <Flex marginTop="12px" width="100px" justifySelf="center" alignSelf="center">
                 <Button
                     variant="bordered"
