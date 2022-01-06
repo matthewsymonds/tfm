@@ -140,6 +140,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Draft';
     } else if (isDrafting) {
         actionBarPromptText = 'Draft';
+    } else if (gameStage === GameStage.BUY_OR_DISCARD) {
+        actionBarPromptText = 'Buy cards';
     }
 
     const topBarRef = React.useRef<HTMLDivElement>(null);

@@ -27,7 +27,7 @@ const Circle = styled.div`
     border-radius: 50%;
     width: 100%;
     position: relative;
-    background: ${colors.DARK_ORANGE};
+    background: ${colors.ORANGE};
 `;
 
 const CircleDummy = styled.div`

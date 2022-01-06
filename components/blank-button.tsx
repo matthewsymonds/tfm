@@ -14,9 +14,8 @@ export const BlankButton = styled.button<{
     color: unset;
     font-family: 'Open Sans', sans-serif;
     font-size: 1rem;
-    cursor: pointer;
     text-align: center;
-    transition: background 150ms ease-in-out;
+    transition: all 300ms;
     -webkit-appearance: none;
     -moz-appearance: none;
 

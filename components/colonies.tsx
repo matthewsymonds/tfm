@@ -105,7 +105,7 @@ export function Colonies() {
     }
 
     return (
-        <Flex flexWrap="wrap" maxWidth="100%" alignItems="center">
+        <Flex flexWrap="wrap" maxWidth="100%" alignItems="center" justifyContent="center">
             {colonies.map(colony => (
                 <ColonyComponent colony={colony} key={colony.name} />
             ))}
