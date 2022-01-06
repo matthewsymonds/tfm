@@ -16,7 +16,7 @@ export const BOX_SHADOW_BASE = `0px 0px 5px 0px`;
 export const BOX_SHADOW_COLONIES = `${BOX_SHADOW_BASE} #ccc`;
 export const BOX_SHADOW_TURMOIL = `${BOX_SHADOW_BASE} gold`;
 
-const BOX_SHADOW_MARS = `${BOX_SHADOW_BASE} ${colors.DARK_ORANGE}`;
+const BOX_SHADOW_MARS = `${BOX_SHADOW_BASE} ${colors.ORANGE}`;
 
 const BoardSwitcherOuter = styled.div`
     color: #ccc;

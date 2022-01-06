@@ -18,8 +18,7 @@ import {
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import AnimateHeight from 'react-animate-height';
+import React, {useEffect, useMemo, useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
@@ -39,56 +38,21 @@ import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes = [
+const actionTypes: Array<ActionType> = [
     'Prompt',
     'Players',
-    'Standard Projects',
-    'Milestones',
-    'Awards',
-    'Conversions',
+    'Board Actions',
     'Colonies',
     'Turmoil',
-] as Array<ActionType>;
-type ActionType =
-    | 'Prompt'
-    | 'Players'
-    | 'Awards'
-    | 'Milestones'
-    | 'Standard Projects'
-    | 'Conversions'
-    | 'Colonies'
-    | 'Turmoil';
+];
 
-function useActionSubItems(selectedAction: ActionType) {
-    const loggedInPlayer = useLoggedInPlayer();
-
-    return useTypedSelector(state => {
-        if (selectedAction === 'Awards') {
-            return getAwards(state);
-        } else if (selectedAction === 'Milestones') {
-            return getMilestones(state);
-        } else if (selectedAction === 'Standard Projects') {
-            return getStandardProjects(state);
-        } else if (selectedAction === 'Conversions') {
-            const conversions = Object.values(DEFAULT_CONVERSIONS);
-            if (loggedInPlayer.corporation.name === 'Helion') {
-                conversions.push(HELION_CONVERSION);
-            }
-            if (loggedInPlayer.corporation.name === 'Stormcraft Incorporated') {
-                conversions.push(STORMCRAFT_CONVERSION);
-            }
-            return conversions;
-        }
-    });
-}
+type ActionType = 'Prompt' | 'Players' | 'Board Actions' | 'Colonies' | 'Turmoil';
 
 const CategoryListItem = styled(Flex)`
     &:hover {
         background-color: ${colors.DARK_4};
     }
 `;
-
-const TABLE_ITEMS = ['Milestones', 'Awards'];
 
 type ActionPrompt = {
     text?: string | null;
@@ -101,32 +65,18 @@ type ActionTableProps = {actionPrompt: ActionPrompt};
 export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     actionPrompt,
 }: ActionTableProps) => {
-    const [selectedActionAndSubActionIndex, setSelectedActionAndSubActionIndex] = useState<
-        [ActionType, number]
-    >(['Prompt', 0]);
-    const [selectedAction] = selectedActionAndSubActionIndex;
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [
-        prevSelectedSubItemIndexByActionType,
-        setPrevSelectedSubItemIndexByActionType,
-    ] = useState({
-        Awards: 0,
-        Milestones: 0,
-        'Standard Projects': 0,
-        Conversions: 0,
-    });
-
+    const [selectedTab, setSelectedTab] = useState<ActionType>('Prompt');
     const player = useLoggedInPlayer();
 
     useEffect(() => {
         if (player.tradeForFree) {
-            setSelectedActionAndSubActionIndex(['Colonies', 0]);
+            setSelectedTab('Colonies');
         } else if (
             player.placeDelegatesInOneParty ||
             player.removeNonLeaderDelegate ||
             player.exchangeNeutralNonLeaderDelegate
         ) {
-            setSelectedActionAndSubActionIndex(['Turmoil', 0]);
+            setSelectedTab('Turmoil');
         }
     }, [
         player.tradeForFree,
@@ -137,9 +87,9 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
 
     useEffect(() => {
         if (!actionPrompt?.element || !actionPrompt?.buttonNeeded) {
-            setSelectedActionAndSubActionIndex(['Players', 0]);
+            setSelectedTab('Players');
         } else {
-            setSelectedActionAndSubActionIndex(['Prompt', 0]);
+            setSelectedTab('Prompt');
         }
     }, [!actionPrompt?.buttonNeeded, !actionPrompt?.element]);
 
@@ -178,40 +128,19 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             style={{justifySelf: 'center'}}
         >
             <Flex
-                justifyContent="flex-start"
+                justifyContent="center"
                 width="100%"
                 flexWrap="wrap"
                 flexShrink="0"
                 padding="6px 0"
-                marginLeft="8px"
-                marginRight="8px"
             >
                 {visibleActionTypes.map(actionType => (
-                    <Flex
-                        key={actionType}
-                        margin="0 4px 4px 0"
-                        padding="2px 4px"
-                        style={{
-                            borderRadius: 6,
-                            ...(selectedAction === actionType && !isCollapsed
-                                ? {
-                                      background: `${colors.GOLD}`,
-                                      border: `1px solid ${colors.GOLD}`,
-                                      color: colors.TEXT_DARK_1,
-                                      fontWeight: 600,
-                                  }
-                                : {border: '1px solid transparent', color: colors.GOLD}),
-                        }}
-                    >
+                    <Flex key={actionType} margin="0 8px 8px 0">
                         <ActionTableHeader
+                            isSelected={selectedTab === actionType}
                             onClick={() => {
-                                if (actionType !== selectedAction) {
-                                    const prevIndex =
-                                        prevSelectedSubItemIndexByActionType[actionType];
-                                    setIsCollapsed(false);
-                                    setSelectedActionAndSubActionIndex([actionType, prevIndex]);
-                                } else {
-                                    setIsCollapsed(!isCollapsed);
+                                if (actionType !== selectedTab) {
+                                    setSelectedTab(actionType);
                                 }
                             }}
                         >
@@ -222,35 +151,12 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             </Flex>
             <Flex
                 flexDirection="column"
-                style={{
-                    borderRadius: 3,
-                    border: TABLE_ITEMS.includes(selectedAction)
-                        ? '1px solid rgb(80, 80, 80)'
-                        : '1px solid transparent',
-                    background: TABLE_ITEMS.includes(selectedAction)
-                        ? 'rgb(53, 53, 53)'
-                        : 'transparent',
-                    maxWidth: TABLE_ITEMS.includes(selectedAction) ? 500 : 'initial',
-                    width: '100%',
-                    justifySelf: 'center',
-                }}
+                justifySelf="center"
+                alignItems="center"
+                width="100%"
+                marginTop="-8px"
             >
-                <AnimateHeight height={isCollapsed ? 0 : 'auto'} id="action-table-inner">
-                    <Flex>
-                        <ActionTableInner
-                            actionType={selectedActionAndSubActionIndex[0]}
-                            actionPrompt={actionPrompt}
-                            selectedActionAndSubActionIndex={selectedActionAndSubActionIndex}
-                            onSelectNewSubItem={(index: number) => {
-                                setSelectedActionAndSubActionIndex([selectedAction, index]);
-                                setPrevSelectedSubItemIndexByActionType({
-                                    ...prevSelectedSubItemIndexByActionType,
-                                    [selectedAction]: index,
-                                });
-                            }}
-                        />
-                    </Flex>
-                </AnimateHeight>
+                <ActionTableInner actionPrompt={actionPrompt} selectedTab={selectedTab} />
             </Flex>
         </Flex>
     );
@@ -259,7 +165,13 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
 export const useAwardConfigsByAward = () => {
     return useTypedSelector(
         state =>
-            getAwards(state).reduce((acc, award) => {
+            getAwards(state).reduce<{
+                [key: string]: {
+                    isFunded: boolean;
+                    cost: number;
+                    fundedByPlayer: PlayerState | null;
+                };
+            }>((acc, award) => {
                 const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
                 let fundedByPlayer;
                 if (isFunded) {
@@ -267,6 +179,8 @@ export const useAwardConfigsByAward = () => {
                         fa => fa.award.toLowerCase() === award.toLowerCase()
                     )!;
                     fundedByPlayer = state.players[fundedByPlayerIndex];
+                } else {
+                    fundedByPlayer = null;
                 }
                 acc[award] = {
                     isFunded,
@@ -376,37 +290,52 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
     );
 }
 
-const ActionTableHeader = styled(BlankButton)`
-    text-transform: uppercase;
+const ActionTableHeader = styled(BlankButton)<{isSelected: boolean}>`
     white-space: nowrap;
+    font-family: 'Ubuntu Condensed', sans-serif;
     padding: 0;
-    letter-spacing: 0.05em;
-    font-size: 11px;
+    font-weight: 500;
+    font-size: 1.2em;
     margin-bottom: 2px;
+    padding: 6px 12px;
+    transition: all 100ms;
+    border-radius: 4px;
+
+    ${props => {
+        if (props.isSelected) {
+            return `
+                color: ${colors.GOLD};
+                background: ${colors.DARK_2};
+            `;
+        } else {
+            return `
+                opacity: 0.4;
+                color: ${colors.GOLD};
+
+                &:hover {
+                    opacity: 0.7;
+                    background: ${colors.DARK_2};
+                }
+            `;
+        }
+    }}
+`;
+
+const BoardActionsHeader = styled.p`
+    margin: 0 0 4px 0;
+    font-size: 1em;
+
+    color: ${colors.YELLOW};
 `;
 
 function ActionTableInner({
-    selectedActionAndSubActionIndex,
-    onSelectNewSubItem,
+    selectedTab,
     actionPrompt,
-    actionType,
 }: {
-    selectedActionAndSubActionIndex: [ActionType, number];
-    onSelectNewSubItem: (subItemIndex: number) => void;
+    selectedTab: ActionType;
     actionPrompt: ActionPrompt;
-    actionType: ActionType;
 }) {
-    const [selectedAction, selectedSubActionIndex] = selectedActionAndSubActionIndex;
-    const subItems = useActionSubItems(selectedAction);
-    const [hoveredAction, setHoverAction] = useState<number | null>(null);
-    const setHoverItem = useCallback((index: number) => {
-        setHoverAction(index);
-    }, []);
-    const throttledSetHoverItem = useMemo(() => throttle(100, setHoverItem), [setHoverItem]);
-    const actionGuard = useActionGuard();
-    const apiClient = useApiClient();
-
-    switch (selectedAction) {
+    switch (selectedTab) {
         case 'Prompt':
             return <Flex flexDirection="column">{actionPrompt?.element ?? null}</Flex>;
         case 'Players':
@@ -415,109 +344,30 @@ function ActionTableInner({
                     <PlayerPanels />
                 </Box>
             );
-        case 'Awards':
-        case 'Milestones':
+        case 'Board Actions': {
             return (
-                <Flex width="100%">
-                    <Flex
-                        flex="0 0 30%"
-                        flexDirection="column"
-                        overflow="auto"
-                        style={{
-                            borderRight: `1px solid ${colors.DARK_4}`,
-                        }}
-                    >
-                        {subItems?.map((subItem, index) => (
-                            <CategoryListItem
-                                key={subItem}
-                                onClick={() => onSelectNewSubItem(index)}
-                                onMouseEnter={() => {
-                                    throttledSetHoverItem(index);
-                                }}
-                                onMouseMove={() => {
-                                    throttledSetHoverItem(index);
-                                }}
-                                onMouseLeave={() => {
-                                    throttledSetHoverItem(null);
-                                }}
-                                style={{
-                                    ...(selectedSubActionIndex === index
-                                        ? {
-                                              backgroundColor: colors.LIGHTEST_BG,
-                                              color: colors.TEXT_DARK_1,
-                                          }
-                                        : {
-                                              color: colors.TEXT_LIGHT_1,
-                                          }),
-                                }}
-                            >
-                                <ActionTableSubItem
-                                    actionAndSubItemIndex={[
-                                        selectedActionAndSubActionIndex[0],
-                                        index,
-                                    ]}
-                                    isSelected={selectedSubActionIndex === index}
-                                />
-                            </CategoryListItem>
-                        ))}
-                    </Flex>
-                    <Flex flex="0 0 70%" overflow="auto">
-                        <ActionTableDetail
-                            actionAndSubItemIndex={
-                                hoveredAction !== null
-                                    ? [selectedActionAndSubActionIndex[0], hoveredAction]
-                                    : selectedActionAndSubActionIndex
-                            }
-                        />
-                    </Flex>
-                </Flex>
-            );
-        case 'Standard Projects':
-            return (
-                <Flex flexWrap="wrap" alignItems="center" width="100%" overflow="auto">
-                    {subItems?.map(subItem => {
-                        return (
-                            <StandardProjectButton
-                                standardProjectAction={subItem}
-                                key={(subItem as StandardProjectAction).type}
-                            />
-                        );
-                    })}
-                </Flex>
-            );
-        case 'Conversions':
-            return (
-                <Flex>
-                    {subItems?.map(subItem => {
-                        let [canDoConversion, reason] = actionGuard.canDoConversion(
-                            subItem as Conversion
-                        );
-                        function doConversion() {
-                            if (canDoConversion) {
-                                apiClient.doConversionAsync({conversion: subItem as Conversion});
-                            }
-                        }
+                <Flex flexDirection="column" alignItems="flex-start" maxWidth="500px">
+                    <BoardActionsHeader className="display">Milestones</BoardActionsHeader>
+                    <MilestonesTable />
 
-                        return (
-                            <ConversionButton
-                                key={(subItem as Conversion).name}
-                                bgColorHover={colors.DARK_4}
-                                onClick={doConversion}
-                                disabled={!canDoConversion}
-                            >
-                                <ConversionIconography conversion={subItem as Conversion} />
-                                <span>{(subItem as Conversion).name}</span>
-                            </ConversionButton>
-                        );
-                    })}
+                    <BoardActionsHeader className="display">Awards</BoardActionsHeader>
+                    <AwardsTable />
+
+                    <BoardActionsHeader className="display">Standard Projects</BoardActionsHeader>
+                    <StandardProjects />
+
+                    <BoardActionsHeader className="display">Conversions</BoardActionsHeader>
+                    <Conversions />
                 </Flex>
             );
+        }
+
         case 'Colonies':
             return <Colonies />;
         case 'Turmoil':
             return <Turmoil />;
         default:
-            throw spawnExhaustiveSwitchError(selectedAction);
+            throw spawnExhaustiveSwitchError(selectedTab);
     }
 }
 
@@ -647,119 +497,85 @@ const ActionTableSubItemBase = styled.div`
     white-space: nowrap;
     padding: 0;
     font-size: 10px;
-    color: ${colors.TEXT_LIGHT_1};
     cursor: default;
 `;
 
-function ActionTableSubItem({
-    actionAndSubItemIndex,
-    isSelected,
-}: {
-    actionAndSubItemIndex: [ActionType, number];
-    isSelected: boolean;
-}) {
-    const [actionType, subItemIndex] = actionAndSubItemIndex;
-    const subItems = useActionSubItems(actionType);
-    const subItem = subItems?.[subItemIndex] ?? '';
+const AwardsOrMilestonesTableBase = styled(Flex)`
+    border: 1px solid ${colors.PANEL_BORDER};
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    width: 100%;
+`;
+
+function MilestonesTable() {
+    const milestones = useTypedSelector(state => getMilestones(state));
+    const [selectedMilestone, setSelectedMilestone] = useState(milestones[0]);
+    const [hoveredMilestone, setHoveredMilestone] = useState(null);
     const claimedMilestones = useTypedSelector(state =>
         state.common.claimedMilestones.map(cm => ({
             ...cm,
             claimedByPlayer: state.players[cm.claimedByPlayerIndex],
         }))
     );
-    const fundedAwards = useTypedSelector(state =>
-        state.common.fundedAwards.map(fa => ({
-            ...fa,
-            fundedByPlayer: state.players[fa.fundedByPlayerIndex],
-        }))
-    );
-
-    const categoryName = (
-        <span
-            style={{
-                padding: '2px 4px',
-                marginRight: 4,
-                ...(isSelected
-                    ? {
-                          color: colors.TEXT_DARK_1,
-                      }
-                    : {
-                          color: colors.TEXT_LIGHT_1,
-                      }),
-            }}
-        >
-            {subItem}
-        </span>
-    );
-
-    switch (actionType) {
-        case 'Milestones': {
-            const claimedByPlayer =
-                claimedMilestones.find(
-                    cm => cm.milestone.toLowerCase() === (subItem as string).toLowerCase()
-                )?.claimedByPlayer ?? null;
-
-            return (
-                <ActionTableSubItemBase>
-                    {categoryName}
-                    {claimedByPlayer && (
-                        <PlayerIcon
-                            border={colors.TEXT_LIGHT_1}
-                            playerIndex={claimedByPlayer.index}
-                            size={10}
-                        />
-                    )}
-                </ActionTableSubItemBase>
-            );
-        }
-        case 'Awards':
-            const fundedByPlayer =
-                fundedAwards.find(
-                    fa => fa.award.toLowerCase() === (subItem as string).toLowerCase()
-                )?.fundedByPlayer ?? null;
-
-            return (
-                <ActionTableSubItemBase>
-                    {categoryName}
-                    {fundedByPlayer && (
-                        <PlayerIcon
-                            border={colors.TEXT_LIGHT_1}
-                            playerIndex={fundedByPlayer.index}
-                            size={10}
-                        />
-                    )}
-                </ActionTableSubItemBase>
-            );
-        default:
-            return <ActionTableSubItemBase>{categoryName}</ActionTableSubItemBase>;
-    }
-}
-
-function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [ActionType, number]}) {
-    const [actionType, subItemIndex] = actionAndSubItemIndex;
-    const subItems = useActionSubItems(actionType);
-    const players = useTypedSelector(state => state.players);
-    const loggedInPlayer = useLoggedInPlayer();
-    const actionGuard = useActionGuard();
-    const apiClient = useApiClient();
+    const claimedByPlayer =
+        claimedMilestones.find(cm => cm.milestone.toLowerCase() === selectedMilestone.toLowerCase())
+            ?.claimedByPlayer ?? null;
     const state = useTypedSelector(state => state);
-    const awardConfigsByAward = useAwardConfigsByAward();
-    const claimedMilestones = useTypedSelector(state =>
-        state.common.claimedMilestones.map(cm => ({
-            ...cm,
-            claimedByPlayer: state.players[cm.claimedByPlayerIndex],
-        }))
-    );
+    const players = useTypedSelector(state => state.players);
+    const throttledSetHoveredMilestone = useMemo(() => throttle(100, setHoveredMilestone), [
+        setHoveredMilestone,
+    ]);
+    const visibleMilestone = hoveredMilestone ?? selectedMilestone;
+    const milestoneConfig = getMilestone(visibleMilestone);
 
-    switch (actionType) {
-        case 'Milestones': {
-            const milestone = subItems?.[subItemIndex] as string;
-            const milestoneConfig = getMilestone(milestone);
-            const claimedByPlayer =
-                claimedMilestones.find(cm => cm.milestone.toLowerCase() === milestone.toLowerCase())
-                    ?.claimedByPlayer ?? null;
-
-            return (
+    return (
+        <AwardsOrMilestonesTableBase>
+            <Flex
+                flex="0 0 30%"
+                flexDirection="column"
+                overflow="auto"
+                style={{
+                    borderRight: `1px solid ${colors.DARK_4}`,
+                }}
+            >
+                {milestones?.map(milestone => (
+                    <CategoryListItem
+                        key={milestone}
+                        onClick={() => setSelectedMilestone(milestone)}
+                        onMouseEnter={() => {
+                            throttledSetHoveredMilestone(milestone);
+                        }}
+                        onMouseMove={() => {
+                            throttledSetHoveredMilestone(milestone);
+                        }}
+                        onMouseLeave={() => {
+                            throttledSetHoveredMilestone(null);
+                        }}
+                        style={{
+                            ...(selectedMilestone === milestone
+                                ? {
+                                      backgroundColor: colors.LIGHTEST_BG,
+                                      color: colors.TEXT_DARK_1,
+                                  }
+                                : {
+                                      color: colors.TEXT_LIGHT_1,
+                                  }),
+                        }}
+                    >
+                        <ActionTableSubItemBase>
+                            {milestone}
+                            {claimedByPlayer && (
+                                <PlayerIcon
+                                    border={colors.TEXT_LIGHT_1}
+                                    playerIndex={claimedByPlayer.index}
+                                    size={10}
+                                />
+                            )}
+                        </ActionTableSubItemBase>
+                    </CategoryListItem>
+                ))}
+            </Flex>
+            <Flex flex="0 0 70%" overflow="auto">
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
                     <Flex justifyContent="space-between" width="100%" alignItems="center">
                         <h3
@@ -769,10 +585,10 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                                 marginBottom: 0,
                             }}
                         >
-                            {milestone}
+                            {visibleMilestone}
                         </h3>
                         {claimedByPlayer === null ? (
-                            <ClaimMilestoneButton milestone={milestone} />
+                            <ClaimMilestoneButton milestone={visibleMilestone} />
                         ) : (
                             <PlayerCorpAndIcon
                                 player={claimedByPlayer}
@@ -843,13 +659,74 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             })}
                     </Flex>
                 </Flex>
-            );
-        }
-        case 'Awards': {
-            const award = subItems?.[subItemIndex] as string;
-            const awardConfig = getAward(award);
+            </Flex>
+        </AwardsOrMilestonesTableBase>
+    );
+}
 
-            return (
+function AwardsTable() {
+    const awardConfigsByAward = useAwardConfigsByAward();
+    const awards = useTypedSelector(state => getAwards(state));
+    const [selectedAward, setSelectedAward] = useState(awards[0]);
+    const [hoveredAward, setHoveredAward] = useState(null);
+    const throttledSetHoveredAward = useMemo(() => throttle(100, setHoveredAward), [
+        setHoveredAward,
+    ]);
+
+    const players = useTypedSelector(state => state.players);
+    const state = useTypedSelector(state => state);
+    const visibleAward = hoveredAward ?? selectedAward;
+    const awardConfig = awardConfigsByAward[visibleAward];
+    const hydratedAward = getAward(visibleAward);
+
+    return (
+        <AwardsOrMilestonesTableBase>
+            <Flex
+                flex="0 0 30%"
+                flexDirection="column"
+                overflow="auto"
+                style={{
+                    borderRight: `1px solid ${colors.DARK_4}`,
+                }}
+            >
+                {awards?.map((award, index) => (
+                    <CategoryListItem
+                        key={award}
+                        onClick={() => setSelectedAward(award)}
+                        onMouseEnter={() => {
+                            throttledSetHoveredAward(award);
+                        }}
+                        onMouseMove={() => {
+                            throttledSetHoveredAward(award);
+                        }}
+                        onMouseLeave={() => {
+                            throttledSetHoveredAward(null);
+                        }}
+                        style={{
+                            ...(selectedAward === award
+                                ? {
+                                      backgroundColor: colors.LIGHTEST_BG,
+                                      color: colors.TEXT_DARK_1,
+                                  }
+                                : {
+                                      color: colors.TEXT_LIGHT_1,
+                                  }),
+                        }}
+                    >
+                        <ActionTableSubItemBase>
+                            {award}
+                            {awardConfig.fundedByPlayer && (
+                                <PlayerIcon
+                                    border={colors.TEXT_LIGHT_1}
+                                    playerIndex={awardConfig.fundedByPlayer.index}
+                                    size={10}
+                                />
+                            )}
+                        </ActionTableSubItemBase>
+                    </CategoryListItem>
+                ))}
+            </Flex>
+            <Flex flex="0 0 70%" overflow="auto">
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
                     <Flex justifyContent="space-between" width="100%" alignItems="center">
                         <h3
@@ -859,17 +736,17 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                                 marginBottom: 0,
                             }}
                         >
-                            {award}
+                            {visibleAward}
                         </h3>
-                        {[null, undefined].includes(awardConfigsByAward[award]?.fundedByPlayer) ? (
-                            <FundAwardButton award={award} />
+                        {awardConfig.fundedByPlayer === null ? (
+                            <FundAwardButton award={visibleAward} />
                         ) : (
                             <PlayerCorpAndIcon
                                 style={{
                                     fontSize: '0.7em',
                                     fontWeight: 500,
                                 }}
-                                player={awardConfigsByAward[award].fundedByPlayer}
+                                player={awardConfig.fundedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
                             />
                         )}
@@ -882,13 +759,13 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             fontStyle: 'italic',
                         }}
                     >
-                        {awardConfig.description}
+                        {hydratedAward.description}
                     </Flex>
                     <Flex flexDirection="column" width="100%" marginTop="8px">
                         {players
                             .map(player => {
                                 const quantity = convertAmountToNumber(
-                                    awardConfig.amount,
+                                    hydratedAward.amount,
                                     state,
                                     player
                                 );
@@ -932,12 +809,67 @@ function ActionTableDetail({actionAndSubItemIndex}: {actionAndSubItemIndex: [Act
                             })}
                     </Flex>
                 </Flex>
-            );
-        }
+            </Flex>
+        </AwardsOrMilestonesTableBase>
+    );
+}
 
-        default:
-            throw new Error('Unsupported action type for detail view');
-    }
+function StandardProjects() {
+    const standardProjects = useTypedSelector(state => getStandardProjects(state));
+
+    return (
+        <Flex flexWrap="wrap" alignItems="center" width="100%" overflow="auto">
+            {standardProjects?.map(standardProject => {
+                return (
+                    <StandardProjectButton
+                        standardProjectAction={standardProject}
+                        key={standardProject.type}
+                    />
+                );
+            })}
+        </Flex>
+    );
+}
+
+function Conversions() {
+    const loggedInPlayer = useLoggedInPlayer();
+    const apiClient = useApiClient();
+    const actionGuard = useActionGuard();
+    const conversions = useMemo(() => {
+        const conversions = Object.values(DEFAULT_CONVERSIONS);
+        if (loggedInPlayer.corporation.name === 'Helion') {
+            conversions.push(HELION_CONVERSION);
+        }
+        if (loggedInPlayer.corporation.name === 'Stormcraft Incorporated') {
+            conversions.push(STORMCRAFT_CONVERSION);
+        }
+        return conversions;
+    }, [loggedInPlayer.corporation]);
+
+    return (
+        <Flex>
+            {conversions?.map(conversion => {
+                let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
+                function doConversion() {
+                    if (canDoConversion) {
+                        apiClient.doConversionAsync({conversion: conversion});
+                    }
+                }
+
+                return (
+                    <ConversionButton
+                        key={conversion.name}
+                        bgColorHover={colors.DARK_4}
+                        onClick={doConversion}
+                        disabled={!canDoConversion}
+                    >
+                        <ConversionIconography conversion={conversion} />
+                        <span>{(conversion as Conversion).name}</span>
+                    </ConversionButton>
+                );
+            })}
+        </Flex>
+    );
 }
 
 function getCostForAward(award: string, state: GameState) {

@@ -377,7 +377,7 @@ function getMultiplierAndCustomElement(
             multiplierElement = (
                 <Flex justifyContent="center">
                     <Box width="16px" height="16px">
-                        <Hexagon color={colors.DARK_ORANGE} hexRadius={8}></Hexagon>
+                        <Hexagon color={colors.ORANGE} hexRadius={8}></Hexagon>
                     </Box>
                     <TileIcon type={TileType.ANY_TILE} size={16} />
                 </Flex>

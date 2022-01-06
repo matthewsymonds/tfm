@@ -67,7 +67,7 @@ export const LogToast = () => {
         <ToastContainer
             newestOnTop={true}
             progressStyle={{
-                background: colors.DARK_ORANGE,
+                background: colors.ORANGE,
             }}
             toastClassName="toast"
             style={{padding: 4, zIndex: 20}}

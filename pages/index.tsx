@@ -28,7 +28,7 @@ export const Title = ({username}: {username?: string}) => (
             borderRadius="8px"
             justifyContent="center"
             marginTop="8px"
-            background={colors.DARK_ORANGE}
+            background={colors.ORANGE}
             width="fit-content"
         >
             <TitleInner>Terraforming Mars Online</TitleInner>
@@ -81,7 +81,7 @@ const PageTitle = styled.h2`
     margin-top: 8px;
     margin-bottom: 0px;
     margin-left: 4px;
-    color: ${colors.DARK_ORANGE};
+    color: ${colors.ORANGE};
 `;
 
 export const TitleAndButton = ({

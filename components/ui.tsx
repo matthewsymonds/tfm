@@ -1,6 +1,7 @@
 import {Parameter} from 'constants/board';
 
 export const colors = {
+    // grays
     DARK_1: 'hsl(0, 0%, 10%)', // darkest
     DARK_2: 'hsl(0, 0%, 20%)',
     DARK_3: 'hsl(0, 0%, 30%)',
@@ -8,11 +9,18 @@ export const colors = {
     DARK_5: 'hsl(0, 0%, 50%)', // lightest
 
     WHITE: 'white',
+
     LIGHT_1: 'hsl(0, 0%, 95%)', // lightest
     LIGHT_2: 'hsl(0, 0%, 87%)',
     LIGHT_3: 'hsl(0, 0%, 80%)',
     LIGHT_4: 'hsl(0, 0%, 70%)', // darkest
     LIGHT_5: 'hsl(0, 0%, 60%)', // darkest
+
+    // colors
+    GOLD: 'hsl(28, 90%, 60%)',
+    DARK_GOLD: 'hsla(28, 90%, 60%, 0.3)',
+
+    YELLOW: '#FABF32',
 
     // text
     TEXT_LIGHT_1: 'hsl(0, 0%, 80%)',
@@ -35,7 +43,8 @@ export const colors = {
     PANEL_BORDER: '#505050',
 
     // board color
-    DARK_ORANGE: '#bf5f3f',
+    DARK_ORANGE: 'hsl(15, 50%, 50%, 0.3)',
+    ORANGE: 'hsl(15, 50%, 50%)',
     LIGHT_ORANGE: '#cc7f65',
 
     // resource board
@@ -88,7 +97,6 @@ export const colors = {
     CARD_VP_BG: 'hsl(15, 60%, 50%)',
     CARD_STORED_RESOURCES_BG: 'hsl(230, 60%, 75%)',
     CARD_GLOBAL_EVENT: '#489cdb',
-    GOLD: '#f5923b',
 };
 
 export const zIndices = {
