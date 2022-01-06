@@ -517,14 +517,14 @@ function MilestonesTable() {
             claimedByPlayer: state.players[cm.claimedByPlayerIndex],
         }))
     );
-    const claimedByPlayer =
-        claimedMilestones.find(cm => cm.milestone.toLowerCase() === selectedMilestone.toLowerCase())
-            ?.claimedByPlayer ?? null;
     const state = useTypedSelector(state => state);
     const players = useTypedSelector(state => state.players);
     const throttledSetHoveredMilestone = useMemo(() => throttle(100, setHoveredMilestone), [
         setHoveredMilestone,
     ]);
+    const visibleClaimedByPlayer =
+        claimedMilestones.find(cm => cm.milestone.toLowerCase() === selectedMilestone.toLowerCase())
+            ?.claimedByPlayer ?? null;
     const visibleMilestone = hoveredMilestone ?? selectedMilestone;
     const milestoneConfig = getMilestone(visibleMilestone);
 
@@ -538,42 +538,47 @@ function MilestonesTable() {
                     borderRight: `1px solid ${colors.DARK_4}`,
                 }}
             >
-                {milestones?.map(milestone => (
-                    <CategoryListItem
-                        key={milestone}
-                        onClick={() => setSelectedMilestone(milestone)}
-                        onMouseEnter={() => {
-                            throttledSetHoveredMilestone(milestone);
-                        }}
-                        onMouseMove={() => {
-                            throttledSetHoveredMilestone(milestone);
-                        }}
-                        onMouseLeave={() => {
-                            throttledSetHoveredMilestone(null);
-                        }}
-                        style={{
-                            ...(selectedMilestone === milestone
-                                ? {
-                                      backgroundColor: colors.LIGHTEST_BG,
-                                      color: colors.TEXT_DARK_1,
-                                  }
-                                : {
-                                      color: colors.TEXT_LIGHT_1,
-                                  }),
-                        }}
-                    >
-                        <ActionTableSubItemBase>
-                            {milestone}
-                            {claimedByPlayer && (
-                                <PlayerIcon
-                                    border={colors.TEXT_LIGHT_1}
-                                    playerIndex={claimedByPlayer.index}
-                                    size={10}
-                                />
-                            )}
-                        </ActionTableSubItemBase>
-                    </CategoryListItem>
-                ))}
+                {milestones?.map(milestone => {
+                    const claimedByPlayer = claimedMilestones.find(cm => cm.milestone === milestone)
+                        ?.claimedByPlayer;
+                    return (
+                        <CategoryListItem
+                            key={milestone}
+                            onClick={() => setSelectedMilestone(milestone)}
+                            onMouseEnter={() => {
+                                throttledSetHoveredMilestone(milestone);
+                            }}
+                            onMouseMove={() => {
+                                throttledSetHoveredMilestone(milestone);
+                            }}
+                            onMouseLeave={() => {
+                                throttledSetHoveredMilestone(null);
+                            }}
+                            style={{
+                                ...(selectedMilestone === milestone
+                                    ? {
+                                          backgroundColor: colors.LIGHTEST_BG,
+                                          color: colors.TEXT_DARK_1,
+                                      }
+                                    : {
+                                          color: colors.TEXT_LIGHT_1,
+                                      }),
+                            }}
+                        >
+                            <ActionTableSubItemBase>
+                                {milestone}
+                                {claimedByPlayer && (
+                                    <PlayerIcon
+                                        border={colors.TEXT_LIGHT_1}
+                                        playerIndex={claimedByPlayer.index}
+                                        size={10}
+                                        style={{marginLeft: 4}}
+                                    />
+                                )}
+                            </ActionTableSubItemBase>
+                        </CategoryListItem>
+                    );
+                })}
             </Flex>
             <Flex flex="0 0 70%" overflow="auto">
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
@@ -587,11 +592,11 @@ function MilestonesTable() {
                         >
                             {visibleMilestone}
                         </h3>
-                        {claimedByPlayer === null ? (
+                        {visibleClaimedByPlayer === null ? (
                             <ClaimMilestoneButton milestone={visibleMilestone} />
                         ) : (
                             <PlayerCorpAndIcon
-                                player={claimedByPlayer}
+                                player={visibleClaimedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
                                 style={{
                                     fontWeight: 500,
@@ -676,7 +681,7 @@ function AwardsTable() {
     const players = useTypedSelector(state => state.players);
     const state = useTypedSelector(state => state);
     const visibleAward = hoveredAward ?? selectedAward;
-    const awardConfig = awardConfigsByAward[visibleAward];
+    const visibleAwardConfig = awardConfigsByAward[visibleAward];
     const hydratedAward = getAward(visibleAward);
 
     return (
@@ -689,42 +694,46 @@ function AwardsTable() {
                     borderRight: `1px solid ${colors.DARK_4}`,
                 }}
             >
-                {awards?.map((award, index) => (
-                    <CategoryListItem
-                        key={award}
-                        onClick={() => setSelectedAward(award)}
-                        onMouseEnter={() => {
-                            throttledSetHoveredAward(award);
-                        }}
-                        onMouseMove={() => {
-                            throttledSetHoveredAward(award);
-                        }}
-                        onMouseLeave={() => {
-                            throttledSetHoveredAward(null);
-                        }}
-                        style={{
-                            ...(selectedAward === award
-                                ? {
-                                      backgroundColor: colors.LIGHTEST_BG,
-                                      color: colors.TEXT_DARK_1,
-                                  }
-                                : {
-                                      color: colors.TEXT_LIGHT_1,
-                                  }),
-                        }}
-                    >
-                        <ActionTableSubItemBase>
-                            {award}
-                            {awardConfig.fundedByPlayer && (
-                                <PlayerIcon
-                                    border={colors.TEXT_LIGHT_1}
-                                    playerIndex={awardConfig.fundedByPlayer.index}
-                                    size={10}
-                                />
-                            )}
-                        </ActionTableSubItemBase>
-                    </CategoryListItem>
-                ))}
+                {awards?.map((award, index) => {
+                    const awardConfig = awardConfigsByAward[award];
+                    return (
+                        <CategoryListItem
+                            key={award}
+                            onClick={() => setSelectedAward(award)}
+                            onMouseEnter={() => {
+                                throttledSetHoveredAward(award);
+                            }}
+                            onMouseMove={() => {
+                                throttledSetHoveredAward(award);
+                            }}
+                            onMouseLeave={() => {
+                                throttledSetHoveredAward(null);
+                            }}
+                            style={{
+                                ...(selectedAward === award
+                                    ? {
+                                          backgroundColor: colors.LIGHTEST_BG,
+                                          color: colors.TEXT_DARK_1,
+                                      }
+                                    : {
+                                          color: colors.TEXT_LIGHT_1,
+                                      }),
+                            }}
+                        >
+                            <ActionTableSubItemBase>
+                                {award}
+                                {awardConfig.fundedByPlayer && (
+                                    <PlayerIcon
+                                        border={colors.TEXT_LIGHT_1}
+                                        playerIndex={awardConfig.fundedByPlayer.index}
+                                        size={10}
+                                        style={{marginLeft: 4}}
+                                    />
+                                )}
+                            </ActionTableSubItemBase>
+                        </CategoryListItem>
+                    );
+                })}
             </Flex>
             <Flex flex="0 0 70%" overflow="auto">
                 <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
@@ -738,7 +747,7 @@ function AwardsTable() {
                         >
                             {visibleAward}
                         </h3>
-                        {awardConfig.fundedByPlayer === null ? (
+                        {visibleAwardConfig.fundedByPlayer === null ? (
                             <FundAwardButton award={visibleAward} />
                         ) : (
                             <PlayerCorpAndIcon
@@ -746,7 +755,7 @@ function AwardsTable() {
                                     fontSize: '0.7em',
                                     fontWeight: 500,
                                 }}
-                                player={awardConfig.fundedByPlayer}
+                                player={visibleAwardConfig.fundedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
                             />
                         )}
