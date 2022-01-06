@@ -18,8 +18,7 @@ import {
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import AnimateHeight from 'react-animate-height';
+import React, {useEffect, useMemo, useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
