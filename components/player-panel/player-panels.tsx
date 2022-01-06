@@ -61,7 +61,7 @@ export const PlayerPanels = () => {
                             justifyContent: 'center',
                             marginLeft: i === 0 ? 0 : 8,
                             marginRight: i === players.length - 1 ? 0 : 8,
-                            marginTop: 8,
+                            marginTop: 10,
                             marginBottom: 8,
                         }}
                         onClick={() => {
