@@ -26,6 +26,7 @@ import {throttle} from 'throttle-debounce';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
 import {Box, Flex} from './box';
+import {Button} from './button';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
 import {Colonies} from './colonies';
 import {GlobalParameterIcon} from './icons/global-parameter';
@@ -48,9 +49,40 @@ const actionTypes: Array<ActionType> = [
 
 type ActionType = 'Prompt' | 'Players' | 'Board Actions' | 'Colonies' | 'Turmoil';
 
-const CategoryListItem = styled(Flex)`
+const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
+    border-radius: 4px;
+    margin: 2px 0;
+    padding: 4px 6px;
+    font-size: 0.8em;
+    justify-content: flex-start;
+    align-items: center;
+    white-space: nowrap;
+    cursor: default;
+    color: ${colors.TEXT_LIGHT_1};
+    transition: 200ms all;
+
+    ${props => {
+        if (props.isSelected) {
+            return `
+                background: ${colors.DARK_2};
+            `;
+        } else {
+            return `
+                opacity: 0.4;
+
+                &:hover {
+                    opacity: 0.7;
+                }
+            `;
+        }
+    }}
+
     &:hover {
-        background-color: ${colors.DARK_4};
+        background-color: ${colors.DARK_2};
+
+        &:active {
+            transform: scale(0.98);
+        }
     }
 `;
 
@@ -87,7 +119,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
 
     useEffect(() => {
         if (!actionPrompt?.element || !actionPrompt?.buttonNeeded) {
-            setSelectedTab('Players');
+            setSelectedTab('Board Actions');
         } else {
             setSelectedTab('Prompt');
         }
@@ -228,25 +260,10 @@ function FundAwardButton({award}: {award: string}) {
     });
 
     return (
-        <BlankButton
-            disabled={!canPlay}
-            ref={triggerRef}
-            style={{
-                opacity: canPlay ? 1 : 0.3,
-                backgroundColor: colors.LIGHT_2,
-                fontSize: '0.6em',
-                borderRadius: 2,
-                padding: '0 4px',
-                height: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-            onClick={collectPaymentAndPerformAction}
-        >
+        <Button ref={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
             <span>Fund</span>
-            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={12} />
-        </BlankButton>
+            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={16} />
+        </Button>
     );
 }
 
@@ -268,25 +285,10 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
     });
 
     return (
-        <BlankButton
-            ref={triggerRef}
-            disabled={!canPlay}
-            style={{
-                opacity: canPlay ? 1 : 0.3,
-                backgroundColor: colors.LIGHT_2,
-                fontSize: '0.6em',
-                borderRadius: 2,
-                padding: '0 4px',
-                height: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-            onClick={collectPaymentAndPerformAction}
-        >
+        <Button ref={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
             <span>Claim</span>
-            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={12} />
-        </BlankButton>
+            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={16} />
+        </Button>
     );
 }
 
@@ -322,10 +324,12 @@ const ActionTableHeader = styled(BlankButton)<{isSelected: boolean}>`
 `;
 
 const BoardActionsHeader = styled.p`
-    margin: 0 0 4px 0;
-    font-size: 1em;
-
+    margin: 0 0 4px 6px;
     color: ${colors.YELLOW};
+    opacity: 0.8;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 `;
 
 function ActionTableInner({
@@ -392,7 +396,8 @@ const ConversionButton = styled(BlankButton)`
     border-radius: 3px;
     margin: 4px 8px;
     padding: 4px 8px;
-    font-size: 0.7em;
+    min-width: 150px;
+    font-size: 0.8em;
     display: flex;
     flex: 1 1 0;
     flex-direction: column;
@@ -430,7 +435,7 @@ function StandardProjectButton({
     return (
         <StandardProjectButtonInner
             ref={triggerRef}
-            bgColorHover={colors.DARK_4}
+            bgColorHover={colors.DARK_2}
             disabled={!canPlay}
             onClick={collectPaymentAndPerformAction}
         >
@@ -467,8 +472,8 @@ const StandardProjectButtonInner = styled(BlankButton)`
     border-radius: 3px;
     margin: 4px;
     padding: 4px;
-    width: 100px;
-    font-size: 0.7em;
+    min-width: 115px;
+    font-size: 0.8em;
 
     .standard-project-cost {
         position: absolute;
@@ -489,22 +494,20 @@ const StandardProjectButtonInner = styled(BlankButton)`
     }
 `;
 
-const ActionTableSubItemBase = styled.div`
-    margin: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-    padding: 0;
-    font-size: 10px;
-    cursor: default;
-`;
-
 const AwardsOrMilestonesTableBase = styled(Flex)`
-    border: 1px solid ${colors.PANEL_BORDER};
     margin-bottom: 16px;
     box-sizing: border-box;
     width: 100%;
+`;
+
+const AwardOrMilestoneDetailContainer = styled(Flex)`
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-left: 4px;
+    padding: 8px;
+    border-radius: 4px;
+    background: ${colors.DARK_2};
 `;
 
 function MilestonesTable() {
@@ -522,22 +525,15 @@ function MilestonesTable() {
     const throttledSetHoveredMilestone = useMemo(() => throttle(100, setHoveredMilestone), [
         setHoveredMilestone,
     ]);
-    const visibleClaimedByPlayer =
-        claimedMilestones.find(cm => cm.milestone.toLowerCase() === selectedMilestone.toLowerCase())
-            ?.claimedByPlayer ?? null;
     const visibleMilestone = hoveredMilestone ?? selectedMilestone;
+    const visibleClaimedByPlayer =
+        claimedMilestones.find(cm => cm.milestone.toLowerCase() === visibleMilestone.toLowerCase())
+            ?.claimedByPlayer ?? null;
     const milestoneConfig = getMilestone(visibleMilestone);
 
     return (
         <AwardsOrMilestonesTableBase>
-            <Flex
-                flex="0 0 30%"
-                flexDirection="column"
-                overflow="auto"
-                style={{
-                    borderRight: `1px solid ${colors.DARK_4}`,
-                }}
-            >
+            <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
                 {milestones?.map(milestone => {
                     const claimedByPlayer = claimedMilestones.find(cm => cm.milestone === milestone)
                         ?.claimedByPlayer;
@@ -554,35 +550,29 @@ function MilestonesTable() {
                             onMouseLeave={() => {
                                 throttledSetHoveredMilestone(null);
                             }}
-                            style={{
-                                ...(selectedMilestone === milestone
-                                    ? {
-                                          backgroundColor: colors.LIGHTEST_BG,
-                                          color: colors.TEXT_DARK_1,
-                                      }
-                                    : {
-                                          color: colors.TEXT_LIGHT_1,
-                                      }),
-                            }}
+                            isSelected={selectedMilestone === milestone}
                         >
-                            <ActionTableSubItemBase>
-                                {milestone}
-                                {claimedByPlayer && (
-                                    <PlayerIcon
-                                        border={colors.TEXT_LIGHT_1}
-                                        playerIndex={claimedByPlayer.index}
-                                        size={10}
-                                        style={{marginLeft: 4}}
-                                    />
-                                )}
-                            </ActionTableSubItemBase>
+                            {milestone}
+                            {claimedByPlayer && (
+                                <PlayerIcon
+                                    border={colors.TEXT_LIGHT_1}
+                                    playerIndex={claimedByPlayer.index}
+                                    size={10}
+                                    style={{marginLeft: 4}}
+                                />
+                            )}
                         </CategoryListItem>
                     );
                 })}
             </Flex>
             <Flex flex="0 0 70%" overflow="auto">
-                <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
-                    <Flex justifyContent="space-between" width="100%" alignItems="center">
+                <AwardOrMilestoneDetailContainer>
+                    <Flex
+                        justifyContent="space-between"
+                        width="100%"
+                        alignItems="center"
+                        position="relative"
+                    >
                         <h3
                             className="display"
                             style={{
@@ -593,14 +583,16 @@ function MilestonesTable() {
                             {visibleMilestone}
                         </h3>
                         {visibleClaimedByPlayer === null ? (
-                            <ClaimMilestoneButton milestone={visibleMilestone} />
+                            <Box position="absolute" right="0">
+                                <ClaimMilestoneButton milestone={visibleMilestone} />
+                            </Box>
                         ) : (
                             <PlayerCorpAndIcon
                                 player={visibleClaimedByPlayer}
                                 color={colors.TEXT_LIGHT_1}
                                 style={{
                                     fontWeight: 500,
-                                    fontSize: '0.7em',
+                                    fontSize: '0.9em',
                                 }}
                             />
                         )}
@@ -611,6 +603,7 @@ function MilestonesTable() {
                             fontSize: '10px',
                             color: colors.TEXT_LIGHT_2,
                             fontStyle: 'italic',
+                            marginTop: 2,
                         }}
                     >
                         {milestoneConfig.requirementText}
@@ -642,19 +635,18 @@ function MilestonesTable() {
                                         width="100%"
                                     >
                                         <PlayerCorpAndIcon
+                                            includeUsername={true}
                                             player={player}
                                             color={colors.TEXT_LIGHT_1}
                                             style={{
-                                                fontWeight: 400,
-                                                fontSize: 12,
-                                                color: colors.TEXT_LIGHT_1,
+                                                fontWeight: 500,
+                                                fontSize: '0.8em',
                                             }}
                                         />
                                         <span
                                             style={{
-                                                marginLeft: 20,
                                                 color: colors.TEXT_LIGHT_1,
-                                                fontSize: 12,
+                                                fontSize: '0.8em',
                                             }}
                                         >
                                             {quantity}
@@ -663,7 +655,7 @@ function MilestonesTable() {
                                 );
                             })}
                     </Flex>
-                </Flex>
+                </AwardOrMilestoneDetailContainer>
             </Flex>
         </AwardsOrMilestonesTableBase>
     );
@@ -686,14 +678,7 @@ function AwardsTable() {
 
     return (
         <AwardsOrMilestonesTableBase>
-            <Flex
-                flex="0 0 30%"
-                flexDirection="column"
-                overflow="auto"
-                style={{
-                    borderRight: `1px solid ${colors.DARK_4}`,
-                }}
-            >
+            <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
                 {awards?.map((award, index) => {
                     const awardConfig = awardConfigsByAward[award];
                     return (
@@ -709,35 +694,29 @@ function AwardsTable() {
                             onMouseLeave={() => {
                                 throttledSetHoveredAward(null);
                             }}
-                            style={{
-                                ...(selectedAward === award
-                                    ? {
-                                          backgroundColor: colors.LIGHTEST_BG,
-                                          color: colors.TEXT_DARK_1,
-                                      }
-                                    : {
-                                          color: colors.TEXT_LIGHT_1,
-                                      }),
-                            }}
+                            isSelected={selectedAward === award}
                         >
-                            <ActionTableSubItemBase>
-                                {award}
-                                {awardConfig.fundedByPlayer && (
-                                    <PlayerIcon
-                                        border={colors.TEXT_LIGHT_1}
-                                        playerIndex={awardConfig.fundedByPlayer.index}
-                                        size={10}
-                                        style={{marginLeft: 4}}
-                                    />
-                                )}
-                            </ActionTableSubItemBase>
+                            {award}
+                            {awardConfig.fundedByPlayer && (
+                                <PlayerIcon
+                                    border={colors.TEXT_LIGHT_1}
+                                    playerIndex={awardConfig.fundedByPlayer.index}
+                                    size={10}
+                                    style={{marginLeft: 4}}
+                                />
+                            )}
                         </CategoryListItem>
                     );
                 })}
             </Flex>
             <Flex flex="0 0 70%" overflow="auto">
-                <Flex flexDirection="column" alignItems="flex-start" margin="8px" width="100%">
-                    <Flex justifyContent="space-between" width="100%" alignItems="center">
+                <AwardOrMilestoneDetailContainer>
+                    <Flex
+                        justifyContent="space-between"
+                        width="100%"
+                        alignItems="center"
+                        position="relative"
+                    >
                         <h3
                             className="display"
                             style={{
@@ -748,11 +727,13 @@ function AwardsTable() {
                             {visibleAward}
                         </h3>
                         {visibleAwardConfig.fundedByPlayer === null ? (
-                            <FundAwardButton award={visibleAward} />
+                            <Box position="absolute" right="0">
+                                <FundAwardButton award={visibleAward} />
+                            </Box>
                         ) : (
                             <PlayerCorpAndIcon
                                 style={{
-                                    fontSize: '0.7em',
+                                    fontSize: '0.9em',
                                     fontWeight: 500,
                                 }}
                                 player={visibleAwardConfig.fundedByPlayer}
@@ -766,6 +747,7 @@ function AwardsTable() {
                             fontSize: '10px',
                             color: colors.TEXT_LIGHT_2,
                             fontStyle: 'italic',
+                            marginTop: 2,
                         }}
                     >
                         {hydratedAward.description}
@@ -797,18 +779,18 @@ function AwardsTable() {
                                         width="100%"
                                     >
                                         <PlayerCorpAndIcon
+                                            includeUsername={true}
                                             player={player}
                                             color={colors.TEXT_LIGHT_1}
                                             style={{
                                                 fontWeight: 500,
-                                                fontSize: '0.7em',
+                                                fontSize: '0.8em',
                                             }}
                                         />
                                         <span
                                             style={{
-                                                marginLeft: 20,
                                                 color: colors.TEXT_LIGHT_1,
-                                                fontSize: 12,
+                                                fontSize: '0.8em',
                                             }}
                                         >
                                             {quantity}
@@ -817,7 +799,7 @@ function AwardsTable() {
                                 );
                             })}
                     </Flex>
-                </Flex>
+                </AwardOrMilestoneDetailContainer>
             </Flex>
         </AwardsOrMilestonesTableBase>
     );
@@ -827,7 +809,14 @@ function StandardProjects() {
     const standardProjects = useTypedSelector(state => getStandardProjects(state));
 
     return (
-        <Flex flexWrap="wrap" alignItems="center" width="100%" overflow="auto">
+        <Flex
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="center"
+            width="100%"
+            overflow="auto"
+            marginBottom="16px"
+        >
             {standardProjects?.map(standardProject => {
                 return (
                     <StandardProjectButton
@@ -856,7 +845,7 @@ function Conversions() {
     }, [loggedInPlayer.corporation]);
 
     return (
-        <Flex>
+        <Flex justifyContent="center" width="100%">
             {conversions?.map(conversion => {
                 let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
                 function doConversion() {
@@ -868,7 +857,7 @@ function Conversions() {
                 return (
                     <ConversionButton
                         key={conversion.name}
-                        bgColorHover={colors.DARK_4}
+                        bgColorHover={colors.DARK_2}
                         onClick={doConversion}
                         disabled={!canDoConversion}
                     >

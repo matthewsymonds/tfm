@@ -11,10 +11,12 @@ export function Button({
     children,
     onClick,
     disabled,
+    ref,
     variant = 'default',
     size = 'default',
 }: React.PropsWithChildren<
     {
+        ref?: React.RefObject<HTMLButtonElement>;
         variant?: ButtonVariant;
         size?: ButtonSize;
         disabled?: boolean;
@@ -28,13 +30,14 @@ export function Button({
     switch (variant) {
         case 'default':
             return (
-                <_DefaultButton size={size} disabled={disabled} onClick={onClick}>
+                <_DefaultButton ref={ref} size={size} disabled={disabled} onClick={onClick}>
                     {children}
                 </_DefaultButton>
             );
         case 'bordered':
             return (
                 <_BorderedButton
+                    ref={ref}
                     size={size}
                     scaleOnClick={false}
                     disabled={disabled}
@@ -68,19 +71,18 @@ const _BaseButton = styled(BlankButton)<{size: ButtonSize}>`
     ${props => getStyleForSize(props.size)}
     border-radius: 2px;
     transition: all 100ms, transform 50ms;
-    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const _DefaultButton = styled(_BaseButton)`
-    background: ${colors.LIGHT_2};
+    background: ${colors.LIGHT_4};
     color: ${colors.TEXT_DARK_1};
 
     &:hover:not([disabled]) {
-        background: ${colors.WHITE};
+        background: ${colors.LIGHT_2};
         box-shadow: 1px 1px 0px 1px ${colors.DARK_4};
-
-        &:active {
-        }
     }
 `;
 
