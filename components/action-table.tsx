@@ -39,15 +39,9 @@ import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes: Array<ActionType> = [
-    'Prompt',
-    'Players',
-    'Board Actions',
-    'Colonies',
-    'Turmoil',
-];
+const actionTypes: Array<ActionType> = ['Prompt', 'Players', 'Actions', 'Colonies', 'Turmoil'];
 
-type ActionType = 'Prompt' | 'Players' | 'Board Actions' | 'Colonies' | 'Turmoil';
+type ActionType = 'Prompt' | 'Players' | 'Actions' | 'Colonies' | 'Turmoil';
 
 const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     border-radius: 4px;
@@ -119,7 +113,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
 
     useEffect(() => {
         if (!actionPrompt?.element || !actionPrompt?.buttonNeeded) {
-            setSelectedTab('Board Actions');
+            setSelectedTab('Players');
         } else {
             setSelectedTab('Prompt');
         }
@@ -167,7 +161,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                 padding="6px 0"
             >
                 {visibleActionTypes.map(actionType => (
-                    <Flex key={actionType} margin="0 8px 8px 0">
+                    <Flex key={actionType} margin="0 4px 4px 0">
                         <ActionTableHeader
                             isSelected={selectedTab === actionType}
                             onClick={() => {
@@ -348,7 +342,7 @@ function ActionTableInner({
                     <PlayerPanels />
                 </Box>
             );
-        case 'Board Actions': {
+        case 'Actions': {
             return (
                 <Flex flexDirection="column" alignItems="flex-start" maxWidth="500px">
                     <BoardActionsHeader className="display">Milestones</BoardActionsHeader>
@@ -393,7 +387,7 @@ function ConversionIconography({conversion}: {conversion: Conversion}) {
 
 const ConversionButton = styled(BlankButton)`
     color: ${colors.TEXT_LIGHT_1};
-    border-radius: 3px;
+    border-radius: 4px;
     margin: 4px 8px;
     padding: 4px 8px;
     min-width: 150px;
@@ -469,7 +463,7 @@ function StandardProjectButton({
 
 const StandardProjectButtonInner = styled(BlankButton)`
     color: ${colors.TEXT_LIGHT_1};
-    border-radius: 3px;
+    border-radius: 4px;
     margin: 4px;
     padding: 4px;
     min-width: 115px;
