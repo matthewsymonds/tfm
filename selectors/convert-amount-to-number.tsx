@@ -1,4 +1,5 @@
 import {Amount} from 'constants/action';
+import {TileType} from 'constants/board';
 import {CardType, Deck} from 'constants/card-types';
 import {
     Condition,
@@ -81,9 +82,14 @@ export function convertTileAmountToNumber(
     state: GameState,
     player: PlayerState
 ) {
-    return getAllCellsOwnedByCurrentPlayer(state, player).filter(
-        cell => cell?.tile?.type === amount.tile
-    ).length;
+    const cells = getAllCellsOwnedByCurrentPlayer(state, player);
+    return cells.filter(cell => {
+        if (amount.tile === TileType.CITY && cell?.tile?.type === TileType.CAPITAL) {
+            return true;
+        }
+
+        return cell?.tile?.type === amount.tile;
+    }).length;
 }
 
 export function convertProductionAmountToNumber(

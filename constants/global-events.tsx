@@ -238,7 +238,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             removeResource: {
                 [Resource.MEGACREDIT]: quadruple(
                     subtract(
-                        min(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tile: TileType.CITY}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -317,7 +317,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
-                        min(VariableAmount.CITY_TILES_IN_PLAY, MAX_GLOBAL_EVENT_QUANTITY),
+                        min({tile: TileType.CITY}, MAX_GLOBAL_EVENT_QUANTITY),
                         VariableAmount.INFLUENCE
                     )
                 ),
@@ -429,11 +429,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             text:
                 'Count your influence plus building tags and city tiles (no limits). The player with the most (or 10 in solo) gains 2 TR, the 2nd (or counting 5 in solo) gains 1 TR (ties are friendly).',
             increaseTerraformRating: {
-                contest: sum(
-                    VariableAmount.CITY_TILES_IN_PLAY,
-                    {tag: Tag.BUILDING},
-                    VariableAmount.INFLUENCE
-                ),
+                contest: sum({tile: TileType.CITY}, {tag: Tag.BUILDING}, VariableAmount.INFLUENCE),
                 first: 2,
                 second: 1,
                 soloFirst: 10,
