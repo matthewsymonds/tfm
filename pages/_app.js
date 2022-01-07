@@ -82,16 +82,23 @@ export const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
         justify-content: center;
         width: 100%;
-        @media (max-width: 1400px) {
+        @media (max-width: 1470px) {
             flex-direction: column-reverse;
             flex-wrap: nowrap;
         }
     }
     .board-and-params {
+        position: absolute;
+        max-width: 700px;
+        width: 45%;
+        right: 0;
         justify-content: flex-end;
         margin-left: auto;
         flex-grow: 1;
-        @media (max-width: 1400px) {
+        @media (max-width: 1470px) {
+            position: initial;
+            right: initial;
+            max-width: 100%;
             justify-content: center;
             flex-grow: 0;
             width: 100%;
@@ -104,8 +111,12 @@ export const GlobalStyles = createGlobalStyle`
         margin-top: 0;
     }
     .action-table {
-        width: 790px;
-        @media (max-width: 1400px) {
+        position: absolute;
+        width: 800px;
+        max-width: 55%;
+        left: 0;
+        @media (max-width: 1470px) {
+            position: initial;
             max-width: calc(100% - 16px);
             margin-top: 8px;
             margin-left: auto;
@@ -114,7 +125,7 @@ export const GlobalStyles = createGlobalStyle`
     }
     .board {
         max-width: ${MAX_BOARD_WIDTH}px;
-        @media (max-width: 1400px) {
+        @media (max-width: 1470px) {
             align-self: center;
         }
         @media (max-width: 895px) {
