@@ -1862,7 +1862,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (newDistantGlobalEvent) {
                     fullEvent = getGlobalEvent(newDistantGlobalEvent.name);
                     if (fullEvent) {
-                        const [leader] = turmoil.delegations[fullEvent.bottom.party];
+                        const [leader] = turmoil.delegations[fullEvent.top.party];
                         turmoil.delegations[fullEvent.top.party].push(delegate());
                         const numDelegates = turmoil.delegations[fullEvent.top.party].length;
                         draft.log.push(
