@@ -1,13 +1,9 @@
-import {DisplayBoard} from 'components/board-switcher';
 import {Box, Flex} from 'components/box';
-import {Colonies} from 'components/colonies';
-import {Turmoil} from 'components/turmoil';
 import {colors} from 'components/ui';
 import {Cell as CellModel, cellHelpers, SpecialLocation} from 'constants/board';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import {useWindowWidth} from 'hooks/use-window-width';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {getValidPlacementsForRequirement} from 'selectors/board';
@@ -101,28 +97,19 @@ const BoardMid = styled.div`
     }
 `;
 
-export const Board = ({
-    displayBoard,
-    setDisplayBoard,
-}: {
-    displayBoard: DisplayBoard;
-    setDisplayBoard: (board: DisplayBoard) => void;
-}) => {
-    const loggedInPlayer = useLoggedInPlayer();
-    const windowWidth = useWindowWidth();
-
+export const Board = () => {
     return (
         <Box className="board" flexGrow="1" maxWidth={MAX_BOARD_WIDTH + 'px'} width="100%">
             <BoardOuter>
                 <BoardMid>
-                    <BoardInner displayBoard={displayBoard} />
+                    <BoardInner />
                 </BoardMid>
             </BoardOuter>
         </Box>
     );
 };
 
-export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
+export function BoardInner() {
     const loggedInPlayer = useLoggedInPlayer();
 
     const board = useTypedSelector(state => state.common.board);
@@ -150,12 +137,6 @@ export function BoardInner({displayBoard}: {displayBoard: DisplayBoard}) {
 
     const offMarsCitiesProps = {board, validPlacements, handleClick};
 
-    if (displayBoard === DisplayBoard.COLONIES) {
-        return <Colonies />;
-    }
-    if (displayBoard === DisplayBoard.TURMOIL) {
-        return <Turmoil />;
-    }
     return (
         <Box position="relative" width="100%">
             <CircleOuter>

@@ -40,7 +40,6 @@ import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
-import {DisplayBoard} from './board-switcher';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
@@ -145,9 +144,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     }
 
     const topBarRef = React.useRef<HTMLDivElement>(null);
-    const logLength = useTypedSelector(state => state.logLength);
     const parameters = useTypedSelector(state => state.common.parameters);
-    const [displayBoard, setDisplayBoard] = useState(DisplayBoard.MARS);
 
     const playerCardsString = useTypedSelector(state =>
         state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
@@ -293,7 +290,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         }}
                     />
                     <Flex className="board-and-params">
-                        <Board displayBoard={displayBoard} setDisplayBoard={setDisplayBoard} />
+                        <Board />
                         <GlobalParams parameters={parameters} />
                     </Flex>
                 </Box>

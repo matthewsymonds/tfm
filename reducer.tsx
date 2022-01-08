@@ -1836,7 +1836,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
                 turmoil.currentGlobalEvent = oldComingGlobalEvent;
                 let fullEvent = getGlobalEvent(turmoil.currentGlobalEvent.name);
-                if (fullEvent?.bottom.party) {
+                if (fullEvent) {
                     const [leader] = turmoil.delegations[fullEvent.bottom.party];
                     turmoil.delegations[fullEvent.bottom.party].push(delegate());
                     const numDelegates = turmoil.delegations[fullEvent.bottom.party].length;

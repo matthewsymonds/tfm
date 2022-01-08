@@ -1,5 +1,6 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
+import {ActionContainerBase} from 'components/card/ActionContainerBase';
 import {Action, Payment} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
@@ -16,12 +17,7 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from './card/Card';
-import {
-    ActionContainerBase,
-    renderArrow,
-    renderLeftSideOfArrow,
-    renderRightSideOfArrow,
-} from './card/CardActions';
+import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
 import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';

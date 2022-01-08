@@ -1,12 +1,10 @@
 import {Box, Flex} from 'components/box';
 import {ColonyComponent} from 'components/colony';
 import {getColony, SerializedColony} from 'constants/colonies';
-import {Resource} from 'constants/resource-enum';
-import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction} from 'react';
 import {useTypedSelector} from 'reducer';
-import {getValidTradePayment} from 'selectors/valid-trade-payment';
-import {BOX_SHADOW_BASE} from './board-switcher';
+
+export const BOX_SHADOW_BASE = `0px 0px 5px 0px`;
 
 export function ColonySwitcher({
     colonies,
@@ -86,19 +84,6 @@ function ColonyPicker({
 
 export function Colonies() {
     const colonies = useTypedSelector(state => state.common.colonies ?? []);
-    const loggedInPlayer = useLoggedInPlayer();
-    const [selectedPayment, setSelectedPayment] = useState(Resource.MEGACREDIT);
-
-    const validTradePayments = getValidTradePayment(loggedInPlayer);
-    useEffect(() => {
-        // if user can no longer use the selected payment, pick a different one (if possible)
-        if (
-            validTradePayments.every(payment => payment.resource !== selectedPayment) &&
-            validTradePayments.length > 0
-        ) {
-            setSelectedPayment(validTradePayments[0].resource);
-        }
-    }, [validTradePayments.length, validTradePayments?.[0], selectedPayment]);
 
     if (!colonies[0]) {
         return null;

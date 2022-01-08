@@ -32,7 +32,6 @@ export interface Turmoil {
     distantGlobalEvent: SerializedGlobalEvent;
     comingGlobalEvent: SerializedGlobalEvent;
     currentGlobalEvent?: SerializedGlobalEvent;
-    pastGlobalEvents?: SerializedGlobalEvent[];
     rulingParty: string;
     dominantParty: string;
     delegations: Delegations;
