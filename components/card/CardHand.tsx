@@ -18,7 +18,7 @@ const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}
         ${props => (props.shouldShow ? (props.shouldHoist ? '60px' : '200px') : '500px')}
     );
     transition: transform ease-in-out 0.5s;
-    z-index: 2; /* HACK because of tile name tags */
+    z-index: 5; /* HACK because of tile name tags */
 
     // disable pointer events so we don't disable the clicks on the bottom part of the screen. when
     // the cards aren't being looked at. we explicitly enable pointer-events on the cards themselves.

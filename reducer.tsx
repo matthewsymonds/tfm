@@ -1140,6 +1140,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             player.discounts.nextCardThisGeneration = 0;
             let logMessage = `${corporationName} paid ${actionCost} to play ${payload.parentCard.name}'s action`;
+            if (!actionCost) {
+                logMessage = `${corporationName} played ${payload.parentCard.name}'s action`;
+            }
             let details: string[] = [];
             for (const resource in payload.payment) {
                 if (payload.payment[resource]) {

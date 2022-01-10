@@ -259,7 +259,9 @@ export default function NewGame(props) {
                             </label>
                         </Flex>
                         <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="120px">
-                            <Button type="submit">Create game</Button>
+                            <Button type="submit" variant="bordered">
+                                Create game
+                            </Button>
                         </Box>
                     </form>
                 </InnerContainer>
