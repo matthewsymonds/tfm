@@ -193,10 +193,6 @@ export const cellHelpers = {
         return cell.type === CellType.LAND || cell.type === CellType.WATER;
     },
 
-    isOwnedBy(cell: Cell, playerIndex: number) {
-        return cell.tile && cell.tile.ownerPlayerIndex === playerIndex;
-    },
-
     containsCity(cell: Cell): boolean {
         return hasCity(cell);
     },

@@ -14,6 +14,7 @@ import {ChangeResourceIconography} from 'components/card/CardIconography';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {Amount} from 'constants/action';
+import {TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {MinimumProductions} from 'constants/game';
 import {
@@ -102,7 +103,9 @@ function getPlayersToConsider(
                 state,
                 state.common.mostRecentTilePlacementCell
             );
-            const playerIndices = neighbors.map(cell => cell?.tile?.ownerPlayerIndex);
+            const playerIndices = neighbors
+                .filter(cell => cell?.tile?.type !== TileType.LAND_CLAIM)
+                .map(cell => cell?.tile?.ownerPlayerIndex);
             return players.filter(player => playerIndices.includes(player.index));
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
             return players.filter(player =>

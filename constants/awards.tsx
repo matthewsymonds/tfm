@@ -42,7 +42,7 @@ export const AWARD_CONFIGS: AwardConfig[] = [
     {
         name: 'Venuphile',
         description: 'Most Venus tags wins',
-        amount: {tag: Tag.VENUS},
+        amount: {tag: Tag.VENUS, includeWildcard: false},
     },
     // Hellas
     {
@@ -58,7 +58,7 @@ export const AWARD_CONFIGS: AwardConfig[] = [
     {
         name: 'Space Baron',
         description: 'Most space tags wins',
-        amount: {tag: Tag.SPACE},
+        amount: {tag: Tag.SPACE, includeWildcard: false},
     },
     {
         name: 'Excentric',
@@ -68,7 +68,7 @@ export const AWARD_CONFIGS: AwardConfig[] = [
     {
         name: 'Contractor',
         description: 'Player with the most building tags wins',
-        amount: {tag: Tag.BUILDING},
+        amount: {tag: Tag.BUILDING, includeWildcard: false},
     },
     // Elysium
     {

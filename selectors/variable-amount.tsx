@@ -9,13 +9,13 @@ import {Card} from 'models/card';
 import {GameState, PlayerState} from 'reducer';
 import {SerializedCard} from 'state-serialization';
 import {
-    findCellsWithTile,
     findCellWithTile,
     getAdjacentCellsForCell,
     getAllCellsOnMars,
     getAllCellsOwnedByCurrentPlayer,
     getCellsWithCities,
     getCellsWithCitiesOnMars,
+    isOwnedByCurrentPlayerExcludingLandClaim,
 } from './board';
 import {getCard} from './get-card';
 import {getPlayedCards} from './get-played-cards';
@@ -80,11 +80,13 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
-        const oceans = findCellsWithTile(state, TileType.OCEAN);
-
-        return oceans
-            .flatMap(ocean => getAdjacentCellsForCell(state, ocean))
-            .filter(cell => cell.tile?.ownerPlayerIndex === player.index).length;
+        return getAllCellsOnMars(state)
+            .filter(cell => isOwnedByCurrentPlayerExcludingLandClaim(cell, player))
+            .filter(cell => {
+                return getAdjacentCellsForCell(state, cell).some(
+                    neighbor => neighbor.tile?.type === TileType.OCEAN
+                );
+            }).length;
     },
     [VariableAmount.CITY_TILES_IN_PLAY]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getCellsWithCities(state, player).length;
@@ -102,8 +104,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         state: GameState,
         player = getLoggedInPlayer(state)
     ) => {
-        const playerCells = getAllCellsOnMars(state).filter(
-            cell => cell.tile?.ownerPlayerIndex === player.index
+        const playerCells = getAllCellsOnMars(state).filter(cell =>
+            isOwnedByCurrentPlayerExcludingLandClaim(cell, player)
         );
         const emptyNeighbors = playerCells
             .flatMap(cell => getAdjacentCellsForCell(state, cell))
@@ -364,10 +366,7 @@ function getTilesOnBottomRows(state: GameState, player: PlayerState, numRows: nu
     let count = 0;
     for (const row of relevantRows) {
         for (const cell of row) {
-            if (
-                cell?.tile?.ownerPlayerIndex === player.index &&
-                cell?.tile?.type !== TileType.RESTRICTED_AREA
-            ) {
+            if (isOwnedByCurrentPlayerExcludingLandClaim(cell, player)) {
                 count += 1;
             }
         }

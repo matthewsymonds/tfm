@@ -2546,14 +2546,14 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -1,
-        tilePlacements: [t(TileType.OCEAN)],
         steps: [
+            {
+                tilePlacements: [t(TileType.OCEAN)],
+            },
             {
                 removeResource: {
                     [Resource.MEGACREDIT]: 4,
                 },
-            },
-            {
                 removeResourceSourceType:
                     ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE,
             },
