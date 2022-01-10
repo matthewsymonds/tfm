@@ -1,9 +1,15 @@
-import {useRouter} from 'next/router';
 import {useStore} from 'react-redux';
-import {PlayerState} from 'reducer';
+import {PlayerState, useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getPlayedCards} from 'selectors/get-played-cards';
-import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
+import {isPlayingTurmoil} from 'selectors/is-playing-expansion';
+import {
+    getAwardScore,
+    getCityScore,
+    getGreeneryScore,
+    getMilestoneScore,
+    getTurmoilEndOfGameScore,
+} from 'selectors/score';
 import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
 import {colors} from './ui';
@@ -56,6 +62,7 @@ type PlayerScoreInfos = {
     citiesScore: number;
     milestoneScore: number;
     awardScore: number;
+    turmoilScore: number;
     totalScore: number;
     player: PlayerState;
 };
@@ -63,7 +70,6 @@ type PlayerScoreInfos = {
 export function EndOfGame() {
     const store = useStore();
     const state = store.getState();
-    const router = useRouter();
 
     const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(player => {
         const {index: playerIndex} = player;
@@ -76,8 +82,16 @@ export function EndOfGame() {
         const milestoneScore = getMilestoneScore(state, playerIndex);
         const awardScore = getAwardScore(state, playerIndex);
 
+        const turmoilScore = getTurmoilEndOfGameScore(state, playerIndex);
+
         const totalScore =
-            terraformRating + cardScore + greeneryScore + citiesScore + milestoneScore + awardScore;
+            terraformRating +
+            cardScore +
+            greeneryScore +
+            citiesScore +
+            milestoneScore +
+            awardScore +
+            turmoilScore;
 
         return {
             player,
@@ -88,11 +102,12 @@ export function EndOfGame() {
             milestoneScore,
             awardScore,
             totalScore,
+            turmoilScore,
         };
     });
 
     const winner = playerScoreInfos.sort((a, b) => b.totalScore - a.totalScore)[0];
-
+    const isTurmoilEnabled = useTypedSelector(isPlayingTurmoil);
     return (
         <EndOfGameBase>
             <h2 style={{color: colors.TEXT_LIGHT_1}}>
@@ -131,6 +146,12 @@ export function EndOfGame() {
                             <span>Awards</span>
                             <span>{scoreInfo.awardScore}</span>
                         </PlayerScoreRow>
+                        {isTurmoilEnabled ? (
+                            <PlayerScoreRow>
+                                <span>Turmoil</span>
+                                <span>{scoreInfo.turmoilScore}</span>
+                            </PlayerScoreRow>
+                        ) : null}
                         <PlayerScoreTotalRow>
                             <span>Total</span>
                             <span>{scoreInfo.totalScore}</span>
