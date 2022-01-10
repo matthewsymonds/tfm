@@ -5,7 +5,7 @@ import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
 import {useTypedSelector} from 'reducer';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
+import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {ColoredTooltip} from './colored-tooltip';

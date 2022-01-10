@@ -1,5 +1,5 @@
 import {GameState} from 'reducer';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
+import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import {Amount} from './action';
 import {TileType} from './board';
 import {sum} from './operation-amount';

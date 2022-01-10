@@ -29,7 +29,7 @@ import {Tag} from 'constants/tag';
 import {Card as CardModel, doesCardHaveDiscounts, doesCardHaveTriggerAction} from 'models/card';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
-import {isPlayingVenus} from 'selectors/is-playing-venus';
+import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 
 const EffectText = styled(CardText)``;

@@ -27,6 +27,23 @@ export function getCityScore(state: GameState, playerIndex: number) {
     }, 0);
 }
 
+export function getTurmoilEndOfGameScore(state: GameState, playerIndex: number) {
+    const {turmoil} = state.common;
+    if (!turmoil) return 0;
+
+    let score = 0;
+    const {chairperson} = turmoil;
+    if (chairperson?.playerIndex === playerIndex) score += 1;
+
+    for (const delegation in turmoil.delegations) {
+        const [leader] = turmoil.delegations[delegation];
+        if (leader?.playerIndex === playerIndex) {
+            score += 1;
+        }
+    }
+    return score;
+}
+
 export function getMilestoneScore(state: GameState, playerIndex: number) {
     return (
         state.common.claimedMilestones.filter(

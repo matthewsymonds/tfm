@@ -3,7 +3,14 @@ import {Pane, Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getPlayedCards} from 'selectors/get-played-cards';
-import {getAwardScore, getCityScore, getGreeneryScore, getMilestoneScore} from 'selectors/score';
+import {isPlayingTurmoil} from 'selectors/is-playing-expansion';
+import {
+    getAwardScore,
+    getCityScore,
+    getGreeneryScore,
+    getMilestoneScore,
+    getTurmoilEndOfGameScore,
+} from 'selectors/score';
 import styled from 'styled-components';
 
 type Props = {
@@ -49,6 +56,9 @@ export function ScorePopover({children, playerIndex}: Props) {
     const citiesScore = useTypedSelector(state => getCityScore(state, playerIndex));
     const milestoneScore = useTypedSelector(state => getMilestoneScore(state, playerIndex));
     const awardScore = useTypedSelector(state => getAwardScore(state, playerIndex));
+    const turmoilScore = useTypedSelector(state => getTurmoilEndOfGameScore(state, playerIndex));
+
+    const playingTurmoil = useTypedSelector(state => isPlayingTurmoil(state));
 
     const totalScore =
         terraformRating +
@@ -56,7 +66,8 @@ export function ScorePopover({children, playerIndex}: Props) {
         greeneryScore +
         citiesScore +
         milestoneScore +
-        awardScore;
+        awardScore +
+        turmoilScore;
     return (
         <Popover
             position={Position.BOTTOM}
@@ -87,6 +98,12 @@ export function ScorePopover({children, playerIndex}: Props) {
                         <span>Awards</span>
                         <span>{awardScore}</span>
                     </ScorePopoverRow>
+                    {playingTurmoil ? (
+                        <ScorePopoverRow>
+                            <span>Turmoil</span>
+                            <span>{turmoilScore}</span>
+                        </ScorePopoverRow>
+                    ) : null}
                     <ScorePopoverTotalRow>
                         <span>Total</span>
                         <span>{totalScore}</span>
