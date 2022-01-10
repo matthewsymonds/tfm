@@ -11,12 +11,12 @@ export function Button({
     children,
     onClick,
     disabled,
-    ref,
+    buttonRef,
     variant = 'default',
     size = 'default',
 }: React.PropsWithChildren<
     {
-        ref?: React.RefObject<HTMLButtonElement>;
+        buttonRef?: React.RefObject<HTMLButtonElement>;
         variant?: ButtonVariant;
         size?: ButtonSize;
         disabled?: boolean;
@@ -30,14 +30,14 @@ export function Button({
     switch (variant) {
         case 'default':
             return (
-                <_DefaultButton ref={ref} size={size} disabled={disabled} onClick={onClick}>
+                <_DefaultButton ref={buttonRef} size={size} disabled={disabled} onClick={onClick}>
                     {children}
                 </_DefaultButton>
             );
         case 'bordered':
             return (
                 <_BorderedButton
-                    ref={ref}
+                    ref={buttonRef}
                     size={size}
                     scaleOnClick={false}
                     disabled={disabled}

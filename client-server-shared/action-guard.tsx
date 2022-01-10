@@ -462,6 +462,13 @@ export class ActionGuard {
             return [false, 'Only Helion can convert heat to megacredits'];
         }
 
+        if (
+            conversion.name !== 'Plants to Greenery' &&
+            this.state.common.gameStage === GameStage.GREENERY_PLACEMENT
+        ) {
+            return [false, 'May only convert plants in greenery placement phase'];
+        }
+
         return this.canPlayAction(conversion, this.state, parent, supplementalResources);
     }
 

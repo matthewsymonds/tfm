@@ -254,7 +254,7 @@ function FundAwardButton({award}: {award: string}) {
     });
 
     return (
-        <Button ref={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
+        <Button buttonRef={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
             <span>Fund</span>
             <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={cost} size={16} />
         </Button>
@@ -279,7 +279,7 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
     });
 
     return (
-        <Button ref={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
+        <Button buttonRef={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
             <span>Claim</span>
             <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={16} />
         </Button>
