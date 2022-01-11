@@ -165,7 +165,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                         <Box display="inline-block" marginRight="4px">
                             {isLoggedInPlayerPassed && 'You have passed.'}
                             {isEndOfGame && 'The game has ended.'}
-                            {yourTurnToPlayPreludes && !text && 'Play preludes'}
+                            {yourTurnToPlayPreludes && !text && 'Play a prelude.'}
                             {!isActiveRound &&
                                 !isEndOfGame &&
                                 !isGreeneryPlacement &&

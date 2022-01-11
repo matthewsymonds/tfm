@@ -15,7 +15,12 @@ export const PlayerPanels = () => {
     const players = useTypedSelector(state => state.players);
     const loggedInPlayer = useLoggedInPlayer();
     const [swiper, setSwiper] = useState<SwiperCore | null>(null);
-    const [topIndex, setTopIndex] = useState(loggedInPlayer.index);
+    const playerIndex = useTypedSelector(state => loggedInPlayer.index);
+    const [topIndex, setTopIndex] = useState(playerIndex);
+
+    useEffect(() => {
+        setTopIndex(playerIndex);
+    }, [loggedInPlayer.index]);
 
     useEffect(() => {
         const handler = () => {
