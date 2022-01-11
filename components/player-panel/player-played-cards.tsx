@@ -76,11 +76,12 @@ function PlayerPlayedCards({
         <Flex flexDirection="column" width="100%" ref={containerRef}>
             <ResponsiveMasonry
                 columnsCountBreakPoints={{
-                    260: Math.min(numCards, 2),
-                    390: Math.min(numCards, 3),
-                    520: Math.min(numCards, 4),
-                    780: Math.min(numCards, 5),
-                    910: Math.min(numCards, 6),
+                    0: 3,
+                    260: 3,
+                    390: 3,
+                    520: Math.max(3, Math.min(numCards, 4)),
+                    780: Math.max(3, Math.min(numCards, 5)),
+                    910: Math.max(3, Math.min(numCards, 6)),
                 }}
             >
                 <Masonry gutter="6px">

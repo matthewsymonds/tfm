@@ -187,6 +187,7 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                         <Box
                             key={actionType}
                             display={actionType === selectedTab ? 'initial' : 'none'}
+                            maxWidth="100%"
                         >
                             <ActionTableInner
                                 selectedTab={actionType}
