@@ -36,7 +36,7 @@ const MinimizeCardsButton = styled.button`
     opacity: 1;
     border-radius: 50%;
     padding: 0;
-    z-index: 3;
+    z-index: 6;
 `;
 
 export function CardHand({
