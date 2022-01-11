@@ -1,5 +1,6 @@
 import {getStartingColonies} from 'constants/colonies';
 import {initializeTurmoil} from 'constants/turmoil';
+import {getCard} from 'selectors/get-card';
 import {SerializedState} from 'state-serialization';
 import {getBoard} from './constants/board';
 import {CardType, Deck} from './constants/card-types';
@@ -132,13 +133,16 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             }
         }
 
-        base.players.push({
+        const corporationBase = possibleCorporations[0];
+        const fullCorporation = getCard(corporationBase);
+
+        const fullPlayer: PlayerState = {
             // 0 for card selection, 1 / 2 for active round
             action: 0,
             username: player,
             index: base.players.length,
             terraformRating: 20,
-            corporation: possibleCorporations[0],
+            corporation: corporationBase,
             pendingCardSelection: {
                 possibleCards: sample(deck, 10).concat(DEV_cardOverrides()),
                 isBuyingCards: true,
@@ -181,7 +185,13 @@ export function getInitialState(players: string[], options: GameOptions, name: s
                 trade: 0,
             },
             fleets: isColoniesEnabled ? 1 : 0,
-        });
+        };
+
+        if (fullCorporation.cardCost) {
+            fullPlayer.cardCost = fullCorporation.cardCost;
+        }
+
+        base.players.push(fullPlayer);
     }
 
     if (isTurmoilEnabled) {

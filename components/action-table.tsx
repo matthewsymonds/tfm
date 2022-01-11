@@ -182,7 +182,19 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                 width="100%"
                 marginTop="-8px"
             >
-                <ActionTableInner actionPrompt={actionPrompt} selectedTab={selectedTab} />
+                {actionTypes.map(actionType => {
+                    return (
+                        <Box
+                            key={actionType}
+                            display={actionType === selectedTab ? 'initial' : 'none'}
+                        >
+                            <ActionTableInner
+                                selectedTab={actionType}
+                                actionPrompt={actionPrompt}
+                            />
+                        </Box>
+                    );
+                })}
             </Flex>
         </Flex>
     );
