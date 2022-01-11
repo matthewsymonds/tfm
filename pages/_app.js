@@ -88,16 +88,10 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .board-and-params {
-        position: absolute;
-        max-width: 700px;
         width: 45%;
-        right: 0;
         justify-content: flex-end;
         margin-left: auto;
-        flex-grow: 1;
         @media (max-width: 1470px) {
-            position: initial;
-            right: initial;
             max-width: 100%;
             justify-content: center;
             flex-grow: 0;
@@ -111,12 +105,12 @@ export const GlobalStyles = createGlobalStyle`
         margin-top: 0;
     }
     .action-table {
-        position: absolute;
-        width: 800px;
-        max-width: 55%;
-        left: 0;
+        width: 52%;
+        flex-grow: 1;
+        max-width: 782px;
         @media (max-width: 1470px) {
-            position: initial;
+            width: 100%;
+            flex-grow: 0;
             max-width: calc(100% - 16px);
             margin-top: 8px;
             margin-left: auto;
