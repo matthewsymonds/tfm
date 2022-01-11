@@ -70,7 +70,7 @@ function EmptyGlobalEvent() {
             <TexturedCard
                 isSelected={false}
                 width={CARD_WIDTH - 20}
-                height={CARD_HEIGHT - 30}
+                height={CARD_HEIGHT}
                 borderWidth={2}
             >
                 <GenericCardTitleBar bgColor={colors.CARD_GLOBAL_EVENT}>

@@ -21,12 +21,14 @@ const EndOfGameBase = styled.div`
 `;
 
 const AllScoresContainer = styled.div<{numPlayers: number}>`
-    display: grid;
-    grid-template-columns: ${props => `repeat(${props.numPlayers}, 1fr)`};
+    display: flex;
+    align-items: center;
+    overflow: auto;
+    max-width: 100%;
 `;
 
 const PlayerScoreContainer = styled.div`
-    margin-left: 16px;
+    margin-left: 8px;
     &:first-child {
         margin-left: 0px;
     }
