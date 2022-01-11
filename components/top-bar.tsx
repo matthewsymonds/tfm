@@ -15,6 +15,7 @@ import React, {forwardRef} from 'react';
 import Twemoji from 'react-twemoji';
 import {useTypedSelector} from 'reducer';
 import {isDrafting as isDraftingSelector} from 'selectors/drafting';
+import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
 
@@ -134,7 +135,11 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
 
         const canSkip = useTypedSelector(state => actionGuard.canSkipAction()[0]);
         const canPass = useTypedSelector(state => actionGuard.canPassGeneration()[0]);
-
+        const isPreludesEnabled = useTypedSelector(isPlayingPrelude);
+        const turn = useTypedSelector(state => state.common.turn);
+        const generation = useTypedSelector(state => state.common.generation);
+        const yourTurnToPlayPreludes =
+            isPreludesEnabled && playing && turn === 1 && generation === 1;
         return (
             <TopBarBase
                 ref={ref}
@@ -160,6 +165,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                         <Box display="inline-block" marginRight="4px">
                             {isLoggedInPlayerPassed && 'You have passed.'}
                             {isEndOfGame && 'The game has ended.'}
+                            {yourTurnToPlayPreludes && !text && 'Play preludes'}
                             {!isActiveRound &&
                                 !isEndOfGame &&
                                 !isGreeneryPlacement &&
@@ -169,7 +175,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                             {(isBuyOrDiscard || isDrafting) &&
                                 hasPendingCardSelection &&
                                 !syncing && <div>Please choose your cards.</div>}
-                            {!syncing && playing && !text && <>Action {action} of 2</>}
+                            {!syncing && playing && !yourTurnToPlayPreludes && !text && (
+                                <>Action {action} of 2</>
+                            )}
                             {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
                                 isActiveRound &&
                                 !isLoggedInPlayerPassed && (

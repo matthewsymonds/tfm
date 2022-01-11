@@ -231,6 +231,7 @@ export const useAwardConfigsByAward = () => {
         (prev, next) => {
             // Brief equality check.
             for (const award in prev) {
+                if (!next[award]) return false;
                 if (prev[award].fundedByPlayer !== next[award].fundedByPlayer) {
                     return false;
                 }
@@ -538,6 +539,17 @@ function MilestonesTable() {
             ?.claimedByPlayer ?? null;
     const milestoneConfig = getMilestone(visibleMilestone);
 
+    const gameName = useTypedSelector(state => state.name);
+
+    useEffect(() => {
+        setSelectedMilestone(milestones[0]);
+        setHoveredMilestone(null);
+    }, [gameName, milestones[0]]);
+
+    if (!milestoneConfig) {
+        return null;
+    }
+
     return (
         <AwardsOrMilestonesTableBase>
             <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
@@ -682,6 +694,15 @@ function AwardsTable() {
     const visibleAward = hoveredAward ?? selectedAward;
     const visibleAwardConfig = awardConfigsByAward[visibleAward];
     const hydratedAward = getAward(visibleAward);
+
+    const gameName = useTypedSelector(state => state.name);
+
+    useEffect(() => {
+        setSelectedAward(awards[0]);
+        setHoveredAward(null);
+    }, [gameName, awards[0]]);
+
+    if (!visibleAwardConfig) return null;
 
     return (
         <AwardsOrMilestonesTableBase>

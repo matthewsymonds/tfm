@@ -26,6 +26,7 @@ import {
 import {getCard} from 'selectors/get-card';
 import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
+import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {ActionTable} from './action-table';
 import {AskUserToChooseNextAction} from './ask-user-to-choose-next-action';
@@ -96,6 +97,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const isWaitingOnOthersToDraft = useTypedSelector(state =>
         isWaitingOnOthersToDraftSelector(state)
     );
+    const isPreludeEnabled = useTypedSelector(isPlayingPrelude);
+    const turn = useTypedSelector(state => state.common.turn);
+    const generation = useTypedSelector(state => state.common.generation);
     const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     let actionBarPromptText: string | null = null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
@@ -141,6 +145,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Draft';
     } else if (gameStage === GameStage.BUY_OR_DISCARD) {
         actionBarPromptText = 'Buy cards';
+    } else if (isPreludeEnabled && turn === 1 && generation === 1) {
+        actionBarPromptText = 'Play preludes';
     }
 
     const topBarRef = React.useRef<HTMLDivElement>(null);

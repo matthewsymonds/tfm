@@ -117,7 +117,9 @@ export default function Signup() {
                             <em>Passwords must match.</em>
                         </MaybeVisible>
                         <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
-                            <Button type="submit">Sign up</Button>
+                            <Button type="submit" variant="bordered">
+                                Sign up
+                            </Button>
                         </Box>
                     </form>
                 </InnerContainer>

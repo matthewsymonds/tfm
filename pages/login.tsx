@@ -78,7 +78,9 @@ export default function Login() {
                             onChange={updatePassword}
                         />
                         <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
-                            <Button type="submit">Log in</Button>
+                            <Button type="submit" variant="bordered">
+                                Log in
+                            </Button>
                         </Box>
                     </form>
                 </InnerContainer>

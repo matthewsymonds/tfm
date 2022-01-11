@@ -8,3 +8,7 @@ export function isPlayingVenus(state: GameState) {
 export function isPlayingTurmoil(state: GameState) {
     return (state.options?.decks ?? []).includes(Deck.TURMOIL);
 }
+
+export function isPlayingPrelude(state: GameState) {
+    return (state.options?.decks ?? []).includes(Deck.PRELUDE);
+}
