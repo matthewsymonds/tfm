@@ -16,11 +16,13 @@ export const PlayerPanels = () => {
     const loggedInPlayer = useLoggedInPlayer();
     const [swiper, setSwiper] = useState<SwiperCore | null>(null);
     const playerIndex = useTypedSelector(state => loggedInPlayer.index);
+    const gameName = useTypedSelector(state => state.name);
     const [topIndex, setTopIndex] = useState(playerIndex);
 
     useEffect(() => {
         setTopIndex(playerIndex);
-    }, [loggedInPlayer.index]);
+        swiper?.slideTo(playerIndex);
+    }, [loggedInPlayer.index, gameName]);
 
     useEffect(() => {
         const handler = () => {
@@ -29,7 +31,7 @@ export const PlayerPanels = () => {
         };
         swiper?.on('slideChange', handler);
         return () => swiper?.off('slideChange', handler);
-    }, [swiper]);
+    }, [swiper, gameName]);
 
     useEffect(() => {
         const element: HTMLDivElement | null = document.querySelector(
