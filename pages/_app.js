@@ -82,6 +82,9 @@ export const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
         justify-content: center;
         width: 100%;
+        max-width: 1500px;
+        margin-left: auto;
+        margin-right: auto;
         @media (max-width: 1470px) {
             flex-direction: column-reverse;
             flex-wrap: nowrap;
