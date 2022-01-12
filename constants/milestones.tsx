@@ -56,9 +56,9 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     // Hellas
     {
         name: 'Diversifier',
-        requirementText: '10 unique tags in play',
+        requirementText: '8 unique tags in play',
         amount: VariableAmount.UNIQUE_TAGS,
-        quantity: 10,
+        quantity: 8,
     },
     {
         name: 'Tactician',
