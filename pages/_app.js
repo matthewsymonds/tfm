@@ -88,7 +88,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .board-and-params {
-        width: 671px;
+        width: 648px;
         justify-content: flex-end;
         margin-left: auto;
         @media (max-width: 1470px) {
