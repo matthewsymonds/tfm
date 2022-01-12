@@ -85,7 +85,7 @@ export function playGame(
                 throw new Error('trying to select too many cards');
             }
             if (
-                actionHandler.state.options.decks.includes(Deck.PRELUDE) &&
+                actionHandler.state.options?.decks.includes(Deck.PRELUDE) &&
                 actionHandler.state.common.gameStage === GameStage.CORPORATION_SELECTION &&
                 preludes.length !== 2
             ) {

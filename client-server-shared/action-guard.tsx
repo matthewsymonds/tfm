@@ -1043,7 +1043,7 @@ export class ActionGuard {
 
         if (
             selectedPreludes &&
-            state.options.decks.includes(Deck.PRELUDE) &&
+            state.options?.decks.includes(Deck.PRELUDE) &&
             !this.arePreludesCorrect(selectedPreludes)
         ) {
             return false;

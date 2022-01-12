@@ -178,7 +178,7 @@ export function isConditionPassed(
             );
             return first >= second;
         case Condition.TURMOIL:
-            return state.options.decks.includes(Deck.TURMOIL);
+            return state.options?.decks.includes(Deck.TURMOIL);
         default:
             throw spawnExhaustiveSwitchError(condition);
     }

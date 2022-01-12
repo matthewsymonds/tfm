@@ -120,9 +120,9 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
     }, [!actionPrompt?.buttonNeeded, !actionPrompt?.element]);
 
     const isColoniesEnabled = useTypedSelector(state =>
-        state.options.decks.includes(Deck.COLONIES)
+        state.options?.decks.includes(Deck.COLONIES)
     );
-    const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
+    const isTurmoilEnabled = useTypedSelector(state => state.options?.decks.includes(Deck.TURMOIL));
 
     const visibleActionTypes = useTypedSelector(state =>
         actionTypes.filter(actionType => {
@@ -211,7 +211,9 @@ export const useAwardConfigsByAward = () => {
                     fundedByPlayer: PlayerState | null;
                 };
             }>((acc, award) => {
-                const isFunded = state.common.fundedAwards.map(fa => fa.award).includes(award);
+                const isFunded = state.common.fundedAwards
+                    .map(fa => fa.award.toLowerCase())
+                    .includes(award.toLowerCase());
                 let fundedByPlayer;
                 if (isFunded) {
                     const {fundedByPlayerIndex} = state.common.fundedAwards.find(
@@ -554,8 +556,9 @@ function MilestonesTable() {
         <AwardsOrMilestonesTableBase>
             <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
                 {milestones?.map(milestone => {
-                    const claimedByPlayer = claimedMilestones.find(cm => cm.milestone === milestone)
-                        ?.claimedByPlayer;
+                    const claimedByPlayer = claimedMilestones.find(
+                        cm => cm.milestone.toLowerCase() === milestone.toLowerCase()
+                    )?.claimedByPlayer;
                     return (
                         <CategoryListItem
                             key={milestone}

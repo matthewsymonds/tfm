@@ -307,7 +307,7 @@ export function canClickPolicy(
 }
 
 export function Turmoil() {
-    const isTurmoilEnabled = useTypedSelector(state => state.options.decks.includes(Deck.TURMOIL));
+    const isTurmoilEnabled = useTypedSelector(state => state.options?.decks.includes(Deck.TURMOIL));
     if (!isTurmoilEnabled) return null;
     const turmoil = useTypedSelector(state => state.common.turmoil);
     if (!turmoil) return null;
