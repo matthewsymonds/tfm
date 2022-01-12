@@ -88,7 +88,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .board-and-params {
-        width: 45%;
+        width: 44%;
         justify-content: flex-end;
         margin-left: auto;
         @media (max-width: 1470px) {
@@ -105,13 +105,11 @@ export const GlobalStyles = createGlobalStyle`
         margin-top: 0;
     }
     .action-table {
-        width: 52%;
         flex-grow: 1;
-        max-width: 782px;
+        max-width: 792px;
         @media (max-width: 1470px) {
-            max-width: calc(100% - 16px);
+            width: calc(100% - 16px);
             flex-grow: 0;
-            width: min-content;
             margin-top: 8px;
             margin-left: auto;
             margin-right: auto;

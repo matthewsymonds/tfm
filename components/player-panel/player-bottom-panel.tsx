@@ -29,6 +29,7 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     justify-content: stretch;
     align-items: flex-start;
     padding: 8px;
+    max-width: 766px;
 `;
 
 const CardsInHandMessage = styled.div`
