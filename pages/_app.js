@@ -109,7 +109,7 @@ export const GlobalStyles = createGlobalStyle`
         flex-grow: 1;
         max-width: 782px;
         @media (max-width: 1470px) {
-            max-width: 100%;
+            max-width: calc(100% - 16px);
             flex-grow: 0;
             width: min-content;
             margin-top: 8px;

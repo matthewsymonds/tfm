@@ -22,6 +22,8 @@ const CardSelectorBase = styled.div<{orientation: string}>`
     margin: 0 4px;
     display: flex;
     flex-wrap: wrap;
+    width: max-content;
+    max-width: calc(100% - 8px);
 `;
 
 const CardSelectorOuter = styled.div`
