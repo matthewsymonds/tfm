@@ -1,19 +1,24 @@
+import {TFMSession} from 'check-session';
 import {appendSecurityCookieModifiers, retrieveSession, Session, usersModel} from 'database';
 import jwt from 'jsonwebtoken';
-import absoluteUrl from 'next-absolute-url';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-function generateAccessToken(payload: {username: string}): string {
+function generateAccessToken(payload: TFMSession): string {
     return jwt.sign(payload, process.env.TOKEN_SECRET, {expiresIn: '365d'});
 }
 
-export default async (req, res) => {
+export function getUsernameRegExp(username: string) {
+    return new RegExp(['^', username, '$'].join(''), 'i');
+}
+
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     let session: Session | undefined;
 
-    switch (req.method) {
+    switch (req.method?.toUpperCase()) {
         case 'POST':
             // Log in!
             const {username, password} = req.body;
-            const usernameRegex = new RegExp(['^', username, '$'].join(''), 'i');
+            const usernameRegex = getUsernameRegExp(username);
             const user = await usersModel.findOne({
                 username: usernameRegex,
             });
@@ -37,8 +42,6 @@ export default async (req, res) => {
             }
 
             const theCookie = appendSecurityCookieModifiers(
-                req.secure,
-                absoluteUrl(req).host,
                 `session=${generateAccessToken({username: String(user.username)})}`
             );
 

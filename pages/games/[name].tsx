@@ -4,8 +4,8 @@ import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import {useRouter} from 'next/router';
-import {PROTOCOL_HOST_DELIMITER} from 'pages/_app';
+import {NextRouter, useRouter} from 'next/router';
+import {ParsedUrlQuery} from 'querystring';
 import React, {useContext, useEffect, useState} from 'react';
 import {batch, useDispatch, useStore} from 'react-redux';
 import {GameState, useTypedSelector} from 'reducer';
@@ -187,38 +187,37 @@ export default function Game(props) {
         });
     };
 
-    const headers = {};
     const {query} = router;
     useEffect(() => {
-        getInitialProps({query, headers, isServer, setGame: setGameDispatch, router});
+        getInitialProps({query, setGame: setGameDispatch, router});
     }, [query?.name]);
 
     return <GameMiddle />;
 }
 
-const getInitialProps = async ctx => {
-    const {query, headers, isServer, setGame, router} = ctx;
+type GetInitialPropsParam = {
+    query: ParsedUrlQuery;
+    setGame: (game: ServerGame) => void;
+    router: NextRouter;
+};
+
+const getInitialProps = async (ctx: GetInitialPropsParam) => {
+    const {query, setGame, router} = ctx;
 
     try {
-        const response = await fetch(getGamePath(isServer, query, headers), {
-            headers: {...headers, 'cache-control': 'no-store'},
+        const response = await fetch(getGamePath(query), {
+            headers: {'cache-control': 'no-store'},
         });
 
         const game = await response.json();
         setGame(game);
     } catch (error) {
-        isServer ? null : router.push('/login');
+        router.push('/login');
     }
 };
 
-function getGamePath(isServer, query, headers) {
+function getGamePath(query: ParsedUrlQuery) {
     const path = '/api/games/';
     const gameId = query['name'];
-    if (!isServer) {
-        return path + gameId;
-    }
-
-    const {host} = headers;
-    const protocol = /^localhost(:\d+)?$/.test(host) ? 'http' : 'https';
-    return protocol + PROTOCOL_HOST_DELIMITER + host + path + gameId;
+    return path + gameId;
 }

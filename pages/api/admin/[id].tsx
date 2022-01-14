@@ -1,6 +1,7 @@
 import {gamesModel, retrieveSession} from 'database';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     let game;
 
     const {
@@ -27,7 +28,7 @@ export default async (req, res) => {
         return;
     }
 
-    switch (req.method.toUpperCase()) {
+    switch (req.method?.toUpperCase()) {
         case 'GET':
             res.setHeader('cache-control', 'no-cache');
             res.json({

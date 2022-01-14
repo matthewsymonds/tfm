@@ -2,6 +2,7 @@ import {ApiActionType} from 'client-server-shared/api-action-type';
 import {playGame} from 'client-server-shared/play-game';
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
+import {NextApiRequest, NextApiResponse} from 'next';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {handleEmail} from 'server/handle-email';
 import {StateHydrator} from 'server/state-hydrator';
@@ -10,11 +11,11 @@ import {censorGameState} from 'state-serialization';
 // This isn't perfect. But it's an attempted safeguard against spammed requests.
 let lock: {[gameName: string]: string[]} = {};
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     const sessionResult = await retrieveSession(req, res);
     if (!sessionResult) return;
     // only accept POST!
-    const method = req.method.toUpperCase();
+    const method = req.method?.toUpperCase();
 
     if (method !== 'POST') {
         res.status(400);
@@ -22,12 +23,16 @@ export default async (req, res) => {
         return;
     }
 
-    const {
+    let {
         query: {id},
     } = req;
 
     let game;
     const {username} = sessionResult;
+
+    if (Array.isArray(id)) {
+        id = id[0];
+    }
 
     try {
         if ((lock[id] ?? []).includes(username)) {

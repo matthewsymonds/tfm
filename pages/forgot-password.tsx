@@ -3,41 +3,27 @@ import {Box} from 'components/box';
 import {Button} from 'components/button';
 import {Input} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
-import {colors} from 'components/ui';
 import {useInput} from 'hooks/use-input';
-import {NextPage} from 'next';
 import {useRouter} from 'next/dist/client/router';
-import Link from 'next/link';
-import {Container, InnerLink, MidContainer, Title, TitleAndButton} from 'pages';
+import {Container, MidContainer, Title, TitleAndButton} from 'pages';
 import {InnerContainer} from 'pages/new-game';
 import {useCallback, useState} from 'react';
 import {redirectIfLoggedIn} from 'redirect-if-logged-in';
+import {AlternativeLink} from './login';
 import {ErrorText} from './signup';
 
-export const AlternativeLink = ({href, text}: {href: string; text: string}) => {
-    return (
-        <Box color={colors.TEXT_LIGHT_1} marginTop="8px" cursor="pointer" className="display">
-            <Link href={href} passHref>
-                <InnerLink>
-                    <em>{text}</em>
-                </InnerLink>
-            </Link>
-        </Box>
-    );
-};
-
-const Login: NextPage<{}> = props => {
+export default function ForgotPassword() {
     const [username, updateUsername] = useInput('');
-    const [password, updatePassword] = useInput('');
+    const [email, updateEmail] = useInput('');
     const [error, setError] = useState(null);
     const router = useRouter();
 
     const handleSubmit = useCallback(
         async event => {
             event.preventDefault();
-            const result = await makePostCall('/api/sessions', {
+            const result = await makePostCall('/api/forgot-password', {
                 username,
-                password,
+                email,
             });
             if (result.error) {
                 setError(result.error);
@@ -45,15 +31,15 @@ const Login: NextPage<{}> = props => {
                 router.push('/');
             }
         },
-        [username, password]
+        [username, email]
     );
 
     return (
         <Container>
             <MidContainer>
                 <Title />
-                <TitleAndButton text="Log in">
-                    <AlternativeLink href={'/signup'} text="Sign up instead" />
+                <TitleAndButton text="Forgot password">
+                    <AlternativeLink href={'/login'} text="Back to log in" />
                 </TitleAndButton>
 
                 <InnerContainer>
@@ -72,15 +58,15 @@ const Login: NextPage<{}> = props => {
                             onChange={updateUsername}
                         />
                         <Input
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            value={password}
-                            onChange={updatePassword}
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            value={email}
+                            onChange={updateEmail}
                         />
                         <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
                             <Button type="submit" variant="bordered">
-                                Log in
+                                Send email to reset password
                             </Button>
                         </Box>
                     </form>
@@ -88,8 +74,6 @@ const Login: NextPage<{}> = props => {
             </MidContainer>
         </Container>
     );
-};
+}
 
-Login.getInitialProps = redirectIfLoggedIn;
-
-export default Login;
+ForgotPassword.getInitialProps = redirectIfLoggedIn;

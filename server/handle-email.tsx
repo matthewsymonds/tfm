@@ -18,7 +18,9 @@ const getNumGamesMessage = (yourTurnGames: NamedGame[]) =>
     `It is your turn in ${yourTurnGames.length} game${yourTurnGames.length === 1 ? '' : 's'}`;
 
 const getTitle = (yourTurnGames: NamedGame[], notYouPlayers: string[]) =>
-    `[TFM] Your turn in ${yourTurnGames[0].name} with ${notYouPlayers.join(', ')}`;
+    `[TFM] Your turn in ${yourTurnGames.length} game${
+        yourTurnGames.length === 1 ? '' : 's'
+    } with ${notYouPlayers.join(', ')}`;
 
 const getMessage = (yourTurnGames: NamedGame[]) =>
     `<div>${getNumGamesMessage(yourTurnGames)}: ${yourTurnGames

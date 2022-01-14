@@ -1,12 +1,14 @@
 import {usersModel} from 'database';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {getUsernameRegExp} from './sessions';
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     let user;
     const {email, username, password} = req.body;
-    switch (req.method) {
+    switch (req.method?.toUpperCase()) {
         case 'POST':
             // Create a new user.
-            const usernameRegex = new RegExp(['^', username, '$'].join(''), 'i');
+            const usernameRegex = getUsernameRegExp(username);
             const emailRegex = new RegExp(['^', email, '$'].join(''), 'i');
             user = await usersModel.findOne({
                 $or: [{email: emailRegex}, {username: usernameRegex}],

@@ -1,12 +1,16 @@
 import {setGame} from 'actions';
+import {checkSession, TFMSession} from 'check-session';
 import {getPath} from 'client-server-shared/get-path';
 import {Box, Flex} from 'components/box';
 import {Button} from 'components/button';
 import {colors} from 'components/ui';
+import {IncomingHttpHeaders, IncomingMessage} from 'http';
+import {NextPage} from 'next';
 import Router, {useRouter} from 'next/dist/client/router';
 import Link from 'next/link';
 import React from 'react';
 import {useStore} from 'react-redux';
+import {getRequestHeaders} from 'server/get-request-headers';
 import styled from 'styled-components';
 
 const TitleInner = styled.h1`
@@ -181,8 +185,10 @@ const UserGame = ({
         </Link>
     );
 };
-
-export default function Index(props) {
+const Index: NextPage<{userGames: UserGame[]; session: TFMSession | undefined}> = props => {
+    if (!props?.session?.username) {
+        return null;
+    }
     const {userGames, session} = props;
 
     const router = useRouter();
@@ -198,22 +204,29 @@ export default function Index(props) {
             </UserGames>
         </Container>
     );
-}
+};
 
 function getGameLink(name: string) {
     return '/games/' + name;
 }
 
 Index.getInitialProps = async ctx => {
-    const {isServer, req, res} = ctx;
+    const {req, res} = ctx;
+    const {session} = await checkSession(ctx);
+    if (!session?.username) {
+        return {userGames: [], session: undefined};
+    }
+
+    const isServer = !!req && !!res;
 
     const headers = isServer ? req.headers : {};
+    const requestHeaders = getRequestHeaders(headers);
     try {
-        const response = await fetch(getUserGamesPath(isServer, req, headers), {
-            headers,
+        const response = await fetch(getUserGamesPath(req, headers), {
+            headers: requestHeaders,
         });
         const result = await response.json();
-        return {userGames: result.games};
+        return {userGames: result.games as UserGame[], session};
     } catch (error) {
         if (isServer) {
             res.writeHead(302, {
@@ -222,12 +235,14 @@ Index.getInitialProps = async ctx => {
             res.end();
         } else {
             Router.push('/login');
-            return {};
         }
+        return {userGames: [], session};
     }
 };
 
-function getUserGamesPath(isServer, req, headers) {
+export default Index;
+
+function getUserGamesPath(req: IncomingMessage | undefined, headers: IncomingHttpHeaders) {
     const path = '/api/games';
-    return getPath(path, isServer, req, headers);
+    return getPath(path, req, headers);
 }

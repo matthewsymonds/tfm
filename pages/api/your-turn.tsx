@@ -1,5 +1,6 @@
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession} from 'database';
+import {NextApiRequest, NextApiResponse} from 'next';
 import {SerializedState} from 'state-serialization';
 
 export type NamedGame = {name: string; count: number};
@@ -75,13 +76,13 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
     return gameNames;
 }
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     const sessionResult = await retrieveSession(req, res);
     if (!sessionResult || !sessionResult.username) {
         return;
     }
 
-    switch (req.method) {
+    switch (req.method?.toUpperCase()) {
         case 'GET':
             // Retrieve list of public games.
             const gameNames = await getYourTurnGameNames(sessionResult.username);

@@ -1,7 +1,8 @@
 import {gamesModel, retrieveSession} from 'database';
+import {NextApiRequest, NextApiResponse} from 'next';
 import {censorGameState} from 'state-serialization';
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     let game;
 
     const {
@@ -27,7 +28,7 @@ export default async (req, res) => {
         username = sessionResult.username;
     }
 
-    switch (req.method.toUpperCase()) {
+    switch (req.method?.toUpperCase()) {
         case 'GET':
             res.setHeader('cache-control', 'no-cache');
             const index = game.players.indexOf(username);

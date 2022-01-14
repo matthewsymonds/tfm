@@ -4,9 +4,11 @@ import {Button} from 'components/button';
 import {Input} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
 import {useInput} from 'hooks/use-input';
+import {NextPage} from 'next';
 import {useRouter} from 'next/dist/client/router';
 import {Container, MidContainer, Title, TitleAndButton} from 'pages';
 import {useCallback, useState} from 'react';
+import {redirectIfLoggedIn} from 'redirect-if-logged-in';
 import styled from 'styled-components';
 import {AlternativeLink} from './login';
 import {InnerContainer} from './new-game';
@@ -16,7 +18,7 @@ export const ErrorText = styled.h4`
     margin-bottom: 4px;
 `;
 
-export default function Signup() {
+const Signup: NextPage = () => {
     const [username, updateUsername] = useInput('');
     const [email, updateEmail] = useInput('');
 
@@ -126,4 +128,8 @@ export default function Signup() {
             </MidContainer>
         </Container>
     );
-}
+};
+
+Signup.getInitialProps = redirectIfLoggedIn;
+
+export default Signup;

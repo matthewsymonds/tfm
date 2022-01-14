@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
+import {TFMSession} from 'check-session';
 import cookie from 'cookie';
-import crypto from 'crypto';
+import {IncomingMessage, ServerResponse} from 'http';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import absoluteUrl from 'next-absolute-url';
 import isEmail from 'validator/lib/isEmail';
 
 const uniqueNameSchema = {
@@ -72,6 +72,20 @@ try {
     gamesModel = mongoose.model('games', gamesSchema);
 }
 
+const forgotPasswordSchema = new schema({
+    username: String,
+    token: String,
+    createdAt: {type: Date, expires: '15m', default: Date.now},
+});
+
+export let forgotPasswordModel;
+
+try {
+    forgotPasswordModel = mongoose.model('forgotPassword');
+} catch (error) {
+    forgotPasswordModel = mongoose.model('forgotPassword', forgotPasswordSchema);
+}
+
 const usersSchema = new schema({
     username: uniqueNameSchema,
     email: {
@@ -131,7 +145,7 @@ export interface Session {
     username: string;
 }
 
-export async function retrieveSession(req, res) {
+export async function retrieveSession(req: IncomingMessage, res: ServerResponse) {
     const cookies = req.headers.cookie || '';
 
     const cookiesObject = cookie.parse(cookies);
@@ -139,49 +153,35 @@ export async function retrieveSession(req, res) {
     const token = cookiesObject.session;
 
     if (!token) {
-        handleRedirect(req, res);
+        handleRedirect(res);
         return;
     }
-    let payload: {username: string};
+    let payload: TFMSession;
     try {
         payload = jwt.verify(token, process.env.TOKEN_SECRET as string);
     } catch (error) {
-        handleRedirect(req, res);
+        handleRedirect(res);
         return;
     }
     if (!payload?.username) {
-        handleRedirect(req, res);
+        handleRedirect(res);
     }
     return payload;
 }
 
-export function appendSecurityCookieModifiers(
-    secure: boolean,
-    domain: string,
-    originalCookie: string
-): string {
+export function appendSecurityCookieModifiers(originalCookie: string): string {
     originalCookie += `; Path=/`;
     originalCookie += '; HttpOnly';
-    if (secure) {
-        originalCookie += '; Secure';
-    }
+    originalCookie += '; Secure';
     originalCookie += '; Max-Age=31536000';
     return originalCookie;
 }
 
-export function handleRedirect(req, res) {
-    const theCookie = appendSecurityCookieModifiers(
-        req.secure,
-        absoluteUrl(req).origin,
-        `session=; Max-Age=-1`
-    );
+export function handleRedirect(res: ServerResponse) {
+    const theCookie = appendSecurityCookieModifiers(`session=; Max-Age=-1`);
     res.writeHead(404, {
         'Set-Cookie': theCookie,
         Location: '/login',
     });
     res.end();
-}
-
-function getToken(): string {
-    return crypto.randomBytes(16).toString('base64');
 }

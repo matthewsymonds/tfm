@@ -1,8 +1,9 @@
 import {GameStage} from 'constants/game';
 import {gamesModel, retrieveSession, usersModel} from 'database';
 import {getInitialState} from 'initial-state';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     const sessionResult = await retrieveSession(req, res);
     if (!sessionResult || !sessionResult.username) {
         return;
@@ -11,7 +12,7 @@ export default async (req, res) => {
     let games;
     let game;
 
-    switch (req.method) {
+    switch (req.method?.toUpperCase()) {
         case 'GET':
             // Retrieve list of public games.
             try {

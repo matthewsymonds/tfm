@@ -1,8 +1,8 @@
 import {setGame} from 'actions';
 import {makePostCall} from 'api-calls';
+import {checkSession} from 'check-session';
 import {Box, Flex} from 'components/box';
 import {Button} from 'components/button';
-import {checkSession} from 'components/check-session';
 import {Input} from 'components/input';
 import {colors} from 'components/ui';
 import {Deck} from 'constants/card-types';
