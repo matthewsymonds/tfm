@@ -2317,6 +2317,7 @@ export class ApiActionHandler {
         const steps = action?.steps ?? [];
         const {state} = this;
         for (const step of steps) {
+            let itemsLength = items.length;
             this.playAction(
                 {
                     action: step,
@@ -2326,6 +2327,10 @@ export class ApiActionHandler {
                 },
                 items
             );
+            // break out of multi step action if previous step is no-op.
+            if (itemsLength === items.length) {
+                break;
+            }
         }
         this.playAction(
             {
@@ -2487,9 +2492,24 @@ export class ApiActionHandler {
             locationType && USER_CHOICE_LOCATION_TYPES.includes(locationType);
         const requiresAmountChoice = amount === VariableAmount.USER_CHOICE;
 
+        const actionType = 'removeResource';
+        const resourceAndAmounts = [{resource, amount}];
+        if (
+            locationType ===
+            ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE
+        ) {
+            // We can't precalculate this one. The user must place the tile first.
+            return askUserToChooseResourceActionDetails({
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+                playedCard,
+                locationType,
+                playerIndex,
+            });
+        }
+
         if (requiresAmountChoice || requiresLocationChoice) {
-            const actionType = 'removeResource';
-            const resourceAndAmounts = [{resource, amount}];
             const wrappers = getPlayerOptionWrappers(this.state, player, {
                 actionType,
                 resourceAndAmounts,

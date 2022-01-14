@@ -329,7 +329,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
             );
             if (element) {
                 elements.push(
-                    <Box margin="8px" height="100%">
+                    <Box margin="8px" height="100%" key={i}>
                         <button
                             style={{padding: '4px', height: '100%'}}
                             disabled={isDisabled}

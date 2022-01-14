@@ -1,7 +1,7 @@
 import {Parameter, PlacementRequirement, t, TileType} from './board';
 import {CardSelectionCriteria} from './card-selection-criteria';
 import {CardConfig, CardType, Deck} from './card-types';
-import {double} from './operation-amount';
+import {double, sum} from './operation-amount';
 import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 import {ResourceLocationType} from './resource';
 import {Resource} from './resource-enum';
@@ -3908,14 +3908,12 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        steps: [
-            {gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITY_TILES_IN_PLAY}},
-            {
-                gainResource: {
-                    [Resource.MEGACREDIT]: VariableAmount.ALL_COLONIES,
-                },
-            },
-        ],
+        gainResource: {
+            [Resource.MEGACREDIT]: sum(
+                VariableAmount.CITY_TILES_IN_PLAY,
+                VariableAmount.ALL_COLONIES
+            ),
+        },
     },
     {
         increaseTerraformRating: 2,

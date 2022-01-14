@@ -1332,7 +1332,8 @@ export function canPlayActionInSpiteOfUI(
                 state,
                 player,
                 parent,
-                supplementalResources
+                supplementalResources,
+                sourceCard
             );
             if (!canPlay) {
                 return [canPlay, reason];
