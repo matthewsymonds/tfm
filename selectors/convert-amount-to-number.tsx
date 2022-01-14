@@ -35,15 +35,16 @@ export function convertAmountToNumber(
             ? state.players.flatMap(player => getTags(player))
             : getTags(player);
         const amountTagAndMaybeWildcard = [amount.tag];
+        const actionPhase = isActionPhase(state);
         if (
-            (isActionPhase(state) && typeof amount.includeWildcard === 'undefined') ||
+            (actionPhase && typeof amount.includeWildcard === 'undefined') ||
             amount.includeWildcard
         ) {
             amountTagAndMaybeWildcard.push(Tag.WILD);
         }
         const matchingTags = tags.filter(tag => amountTagAndMaybeWildcard.includes(tag));
         let extraTags = 0;
-        if (card?.name) {
+        if (actionPhase && card?.name) {
             const fullCard = getCard(card);
             // Martian Survey
             if (fullCard.type === CardType.EVENT) {
