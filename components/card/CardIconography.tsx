@@ -362,6 +362,10 @@ function getMultiplierAndCustomElement(
     } = props;
     let multiplierElement: React.ReactElement | null = null;
     let customElement: React.ReactElement | null = null;
+    if (isTileAmount(amount)) {
+        multiplierElement = <TileIcon type={amount.tile} size={16} />;
+        return [multiplierElement, customElement];
+    }
     switch (amount) {
         case VariableAmount.CITY_TILES_IN_PLAY:
             multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
