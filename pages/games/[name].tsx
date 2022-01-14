@@ -3,6 +3,7 @@ import {makeGetCall} from 'api-calls';
 import {ActiveRound} from 'components/active-round';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
+import {stat} from 'fs';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {NextRouter, useRouter} from 'next/router';
 import {ParsedUrlQuery} from 'querystring';
@@ -68,6 +69,7 @@ function GameInner() {
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
     const numPlayers = useTypedSelector(state => state.players.length ?? 0);
+    const gameName = useTypedSelector(state => state.name);
     const context = useContext(AppContext);
     const loggedInPlayerIndex = useTypedSelector(state =>
         state.players.findIndex(player => player.username === context.getUsername())
@@ -121,7 +123,14 @@ function GameInner() {
         return () => {
             clearInterval(interval);
         };
-    }, [gameStage, loggedInPlayerIndex, isWaitingInDraft, isSyncing, possibleCards.length]);
+    }, [
+        gameStage,
+        loggedInPlayerIndex,
+        isWaitingInDraft,
+        isSyncing,
+        possibleCards.length,
+        gameName,
+    ]);
 
     useEffect(() => {
         let isActive = true;
@@ -163,7 +172,7 @@ function GameInner() {
         }
     };
 
-    return <ActiveRound yourTurnGames={yourTurnGames} />;
+    return <ActiveRound key={gameName} yourTurnGames={yourTurnGames} />;
 }
 
 type ServerGame = {state: GameState; username: string; lastSeenLogItem: number; error?: string};
