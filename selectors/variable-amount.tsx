@@ -220,8 +220,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return 0;
     },
     [VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE]: (state: GameState, player: PlayerState) => {
-        const numPlantTags = getTags(player).filter(tag => tag === Tag.PLANT || tag === Tag.WILD)
-            .length;
+        const numPlantTags = getTags(player).filter(
+            tag => tag === Tag.PLANT || tag === Tag.WILD
+        ).length;
 
         if (numPlantTags >= 3) {
             return 4;
@@ -233,8 +234,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         state: GameState,
         player: PlayerState
     ) => {
-        const numVenusTags = getTags(player).filter(tag => tag === Tag.VENUS || tag === Tag.WILD)
-            .length;
+        const numVenusTags = getTags(player).filter(
+            tag => tag === Tag.VENUS || tag === Tag.WILD
+        ).length;
 
         if (numVenusTags >= 3) {
             return 3;

@@ -22,6 +22,7 @@ import {getResourceBorder, ResourceLocationType} from 'constants/resource';
 import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
+import {isTileAmount} from 'constants/tile-amount';
 import {VariableAmount} from 'constants/variable-amount';
 import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
 import React from 'react';

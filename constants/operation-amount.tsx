@@ -68,19 +68,20 @@ const EXAMPLE_ACTION: Action = {
 
 // Some helper functions
 
-export const applyOperationAndOperand = (operation: Operation, operand: Amount) => (
-    amount: Amount
-) => ({
-    operation,
-    operands: [operand, amount],
-});
+export const applyOperationAndOperand =
+    (operation: Operation, operand: Amount) => (amount: Amount) => ({
+        operation,
+        operands: [operand, amount],
+    });
 
 export const double = applyOperationAndOperand(Operation.MULTIPLY, 2);
 
-export const applyOperation = (operation: Operation) => (...operands: Amount[]) => ({
-    operation,
-    operands,
-});
+export const applyOperation =
+    (operation: Operation) =>
+    (...operands: Amount[]) => ({
+        operation,
+        operands,
+    });
 export const min = applyOperation(Operation.MIN);
 export const max = applyOperation(Operation.MAX);
 export const subtract = applyOperation(Operation.SUBTRACT);

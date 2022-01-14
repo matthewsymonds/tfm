@@ -532,9 +532,10 @@ function MilestonesTable() {
     );
     const state = useTypedSelector(state => state);
     const players = useTypedSelector(state => state.players);
-    const throttledSetHoveredMilestone = useMemo(() => throttle(100, setHoveredMilestone), [
-        setHoveredMilestone,
-    ]);
+    const throttledSetHoveredMilestone = useMemo(
+        () => throttle(100, setHoveredMilestone),
+        [setHoveredMilestone]
+    );
     const visibleMilestone = hoveredMilestone ?? selectedMilestone;
     const visibleClaimedByPlayer =
         claimedMilestones.find(cm => cm.milestone.toLowerCase() === visibleMilestone.toLowerCase())
@@ -688,9 +689,10 @@ function AwardsTable() {
     const awards = useTypedSelector(state => getAwards(state));
     const [selectedAward, setSelectedAward] = useState(awards[0]);
     const [hoveredAward, setHoveredAward] = useState(null);
-    const throttledSetHoveredAward = useMemo(() => throttle(100, setHoveredAward), [
-        setHoveredAward,
-    ]);
+    const throttledSetHoveredAward = useMemo(
+        () => throttle(100, setHoveredAward),
+        [setHoveredAward]
+    );
 
     const players = useTypedSelector(state => state.players);
     const state = useTypedSelector(state => state);

@@ -2,7 +2,7 @@ import {usersModel} from 'database';
 import mailgun from 'mailgun-js';
 import {getYourTurnGameNames, NamedGame} from 'pages/api/your-turn';
 
-const timeoutsByUsername: {[username: string]: number} = {};
+const timeoutsByUsername: Map<string, NodeJS.Timeout> = new Map();
 
 const FIVE_MINUTES = 300000;
 
@@ -29,7 +29,7 @@ const getMessage = (yourTurnGames: NamedGame[]) =>
 
 export async function handleEmail(players: string[]) {
     for (const username of players) {
-        if (typeof timeoutsByUsername[username] !== 'undefined') {
+        if (timeoutsByUsername.get(username)) {
             clearTimeout(timeoutsByUsername[username]);
         }
 
@@ -59,6 +59,6 @@ export async function handleEmail(players: string[]) {
                 delete timeoutsByUsername[username];
             }
         }, FIVE_MINUTES);
-        timeoutsByUsername[username] = timeout;
+        timeoutsByUsername.set(username, timeout);
     }
 }

@@ -49,8 +49,9 @@ export default function NewGame(props) {
     const [isTharsisEnabled, setIsTharsisEnabled] = useState(true);
     const [isHellasEnabled, setIsHellasEnabled] = useState(true);
     const [isElysiumEnabled, setIsElysiumEnabled] = useState(true);
-    const numEnabledBoards = [isTharsisEnabled, isHellasEnabled, isElysiumEnabled].filter(Boolean)
-        .length;
+    const numEnabledBoards = [isTharsisEnabled, isHellasEnabled, isElysiumEnabled].filter(
+        Boolean
+    ).length;
 
     const router = useRouter();
 

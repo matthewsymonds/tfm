@@ -1,14 +1,11 @@
-import {TFMSession} from 'check-session';
 import {Box} from 'components/box';
 import {appContext, AppContext as MyAppContext} from 'context/app-context';
 import {Fonts} from 'fonts';
 import {GlobalStyles} from 'global-styles';
-import withRedux from 'next-redux-wrapper';
 import {AppProps} from 'next/app';
 import Head from 'next/head';
 import {Provider} from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
-import {Store} from 'redux';
 import {makeStore} from 'store';
 
 function InnerAppComponent({Component, pageProps}) {
@@ -20,7 +17,9 @@ export const PROTOCOL_HOST_DELIMITER = '://';
 const FONT_LIST = ['Open Sans', 'Ubuntu Condensed'];
 const FONT_WEIGHT_LIST = [400, 500, 600, 700, 900];
 
-const MyApp = ({Component, pageProps, store}: AppProps & {store: Store; session: TFMSession}) => {
+const store = makeStore();
+
+const MyApp = ({Component, pageProps}: AppProps) => {
     return (
         <Provider store={store}>
             <Head>
@@ -62,6 +61,4 @@ MyApp.getInitialProps = async ({Component, ctx}) => {
     return {pageProps};
 };
 
-const FullApp = withRedux(makeStore)(MyApp);
-
-export default FullApp;
+export default MyApp;

@@ -38,15 +38,14 @@ export function CardContextButton({
         });
     }
 
-    const {collectPaymentAndPerformAction, triggerRef: paymentTriggerRef} = usePaymentPopover<
-        HTMLButtonElement
-    >({
-        onConfirmPayment: playCard,
-        opts: {
-            type: 'card',
-            card,
-        },
-    });
+    const {collectPaymentAndPerformAction, triggerRef: paymentTriggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment: playCard,
+            opts: {
+                type: 'card',
+                card,
+            },
+        });
 
     switch (cardContext) {
         case CardContext.NONE:

@@ -17,28 +17,9 @@ const uniqueNameSchema = {
 
 const schema = mongoose.Schema;
 
-export const db = mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
+export const db = mongoose.connect(process?.env?.MONGODB_URI ?? '', {
     autoIndex: true,
-    bufferMaxEntries: 0,
-    connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
-    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 });
-
-async function connectionIsUp(): Promise<boolean> {
-    try {
-        return await db
-            .admin()
-            .ping()
-            .then(res => !!res?.ok);
-    } catch (err) {
-        return false;
-    }
-}
-
-connectionIsUp();
 
 const gamesSchema = new schema(
     {

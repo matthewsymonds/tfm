@@ -80,9 +80,11 @@ export function getAwardScore(state: GameState, playerIndex: number) {
         const getQuantity = (player: PlayerState, state: GameState) =>
             convertAmountToNumber(awardConfig.amount, state, player);
 
-        const mappingFn: (
-            player: PlayerState
-        ) => {playerIndex: number; quantity: number; score: number} = player => ({
+        const mappingFn: (player: PlayerState) => {
+            playerIndex: number;
+            quantity: number;
+            score: number;
+        } = player => ({
             playerIndex: player.index,
             quantity: getQuantity(player, state),
             score: 0,

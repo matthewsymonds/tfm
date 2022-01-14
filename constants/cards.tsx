@@ -27,8 +27,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.CORPORATE,
         name: 'Asteroid Mining Consortium',
-        text:
-            'Requires that you have titanium production. Decrease any titanium production 1 step and increase your own 1 step.',
+        text: 'Requires that you have titanium production. Decrease any titanium production 1 step and increase your own 1 step.',
         tags: [Tag.JOVIAN],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -50,8 +49,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.BASIC,
         name: 'Cloud Seeding',
-        text:
-            'Requires 3 ocean tiles. Decrease your MC production 1 step and any heat production 1 step.  Increase your plant production 2 steps.',
+        text: 'Requires 3 ocean tiles. Decrease your MC production 1 step and any heat production 1 step.  Increase your plant production 2 steps.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 3,
@@ -64,8 +62,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
+            text: 'Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
             cost: 1,
             revealAndDiscardTopCards: 1,
             gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
@@ -114,8 +111,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 26,
         deck: Deck.BASIC,
         name: 'Capital',
-        text:
-            'Requires 4 ocean tiles. Place [the capital city] tile. Decrease your energy production 2 steps and increase your MC production 5 steps. 1 ADDITIONAL VP FOR EACH OCEAN TILE ADJACENT TO THIS CITY TILE.',
+        text: 'Requires 4 ocean tiles. Place [the capital city] tile. Decrease your energy production 2 steps and increase your MC production 5 steps. 1 ADDITIONAL VP FOR EACH OCEAN TILE ADJACENT TO THIS CITY TILE.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 4,
@@ -131,8 +127,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 14,
         deck: Deck.BASIC,
         name: 'Asteroid',
-        text:
-            'Raise temperature 1 step and gain 2 titanium. Remove up to 3 plants from any player.',
+        text: 'Raise temperature 1 step and gain 2 titanium. Remove up to 3 plants from any player.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
@@ -144,8 +139,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 21,
         deck: Deck.BASIC,
         name: 'Comet',
-        text:
-            'Raise temperature 1 step and place an ocean tile. Remove up to 3 plants from any player.',
+        text: 'Raise temperature 1 step and place an ocean tile. Remove up to 3 plants from any player.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
@@ -157,8 +151,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 27,
         deck: Deck.BASIC,
         name: 'Big Asteroid',
-        text:
-            'Raise temperature 2 steps and gain 4 titanium. Remove up to 4 plants from any player.',
+        text: 'Raise temperature 2 steps and gain 4 titanium. Remove up to 4 plants from any player.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
@@ -168,8 +161,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Pay 12 MC to place an ocean tile. TITANIUM MAY BE USED as if playing a space card.',
+            text: 'Pay 12 MC to place an ocean tile. TITANIUM MAY BE USED as if playing a space card.',
             cost: 12,
             acceptedPayment: [Resource.TITANIUM],
             tilePlacements: [t(TileType.OCEAN)],
@@ -211,8 +203,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Decrease your energy production 1 step to increase your terraforming rating 1 step.',
+            text: 'Decrease your energy production 1 step to increase your terraforming rating 1 step.',
             decreaseProduction: {[Resource.ENERGY]: 1},
             increaseTerraformRating: 1,
         },
@@ -226,8 +217,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 24,
         deck: Deck.BASIC,
         name: 'Domed Crater',
-        text:
-            'Oxygen must be 7% or less. Gain 3 plants and place a city tile. Decrease your energy production 1 step and increase MC production 3 steps.',
+        text: 'Oxygen must be 7% or less. Gain 3 plants and place a city tile. Decrease your energy production 1 step and increase MC production 3 steps.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             max: 7,
@@ -244,8 +234,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 18,
         deck: Deck.BASIC,
         name: 'Noctis City',
-        text:
-            'Decrease your energy production 1 step and increase your MC production 3 steps. Place a tile ON THE RESERVED AREA, disregarding normal placement restrictions.',
+        text: 'Decrease your energy production 1 step and increase your MC production 3 steps. Place a tile ON THE RESERVED AREA, disregarding normal placement restrictions.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
@@ -256,8 +245,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 28,
         deck: Deck.BASIC,
         name: 'Methane From Titan',
-        text:
-            'Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps.',
+        text: 'Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 2,
@@ -293,8 +281,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 25,
         deck: Deck.BASIC,
         name: 'Phobos Space Haven',
-        text:
-            'Increase your titanium production 1 step and place a city tile ON THE RESERVED AREA.',
+        text: 'Increase your titanium production 1 step and place a city tile ON THE RESERVED AREA.',
         tags: [Tag.CITY, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 3,
@@ -305,8 +292,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 15,
         deck: Deck.BASIC,
         name: 'Black Polar Dust',
-        text:
-            'Place an ocean tile. Decrease your MC production 2 steps and increase your heat production 3 steps.',
+        text: 'Place an ocean tile. Decrease your MC production 2 steps and increase your heat production 3 steps.',
         tags: [],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.OCEAN)],
@@ -363,8 +349,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 16,
         deck: Deck.BASIC,
         name: 'Eos Chasma National Park',
-        text:
-            'Requires -12°C  or warmer. Add 1 animal TO ANY animal CARD. Gain 3 plants. Increase your MC production 2 steps.',
+        text: 'Requires -12°C  or warmer. Add 1 animal TO ANY animal CARD. Gain 3 plants. Increase your MC production 2 steps.',
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
@@ -406,8 +391,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 16,
         deck: Deck.BASIC,
         name: 'Cupola City',
-        text:
-            'Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your MC production 3 steps.',
+        text: 'Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your MC production 3 steps.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             max: 9,
@@ -422,8 +406,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.BASIC,
         name: 'Lunar Beam',
-        text:
-            'Decrease your MC production 2 steps and increase your heat production and energy production 2 steps each.',
+        text: 'Decrease your MC production 2 steps and increase your heat production and energy production 2 steps each.',
         tags: [Tag.EARTH, Tag.POWER],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.MEGACREDIT]: 2},
@@ -445,8 +428,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 18,
         deck: Deck.BASIC,
         name: 'Underground City',
-        text:
-            'Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.',
+        text: 'Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CITY)],
@@ -455,8 +437,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 microbe to this card, or remove 2 microbe from this card to raise oxygen level 1 step.',
+            text: 'Add 1 microbe to this card, or remove 2 microbe from this card to raise oxygen level 1 step.',
             choice: [
                 {
                     text: '+1 microbe',
@@ -539,8 +520,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 31,
         deck: Deck.BASIC,
         name: 'Nitrogen-Rich Asteroid',
-        text:
-            'Raise your terraforming rating 2 steps and temperature 1 step. Increase your plant production 1 step, or 4 steps if you have 3 plant tags.',
+        text: 'Raise your terraforming rating 2 steps and temperature 1 step. Increase your plant production 1 step, or 4 steps if you have 3 plant tags.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
@@ -619,8 +599,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 9,
         deck: Deck.BASIC,
         name: 'Natural Preserve',
-        text:
-            'Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your MC production 1 step.',
+        text: 'Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your MC production 1 step.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             max: 4,
@@ -645,8 +624,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 8,
         deck: Deck.CORPORATE,
         name: 'Lightning Harvest',
-        text:
-            'Requires 3 science tags. Increase your energy production and your MC production 1 step each.',
+        text: 'Requires 3 science tags. Increase your energy production and your MC production 1 step each.',
         requiredTags: {[Tag.SCIENCE]: 3},
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
@@ -723,8 +701,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Fish',
-        text:
-            'Requires 2°C or warmer. Decrease any plant production 1 step. 1 VP for each animal on this card.',
+        text: 'Requires 2°C or warmer. Decrease any plant production 1 step. 1 VP for each animal on this card.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: 2,
@@ -758,8 +735,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Small Animals',
-        text:
-            'Requires 6% oxygen. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
+        text: 'Requires 6% oxygen. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 6,
@@ -773,8 +749,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 17,
         deck: Deck.BASIC,
         name: 'Kelp Farming',
-        text:
-            'Requires 6 ocean tiles. Increase your MC production 2 steps and your plant production 3 steps. Gain 2 plants.',
+        text: 'Requires 6 ocean tiles. Increase your MC production 2 steps and your plant production 3 steps. Gain 2 plants.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 6,
@@ -808,8 +783,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 32,
         deck: Deck.BASIC,
         name: 'Beam From a Thorium Asteroid',
-        text:
-            'Requires a Jovian tag. Increase your heat production and energy production 3 steps each.',
+        text: 'Requires a Jovian tag. Increase your heat production and energy production 3 steps each.',
         requiredTags: {[Tag.JOVIAN]: 1},
         tags: [Tag.POWER, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
@@ -820,8 +794,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 12,
         deck: Deck.BASIC,
         name: 'Mangrove',
-        text:
-            'Requires +4°C or warmer. Place a greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
+        text: 'Requires +4°C or warmer. Place a greenery tile ON AN AREA RESERVED FOR OCEAN and raise oxygen 1 step. Disregard normal placement restrictions for this.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: 4,
@@ -850,8 +823,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 6,
         deck: Deck.CORPORATE,
         name: 'Great Escarpment Consortium',
-        text:
-            'Requires that you have steel production. Decrease any steel production 1 step and increase your own 1 step',
+        text: 'Requires that you have steel production. Decrease any steel production 1 step and increase your own 1 step',
         tags: [],
         type: CardType.AUTOMATED,
         decreaseAnyProduction: {[Resource.STEEL]: 1},
@@ -883,8 +855,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.CORPORATE,
         name: 'Mining Area',
-        text:
-            'Place [the mining] tile on an area with a steel or titanium placement bonus, adjacent to another of your tiles. Increase your production of that resource 1 step.',
+        text: 'Place [the mining] tile on an area with a steel or titanium placement bonus, adjacent to another of your tiles. Increase your production of that resource 1 step.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         tilePlacements: [
@@ -918,8 +889,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 9,
         deck: Deck.BASIC,
         name: 'Mining Rights',
-        text:
-            'Place [the mining] tile on an area with a steel or titanium placement bonus. Increase that production 1 step.',
+        text: 'Place [the mining] tile on an area with a steel or titanium placement bonus. Increase that production 1 step.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.MINING_RIGHTS, PlacementRequirement.STEEL_OR_TITANIUM, true)],
@@ -968,8 +938,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Each titanium you have is worth 1 MC extra. Each steel you have is worth 1 MC extra.',
+            text: 'Each titanium you have is worth 1 MC extra. Each steel you have is worth 1 MC extra.',
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -991,8 +960,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Birds',
-        text:
-            'Requires 13% oxygen. Decrease any plant production 2 steps. 1 VP for each animal on this card',
+        text: 'Requires 13% oxygen. Decrease any plant production 2 steps. 1 VP for each animal on this card',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 13,
@@ -1019,8 +987,7 @@ export const cardConfigs: CardConfig[] = [
                     },
                 ],
             },
-            text:
-                'When you play a science tag, including this, you may discard a card from hand to draw a card.',
+            text: 'When you play a science tag, including this, you may discard a card from hand to draw a card.',
         },
         cost: 8,
         deck: Deck.CORPORATE,
@@ -1040,8 +1007,7 @@ export const cardConfigs: CardConfig[] = [
                 },
                 gainResourceTargetType: ResourceLocationType.LAST_PLAYED_CARD,
             },
-            text:
-                'When you play a plant, microbe, or an animal tag, including this, gain 1 plant or add 1 resource TO THAT CARD.',
+            text: 'When you play a plant, microbe, or an animal tag, including this, gain 1 plant or add 1 resource TO THAT CARD.',
         },
         cost: 9,
         deck: Deck.CORPORATE,
@@ -1107,8 +1073,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 36,
         deck: Deck.BASIC,
         name: 'Giant Ice Asteroid',
-        text:
-            'Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any plyer.',
+        text: 'Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any plyer.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         tilePlacements: [t(TileType.OCEAN), t(TileType.OCEAN)],
@@ -1120,8 +1085,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.BASIC,
         name: 'Ganymede Colony',
-        text:
-            'Place a city tile ON THE RESERVED AREA [for Ganymede Colony]. 1 VP per Jovian tag you have.',
+        text: 'Place a city tile ON THE RESERVED AREA [for Ganymede Colony]. 1 VP per Jovian tag you have.',
         tags: [Tag.CITY, Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         tilePlacements: [t(TileType.CITY, PlacementRequirement.GANYMEDE, true)],
@@ -1158,8 +1122,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 16,
         deck: Deck.CORPORATE,
         name: 'Commercial District',
-        text:
-            'Decrease your energy production 1 step and increase your MC production 4 steps. Place [the commercial district] tile. 1 VP PER ADJACENT CITY TILE.',
+        text: 'Decrease your energy production 1 step and increase your MC production 4 steps. Place [the commercial district] tile. 1 VP PER ADJACENT CITY TILE.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
@@ -1239,8 +1202,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 41,
         deck: Deck.CORPORATE,
         name: 'Io Mining Industries',
-        text:
-            'Increase your titanium production 2 steps and your MC production 2 steps. 1 VP per Jovian tag you have.',
+        text: 'Increase your titanium production 2 steps and your MC production 2 steps. 1 VP per Jovian tag you have.',
         tags: [Tag.JOVIAN, Tag.SPACE],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.TITANIUM]: 2, [Resource.MEGACREDIT]: 2},
@@ -1359,8 +1321,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 18,
         deck: Deck.BASIC,
         name: 'Power Grid',
-        text:
-            'Increase your energy production 1 step for each power tag you have, including this.)',
+        text: 'Increase your energy production 1 step for each power tag you have, including this.)',
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
         increaseProduction: {
@@ -1428,8 +1389,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 23,
         deck: Deck.BASIC,
         name: 'Open City',
-        text:
-            'Requires 12% oxygen. Decrease your energy production 1 step and increase your MC production 4 steps. Gain 2 plants and place a city tile.',
+        text: 'Requires 12% oxygen. Decrease your energy production 1 step and increase your MC production 4 steps. Gain 2 plants and place a city tile.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 12,
@@ -1473,8 +1433,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 7,
         deck: Deck.CORPORATE,
         name: 'Business Contacts',
-        text:
-            'Look at the top 4 cards from the deck. Take 2 of them into hand and discard the other 2',
+        text: 'Look at the top 4 cards from the deck. Take 2 of them into hand and discard the other 2',
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
         lookAtCards: {
@@ -1551,8 +1510,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 16,
         deck: Deck.BASIC,
         name: 'Farming',
-        text:
-            'Requires +4°C or warmer. Increase your MC production 2 steps and your plant production 2 steps. Gain 2 plants.',
+        text: 'Requires +4°C or warmer. Increase your MC production 2 steps and your plant production 2 steps. Gain 2 plants.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: 4,
@@ -1580,8 +1538,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 10,
         deck: Deck.BASIC,
         name: 'Urbanized Area',
-        text:
-            'Decrease your energy production 1 step and increase your MC production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.',
+        text: 'Decrease your energy production 1 step and increase your MC production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         decreaseProduction: {
@@ -1610,8 +1567,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.BASIC,
         name: 'Moss',
-        text:
-            'Requires 3 ocean tiles and that you lose 1 plant. Increase your plant production 1 step.',
+        text: 'Requires 3 ocean tiles and that you lose 1 plant. Increase your plant production 1 step.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 3,
@@ -1651,8 +1607,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 3,
         deck: Deck.CORPORATE,
         name: 'Hackers',
-        text:
-            'Decrease your energy production 1 step and any MC production 2 steps. Increase your MC production 2 steps.',
+        text: 'Decrease your energy production 1 step and any MC production 2 steps. Increase your MC production 2 steps.',
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: -1,
@@ -1681,8 +1636,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you play an animal or a plant tag (including these 2), add an animal to this card.',
+            text: 'When you play an animal or a plant tag (including these 2), add an animal to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -1693,8 +1647,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Ecological Zone',
-        text:
-            'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
+        text: 'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL, Tag.PLANT],
         type: CardType.ACTIVE,
         requiredTilePlacements: [{type: TileType.GREENERY, currentPlayer: true}],
@@ -1721,8 +1674,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 8,
         deck: Deck.BASIC,
         name: 'Worms',
-        text:
-            'Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have, including this.',
+        text: 'Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have, including this.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 4,
@@ -1735,8 +1687,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you play an animal, plant, or microbe tag, including this, add a microbe to this card.',
+            text: 'When you play an animal, plant, or microbe tag, including this, add a microbe to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]},
             action: {
                 gainResource: {[Resource.MICROBE]: 1},
@@ -1843,8 +1794,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 25,
         deck: Deck.BASIC,
         name: 'Strip Mine',
-        text:
-            'Decrease your energy production 2 steps. Increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.',
+        text: 'Decrease your energy production 2 steps. Increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         increaseParameter: {[Parameter.OXYGEN]: 2},
@@ -1869,8 +1819,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 18,
         deck: Deck.BASIC,
         name: 'Lava Flows',
-        text:
-            'Raise the temperature 2 steps and place this [the Lava Flow] tile ON EITHER THARSIS THOLUS, ASCRAEUS MONS, PAVONIS MONS OR ARSIA MONS.',
+        text: 'Raise the temperature 2 steps and place this [the Lava Flow] tile ON EITHER THARSIS THOLUS, ASCRAEUS MONS, PAVONIS MONS OR ARSIA MONS.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
@@ -1889,8 +1838,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.BASIC,
         name: 'Mohole Area',
-        text:
-            'Increase your heat production 4 steps. Place [the Mohole Area] tile ON AN AREA RESERVED FOR OCEAN.',
+        text: 'Increase your heat production 4 steps. Place [the Mohole Area] tile ON AN AREA RESERVED FOR OCEAN.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.HEAT]: 4},
@@ -1900,8 +1848,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 36,
         deck: Deck.BASIC,
         name: 'Large Convoy',
-        text:
-            'Place an ocean tile and draw 2 cards. Gain 5 plants, or add 4 animals to ANOTHER card.',
+        text: 'Place an ocean tile and draw 2 cards. Gain 5 plants, or add 4 animals to ANOTHER card.',
         tags: [Tag.EARTH, Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: 2,
@@ -1934,8 +1881,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 8,
         deck: Deck.BASIC,
         name: 'Nitrophilic Moss',
-        text:
-            'Requires 3 ocean tiles and that you lose 2 plants. Increase your plant production 2 steps.',
+        text: 'Requires 3 ocean tiles and that you lose 2 plants. Increase your plant production 2 steps.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 3,
@@ -1958,8 +1904,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Herbivores',
-        text:
-            'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
+        text: 'Requires 8% oxygen. Add 1 animal to this card. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 8,
@@ -1977,8 +1922,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 9,
         deck: Deck.BASIC,
         name: 'Insects',
-        text:
-            'Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.',
+        text: 'Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 6,
@@ -2027,8 +1971,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 2,
         deck: Deck.BASIC,
         name: 'Insulation',
-        text:
-            'Decrease your heat production any number of steps and increase your MC production the same number of steps.',
+        text: 'Decrease your heat production any number of steps and increase your MC production the same number of steps.',
         tags: [],
         type: CardType.AUTOMATED,
         // Used to sequence the actions.
@@ -2161,8 +2104,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 5,
         deck: Deck.CORPORATE,
         name: 'Power Supply Consortium',
-        text:
-            'Requires 2 power tags. Decrease any energy production 1 step and increase your own 1 step.',
+        text: 'Requires 2 power tags. Decrease any energy production 1 step and increase your own 1 step.',
         requiredTags: {[Tag.POWER]: 2},
         tags: [Tag.POWER],
         type: CardType.AUTOMATED,
@@ -2194,8 +2136,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 23,
         deck: Deck.BASIC,
         name: 'Imported Nitrogen',
-        text:
-            'Raise your TR 1 step and gain 4 plants. Add 3 microbes to ANOTHER card and 2 animals to ANOTHER card.',
+        text: 'Raise your TR 1 step and gain 4 plants. Add 3 microbes to ANOTHER card and 2 animals to ANOTHER card.',
         tags: [Tag.EARTH, Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         gainResource: {[Resource.PLANT]: 4, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
@@ -2214,8 +2155,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.BASIC,
         name: 'Magnetic Field Generators',
-        text:
-            'Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your TR 3 steps.',
+        text: 'Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your TR 3 steps.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 4},
@@ -2227,8 +2167,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 10,
         deck: Deck.BASIC,
         name: 'Shuttles',
-        text:
-            'Requires 5% oxygen. Decrease your energy production 1 step and increase your MC production 2 steps.',
+        text: 'Requires 5% oxygen. Decrease your energy production 1 step and increase your MC production 2 steps.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 5,
@@ -2267,8 +2206,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 16,
         deck: Deck.BASIC,
         name: 'Tundra Farming',
-        text:
-            'Requires -6°C or warmer. Increase your plant production 1 step and your MC production 2 steps. Gain 1 plant.',
+        text: 'Requires -6°C or warmer. Increase your plant production 1 step and your MC production 2 steps. Gain 1 plant.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: -6,
@@ -2283,8 +2221,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 26,
         deck: Deck.BASIC,
         name: 'Aerobraked Ammonia Asteroid',
-        text:
-            'Add 2 microbes to ANOTHER card. Increase your heat production 3 steps and your plant production 1 step.',
+        text: 'Add 2 microbes to ANOTHER card. Increase your heat production 3 steps and your plant production 1 step.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         gainResource: {[Resource.MICROBE]: 2},
@@ -2296,8 +2233,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 5,
         deck: Deck.BASIC,
         name: 'Magnetic Field Dome',
-        text:
-            'Decrease your energy production 2 steps and increase your plant production 1 step. Raise your terraform rating 1 step.',
+        text: 'Decrease your energy production 2 steps and increase your plant production 1 step. Raise your terraform rating 1 step.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 2},
@@ -2310,8 +2246,7 @@ export const cardConfigs: CardConfig[] = [
                 gainResource: {[Resource.ANIMAL]: 1},
                 gainResourceTargetType: ResourceLocationType.THIS_CARD,
             },
-            text:
-                'When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.',
+            text: 'When any city tile is placed, add an animal to this card.\nAnimals may not be removed from this card.',
         },
         cost: 10,
         deck: Deck.BASIC,
@@ -2336,8 +2271,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 23,
         deck: Deck.BASIC,
         name: 'Protected Valley',
-        text:
-            'Increase your MC production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN, disregarding normal placement restrictions, and increase oxygen 1 step.',
+        text: 'Increase your MC production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN, disregarding normal placement restrictions, and increase oxygen 1 step.',
         tags: [Tag.BUILDING, Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.MEGACREDIT]: 2},
@@ -2412,8 +2346,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 6,
         deck: Deck.CORPORATE,
         name: 'Fuel Factory',
-        text:
-            'Decreases your energy production 1 step and increase your titanium and your MC production 1 step each.',
+        text: 'Decreases your energy production 1 step and increase your titanium and your MC production 1 step each.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
@@ -2436,8 +2369,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.CORPORATE,
         name: 'Corporate Stronghold',
-        text:
-            'Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile.',
+        text: 'Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         victoryPoints: -2,
@@ -2449,8 +2381,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.BASIC,
         name: 'Biomass Combustors',
-        text:
-            'Requires 6% oxygen. Decrease any plant production 1 step and increase your energy production 2 steps.',
+        text: 'Requires 6% oxygen. Decrease any plant production 1 step and increase your energy production 2 steps.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 6,
@@ -2471,8 +2402,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.BASIC,
         storedResourceType: Resource.ANIMAL,
         name: 'Livestock',
-        text:
-            'Requires 9% oxygen. Decrease your plant production 1 step and increase your MC production 2 steps. 1 VP for each animal on this card.',
+        text: 'Requires 9% oxygen. Decrease your plant production 1 step and increase your MC production 2 steps. 1 VP for each animal on this card.',
         requiredGlobalParameter: {
             type: Parameter.OXYGEN,
             min: 9,
@@ -2485,8 +2415,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you play a science tag, including this, either add a science resource to this card, or remove a science resource from this card to draw a card.',
+            text: 'When you play a science tag, including this, either add a science resource to this card, or remove a science resource from this card to draw a card.',
             trigger: {tags: [Tag.SCIENCE]},
             action: {
                 choice: [
@@ -2525,8 +2454,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.',
+            text: 'Spend 8 MC to place 1 ocean tile. STEEL MAY BE USED as if you were playing a building card.',
             cost: 8,
             acceptedPayment: [Resource.STEEL],
             tilePlacements: [t(TileType.OCEAN)],
@@ -2541,8 +2469,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 7,
         deck: Deck.BASIC,
         name: 'Flooding',
-        text:
-            'Place an ocean tile. IF THERE ARE TILES ADJACENT TO THIS OCEAN TILE, YOU MAY REMOVE 4 MC FROM THE OWNER OF ONE OF THOSE TILES.',
+        text: 'Place an ocean tile. IF THERE ARE TILES ADJACENT TO THIS OCEAN TILE, YOU MAY REMOVE 4 MC FROM THE OWNER OF ONE OF THOSE TILES.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         victoryPoints: -1,
@@ -2598,8 +2525,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 2,
         deck: Deck.CORPORATE,
         name: 'Invention Contest',
-        text:
-            'Look at the top 3 cards from the deck. Take 1 of them into hand and discard the other 2',
+        text: 'Look at the top 3 cards from the deck. Take 1 of them into hand and discard the other 2',
         tags: [Tag.SCIENCE, Tag.EVENT],
         type: CardType.EVENT,
         lookAtCards: {
@@ -2685,16 +2611,14 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Each time a city tile is placed, including this, increase your MC production 1 step.',
+            text: 'Each time a city tile is placed, including this, increase your MC production 1 step.',
             trigger: {placedTile: TileType.CITY, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         cost: 13,
         deck: Deck.BASIC,
         name: 'Immigrant City',
-        text:
-            'Decrease your energy production 1 step and decrease your MC production 2 steps. Place a city tile.',
+        text: 'Decrease your energy production 1 step and decrease your MC production 2 steps. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.ACTIVE,
         decreaseProduction: {[Resource.ENERGY]: 1, [Resource.MEGACREDIT]: 2},
@@ -2755,8 +2679,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.BASIC,
         name: 'Special Design',
-        text:
-            'The next card you play this generation is +2 or -2 in global requirements, your choice.',
+        text: 'The next card you play this generation is +2 or -2 in global requirements, your choice.',
         tags: [Tag.SCIENCE, Tag.EVENT],
         type: CardType.EVENT,
         temporaryParameterRequirementAdjustments: {
@@ -2770,8 +2693,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.CORPORATE,
         name: 'Medical Lab',
-        text:
-            'Increase your MC production 1 step for every 2 building tags you have, including this.',
+        text: 'Increase your MC production 1 step for every 2 building tags you have, including this.',
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -2793,15 +2715,13 @@ export const cardConfigs: CardConfig[] = [
         cost: 10,
         deck: Deck.PROMO,
         name: 'Small Asteroid',
-        text:
-            'Terraforming Mars PROMO. Increase temperature 1 step. Remove up to 2 plants from any player.',
+        text: 'Terraforming Mars PROMO. Increase temperature 1 step. Remove up to 2 plants from any player.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
     },
     {
         action: {
-            text:
-                'Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resources on a card here.\nEffect: Cards here may be played as if from hand with its cost reduced by the number of resources on it.',
+            text: 'Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resources on a card here.\nEffect: Cards here may be played as if from hand with its cost reduced by the number of resources on it.',
         },
         cost: 7,
         deck: Deck.PROMO,
@@ -2815,8 +2735,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 12,
         deck: Deck.PROMO,
         name: 'Snow Algae',
-        text:
-            'Requires 2 oceans. Increase your plant production and your heat production 1 step each.',
+        text: 'Requires 2 oceans. Increase your plant production and your heat production 1 step each.',
         requiredGlobalParameter: {
             type: Parameter.OCEAN,
             min: 2,
@@ -2905,8 +2824,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 22,
         deck: Deck.VENUS,
         name: 'Atmoscoop',
-        text:
-            'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
+        text: 'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
         requiredTags: {[Tag.SCIENCE]: 3},
         choice: [
             {increaseParameter: {[Parameter.TEMPERATURE]: 2}, text: '+2 temperature'},
@@ -2944,8 +2862,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 15,
         deck: Deck.VENUS,
         name: 'Dawn City',
-        text:
-            'Requires 4 science tags. Decrease your energy production 1 step. Increase your titanium production 1 step. Place a city tile ON THE RESERVED AREA.',
+        text: 'Requires 4 science tags. Decrease your energy production 1 step. Increase your titanium production 1 step. Place a city tile ON THE RESERVED AREA.',
         requiredTags: {[Tag.SCIENCE]: 4},
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.TITANIUM]: 1},
@@ -2956,8 +2873,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 floater to this card, or spend 1 floater here to increase your energy production 1 step.',
+            text: 'Add 1 floater to this card, or spend 1 floater here to increase your energy production 1 step.',
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 1},
@@ -2986,8 +2902,7 @@ export const cardConfigs: CardConfig[] = [
             gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         },
         effect: {
-            text:
-                'When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
+            text: 'When playing a Venus tag, floaters here may be used as payment, and are worth 3 MC each',
         },
         cost: 11,
         deck: Deck.VENUS,
@@ -3062,8 +2977,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
+            text: 'Spend 2 MC to add a floater to this card, or spend 2 floaters here to increase Venus 1 step.',
             choice: [
                 {
                     cost: 2,
@@ -3090,8 +3004,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 14,
         deck: Deck.VENUS,
         name: 'Freyja Biodomes',
-        text:
-            'Requires Venus 10%. Add 2 microbes or 2 animals TO ANOTHER VENUS CARD. Decrease your energy production 1 step, and increase your MC production by 2 steps.',
+        text: 'Requires Venus 10%. Add 2 microbes or 2 animals TO ANOTHER VENUS CARD. Decrease your energy production 1 step, and increase your MC production by 2 steps.',
         gainResourceTargetType: ResourceLocationType.VENUS_CARD,
         requiredGlobalParameter: {
             type: Parameter.VENUS,
@@ -3127,8 +3040,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.VENUS,
         name: 'Gyropolis',
-        text:
-            'Decrease your energy production 2 steps. Increase your MC production 1  step for each Venus and Earth tag you have. Place a city tile.',
+        text: 'Decrease your energy production 2 steps. Increase your MC production 1  step for each Venus and Earth tag you have. Place a city tile.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         increaseProduction: {
@@ -3179,8 +3091,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters here to raise Venus 1 step.',
+            text: 'Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters here to raise Venus 1 step.',
             choice: [
                 {
                     removeResource: {[Resource.TITANIUM]: 1},
@@ -3205,8 +3116,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 floater to this card, or spend 1 floater here to raise your MC production 1 step.',
+            text: 'Add 1 floater to this card, or spend 1 floater here to raise your MC production 1 step.',
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 1},
@@ -3232,8 +3142,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 21,
         deck: Deck.VENUS,
         name: 'Luna Metropolis',
-        text:
-            'Increase your MC production 1 step for each Earth tag you have, including this. Place a city tile ON THE RESERVED AREA.',
+        text: 'Increase your MC production 1 step for each Earth tag you have, including this. Place a city tile ON THE RESERVED AREA.',
         tags: [Tag.CITY, Tag.EARTH, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -3261,8 +3170,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 18,
         deck: Deck.VENUS,
         name: 'Maxwell Base',
-        text:
-            'Requires Venus 12%. Decrease your energy production 1 step. Place a city tile ON THE RESERVED AREA.',
+        text: 'Requires Venus 12%. Decrease your energy production 1 step. Place a city tile ON THE RESERVED AREA.',
         requiredGlobalParameter: {
             type: Parameter.VENUS,
             min: 12,
@@ -3339,8 +3247,7 @@ export const cardConfigs: CardConfig[] = [
                     text: '-1 asteroid, +1 Venus',
                 },
             ],
-            text:
-                'Spend 6 MC to add an asteroid resource to this card (TITANIUM MAY BE USED), or spend 1 resource from this card to increase VENUS 1 step.',
+            text: 'Spend 6 MC to add an asteroid resource to this card (TITANIUM MAY BE USED), or spend 1 resource from this card to increase VENUS 1 step.',
         },
         cost: 6,
         deck: Deck.VENUS,
@@ -3418,8 +3325,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
         name: 'Stratopolis',
-        text:
-            'Requires 2 science tags. Increase your MC production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP per 3 floaters on this card.',
+        text: 'Requires 2 science tags. Increase your MC production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP per 3 floaters on this card.',
         requiredTags: {[Tag.SCIENCE]: 2},
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
@@ -3437,8 +3343,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         storedResourceType: Resource.ANIMAL,
         name: 'Stratospheric Birds',
-        text:
-            'Requires Venus 12%, and that you spend 1 floater from any card. 1 VP for each animal on this card.',
+        text: 'Requires Venus 12%, and that you spend 1 floater from any card. 1 VP for each animal on this card.',
         requiredGlobalParameter: {
             type: Parameter.VENUS,
             min: 12,
@@ -3455,8 +3360,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 21,
         deck: Deck.VENUS,
         name: 'Sulphur Exports',
-        text:
-            'Increase Venus 1 step. Increase your MC production 1 step for each Venus tag you have, including this.',
+        text: 'Increase Venus 1 step. Increase your MC production 1 step for each Venus tag you have, including this.',
         tags: [Tag.SPACE, Tag.VENUS],
         increaseParameter: {
             [Parameter.VENUS]: 1,
@@ -3468,8 +3372,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 microbe to this card, or spend any number of microbes here to gain the triple amount of MC.',
+            text: 'Add 1 microbe to this card, or spend any number of microbes here to gain the triple amount of MC.',
             choice: [
                 {
                     gainResource: {[Resource.MICROBE]: 1},
@@ -3512,8 +3415,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 microbe to ANY VENUS CARD, or spend 2 microbes here to raise Venus 1 step.',
+            text: 'Add 1 microbe to ANY VENUS CARD, or spend 2 microbes here to raise Venus 1 step.',
             choice: [
                 {
                     text: '+1 microbe',
@@ -3582,8 +3484,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.VENUS,
         name: 'Venus Soil',
-        text:
-            'Raise Venus 1 step. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.',
+        text: 'Raise Venus 1 step. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.',
         tags: [Tag.PLANT, Tag.VENUS],
         type: CardType.AUTOMATED,
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
@@ -3643,8 +3544,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.VENUS,
         name: 'Venusian Plants',
-        text:
-            'Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to ANOTHER VENUS CARD.',
+        text: 'Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to ANOTHER VENUS CARD.',
         requiredGlobalParameter: {
             type: Parameter.VENUS,
             min: 16,
@@ -3666,8 +3566,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         name: 'Airliners',
         requiredResources: {[Resource.FLOATER]: 3},
-        text:
-            'Requires that you have 3 floaters. Increase your MC production 2 steps. Add 2 floaters to ANOTHER card.',
+        text: 'Requires that you have 3 floaters. Increase your MC production 2 steps. Add 2 floaters to ANOTHER card.',
         tags: [],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -3689,8 +3588,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 1 floater to this card, or spend 1 floater here to gain 2 titanium, or 3 energy, or 4 heat.',
+            text: 'Add 1 floater to this card, or spend 1 floater here to gain 2 titanium, or 3 energy, or 4 heat.',
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 1},
@@ -3776,8 +3674,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 21,
         deck: Deck.COLONIES,
         name: 'Ecology Research',
-        text:
-            'Increase your plant production 1 step for each colony you own. Add 1 animal to ANOTHER card and 2 microbes to ANOTHER card.',
+        text: 'Increase your plant production 1 step for each colony you own. Add 1 animal to ANOTHER card and 2 microbes to ANOTHER card.',
         tags: [Tag.ANIMAL, Tag.MICROBE, Tag.PLANT, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
@@ -3886,8 +3783,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         storedResourceType: Resource.FLOATER,
         name: 'Jovian Lanterns',
-        text:
-            'Requires 1 Jovian tag. Increase your TR 1 step. Add 2 floaters to ANY card. 1 VP per 2 floaters here.',
+        text: 'Requires 1 Jovian tag. Increase your TR 1 step. Add 2 floaters to ANY card. 1 VP per 2 floaters here.',
         requiredTags: {[Tag.JOVIAN]: 1},
         tags: [Tag.JOVIAN],
         type: CardType.ACTIVE,
@@ -3947,8 +3843,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 11,
         deck: Deck.COLONIES,
         name: 'Lunar Mining',
-        text:
-            'Increase your titanium production 1 step for every 2 Earth tags you have in play, including this.',
+        text: 'Increase your titanium production 1 step for every 2 Earth tags you have in play, including this.',
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.TITANIUM]: {tag: Tag.EARTH, dividedBy: 2}},
@@ -4038,8 +3933,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 13,
         deck: Deck.COLONIES,
         name: 'Pioneer Settlement',
-        text:
-            'Requires that you have no more than 1 colony. Decrease your MC production 2 steps. Place a colony.',
+        text: 'Requires that you have no more than 1 colony. Decrease your MC production 2 steps. Place a colony.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
@@ -4060,8 +3954,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 8,
         deck: Deck.COLONIES,
         name: 'Quantum Communications',
-        text:
-            'Requires 4 science tags. Increase your MC production 1 step for each colony in play.',
+        text: 'Requires 4 science tags. Increase your MC production 1 step for each colony in play.',
         requiredTags: {[Tag.SCIENCE]: 4},
         tags: [],
         type: CardType.AUTOMATED,
@@ -4169,8 +4062,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 22,
         deck: Deck.COLONIES,
         name: 'Space Port',
-        text:
-            'Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step, and increase your MC production 4 steps.',
+        text: 'Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step, and increase your MC production 4 steps.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         gainTradeFleet: true,
@@ -4183,8 +4075,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 27,
         deck: Deck.COLONIES,
         name: 'Space Port Colony',
-        text:
-            'Requires a colony. Place a colony. MAY BE PLACED ON A COLONY TILE WHERE YOU ALREADY HAVE A COLONY. Gain 1 Trade Fleet. 1 VP per 2 colonies in play.',
+        text: 'Requires a colony. Place a colony. MAY BE PLACED ON A COLONY TILE WHERE YOU ALREADY HAVE A COLONY. Gain 1 Trade Fleet. 1 VP per 2 colonies in play.',
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: VariableAmount.HALF_ALL_COLONIES,
@@ -4218,8 +4109,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         storedResourceType: Resource.ANIMAL,
         name: 'Sub-Zero Salt Fish',
-        text:
-            'Requires -6°C or warmer. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
+        text: 'Requires -6°C or warmer. Decrease any plant production 1 step. 1 VP per 2 animals on this card.',
         requiredGlobalParameter: {
             type: Parameter.TEMPERATURE,
             min: -6,
@@ -4233,8 +4123,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Spend 1 titanium to add 2 floaters to this card, or spend 2 floaters here to increase your TR 1 step.',
+            text: 'Spend 1 titanium to add 2 floaters to this card, or spend 2 floaters here to increase your TR 1 step.',
             choice: [
                 {
                     removeResource: {[Resource.TITANIUM]: 1},
@@ -4286,8 +4175,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'Add 2 floaters to ANY JOVIAN CARD, or spend any number of floaters here to gain the same number of titanium.',
+            text: 'Add 2 floaters to ANY JOVIAN CARD, or spend any number of floaters here to gain the same number of titanium.',
             choice: [
                 {
                     gainResource: {[Resource.FLOATER]: 2},
@@ -4338,8 +4226,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 6,
         deck: Deck.COLONIES,
         name: 'Urban Decomposers',
-        text:
-            'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
+        text: 'Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.',
         requiredTags: {[Tag.SPACE]: 1},
         tags: [Tag.MICROBE],
         gainResource: {[Resource.MICROBE]: 2},
@@ -4371,8 +4258,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.HEAT]: 2},
         tags: [],
         type: CardType.AUTOMATED,
-        text:
-            'Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.',
+        text: 'Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.',
     },
     {
         cost: 0,
@@ -4389,8 +4275,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.TURMOIL,
         name: 'Cultural Metropolis',
-        text:
-            'Requires that Unity is ruling or that you have 2 delegates there. Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile. Place 2 delegates in 1 party.',
+        text: 'Requires that Unity is ruling or that you have 2 delegates there. Decrease your energy production 1 step and increase your MC production 3 steps. Place a city tile. Place 2 delegates in 1 party.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
@@ -4404,8 +4289,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 20,
         deck: Deck.TURMOIL,
         name: 'Diaspora Movement',
-        text:
-            'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC for each Jovian tag in play.',
+        text: 'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC for each Jovian tag in play.',
         tags: [Tag.JOVIAN],
         type: CardType.AUTOMATED,
         requiredPartyOrTwoDelegates: REDS,
@@ -4457,8 +4341,7 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3}},
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        text:
-            'Requires that Mars First are ruling or that you have 2 delegates there. Increase your MC production 1 step for every 3 building tags you have, including this.',
+        text: 'Requires that Mars First are ruling or that you have 2 delegates there. Increase your MC production 1 step for every 3 building tags you have, including this.',
     },
     {
         name: 'PR Office',
@@ -4469,8 +4352,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: {tag: Tag.EARTH}},
         type: CardType.AUTOMATED,
         tags: [Tag.EARTH],
-        text:
-            'Requires that Unity are ruling or that you have 2 delegates there. Gain 1 TR. Gain 1 MC for each Earth tag you have, including this.',
+        text: 'Requires that Unity are ruling or that you have 2 delegates there. Gain 1 TR. Gain 1 MC for each Earth tag you have, including this.',
     },
     {
         name: 'Public Celebrations',
@@ -4499,8 +4381,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.EVENT,
         requiredPartyOrTwoDelegates: REDS,
         gainResource: {[Resource.MEGACREDIT]: VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES},
-        text:
-            'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC from each EMPTY AREA ADJACENT TO YOUR TILES.',
+        text: 'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC from each EMPTY AREA ADJACENT TO YOUR TILES.',
     },
     {
         name: 'Sponsored Mohole',
@@ -4510,8 +4391,7 @@ export const cardConfigs: CardConfig[] = [
         requiredPartyOrTwoDelegates: KELVINISTS,
         tags: [Tag.BUILDING],
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        text:
-            'Requires that Kelvinists are ruling or that you have 2 delegates there. Increase your heat production 2 steps.',
+        text: 'Requires that Kelvinists are ruling or that you have 2 delegates there. Increase your heat production 2 steps.',
     },
 
     {
@@ -4522,8 +4402,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         requiredPartyOrTwoDelegates: SCIENTISTS,
         gainResource: {[Resource.CARD]: 2},
-        text:
-            'Requires that Scientists are ruling or that you have 2 delegates there. Draw 2 cards.',
+        text: 'Requires that Scientists are ruling or that you have 2 delegates there. Draw 2 cards.',
     },
     {
         name: 'Wildlife Dome',
@@ -4533,8 +4412,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.ANIMAL, Tag.PLANT, Tag.BUILDING],
         tilePlacements: [t(TileType.GREENERY)],
         type: CardType.AUTOMATED,
-        text:
-            'Requires that Greens are ruling or that you have 2 delegates there. Place a greenery tile and raise oxygen 1 step.',
+        text: 'Requires that Greens are ruling or that you have 2 delegates there. Place a greenery tile and raise oxygen 1 step.',
     },
     {
         name: 'Vote of No Confidence',
@@ -4546,8 +4424,7 @@ export const cardConfigs: CardConfig[] = [
         requiredPartyLeader: true,
         exchangeChairman: true,
         increaseTerraformRating: 1,
-        text:
-            'Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move you own delegate (from the reserve) there instead. Gain 1 TR.',
+        text: 'Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move you own delegate (from the reserve) there instead. Gain 1 TR.',
     },
     {
         deck: Deck.PRELUDE,
@@ -4632,8 +4509,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Ecology Experts',
-        text:
-            'Increase your plant production 1 step. Play a card from Hand, ignoring global requirements',
+        text: 'Increase your plant production 1 step. Play a card from Hand, ignoring global requirements',
         tags: [Tag.MICROBE, Tag.PLANT],
         type: CardType.PRELUDE,
         increaseProduction: {[Resource.PLANT]: 1},
@@ -4650,8 +4526,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Experimental Forest',
-        text:
-            'Place a greenery tile and increase oxygen 1 step. Reveal cards from the deck until you have revealed 2 plant-tag cards. Take these into your hand, and discard the rest.',
+        text: 'Place a greenery tile and increase oxygen 1 step. Reveal cards from the deck until you have revealed 2 plant-tag cards. Take these into your hand, and discard the rest.',
         tags: [Tag.PLANT],
         type: CardType.PRELUDE,
         tilePlacements: [t(TileType.GREENERY)],
@@ -4748,8 +4623,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Mohole Excavation',
-        text:
-            'Increase your steel production 1 step, and your heat production 2 steps. Gain 2 heat.',
+        text: 'Increase your steel production 1 step, and your heat production 2 steps. Gain 2 heat.',
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
         increaseProduction: {[Resource.STEEL]: 1, [Resource.HEAT]: 2},
@@ -4760,8 +4634,7 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 5},
         deck: Deck.PRELUDE,
         name: 'Nitrogen Shipment',
-        text:
-            'Raise your terraform rating 1 step. Increase your plant production 1 step. Gain 5 MC.',
+        text: 'Raise your terraform rating 1 step. Increase your plant production 1 step. Gain 5 MC.',
         tags: [],
         type: CardType.PRELUDE,
     },
@@ -4794,8 +4667,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Research Network',
-        text:
-            'Draw 3 cards, and increase your MC production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.',
+        text: 'Draw 3 cards, and increase your MC production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.',
         tags: [Tag.WILD],
         type: CardType.PRELUDE,
         gainResource: {[Resource.CARD]: 3},
@@ -4822,8 +4694,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Society Support',
-        text:
-            'Decrease your MC production 1 step. Increase your plant production, energy production, and heat production 1 step each.',
+        text: 'Decrease your MC production 1 step. Increase your plant production, energy production, and heat production 1 step each.',
         tags: [],
         type: CardType.PRELUDE,
         decreaseProduction: {[Resource.MEGACREDIT]: 1},
@@ -4858,8 +4729,7 @@ export const cardConfigs: CardConfig[] = [
     {
         deck: Deck.PRELUDE,
         name: 'Acquired Space Agency',
-        text:
-            'Gain 6 titanium. Reveal cards from the deck until you have revealed 2 space cards. Take those into hand, and discard the rest.',
+        text: 'Gain 6 titanium. Reveal cards from the deck until you have revealed 2 space cards. Take those into hand, and discard the rest.',
         tags: [],
         type: CardType.PRELUDE,
         revealTakeAndDiscard: {[CardSelectionCriteria.SPACE_TAG]: 2},
@@ -4879,8 +4749,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 15,
         deck: Deck.PRELUDE,
         name: 'Lava Tube Settlement',
-        text:
-            'Decrease your energy production 1 step. Increase your MC production 2 steps. Place a city tile ON A VOLCANIC AREA, same as Lava Flows, regardless of adjacent cities.',
+        text: 'Decrease your energy production 1 step. Increase your MC production 2 steps. Place a city tile ON A VOLCANIC AREA, same as Lava Flows, regardless of adjacent cities.',
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
@@ -4930,8 +4799,7 @@ export const cardConfigs: CardConfig[] = [
         cost: 4,
         deck: Deck.PRELUDE,
         name: 'Research Coordination',
-        text:
-            'After being played, when you perform an action, the wild tag counts as any tag of your choice.',
+        text: 'After being played, when you perform an action, the wild tag counts as any tag of your choice.',
         tags: [Tag.WILD],
         type: CardType.AUTOMATED,
     },
@@ -4957,8 +4825,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'After you pay for a card or standard project with a basic cost of 20 MC or more, you gain 4 MC.',
+            text: 'After you pay for a card or standard project with a basic cost of 20 MC or more, you gain 4 MC.',
             trigger: {cost: 20},
             action: {gainResource: {[Resource.MEGACREDIT]: 4}},
         },
@@ -5006,8 +4873,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.',
+            text: 'Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.',
         },
         deck: Deck.BASIC,
         name: 'Inventrix',
@@ -5027,8 +4893,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Each time you get any steel or titanium as a placement bonus on the map, increase your steel production 1 step.',
+            text: 'Each time you get any steel or titanium as a placement bonus on the map, increase your steel production 1 step.',
             trigger: {steelOrTitaniumPlacementBonus: true},
             action: {increaseProduction: {[Resource.STEEL]: 1}},
         },
@@ -5042,8 +4907,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'Each time any Jovian tag is put into play, including this, increase your MC production 1 step.',
+            text: 'Each time any Jovian tag is put into play, including this, increase your MC production 1 step.',
             trigger: {tags: [Tag.JOVIAN], anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
@@ -5102,8 +4966,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When playing a power card OR THE STANDARD PROJECT POWER PLANT, you pay 3 MC less for it.',
+            text: 'When playing a power card OR THE STANDARD PROJECT POWER PLANT, you pay 3 MC less for it.',
         },
         deck: Deck.BASIC,
         name: 'ThorGate',
@@ -5116,8 +4979,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         action: {
-            text:
-                'If your Terraform Rating was raised this generation, you may pay 3 MC to raise it 1 step more.',
+            text: 'If your Terraform Rating was raised this generation, you may pay 3 MC to raise it 1 step more.',
             requiresTerraformRatingIncrease: true,
             removeResource: {[Resource.MEGACREDIT]: 3},
             increaseTerraformRating: 1,
@@ -5153,8 +5015,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         storedResourceType: Resource.FLOATER,
         name: 'Celestic',
-        text:
-            'You start with 42 MC. As your first action, reveal cards from the deck until you have revealed 2 cards with a floater icon on it. Take those 2 cards into hand, and discard the rest. 1 VP per 3 floaters on this card.',
+        text: 'You start with 42 MC. As your first action, reveal cards from the deck until you have revealed 2 cards with a floater icon on it. Take those 2 cards into hand, and discard the rest. 1 VP per 3 floaters on this card.',
         tags: [Tag.VENUS],
         type: CardType.CORPORATION,
         victoryPoints: VariableAmount.THIRD_RESOURCES_ON_CARD,
@@ -5164,8 +5025,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'For each step you increase the production of a resource, including this, you also gain that resource',
+            text: 'For each step you increase the production of a resource, including this, you also gain that resource',
         },
         deck: Deck.VENUS,
         name: 'Manutech',
@@ -5182,8 +5042,7 @@ export const cardConfigs: CardConfig[] = [
         },
         deck: Deck.VENUS,
         name: 'Morning Star Inc.',
-        text:
-            'You start with 50 MC. As your first action, reveal cards from the deck until you have revealed 3 Venus-tag cards. Take those into hand and discard the rest.',
+        text: 'You start with 50 MC. As your first action, reveal cards from the deck until you have revealed 3 Venus-tag cards. Take those into hand and discard the rest.',
         tags: [Tag.VENUS],
         type: CardType.CORPORATION,
         parameterRequirementAdjustments: {
@@ -5250,8 +5109,7 @@ export const cardConfigs: CardConfig[] = [
         },
         deck: Deck.PRELUDE,
         name: 'Valley Trust',
-        text:
-            'You start with 37 MC. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two.',
+        text: 'You start with 37 MC. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two.',
         forcedAction: {
             choosePrelude: 3,
         },
@@ -5278,15 +5136,13 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you get a new type of tag in play (event cards do not count), increase your MC production 1 step.',
+            text: 'When you get a new type of tag in play (event cards do not count), increase your MC production 1 step.',
             trigger: {newTag: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         deck: Deck.COLONIES,
         name: 'Aridor',
-        text:
-            'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
+        text: 'You start with 40 MC. As your first action, put an additional Colony Tile of your choice into play.',
         tags: [],
         type: CardType.CORPORATION,
         forcedAction: {
@@ -5296,8 +5152,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you play an animal or plant tag, including this, add 1 animal to this card.',
+            text: 'When you play an animal or plant tag, including this, add 1 animal to this card.',
             trigger: {tags: [Tag.ANIMAL, Tag.PLANT]},
             action: {
                 gainResource: {[Resource.ANIMAL]: 1},
@@ -5307,8 +5162,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.COLONIES,
         storedResourceType: Resource.ANIMAL,
         name: 'Arklight',
-        text:
-            'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
+        text: 'You start with 45 MC. Increase your MC production 2 steps. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL],
         type: CardType.CORPORATION,
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
@@ -5317,8 +5171,7 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         effect: {
-            text:
-                'When you buy a card to hand, pay 5 MC instead of 3 MC, including the starting hand.',
+            text: 'When you buy a card to hand, pay 5 MC instead of 3 MC, including the starting hand.',
         },
         deck: Deck.COLONIES,
         name: 'Polyphemos',
@@ -5373,8 +5226,7 @@ export const cardConfigs: CardConfig[] = [
         effect: {
             trigger: {placedTile: TileType.OCEAN, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
-            text:
-                'When any ocean tile is placed, increase your MC production 1 step. Your bonus for placing adjacent to oceans is 3 MC instead of 2 MC.',
+            text: 'When any ocean tile is placed, increase your MC production 1 step. Your bonus for placing adjacent to oceans is 3 MC instead of 2 MC.',
         },
         oceanAdjacencyBonus: 3,
     },
@@ -5383,15 +5235,13 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         name: 'Pristar',
         gainResource: {[Resource.MEGACREDIT]: 53},
-        text:
-            'You start with 53 MC. Decrease your TR 2 steps. 1 VP per preservation resource here.',
+        text: 'You start with 53 MC. Decrease your TR 2 steps. 1 VP per preservation resource here.',
         tags: [],
         decreaseTerraformRating: 2,
         storedResourceType: Resource.PRESERVATION,
         victoryPoints: VariableAmount.RESOURCES_ON_CARD,
         effect: {
-            text:
-                'During production phase, if you did not get TR so far this generation, add one preservation resource here and gain 6 MC',
+            text: 'During production phase, if you did not get TR so far this generation, add one preservation resource here and gain 6 MC',
         },
         gainResourcesIfNotTerraformedThisGeneration: {
             [Resource.PRESERVATION]: 1,
@@ -5404,8 +5254,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         name: 'Septum Tribus',
         gainResource: {[Resource.MEGACREDIT]: 36},
-        text:
-            'You start with 36 MC. When you perform an action, the wild tag counts as any tag of your choice.',
+        text: 'You start with 36 MC. When you perform an action, the wild tag counts as any tag of your choice.',
         tags: [Tag.WILD],
         action: {
             text: 'Gain 2 MC for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE.',

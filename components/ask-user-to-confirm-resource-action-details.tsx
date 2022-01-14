@@ -156,11 +156,13 @@ export function deserializeResourceOptionAction(
     option: SerializedResourceActionOption,
     state: GameState
 ): ResourceActionOption {
-    const location = (option.location.type === 'Player'
-        ? state.players.find(player => player.username === option.location.name)
-        : state.players
-              .flatMap(player => getPlayedCards(player))
-              .find(card => card.name === option.location.name))!;
+    const location = (
+        option.location.type === 'Player'
+            ? state.players.find(player => player.username === option.location.name)
+            : state.players
+                  .flatMap(player => getPlayedCards(player))
+                  .find(card => card.name === option.location.name)
+    )!;
 
     return {
         ...option,

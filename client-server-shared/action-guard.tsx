@@ -89,9 +89,10 @@ export class ActionGuard {
         }
         // If the user has been prompted "play a card from hand"
         // Then they should be able to play a card even though the rest of the UI is disabled!
-        const canPlayAction = (player.pendingPlayCardFromHand || isPrelude
-            ? this.canPlayActionInSpiteOfUI
-            : this.canPlayAction
+        const canPlayAction = (
+            player.pendingPlayCardFromHand || isPrelude
+                ? this.canPlayActionInSpiteOfUI
+                : this.canPlayAction
         ).bind(this);
 
         const [canPlay, reason] = canPlayAction(
@@ -919,10 +920,8 @@ export class ActionGuard {
             this.state,
             this._getPlayerToConsider()
         );
-        const {
-            actionType,
-            resourceAndAmounts,
-        } = this._getPlayerToConsider().pendingResourceActionDetails!;
+        const {actionType, resourceAndAmounts} =
+            this._getPlayerToConsider().pendingResourceActionDetails!;
         const canSkipChooseResource = canSkipResourceActionDetails(
             playerOptionWrappers,
             actionType,

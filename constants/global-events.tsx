@@ -63,8 +63,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: REDS,
         },
         action: {
-            text:
-                'Lose 3 MC for every 5 TR over 10 (max 5 sets). Increase MC production 1 step per influence.',
+            text: 'Lose 3 MC for every 5 TR over 10 (max 5 sets). Increase MC production 1 step per influence.',
             removeResource: {
                 [Resource.MEGACREDIT]: triple(
                     min(divide(subtract(VariableAmount.TERRAFORM_RATING, 10), 5), 5)
@@ -177,8 +176,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: SCIENTISTS,
         },
         action: {
-            text:
-                'Gain 10 MC if you have 9 or more different tags. Influence counts as unique tags.',
+            text: 'Gain 10 MC if you have 9 or more different tags. Influence counts as unique tags.',
             gainResource: {
                 [Resource.MEGACREDIT]: {
                     condition: Condition.GREATER_THAN_OR_EQUAL_TO,
@@ -196,8 +194,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: GREENS,
         },
         action: {
-            text:
-                'Lose all heat. Lose 2 MC for each building tag (max 5, then reduced by influence).',
+            text: 'Lose all heat. Lose 2 MC for each building tag (max 5, then reduced by influence).',
             removeResource: {
                 [Resource.HEAT]: {resource: Resource.HEAT},
                 [Resource.MEGACREDIT]: double(
@@ -268,8 +265,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: UNITY,
         },
         action: {
-            text:
-                'First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.',
+            text: 'First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.',
             gainStandardResources: VariableAmount.INFLUENCE,
         },
         firstPlayerAction: {
@@ -379,8 +375,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: GREENS,
         },
         action: {
-            text:
-                'All cards with resources on them gain 1 resource. Draw 1 card for each influence.',
+            text: 'All cards with resources on them gain 1 resource. Draw 1 card for each influence.',
             increaseStoredResourceAmount: 1,
             gainResource: {[Resource.CARD]: VariableAmount.INFLUENCE},
         },
@@ -412,8 +407,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         top: {name: 'Second Energy Crisis', party: SCIENTISTS},
         bottom: {name: 'Improved Energy Templates', party: KELVINISTS},
         action: {
-            text:
-                'Increase energy production 1 step per 2 power tags (no limit). Influence counts as power tags.',
+            text: 'Increase energy production 1 step per 2 power tags (no limit). Influence counts as power tags.',
             increaseProduction: {
                 [Resource.ENERGY]: divide(sum({tag: Tag.POWER}, VariableAmount.INFLUENCE), 2),
             },
@@ -426,8 +420,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             party: MARS_FIRST,
         },
         action: {
-            text:
-                'Count your influence plus building tags and city tiles (no limits). The player with the most (or 10 in solo) gains 2 TR, the 2nd (or counting 5 in solo) gains 1 TR (ties are friendly).',
+            text: 'Count your influence plus building tags and city tiles (no limits). The player with the most (or 10 in solo) gains 2 TR, the 2nd (or counting 5 in solo) gains 1 TR (ties are friendly).',
             increaseTerraformRating: {
                 contest: sum({tile: TileType.CITY}, {tag: Tag.BUILDING}, VariableAmount.INFLUENCE),
                 first: 2,
@@ -464,8 +457,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         top: {name: 'Terraforming Lobbying', party: KELVINISTS},
         bottom: {name: 'Generous Funding', party: UNITY},
         action: {
-            text:
-                'Gain 2 MC for each influence and each complete set of 5 TR over 15 (max 5 sets).',
+            text: 'Gain 2 MC for each influence and each complete set of 5 TR over 15 (max 5 sets).',
             gainResource: {
                 [Resource.MEGACREDIT]: double(
                     sum(
@@ -510,8 +502,7 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         top: {name: 'World Government Directives', party: UNITY},
         bottom: {name: 'Revolution', party: MARS_FIRST},
         action: {
-            text:
-                'Count Earth tags and ADD(!) influence. The player(s) with the most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more.',
+            text: 'Count Earth tags and ADD(!) influence. The player(s) with the most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more.',
             decreaseTerraformRating: {
                 contest: sum({tag: Tag.EARTH}, VariableAmount.INFLUENCE),
                 first: 2,

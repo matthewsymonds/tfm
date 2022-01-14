@@ -720,8 +720,9 @@ export class ApiActionHandler {
         let isChoiceAction = false;
         const {pendingActionReplay} = player;
 
-        const lastRoundUsedAction = player.playedCards.find(card => card.name === parent.name)!
-            .lastRoundUsedAction;
+        const lastRoundUsedAction = player.playedCards.find(
+            card => card.name === parent.name
+        )!.lastRoundUsedAction;
 
         if (lastRoundUsedAction === this.state.common.generation && !pendingActionReplay) {
             throw new Error('Already used action this round');
@@ -994,10 +995,8 @@ export class ApiActionHandler {
     }
 
     skipChooseDuplicateProduction() {
-        const [
-            canSkipChooseDuplicateProduction,
-            reason,
-        ] = this.actionGuard.canSkipChooseDuplicateProduction();
+        const [canSkipChooseDuplicateProduction, reason] =
+            this.actionGuard.canSkipChooseDuplicateProduction();
         if (!canSkipChooseDuplicateProduction) {
             throw new Error(reason);
         }
@@ -1213,10 +1212,8 @@ export class ApiActionHandler {
     }
 
     completePutAdditionalColonyTileIntoPlay({colony}: {colony: string}) {
-        const [
-            canCompletePutAdditionalColonyTileIntoPlay,
-            reason,
-        ] = this.actionGuard.canCompletePutAdditionalColonyTileIntoPlay(colony);
+        const [canCompletePutAdditionalColonyTileIntoPlay, reason] =
+            this.actionGuard.canCompletePutAdditionalColonyTileIntoPlay(colony);
         if (!canCompletePutAdditionalColonyTileIntoPlay) {
             throw new Error(reason);
         }
@@ -1236,10 +1233,8 @@ export class ApiActionHandler {
         option: ResourceActionOption;
         variableAmount: number;
     }) {
-        const [
-            canCompleteChooseResourceActionDetails,
-            reason,
-        ] = this.actionGuard.canCompleteChooseResourceActionDetails(option, variableAmount);
+        const [canCompleteChooseResourceActionDetails, reason] =
+            this.actionGuard.canCompleteChooseResourceActionDetails(option, variableAmount);
         if (!canCompleteChooseResourceActionDetails) {
             throw new Error(reason);
         }
@@ -1252,10 +1247,8 @@ export class ApiActionHandler {
     }
 
     skipChooseResourceActionDetails() {
-        const [
-            canSkipChooseResourceActionDetails,
-            reason,
-        ] = this.actionGuard.canSkipChooseResourceActionDetails();
+        const [canSkipChooseResourceActionDetails, reason] =
+            this.actionGuard.canSkipChooseResourceActionDetails();
         if (!canSkipChooseResourceActionDetails) {
             throw new Error(reason);
         }
@@ -1983,7 +1976,8 @@ export class ApiActionHandler {
                         // ocean.
                     } else if (!action.noParameterBonuses && bonus?.increaseTerraformRating) {
                         // combine terraform increases into one action/log message.
-                        (terraformRatingIncrease as number) += bonus.increaseTerraformRating as number;
+                        (terraformRatingIncrease as number) +=
+                            bonus.increaseTerraformRating as number;
                     } else if (bonus) {
                         if (
                             action.noParameterBonuses &&
