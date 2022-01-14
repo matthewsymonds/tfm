@@ -4,6 +4,7 @@ import {Fonts} from 'fonts';
 import {GlobalStyles} from 'global-styles';
 import {AppProps} from 'next/app';
 import Head from 'next/head';
+import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
 import {makeStore} from 'store';
@@ -20,6 +21,27 @@ const FONT_WEIGHT_LIST = [400, 500, 600, 700, 900];
 const store = makeStore();
 
 const MyApp = ({Component, pageProps}: AppProps) => {
+    const documentFonts = typeof document !== 'undefined' ? document.fonts : null;
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
+        if (documentFonts) {
+            if (documentFonts.status === 'loaded') {
+                setReady(true);
+                return;
+            }
+            const listener = () => {
+                setReady(true);
+            };
+            documentFonts.addEventListener('loadingdone', listener);
+            return () => {
+                documentFonts.removeEventListener('loadingdone', listener);
+            };
+        } else {
+            setTimeout(() => {
+                setReady(true);
+            });
+        }
+    }, []);
     return (
         <Provider store={store}>
             <Head>
@@ -27,9 +49,10 @@ const MyApp = ({Component, pageProps}: AppProps) => {
             </Head>
 
             <MyAppContext.Provider value={appContext}>
-                <div id={'root'}>
-                    <Fonts />
+                <div id={'root'} style={{visibility: ready ? 'visible' : 'hidden'}}>
                     <GlobalStyles />
+
+                    <Fonts />
                     {/* Force every font to load */}
                     {FONT_LIST.flatMap(font =>
                         FONT_WEIGHT_LIST.map(weight => (
