@@ -522,12 +522,7 @@ function getMultiplierAndCustomElement(
             multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
             break;
         case VariableAmount.THIRD_FLOATERS:
-            multiplierElement = (
-                <React.Fragment>
-                    <TextWithMargin>3</TextWithMargin>
-                    <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
-                </React.Fragment>
-            );
+            multiplierElement = <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />;
             break;
         case VariableAmount.FLOATERS:
             multiplierElement = <ResourceIcon name={Resource.FLOATER} size={16} amount={1} />;

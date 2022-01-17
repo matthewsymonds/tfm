@@ -4284,7 +4284,7 @@ export const cardConfigs: CardConfig[] = [
     },
 
     {
-        cost: 20,
+        cost: 7,
         deck: Deck.TURMOIL,
         name: 'Diaspora Movement',
         text: 'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC for each Jovian tag in play.',
