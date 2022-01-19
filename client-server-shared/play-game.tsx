@@ -5,7 +5,6 @@ import {GameStage} from 'constants/game';
 import {Card} from 'models/card';
 import {GameState} from 'reducer';
 import {ApiActionHandler} from 'server/api-action-handler';
-import {StateHydrator} from 'server/state-hydrator';
 import spawnExhaustiveSwitchError from 'utils';
 
 export function playGame(
@@ -13,17 +12,14 @@ export function playGame(
     // TODO enhance
     payload: any,
     actionHandler: ApiActionHandler,
-    stateHydrator: StateHydrator,
     originalState: GameState,
     stateCheckpoint?: string
 ) {
     let card: Card;
     switch (type) {
         case ApiActionType.API_PLAY_CARD:
-            card = stateHydrator.getCard(payload.name);
-
             actionHandler.playCard({
-                serializedCard: card,
+                serializedCard: {name: payload.name},
                 payment: payload.payment,
                 conditionalPayments: payload.conditionalPayments,
                 supplementalResources: payload.supplementalResources,
@@ -31,20 +27,16 @@ export function playGame(
 
             break;
         case ApiActionType.API_PLAY_CARD_ACTION:
-            card = stateHydrator.getCard(payload.name);
             actionHandler.playCardAction({
-                parent: card,
+                serializedCard: {name: payload.name},
                 payment: payload.payment,
                 supplementalResources: payload.supplementalResources,
                 choiceIndex: payload.choiceIndex,
             });
             break;
         case ApiActionType.API_PLAY_STANDARD_PROJECT:
-            const standardProjectAction = stateHydrator.getStandardProject(
-                payload.standardProjectActionType
-            );
             actionHandler.playStandardProject({
-                standardProjectAction,
+                standardProjectActionType: payload.standardProjectActionType,
                 payment: payload.payment,
             });
             break;

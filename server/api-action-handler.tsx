@@ -134,7 +134,7 @@ import {
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
-import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import {getStandardProjects, StandardProjectType} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameAction, GameActionType} from 'GameActionState';
@@ -705,24 +705,28 @@ export class ApiActionHandler {
     }
 
     playCardAction({
-        parent,
+        serializedCard,
         payment,
         supplementalResources,
         choiceIndex,
     }: {
-        parent: Card;
+        serializedCard: {name: string};
         payment?: Payment;
         supplementalResources?: SupplementalResources;
         choiceIndex?: number;
     }) {
         const player = this.getLoggedInPlayer();
+        const {playedCards} = player;
+        const playedCard = playedCards.find(card => card.name === serializedCard.name);
+        if (!playedCard) {
+            throw new Error('Cannot find played card');
+        }
+        const parent = getCard(playedCard);
         let action = parent.action;
         let isChoiceAction = false;
         const {pendingActionReplay} = player;
 
-        const lastRoundUsedAction = player.playedCards.find(
-            card => card.name === parent.name
-        )!.lastRoundUsedAction;
+        const {lastRoundUsedAction} = parent;
 
         if (lastRoundUsedAction === this.state.common.generation && !pendingActionReplay) {
             throw new Error('Already used action this round');
@@ -820,12 +824,18 @@ export class ApiActionHandler {
     }
 
     playStandardProject({
-        standardProjectAction,
+        standardProjectActionType,
         payment,
     }: {
-        standardProjectAction: StandardProjectAction;
+        standardProjectActionType: StandardProjectType;
         payment: NumericPropertyCounter<Resource>;
     }) {
+        const standardProjectAction = getStandardProjects(this.state).find(
+            action => action.type === standardProjectActionType
+        );
+        if (!standardProjectAction) {
+            throw new Error('Standard project not available');
+        }
         const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
 
         if (!canPlay) {
@@ -837,7 +847,7 @@ export class ApiActionHandler {
         this.addGameActionToLog({
             actionType: GameActionType.STANDARD_PROJECT,
             playerIndex,
-            standardProject: standardProjectAction.type,
+            standardProject: standardProjectActionType,
             payment,
         });
 

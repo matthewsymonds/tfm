@@ -5,7 +5,6 @@ import {gamesModel, retrieveSession} from 'database';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {ApiActionHandler} from 'server/api-action-handler';
 import {handleEmail} from 'server/handle-email';
-import {StateHydrator} from 'server/state-hydrator';
 import {censorGameState} from 'state-serialization';
 
 // This isn't perfect. But it's an attempted safeguard against spammed requests.
@@ -70,10 +69,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         const originalState = hydratedGame.state;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
-        const stateHydrator = new StateHydrator(hydratedGame, username);
         hydratedGame.state.name = game.name;
 
-        playGame(type, payload, actionHandler, stateHydrator, originalState, game.stateCheckpoint);
+        playGame(type, payload, actionHandler, originalState, game.stateCheckpoint);
 
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;

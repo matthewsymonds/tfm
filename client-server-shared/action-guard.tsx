@@ -35,7 +35,6 @@ import {getMoney} from 'selectors/get-money';
 import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
 import {isActiveRound} from 'selectors/is-active-round';
-import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import {meetsColonyPlacementRequirements} from 'selectors/meets-colony-placement-requirements';
 import {meetsProductionRequirements} from 'selectors/meets-production-requirements';
 import {meetsTerraformRequirements} from 'selectors/meets-terraform-requirements';
@@ -191,10 +190,6 @@ export class ActionGuard {
         const [canPlay, reason] = this.canPlayAction(standardProjectAction, state);
         if (!canPlay) {
             return [canPlay, reason];
-        }
-
-        if (standardProjectAction?.type === StandardProjectType.VENUS && !isPlayingVenus(state)) {
-            return [false, 'Not playing venus'];
         }
 
         if (!isActiveRound(state)) {

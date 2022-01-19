@@ -20,12 +20,10 @@ import {batch} from 'react-redux';
 import {toast} from 'react-toastify';
 import {AnyAction, Store} from 'redux';
 import {ApiActionHandler, SupplementalResources} from 'server/api-action-handler';
-import {StateHydrator} from 'server/state-hydrator';
 import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
     actionHandler: ApiActionHandler;
-    stateHydrator: StateHydrator;
     constructor(
         private readonly dispatch: (action: AnyAction) => void,
         username: string,
@@ -44,7 +42,6 @@ export class ApiClient implements GameActionHandler {
             dispatch,
             /* ignoreSyncing = */ true
         );
-        this.stateHydrator = new StateHydrator(game, username);
 
         store.subscribe(() => {
             const state = store.getState();
@@ -80,13 +77,7 @@ export class ApiClient implements GameActionHandler {
         batch(() => {
             this.store.dispatch(setIsSyncing());
             try {
-                playGame(
-                    type,
-                    payload,
-                    this.actionHandler,
-                    this.stateHydrator,
-                    this.actionHandler.state
-                );
+                playGame(type, payload, this.actionHandler, this.actionHandler.state);
             } catch (error) {
                 const apiPath = '/api' + window.location.pathname;
 
