@@ -27,3 +27,8 @@ Then run `npm install` and `npm run dev`. You will be able to see the site at:
 ```
 http://localhost:3000
 ```
+
+### Contributors
+- matthewsymonds: Developer
+- billylittlefield: Developer
+- bnealy: Bug sniper and extensive tester
