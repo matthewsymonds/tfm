@@ -903,13 +903,13 @@ export class ApiActionHandler {
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
         }
-        if (
-            !selectedCards.every(selectedCard =>
-                possibleCards.some(possibleCard => possibleCard.name === selectedCard.name)
-            )
-        ) {
-            throw new Error('Trying to select invalid card');
-        }
+        // if (
+        //     !selectedCards.every(selectedCard =>
+        //         possibleCards.some(possibleCard => possibleCard.name === selectedCard.name)
+        //     )
+        // ) {
+        //     throw new Error('Trying to select invalid card');
+        // }
         if (pendingDiscard) {
             this.queue.unshift(discardCards(selectedCards, loggedInPlayerIndex));
             this.processQueue();
