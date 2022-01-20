@@ -461,23 +461,17 @@ function getMultiplierAndCustomElement(
         case VariableAmount.CARDS_IN_HAND:
             multiplierElement = (
                 <Flex justifyContent="space-around">
-                    {[colors.CARD_AUTOMATED, colors.CARD_ACTIVE, colors.CARD_EVENT].map(
-                        (color, index) => (
-                            <Box marginLeft={index === 0 ? 0 : '4px'} key={color}>
-                                <TexturedCard
-                                    height={20}
-                                    width={15}
-                                    borderRadius={2}
-                                    borderWidth={1}
-                                    bgColor={color}
-                                >
-                                    <Flex alignItems="center" justifyContent="center" height="100%">
-                                        <TagIcon name={Tag.EARTH} />
-                                    </Flex>
-                                </TexturedCard>
-                            </Box>
-                        )
-                    )}
+                    <TexturedCard
+                        height={20}
+                        width={15}
+                        borderRadius={2}
+                        borderWidth={1}
+                        bgColor={colors.CARD_EVENT}
+                    >
+                        <Flex alignItems="center" justifyContent="center" height="100%">
+                            <TagIcon name={Tag.EARTH} />
+                        </Flex>
+                    </TexturedCard>
                 </Flex>
             );
             break;
