@@ -998,22 +998,20 @@ export class ActionGuard {
         const totalCardCost = numCards * loggedInPlayer.cardCost;
 
         // trying to draft a card not in their list (or discard a card they don't own)
-        // const possibleCards =
-        //     loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
-        // for (const selectedCard of selectedCards) {
-        //     if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
-        //         return false;
-        //     }
-        // }
+        const possibleCards =
+            loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
+        for (const selectedCard of selectedCards) {
+            if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
+                return false;
+            }
+        }
 
-        // TODO restore after Ben plays.
-
-        // if (state.common.gameStage === GameStage.DRAFTING) {
-        //     // trying to draft more than one card
-        //     if (numCards !== 1) {
-        //         return false;
-        //     }
-        // }
+        if (state.common.gameStage === GameStage.DRAFTING) {
+            // trying to draft more than one card
+            if (numCards !== 1) {
+                return false;
+            }
+        }
 
         const discardAmount = loggedInPlayer.pendingDiscard?.amount;
         if (discardAmount) {
