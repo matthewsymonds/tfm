@@ -998,13 +998,13 @@ export class ActionGuard {
         const totalCardCost = numCards * loggedInPlayer.cardCost;
 
         // trying to draft a card not in their list (or discard a card they don't own)
-        const possibleCards =
-            loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
-        for (const selectedCard of selectedCards) {
-            if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
-                return false;
-            }
-        }
+        // const possibleCards =
+        //     loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
+        // for (const selectedCard of selectedCards) {
+        //     if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
+        //         return false;
+        //     }
+        // }
 
         // TODO restore after Ben plays.
 
