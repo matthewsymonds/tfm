@@ -148,5 +148,5 @@ export function playGame(
             throw spawnExhaustiveSwitchError(type);
     }
     actionHandler.handleForcedActionsIfNeeded(originalState);
-    actionHandler.handleTurmoilIfNeeded();
+    actionHandler.handleTurmoilIfNeeded(originalState);
 }

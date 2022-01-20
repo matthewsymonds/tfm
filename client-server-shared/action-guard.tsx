@@ -1006,12 +1006,14 @@ export class ActionGuard {
             }
         }
 
-        if (state.common.gameStage === GameStage.DRAFTING) {
-            // trying to draft more than one card
-            if (numCards !== 1) {
-                return false;
-            }
-        }
+        // TODO restore after Ben plays.
+
+        // if (state.common.gameStage === GameStage.DRAFTING) {
+        //     // trying to draft more than one card
+        //     if (numCards !== 1) {
+        //         return false;
+        //     }
+        // }
 
         const discardAmount = loggedInPlayer.pendingDiscard?.amount;
         if (discardAmount) {

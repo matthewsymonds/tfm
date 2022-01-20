@@ -258,7 +258,15 @@ export class ApiActionHandler {
         }
     }
 
-    handleTurmoilIfNeeded() {
+    handleTurmoilIfNeeded(originalState: GameState) {
+        if (
+            !this.state.timeForTurmoil ||
+            !this.state.common.turmoil ||
+            originalState.timeForTurmoil
+        ) {
+            return;
+        }
+
         // Pristar
         for (const player of this.state.players) {
             if (player.terraformedThisGeneration) {
@@ -280,10 +288,6 @@ export class ApiActionHandler {
                     }
                 }
             }
-        }
-
-        if (!this.state.timeForTurmoil || !this.state.common.turmoil) {
-            return;
         }
 
         this.queue.push(
