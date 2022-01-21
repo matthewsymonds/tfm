@@ -52,7 +52,8 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         }).length;
     },
     [VariableAmount.PLAYER_EVENTS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT)).length;
+        return getPlayedCards(player).filter(card => !!card.name && card.tags.includes(Tag.EVENT))
+            .length;
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
         return getPlayedCards(player).filter(card => card.tags.length === 0).length;

@@ -182,6 +182,9 @@ export const censorGameState = (readonlyState: SerializedState, username: string
             if (player.username === username) {
                 continue;
             }
+            if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
+                player.terraformRating = 20;
+            }
 
             player.pendingCardSelection = player.pendingCardSelection
                 ? {
