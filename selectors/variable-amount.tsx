@@ -310,7 +310,9 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.CARDS_IN_PLAY_COSTING_AT_LEAST_20]: (state: GameState, player: PlayerState) => {
         return player.playedCards.filter(card => {
-            return (getCard(card).cost ?? 0) >= 20;
+            const fullCard = getCard(card);
+            if (fullCard.type === CardType.EVENT) return false;
+            return (fullCard.cost ?? 0) >= 20;
         }).length;
     },
     [VariableAmount.BLUE_CARD]: (state: GameState, player: PlayerState) => {
