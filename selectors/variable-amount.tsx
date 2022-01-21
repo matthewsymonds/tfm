@@ -55,7 +55,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT)).length;
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getVisiblePlayedCards(player).filter(card => card.tags.length === 0).length;
+        return getPlayedCards(player).filter(card => card.tags.length === 0).length;
     },
     [VariableAmount.CITIES_ON_MARS]: (state: GameState) => {
         return getCellsWithCitiesOnMars(state).length;

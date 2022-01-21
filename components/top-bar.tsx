@@ -74,8 +74,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
         /**
          * Derived state
          */
-        const {action, index: loggedInPlayerIndex} = useTypedSelector(
-            state => state.players[loggedInPlayer.index]
+        const {index: loggedInPlayerIndex} = loggedInPlayer;
+        const {action, pendingCardSelection} = useTypedSelector(
+            state => state.players[loggedInPlayerIndex]
         );
         const isLoggedInPlayerInControl = useTypedSelector(
             state =>
@@ -88,16 +89,12 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
             state => gameStage === GameStage.GREENERY_PLACEMENT
         );
         const isEndOfGame = useTypedSelector(state => gameStage === GameStage.END_OF_GAME);
-        const hasPendingCardSelection = useTypedSelector(
-            state => !!loggedInPlayer.pendingCardSelection
-        );
+        const hasPendingCardSelection = useTypedSelector(state => !!pendingCardSelection);
         const currentPlayer = useTypedSelector(
             state => players[state.common.controllingPlayerIndex ?? currentPlayerIndex]
         );
         const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayer.index;
-        const isLoggedInPlayerPassed = useTypedSelector(
-            state => loggedInPlayer.action === 0 && isActiveRound
-        );
+        const isLoggedInPlayerPassed = useTypedSelector(state => action === 0 && isActiveRound);
 
         const playing =
             loggedInPlayer.action > 0 &&
