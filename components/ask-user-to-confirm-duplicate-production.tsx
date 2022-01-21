@@ -2,13 +2,12 @@ import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
 import {Card as CardComponent} from 'components/card/Card';
 import {Action} from 'constants/action';
-import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {useApiClient} from 'hooks/use-api-client';
 import {Card} from 'models/card';
 import {useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
-import {getPlayedCards} from 'selectors/get-played-cards';
+import {getVisiblePlayedCards} from 'selectors/get-played-cards';
 import styled from 'styled-components';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
 
@@ -24,8 +23,7 @@ export function getOptionsForDuplicateProduction(
     player: PlayerState,
     state: GameState
 ): DuplicateProductionOption[] {
-    const candidates: Card[] = getPlayedCards(player)
-        .filter(card => card.type !== CardType.EVENT)
+    const candidates: Card[] = getVisiblePlayedCards(player)
         .filter(card => card.tags.includes(tag))
         .filter(card => {
             const productionDelta = {

@@ -4388,7 +4388,7 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         requiredPartyOrTwoDelegates: KELVINISTS,
         tags: [Tag.BUILDING],
-        increaseProduction: {[Resource.MEGACREDIT]: 2},
+        increaseProduction: {[Resource.HEAT]: 2},
         text: 'Requires that Kelvinists are ruling or that you have 2 delegates there. Increase your heat production 2 steps.',
     },
 

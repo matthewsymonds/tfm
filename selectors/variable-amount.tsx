@@ -18,7 +18,7 @@ import {
     isOwnedByCurrentPlayerExcludingLandClaim,
 } from './board';
 import {getCard} from './get-card';
-import {getPlayedCards} from './get-played-cards';
+import {getPlayedCards, getVisiblePlayedCards} from './get-played-cards';
 
 type VariableAmountSelectors = {
     [k in VariableAmount]?: (
@@ -29,11 +29,7 @@ type VariableAmountSelectors = {
 };
 
 export function getTags(player: PlayerState): Tag[] {
-    return getNonEventCards(player).flatMap(card => card.tags);
-}
-
-function getNonEventCards(player: PlayerState): Card[] {
-    return getPlayedCards(player).filter(card => card.type !== CardType.EVENT);
+    return getVisiblePlayedCards(player).flatMap(card => card.tags);
 }
 
 export function getEventCards(player: PlayerState): SerializedCard[] {
@@ -59,9 +55,7 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         return getPlayedCards(player).filter(card => card.tags.includes(Tag.EVENT)).length;
     },
     [VariableAmount.CARDS_WITHOUT_TAGS]: (state: GameState, player = getLoggedInPlayer(state)) => {
-        return getPlayedCards(player).filter(
-            card => card.type !== CardType.EVENT && card.tags.length === 0
-        ).length;
+        return getVisiblePlayedCards(player).filter(card => card.tags.length === 0).length;
     },
     [VariableAmount.CITIES_ON_MARS]: (state: GameState) => {
         return getCellsWithCitiesOnMars(state).length;

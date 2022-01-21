@@ -1,8 +1,7 @@
-import {CardType} from 'constants/card-types';
 import {Pane, Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
-import {getPlayedCards} from 'selectors/get-played-cards';
+import {getVisiblePlayedCards} from 'selectors/get-played-cards';
 import {isPlayingTurmoil} from 'selectors/is-playing-expansion';
 import {
     getAwardScore,
@@ -46,11 +45,9 @@ export function ScorePopover({children, playerIndex}: Props) {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const terraformRating = player.terraformRating;
     const visibleCardScore = useTypedSelector(state =>
-        getPlayedCards(player)
-            .filter(card => card.type !== CardType.EVENT)
-            .reduce((total, card) => {
-                return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
-            }, 0)
+        getVisiblePlayedCards(player).reduce((total, card) => {
+            return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
+        }, 0)
     );
     const greeneryScore = useTypedSelector(state => getGreeneryScore(state, playerIndex));
     const citiesScore = useTypedSelector(state => getCityScore(state, playerIndex));
