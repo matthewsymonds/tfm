@@ -19,6 +19,7 @@ import {
     completeAction,
     decreaseProduction,
     gainResource,
+    gainStorableResource,
     increaseParameter,
     increaseProduction,
     removeResource,
@@ -65,6 +66,17 @@ function createActionIcon(action: AnyAction) {
             <GainResourceIconography
                 gainResource={{[action.payload.resource]: action.payload.amount}}
             />
+        );
+    } else if (gainStorableResource.match(action)) {
+        return (
+            <Flex>
+                <GainResourceIconography
+                    gainResource={{[action.payload.resource]: action.payload.amount}}
+                />
+                <Box marginLeft="4px">
+                    <em>to {action.payload.card.name}</em>
+                </Box>
+            </Flex>
         );
     } else if (removeResource.match(action)) {
         return (
