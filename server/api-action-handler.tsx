@@ -269,7 +269,7 @@ export class ApiActionHandler {
 
         // Pristar
         for (const player of this.state.players) {
-            if (player.terraformedThisGeneration) {
+            if (!player.terraformedThisGeneration) {
                 for (const playedCard of player.playedCards) {
                     const fullCard = getCard(playedCard);
                     if (fullCard.gainResourcesIfNotTerraformedThisGeneration) {

@@ -181,7 +181,7 @@ export const getResourceName = (resource: Resource, shouldCapitalize: boolean = 
             resourceName = 'resource';
             break;
         case Resource.PRESERVATION:
-            resourceName = 'preservation';
+            resourceName = 'preservation resource';
             break;
         default:
             throw spawnExhaustiveSwitchError(resource);
