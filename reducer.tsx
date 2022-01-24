@@ -119,6 +119,8 @@ import {
     revealTakeAndDiscard,
     setCorporation,
     setGame,
+    setIsMakingPlayRequest,
+    setIsNotMakingPlayRequest,
     setIsNotSyncing,
     setIsSyncing,
     setOceanAdjacencybonus,
@@ -441,7 +443,6 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
     return produce(state, draft => {
         draft.timestamp = Date.now();
 
-        // increment the state changes tally if on server.
         if (setIsSyncing.match(action)) {
             draft.syncing = true;
             return;
@@ -449,6 +450,16 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
         if (setIsNotSyncing.match(action)) {
             draft.syncing = false;
+            return;
+        }
+
+        if (setIsMakingPlayRequest.match(action)) {
+            draft.isMakingPlayRequest = true;
+            return;
+        }
+
+        if (setIsNotMakingPlayRequest.match(action)) {
+            draft.isMakingPlayRequest = false;
             return;
         }
 

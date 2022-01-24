@@ -1,5 +1,11 @@
-import {setGame, setIsNotSyncing, setIsSyncing} from 'actions';
-import {makeGetCall, makePostCall} from 'api-calls';
+import {
+    setGame,
+    setIsMakingPlayRequest,
+    setIsNotMakingPlayRequest,
+    setIsNotSyncing,
+    setIsSyncing,
+} from 'actions';
+import {makePostCall} from 'api-calls';
 import {ApiActionType} from 'client-server-shared/api-action-type';
 import {
     GameActionHandler,
@@ -73,17 +79,32 @@ export class ApiClient implements GameActionHandler {
     processingActions: Function[] = [];
 
     private async makeApiCall(type: ApiActionType, payload, retry = true) {
-        const {actionCount} = this.store.getState();
+        const {actionCount, name} = this.store.getState();
+        this.store.dispatch(setIsMakingPlayRequest());
         batch(() => {
             this.store.dispatch(setIsSyncing());
             try {
                 playGame(type, payload, this.actionHandler, this.actionHandler.state);
             } catch (error) {
-                const apiPath = '/api' + window.location.pathname;
-
-                makeGetCall(apiPath).then(result => {
-                    this.dispatch(setGame(result.state));
+                const apiPath = '/api/log-error' + window.location.pathname;
+                let errorString = '';
+                if (error instanceof Error) {
+                    errorString += error.toString();
+                    errorString += '; ';
+                    errorString += error?.stack ?? '';
+                } else {
+                    errorString = JSON.stringify(error);
+                }
+                makePostCall(apiPath, {
+                    gameName: name,
+                    error: errorString,
+                    attemptedAction: {
+                        type,
+                        payload,
+                    },
                 });
+                toast(<div>{errorString}</div>);
+                console.log(error);
             }
 
             this.store.dispatch(setIsNotSyncing());
@@ -130,6 +151,7 @@ export class ApiClient implements GameActionHandler {
                 this.processingActions.shift();
             }
         }
+        this.store.dispatch(setIsNotMakingPlayRequest());
     }
 
     private getPath(): string {

@@ -6,6 +6,7 @@ import {GameOptions} from 'reducer';
 export type BaseGameState = {
     // if true, the user is waiting for a response from the server.
     syncing?: boolean;
+    isMakingPlayRequest?: boolean;
     options: GameOptions;
     common: BaseCommonState;
     players: Array<BasePlayerState>;

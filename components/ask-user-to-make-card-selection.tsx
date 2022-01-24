@@ -63,6 +63,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     const isSyncing = useTypedSelector(state => state.syncing);
+    const isMakingRequest = useTypedSelector(state => state.isMakingPlayRequest);
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
     const totalCostOfCards = selectedCards.length * (player.cardCost ?? 3);
@@ -113,7 +114,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         throw new Error('Unhandled scenario in ask user to make card selection');
     }
 
-    if (isSyncing) {
+    if (isSyncing || isMakingRequest) {
         cardSelectionPrompt = `Loading...`;
     }
 
@@ -136,7 +137,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         () => player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2
     );
     const shouldDisableConfirmCardSelection = useTypedSelector(
-        () => !canConfirmCardSelection || actionGuard.isSyncing || shouldDisableDueToPreludes
+        () => !canConfirmCardSelection || isSyncing || shouldDisableDueToPreludes || isMakingRequest
     );
 
     // hide card selector while waiting on others to pick cards

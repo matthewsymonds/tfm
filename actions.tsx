@@ -570,6 +570,7 @@ export const askUserToPlayCardFromHand = withMatcher(
 );
 
 // Client side action that disables UI while waiting for a response from the server.
+// May not be active for all UI interations.
 const SET_IS_SYNCING = 'SET_IS_SYNCING';
 export const setIsSyncing = withMatcher(() => ({
     type: SET_IS_SYNCING,
@@ -580,6 +581,18 @@ export const setIsSyncing = withMatcher(() => ({
 const SET_IS_NOT_SYNCING = 'SET_IS_NOT_SYNCING';
 export const setIsNotSyncing = withMatcher(() => ({
     type: SET_IS_NOT_SYNCING,
+    payload: {},
+}));
+
+const SET_IS_MAKING_PLAY_REQUEST = 'SET_IS_MAKING_PLAY_REQUEST';
+export const setIsMakingPlayRequest = withMatcher(() => ({
+    type: SET_IS_MAKING_PLAY_REQUEST,
+    payload: {},
+}));
+
+const SET_IS_NOT_MAKING_PLAY_REQUEST = 'SET_IS_NOT_MAKING_PLAY_REQUEST';
+export const setIsNotMakingPlayRequest = withMatcher(() => ({
+    type: SET_IS_NOT_MAKING_PLAY_REQUEST,
     payload: {},
 }));
 

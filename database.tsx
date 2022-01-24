@@ -67,6 +67,22 @@ try {
     forgotPasswordModel = mongoose.model('forgotPassword', forgotPasswordSchema);
 }
 
+const errorLogsSchema = new schema({
+    username: String,
+    gameName: String,
+    createdAt: {type: Date, default: Date.now},
+    attemptedAction: String,
+    error: String,
+});
+
+export let errorLogsModel;
+
+try {
+    errorLogsModel = mongoose.model('errorLogModel');
+} catch (error) {
+    errorLogsModel = mongoose.model('errorLogModel', forgotPasswordSchema);
+}
+
 const usersSchema = new schema({
     username: uniqueNameSchema,
     email: {

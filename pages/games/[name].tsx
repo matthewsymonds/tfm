@@ -38,7 +38,7 @@ function GameMiddle(props) {
 function GameInner() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const store = useStore();
+    const store = useStore<GameState>();
 
     const handleRetrievedGame = game => {
         if (game.error) {
@@ -164,7 +164,8 @@ function GameInner() {
         const apiPath = '/api' + window.location.pathname;
 
         const result = await makeGetCall(apiPath);
-        if (!store.getState()?.syncing) {
+        const currentState = store.getState();
+        if (!currentState?.syncing && !currentState?.isMakingPlayRequest) {
             // Make sure that we are not syncing (ie, playing an action),
             // which would mean we are about to get a more up to date state.
             handleRetrievedGame(result);
