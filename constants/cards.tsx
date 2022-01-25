@@ -4320,6 +4320,8 @@ export const cardConfigs: CardConfig[] = [
     },
     {
         name: 'Martian Media Center',
+        requiredPartyOrTwoDelegates: MARS_FIRST,
+        increaseProduction: {[Resource.MEGACREDIT]: 2},
         deck: Deck.TURMOIL,
         cost: 7,
         tags: [Tag.BUILDING],
@@ -4329,6 +4331,7 @@ export const cardConfigs: CardConfig[] = [
             placeDelegatesInOneParty: 1,
         },
         type: CardType.ACTIVE,
+        text: 'Requires that Mars First is ruling or that you have 2 delegates there. Increase your MC production 2 steps.',
     },
     {
         name: 'Parliament Hall',
