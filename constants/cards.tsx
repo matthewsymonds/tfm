@@ -3044,7 +3044,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.MEGACREDIT]: VariableAmount.VENUS_AND_EARTH_TAGS,
+            [Resource.MEGACREDIT]: sum({tag: Tag.VENUS}, {tag: Tag.EARTH, includeWildcard: false}),
         },
         decreaseProduction: {
             [Resource.ENERGY]: 2,

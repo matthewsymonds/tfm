@@ -3,7 +3,7 @@ import {gamesModel, retrieveSession} from 'database';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {SerializedState} from 'state-serialization';
 
-export type NamedGame = {name: string; count: number};
+export type NamedGame = {name: string};
 
 export async function getYourTurnGameNames(username: string): Promise<NamedGame[]> {
     let gameNames: NamedGame[];
@@ -68,7 +68,7 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
             }
             return false;
         });
-        gameNames = games.map(game => ({name: game.name, count: game.state.actionCount}));
+        gameNames = games.map(game => ({name: game.name}));
     } catch (error) {
         gameNames = [];
     }

@@ -12,7 +12,6 @@ export enum VariableAmount {
     OPPONENTS_SPACE_TAGS = 'opponentsSpaceTags',
     ALL_EVENTS = 'allEvents',
     PLAYER_EVENTS = 'playerEvents',
-    VENUS_AND_EARTH_TAGS = 'venusAndEarthTags',
     COLONIES = 'colonies',
     ALL_COLONIES = 'allColonies',
     OCEANS_ADJACENT_TO_CAPITAL = 'oceansAdjacentToCapital',

@@ -125,14 +125,6 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
         const mining = findCellWithTile(state, TileType.MINING_RIGHTS);
         return mining?.bonus?.includes(Resource.TITANIUM) ? 1 : 0;
     },
-    [VariableAmount.VENUS_AND_EARTH_TAGS]: (
-        state: GameState,
-        player = getLoggedInPlayer(state)
-    ) => {
-        return getTags(player).filter(
-            tag => tag === Tag.EARTH || tag === Tag.VENUS || tag === Tag.WILD
-        ).length;
-    },
     [VariableAmount.OPPONENTS_SPACE_TAGS]: (
         state: GameState,
         player = getLoggedInPlayer(state)

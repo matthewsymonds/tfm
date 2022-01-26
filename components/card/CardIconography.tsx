@@ -528,14 +528,6 @@ function getMultiplierAndCustomElement(
             // @ts-ignore
             multiplierElement = <TagIcon name="x" size={16} />;
             break;
-        case VariableAmount.VENUS_AND_EARTH_TAGS:
-            multiplierElement = (
-                <React.Fragment>
-                    <TagIcon name={Tag.VENUS} size={16} />
-                    <TagIcon name={Tag.EARTH} size={16} />
-                </React.Fragment>
-            );
-            break;
         case VariableAmount.USER_CHOICE_MIN_ZERO:
         case VariableAmount.BASED_ON_USER_CHOICE:
             if (resource === Resource.MEGACREDIT) {
