@@ -161,9 +161,9 @@ export const gainResource = withMatcher(
 
 const ASK_USER_TO_GAIN_STANDARD_RESOURCES = 'ASK_USER_TO_GAIN_STANDARD_RESOURCES';
 export const askUserToGainStandardResources = withMatcher(
-    (amount: Amount, playerIndex: number) => ({
+    (quantity: number, playerIndex: number) => ({
         type: ASK_USER_TO_GAIN_STANDARD_RESOURCES,
-        payload: {amount, playerIndex},
+        payload: {quantity, playerIndex},
     })
 );
 

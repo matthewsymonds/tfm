@@ -2,8 +2,7 @@ import {STANDARD_RESOURCES} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {useApiClient} from 'hooks/use-api-client';
 import React, {useState} from 'react';
-import {PlayerState, useTypedSelector} from 'reducer';
-import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
+import {PlayerState} from 'reducer';
 import {Flex} from './box';
 import {ResourceIcon} from './icons/resource';
 import {colors} from './ui';
@@ -29,12 +28,9 @@ function ResourceChooser({
 
 export function AskUserToGainStandardResources({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
-    const {pendingGainStandardResources} = player;
-    if (!pendingGainStandardResources) return null;
+    const {pendingGainStandardResources: quantity} = player;
+    if (!quantity) return null;
 
-    const quantity = useTypedSelector(state =>
-        convertAmountToNumber(pendingGainStandardResources, state, player)
-    );
     const [resources, setResources] = useState({
         [Resource.MEGACREDIT]: 0,
         [Resource.STEEL]: 0,

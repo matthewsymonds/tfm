@@ -1700,7 +1700,12 @@ export class ApiActionHandler {
             );
         }
         if (action.gainStandardResources) {
-            items.push(askUserToGainStandardResources(action.gainStandardResources, playerIndex));
+            const quantity = convertAmountToNumber(
+                action.gainStandardResources,
+                this.state,
+                player
+            );
+            items.push(askUserToGainStandardResources(quantity, playerIndex));
         }
         const numOceansPlacedSoFar = getNumOceans(state);
         let oceansInQueue = 0;

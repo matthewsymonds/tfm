@@ -830,7 +830,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (askUserToGainStandardResources.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.pendingGainStandardResources = payload.amount;
+            if (payload.quantity) {
+                player.pendingGainStandardResources = payload.quantity;
+            }
         }
 
         if (gainResourceWhenIncreaseProduction.match(action)) {

@@ -79,7 +79,7 @@ export type BasePlayerState = {
     temporaryParameterRequirementAdjustments: NumericPropertyCounter<Parameter>;
     gainResourceWhenIncreaseProduction?: number;
     pendingIncreaseLowestProduction?: number;
-    pendingGainStandardResources?: Amount;
+    pendingGainStandardResources?: number;
     // colonies
     fleets: number;
 

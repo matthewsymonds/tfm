@@ -47,10 +47,10 @@ export async function handleEmail(players: string[]) {
                     html: message,
                 };
                 mg.messages().send(data, function () {
-                    delete timeoutsByUsername[username];
+                    timeoutsByUsername.delete(username);
                 });
             } catch (error) {
-                delete timeoutsByUsername[username];
+                timeoutsByUsername.delete(username);
             }
         }, FIVE_HUNDRED_MINUTES);
         timeoutsByUsername.set(username, timeout);
