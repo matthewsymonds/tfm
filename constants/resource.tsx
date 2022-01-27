@@ -16,6 +16,7 @@ const storableResources = [
     Resource.MICROBE,
     Resource.SCIENCE,
     Resource.ANY_STORABLE_RESOURCE,
+    Resource.PRESERVATION,
 ] as const;
 
 export const STANDARD_RESOURCES = [
