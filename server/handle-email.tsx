@@ -49,7 +49,10 @@ function sendEmailsIfNeeded() {
 const sendEmailIfNeeded = async (username: string) => {
     try {
         const yourTurnGames = await getYourTurnGameNames(username);
-        if (yourTurnGames.length === 0) return;
+        if (yourTurnGames.length === 0) {
+            playersToCheck.delete(username);
+            return;
+        }
 
         const message = getMessage(yourTurnGames);
 

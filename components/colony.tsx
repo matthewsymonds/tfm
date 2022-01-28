@@ -139,7 +139,7 @@ function TradePaymentPopover({
     const actionGuard = useActionGuard();
     const hydratedColony = getColony(colony);
     const apiClient = useApiClient();
-    const [canTradeForFree, canTradeForFreeReason] = actionGuard.canTradeForFree(colony.name);
+    const [canTradeForFree] = actionGuard.canTradeForFree(colony.name);
 
     return (
         <Flex
