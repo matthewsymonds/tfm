@@ -1,7 +1,7 @@
 ## Terraforming Mars Online
 An open source implementation of [Terraforming Mars](https://www.fryxgames.se/games/terraforming-mars/).
 
-![enter image description here](https://i.ibb.co/0DgSvHx/image.png)
+![enter image description here](https://images2.imgbox.com/cd/ee/m8vt6rdZ_o.png)
 
 ### Live Link
 https://tfm-online.net
