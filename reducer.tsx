@@ -889,7 +889,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     }
                 }
             }
-            const adjustedAmount = quantity - supplementalQuantity;
+            let adjustedAmount = quantity - supplementalQuantity;
+            adjustedAmount = Math.min(adjustedAmount, sourcePlayer.resources[resource]);
             if (adjustedAmount > 0) {
                 sourcePlayer.resources[resource] -= adjustedAmount;
                 draft.log.push(

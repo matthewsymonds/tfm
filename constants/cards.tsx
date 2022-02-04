@@ -4362,7 +4362,7 @@ export const cardConfigs: CardConfig[] = [
         requiredChairman: RequiredChairman.YOU,
         victoryPoints: 2,
         cost: 8,
-        text: 'Requires that you are chairman',
+        text: 'Requires that you are chairman.',
         tags: [Tag.EVENT],
     },
     {
@@ -5272,7 +5272,7 @@ export const cardConfigs: CardConfig[] = [
         decreaseTerraformRating: 1,
         text: 'You start with 14 MC. Lower your TR 1 step.',
         tags: [Tag.SCIENCE, Tag.EARTH],
-        action: {
+        effect: {
             text: 'Buying cards to hand costs 1 MC.',
         },
         cardCost: 1,

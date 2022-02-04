@@ -2,7 +2,6 @@ import {ApiActionType} from 'client-server-shared/api-action-type';
 import {deserializeResourceOptionAction} from 'components/ask-user-to-confirm-resource-action-details';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
-import {Card} from 'models/card';
 import {GameState} from 'reducer';
 import {ApiActionHandler} from 'server/api-action-handler';
 import spawnExhaustiveSwitchError from 'utils';
@@ -15,7 +14,6 @@ export function playGame(
     originalState: GameState,
     stateCheckpoint?: string
 ) {
-    let card: Card;
     switch (type) {
         case ApiActionType.API_PLAY_CARD:
             actionHandler.playCard({
