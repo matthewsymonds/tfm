@@ -28,9 +28,9 @@ export const PARTY_CONFIGS: PartyConfig[] = [
     {
         name: MARS_FIRST,
         effect: {
-            trigger: {placedTile: TileType.ANY_TILE},
+            trigger: {placedTile: TileType.ANY_TILE, onMars: true},
             action: {gainResource: {[Resource.STEEL]: 1}},
-            text: 'When you place a tile, gain 1 steel.',
+            text: 'When you place a tile on Mars, gain 1 steel.',
         },
         partyBonus: {
             gainResource: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING}},
