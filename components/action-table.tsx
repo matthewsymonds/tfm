@@ -18,6 +18,7 @@ import {
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {useWindowWidth} from 'hooks/use-window-width';
 import React, {useEffect, useMemo, useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
@@ -25,10 +26,12 @@ import styled from 'styled-components';
 import {throttle} from 'throttle-debounce';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
+import {Board} from './board/board';
 import {Box, Flex} from './box';
 import {Button} from './button';
 import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
 import {Colonies} from './colonies';
+import GlobalParams from './global-params';
 import {GlobalParameterIcon} from './icons/global-parameter';
 import {ColonyIcon} from './icons/other';
 import {ProductionIcon} from './icons/production';
@@ -39,9 +42,9 @@ import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes: Array<ActionType> = ['Players', 'Actions', 'Colonies', 'Turmoil'];
+const actionTypes: Array<ActionType> = ['Players', 'Mars', 'Actions', 'Colonies', 'Turmoil'];
 
-type ActionType = 'Players' | 'Actions' | 'Colonies' | 'Turmoil';
+type ActionType = 'Players' | 'Mars' | 'Actions' | 'Colonies' | 'Turmoil';
 
 const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     border-radius: 4px;
@@ -83,8 +86,12 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
 export const ActionTable: React.FunctionComponent = () => {
     const [selectedTab, setSelectedTab] = useState<ActionType>('Players');
     const player = useLoggedInPlayer();
+    const windowWidth = useWindowWidth();
 
     useEffect(() => {
+        if (windowWidth > 1500 && selectedTab === 'Mars') {
+            setSelectedTab('Players');
+        }
         if (player.tradeForFree) {
             setSelectedTab('Colonies');
         } else if (
@@ -99,6 +106,7 @@ export const ActionTable: React.FunctionComponent = () => {
         player.placeDelegatesInOneParty,
         player.removeNonLeaderDelegate,
         player.exchangeNeutralNonLeaderDelegate,
+        windowWidth,
     ]);
 
     const isColoniesEnabled = useTypedSelector(state =>
@@ -113,6 +121,9 @@ export const ActionTable: React.FunctionComponent = () => {
             }
             if (actionType === 'Turmoil') {
                 return isTurmoilEnabled;
+            }
+            if (actionType === 'Mars') {
+                return windowWidth <= 1500;
             }
 
             return true;
@@ -313,6 +324,8 @@ const BoardActionsHeader = styled.p`
 `;
 
 function ActionTableInner({selectedTab}: {selectedTab: ActionType}) {
+    const parameters = useTypedSelector(state => state.common.parameters);
+
     switch (selectedTab) {
         case 'Players':
             return (
@@ -347,6 +360,13 @@ function ActionTableInner({selectedTab}: {selectedTab: ActionType}) {
             return <Colonies />;
         case 'Turmoil':
             return <Turmoil />;
+        case 'Mars':
+            return (
+                <Flex className="board-and-params" marginTop="12px">
+                    <Board />
+                    <GlobalParams parameters={parameters} />
+                </Flex>
+            );
         default:
             throw spawnExhaustiveSwitchError(selectedTab);
     }

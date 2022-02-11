@@ -83,18 +83,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         setSelectedPlayerIndex(loggedInPlayer.index);
     }, [gameName]);
 
-    const hideOverlay = useTypedSelector(
-        state =>
-            loggedInPlayer.pendingPlayCardFromHand ||
-            loggedInPlayer.pendingTilePlacement ||
-            loggedInPlayer.pendingTileRemoval ||
-            loggedInPlayer.tradeForFree ||
-            loggedInPlayer.fundAward ||
-            loggedInPlayer.placeDelegatesInOneParty ||
-            loggedInPlayer.removeNonLeaderDelegate ||
-            loggedInPlayer.exchangeNeutralNonLeaderDelegate
-    );
-    const showBoardFirstInActionPrompt = isPlayerMakingDecision && hideOverlay;
     const isWaitingOnOthersToDraft = useTypedSelector(state =>
         isWaitingOnOthersToDraftSelector(state)
     );
@@ -157,50 +145,48 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
     );
 
-    const actionOverlayElement = useTypedSelector(state => {
-        let actionOverlayElement: ReactElement | null = null;
+    const promptElement = useTypedSelector(state => {
+        let promptElement: ReactElement | null = null;
         switch (true) {
             case gameStage === GameStage.END_OF_GAME:
-                actionOverlayElement = <EndOfGame />;
+                promptElement = <EndOfGame />;
                 break;
             case !!loggedInPlayer.pendingChoice:
-                actionOverlayElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
+                promptElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
                 break;
             case loggedInPlayer.pendingActionReplay:
-                actionOverlayElement = (
+                promptElement = (
                     <AskUserToUseBlueCardActionAlreadyUsedThisGeneration player={loggedInPlayer} />
                 );
                 break;
             case !!loggedInPlayer.placeColony:
-                actionOverlayElement = <AskUserToPlaceColony player={loggedInPlayer} />;
+                promptElement = <AskUserToPlaceColony player={loggedInPlayer} />;
                 break;
             case loggedInPlayer.pendingPlayCardFromHand:
-                actionOverlayElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
+                promptElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingDuplicateProduction:
-                actionOverlayElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
+                promptElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingIncreaseLowestProduction:
-                actionOverlayElement = (
-                    <AskUserToIncreaseLowestProduction player={loggedInPlayer} />
-                );
+                promptElement = <AskUserToIncreaseLowestProduction player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingGainStandardResources:
-                actionOverlayElement = <AskUserToGainStandardResources player={loggedInPlayer} />;
+                promptElement = <AskUserToGainStandardResources player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingDiscard:
-                actionOverlayElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
+                promptElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingCardSelection:
-                actionOverlayElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
+                promptElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
-                actionOverlayElement = (
+                promptElement = (
                     <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
                 );
                 break;
             case !!loggedInPlayer.putAdditionalColonyTileIntoPlay:
-                actionOverlayElement = (
+                promptElement = (
                     <AskUserToPutAdditionalColonyTileIntoPlay player={loggedInPlayer} />
                 );
                 break;
@@ -214,19 +200,19 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                         (player.preludes?.length ?? 0) > 0 ||
                         player.playedCards?.filter(c => getCard(c).type === CardType.PRELUDE)
                 ):
-                actionOverlayElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
+                promptElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.fundAward:
-                actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
+                promptElement = <AskUserToFundAward player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingTilePlacement:
-                actionOverlayElement = <div />;
+                promptElement = <div />;
                 break;
             case !!loggedInPlayer.pendingTileRemoval:
-                actionOverlayElement = <div />;
+                promptElement = <div />;
                 break;
             case !!loggedInPlayer.pendingResourceActionDetails:
-                actionOverlayElement = (
+                promptElement = (
                     <AskUserToConfirmResourceActionDetails
                         player={loggedInPlayer}
                         resourceActionDetails={loggedInPlayer.pendingResourceActionDetails!}
@@ -236,7 +222,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             case revealedCards.length > 0 &&
                 (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
                     loggedInPlayer.index:
-                actionOverlayElement = (
+                promptElement = (
                     <Flex flexDirection="column">
                         <span style={{marginBottom: 16, color: '#ccc'}}>
                             Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
@@ -254,15 +240,13 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 break;
             // This should be last...It's saying "ask the user which item they want to handle next"
             case (loggedInPlayer.pendingNextActionChoice?.length ?? 0) > 0:
-                actionOverlayElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
+                promptElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
                 break;
         }
-        return actionOverlayElement;
+        return promptElement;
     });
 
     if (!players[selectedPlayerIndex]) return null;
-
-    const buttonNeeded = !showBoardFirstInActionPrompt;
 
     return (
         <GlobalPopoverContext.Provider
@@ -284,11 +268,12 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 justifyContent="center"
                 margin="0 auto"
                 maxWidth="100%"
+                className="top-wrapper"
             >
                 <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
                 <Box className="active-round-outer" flex="auto">
                     <Flex className="active-round">
-                        {actionOverlayElement ? (
+                        {promptElement ? (
                             <Flex
                                 flexDirection="column"
                                 background={colors.DARK_1}
@@ -310,13 +295,13 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                     </Box>
                                 ) : null}
                                 <Box marginLeft="auto" marginRight="auto">
-                                    {actionOverlayElement}
+                                    {promptElement}
                                 </Box>
                             </Flex>
                         ) : null}
                         <ActionTable />
                     </Flex>
-                    <Flex className="board-and-params">
+                    <Flex className="board-and-params" id="hide-beneath-1500">
                         <Board />
                         <GlobalParams parameters={parameters} />
                     </Flex>

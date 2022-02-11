@@ -83,8 +83,14 @@ export const GlobalStyles = createGlobalStyle`
             margin-right: auto;
         }
         @media (max-width: 895px) {
-            min-width: initial;
             max-width: calc(100% - 16px);
+            min-width: calc(100% - 16px);
+        }
+    }
+    .top-wrapper {
+        @media (max-width: 1500px) {
+            width: 792px;
+            max-width: calc(100% - 8px);
         }
     }
     .active-round-outer {
@@ -93,7 +99,6 @@ export const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
         @media (max-width: 1500px) {
             flex-direction: column;
-            justify-content: center;
         }
     }
     .colonies {
@@ -113,6 +118,11 @@ export const GlobalStyles = createGlobalStyle`
         @media (max-width: 895px) {
             flex-direction: column;
             align-items: center;
+        }
+    }
+    #hide-beneath-1500 {
+        @media (max-width: 1500px) {
+            display: none;
         }
     }
     .no-margin-top {
