@@ -85,8 +85,8 @@ export const GlobalStyles = createGlobalStyle`
     }
     .prompt-box {
         max-width: 792px;
-        min-width: calc(min(560px, 100%));
         @media (max-width: 1500px) {
+            min-width: calc(min(560px, 100%));
             margin-left: auto;
             margin-right: auto;
         }

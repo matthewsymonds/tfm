@@ -83,7 +83,14 @@ interface FlexProps extends BoxProps {
 }
 
 /* A flexible component to define styles inline */
-const BoxInternal = styled.div<Partial<BoxProps>>`
+const BoxInternal = styled.div.attrs<Partial<BoxProps>>(props => ({
+    margin: props.margin,
+    marginTop: props.marginTop,
+    marginBottom: props.marginBottom,
+    marginLeft: props.marginLeft,
+    marginRight: props.marginRight,
+    display: props.display,
+}))<Partial<BoxProps>>`
     /* Add more properties here as needed. */
     transform: ${props => props.transform};
     transform-origin: ${props => props.transformOrigin};

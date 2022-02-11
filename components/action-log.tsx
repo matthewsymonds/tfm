@@ -268,11 +268,13 @@ const LogEntryInner = ({
                     const card = getCard(gameAction.card);
                     const payment = gameAction.payment ?? {};
 
+                    const didPay = Object.keys(payment).some(resource => payment[resource] > 0);
+
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
-                                {Object.keys(payment).length > 0 ? (
+                                {didPay ? (
                                     <React.Fragment>
                                         <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
                                         <PaymentIconography payment={payment} />
