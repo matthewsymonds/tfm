@@ -14,7 +14,7 @@ import {useRouter} from 'next/router';
 import React, {forwardRef} from 'react';
 import Twemoji from 'react-twemoji';
 import {useTypedSelector} from 'reducer';
-import {isDrafting as isDraftingSelector} from 'selectors/drafting';
+import {isActionPhase} from 'selectors/is-action-phase';
 import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {BlankButton} from './blank-button';
@@ -55,14 +55,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
 
         const yourTurnGamesFiltered = yourTurnGames.filter(game => game !== currentGame);
 
-        const gameStage = useTypedSelector(state => state.common.gameStage);
-
-        const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-        const {draftPicks = [], possibleCards = []} = loggedInPlayer?.pendingCardSelection ?? {
-            draftPicks: [],
-            possibleCards: [],
-        };
-        const isPickingCards = (draftPicks?.length ?? 0) + (possibleCards?.length ?? 0) === 4;
+        const isActiveRound = useTypedSelector(
+            state => state.common.gameStage === GameStage.ACTIVE_ROUND
+        );
 
         /**
          * State selectors
@@ -74,27 +69,26 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         /**
          * Derived state
          */
-        const {index: loggedInPlayerIndex} = loggedInPlayer;
-        const {action, pendingCardSelection} = useTypedSelector(
-            state => state.players[loggedInPlayerIndex]
-        );
+        const {index: loggedInPlayerIndex, action, pendingCardSelection} = loggedInPlayer;
         const isLoggedInPlayerInControl = useTypedSelector(
             state =>
                 state.common.controllingPlayerIndex === loggedInPlayerIndex ||
                 state.common.controllingPlayerIndex === undefined
         );
-        const isDrafting = useTypedSelector(state => isDraftingSelector(state));
-        const isBuyOrDiscard = useTypedSelector(state => gameStage === GameStage.BUY_OR_DISCARD);
         const isGreeneryPlacement = useTypedSelector(
-            state => gameStage === GameStage.GREENERY_PLACEMENT
+            state => state.common.gameStage === GameStage.GREENERY_PLACEMENT
         );
-        const isEndOfGame = useTypedSelector(state => gameStage === GameStage.END_OF_GAME);
+        const isEndOfGame = useTypedSelector(
+            state => state.common.gameStage === GameStage.END_OF_GAME
+        );
         const hasPendingCardSelection = useTypedSelector(state => !!pendingCardSelection);
         const currentPlayer = useTypedSelector(
             state => players[state.common.controllingPlayerIndex ?? currentPlayerIndex]
         );
         const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayer.index;
-        const isLoggedInPlayerPassed = useTypedSelector(state => action === 0 && isActiveRound);
+        const isLoggedInPlayerPassed = useTypedSelector(
+            state => action === 0 && isActionPhase(state)
+        );
 
         const playing =
             loggedInPlayer.action > 0 &&
