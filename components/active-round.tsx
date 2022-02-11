@@ -162,7 +162,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             case !!loggedInPlayer.placeColony:
                 promptElement = <AskUserToPlaceColony player={loggedInPlayer} />;
                 break;
-            case loggedInPlayer.pendingPlayCardFromHand:
+            case !!loggedInPlayer.pendingPlayCardFromHand:
                 promptElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingDuplicateProduction:
