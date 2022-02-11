@@ -98,7 +98,7 @@ const BoardMid = styled.div`
 
 export const Board = () => {
     return (
-        <Box className="board" flexGrow="1" width="100%">
+        <Box className="board">
             <BoardOuter>
                 <BoardMid>
                     <BoardInner />

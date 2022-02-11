@@ -281,6 +281,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 flex="auto"
                 bottom="0px"
                 padding="0 0 100px 0"
+                justifyContent="center"
+                margin="0 auto"
+                maxWidth="100%"
             >
                 <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
                 <Box className="active-round-outer" flex="auto">
@@ -291,18 +294,21 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                 background={colors.DARK_1}
                                 borderRadius="10px"
                                 margin="16px"
-                                maxWidth="792px"
+                                className="prompt-box"
+                                paddingBottom="8px"
                                 width="fit-content"
                                 boxShadow={`0px 0px 8px 2px ${colors.ORANGE}`}
                             >
-                                <Box
-                                    className="display"
-                                    marginLeft="auto"
-                                    marginRight="auto"
-                                    color={colors.LIGHT_2}
-                                >
-                                    <h2>{actionBarPromptText}.</h2>
-                                </Box>
+                                {actionBarPromptText ? (
+                                    <Box
+                                        className="display"
+                                        marginLeft="auto"
+                                        marginRight="auto"
+                                        color={colors.LIGHT_2}
+                                    >
+                                        <h2>{actionBarPromptText}.</h2>
+                                    </Box>
+                                ) : null}
                                 <Box marginLeft="auto" marginRight="auto">
                                     {actionOverlayElement}
                                 </Box>

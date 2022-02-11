@@ -69,31 +69,46 @@ export const GlobalStyles = createGlobalStyle`
     .active-round {
         display: flex;
         flex-direction: column;
-        max-width: calc(100% - 16px);
+    }
+    .turmoil {
+        @media(max-width: 1500px) {
+            margin: 4px auto;
+        }
+    }
+    .prompt-box {
+        max-width: 792px;
+        min-width: calc(min(560px, 100%));
+        @media (max-width: 1500px) {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (max-width: 895px) {
+            min-width: initial;
+            max-width: calc(100% - 16px);
+        }
     }
     .active-round-outer {
         display: flex;
         width: 100%;
-        max-width: 1500px;
-        margin-left: auto;
-        margin-right: auto;
-        flex-wrap: wrap;
-        justify-content: center;
         box-sizing: border-box;
+        @media (max-width: 1500px) {
+            flex-direction: column;
+            justify-content: center;
+        }
     }
     .colonies {
-        @media (max-width: 1470px) {
+        @media (max-width: 1500px) {
             justify-content: center;
         }
     }
     .board-and-params {
-        justify-content: flex-end;
-        flex-grow: 1;
-        @media (max-width: 1470px) {
-            max-width: 100%;
+        width: 678px;
+        max-width: calc(100% - 8px);
+        @media (max-width: 1500px) {
             justify-content: center;
             flex-grow: 0;
-            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
         }
         @media (max-width: 895px) {
             flex-direction: column;
@@ -104,8 +119,9 @@ export const GlobalStyles = createGlobalStyle`
         margin-top: 0;
     }
     .action-table {
-        flex-grow: 1;
-        @media (max-width: 1470px) {
+        width: 792px;
+        max-width: calc(100% - 8px);
+        @media (max-width: 1500px) {
             width: 100%;
             flex-grow: 0;
             margin-left: auto;
@@ -113,23 +129,19 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .action-table-buttons {
-        @media (max-width: 1470px) {
+        @media (max-width: 1500px) {
             justify-content: center;
         }
     }
     .action-table-actions {
-        @media (max-width: 1470px) {
+        @media (max-width: 1500px) {
             margin-left: auto;
             margin-right: auto;
         }
     }
     .board {
-        max-width: calc(100vmin - 226px);
         width: 100%;
-        @media (max-width: 895px) {
-            max-width: 792px;
-            width: calc(100% - 8px);
-        }
+        flex-grow: 1;
     }
     .round-text {
         justify-content: flex-end;
@@ -149,11 +161,6 @@ export const GlobalStyles = createGlobalStyle`
         border-left-color: ${colors.CARD_BORDER_1};
         border-bottom-color: ${colors.CARD_BORDER_2};
         border-right-color: ${colors.CARD_BORDER_2};
-    }
-    .board-wrapper {
-        width: calc(100% - 16px);
-        padding-left: 8px;
-        padding-right: 8px;
     }
     .ellipsis {
         white-space: nowrap;

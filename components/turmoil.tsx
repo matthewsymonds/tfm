@@ -439,9 +439,9 @@ export function Turmoil() {
         <Flex
             color={colors.LIGHT_2}
             flexDirection="column"
-            margin="4px auto"
             flex="1 1 0px"
             alignItems="center"
+            className="turmoil"
             width="100%"
             maxWidth="576px"
         >

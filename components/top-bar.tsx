@@ -122,7 +122,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
 
         const actionGuard = useActionGuard();
 
-        const color = `linear-gradient(to right, ${topBarColor} 0px, rgba(255,255,255,0) 250px);`;
+        const color = `linear-gradient(to right, rgba(255,255,255,0) 0px, ${topBarColor} 100px, rgba(255,255,255,0) 220px);`;
 
         const greeneryPlacementText = actionGuard.canDoConversion(
             DEFAULT_CONVERSIONS[Resource.PLANT]
