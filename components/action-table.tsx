@@ -289,6 +289,9 @@ const ActionTableHeader = styled(BlankButton)<{isSelected: boolean}>`
     padding: 0;
     font-weight: 500;
     font-size: 1.2em;
+    @media (max-width: 420px) {
+        font-size: 1em;
+    }
     margin-bottom: 2px;
     padding: 6px 12px;
     transition: all 100ms;
