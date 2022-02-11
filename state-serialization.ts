@@ -21,6 +21,7 @@ import {
     GameActionType,
 } from 'GameActionState';
 import produce from 'immer';
+import {initialResources} from 'initial-state';
 import spawnExhaustiveSwitchError from 'utils';
 import {BaseGameState} from './BaseGameState';
 import {BasePlayerState} from './BasePlayerState';
@@ -208,6 +209,8 @@ export const censorGameState = (readonlyState: SerializedState, username: string
 
             if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
                 player.corporation = {name: ''};
+                player.resources = initialResources();
+                player.productions = initialResources();
             }
 
             for (const card of player.playedCards) {

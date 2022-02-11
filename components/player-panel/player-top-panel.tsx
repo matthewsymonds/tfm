@@ -120,9 +120,7 @@ export const PlayerTopPanel = ({
                     <TerraformRating>{player.terraformRating} TR</TerraformRating>
                 </ScorePopover>
             </CorporationHeader>
-            {!isCorporationSelection && (
-                <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
-            )}
+            <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
         </Flex>
     );
 };

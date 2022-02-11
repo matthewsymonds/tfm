@@ -203,7 +203,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
     return base;
 }
 
-function initialResources(startingAmount: number = 0) {
+export function initialResources(startingAmount: number = 0) {
     return {
         [Resource.MEGACREDIT]: startingAmount,
         [Resource.STEEL]: startingAmount,
