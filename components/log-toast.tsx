@@ -25,6 +25,10 @@ export const LogToast = () => {
     );
 
     useEffect(() => {
+        toast.clearWaitingQueue();
+    }, [gameName]);
+
+    useEffect(() => {
         if (lastSeenLogItem == null) {
             return;
         }
@@ -57,7 +61,7 @@ export const LogToast = () => {
         return () => {
             toast.clearWaitingQueue();
         };
-    }, [logLength, lastSeenLogItem, gameName]);
+    }, [logLength, lastSeenLogItem]);
 
     if (isCorporationSelection) {
         return null;

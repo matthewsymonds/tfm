@@ -35,12 +35,13 @@ export class ApiClient implements GameActionHandler {
         username: string,
         private readonly store: Store
     ) {
+        const state = store.getState();
         const queue = [];
         const game = {
-            queue: queue,
-            state: store.getState(),
-            players: store.getState().players.map(player => player.username),
-            name: this.getGameName(),
+            queue,
+            state,
+            players: state.players.map(player => player.username),
+            name: state.name,
         };
         this.actionHandler = new ApiActionHandler(
             game,
@@ -51,7 +52,20 @@ export class ApiClient implements GameActionHandler {
 
         store.subscribe(() => {
             const state = store.getState();
-            this.actionHandler.state = state;
+            if (!state) return;
+            const queue = [];
+            const game = {
+                queue,
+                state,
+                players: state.players.map(player => player.username),
+                name: state.name,
+            };
+            this.actionHandler = new ApiActionHandler(
+                game,
+                username,
+                dispatch,
+                /* ignoreSyncing = */ true
+            );
         });
     }
     async playCardAsync({
