@@ -6,6 +6,7 @@ import {getCard} from 'selectors/get-card';
 import {isActiveRound} from 'selectors/is-active-round';
 import {Box, Flex} from './box';
 import {Card, CardContext} from './card/Card';
+import {colors} from './ui';
 
 export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
@@ -55,13 +56,13 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     }
 
     return (
-        <>
-            <h2 style={{color: '#eee'}}>
+        <Box color={colors.LIGHT_2} className="display" marginLeft="16px" marginRight="16px">
+            <h3 style={{color: '#eee'}}>
                 {player.choosePrelude
                     ? 'Choose the prelude you would like to play.'
                     : 'Choose which prelude to play next.'}
-            </h2>
+            </h3>
             {preludesEls}
-        </>
+        </Box>
     );
 }

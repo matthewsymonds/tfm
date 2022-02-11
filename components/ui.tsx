@@ -2,7 +2,7 @@ import {Parameter} from 'constants/board';
 
 export const colors = {
     // grays
-    DARK_1: 'hsl(0, 0%, 10%)', // darkest
+    DARK_1: 'hsl(0, 0%, 15%)', // darkest
     DARK_2: 'hsl(0, 0%, 23%)',
     DARK_3: 'hsl(0, 0%, 30%)',
     DARK_4: 'hsl(0, 0%, 40%)', // lightest

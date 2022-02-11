@@ -1,4 +1,3 @@
-import {MAX_BOARD_WIDTH} from 'components/board/board';
 import {colors} from 'components/ui';
 import {createGlobalStyle} from 'styled-components';
 
@@ -67,24 +66,29 @@ export const GlobalStyles = createGlobalStyle`
     .display {
         font-family: 'Ubuntu Condensed', sans-serif;
     }
+    .active-round {
+        display: flex;
+        flex-direction: column;
+        max-width: calc(100% - 16px);
+    }
     .active-round-outer {
         display: flex;
-        flex-wrap: wrap;
-        box-sizing: border-box;
-        justify-content: center;
         width: 100%;
         max-width: 1500px;
         margin-left: auto;
         margin-right: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    .colonies {
         @media (max-width: 1470px) {
-            flex-direction: column-reverse;
-            flex-wrap: nowrap;
+            justify-content: center;
         }
     }
     .board-and-params {
-        width: 648px;
         justify-content: flex-end;
-        margin-left: auto;
+        flex-grow: 1;
         @media (max-width: 1470px) {
             max-width: 100%;
             justify-content: center;
@@ -93,6 +97,7 @@ export const GlobalStyles = createGlobalStyle`
         }
         @media (max-width: 895px) {
             flex-direction: column;
+            align-items: center;
         }
     }
     .no-margin-top {
@@ -100,22 +105,30 @@ export const GlobalStyles = createGlobalStyle`
     }
     .action-table {
         flex-grow: 1;
-        max-width: 792px;
         @media (max-width: 1470px) {
-            width: calc(100% - 16px);
+            width: 100%;
             flex-grow: 0;
-            margin-top: 8px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+    .action-table-buttons {
+        @media (max-width: 1470px) {
+            justify-content: center;
+        }
+    }
+    .action-table-actions {
+        @media (max-width: 1470px) {
             margin-left: auto;
             margin-right: auto;
         }
     }
     .board {
-        max-width: ${MAX_BOARD_WIDTH}px;
-        @media (max-width: 1470px) {
-            align-self: center;
-        }
+        max-width: calc(100vmin - 226px);
+        width: 100%;
         @media (max-width: 895px) {
-            margin: 8px auto;
+            max-width: 792px;
+            width: calc(100% - 8px);
         }
     }
     .round-text {

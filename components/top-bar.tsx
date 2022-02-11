@@ -45,8 +45,8 @@ const CorporationName = styled(Flex)`
     font-weight: bold;
 `;
 
-export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?: string | null}>(
-    ({yourTurnGames, text}, ref) => {
+export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
+    ({yourTurnGames}, ref) => {
         const currentGame = useTypedSelector(state => state.name);
 
         const router = useRouter();
@@ -162,17 +162,14 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                         <Box display="inline-block" marginRight="4px">
                             {isLoggedInPlayerPassed && 'You have passed.'}
                             {isEndOfGame && 'The game has ended.'}
-                            {yourTurnToPlayPreludes && !text && 'Play a prelude.'}
+                            {yourTurnToPlayPreludes && 'Playing preludes.'}
                             {!isActiveRound &&
                                 !isEndOfGame &&
                                 !isGreeneryPlacement &&
                                 !hasPendingCardSelection &&
                                 'Waiting to start generation.'}
                             {syncing && <em>Saving...</em>}
-                            {(isBuyOrDiscard || isDrafting) &&
-                                hasPendingCardSelection &&
-                                !syncing && <div>Please choose your cards.</div>}
-                            {!syncing && playing && !yourTurnToPlayPreludes && !text && (
+                            {!syncing && playing && !yourTurnToPlayPreludes && (
                                 <>Action {action} of 2</>
                             )}
                             {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
@@ -218,7 +215,6 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]; text?
                                 </Button>
                             )}
                         </Box>
-                        {text ? <em>{text}.</em> : null}
                     </Box>
                     {yourTurnMessage ? (
                         <Box color="#ddd">

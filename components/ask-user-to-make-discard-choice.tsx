@@ -41,7 +41,7 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
         });
     }
 
-    const min = typeof amount === 'number' ? amount : 0;
+    const min = typeof amount === 'number' ? amount : amount === VariableAmount.USER_CHOICE ? 1 : 0;
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>

@@ -32,13 +32,10 @@ export function AskUserToPlaceColony({player}: {player: PlayerState}) {
 
     return (
         <AskUserToMakeChoice>
-            <Flex flexDirection="column" style={{marginLeft: '8px'}}>
-                <span style={{margin: '0 0 8px 0'}}>You may place a colony</span>
-                <Flex>
-                    {choiceButtons.map(choiceButton => {
-                        return <Flex marginRight="8px">{choiceButton}</Flex>;
-                    })}
-                </Flex>
+            <Flex width="100%" justifyContent="center">
+                {choiceButtons.map(choiceButton => {
+                    return <Flex marginRight="8px">{choiceButton}</Flex>;
+                })}
             </Flex>
         </AskUserToMakeChoice>
     );

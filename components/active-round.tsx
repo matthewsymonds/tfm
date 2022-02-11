@@ -45,6 +45,7 @@ import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
+import {colors} from './ui';
 
 const PromptTitle = styled.h3`
     margin-top: 16px;
@@ -125,7 +126,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund award';
     } else if (loggedInPlayer.placeColony) {
-        actionBarPromptText = 'Place colony';
+        actionBarPromptText = 'Place a colony';
     } else if (loggedInPlayer.tradeForFree) {
         actionBarPromptText = 'Trade for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
@@ -219,10 +220,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 actionOverlayElement = <AskUserToFundAward player={loggedInPlayer} />;
                 break;
             case !!loggedInPlayer.pendingTilePlacement:
-                actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
+                actionOverlayElement = <div />;
                 break;
             case !!loggedInPlayer.pendingTileRemoval:
-                actionOverlayElement = <PromptTitle>{actionBarPromptText}</PromptTitle>;
+                actionOverlayElement = <div />;
                 break;
             case !!loggedInPlayer.pendingResourceActionDetails:
                 actionOverlayElement = (
@@ -281,20 +282,34 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 bottom="0px"
                 padding="0 0 100px 0"
             >
-                <TopBar
-                    text={buttonNeeded ? '' : actionBarPromptText}
-                    ref={topBarRef}
-                    yourTurnGames={yourTurnGames}
-                />
-
+                <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
                 <Box className="active-round-outer" flex="auto">
-                    <ActionTable
-                        actionPrompt={{
-                            element: actionOverlayElement,
-                            text: actionBarPromptText,
-                            buttonNeeded,
-                        }}
-                    />
+                    <Flex className="active-round">
+                        {actionOverlayElement ? (
+                            <Flex
+                                flexDirection="column"
+                                background={colors.DARK_1}
+                                borderRadius="10px"
+                                margin="16px"
+                                maxWidth="792px"
+                                width="fit-content"
+                                boxShadow={`0px 0px 8px 2px ${colors.ORANGE}`}
+                            >
+                                <Box
+                                    className="display"
+                                    marginLeft="auto"
+                                    marginRight="auto"
+                                    color={colors.LIGHT_2}
+                                >
+                                    <h2>{actionBarPromptText}.</h2>
+                                </Box>
+                                <Box marginLeft="auto" marginRight="auto">
+                                    {actionOverlayElement}
+                                </Box>
+                            </Flex>
+                        ) : null}
+                        <ActionTable />
+                    </Flex>
                     <Flex className="board-and-params">
                         <Board />
                         <GlobalParams parameters={parameters} />

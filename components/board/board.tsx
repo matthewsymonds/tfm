@@ -16,7 +16,6 @@ export const MAX_BOARD_WIDTH = 562;
 const CircleOuter = styled.div`
     display: flex;
     flex-direction: column;
-    max-width: ${MAX_BOARD_WIDTH}px;
 `;
 
 const Circle = styled.div`
@@ -99,7 +98,7 @@ const BoardMid = styled.div`
 
 export const Board = () => {
     return (
-        <Box className="board" flexGrow="1" maxWidth={MAX_BOARD_WIDTH + 'px'} width="100%">
+        <Box className="board" flexGrow="1" width="100%">
             <BoardOuter>
                 <BoardMid>
                     <BoardInner />

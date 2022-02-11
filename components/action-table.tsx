@@ -39,9 +39,9 @@ import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes: Array<ActionType> = ['Prompt', 'Players', 'Actions', 'Colonies', 'Turmoil'];
+const actionTypes: Array<ActionType> = ['Players', 'Actions', 'Colonies', 'Turmoil'];
 
-type ActionType = 'Prompt' | 'Players' | 'Actions' | 'Colonies' | 'Turmoil';
+type ActionType = 'Players' | 'Actions' | 'Colonies' | 'Turmoil';
 
 const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     border-radius: 4px;
@@ -80,18 +80,8 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     }
 `;
 
-type ActionPrompt = {
-    text?: string | null;
-    element?: React.ReactElement | null;
-    buttonNeeded: boolean;
-};
-
-type ActionTableProps = {actionPrompt: ActionPrompt};
-
-export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
-    actionPrompt,
-}: ActionTableProps) => {
-    const [selectedTab, setSelectedTab] = useState<ActionType>('Prompt');
+export const ActionTable: React.FunctionComponent = () => {
+    const [selectedTab, setSelectedTab] = useState<ActionType>('Players');
     const player = useLoggedInPlayer();
 
     useEffect(() => {
@@ -111,14 +101,6 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
         player.exchangeNeutralNonLeaderDelegate,
     ]);
 
-    useEffect(() => {
-        if (!actionPrompt?.element || !actionPrompt?.buttonNeeded) {
-            setSelectedTab('Players');
-        } else {
-            setSelectedTab('Prompt');
-        }
-    }, [!actionPrompt?.buttonNeeded, !actionPrompt?.element]);
-
     const isColoniesEnabled = useTypedSelector(state =>
         state.options?.decks.includes(Deck.COLONIES)
     );
@@ -126,9 +108,6 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
 
     const visibleActionTypes = useTypedSelector(state =>
         actionTypes.filter(actionType => {
-            if (actionType === 'Prompt') {
-                return !!(actionPrompt.buttonNeeded && actionPrompt.element);
-            }
             if (actionType === 'Colonies') {
                 return isColoniesEnabled;
             }
@@ -147,18 +126,18 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
             alignItems="flex-start"
             marginLeft="8px"
             marginRight="8px"
-            marginBottom="8px"
+            marginBottom="16px"
             marginTop="4px"
             width="100%"
-            maxWidth="100%"
+            maxWidth="792px"
             style={{justifySelf: 'center'}}
         >
             <Flex
-                justifyContent="center"
                 width="100%"
                 flexWrap="wrap"
                 flexShrink="0"
                 padding="6px 0"
+                className="action-table-buttons"
             >
                 {visibleActionTypes.map(actionType => (
                     <Flex key={actionType} margin="0 4px 4px 0">
@@ -170,29 +149,20 @@ export const ActionTable: React.FunctionComponent<ActionTableProps> = ({
                                 }
                             }}
                         >
-                            {actionType === 'Prompt' ? actionPrompt?.text ?? 'Action' : actionType}
+                            {actionType}
                         </ActionTableHeader>
                     </Flex>
                 ))}
             </Flex>
-            <Flex
-                flexDirection="column"
-                justifySelf="center"
-                alignItems="center"
-                width="100%"
-                marginTop="-8px"
-            >
+            <Flex flexDirection="column" alignItems="center" width="100%" marginTop="-8px">
                 {actionTypes.map(actionType => {
                     return (
                         <Box
                             key={actionType}
                             display={actionType === selectedTab ? 'initial' : 'none'}
-                            maxWidth="100%"
+                            width="100%"
                         >
-                            <ActionTableInner
-                                selectedTab={actionType}
-                                actionPrompt={actionPrompt}
-                            />
+                            <ActionTableInner selectedTab={actionType} />
                         </Box>
                     );
                 })}
@@ -342,16 +312,8 @@ const BoardActionsHeader = styled.p`
     letter-spacing: 0.1em;
 `;
 
-function ActionTableInner({
-    selectedTab,
-    actionPrompt,
-}: {
-    selectedTab: ActionType;
-    actionPrompt: ActionPrompt;
-}) {
+function ActionTableInner({selectedTab}: {selectedTab: ActionType}) {
     switch (selectedTab) {
-        case 'Prompt':
-            return <Flex flexDirection="column">{actionPrompt?.element ?? null}</Flex>;
         case 'Players':
             return (
                 <Box width="100%">
@@ -360,7 +322,12 @@ function ActionTableInner({
             );
         case 'Actions': {
             return (
-                <Flex flexDirection="column" alignItems="flex-start" maxWidth="500px">
+                <Flex
+                    flexDirection="column"
+                    alignItems="flex-start"
+                    maxWidth="500px"
+                    className="action-table-actions"
+                >
                     <BoardActionsHeader className="display">Milestones</BoardActionsHeader>
                     <MilestonesTable />
 
