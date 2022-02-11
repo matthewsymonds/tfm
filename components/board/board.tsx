@@ -112,10 +112,14 @@ export function BoardInner() {
     const loggedInPlayer = useLoggedInPlayer();
 
     const board = useTypedSelector(state => state.common.board);
-    const {pendingTilePlacement} = loggedInPlayer;
+    const {pendingTilePlacement, pendingTileRemoval} = loggedInPlayer;
     const validPlacements = useTypedSelector(state =>
         getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
     );
+    const validRemovals = useTypedSelector(state => {
+        const cells = state.common.board.flat();
+        return cells.filter(cell => cell?.tile?.type === pendingTileRemoval);
+    });
 
     const cells = board.flat();
 
@@ -179,7 +183,10 @@ export function BoardInner() {
                                                 >
                                                     <Cell
                                                         cell={cell}
-                                                        selectable={validPlacements.includes(cell)}
+                                                        selectable={
+                                                            validPlacements.includes(cell) ||
+                                                            validRemovals.includes(cell)
+                                                        }
                                                     />
                                                 </div>
                                             )

@@ -289,6 +289,8 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                         className="display"
                                         marginLeft="auto"
                                         marginRight="auto"
+                                        paddingLeft="8px"
+                                        paddingRight="8px"
                                         color={colors.LIGHT_2}
                                     >
                                         <h2>{actionBarPromptText}.</h2>

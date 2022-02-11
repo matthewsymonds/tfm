@@ -116,7 +116,14 @@ import {
     ParameterCounter,
     Payment,
 } from 'constants/action';
-import {Cell, CellType, getTilePlacementBonus, Parameter, TileType} from 'constants/board';
+import {
+    Cell,
+    CellType,
+    getTilePlacementBonus,
+    Parameter,
+    TilePlacement,
+    TileType,
+} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
@@ -1160,18 +1167,25 @@ export class ApiActionHandler {
             throw new Error(reason);
         }
 
-        const {state} = this;
         const loggedInPlayer = this.getLoggedInPlayer();
         const {pendingTilePlacement} = loggedInPlayer;
         if (!pendingTilePlacement) throw new Error('no pending tile placement');
         const matchingCell = this.actionGuard.getMatchingCell(cell, pendingTilePlacement);
         if (!matchingCell) throw new Error('Cannot place on specified cell');
-        const type = pendingTilePlacement!.type!;
-        this.triggerEffectsFromTilePlacement(type, cell);
+        this.queue.unshift(...this.makeTilePlacementActions(pendingTilePlacement, matchingCell));
+        this.processQueue();
+    }
 
-        const tilePlacementBonus = getTilePlacementBonus(matchingCell, pendingTilePlacement);
+    private makeTilePlacementActions(pendingTilePlacement: TilePlacement, cell: Cell) {
+        const items: AnyAction[] = [];
+        const type = pendingTilePlacement.type!;
+        this.triggerEffectsFromTilePlacement(type, cell);
+        const loggedInPlayer = this.getLoggedInPlayer();
+        const {state} = this;
+
+        const tilePlacementBonus = getTilePlacementBonus(cell, pendingTilePlacement);
         for (const bonus of tilePlacementBonus) {
-            this.queue.unshift(
+            items.unshift(
                 this.createInitialGainResourceAction(
                     bonus.resource,
                     bonus.amount,
@@ -1179,19 +1193,22 @@ export class ApiActionHandler {
                 )
             );
         }
-        const action = matchingCell.action;
+        const action = cell.action;
         if (action && !pendingTilePlacement.noBonuses) {
-            this.playAction({
-                action,
-                state,
-            });
+            this.playAction(
+                {
+                    action,
+                    state,
+                },
+                items
+            );
         }
         const megacreditIncreaseFromOceans =
-            getAdjacentCellsForCell(this.state, matchingCell).filter(cell => {
+            getAdjacentCellsForCell(this.state, cell).filter(cell => {
                 return cell.tile?.type === TileType.OCEAN;
             }).length * (loggedInPlayer.oceanAdjacencyBonus ?? 2);
         if (megacreditIncreaseFromOceans && !pendingTilePlacement.noBonuses) {
-            this.queue.unshift(
+            items.unshift(
                 this.createInitialGainResourceAction(
                     Resource.MEGACREDIT,
                     megacreditIncreaseFromOceans,
@@ -1214,9 +1231,8 @@ export class ApiActionHandler {
             });
         }
 
-        this.dispatch(placeTile({type}, cell, loggedInPlayer.index));
-
-        this.processQueue();
+        items.unshift(placeTile({type}, cell, loggedInPlayer.index));
+        return items;
     }
 
     completeRemoveTile({cell}: {cell: Cell}) {
@@ -1719,13 +1735,21 @@ export class ApiActionHandler {
                 numOceansPlacedSoFar + oceansInQueue >= MAX_PARAMETERS[Parameter.OCEAN]
             ) {
             } else {
-                items.push(
-                    askUserToPlaceTile(
-                        {...tilePlacement, noBonuses: action.noParameterBonuses},
-                        playerIndex
-                    )
-                );
-                oceansInQueue += 1;
+                const pendingTilePlacement = {
+                    ...tilePlacement,
+                    noBonuses: action.noParameterBonuses,
+                };
+                const cells = this.state.common.board
+                    .flat()
+                    .filter(cell => this.actionGuard.canCompletePlaceTile(cell, tilePlacement)[0]);
+                if (cells.length === 1) {
+                    items.push(...this.makeTilePlacementActions(pendingTilePlacement, cells[0]));
+                } else if (cells.length > 1) {
+                    items.push(askUserToPlaceTile(pendingTilePlacement, playerIndex));
+                }
+                if (isOcean) {
+                    oceansInQueue += 1;
+                }
             }
         }
 
