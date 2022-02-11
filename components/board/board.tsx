@@ -117,6 +117,7 @@ export function BoardInner() {
         getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
     );
     const validRemovals = useTypedSelector(state => {
+        if (!pendingTileRemoval) return [];
         const cells = state.common.board.flat();
         return cells.filter(cell => cell?.tile?.type === pendingTileRemoval);
     });
