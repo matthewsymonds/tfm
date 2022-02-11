@@ -18,7 +18,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {shuffle} from 'initial-state';
 import {Card} from 'models/card';
-import {shallowEqual, TypedUseSelectorHook, useSelector} from 'react-redux';
+import {TypedUseSelectorHook, useSelector} from 'react-redux';
 import {AnyAction} from 'redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {
@@ -2196,8 +2196,6 @@ function handleSetupNextGeneration(draft: WritableDraft<GameState>) {
     }
 }
 
-const equalityFn = shallowEqual;
-
 export const useTypedSelector: TypedUseSelectorHook<GameState> = selector => {
-    return useSelector(selector, equalityFn);
+    return useSelector(selector);
 };

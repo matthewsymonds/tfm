@@ -868,7 +868,7 @@ function Conversions() {
     }, [loggedInPlayer.corporation]);
 
     return (
-        <Flex justifyContent="center" width="100%">
+        <Flex justifyContent="center" width="100%" flexWrap="wrap">
             {conversions?.map(conversion => {
                 let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
                 function doConversion() {

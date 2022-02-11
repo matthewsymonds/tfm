@@ -71,8 +71,16 @@ export const GlobalStyles = createGlobalStyle`
         flex-direction: column;
     }
     .turmoil {
-        @media(max-width: 1500px) {
+        @media (max-width: 1500px) {
             margin: 4px auto;
+        }
+    }
+    .policy-table {
+        display: table;
+        @media (max-width: 420px) {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
     }
     .prompt-box {
@@ -141,6 +149,9 @@ export const GlobalStyles = createGlobalStyle`
     .action-table-buttons {
         @media (max-width: 1500px) {
             justify-content: center;
+        }
+        @media (max-width: 420px) {
+            justify-content: flex-start;
         }
     }
     .action-table-actions {

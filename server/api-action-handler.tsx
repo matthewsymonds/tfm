@@ -195,6 +195,9 @@ export class ApiActionHandler {
         this.loggedInPlayerIndex = this.game.state.players.findIndex(
             player => player.username === this.username
         );
+        if (this.loggedInPlayerIndex < 0) {
+            debugger;
+        }
         this.actionGuard = new ActionGuard(this.game.state, username);
         this.actionGuard.ignoreSyncing = !!ignoreSyncing;
         if (dispatch) {

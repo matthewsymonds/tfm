@@ -455,7 +455,7 @@ export function Turmoil() {
                     <EmptyGlobalEvent />
                 )}
             </Flex>
-            <Box display="table" width="100%">
+            <Box display="table" className="policy-table" width="100%">
                 <Box display="table-row">
                     <Box display="table-cell">
                         <Flex
@@ -554,7 +554,7 @@ export function Turmoil() {
                     Delegations
                 </h3>
 
-                <ResponsiveMasonry columnsCountBreakPoints={{0: 1, 260: 2}}>
+                <ResponsiveMasonry columnsCountBreakPoints={{0: 1, 390: 2}}>
                     <Masonry gutter="8px">{delegations}</Masonry>
                 </ResponsiveMasonry>
             </Box>
