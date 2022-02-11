@@ -1,9 +1,10 @@
 import {AppContext} from 'context/app-context';
 import {useContext} from 'react';
-import {useTypedSelector} from 'reducer';
+import {useStore} from 'react-redux';
 
 export function useLoggedInPlayer() {
     const context = useContext(AppContext);
+    const store = useStore();
 
-    return useTypedSelector(state => context.getLoggedInPlayer(state));
+    return context.getLoggedInPlayer(store.getState());
 }
