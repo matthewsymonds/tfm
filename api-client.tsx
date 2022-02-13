@@ -100,25 +100,7 @@ export class ApiClient implements GameActionHandler {
             try {
                 playGame(type, payload, this.actionHandler, this.actionHandler.state);
             } catch (error) {
-                const apiPath = '/api/log-error' + window.location.pathname;
-                let errorString = '';
-                if (error instanceof Error) {
-                    errorString += error.toString();
-                    errorString += '; ';
-                    errorString += error?.stack ?? '';
-                } else {
-                    errorString = JSON.stringify(error);
-                }
-                makePostCall(apiPath, {
-                    gameName: name,
-                    error: errorString,
-                    attemptedAction: {
-                        type,
-                        payload,
-                    },
-                });
-                toast(<div>{errorString}</div>);
-                console.log(error);
+                this.logError(error, payload, type);
             }
 
             this.store.dispatch(setIsNotSyncing());
@@ -172,6 +154,32 @@ export class ApiClient implements GameActionHandler {
         const gameName = this.getGameName();
 
         return `/api/games/${gameName}/play`;
+    }
+
+    private async logError(error: Error | unknown, payload: Object, type: ApiActionType) {
+        try {
+            const apiPath = '/api/log-error';
+            let errorString = '';
+            if (error instanceof Error) {
+                errorString += error.toString();
+                errorString += '; ';
+                errorString += error?.stack ?? '';
+            } else {
+                errorString = JSON.stringify(error);
+            }
+            errorString = errorString.split('\n')[0];
+            await makePostCall(apiPath, {
+                gameName: name,
+                error: errorString,
+                attemptedAction: {
+                    type,
+                    payload,
+                },
+            });
+            toast(<div>{errorString}</div>);
+        } catch (error) {
+            console.log('there was an error while attempting to log error', error);
+        }
     }
 
     private getGameName() {

@@ -30,7 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (req.method?.toUpperCase()) {
         case 'GET':
-            res.setHeader('cache-control', 'no-cache');
+            res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
             const index = game.players.indexOf(username);
             const {lastSeenLogItem = []} = game;
             const previousLastSeenLogItem = [...lastSeenLogItem];
