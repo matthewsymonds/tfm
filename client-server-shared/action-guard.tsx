@@ -991,7 +991,7 @@ export class ActionGuard {
         const numCards = selectedCards.length;
 
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
-        const totalCardCost = numCards * loggedInPlayer.cardCost;
+        const totalCardCost = numCards * (corporation?.cardCost ?? loggedInPlayer.cardCost);
 
         // trying to draft a card not in their list (or discard a card they don't own)
         const possibleCards =
