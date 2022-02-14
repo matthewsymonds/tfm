@@ -1133,12 +1133,12 @@ export class ApiActionHandler {
 
         this.queue.unshift(skipAction(this.loggedInPlayerIndex));
         const player = this.getLoggedInPlayer();
-        const playablePreludes =
-            player.preludes?.filter(prelude => {
-                const card = getCard(prelude);
-                return this.actionGuard.canPlayCard(card)[0];
-            }) ?? [];
-        if (playablePreludes.length === 0 && (player?.preludes?.length ?? 0) > 0) {
+        const preludes = player.preludes ?? [];
+        const playablePreludes = preludes.filter(prelude => {
+            const card = getCard(prelude);
+            return this.actionGuard.canSkipPrelude(card, player);
+        });
+        if (playablePreludes.length === preludes.length && preludes.length > 0) {
             this.queue.push(discardPreludes(this.loggedInPlayerIndex));
         }
         this.processQueue();

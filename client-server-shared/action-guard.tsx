@@ -325,7 +325,7 @@ export class ActionGuard {
         if (
             gameStage === GameStage.ACTIVE_ROUND &&
             player.preludes?.length > 0 &&
-            player.preludes?.every(preludeCard => !this.canPlayCard(getCard(preludeCard))[0])
+            player.preludes?.every(preludeCard => this.canSkipPrelude(getCard(preludeCard)))
         ) {
             return [true, 'Out of playable prelude cards'];
         }
@@ -1134,6 +1134,19 @@ export class ActionGuard {
         }
 
         return [true, 'Good to go'];
+    }
+
+    canSkipPrelude(
+        card: Card,
+        player: PlayerState = this._getPlayerToConsider(),
+        state: GameState = this.state
+    ) {
+        const [canPlay] = this.canPlayCard(card, player, player.resources);
+        if (!canPlay) return true;
+        if (!doesPlayerHaveRequiredResourcesToRemove(card, state, player, card)) {
+            return true;
+        }
+        return false;
     }
 
     private arePreludesCorrect(selectedPreludes: Card[]) {

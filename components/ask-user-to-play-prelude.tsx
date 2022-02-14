@@ -15,9 +15,9 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
         apiClient.skipActionAsync();
     };
 
-    const playableCards = player.preludes.filter(prelude => {
+    const skippableCards = player.preludes.filter(prelude => {
         const card = getCard(prelude);
-        return actionGuard.canPlayCard(card)[0];
+        return actionGuard.canSkipPrelude(card, player);
     });
 
     const activeRound = useTypedSelector(state => isActiveRound(state));
@@ -39,14 +39,9 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
         </Flex>
     );
 
-    if (playableCards.length === 0) {
+    if (skippableCards.length === player.preludes.length) {
         return (
             <Flex alignItems="center" flexDirection="column">
-                <h2 style={{color: '#eee'}}>
-                    {player.choosePrelude
-                        ? 'Cannot play any of these preludes'
-                        : 'No more playable preludes.'}
-                </h2>
                 <button onClick={handleSkip} style={{marginTop: '8px', marginBottom: '24px'}}>
                     Skip remaining preludes
                 </button>

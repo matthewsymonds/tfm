@@ -1929,10 +1929,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             }
             const previous = player.action;
             const isPrelude = player.preludes?.length ?? 0 > 0;
-            if (!isPrelude) {
-                player.action = 1;
-            }
-            if (!isPrelude && previous === 2) {
+            player.action = 1;
+            if (isPrelude || previous === 2) {
                 handleChangeCurrentPlayer(state, draft);
             }
         }
