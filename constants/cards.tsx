@@ -5282,7 +5282,7 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.TURMOIL,
         name: 'Utopia Invest',
         gainResource: {[Resource.MEGACREDIT]: 40},
-        increaseProduction: {[Resource.TITANIUM]: 1, [Resource.STEEL]: 2},
+        increaseProduction: {[Resource.TITANIUM]: 1, [Resource.STEEL]: 1},
         text: 'You start with 40 MC. Increase your steel and titanium production 1 step each.',
 
         tags: [Tag.BUILDING],
