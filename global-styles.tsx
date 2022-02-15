@@ -192,6 +192,7 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .action-table-buttons {
+        margin-bottom: 4px;
         @media (max-width: 1500px) {
             justify-content: center;
         }

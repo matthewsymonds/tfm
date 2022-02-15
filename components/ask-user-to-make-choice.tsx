@@ -43,12 +43,7 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = null;
     }
     return (
-        <Flex
-            width="100%"
-            flexDirection="column"
-            marginBottom="16px"
-            style={{color: colors.TEXT_LIGHT_1}}
-        >
+        <Flex width="100%" flexDirection="column" style={{color: colors.TEXT_LIGHT_1}}>
             {triggerDetails}
             <ChoiceWrapper orientation={orientation}>{children}</ChoiceWrapper>
         </Flex>
