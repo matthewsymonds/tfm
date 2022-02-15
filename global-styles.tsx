@@ -161,6 +161,7 @@ export const GlobalStyles = createGlobalStyle`
     .board-and-params {
         width: 678px;
         max-width: calc(100% - 8px);
+        margin-bottom: 8px;
         @media (max-width: 1500px) {
             justify-content: center;
             flex-grow: 0;
