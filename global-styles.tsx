@@ -63,12 +63,53 @@ export const GlobalStyles = createGlobalStyle`
       background: #cecece;
       margin: 0;
     }
+    table {
+        border-radius: 4px;
+        max-width: inherit;
+        border-collapse: collapse;
+    }
+    th {
+        text-align: left;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    tr:first-child {
+        border-bottom: 1px solid ${colors.DARK_2};
+    }
+    tr:last-child {
+        border-top: 1px solid ${colors.DARK_2};
+        td {
+            padding: 4px;
+        }
+    }
+    td {
+        text-align: right;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
     .display {
         font-family: 'Ubuntu Condensed', sans-serif;
     }
     .active-round {
         display: flex;
         flex-direction: column;
+        max-width: 792px;
+    }
+    .player-board {
+        margin-left: 8px;
+        margin-right: 8px;
+        &.first {
+            margin-left: 0;
+            @media (max-width: 1500px) {
+                margin-left: 8px;
+            }
+        }
+        &.right {
+            margin-right: 0;
+            @media (max-width: 1500px) {
+                margin-right: 8px;
+            }
+        }
     }
     .turmoil {
         @media (max-width: 1500px) {
@@ -84,15 +125,18 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .prompt-box {
-        max-width: 792px;
-        @media (max-width: 1500px) {
-            min-width: calc(min(560px, 100%));
+        max-width: 420px;
+        padding-left: 8px;
+        padding-right: 8px;
+        margin-bottom: 8px;
+        h2 {
+            text-align: center;
             margin-left: auto;
             margin-right: auto;
         }
-        @media (max-width: 895px) {
-            max-width: calc(100% - 16px);
-            min-width: calc(100% - 16px);
+        @media (max-width: 1500px) {
+            margin-left: auto;
+            margin-right: auto;
         }
     }
     .top-wrapper {

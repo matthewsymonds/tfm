@@ -127,7 +127,7 @@ const GlobalParamWrapper = styled.div`
         margin-left: 0px;
         padding-left: 8px;
         padding-right: 8px;
-        width: calc(100% - 16px);
+        width: 100%;
 
         .global-param-icon {
             margin-left: 0px;

@@ -37,14 +37,13 @@ import {ColonyIcon} from './icons/other';
 import {ProductionIcon} from './icons/production';
 import {ResourceIcon} from './icons/resource';
 import {TileIcon} from './icons/tile';
-import {PlayerPanels} from './player-panel/player-panels';
 import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes: Array<ActionType> = ['Players', 'Mars', 'Actions', 'Colonies', 'Turmoil'];
+const actionTypes: Array<ActionType> = ['Mars', 'Actions', 'Colonies', 'Turmoil'];
 
-type ActionType = 'Players' | 'Mars' | 'Actions' | 'Colonies' | 'Turmoil';
+type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil';
 
 const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     border-radius: 4px;
@@ -84,13 +83,15 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
 `;
 
 export const ActionTable: React.FunctionComponent = () => {
-    const [selectedTab, setSelectedTab] = useState<ActionType>('Players');
+    const [selectedTab, setSelectedTab] = useState<ActionType | ''>('');
     const player = useLoggedInPlayer();
     const windowWidth = useWindowWidth();
 
     useEffect(() => {
-        if (windowWidth > 1500 && selectedTab === 'Mars') {
-            setSelectedTab('Players');
+        if (windowWidth <= 1500 && selectedTab === '') {
+            setSelectedTab('Mars');
+        } else if (windowWidth > 1500 && selectedTab === 'Mars') {
+            setSelectedTab('Actions');
         }
         if (player.tradeForFree) {
             setSelectedTab('Colonies');
@@ -130,26 +131,18 @@ export const ActionTable: React.FunctionComponent = () => {
         })
     );
 
+    console.log(selectedTab);
+
     return (
         <Flex
             className="action-table"
             flexDirection="column"
             alignItems="flex-start"
-            marginLeft="8px"
-            marginRight="8px"
-            marginBottom="16px"
-            marginTop="4px"
             width="100%"
             maxWidth="792px"
             style={{justifySelf: 'center'}}
         >
-            <Flex
-                width="100%"
-                flexWrap="wrap"
-                flexShrink="0"
-                padding="6px 0"
-                className="action-table-buttons"
-            >
+            <Flex width="100%" flexWrap="wrap" flexShrink="0" className="action-table-buttons">
                 {visibleActionTypes.map(actionType => (
                     <Flex key={actionType} margin="0 4px 4px 0">
                         <ActionTableHeader
@@ -157,6 +150,8 @@ export const ActionTable: React.FunctionComponent = () => {
                             onClick={() => {
                                 if (actionType !== selectedTab) {
                                     setSelectedTab(actionType);
+                                } else {
+                                    setSelectedTab('');
                                 }
                             }}
                         >
@@ -165,7 +160,7 @@ export const ActionTable: React.FunctionComponent = () => {
                     </Flex>
                 ))}
             </Flex>
-            <Flex flexDirection="column" alignItems="center" width="100%" marginTop="-8px">
+            <Flex flexDirection="column" alignItems="center" width="100%">
                 {actionTypes.map(actionType => {
                     return (
                         <Box
@@ -305,11 +300,9 @@ const ActionTableHeader = styled(BlankButton)<{isSelected: boolean}>`
             `;
         } else {
             return `
-                opacity: 0.4;
                 color: ${colors.GOLD};
 
                 &:hover {
-                    opacity: 0.7;
                     background: ${colors.DARK_2};
                 }
             `;
@@ -326,16 +319,11 @@ const BoardActionsHeader = styled.p`
     letter-spacing: 0.1em;
 `;
 
-function ActionTableInner({selectedTab}: {selectedTab: ActionType}) {
+function ActionTableInner({selectedTab}: {selectedTab: ActionType | ''}) {
     const parameters = useTypedSelector(state => state.common.parameters);
-
     switch (selectedTab) {
-        case 'Players':
-            return (
-                <Box width="100%">
-                    <PlayerPanels />
-                </Box>
-            );
+        case '':
+            return null;
         case 'Actions': {
             return (
                 <Flex

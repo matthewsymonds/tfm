@@ -19,7 +19,6 @@ type PlayerPanelProps = {
 
 const OuterWrapper = styled.div<{isSelected: boolean}>`
     display: flex;
-    position: relative;
     transition: all 300ms ease-in-out;
     opacity: ${props => (props.isSelected ? 1 : 0.25)};
     background ${props => (props.isSelected ? colors.DARK_2 : 'transparent')};
@@ -30,6 +29,11 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     align-items: flex-start;
     padding: 8px;
     max-width: 766px;
+    margin-top: 8px;
+    @media (max-width: 1500px) {
+        margin-left: 8px;
+        margin-right: 8px;
+    }
 `;
 
 const CardsInHandMessage = styled.div`

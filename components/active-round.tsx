@@ -1,7 +1,6 @@
 import AskUserToConfirmResourceActionDetails from 'components/ask-user-to-confirm-resource-action-details';
 import {AskUserToMakeCardSelection} from 'components/ask-user-to-make-card-selection';
 import {AskUserToMakeDiscardChoice} from 'components/ask-user-to-make-discard-choice';
-import {Board} from 'components/board/board';
 import {Card as CardComponent} from 'components/card/Card';
 import {PlayerHand} from 'components/player-hand';
 import {TopBar} from 'components/top-bar';
@@ -41,10 +40,12 @@ import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
+import {Board} from './board/board';
 import {Box, Flex} from './box';
 import {EndOfGame} from './end-of-game';
 import GlobalParams from './global-params';
 import {LogToast} from './log-toast';
+import {PlayerPanels} from './player-panel/player-panels';
 import {colors} from './ui';
 
 const PromptTitle = styled.h3`
@@ -93,8 +94,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     let actionBarPromptText: string | null = null;
     if (gameStage === GameStage.CORPORATION_SELECTION) {
         actionBarPromptText = 'Corporation Selection';
-    } else if (gameStage === GameStage.END_OF_GAME) {
-        actionBarPromptText = 'Game End';
     } else if (loggedInPlayer.pendingPlayCardFromHand) {
         actionBarPromptText = 'Play card from hand';
     } else if (loggedInPlayer.putAdditionalColonyTileIntoPlay) {
@@ -274,34 +273,28 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 <Box className="active-round-outer" flex="auto">
                     <Flex className="active-round">
                         {promptElement ? (
-                            <Flex
-                                flexDirection="column"
-                                background={colors.DARK_1}
-                                borderRadius="10px"
-                                margin="16px"
-                                className="prompt-box"
-                                paddingBottom="8px"
-                                width="fit-content"
-                                boxShadow={`0px 0px 8px 2px ${colors.ORANGE}`}
-                            >
+                            <Flex flexDirection="column" className="prompt-box">
                                 {actionBarPromptText ? (
                                     <Box
                                         className="display"
-                                        marginLeft="auto"
-                                        marginRight="auto"
-                                        paddingLeft="8px"
+                                        paddingLeft="12px"
                                         paddingRight="8px"
                                         color={colors.LIGHT_2}
                                     >
-                                        <h2>{actionBarPromptText}.</h2>
+                                        <h2 style={{marginBottom: 0, marginTop: 0}}>
+                                            {actionBarPromptText}.
+                                        </h2>
                                     </Box>
                                 ) : null}
-                                <Box marginLeft="auto" marginRight="auto">
+                                <Flex width="100%" flexDirection="column" justifyContent="center">
                                     {promptElement}
-                                </Box>
+                                </Flex>
                             </Flex>
                         ) : null}
                         <ActionTable />
+                        <Box width="100%">
+                            <PlayerPanels />
+                        </Box>
                     </Flex>
                     <Flex className="board-and-params" id="hide-beneath-1500">
                         <Board />

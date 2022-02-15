@@ -17,12 +17,7 @@ export const PlayerPanels = () => {
     const [swiper, setSwiper] = useState<SwiperCore | null>(null);
     const playerIndex = useTypedSelector(state => loggedInPlayer.index);
     const gameName = useTypedSelector(state => state.name);
-    const [topIndex, setTopIndex] = useState(playerIndex);
-
-    useEffect(() => {
-        setTopIndex(playerIndex);
-        swiper?.slideTo(playerIndex);
-    }, [loggedInPlayer.index, gameName]);
+    const [topIndex, setTopIndex] = useState<number>(playerIndex);
 
     useEffect(() => {
         const handler = () => {
@@ -55,21 +50,35 @@ export const PlayerPanels = () => {
         modules: [Controller, Mousewheel],
     };
 
+    const open = topIndex != null;
+
+    const [overflow, setOverflow] = useState('hidden');
+
+    useEffect(() => {
+        if (open) {
+            setTimeout(() => {
+                setOverflow('auto');
+            }, 200);
+        } else {
+            setOverflow('hidden');
+        }
+    }, [open]);
+
     return (
-        <Box>
-            <PlayerBoardsContainer overflowX="auto" width="100%" id="player-boards-container">
+        <Box position="relative">
+            <PlayerBoardsContainer overflowX="auto" width="100%">
                 {players.map((player, i) => (
                     <Box
                         key={i}
                         id={'player-board-unique-' + i}
+                        className={`player-board ${
+                            i === 0 ? 'first' : i === players.length - 1 ? 'last' : ''
+                        }`}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginLeft: i === 0 ? 0 : 8,
-                            marginRight: i === players.length - 1 ? 0 : 8,
                             marginTop: 10,
-                            marginBottom: 8,
                         }}
                         onClick={() => {
                             swiper?.slideTo(i);
@@ -79,24 +88,26 @@ export const PlayerPanels = () => {
                     </Box>
                 ))}
             </PlayerBoardsContainer>
-            <Swiper
-                controller={{control: swiper ?? undefined}}
-                onSwiper={setSwiper}
-                slidesPerView="auto"
-                {...swiperProps}
-            >
-                {players.map((player, i) => (
-                    <SwiperSlide
-                        onClick={() => swiper?.slideTo(player.index)}
-                        key={i}
-                        style={{maxWidth: '804px'}}
-                    >
-                        {({isActive}) => (
-                            <PlayerBottomPanel player={player} isSelected={isActive} />
-                        )}
-                    </SwiperSlide>
-                ))}
-            </Swiper>
+            <Box display={topIndex != null ? 'initial' : 'none'}>
+                <Swiper
+                    controller={{control: swiper ?? undefined}}
+                    onSwiper={setSwiper}
+                    slidesPerView="auto"
+                    {...swiperProps}
+                >
+                    {players.map((player, i) => (
+                        <SwiperSlide
+                            onClick={() => swiper?.slideTo(player.index)}
+                            key={i}
+                            style={{maxWidth: '804px'}}
+                        >
+                            {({isActive}) => (
+                                <PlayerBottomPanel player={player} isSelected={isActive} />
+                            )}
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </Box>
         </Box>
     );
 };

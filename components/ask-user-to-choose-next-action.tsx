@@ -23,6 +23,7 @@ import {
     increaseParameter,
     increaseProduction,
     removeResource,
+    setPreludes,
 } from 'actions';
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
@@ -176,7 +177,8 @@ export function userCannotChooseAction(action: AnyAction): boolean {
     return (
         completeAction.match(action) ||
         addParameterRequirementAdjustments.match(action) ||
-        applyDiscounts.match(action)
+        applyDiscounts.match(action) ||
+        setPreludes.match(action)
     );
 }
 

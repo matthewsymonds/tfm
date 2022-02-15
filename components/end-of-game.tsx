@@ -14,24 +14,15 @@ import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
 import {colors} from './ui';
 
-const EndOfGameBase = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-`;
-
 const AllScoresContainer = styled.div<{numPlayers: number}>`
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     overflow: auto;
     max-width: 100%;
 `;
 
 const PlayerScoreContainer = styled.div`
-    margin-left: 8px;
-    &:first-child {
-        margin-left: 0px;
-    }
     padding: 16px;
     border: 1px solid black;
     background-color: lightgray;
@@ -111,56 +102,90 @@ export function EndOfGame() {
     const winner = playerScoreInfos.sort((a, b) => b.totalScore - a.totalScore)[0];
     const isTurmoilEnabled = useTypedSelector(isPlayingTurmoil);
     return (
-        <EndOfGameBase>
-            <h2 style={{color: colors.TEXT_LIGHT_1}}>
+        <>
+            <h2 className="display" style={{color: colors.TEXT_LIGHT_1}}>
                 Game over. {winner.player.corporation.name} ({winner.player.username}) wins!
             </h2>
-            <AllScoresContainer numPlayers={playerScoreInfos.length}>
-                {playerScoreInfos.map(scoreInfo => (
-                    <PlayerScoreContainer key={scoreInfo.player.username}>
-                        <PlayerScoreHeader>
-                            <PlayerCorpAndIcon
-                                player={scoreInfo.player}
-                                includeUsername
-                            ></PlayerCorpAndIcon>
-                        </PlayerScoreHeader>
-                        <PlayerScoreRow>
-                            <span>TR</span>
-                            <span>{scoreInfo.terraformRating}</span>
-                        </PlayerScoreRow>
-                        <PlayerScoreRow>
-                            <span>Cards</span>
-                            <span>{scoreInfo.cardScore}</span>
-                        </PlayerScoreRow>
-                        <PlayerScoreRow>
-                            <span>Cities</span>
-                            <span>{scoreInfo.citiesScore}</span>
-                        </PlayerScoreRow>
-                        <PlayerScoreRow>
-                            <span>Greeneries</span>
-                            <span>{scoreInfo.greeneryScore}</span>
-                        </PlayerScoreRow>
-                        <PlayerScoreRow>
-                            <span>Milestones</span>
-                            <span>{scoreInfo.milestoneScore}</span>
-                        </PlayerScoreRow>
-                        <PlayerScoreRow>
-                            <span>Awards</span>
-                            <span>{scoreInfo.awardScore}</span>
-                        </PlayerScoreRow>
-                        {isTurmoilEnabled ? (
-                            <PlayerScoreRow>
-                                <span>Turmoil</span>
-                                <span>{scoreInfo.turmoilScore}</span>
-                            </PlayerScoreRow>
-                        ) : null}
-                        <PlayerScoreTotalRow>
-                            <span>Total</span>
-                            <span>{scoreInfo.totalScore}</span>
-                        </PlayerScoreTotalRow>
-                    </PlayerScoreContainer>
-                ))}
-            </AllScoresContainer>
-        </EndOfGameBase>
+            <table style={{background: colors.LIGHTEST_BG}}>
+                <tbody>
+                    <tr>
+                        <th>Player</th>
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <PlayerCorpAndIcon
+                                    player={scoreInfo.player}
+                                    includeUsername
+                                ></PlayerCorpAndIcon>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>TR</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.terraformRating}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>Cards</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.cardScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>Cities</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.citiesScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>Greeneries</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.greeneryScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>Milestones</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.milestoneScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>Awards</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.awardScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
+                        <th>
+                            <b>Total</b>
+                        </th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <b>{scoreInfo.totalScore}</b>
+                            </td>
+                        ))}
+                    </tr>
+                </tbody>
+            </table>
+        </>
     );
 }
