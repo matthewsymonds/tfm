@@ -169,7 +169,7 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     });
 
     return (
-        <Box color={colors.TEXT_LIGHT_1} margin="8px">
+        <Box color={colors.TEXT_LIGHT_1} margin="8px" marginTop="0">
             {possibleCorporations.length > 0 && (
                 <CardSelector
                     min={1}

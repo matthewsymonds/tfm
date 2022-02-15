@@ -125,15 +125,10 @@ export const GlobalStyles = createGlobalStyle`
         }
     }
     .prompt-box {
-        max-width: 420px;
+        max-width: fit-content;
         padding-left: 8px;
         padding-right: 8px;
         margin-bottom: 8px;
-        h2 {
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-        }
         @media (max-width: 1500px) {
             margin-left: auto;
             margin-right: auto;
@@ -193,6 +188,7 @@ export const GlobalStyles = createGlobalStyle`
     }
     .action-table-buttons {
         margin-bottom: 4px;
+        margin-top: 4px;
         @media (max-width: 1500px) {
             justify-content: center;
         }
