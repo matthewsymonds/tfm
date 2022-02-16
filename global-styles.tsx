@@ -93,18 +93,18 @@ export const GlobalStyles = createGlobalStyle`
     .active-round {
         display: flex;
         flex-direction: column;
-        max-width: 792px;
+        max-width: 798px;
     }
     .player-board {
         margin-left: 8px;
         margin-right: 8px;
         &.first {
-            margin-left: 0;
+            margin-left: 0px;
             @media (max-width: 1500px) {
                 margin-left: 8px;
             }
         }
-        &.right {
+        &.last {
             margin-right: 0;
             @media (max-width: 1500px) {
                 margin-right: 8px;
@@ -136,7 +136,7 @@ export const GlobalStyles = createGlobalStyle`
     }
     .top-wrapper {
         @media (max-width: 1500px) {
-            width: 792px;
+            width: 798px;
             max-width: calc(100% - 8px);
         }
     }
@@ -177,7 +177,7 @@ export const GlobalStyles = createGlobalStyle`
         margin-top: 0;
     }
     .action-table {
-        width: 792px;
+        width: 798px;
         max-width: calc(100% - 8px);
         @media (max-width: 1500px) {
             width: 100%;
@@ -188,7 +188,7 @@ export const GlobalStyles = createGlobalStyle`
     }
     .action-table-buttons {
         margin-bottom: 4px;
-        margin-top: 4px;
+        margin-top: 8px;
         @media (max-width: 1500px) {
             justify-content: center;
         }

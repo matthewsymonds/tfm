@@ -139,7 +139,7 @@ export const ActionTable: React.FunctionComponent = () => {
             flexDirection="column"
             alignItems="flex-start"
             width="100%"
-            maxWidth="792px"
+            maxWidth="798px"
             style={{justifySelf: 'center'}}
         >
             <Flex width="100%" flexWrap="wrap" flexShrink="0" className="action-table-buttons">
