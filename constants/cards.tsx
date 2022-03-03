@@ -5291,6 +5291,5 @@ export const cardConfigs: CardConfig[] = [
             decreaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1},
             gainResource: {[Resource.BASED_ON_PRODUCTION_DECREASE]: 4},
         },
-        cardCost: 1,
     },
 ];
