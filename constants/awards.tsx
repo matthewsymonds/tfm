@@ -32,7 +32,7 @@ export const AWARD_CONFIGS: AwardConfig[] = [
     {
         name: 'Scientist',
         description: 'Most science tags wins',
-        amount: {tag: Tag.SCIENCE},
+        amount: {tag: Tag.SCIENCE, includeWildcard: false},
     },
     {
         name: 'Thermalist',
