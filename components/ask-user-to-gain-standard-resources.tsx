@@ -19,7 +19,7 @@ function ResourceChooser({
     max: number;
 }) {
     return (
-        <Flex alignItems="center" justifyContent="center">
+        <Flex alignItems="center" justifyContent="center" marginLeft="8px">
             <ResourceIcon margin={4} size={10} name={resource} />
             <input type="number" min={0} value={quantity} max={max} onChange={onChange}></input>
         </Flex>
@@ -44,6 +44,7 @@ export function AskUserToGainStandardResources({player}: {player: PlayerState}) 
     const confirmGainResources = () => {
         apiClient.gainStandardResourcesAsync({resources});
     };
+    const canContinue = total == quantity;
     return (
         <Flex flexDirection="column">
             <span style={{marginBottom: 16, color: colors.TEXT_LIGHT_1}}>
@@ -66,13 +67,17 @@ export function AskUserToGainStandardResources({player}: {player: PlayerState}) 
                                 setResources(newResources);
                             }}
                             resource={resource}
-                            quantity={quantity}
+                            quantity={resources[resource]}
                             max={max}
                         />
                     );
                 })}
             </Flex>
-            <button onClick={confirmGainResources}>Continue</button>
+            <Flex marginTop="12px" justifyContent="center">
+                <button disabled={!canContinue} onClick={confirmGainResources}>
+                    Continue
+                </button>
+            </Flex>
         </Flex>
     );
 }

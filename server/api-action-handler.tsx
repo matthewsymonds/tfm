@@ -325,17 +325,17 @@ export class ApiActionHandler {
                     })
                 );
                 const {action, firstPlayerAction} = globalEvent;
-                for (const player of this.state.players) {
-                    this.playAction({
-                        action,
-                        thisPlayerIndex: player.index,
-                        state: this.state,
-                    });
-                }
                 if (firstPlayerAction) {
                     this.playAction({
                         action: firstPlayerAction,
                         thisPlayerIndex: this.state.common.firstPlayerIndex,
+                        state: this.state,
+                    });
+                }
+                for (const player of this.state.players) {
+                    this.playAction({
+                        action,
+                        thisPlayerIndex: player.index,
                         state: this.state,
                     });
                 }
