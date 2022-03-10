@@ -65,7 +65,9 @@ export const cardConfigs: CardConfig[] = [
             text: 'Spend 1 MC to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here.',
             cost: 1,
             revealAndDiscardTopCards: 1,
-            gainResource: {[Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE},
+            gainResource: {
+                [Resource.SCIENCE]: VariableAmount.REVEALED_CARD_MICROBE,
+            },
             gainResourceTargetType: ResourceLocationType.THIS_CARD,
         },
         cost: 3,
@@ -99,7 +101,9 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Spend 1 energy to gain 1 MC for each city tile ON MARS.',
             removeResource: {[Resource.ENERGY]: 1},
-            gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITIES_ON_MARS},
+            gainResource: {
+                [Resource.MEGACREDIT]: VariableAmount.CITIES_ON_MARS,
+            },
         },
         cost: 13,
         deck: Deck.BASIC,
@@ -262,7 +266,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 3 plants, or add 3 microbes or 2 animals to ANOTHER card. Place an ocean tile.',
         tags: [Tag.EARTH, Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
-        gainResourceOption: {[Resource.PLANT]: 3, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
+        gainResourceOption: {
+            [Resource.PLANT]: 3,
+            [Resource.MICROBE]: 3,
+            [Resource.ANIMAL]: 2,
+        },
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
         tilePlacements: [t(TileType.OCEAN)],
     },
@@ -415,7 +423,9 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             trigger: {cardTags: [Tag.EVENT, Tag.SPACE]},
-            action: {gainResource: {[Resource.MEGACREDIT]: 3, [Resource.HEAT]: 3}},
+            action: {
+                gainResource: {[Resource.MEGACREDIT]: 3, [Resource.HEAT]: 3},
+            },
             text: 'When you place a space event, you gain 3 MC and 3 heat.',
         },
         cost: 7,
@@ -524,7 +534,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 1},
-        increaseProduction: {[Resource.PLANT]: VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE},
+        increaseProduction: {
+            [Resource.PLANT]: VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE,
+        },
     },
     {
         effect: {
@@ -607,7 +619,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.NATURAL_PRESERVE, PlacementRequirement.ISOLATED, true)],
+        tilePlacements: [
+            t(TileType.NATURAL_PRESERVE, PlacementRequirement.ISOLATED, true),
+        ],
         increaseProduction: {[Resource.MEGACREDIT]: 1},
     },
     {
@@ -802,7 +816,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.PLANT],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN, true)],
+        tilePlacements: [
+            t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN, true),
+        ],
     },
     {
         cost: 13,
@@ -859,10 +875,15 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         tilePlacements: [
-            t(TileType.MINING_AREA, PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT, true),
+            t(
+                TileType.MINING_AREA,
+                PlacementRequirement.STEEL_OR_TITANIUM_PLAYER_ADJACENT,
+                true
+            ),
         ],
         increaseProduction: {
-            [Resource.TITANIUM]: VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS,
+            [Resource.TITANIUM]:
+                VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS,
             [Resource.STEEL]: VariableAmount.MINING_AREA_CELL_HAS_STEEL_BONUS,
         },
     },
@@ -882,7 +903,9 @@ export const cardConfigs: CardConfig[] = [
         name: 'Land Claim',
         text: 'Place your marker on a non-reserved area. Only you may place a tile here',
         tags: [Tag.EVENT],
-        tilePlacements: [t(TileType.LAND_CLAIM, PlacementRequirement.NON_RESERVED)],
+        tilePlacements: [
+            t(TileType.LAND_CLAIM, PlacementRequirement.NON_RESERVED),
+        ],
         type: CardType.EVENT,
     },
     {
@@ -892,9 +915,16 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place [the mining] tile on an area with a steel or titanium placement bonus. Increase that production 1 step.',
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
-        tilePlacements: [t(TileType.MINING_RIGHTS, PlacementRequirement.STEEL_OR_TITANIUM, true)],
+        tilePlacements: [
+            t(
+                TileType.MINING_RIGHTS,
+                PlacementRequirement.STEEL_OR_TITANIUM,
+                true
+            ),
+        ],
         increaseProduction: {
-            [Resource.TITANIUM]: VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS,
+            [Resource.TITANIUM]:
+                VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS,
             [Resource.STEEL]: VariableAmount.MINING_RIGHTS_CELL_HAS_STEEL_BONUS,
         },
     },
@@ -977,12 +1007,14 @@ export const cardConfigs: CardConfig[] = [
                 steps: [
                     {
                         removeResource: {
-                            [Resource.CARD]: VariableAmount.USER_CHOICE_UP_TO_ONE,
+                            [Resource.CARD]:
+                                VariableAmount.USER_CHOICE_UP_TO_ONE,
                         },
                     },
                     {
                         gainResource: {
-                            [Resource.CARD]: VariableAmount.BASED_ON_USER_CHOICE,
+                            [Resource.CARD]:
+                                VariableAmount.BASED_ON_USER_CHOICE,
                         },
                     },
                 ],
@@ -1128,7 +1160,8 @@ export const cardConfigs: CardConfig[] = [
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 4},
         tilePlacements: [t(TileType.COMMERCIAL_DISTRICT)],
-        victoryPoints: VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT,
+        victoryPoints:
+            VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT,
     },
     {
         cost: 9,
@@ -1496,7 +1529,13 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        tilePlacements: [t(TileType.OCEAN, PlacementRequirement.NOT_RESERVED_FOR_OCEAN, true)],
+        tilePlacements: [
+            t(
+                TileType.OCEAN,
+                PlacementRequirement.NOT_RESERVED_FOR_OCEAN,
+                true
+            ),
+        ],
     },
     {
         cost: 11,
@@ -1548,7 +1587,9 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {
             [Resource.MEGACREDIT]: 2,
         },
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.DOUBLE_CITY_ADJACENT, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.DOUBLE_CITY_ADJACENT, true),
+        ],
     },
     {
         cost: 1,
@@ -1590,7 +1631,13 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place [the Industrial Center] tile ADJACENT TO A CITY TILE.',
         tags: [Tag.BUILDING],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.INDUSTRIAL_CENTER, PlacementRequirement.CITY_ADJACENT, true)],
+        tilePlacements: [
+            t(
+                TileType.INDUSTRIAL_CENTER,
+                PlacementRequirement.CITY_ADJACENT,
+                true
+            ),
+        ],
     },
     {
         cost: 1,
@@ -1651,8 +1698,16 @@ export const cardConfigs: CardConfig[] = [
         text: 'Requires that you have a greenery tile. Place [the Ecological Zone] tile ADJACENT TO ANY GREENERY TILE. 1 VP per 2 animals on this card.',
         tags: [Tag.ANIMAL, Tag.PLANT],
         type: CardType.ACTIVE,
-        requiredTilePlacements: [{type: TileType.GREENERY, currentPlayer: true}],
-        tilePlacements: [t(TileType.ECOLOGICAL_ZONE, PlacementRequirement.GREENERY_ADJACENT, true)],
+        requiredTilePlacements: [
+            {type: TileType.GREENERY, currentPlayer: true},
+        ],
+        tilePlacements: [
+            t(
+                TileType.ECOLOGICAL_ZONE,
+                PlacementRequirement.GREENERY_ADJACENT,
+                true
+            ),
+        ],
         victoryPoints: VariableAmount.HALF_RESOURCES_ON_CARD,
     },
     {
@@ -1824,7 +1879,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EVENT],
         type: CardType.EVENT,
         increaseParameter: {[Parameter.TEMPERATURE]: 2},
-        tilePlacements: [t(TileType.LAVA_FLOW, PlacementRequirement.VOLCANIC, true)],
+        tilePlacements: [
+            t(TileType.LAVA_FLOW, PlacementRequirement.VOLCANIC, true),
+        ],
     },
     {
         cost: 4,
@@ -1843,7 +1900,13 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.HEAT]: 4},
-        tilePlacements: [t(TileType.MOHOLE_AREA, PlacementRequirement.RESERVED_FOR_OCEAN, true)],
+        tilePlacements: [
+            t(
+                TileType.MOHOLE_AREA,
+                PlacementRequirement.RESERVED_FOR_OCEAN,
+                true
+            ),
+        ],
     },
     {
         cost: 36,
@@ -1944,7 +2007,8 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {
             [Resource.ANY_STORABLE_RESOURCE]: 1,
         },
-        gainResourceTargetType: ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE,
+        gainResourceTargetType:
+            ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE,
     },
     {
         effect: {text: 'when you play a card, you pay 2 MC less for it.'},
@@ -2140,7 +2204,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise your TR 1 step and gain 4 plants. Add 3 microbes to ANOTHER card and 2 animals to ANOTHER card.',
         tags: [Tag.EARTH, Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
-        gainResource: {[Resource.PLANT]: 4, [Resource.MICROBE]: 3, [Resource.ANIMAL]: 2},
+        gainResource: {
+            [Resource.PLANT]: 4,
+            [Resource.MICROBE]: 3,
+            [Resource.ANIMAL]: 2,
+        },
         gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
     },
     {
@@ -2276,7 +2344,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.PLANT],
         type: CardType.AUTOMATED,
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        tilePlacements: [t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN)],
+        tilePlacements: [
+            t(TileType.GREENERY, PlacementRequirement.RESERVED_FOR_OCEAN),
+        ],
     },
     {
         cost: 10,
@@ -2427,7 +2497,8 @@ export const cardConfigs: CardConfig[] = [
                     },
                     {
                         removeResource: {[Resource.SCIENCE]: 1},
-                        removeResourceSourceType: ResourceLocationType.THIS_CARD,
+                        removeResourceSourceType:
+                            ResourceLocationType.THIS_CARD,
                         gainResource: {[Resource.CARD]: 1},
                         text: '-1 science resource, +1 card',
                     },
@@ -2548,7 +2619,9 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Spend any amount of energy to gain that amount of MC.',
             removeResource: {[Resource.ENERGY]: VariableAmount.USER_CHOICE},
-            gainResource: {[Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE},
+            gainResource: {
+                [Resource.MEGACREDIT]: VariableAmount.BASED_ON_USER_CHOICE,
+            },
         },
         cost: 4,
         deck: Deck.CORPORATE,
@@ -2608,7 +2681,9 @@ export const cardConfigs: CardConfig[] = [
         text: 'Place [the restricted area] tile.',
         tags: [Tag.SCIENCE],
         type: CardType.ACTIVE,
-        tilePlacements: [t(TileType.RESTRICTED_AREA, PlacementRequirement.NON_RESERVED)],
+        tilePlacements: [
+            t(TileType.RESTRICTED_AREA, PlacementRequirement.NON_RESERVED),
+        ],
     },
     {
         effect: {
@@ -2698,7 +2773,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 2}},
+        increaseProduction: {
+            [Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 2},
+        },
     },
     {
         action: {text: 'Draw 2 cards.', gainResource: {[Resource.CARD]: 2}},
@@ -2770,7 +2847,8 @@ export const cardConfigs: CardConfig[] = [
                 {
                     gainResource: {[Resource.FLOATER]: 1},
                     text: '+1 floater',
-                    gainResourceTargetType: ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
+                    gainResourceTargetType:
+                        ResourceLocationType.ANY_CARD_OWNED_BY_YOU,
                 },
                 {
                     removeResource: {[Resource.FLOATER]: 1},
@@ -2793,7 +2871,9 @@ export const cardConfigs: CardConfig[] = [
         deck: Deck.VENUS,
         name: 'Aerosport Tournament',
         requiredResources: {[Resource.FLOATER]: 5},
-        gainResource: {[Resource.MEGACREDIT]: VariableAmount.CITY_TILES_IN_PLAY},
+        gainResource: {
+            [Resource.MEGACREDIT]: VariableAmount.CITY_TILES_IN_PLAY,
+        },
         text: 'Requires that you have 5 floaters. Gain 1 MC for each city tile in play.',
         tags: [Tag.EVENT],
         type: CardType.EVENT,
@@ -2828,7 +2908,10 @@ export const cardConfigs: CardConfig[] = [
         text: 'Requires 3 science tags. Either raise the temperature 2 steps, or raise Venus 2 steps. Add 2 floaters to ANY card.',
         requiredTags: {[Tag.SCIENCE]: 3},
         choice: [
-            {increaseParameter: {[Parameter.TEMPERATURE]: 2}, text: '+2 temperature'},
+            {
+                increaseParameter: {[Parameter.TEMPERATURE]: 2},
+                text: '+2 temperature',
+            },
             {increaseParameter: {[Parameter.VENUS]: 2}, text: '+2 Venus'},
         ],
         gainResource: {[Resource.FLOATER]: 2},
@@ -2844,7 +2927,8 @@ export const cardConfigs: CardConfig[] = [
         text: 'Raise Venus 1 step. Remove up to 4 MC from a player WITH A VENUS TAG IN PLAY.',
         increaseParameter: {[Parameter.VENUS]: 1},
         removeResource: {[Resource.MEGACREDIT]: 4},
-        removeResourceSourceType: ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
+        removeResourceSourceType:
+            ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG,
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
     },
@@ -2870,7 +2954,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 3,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.DAWN_CITY, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.DAWN_CITY, true),
+        ],
     },
     {
         action: {
@@ -3045,7 +3131,10 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING, Tag.CITY],
         type: CardType.AUTOMATED,
         increaseProduction: {
-            [Resource.MEGACREDIT]: sum({tag: Tag.VENUS}, {tag: Tag.EARTH, includeWildcard: false}),
+            [Resource.MEGACREDIT]: sum(
+                {tag: Tag.VENUS},
+                {tag: Tag.EARTH, includeWildcard: false}
+            ),
         },
         decreaseProduction: {
             [Resource.ENERGY]: 2,
@@ -3075,7 +3164,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN, Tag.SCIENCE],
         type: CardType.AUTOMATED,
         victoryPoints: 2,
-        gainResource: {[Resource.CARD]: VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE},
+        gainResource: {
+            [Resource.CARD]: VariableAmount.THREE_IF_THREE_VENUS_TAGS_ELSE_ONE,
+        },
     },
     {
         cost: 5,
@@ -3150,7 +3241,9 @@ export const cardConfigs: CardConfig[] = [
         increaseProduction: {
             [Resource.MEGACREDIT]: {tag: Tag.EARTH},
         },
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.LUNA_METROPOLIS, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.LUNA_METROPOLIS, true),
+        ],
     },
     {
         cost: 8,
@@ -3180,7 +3273,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: 3,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.MAXWELL_BASE, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.MAXWELL_BASE, true),
+        ],
     },
     {
         cost: 5,
@@ -3331,7 +3426,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.CITY, Tag.VENUS],
         type: CardType.ACTIVE,
         victoryPoints: VariableAmount.THIRD_RESOURCES_ON_CARD,
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.STRATOPOLIS, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.STRATOPOLIS, true),
+        ],
         increaseProduction: {[Resource.MEGACREDIT]: 2},
     },
     {
@@ -3386,7 +3483,8 @@ export const cardConfigs: CardConfig[] = [
                     },
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     gainResource: {
-                        [Resource.MEGACREDIT]: VariableAmount.TRIPLE_BASED_ON_USER_CHOICE,
+                        [Resource.MEGACREDIT]:
+                            VariableAmount.TRIPLE_BASED_ON_USER_CHOICE,
                     },
                     text: '-X microbes, +3X Megacredits',
                 },
@@ -3727,7 +3825,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.SPACE],
         type: CardType.AUTOMATED,
         victoryPoints: 1,
-        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true}},
+        increaseProduction: {
+            [Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true},
+        },
     },
     {
         cost: 3,
@@ -3801,7 +3901,12 @@ export const cardConfigs: CardConfig[] = [
                     gainResource: {[Resource.FLOATER]: 1},
                     gainResourceTargetType: ResourceLocationType.JOVIAN_CARD,
                 },
-                {gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD_MAX_4}},
+                {
+                    gainResource: {
+                        [Resource.MEGACREDIT]:
+                            VariableAmount.RESOURCES_ON_CARD_MAX_4,
+                    },
+                },
             ],
         },
         cost: 9,
@@ -3847,7 +3952,9 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your titanium production 1 step for every 2 Earth tags you have in play, including this.',
         tags: [Tag.EARTH],
         type: CardType.AUTOMATED,
-        increaseProduction: {[Resource.TITANIUM]: {tag: Tag.EARTH, dividedBy: 2}},
+        increaseProduction: {
+            [Resource.TITANIUM]: {tag: Tag.EARTH, dividedBy: 2},
+        },
     },
     {
         cost: 1,
@@ -3861,7 +3968,9 @@ export const cardConfigs: CardConfig[] = [
     {
         action: {
             text: 'Gain 1 MC per animal here.',
-            gainResource: {[Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD},
+            gainResource: {
+                [Resource.MEGACREDIT]: VariableAmount.RESOURCES_ON_CARD,
+            },
         },
         effect: {
             text: 'When you play an Earth tag, place an animal here.',
@@ -4182,10 +4291,15 @@ export const cardConfigs: CardConfig[] = [
                     text: '+2 floaters',
                 },
                 {
-                    removeResource: {[Resource.FLOATER]: VariableAmount.USER_CHOICE},
+                    removeResource: {
+                        [Resource.FLOATER]: VariableAmount.USER_CHOICE,
+                    },
                     removeResourceSourceType: ResourceLocationType.THIS_CARD,
                     text: '-X floaters, +X titanium',
-                    gainResource: {[Resource.TITANIUM]: VariableAmount.BASED_ON_USER_CHOICE},
+                    gainResource: {
+                        [Resource.TITANIUM]:
+                            VariableAmount.BASED_ON_USER_CHOICE,
+                    },
                 },
             ],
         },
@@ -4292,7 +4406,9 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.JOVIAN],
         type: CardType.AUTOMATED,
         requiredPartyOrTwoDelegates: REDS,
-        gainResource: {[Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true}},
+        gainResource: {
+            [Resource.MEGACREDIT]: {tag: Tag.JOVIAN, includeOpponents: true},
+        },
     },
     {
         name: 'Event Analysts',
@@ -4340,7 +4456,9 @@ export const cardConfigs: CardConfig[] = [
         requiredPartyOrTwoDelegates: MARS_FIRST,
         cost: 8,
         tags: [Tag.BUILDING],
-        increaseProduction: {[Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3}},
+        increaseProduction: {
+            [Resource.MEGACREDIT]: {tag: Tag.BUILDING, dividedBy: 3},
+        },
         type: CardType.AUTOMATED,
         victoryPoints: 1,
         text: 'Requires that Mars First are ruling or that you have 2 delegates there. Increase your MC production 1 step for every 3 building tags you have, including this.',
@@ -4382,7 +4500,10 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.EARTH, Tag.EVENT],
         type: CardType.EVENT,
         requiredPartyOrTwoDelegates: REDS,
-        gainResource: {[Resource.MEGACREDIT]: VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES},
+        gainResource: {
+            [Resource.MEGACREDIT]:
+                VariableAmount.EMPTY_AREAS_ADJACENT_TO_PLAYER_TILES,
+        },
         text: 'Requires that Reds are ruling or that you have 2 delegates there. Gain 1 MC from each EMPTY AREA ADJACENT TO YOUR TILES.',
     },
     {
@@ -4602,7 +4723,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Increase your MC production, steel production, and titanium production 1 step each.',
         tags: [],
         type: CardType.PRELUDE,
-        increaseProduction: {[Resource.MEGACREDIT]: 1, [Resource.STEEL]: 1, [Resource.TITANIUM]: 1},
+        increaseProduction: {
+            [Resource.MEGACREDIT]: 1,
+            [Resource.STEEL]: 1,
+            [Resource.TITANIUM]: 1,
+        },
     },
     {
         deck: Deck.PRELUDE,
@@ -4700,7 +4825,11 @@ export const cardConfigs: CardConfig[] = [
         tags: [],
         type: CardType.PRELUDE,
         decreaseProduction: {[Resource.MEGACREDIT]: 1},
-        increaseProduction: {[Resource.PLANT]: 1, [Resource.ENERGY]: 1, [Resource.HEAT]: 1},
+        increaseProduction: {
+            [Resource.PLANT]: 1,
+            [Resource.ENERGY]: 1,
+            [Resource.HEAT]: 1,
+        },
     },
     {
         deck: Deck.PRELUDE,
@@ -4717,7 +4846,11 @@ export const cardConfigs: CardConfig[] = [
         text: 'Gain 3 titanium, 8 steel, and 3 plants.',
         tags: [],
         type: CardType.PRELUDE,
-        gainResource: {[Resource.TITANIUM]: 3, [Resource.STEEL]: 8, [Resource.PLANT]: 3},
+        gainResource: {
+            [Resource.TITANIUM]: 3,
+            [Resource.STEEL]: 8,
+            [Resource.PLANT]: 3,
+        },
     },
     {
         deck: Deck.PRELUDE,
@@ -4756,7 +4889,9 @@ export const cardConfigs: CardConfig[] = [
         type: CardType.AUTOMATED,
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 2},
-        tilePlacements: [t(TileType.CITY, PlacementRequirement.VOLCANIC_CITY, true)],
+        tilePlacements: [
+            t(TileType.CITY, PlacementRequirement.VOLCANIC_CITY, true),
+        ],
     },
     {
         cost: 9,
@@ -4839,7 +4974,9 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 57},
     },
     {
-        effect: {text: 'You may always pay 7 plants, instead of 8, to place 1 greenery.'},
+        effect: {
+            text: 'You may always pay 7 plants, instead of 8, to place 1 greenery.',
+        },
         deck: Deck.BASIC,
         name: 'Ecoline',
         text: 'You start with 2 plant production, 3 plants, and 36 MC.',
@@ -4947,7 +5084,11 @@ export const cardConfigs: CardConfig[] = [
         effects: [
             {
                 text: 'When any city tile is placed ON MARS, increase your MC production 1 step.',
-                trigger: {placedTile: TileType.CITY, anyPlayer: true, onMars: true},
+                trigger: {
+                    placedTile: TileType.CITY,
+                    anyPlayer: true,
+                    onMars: true,
+                },
                 action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
             },
             {
@@ -5068,7 +5209,9 @@ export const cardConfigs: CardConfig[] = [
         gainResource: {[Resource.MEGACREDIT]: 48},
     },
     {
-        effect: {text: 'When you play a building tag, you pay 2 MC less for it.'},
+        effect: {
+            text: 'When you play a building tag, you pay 2 MC less for it.',
+        },
         deck: Deck.PRELUDE,
         name: 'Cheung Shing Mars',
         text: 'You start with 44 MC and 3 MC production.',
@@ -5261,7 +5404,9 @@ export const cardConfigs: CardConfig[] = [
         action: {
             text: 'Gain 2 MC for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE.',
             gainResource: {
-                [Resource.MEGACREDIT]: double(VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE),
+                [Resource.MEGACREDIT]: double(
+                    VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE
+                ),
             },
         },
     },

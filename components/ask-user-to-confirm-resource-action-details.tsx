@@ -106,7 +106,9 @@ function getPlayersToConsider(
             const playerIndices = neighbors
                 .filter(cell => cell?.tile?.type !== TileType.LAND_CLAIM)
                 .map(cell => cell?.tile?.ownerPlayerIndex);
-            return players.filter(player => playerIndices.includes(player.index));
+            return players.filter(player =>
+                playerIndices.includes(player.index)
+            );
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
             return players.filter(player =>
                 getPlayedCards(player)
@@ -147,7 +149,10 @@ export function serializeResourceActionOption(
         card: option.card ? {name: option.card.name} : undefined,
         location: {
             type: option.location instanceof Card ? 'Card' : 'Player',
-            name: option.location instanceof Card ? option.location.name : option.location.username,
+            name:
+                option.location instanceof Card
+                    ? option.location.name
+                    : option.location.username,
         },
     };
 }
@@ -158,7 +163,9 @@ export function deserializeResourceOptionAction(
 ): ResourceActionOption {
     const location = (
         option.location.type === 'Player'
-            ? state.players.find(player => player.username === option.location.name)
+            ? state.players.find(
+                  player => player.username === option.location.name
+              )
             : state.players
                   .flatMap(player => getPlayedCards(player))
                   .find(card => card.name === option.location.name)
@@ -183,9 +190,16 @@ export function getPlayerOptionWrappers(
     } = player.pendingResourceActionDetails!
 ): PlayerOptionWrapper[] {
     const players = state.players;
-    const {actionType, resourceAndAmounts, locationType} = resourceActionDetails;
+    const {actionType, resourceAndAmounts, locationType} =
+        resourceActionDetails;
     const card = getCard(resourceActionDetails.card);
-    let playersToConsider = getPlayersToConsider(player, players, locationType, actionType, state);
+    let playersToConsider = getPlayersToConsider(
+        player,
+        players,
+        locationType,
+        actionType,
+        state
+    );
     const playerOptionWrappers: PlayerOptionWrapper[] = [];
 
     playersToConsider = [...playersToConsider].sort((alpha, beta) => {
@@ -199,21 +213,36 @@ export function getPlayerOptionWrappers(
             }
         }
 
-        return alpha.username.toLowerCase() < beta.username.toLowerCase() ? -1 : 1;
+        return alpha.username.toLowerCase() < beta.username.toLowerCase()
+            ? -1
+            : 1;
     });
 
     for (const playerToConsider of playersToConsider) {
         const playerOptionWrapper: PlayerOptionWrapper = {
             title: `${playerToConsider.corporation.name} (${
-                playerToConsider.username === player.username ? 'YOU' : playerToConsider.username
+                playerToConsider.username === player.username
+                    ? 'YOU'
+                    : playerToConsider.username
             })`,
             options: [],
             player: playerToConsider,
         };
         for (const resourceAndAmount of resourceAndAmounts) {
-            if (actionType === 'removeResource' || actionType === 'stealResource') {
-                if (playerToConsider.playedCards.find(card => card.name === 'Protected Habitats')) {
-                    if (PROTECTED_HABITAT_RESOURCE.includes(resourceAndAmount.resource)) {
+            if (
+                actionType === 'removeResource' ||
+                actionType === 'stealResource'
+            ) {
+                if (
+                    playerToConsider.playedCards.find(
+                        card => card.name === 'Protected Habitats'
+                    )
+                ) {
+                    if (
+                        PROTECTED_HABITAT_RESOURCE.includes(
+                            resourceAndAmount.resource
+                        )
+                    ) {
                         if (playerToConsider.username !== player.username) {
                             continue;
                         }
@@ -284,7 +313,11 @@ function getOptions(
             state
         );
     } else {
-        return getOptionsForRegularResource(actionType, resourceAndAmount, player);
+        return getOptionsForRegularResource(
+            actionType,
+            resourceAndAmount,
+            player
+        );
     }
 }
 
@@ -294,7 +327,11 @@ function getOptionsForIncreaseProduction(
 ): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
     const quantity = amount as number;
-    const text = formatText({quantity, resource, actionType: 'increaseProduction'});
+    const text = formatText({
+        quantity,
+        resource,
+        actionType: 'increaseProduction',
+    });
 
     return [
         {
@@ -313,7 +350,10 @@ function getOptionsForDecreaseProduction(
     player: PlayerState
 ): ResourceActionOption[] {
     const {amount, resource} = productionAndAmount;
-    let resources = resource === Resource.ANY_STANDARD_RESOURCE ? STANDARD_RESOURCES : [resource];
+    let resources =
+        resource === Resource.ANY_STANDARD_RESOURCE
+            ? STANDARD_RESOURCES
+            : [resource];
 
     let maxAmount: number;
 
@@ -327,12 +367,19 @@ function getOptionsForDecreaseProduction(
     }
 
     return resources.flatMap(resource => {
-        if (player.productions[resource] - MinimumProductions[resource] < (amount as number)) {
+        if (
+            player.productions[resource] - MinimumProductions[resource] <
+            (amount as number)
+        ) {
             // Not enough production
             return [];
         }
 
-        const text = formatText({quantity: maxAmount, resource, actionType: 'decreaseProduction'});
+        const text = formatText({
+            quantity: maxAmount,
+            resource,
+            actionType: 'decreaseProduction',
+        });
 
         return [
             {
@@ -363,7 +410,9 @@ function getOptionsForStorableResource(
         cards = cards.filter(card => (card.storedResourceAmount || 0) > 0);
     }
     if (resourceAndAmount.resource !== Resource.ANY_STORABLE_RESOURCE) {
-        cards = cards.filter(card => card.storedResourceType === resourceAndAmount.resource);
+        cards = cards.filter(
+            card => card.storedResourceType === resourceAndAmount.resource
+        );
     }
 
     switch (locationType) {
@@ -372,7 +421,9 @@ function getOptionsForStorableResource(
             break;
         case ResourceLocationType.OWN_CORPORATION: {
             const playedCards = getPlayedCards(player);
-            cards = playedCards.filter(card => card.type === CardType.CORPORATION);
+            cards = playedCards.filter(
+                card => card.type === CardType.CORPORATION
+            );
             break;
         }
         case ResourceLocationType.LAST_PLAYED_CARD: {
@@ -380,14 +431,17 @@ function getOptionsForStorableResource(
             // don't use the filtered list, because it's explicitly the last card played
             const lastPlayedCard = playedCards[playedCards.length - 1];
             cards = [];
-            if (lastPlayedCard.storedResourceType === resourceAndAmount.resource) {
+            if (
+                lastPlayedCard.storedResourceType === resourceAndAmount.resource
+            ) {
                 cards = [lastPlayedCard];
             }
             break;
         }
         case ResourceLocationType.VENUS_CARD:
             cards = cards.filter(
-                card => card.tags.includes(Tag.VENUS) && !!card.storedResourceType
+                card =>
+                    card.tags.includes(Tag.VENUS) && !!card.storedResourceType
             );
             break;
         case ResourceLocationType.JOVIAN_CARD:
@@ -403,7 +457,9 @@ function getOptionsForStorableResource(
             break;
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
             cards = cards.filter(
-                card => card.storedResourceType && card.storedResourceType === resource
+                card =>
+                    card.storedResourceType &&
+                    card.storedResourceType === resource
             );
             break;
         default:
@@ -419,7 +475,10 @@ function getOptionsForStorableResource(
             if (isVariable) {
                 maxAmount = card.storedResourceAmount || 0;
             } else {
-                maxAmount = Math.min(card.storedResourceAmount || 0, amount as number);
+                maxAmount = Math.min(
+                    card.storedResourceAmount || 0,
+                    amount as number
+                );
             }
         }
 
@@ -443,7 +502,10 @@ function getOptionsForStorableResource(
     });
 }
 
-function getVerb(actionType: ResourceActionType, locationName?: string): string {
+function getVerb(
+    actionType: ResourceActionType,
+    locationName?: string
+): string {
     if (locationName && actionType === 'gainResource') {
         return 'Add';
     }
@@ -475,17 +537,24 @@ function formatText({
     const verb = getVerb(actionType, locationName);
 
     return (
-        <Flex alignItems="center" key={`${quantity}-${resource}-${actionType}-${locationName}`}>
+        <Flex
+            alignItems="center"
+            key={`${quantity}-${resource}-${actionType}-${locationName}`}
+        >
             <span>{verb}</span>
             <Box margin="0 4px">
                 <ChangeResourceIconography
                     changeResource={{[resource]: quantity}}
                     opts={{
                         isInline: true,
-                        isProduction: ['increaseProduction', 'decreaseProduction'].includes(
-                            actionType
-                        ),
-                        isNegative: ['decreaseProduction', 'removeResource'].includes(actionType),
+                        isProduction: [
+                            'increaseProduction',
+                            'decreaseProduction',
+                        ].includes(actionType),
+                        isNegative: [
+                            'decreaseProduction',
+                            'removeResource',
+                        ].includes(actionType),
                         useRedBorder: [
                             'decreaseProduction',
                             'stealResource',
@@ -520,7 +589,10 @@ function getOptionsForRegularResource(
 
     const text = formatText({quantity: maxAmount, resource, actionType});
 
-    if (resource === Resource.BASED_ON_PRODUCTION_DECREASE && player.mostRecentProductionDecrease) {
+    if (
+        resource === Resource.BASED_ON_PRODUCTION_DECREASE &&
+        player.mostRecentProductionDecrease
+    ) {
         resource = player.mostRecentProductionDecrease;
     }
 
@@ -542,7 +614,9 @@ export function quantityAndResource(quantity: number, resource: Resource) {
         resource !== Resource.ENERGY &&
         resource !== Resource.STEEL &&
         resource !== Resource.TITANIUM;
-    return `${quantity} ${getResourceName(resource)}${isPluralizable && quantity !== 1 ? 's' : ''}`;
+    return `${quantity} ${getResourceName(resource)}${
+        isPluralizable && quantity !== 1 ? 's' : ''
+    }`;
 }
 
 export function canSkipResourceActionDetails(
@@ -550,7 +624,8 @@ export function canSkipResourceActionDetails(
     actionType: string,
     resourceAndAmounts: ResourceAndAmount[]
 ) {
-    const hasNoOptions = playerOptionWrappers.flatMap(item => item.options).length === 0;
+    const hasNoOptions =
+        playerOptionWrappers.flatMap(item => item.options).length === 0;
     return (
         hasNoOptions ||
         (actionType !== 'stealResource' &&
@@ -568,8 +643,8 @@ function AskUserToConfirmResourceActionDetails({
     player,
     resourceActionDetails: {actionType, resourceAndAmounts, card, playedCard},
 }: Props) {
-    const playerOptionWrappers: PlayerOptionWrapper[] = useTypedSelector(state =>
-        getPlayerOptionWrappers(state, player)
+    const playerOptionWrappers: PlayerOptionWrapper[] = useTypedSelector(
+        state => getPlayerOptionWrappers(state, player)
     );
 
     const apiClient = useApiClient();
@@ -584,18 +659,26 @@ function AskUserToConfirmResourceActionDetails({
         resourceAndAmounts
     );
 
-    const isNegativeAction = ['removeResource', 'decreaseProduction', 'stealResource'].includes(
-        actionType
-    );
+    const isNegativeAction = [
+        'removeResource',
+        'decreaseProduction',
+        'stealResource',
+    ].includes(actionType);
 
     const fullCard = getCard(card);
 
     return (
         <>
-            <AskUserToMakeChoice card={card} playedCard={playedCard} orientation="vertical">
+            <AskUserToMakeChoice
+                card={card}
+                playedCard={playedCard}
+                orientation="vertical"
+            >
                 {playerOptionWrappers.map(playerOptionWrapper => {
                     const shouldShowWarningMessage =
-                        !playerOptionWrapper.options.some(option => option.isVariable) &&
+                        !playerOptionWrapper.options.some(
+                            option => option.isVariable
+                        ) &&
                         playerOptionWrapper.player === player &&
                         isNegativeAction &&
                         (playerOptionWrappers.length > 1 ||
@@ -636,20 +719,24 @@ function AskUserToConfirmResourceActionDetails({
                                 </span>
                             )}
                             <Flex flexWrap="wrap">
-                                {playerOptionWrapper.options.map((option, index) => {
-                                    return (
-                                        <Box
-                                            key={index}
-                                            marginLeft={index > 0 ? '4px' : '0'}
-                                            marginBottom="8px"
-                                        >
-                                            <OptionComponent
-                                                apiClient={apiClient}
-                                                option={option}
-                                            />
-                                        </Box>
-                                    );
-                                })}
+                                {playerOptionWrapper.options.map(
+                                    (option, index) => {
+                                        return (
+                                            <Box
+                                                key={index}
+                                                marginLeft={
+                                                    index > 0 ? '4px' : '0'
+                                                }
+                                                marginBottom="8px"
+                                            >
+                                                <OptionComponent
+                                                    apiClient={apiClient}
+                                                    option={option}
+                                                />
+                                            </Box>
+                                        );
+                                    }
+                                )}
                             </Flex>
                         </PlayerOption>
                     );
@@ -678,7 +765,9 @@ function OptionComponent({
 
     let max = player.resources[option.resource];
     if (option.actionType === 'decreaseProduction') {
-        max = player.productions[option.resource] - MinimumProductions[option.resource];
+        max =
+            player.productions[option.resource] -
+            MinimumProductions[option.resource];
     }
 
     if (option.card && isStorableResource(option.resource)) {
@@ -704,7 +793,12 @@ function OptionComponent({
                         value={variableAmount}
                         max={max}
                         onChange={e =>
-                            setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                            setVariableAmount(
+                                Math.max(
+                                    0,
+                                    Math.min(max, Number(e.target.value))
+                                )
+                            )
                         }
                     />
                     <span>{variableAmount === 1 ? ' step' : ' steps'},</span>
@@ -722,7 +816,12 @@ function OptionComponent({
                         value={variableAmount}
                         max={max}
                         onChange={e =>
-                            setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                            setVariableAmount(
+                                Math.max(
+                                    0,
+                                    Math.min(max, Number(e.target.value))
+                                )
+                            )
                         }
                     />
                     <span>{variableAmount === 1 ? ' step' : ' steps'}</span>
@@ -743,13 +842,18 @@ function OptionComponent({
                     value={variableAmount}
                     max={max}
                     onChange={e =>
-                        setVariableAmount(Math.max(0, Math.min(max, Number(e.target.value))))
+                        setVariableAmount(
+                            Math.max(0, Math.min(max, Number(e.target.value)))
+                        )
                     }
                 />
                 <Box margin="0 4px">
                     <ResourceIcon name={option.resource} size={20} />
                 </Box>
-                <button onClick={handleClick} style={{display: 'inline-flex', marginLeft: 8}}>
+                <button
+                    onClick={handleClick}
+                    style={{display: 'inline-flex', marginLeft: 8}}
+                >
                     Confirm
                 </button>
             </React.Fragment>

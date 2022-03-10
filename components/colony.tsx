@@ -1,5 +1,9 @@
 import {Action} from 'constants/action';
-import {getColony, MAX_NUM_COLONIES, SerializedColony} from 'constants/colonies';
+import {
+    getColony,
+    MAX_NUM_COLONIES,
+    SerializedColony,
+} from 'constants/colonies';
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -61,13 +65,17 @@ const ColonyBase = styled.div<{
     );
 `;
 
-const ColonyTileInner = styled.div<{backgroundColor: string; reverseBackground?: boolean}>`
+const ColonyTileInner = styled.div<{
+    backgroundColor: string;
+    reverseBackground?: boolean;
+}>`
     content: '';
     width: 294px;
     height: 150px;
     left: 4px;
     background: radial-gradient(
-        circle at center ${props => (props.reverseBackground ? 'right' : 'left')},
+        circle at center
+            ${props => (props.reverseBackground ? 'right' : 'left')},
         ${props => props.backgroundColor} 0%,
         #333 55%
     );
@@ -90,7 +98,11 @@ const ColonyTitle = styled.h1`
     width: 100%;
     padding-bottom: 1px;
     box-shadow: 3px 1px 4px -5px #000000;
-    background: linear-gradient(90deg, rgb(128 181 193 / 35%) 0%, rgba(0, 0, 0, 0) 55%);
+    background: linear-gradient(
+        90deg,
+        rgb(128 181 193 / 35%) 0%,
+        rgba(0, 0, 0, 0) 55%
+    );
     color: #111;
     letter-spacing: 0.2px;
 
@@ -113,8 +125,10 @@ const ColonyPlanet = styled.div<{
     border-radius: 50%;
     background: radial-gradient(
         circle at 100%,
-        ${props => (props.reverseBackground ? '#333' : props.backgroundColor)} 0%,
-        ${props => (!props.reverseBackground ? '#333' : props.backgroundColor)} 100%
+        ${props => (props.reverseBackground ? '#333' : props.backgroundColor)}
+            0%,
+        ${props => (!props.reverseBackground ? '#333' : props.backgroundColor)}
+            100%
     );
     position: absolute;
     top: ${props => props.position.top * 1.5}px;
@@ -135,7 +149,9 @@ function TradePaymentPopover({
         eligibleTradeIncomes[eligibleTradeIncomes.length - 1]
     );
     const validTradePayments = getValidTradePayment(player);
-    const [selectedTradePayment, setSelectedTradePayment] = useState(validTradePayments[0]);
+    const [selectedTradePayment, setSelectedTradePayment] = useState(
+        validTradePayments[0]
+    );
     const actionGuard = useActionGuard();
     const hydratedColony = getColony(colony);
     const apiClient = useApiClient();
@@ -157,16 +173,21 @@ function TradePaymentPopover({
                     <Flex>
                         <SelectButtons
                             selectedItem={selectedTradeIncome}
-                            setSelectedItem={newIndex => setSelectedTradeIncome(newIndex)}
+                            setSelectedItem={newIndex =>
+                                setSelectedTradeIncome(newIndex)
+                            }
                             items={eligibleTradeIncomes}
                             itemRenderer={item => {
-                                const thisTradeIncome = hydratedColony.tradeIncome[item];
+                                const thisTradeIncome =
+                                    hydratedColony.tradeIncome[item];
 
                                 return (
                                     <BaseActionIconography
                                         card={thisTradeIncome}
                                         reverse
-                                        shouldShowPlus={!!thisTradeIncome.removeResource}
+                                        shouldShowPlus={
+                                            !!thisTradeIncome.removeResource
+                                        }
                                     />
                                 );
                             }}
@@ -187,7 +208,10 @@ function TradePaymentPopover({
                                 return (
                                     <BaseActionIconography
                                         card={{
-                                            gainResource: {[payment.resource]: payment.quantity},
+                                            gainResource: {
+                                                [payment.resource]:
+                                                    payment.quantity,
+                                            },
                                         }}
                                     />
                                 );
@@ -196,13 +220,21 @@ function TradePaymentPopover({
                                 setSelectedTradePayment(item);
                             }}
                             isSelected={item => {
-                                return selectedTradePayment.resource === item.resource;
+                                return (
+                                    selectedTradePayment.resource ===
+                                    item.resource
+                                );
                             }}
                         />
                     </Flex>
                 </>
             ) : null}
-            <Flex marginTop="12px" width="100px" justifySelf="center" alignSelf="center">
+            <Flex
+                marginTop="12px"
+                width="100px"
+                justifySelf="center"
+                alignSelf="center"
+            >
                 <Button
                     variant="bordered"
                     onClick={() => {
@@ -228,12 +260,20 @@ function TradePaymentPopover({
     );
 }
 
-export function ColonyComponent({colony: serializedColony}: {colony: SerializedColony}) {
+export function ColonyComponent({
+    colony: serializedColony,
+}: {
+    colony: SerializedColony;
+}) {
     const triggerRef = useRef<HTMLButtonElement>(null);
     const actionGuard = useActionGuard();
     const [canTrade] = actionGuard.canTrade(serializedColony.name);
-    const [canTradeForFree] = actionGuard.canTradeForFree(serializedColony.name);
-    const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
+    const [canTradeForFree] = actionGuard.canTradeForFree(
+        serializedColony.name
+    );
+    const {showPopover, hidePopover} = usePopoverType(
+        PopoverType.PAYMENT_POPOVER
+    );
     function handleClickTrade() {
         showPopover({
             popover: (
@@ -260,7 +300,13 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
         );
 
         return (
-            <Box position="absolute" right="80px" top="15px" zIndex={4} transform="rotate(220deg)">
+            <Box
+                position="absolute"
+                right="80px"
+                top="15px"
+                zIndex={4}
+                transform="rotate(220deg)"
+            >
                 <Arrow
                     lineHeight={36}
                     lineWidth={14}
@@ -295,7 +341,9 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                     justifyContent="left"
                     paddingLeft="12px"
                     alignItems="center"
-                    color={colony?.colonyBonus?.removeResource ? 'white' : '#333'}
+                    color={
+                        colony?.colonyBonus?.removeResource ? 'white' : '#333'
+                    }
                     fontWeight="bold"
                     position="absolute"
                     top="46px"
@@ -325,11 +373,15 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                     position="absolute"
                     left="50%"
                     bottom={'tradeIncomeQuantities' in colony ? '16px' : '6px'}
-                    transformOrigin={'tradeIncomeQuantities' in colony ? 'bottom' : 'top'}
+                    transformOrigin={
+                        'tradeIncomeQuantities' in colony ? 'bottom' : 'top'
+                    }
                 >
                     {colony.tradeIncome
                         .map((_, index) =>
-                            index < MAX_NUM_COLONIES ? colony.colonyPlacementBonus : null
+                            index < MAX_NUM_COLONIES
+                                ? colony.colonyPlacementBonus
+                                : null
                         )
                         .map((placementBonus, index) => {
                             return (
@@ -352,7 +404,9 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                                         transform="rotate(180deg)"
                                         padding="1px"
                                         paddingLeft={
-                                            index === 1 || index === colony.tradeIncome.length - 1
+                                            index === 1 ||
+                                            index ===
+                                                colony.tradeIncome.length - 1
                                                 ? '1px'
                                                 : '0px'
                                         }
@@ -370,14 +424,20 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                                             alignItems="center"
                                             justifyContent="center"
                                         >
-                                            {getPlacementBonuses(placementBonus)}
+                                            {getPlacementBonuses(
+                                                placementBonus
+                                            )}
                                         </Flex>
                                         {index === serializedColony.step ? (
                                             <Cube />
-                                        ) : serializedColony.colonies[index] != null ? (
+                                        ) : serializedColony.colonies[index] !=
+                                          null ? (
                                             <Cube
                                                 color={
-                                                    PLAYER_COLORS[serializedColony.colonies[index]]
+                                                    PLAYER_COLORS[
+                                                        serializedColony
+                                                            .colonies[index]
+                                                    ]
                                                 }
                                             />
                                         ) : null}
@@ -393,7 +453,11 @@ export function ColonyComponent({colony: serializedColony}: {colony: SerializedC
                                                 marginBottom: 0,
                                             }}
                                         >
-                                            {colony?.tradeIncomeQuantities?.[index]}
+                                            {
+                                                colony?.tradeIncomeQuantities?.[
+                                                    index
+                                                ]
+                                            }
                                         </h3>
                                     ) : (
                                         <Flex
@@ -464,7 +528,11 @@ function getPlacementBonuses(placementBonus: Action | null) {
             ? 80
             : 84;
         elements.push(
-            <Box key={elements.length} color="#333" transform={`scale(${scale}%) rotate(180deg)`}>
+            <Box
+                key={elements.length}
+                color="#333"
+                transform={`scale(${scale}%) rotate(180deg)`}
+            >
                 <BaseActionIconography card={placementBonus} />
             </Box>
         );
@@ -487,14 +555,18 @@ function ResourcePlacementBonus({
         <>
             {resources.flatMap(resource =>
                 Array(
-                    gainResource[resource] as number /* assuming no variable amounts in colonies */
+                    gainResource[
+                        resource
+                    ] as number /* assuming no variable amounts in colonies */
                 )
                     .fill(null)
                     .map((_, index) => (
                         <Flex
                             key={resource + index}
                             transform={`rotate(180deg) ${
-                                stagger ? ` translateY(${(-1 + 2 * index) * 24}%)` : ''
+                                stagger
+                                    ? ` translateY(${(-1 + 2 * index) * 24}%)`
+                                    : ''
                             }`}
                         >
                             <ResourceIcon name={resource} size={13} />

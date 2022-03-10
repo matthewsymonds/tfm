@@ -46,7 +46,13 @@ export const GenericCardTitleBar = styled.div<{
     background-color: ${props => props.bgColor};
 `;
 
-export const CardTitleBar = ({type, children}: {type: CardType; children: React.ReactNode}) => {
+export const CardTitleBar = ({
+    type,
+    children,
+}: {
+    type: CardType;
+    children: React.ReactNode;
+}) => {
     return (
         <GenericCardTitleBar bgColor={getCardTitleColorForType(type)}>
             {children}

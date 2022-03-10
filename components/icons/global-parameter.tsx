@@ -20,7 +20,8 @@ export const AllCapsIcon = styled.div<{
     height: ${props => props.size}px;
     line-height: ${props => props.size}px;
     background-color: ${props => props.bgColor};
-    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
+    margin: ${props =>
+        typeof props.margin === 'string' ? props.margin : `${props.margin}px`};
     font-size: ${props => Math.ceil((2 / 3) * props.size)}px;
     border-radius: ${props => props.borderRadius ?? 0}px;
     text-transform: uppercase;
@@ -42,9 +43,17 @@ export const GlobalParameterIcon = ({
 }) => {
     switch (parameter) {
         case Parameter.VENUS:
-            return <TagIcon name={Tag.VENUS} size={size * 1.25} margin={margin} />;
+            return (
+                <TagIcon name={Tag.VENUS} size={size * 1.25} margin={margin} />
+            );
         case Parameter.OCEAN:
-            return <TileIcon type={TileType.OCEAN} size={(size * 4) / 3} margin={margin} />;
+            return (
+                <TileIcon
+                    type={TileType.OCEAN}
+                    size={(size * 4) / 3}
+                    margin={margin}
+                />
+            );
         case Parameter.OXYGEN:
             return (
                 <AllCapsIcon

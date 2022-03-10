@@ -1,9 +1,14 @@
 import {CanPlayAndReason} from 'client-server-shared/action-guard';
 import {GameState, PlayerState} from 'reducer';
 
-export function canTradeWithSomeColonyIgnoringPayment(player: PlayerState, state: GameState) {
+export function canTradeWithSomeColonyIgnoringPayment(
+    player: PlayerState,
+    state: GameState
+) {
     const colonies = state.common.colonies ?? [];
-    return colonies.some(colony => canTradeIgnoringPayment(player, colony.name, state)[0]);
+    return colonies.some(
+        colony => canTradeIgnoringPayment(player, colony.name, state)[0]
+    );
 }
 
 export function canTradeIgnoringPayment(

@@ -22,7 +22,10 @@ export function isConditionAmount(amount: Amount): amount is ConditionAmount {
     return 'condition' in amount;
 }
 
-export function condition(condition: Condition, ...operands: Amount[]): ConditionWithOperands {
+export function condition(
+    condition: Condition,
+    ...operands: Amount[]
+): ConditionWithOperands {
     return {
         condition,
         operands,

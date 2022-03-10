@@ -19,7 +19,13 @@ export const TerraformRatingIcon = ({
     );
 };
 
-export const ColonyIcon = ({size = 16, margin = 0}: {size?: number; margin?: string | number}) => {
+export const ColonyIcon = ({
+    size = 16,
+    margin = 0,
+}: {
+    size?: number;
+    margin?: string | number;
+}) => {
     return (
         <AllCapsIcon
             style={{color: colors.TEXT_DARK_1}}
@@ -34,7 +40,13 @@ export const ColonyIcon = ({size = 16, margin = 0}: {size?: number; margin?: str
     );
 };
 
-export const TradeIcon = ({size = 16, margin = 0}: {size?: number; margin?: string | number}) => {
+export const TradeIcon = ({
+    size = 16,
+    margin = 0,
+}: {
+    size?: number;
+    margin?: string | number;
+}) => {
     return (
         <div
             style={{
@@ -85,7 +97,13 @@ const InfluenceIconBase = styled.div<{size: number; margin: string}>`
     }
 `;
 
-export const InfluenceIcon = ({size = 20, margin = '0'}: {size?: number; margin?: string}) => {
+export const InfluenceIcon = ({
+    size = 20,
+    margin = '0',
+}: {
+    size?: number;
+    margin?: string;
+}) => {
     return (
         <InfluenceIconBase size={size} margin={margin}>
             <Twemoji options={{className: 'emoji delegate'}}>
@@ -99,7 +117,8 @@ const VictoryPointCircle = styled.div<{size: number; margin: string | number}>`
     border-radius: 50%;
     height: ${props => props.size}px;
     width: ${props => props.size}px;
-    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
+    margin: ${props =>
+        typeof props.margin === 'string' ? props.margin : `${props.margin}px`};
     display: flex;
     font-size: 16px;
     background-color: ${colors.CARD_VP_BG};

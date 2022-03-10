@@ -109,9 +109,21 @@ export function getAward(name: string): AwardConfig {
     return found;
 }
 
-export const DEFAULT_AWARDS = ['Banker', 'Landlord', 'Miner', 'Scientist', 'Thermalist'];
+export const DEFAULT_AWARDS = [
+    'Banker',
+    'Landlord',
+    'Miner',
+    'Scientist',
+    'Thermalist',
+];
 
-const HELLAS_AWARDS = ['Cultivator', 'Magnate', 'Space Baron', 'Excentric', 'Contractor'];
+const HELLAS_AWARDS = [
+    'Cultivator',
+    'Magnate',
+    'Space Baron',
+    'Excentric',
+    'Contractor',
+];
 
 const ELYSIUM_AWARDS = [
     'Celebrity',

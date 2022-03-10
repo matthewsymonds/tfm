@@ -11,6 +11,10 @@ export const CorporationSelector = ({player}: {player: PlayerState}) => {
     if (player.action) {
         return <BaseText>{player.username} is ready to play.</BaseText>;
     } else {
-        return <BaseText>{player.username} is choosing a corporation and cards.</BaseText>;
+        return (
+            <BaseText>
+                {player.username} is choosing a corporation and cards.
+            </BaseText>
+        );
     }
 };

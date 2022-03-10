@@ -39,7 +39,14 @@ const MiniCardTemplate: Story<{}> = args => {
     return (
         <div style={{width: '100%'}}>
             <ResponsiveMasonry
-                columnsCountBreakPoints={{260: 2, 390: 3, 520: 4, 650: 5, 780: 6, 910: 7}}
+                columnsCountBreakPoints={{
+                    260: 2,
+                    390: 3,
+                    520: 4,
+                    650: 5,
+                    780: 6,
+                    910: 7,
+                }}
             >
                 <Masonry gutter="6px">
                     {cardConfigs

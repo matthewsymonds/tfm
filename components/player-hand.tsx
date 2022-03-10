@@ -21,7 +21,10 @@ const PlayerHandInner = ({playerCardsString}: PlayerHandProps) => {
     return <CardHand cardInfos={cardInfos} />;
 };
 
-export const PlayerHand = React.memo(PlayerHandInner, (prevProps, nextProps) => {
-    if (prevProps.gameName !== nextProps.gameName) return false;
-    return prevProps.playerCardsString === nextProps.playerCardsString;
-});
+export const PlayerHand = React.memo(
+    PlayerHandInner,
+    (prevProps, nextProps) => {
+        if (prevProps.gameName !== nextProps.gameName) return false;
+        return prevProps.playerCardsString === nextProps.playerCardsString;
+    }
+);

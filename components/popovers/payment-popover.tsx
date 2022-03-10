@@ -95,12 +95,16 @@ export function usePaymentPopover<T extends HTMLElement>({
     collectPaymentAndPerformAction: () => void;
     triggerRef: React.RefObject<T>;
 } {
-    const {showPopover, hidePopover} = usePopoverType(PopoverType.PAYMENT_POPOVER);
+    const {showPopover, hidePopover} = usePopoverType(
+        PopoverType.PAYMENT_POPOVER
+    );
     const triggerRef = useRef<T>(null);
     const loggedInPlayer = useLoggedInPlayer();
 
     const cost =
-        opts.type === 'card' ? getDiscountedCardCost(opts.card, loggedInPlayer) : opts.cost ?? 0;
+        opts.type === 'card'
+            ? getDiscountedCardCost(opts.card, loggedInPlayer)
+            : opts.cost ?? 0;
 
     function collectPaymentAndPerformAction() {
         showPopover({
@@ -119,7 +123,10 @@ export function usePaymentPopover<T extends HTMLElement>({
         });
     }
 
-    if (opts.type === 'card' && doesCardPaymentRequirePlayerInput(loggedInPlayer, opts.card)) {
+    if (
+        opts.type === 'card' &&
+        doesCardPaymentRequirePlayerInput(loggedInPlayer, opts.card)
+    ) {
         return {collectPaymentAndPerformAction, triggerRef};
     }
     if (
@@ -130,7 +137,8 @@ export function usePaymentPopover<T extends HTMLElement>({
     }
 
     return {
-        collectPaymentAndPerformAction: () => onConfirmPayment({[Resource.MEGACREDIT]: cost}, []),
+        collectPaymentAndPerformAction: () =>
+            onConfirmPayment({[Resource.MEGACREDIT]: cost}, []),
         triggerRef,
     };
 }
@@ -236,8 +244,10 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
             throw spawnExhaustiveSwitchError(props.opts);
     }
 
-    const cardOrUndefined = props.opts.type === 'card' ? props.opts.card : undefined;
-    const actionOrUndefined = props.opts.type === 'action' ? props.opts.action : undefined;
+    const cardOrUndefined =
+        props.opts.type === 'card' ? props.opts.card : undefined;
+    const actionOrUndefined =
+        props.opts.type === 'action' ? props.opts.action : undefined;
     const playerMoney = useTypedSelector(state => getMoney(state, player));
     const conditionalPayment = useTypedSelector(() =>
         getConditionalPaymentWithResourceInfo(player, cardOrUndefined)
@@ -246,9 +256,9 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
-    const [numConditionalPayment, setNumConditionalPayment] = useState<number[]>(
-        Array(conditionalPayment.length).fill(0)
-    );
+    const [numConditionalPayment, setNumConditionalPayment] = useState<
+        number[]
+    >(Array(conditionalPayment.length).fill(0));
 
     const numMC = Math.min(
         playerMoney,
@@ -258,11 +268,17 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
     // Ensure the popover doesn't let you pay with resources you no longer have.
     useEffect(() => {
         handleDecrease(Resource.STEEL, numSteel - resources[Resource.STEEL]);
-        handleDecrease(Resource.TITANIUM, numTitanium - resources[Resource.TITANIUM]);
+        handleDecrease(
+            Resource.TITANIUM,
+            numTitanium - resources[Resource.TITANIUM]
+        );
         handleDecrease(Resource.HEAT, numHeat - resources[Resource.HEAT]);
         for (let i = 0; i < conditionalPayment.length; i++) {
             const payment = conditionalPayment[i];
-            handleDecrease(payment.resourceType, numConditionalPayment[i] - payment.resourceAmount);
+            handleDecrease(
+                payment.resourceType,
+                numConditionalPayment[i] - payment.resourceAmount
+            );
         }
     }, [
         resources[Resource.STEEL],
@@ -360,7 +376,8 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
             numTitanium * actionGuard.getExchangeRate(Resource.TITANIUM) +
             numHeat * 1 +
             numConditionalPayment.reduce(
-                (acc, quantity, index) => acc + quantity * conditionalPayment[index].rate,
+                (acc, quantity, index) =>
+                    acc + quantity * conditionalPayment[index].rate,
                 0
             )
         );
@@ -372,7 +389,8 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
             numTitanium * actionGuard.getExchangeRate(Resource.TITANIUM) +
             numHeat * 1 +
             numConditionalPayment.reduce(
-                (acc, quantity, index) => acc + quantity * conditionalPayment[index].rate,
+                (acc, quantity, index) =>
+                    acc + quantity * conditionalPayment[index].rate,
                 0
             )
         );
@@ -388,7 +406,9 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                 <span className="running-total">
                     <em
                         style={{
-                            color: isValidPayment ? PLAYER_COLORS[1] : PLAYER_COLORS[0],
+                            color: isValidPayment
+                                ? PLAYER_COLORS[1]
+                                : PLAYER_COLORS[0],
                         }}
                     >
                         Current: {runningTotal}
@@ -400,7 +420,9 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
             </Box>
             <div className="payment-rows">
                 {(cardOrUndefined?.tags.includes(Tag.BUILDING) ||
-                    actionOrUndefined?.acceptedPayment?.includes(Resource.STEEL)) &&
+                    actionOrUndefined?.acceptedPayment?.includes(
+                        Resource.STEEL
+                    )) &&
                     resources[Resource.STEEL] > 0 && (
                         <PaymentPopoverRow
                             currentQuantity={numSteel}
@@ -413,7 +435,9 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                         />
                     )}
                 {(cardOrUndefined?.tags.includes(Tag.SPACE) ||
-                    actionOrUndefined?.acceptedPayment?.includes(Resource.TITANIUM)) &&
+                    actionOrUndefined?.acceptedPayment?.includes(
+                        Resource.TITANIUM
+                    )) &&
                     resources[Resource.TITANIUM] > 0 && (
                         <PaymentPopoverRow
                             resource={Resource.TITANIUM}
@@ -425,17 +449,18 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                             playerMoney={playerMoney}
                         />
                     )}
-                {player.corporation.name === 'Helion' && resources[Resource.HEAT] > 0 && (
-                    <PaymentPopoverRow
-                        resource={Resource.HEAT}
-                        currentQuantity={numHeat}
-                        availableQuantity={resources[Resource.HEAT]}
-                        handleIncrease={handleIncrease}
-                        handleDecrease={handleDecrease}
-                        numMC={numMC}
-                        playerMoney={playerMoney}
-                    />
-                )}
+                {player.corporation.name === 'Helion' &&
+                    resources[Resource.HEAT] > 0 && (
+                        <PaymentPopoverRow
+                            resource={Resource.HEAT}
+                            currentQuantity={numHeat}
+                            availableQuantity={resources[Resource.HEAT]}
+                            handleIncrease={handleIncrease}
+                            handleDecrease={handleDecrease}
+                            numMC={numMC}
+                            playerMoney={playerMoney}
+                        />
+                    )}
                 {conditionalPayment.map((payment, index) => (
                     <PaymentPopoverRow
                         key={payment.name}

@@ -27,7 +27,10 @@ import {
 } from 'selectors/does-player-have-required-resource-to-remove';
 import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
-import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {
+    aAnOrThe,
+    getHumanReadableTileName,
+} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecisionExceptForNextActionChoice} from 'selectors/get-is-player-making-decision';
 import {isVariableAmount} from 'selectors/is-variable-amount';
 import {
@@ -123,6 +126,7 @@ import {
     setIsNotMakingPlayRequest,
     setIsNotSyncing,
     setIsSyncing,
+    setNotes,
     setOceanAdjacencybonus,
     setPlantDiscount,
     setPreludes,
@@ -135,7 +139,12 @@ import {
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {getParameterName, Parameter, TileType} from './constants/board';
-import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from './constants/game';
+import {
+    GameStage,
+    MAX_PARAMETERS,
+    MIN_PARAMETERS,
+    PARAMETER_STEPS,
+} from './constants/game';
 import {zeroParameterRequirementAdjustments} from './constants/parameter-requirement-adjustments';
 import {getResourceName, isStorableResource} from './constants/resource';
 import {Resource} from './constants/resource-enum';
@@ -211,9 +220,16 @@ function handleProduction(draft: GameState) {
         if (colony.step >= 0) {
             const originalColonyStep = colony.step;
             colony.step += 1;
-            colony.step = Math.min(colony.step, getColony(colony).tradeIncome.length - 1);
+            colony.step = Math.min(
+                colony.step,
+                getColony(colony).tradeIncome.length - 1
+            );
             if (colony.step > originalColonyStep) {
-                draft.log.push(`${colony.name}'s tile track increased to ${colony.step + 1}`);
+                draft.log.push(
+                    `${colony.name}'s tile track increased to ${
+                        colony.step + 1
+                    }`
+                );
             }
         }
     }
@@ -234,7 +250,10 @@ function isGameEndTriggered(draft: GameState) {
 function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
     const {
         players,
-        common: {currentPlayerIndex: oldPlayerIndex, playerIndexOrderForGeneration: turnOrder},
+        common: {
+            currentPlayerIndex: oldPlayerIndex,
+            playerIndexOrderForGeneration: turnOrder,
+        },
     } = state;
 
     const oldPlaceInTurnOrder = turnOrder.indexOf(oldPlayerIndex);
@@ -243,7 +262,8 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
     // keep iterating through turnOrder until you find someone who hasn't passed
     // exit the loop if we did a full cycle
     while (
-        players.find(p => p.index === turnOrder[newPlaceInTurnOrder])?.action === 0 &&
+        players.find(p => p.index === turnOrder[newPlaceInTurnOrder])
+            ?.action === 0 &&
         newPlaceInTurnOrder !== oldPlaceInTurnOrder
     ) {
         newPlaceInTurnOrder = (newPlaceInTurnOrder + 1) % turnOrder.length;
@@ -252,7 +272,8 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
     draft.common.currentPlayerIndex = turnOrder[newPlaceInTurnOrder];
     if (
         newPlaceInTurnOrder < oldPlaceInTurnOrder ||
-        (players.length === 1 && draft.common.gameStage !== GameStage.GREENERY_PLACEMENT)
+        (players.length === 1 &&
+            draft.common.gameStage !== GameStage.GREENERY_PLACEMENT)
     ) {
         draft.common.turn++;
         draft.log.push({
@@ -266,10 +287,15 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 const bonusNames: string[] = [];
 
 export function getNumOceans(state: GameState): number {
-    return state.common.board.flat().filter(cell => cell.tile?.type === TileType.OCEAN).length;
+    return state.common.board
+        .flat()
+        .filter(cell => cell.tile?.type === TileType.OCEAN).length;
 }
 
-function getPlayer(thisDraft: GameState, payload: {playerIndex: number}): PlayerState {
+function getPlayer(
+    thisDraft: GameState,
+    payload: {playerIndex: number}
+): PlayerState {
     return thisDraft.players[payload.playerIndex]!;
 }
 
@@ -294,7 +320,10 @@ function handleParameterIncrease(
     const scale = PARAMETER_STEPS[parameter];
     const increase = amount * scale;
     const startingAmount = draft.common.parameters[parameter];
-    const newAmount = Math.min(MAX_PARAMETERS[parameter], startingAmount + increase);
+    const newAmount = Math.min(
+        MAX_PARAMETERS[parameter],
+        startingAmount + increase
+    );
     const change = newAmount - startingAmount;
     const steps = change / scale;
     draft.common.parameters[parameter] = newAmount;
@@ -306,9 +335,9 @@ function handleParameterIncrease(
     }
     if (change && parameter !== Parameter.OCEAN) {
         draft.log.push(
-            `${corporationName} increased ${getParameterName(parameter)} ${steps} ${stepsPlural(
-                steps
-            )}`
+            `${corporationName} increased ${getParameterName(
+                parameter
+            )} ${steps} ${stepsPlural(steps)}`
         );
     }
 }
@@ -341,15 +370,18 @@ function handleParameterDecrease(
             )} because it has reached its maximum value`
         );
     }
-    const newAmount = Math.max(MIN_PARAMETERS[parameter], startingAmount - decrease);
+    const newAmount = Math.max(
+        MIN_PARAMETERS[parameter],
+        startingAmount - decrease
+    );
     const change = startingAmount - newAmount;
     const steps = change / scale;
     draft.common.parameters[parameter] = newAmount;
     if (change && parameter !== Parameter.OCEAN) {
         draft.log.push(
-            `${corporationName} decreased ${getParameterName(parameter)} ${steps} ${stepsPlural(
-                steps
-            )}`
+            `${corporationName} decreased ${getParameterName(
+                parameter
+            )} ${steps} ${stepsPlural(steps)}`
         );
     }
 }
@@ -395,22 +427,35 @@ const handleGainResource = (
 
     mostRecentlyPlayedCard = getMostRecentlyPlayedCard(player);
 
-    const parentCard = parentName && player.playedCards.find(card => card.name === parentName);
+    const parentCard =
+        parentName && player.playedCards.find(card => card.name === parentName);
 
     const cardToConsider = parentCard || mostRecentlyPlayedCard;
 
-    const quantity = convertAmountToNumber(amount, draft, player, cardToConsider);
+    const quantity = convertAmountToNumber(
+        amount,
+        draft,
+        player,
+        cardToConsider
+    );
 
     if (resource === Resource.CARD && quantity) {
         // Sometimes we list cards as a resource.
         // handle as a draw action.
         player.cards.push(...handleDrawCards(draft, quantity));
-        draft.log.push(`${corporationName} drew ${quantity} ${cardsPlural(quantity)}`);
+        draft.log.push(
+            `${corporationName} drew ${quantity} ${cardsPlural(quantity)}`
+        );
         return;
     }
     player.resources[resource] += quantity;
     if (quantity) {
-        draft.log.push(`${corporationName} gained ${quantityAndResource(quantity, resource)}`);
+        draft.log.push(
+            `${corporationName} gained ${quantityAndResource(
+                quantity,
+                resource
+            )}`
+        );
     }
 };
 
@@ -431,7 +476,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         // Exceptionally (hacky):
         // Corporation selection happens client-side, then is finalized on server.
         // To avoid de-syncs, prefer client-side corporation selection to server value.
-        if (newState.common.gameStage === GameStage.CORPORATION_SELECTION && state) {
+        if (
+            newState.common.gameStage === GameStage.CORPORATION_SELECTION &&
+            state
+        ) {
             for (let i = 0; i < state.players.length; i++) {
                 newState.players[i].corporation = state.players[i].corporation;
             }
@@ -466,7 +514,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         let player: PlayerState;
 
         const corporationName =
-            draft.players[action.payload?.playerIndex ?? -1]?.corporation?.name ?? '';
+            draft.players[action.payload?.playerIndex ?? -1]?.corporation
+                ?.name ?? '';
 
         const {common} = draft;
 
@@ -500,13 +549,16 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     player.resources[resource] -= amount as number;
                 }
             } else {
-                player.resources[Resource.MEGACREDIT] -= numCards * (player.cardCost ?? 3);
+                player.resources[Resource.MEGACREDIT] -=
+                    numCards * (player.cardCost ?? 3);
             }
             if (player.resources[Resource.MEGACREDIT] < 0) {
                 throw new Error('Money went negative!');
             }
             player.pendingCardSelection = undefined;
-            draft.log.push(`${corporationName} bought ${numCards} ${cardsPlural(numCards)}`);
+            draft.log.push(
+                `${corporationName} bought ${numCards} ${cardsPlural(numCards)}`
+            );
         }
 
         if (draftCard.match(action)) {
@@ -515,18 +567,26 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             const {pendingCardSelection} = player;
-            if (!pendingCardSelection || !Array.isArray(pendingCardSelection?.draftPicks)) {
+            if (
+                !pendingCardSelection ||
+                !Array.isArray(pendingCardSelection?.draftPicks)
+            ) {
                 throw new Error('Drafting state is borked');
             }
             if (
-                pendingCardSelection.draftPicks.length + pendingCardSelection.possibleCards.length >
+                pendingCardSelection.draftPicks.length +
+                    pendingCardSelection.possibleCards.length >
                 4
             ) {
                 // user has already drafted a card, return early. this shouldn't be possible but
                 // previously could happen if user spam-clicked the draft button ?
                 return;
             }
-            if (!pendingCardSelection.possibleCards.map(c => c.name).includes(draftedCard.name)) {
+            if (
+                !pendingCardSelection.possibleCards
+                    .map(c => c.name)
+                    .includes(draftedCard.name)
+            ) {
                 throw new Error('Card not in possible list of cards to draft');
             }
             pendingCardSelection.draftPicks.push(draftedCard);
@@ -536,7 +596,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             //   - otherwise, hold off on cycling (we don't want to overwrite possibleCards for someone still picking)
             const numDraftedSoFar = pendingCardSelection.draftPicks.length;
             const hasEveryonePickedCard = draft.players.every(
-                player => player.pendingCardSelection?.draftPicks?.length === numDraftedSoFar
+                player =>
+                    player.pendingCardSelection?.draftPicks?.length ===
+                    numDraftedSoFar
             );
             if (hasEveryonePickedCard) {
                 // Cycle cards
@@ -544,11 +606,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 draft.players.forEach(player => {
                     const selection = player.pendingCardSelection;
                     if (!selection) {
-                        throw new Error('Drafting state is borked for another player');
+                        throw new Error(
+                            'Drafting state is borked for another player'
+                        );
                     }
-                    selection.possibleCards = selection.possibleCards.filter(card => {
-                        return !(selection.draftPicks ?? []).map(d => d?.name).includes(card?.name);
-                    });
+                    selection.possibleCards = selection.possibleCards.filter(
+                        card => {
+                            return !(selection.draftPicks ?? [])
+                                .map(d => d?.name)
+                                .includes(card?.name);
+                        }
+                    );
                 });
                 const remainingPossibleCards = draft.players.map(
                     p => p.pendingCardSelection?.possibleCards ?? []
@@ -556,10 +624,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 // e.g. [A,B,C]
                 if (common.generation % 2) {
                     // (A passes to B, B passes to C, C passes to A)
-                    remainingPossibleCards.unshift(remainingPossibleCards.pop()!);
+                    remainingPossibleCards.unshift(
+                        remainingPossibleCards.pop()!
+                    );
                 } else {
                     // (A passes to C, B passes to A, C passes to B)
-                    remainingPossibleCards.push(remainingPossibleCards.shift()!);
+                    remainingPossibleCards.push(
+                        remainingPossibleCards.shift()!
+                    );
                 }
                 for (let i = 0; i < draft.players.length; i++) {
                     draft.players[i].pendingCardSelection = {
@@ -575,8 +647,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             (player.pendingCardSelection = {
                                 ...player.pendingCardSelection,
                                 possibleCards: [
-                                    ...(player.pendingCardSelection?.possibleCards ?? []),
-                                    ...(player.pendingCardSelection?.draftPicks ?? []),
+                                    ...(player.pendingCardSelection
+                                        ?.possibleCards ?? []),
+                                    ...(player.pendingCardSelection
+                                        ?.draftPicks ?? []),
                                 ],
                                 draftPicks: undefined,
                                 isBuyingCards: true,
@@ -593,13 +667,20 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             // Step 1. Reveal the cards to the players so they can see them.
             const numCardsToReveal = payload.amount;
-            draft.common.revealedCards = handleDrawCards(draft, numCardsToReveal);
+            draft.common.revealedCards = handleDrawCards(
+                draft,
+                numCardsToReveal
+            );
             if (
-                draft.common.revealedCards.every(card => !!card && !!card.name) &&
+                draft.common.revealedCards.every(
+                    card => !!card && !!card.name
+                ) &&
                 draft.common.revealedCards.length > 0
             ) {
                 draft.log.push(
-                    `Revealed ${draft.common.revealedCards.map(c => c.name).join(', ')}`
+                    `Revealed ${draft.common.revealedCards
+                        .map(c => c.name)
+                        .join(', ')}`
                 );
             }
         }
@@ -621,7 +702,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
                 let card: SerializedCard | undefined;
 
-                while (draft.common.deck.length > 0 && matchingCards.length < amount) {
+                while (
+                    draft.common.deck.length > 0 &&
+                    matchingCards.length < amount
+                ) {
                     card = draft.common.deck.shift();
                     if (card) {
                         revealedCards.push(card);
@@ -633,7 +717,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     }
                 }
 
-                draft.log.push(`Revealed ${revealedCards.map(c => c.name).join(', ')}`);
+                draft.log.push(
+                    `Revealed ${revealedCards.map(c => c.name).join(', ')}`
+                );
                 draft.log.push(
                     `${corporationName} took ${matchingCards
                         .map(c => c.name)
@@ -707,23 +793,29 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
 
             let pendingDiscardAmount = player.pendingDiscard?.amount;
-            if (pendingDiscardAmount && isVariableAmount(pendingDiscardAmount)) {
+            if (
+                pendingDiscardAmount &&
+                isVariableAmount(pendingDiscardAmount)
+            ) {
                 draft.pendingVariableAmount = payload.cards.length;
             }
             if (payload.cards.length) {
                 if (draft.common.gameStage !== GameStage.BUY_OR_DISCARD) {
                     // discard is implied during buy_or_discard, so we omit this log item
                     draft.log.push(
-                        `${corporationName} discarded ${payload.cards.length} ${cardsPlural(
+                        `${corporationName} discarded ${
                             payload.cards.length
-                        )}`
+                        } ${cardsPlural(payload.cards.length)}`
                     );
                 }
             }
             player.pendingDiscard = undefined;
             draft.common.discardPile.push(...payload.cards);
             player.cards = player.cards.filter(
-                playerCard => !payload.cards.map(card => card.name).includes(playerCard.name)
+                playerCard =>
+                    !payload.cards
+                        .map(card => card.name)
+                        .includes(playerCard.name)
             );
         }
 
@@ -767,9 +859,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 draft.log.push(
                     `${corporationName} decreased the ${getResourceName(
                         payload.resource
-                    )} production of ${targetPlayer.corporation.name} ${decrease} ${stepsPlural(
-                        decrease
-                    )}`
+                    )} production of ${
+                        targetPlayer.corporation.name
+                    } ${decrease} ${stepsPlural(decrease)}`
                 );
             }
         }
@@ -799,7 +891,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 player.mostRecentProductionDecrease = undefined;
             }
             const card = mostRecentlyPlayedCard;
-            if (increase && (card.name === 'Mining Rights' || card.name === 'Mining Area')) {
+            if (
+                increase &&
+                (card.name === 'Mining Rights' || card.name === 'Mining Area')
+            ) {
                 // Record the production increase for the purpose of robotic workforce.
                 card.increaseProductionResult = payload.resource;
             }
@@ -856,7 +951,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 sourcePlayer,
                 payload.supplementalResources
             );
-            if (quantity > totalAvailable && sourcePlayerIndex !== player.index) {
+            if (
+                quantity > totalAvailable &&
+                sourcePlayerIndex !== player.index
+            ) {
                 throw new Error('Trying to take too many resources');
             }
             draft.pendingVariableAmount = quantity;
@@ -867,7 +965,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 player.index === sourcePlayerIndex
             ) {
                 const {name} = payload.supplementalResources;
-                const matchingCard = player.playedCards.find(card => card.name === name);
+                const matchingCard = player.playedCards.find(
+                    card => card.name === name
+                );
                 if (matchingCard) {
                     supplementalQuantity = getSupplementalQuantity(
                         player,
@@ -876,11 +976,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     const fullCard = getCard(matchingCard);
                     if (fullCard.useStoredResourceAsHeat) {
                         const amountToRemove =
-                            supplementalQuantity / fullCard.useStoredResourceAsHeat;
+                            supplementalQuantity /
+                            fullCard.useStoredResourceAsHeat;
                         matchingCard.storedResourceAmount! -= amountToRemove;
                         if (amountToRemove) {
                             draft.log.push(
-                                `${sourcePlayer.corporation.name} lost ${quantityAndResource(
+                                `${
+                                    sourcePlayer.corporation.name
+                                } lost ${quantityAndResource(
                                     amountToRemove,
                                     fullCard.storedResourceType!
                                 )} from ${fullCard.name}`
@@ -890,14 +993,16 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 }
             }
             let adjustedAmount = quantity - supplementalQuantity;
-            adjustedAmount = Math.min(adjustedAmount, sourcePlayer.resources[resource]);
+            adjustedAmount = Math.min(
+                adjustedAmount,
+                sourcePlayer.resources[resource]
+            );
             if (adjustedAmount > 0) {
                 sourcePlayer.resources[resource] -= adjustedAmount;
                 draft.log.push(
-                    `${sourcePlayer.corporation.name} lost ${quantityAndResource(
-                        adjustedAmount,
-                        resource
-                    )}`
+                    `${
+                        sourcePlayer.corporation.name
+                    } lost ${quantityAndResource(adjustedAmount, resource)}`
                 );
             }
         }
@@ -915,7 +1020,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 .find(playedCard => playedCard.name === payload.card.name);
 
             if (!targetCard) {
-                throw new Error(`Target card ${payload.card.name} not found in played cards`);
+                throw new Error(
+                    `Target card ${payload.card.name} not found in played cards`
+                );
             }
             const card = getCard(targetCard);
             if (card.storedResourceType !== resource) {
@@ -925,16 +1032,22 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 targetCard.storedResourceAmount === undefined ||
                 targetCard.storedResourceAmount < amount
             ) {
-                throw new Error('Card does not contain enough of that resource to remove');
+                throw new Error(
+                    'Card does not contain enough of that resource to remove'
+                );
             }
             draft.pendingVariableAmount = amount;
             targetCard.storedResourceAmount -= amount;
             // If you do it to yourself, say "removed" instead of "lost"
-            const verb = corporationName === player.corporation.name ? 'removed' : 'lost';
+            const verb =
+                corporationName === player.corporation.name
+                    ? 'removed'
+                    : 'lost';
             draft.log.push(
-                `${corporationName} ${verb} ${quantityAndResource(payload.amount, resource)} from ${
-                    targetCard.name
-                }`
+                `${corporationName} ${verb} ${quantityAndResource(
+                    payload.amount,
+                    resource
+                )} from ${targetCard.name}`
             );
         }
 
@@ -954,9 +1067,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             victimPlayer.resources[resource] -= quantity;
             player.resources[resource] += quantity;
             draft.log.push(
-                `${corporationName} stole ${quantityAndResource(quantity, resource)} from ${
-                    victimPlayer.corporation.name
-                }`
+                `${corporationName} stole ${quantityAndResource(
+                    quantity,
+                    resource
+                )} from ${victimPlayer.corporation.name}`
             );
         }
 
@@ -974,7 +1088,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 .flatMap(p => p.playedCards)
                 .find(c => c.name === targetCard.name);
             if (!draftSourceCard || !draftTargetCard) {
-                throw new Error('Could not find target or source card for stealing');
+                throw new Error(
+                    'Could not find target or source card for stealing'
+                );
             } else if (!draftSourceCard.storedResourceAmount) {
                 throw new Error('Target card does not contain any resources');
             } else if (amount > draftSourceCard.storedResourceAmount) {
@@ -992,9 +1108,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             draftTargetCard.storedResourceAmount =
                 (draftTargetCard.storedResourceAmount || 0) + quantity;
             draft.log.push(
-                `${corporationName} moved ${quantityAndResource(quantity, resource)} from ${
-                    draftSourceCard.name
-                } onto ${draftTargetCard.name}`
+                `${corporationName} moved ${quantityAndResource(
+                    quantity,
+                    resource
+                )} from ${draftSourceCard.name} onto ${draftTargetCard.name}`
             );
         }
 
@@ -1017,17 +1134,26 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.pendingResourceActionDetails = undefined;
-            const draftCard = player.playedCards.find(c => c.name === payload.card.name);
+            const draftCard = player.playedCards.find(
+                c => c.name === payload.card.name
+            );
             if (!draftCard) {
-                throw new Error('Card should exist to gain storable resources to');
+                throw new Error(
+                    'Card should exist to gain storable resources to'
+                );
             }
             const card = getCard(draftCard);
             if (!card.storedResourceType) {
                 throw new Error('Cannot store resources on this card');
             }
-            const quantity = convertAmountToNumber(payload.amount, draft, player);
+            const quantity = convertAmountToNumber(
+                payload.amount,
+                draft,
+                player
+            );
             if (quantity) {
-                draftCard.storedResourceAmount = (draftCard.storedResourceAmount || 0) + quantity;
+                draftCard.storedResourceAmount =
+                    (draftCard.storedResourceAmount || 0) + quantity;
                 draft.log.push(
                     `${corporationName} added ${quantityAndResource(
                         quantity,
@@ -1060,11 +1186,15 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             // Dirigibles
             if (payload.conditionalPayments) {
-                const conditionalPayments = getConditionalPaymentWithResourceInfo(
-                    player,
-                    getCard(payload.card)
-                );
-                if (payload.conditionalPayments.length !== conditionalPayments.length) {
+                const conditionalPayments =
+                    getConditionalPaymentWithResourceInfo(
+                        player,
+                        getCard(payload.card)
+                    );
+                if (
+                    payload.conditionalPayments.length !==
+                    conditionalPayments.length
+                ) {
                     throw new Error('Misformatted conditional payments array');
                 }
                 for (let i = 0; i < conditionalPayments.length; i++) {
@@ -1086,7 +1216,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             isNaN(cardWithResources.storedResourceAmount)
                         ) {
                             throw new Error(
-                                'Got to negative resource amount for ' + cardWithResources.name
+                                'Got to negative resource amount for ' +
+                                    cardWithResources.name
                             );
                         }
                     }
@@ -1102,13 +1233,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 for (const resource in payload.payment) {
                     player.resources[resource] -= payload.payment[resource];
                     if (player.resources[resource] < 0) {
-                        throw new Error('Got negative resources while trying to pay for card');
+                        throw new Error(
+                            'Got negative resources while trying to pay for card'
+                        );
                     }
                 }
             } else {
                 player.resources[Resource.MEGACREDIT] -= cardCost;
                 if (player.resources[Resource.MEGACREDIT] < 0) {
-                    throw new Error('Got negative megacredits while trying to pay for card');
+                    throw new Error(
+                        'Got negative megacredits while trying to pay for card'
+                    );
                 }
             }
 
@@ -1149,7 +1284,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             } else {
                 player.resources[Resource.MEGACREDIT] -= actionCost ?? 0;
                 if (player.resources[Resource.MEGACREDIT] < 0) {
-                    throw new Error('Went negative megacredit attempting to pay for action');
+                    throw new Error(
+                        'Went negative megacredit attempting to pay for action'
+                    );
                 }
             }
             player.discounts.nextCardThisGeneration = 0;
@@ -1161,7 +1298,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             for (const resource in payload.payment) {
                 if (payload.payment[resource]) {
                     details.push(
-                        quantityAndResource(payload.payment[resource], resource as Resource)
+                        quantityAndResource(
+                            payload.payment[resource],
+                            resource as Resource
+                        )
                     );
                 }
             }
@@ -1178,8 +1318,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             const {payment} = payload;
             let cost =
-                (payload.standardProjectAction.cost || 0) - player.discounts.standardProjects;
-            if (payload.standardProjectAction.type === StandardProjectType.POWER_PLANT) {
+                (payload.standardProjectAction.cost || 0) -
+                player.discounts.standardProjects;
+            if (
+                payload.standardProjectAction.type ===
+                StandardProjectType.POWER_PLANT
+            ) {
                 cost -= player.discounts.standardProjectPowerPlant;
             }
 
@@ -1212,7 +1356,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 claimedByPlayerIndex: player.index,
                 milestone: milestone,
             });
-            draft.log.push(`${corporationName} claimed ${payload.milestone} milestone`);
+            draft.log.push(
+                `${corporationName} claimed ${payload.milestone} milestone`
+            );
         }
 
         if (fundAward.match(action)) {
@@ -1236,14 +1382,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
 
-            player.cards = player.cards.filter(c => c.name !== payload.card.name);
+            player.cards = player.cards.filter(
+                c => c.name !== payload.card.name
+            );
             player.playedCards.push({name: payload.card.name});
             const card = getCard(payload.card);
             if (card.type === CardType.CORPORATION) {
                 player.possibleCorporations = [];
             }
             if (card.type === CardType.PRELUDE) {
-                player.preludes = player.preludes.filter(c => c.name !== payload.card.name);
+                player.preludes = player.preludes.filter(
+                    c => c.name !== payload.card.name
+                );
             }
             if (player.pendingPlayCardFromHand) {
                 player.pendingPlayCardFromHand = undefined;
@@ -1251,17 +1401,21 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             if (card.storedResourceType) {
                 for (const colony of draft.common.colonies ?? []) {
                     if (
-                        getColony(colony).offlineUntilResource === card.storedResourceType &&
+                        getColony(colony).offlineUntilResource ===
+                            card.storedResourceType &&
                         colony.step === STARTING_STEP_STORABLE_RESOURCE_COLONY
                     ) {
                         colony.step = STARTING_STEP;
                         draft.log.push(
-                            `${colony.name}'s tile track went online at ${colony.step + 1}`
+                            `${colony.name}'s tile track went online at ${
+                                colony.step + 1
+                            }`
                         );
                     }
                 }
             }
-            player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
+            player.temporaryParameterRequirementAdjustments =
+                zeroParameterRequirementAdjustments();
         }
 
         if (addParameterRequirementAdjustments.match(action)) {
@@ -1307,7 +1461,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 playerCard => playerCard.name === payload.card?.name
             )!;
             const playedCard = player.playedCards.find(
-                playerPlayedCard => playerPlayedCard.name === payload.playedCard?.name
+                playerPlayedCard =>
+                    playerPlayedCard.name === payload.playedCard?.name
             );
             player.pendingResourceActionDetails = {
                 actionType,
@@ -1352,7 +1507,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             player.pendingPlayCardFromHand = payload.playCardParams;
             if (payload.playCardParams.discount) {
-                player.discounts.nextCardThisGeneration = payload.playCardParams.discount;
+                player.discounts.nextCardThisGeneration =
+                    payload.playCardParams.discount;
             }
         }
 
@@ -1383,7 +1539,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (!payload.cell.coords) {
                     return false;
                 }
-                return coords[0] === payload.cell.coords[0] && coords[1] === payload.cell.coords[1];
+                return (
+                    coords[0] === payload.cell.coords[0] &&
+                    coords[1] === payload.cell.coords[1]
+                );
             });
             matchingCell!.tile = payload.tile;
             if (payload.tile.type === TileType.LAND_CLAIM) {
@@ -1400,7 +1559,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             draft.log.push(
                 `${corporationName} placed ${aAnOrThe(
                     payload.tile.type
-                )} ${getHumanReadableTileName(payload.tile.type)} tile${oceanAddendum}`
+                )} ${getHumanReadableTileName(
+                    payload.tile.type
+                )} tile${oceanAddendum}`
             );
             draft.common.mostRecentTilePlacementCell = matchingCell;
         }
@@ -1416,16 +1577,19 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (!payload.cell.coords) {
                     return false;
                 }
-                return coords[0] === payload.cell.coords[0] && coords[1] === payload.cell.coords[1];
+                return (
+                    coords[0] === payload.cell.coords[0] &&
+                    coords[1] === payload.cell.coords[1]
+                );
             });
             if (matchingCell?.tile) {
                 const {tile} = matchingCell;
                 matchingCell.tile = undefined;
 
                 draft.log.push(
-                    `${corporationName} removed ${aAnOrThe(tile.type)} ${getHumanReadableTileName(
+                    `${corporationName} removed ${aAnOrThe(
                         tile.type
-                    )} tile`
+                    )} ${getHumanReadableTileName(tile.type)} tile`
                 );
                 if (tile.type === TileType.OCEAN) {
                     draft.common.parameters[Parameter.OCEAN] -= 1;
@@ -1491,8 +1655,10 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 player.discounts.cards[tag] += discounts.cards[tag];
             }
             player.discounts.standardProjects += discounts.standardProjects;
-            player.discounts.standardProjectPowerPlant += discounts.standardProjectPowerPlant;
-            player.discounts.nextCardThisGeneration = discounts.nextCardThisGeneration;
+            player.discounts.standardProjectPowerPlant +=
+                discounts.standardProjectPowerPlant;
+            player.discounts.nextCardThisGeneration =
+                discounts.nextCardThisGeneration;
             player.discounts.trade += discounts.trade;
         }
 
@@ -1514,7 +1680,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {exchangeRates: exchangeRateDeltas} = payload;
 
             for (const resource in exchangeRateDeltas) {
-                player.exchangeRates[resource] = player.exchangeRates[resource] ?? 0;
+                player.exchangeRates[resource] =
+                    player.exchangeRates[resource] ?? 0;
                 player.exchangeRates[resource] += exchangeRateDeltas[resource];
             }
         }
@@ -1522,14 +1689,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (markCardActionAsPlayed.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            const playedCard = player.playedCards.find(card => card.name === payload.card.name)!;
+            const playedCard = player.playedCards.find(
+                card => card.name === payload.card.name
+            )!;
             playedCard.lastRoundUsedAction = draft.common.generation;
         }
 
         if (moveFleet.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            const colony = draft.common.colonies?.find(
+                colony => colony.name === payload.colony
+            );
             if (colony) {
                 colony.lastTrade = {
                     player: player.username,
@@ -1541,10 +1712,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
         if (moveColonyTileTrack.match(action)) {
             const {payload} = action;
-            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            const colony = draft.common.colonies?.find(
+                colony => colony.name === payload.colony
+            );
             if (colony) {
                 colony.step = payload.location;
-                draft.log.push(`${colony.name}'s tile track went to ${colony.step + 1}`);
+                draft.log.push(
+                    `${colony.name}'s tile track went to ${colony.step + 1}`
+                );
             }
         }
 
@@ -1559,13 +1734,21 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             player = getPlayer(draft, payload);
             player.placeColony = undefined;
-            const colony = draft.common.colonies?.find(colony => colony.name === payload.colony);
+            const colony = draft.common.colonies?.find(
+                colony => colony.name === payload.colony
+            );
             if (colony) {
                 colony.colonies.push(player.index);
-                draft.log.push(`${corporationName} placed a colony on ${colony.name}`);
+                draft.log.push(
+                    `${corporationName} placed a colony on ${colony.name}`
+                );
                 if (colony.colonies.length > colony.step) {
                     colony.step += 1;
-                    draft.log.push(`${colony.name}'s tile track increased to ${colony.step + 1}`);
+                    draft.log.push(
+                        `${colony.name}'s tile track increased to ${
+                            colony.step + 1
+                        }`
+                    );
                 }
             }
         }
@@ -1596,7 +1779,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
         if (completeUserToPutAdditionalColonyTileIntoPlay.match(action)) {
             const {payload} = action;
-            const newColony = COLONIES.find(colony => colony.name === payload.colony);
+            const newColony = COLONIES.find(
+                colony => colony.name === payload.colony
+            );
             player = getPlayer(draft, payload);
             player.putAdditionalColonyTileIntoPlay = undefined;
             if (newColony) {
@@ -1615,7 +1800,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (askUserToIncreaseAndDecreaseColonyTileTracks.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            player.increaseAndDecreaseColonyTileTracks = action.payload.quantity;
+            player.increaseAndDecreaseColonyTileTracks =
+                action.payload.quantity;
         }
 
         if (increaseAndDecreaseColonyTileTracks.match(action)) {
@@ -1624,7 +1810,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const increment = player.increaseAndDecreaseColonyTileTracks ?? 0;
             const {colonies} = draft.common;
 
-            const increaseColony = colonies?.find(colony => colony.name === payload.increase);
+            const increaseColony = colonies?.find(
+                colony => colony.name === payload.increase
+            );
             if (increaseColony) {
                 if (increaseColony.step >= 0) {
                     const originalStep = increaseColony.step;
@@ -1638,7 +1826,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     draft.log.push(
                         `${corporationName} increased ${
                             increaseColony.name
-                        }'s tile track by ${difference} ${stepString} to ${increaseColony.step + 1}`
+                        }'s tile track by ${difference} ${stepString} to ${
+                            increaseColony.step + 1
+                        }`
                     );
                 } else {
                     draft.log.push(
@@ -1647,7 +1837,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 }
             }
 
-            const decreaseColony = colonies?.find(colony => colony.name === payload.decrease);
+            const decreaseColony = colonies?.find(
+                colony => colony.name === payload.decrease
+            );
             if (decreaseColony) {
                 if (decreaseColony.step >= 0) {
                     const originalStep = decreaseColony.step;
@@ -1658,7 +1850,9 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     draft.log.push(
                         `${corporationName} decreased ${
                             decreaseColony.name
-                        }'s tile track by ${difference} ${stepString} to ${decreaseColony.step + 1}`
+                        }'s tile track by ${difference} ${stepString} to ${
+                            decreaseColony.step + 1
+                        }`
                     );
                 } else {
                     draft.log.push(
@@ -1686,23 +1880,36 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (delegation) {
                     for (let i = 0; i < payload.numDelegates; i++) {
                         let delegate: Delegate | undefined;
-                        if (payload.allowLobby && turmoil.lobby[payload.playerIndex]) {
+                        if (
+                            payload.allowLobby &&
+                            turmoil.lobby[payload.playerIndex]
+                        ) {
                             delegate = turmoil.lobby[payload.playerIndex];
                             delete turmoil.lobby[payload.playerIndex];
                         } else {
-                            delegate = turmoil.delegateReserve[payload.playerIndex].pop();
+                            delegate =
+                                turmoil.delegateReserve[
+                                    payload.playerIndex
+                                ].pop();
                         }
                         if (delegate) {
                             delegation.push(delegate);
                         }
                     }
                     draft.log.push(
-                        `${corporationName} placed ${payload.numDelegates} delegate${
-                            payload.numDelegates === 1 ? '' : 's'
-                        } in ${payload.party}`
+                        `${corporationName} placed ${
+                            payload.numDelegates
+                        } delegate${payload.numDelegates === 1 ? '' : 's'} in ${
+                            payload.party
+                        }`
                     );
                     const [oldLeader] = delegation;
-                    determineNewLeader(turmoil, payload.party, draft, oldLeader.playerIndex);
+                    determineNewLeader(
+                        turmoil,
+                        payload.party,
+                        draft,
+                        oldLeader.playerIndex
+                    );
                     determineNewDominantParty(turmoil, draft);
                 }
             }
@@ -1738,16 +1945,23 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 );
                 const currentLeaderIndex = delegation[0].playerIndex;
                 if (neutralDelegateIndex >= 0) {
-                    const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
+                    const delegateInReserve =
+                        turmoil.delegateReserve[payload.playerIndex].pop();
                     if (delegateInReserve) {
                         // We'll just let neutral delegates disappear and reappear as needed.
-                        delegation[neutralDelegateIndex + 1] = delegateInReserve;
+                        delegation[neutralDelegateIndex + 1] =
+                            delegateInReserve;
                     }
                 }
                 draft.log.push(
                     `${corporationName} replaced a neutral delegate in ${payload.party} with one of their own`
                 );
-                determineNewLeader(turmoil, payload.party, draft, currentLeaderIndex);
+                determineNewLeader(
+                    turmoil,
+                    payload.party,
+                    draft,
+                    currentLeaderIndex
+                );
                 determineNewDominantParty(turmoil, draft);
             }
             player.exchangeNeutralNonLeaderDelegate = undefined;
@@ -1760,15 +1974,19 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 const delegation = turmoil.delegations[payload.party];
                 const [leader] = delegation;
                 // remove the delegate
-                const [removedDelegate] = delegation.splice(payload.delegateIndex, 1);
+                const [removedDelegate] = delegation.splice(
+                    payload.delegateIndex,
+                    1
+                );
                 // return it to the playersr supply
                 if (removedDelegate.playerIndex != undefined) {
-                    draft.common.turmoil?.delegateReserve[removedDelegate.playerIndex].push(
-                        removedDelegate
-                    );
+                    draft.common.turmoil?.delegateReserve[
+                        removedDelegate.playerIndex
+                    ].push(removedDelegate);
                     draft.log.push(
                         `${corporationName} removed a ${
-                            draft.players[removedDelegate.playerIndex].corporation.name
+                            draft.players[removedDelegate.playerIndex]
+                                .corporation.name
                         } from ${payload.party}`
                     );
                 } else {
@@ -1776,7 +1994,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         `${corporationName} removed a neutral delegate from ${payload.party}`
                     );
                 }
-                determineNewLeader(turmoil, payload.party, draft, leader.playerIndex);
+                determineNewLeader(
+                    turmoil,
+                    payload.party,
+                    draft,
+                    leader.playerIndex
+                );
                 determineNewDominantParty(turmoil, draft);
             }
             player.removeNonLeaderDelegate = undefined;
@@ -1786,7 +2009,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {payload} = action;
             const {turmoil} = draft.common;
             if (turmoil) {
-                const delegateInReserve = turmoil.delegateReserve[payload.playerIndex].pop();
+                const delegateInReserve =
+                    turmoil.delegateReserve[payload.playerIndex].pop();
                 if (delegateInReserve) {
                     // We'll just let neutral delegates disappear and reappear as needed.
                     turmoil.chairperson = delegateInReserve;
@@ -1801,17 +2025,20 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {turmoil} = draft.common;
             if (turmoil) {
                 turmoil.rulingParty = turmoil.dominantParty;
-                const [leader, ...rest] = turmoil.delegations[turmoil.dominantParty];
+                const [leader, ...rest] =
+                    turmoil.delegations[turmoil.dominantParty];
                 const currentChairperson = turmoil.chairperson;
                 if (currentChairperson.playerIndex != undefined) {
-                    turmoil.delegateReserve[currentChairperson.playerIndex].push(
-                        currentChairperson
-                    );
+                    turmoil.delegateReserve[
+                        currentChairperson.playerIndex
+                    ].push(currentChairperson);
                 }
                 turmoil.chairperson = leader;
                 for (const delegate of rest) {
                     if (delegate.playerIndex != undefined) {
-                        turmoil.delegateReserve[delegate.playerIndex].push(delegate);
+                        turmoil.delegateReserve[delegate.playerIndex].push(
+                            delegate
+                        );
                     }
                 }
                 draft.log.push(`${turmoil.rulingParty} became ruling party`);
@@ -1825,14 +2052,18 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             const {turmoil} = draft.common;
             if (turmoil) {
                 if (turmoil.chairperson.playerIndex != undefined) {
-                    const player = draft.players[turmoil.chairperson.playerIndex];
-                    draft.log.push(`${player.corporation.name}'s delegate became chairperson`);
+                    const player =
+                        draft.players[turmoil.chairperson.playerIndex];
+                    draft.log.push(
+                        `${player.corporation.name}'s delegate became chairperson`
+                    );
                     handleTerraformRatingIncrease(player, 1, draft);
                 }
                 // Restore lobby
                 for (const player of draft.players) {
                     if (!turmoil.lobby[player.index]) {
-                        const [first, ...rest] = turmoil.delegateReserve[player.index];
+                        const [first, ...rest] =
+                            turmoil.delegateReserve[player.index];
                         if (first) {
                             turmoil.lobby[player.index] = first;
                             turmoil.delegateReserve[player.index] = rest;
@@ -1854,9 +2085,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 turmoil.currentGlobalEvent = oldComingGlobalEvent;
                 let fullEvent = getGlobalEvent(turmoil.currentGlobalEvent.name);
                 if (fullEvent) {
-                    const [leader] = turmoil.delegations[fullEvent.bottom.party];
-                    turmoil.delegations[fullEvent.bottom.party].push(delegate());
-                    const numDelegates = turmoil.delegations[fullEvent.bottom.party].length;
+                    const [leader] =
+                        turmoil.delegations[fullEvent.bottom.party];
+                    turmoil.delegations[fullEvent.bottom.party].push(
+                        delegate()
+                    );
+                    const numDelegates =
+                        turmoil.delegations[fullEvent.bottom.party].length;
                     draft.log.push(
                         `${
                             fullEvent.bottom.party
@@ -1864,7 +2099,12 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                             numDelegates === 1 ? '' : 's'
                         })`
                     );
-                    determineNewLeader(turmoil, fullEvent.bottom.party, draft, leader?.playerIndex);
+                    determineNewLeader(
+                        turmoil,
+                        fullEvent.bottom.party,
+                        draft,
+                        leader?.playerIndex
+                    );
                     determineNewDominantParty(turmoil, draft);
                 }
 
@@ -1879,9 +2119,13 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 if (newDistantGlobalEvent) {
                     fullEvent = getGlobalEvent(newDistantGlobalEvent.name);
                     if (fullEvent) {
-                        const [leader] = turmoil.delegations[fullEvent.top.party];
-                        turmoil.delegations[fullEvent.top.party].push(delegate());
-                        const numDelegates = turmoil.delegations[fullEvent.top.party].length;
+                        const [leader] =
+                            turmoil.delegations[fullEvent.top.party];
+                        turmoil.delegations[fullEvent.top.party].push(
+                            delegate()
+                        );
+                        const numDelegates =
+                            turmoil.delegations[fullEvent.top.party].length;
                         draft.log.push(
                             `${
                                 fullEvent.top.party
@@ -1941,7 +2185,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
 
             player.action = 0;
             player.previousCardsInHand = player.cards.length;
-            player.temporaryParameterRequirementAdjustments = zeroParameterRequirementAdjustments();
+            player.temporaryParameterRequirementAdjustments =
+                zeroParameterRequirementAdjustments();
 
             // Check if all other players have also passed
             const activePlayers = draft.players.filter(p => p.action !== 0);
@@ -1968,7 +2213,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                         ) {
                             playersWhoCanPlaceGreenery.push(player);
                         }
-                        indexToConsider = (indexToConsider + 1) % draft.players.length;
+                        indexToConsider =
+                            (indexToConsider + 1) % draft.players.length;
                     } while (indexToConsider !== common.firstPlayerIndex);
                     if (playersWhoCanPlaceGreenery.length > 0) {
                         draft.log.push({
@@ -2057,12 +2303,19 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (makeLogItem.match(action)) {
             draft.log.push(action.payload.item);
         }
+        if (setNotes.match(action)) {
+            player = getPlayer(draft, action.payload);
+            player.notes = action.payload.notes;
+        }
 
         const maybePlayerIndex = action.payload?.playerIndex;
         if (typeof maybePlayerIndex === 'number') {
             const player = getPlayer(draft, action.payload);
             if (
-                getIsPlayerMakingDecisionExceptForNextActionChoice(draft, player) &&
+                getIsPlayerMakingDecisionExceptForNextActionChoice(
+                    draft,
+                    player
+                ) &&
                 draft.common.gameStage === GameStage.ACTIVE_ROUND
             ) {
                 draft.common.controllingPlayerIndex = player.index;
@@ -2113,8 +2366,11 @@ function determineNewLeader(
         if (newLeader.playerIndex == undefined) {
             draft.log.push(`A neutral delegate now leads ${party}`);
         } else {
-            const corporationName = draft.players[newLeader.playerIndex].corporation.name;
-            draft.log.push(`A delegate from ${corporationName} now leads ${party}`);
+            const corporationName =
+                draft.players[newLeader.playerIndex].corporation.name;
+            draft.log.push(
+                `A delegate from ${corporationName} now leads ${party}`
+            );
         }
     }
 }
@@ -2125,7 +2381,9 @@ function determineNewDominantParty(
 ) {
     const {dominantParty: currentDominantParty, delegations} = turmoil;
     // Count clockwise to find the new party with the most delegates.
-    const startingIndex = PARTY_CONFIGS.findIndex(config => config.name === currentDominantParty);
+    const startingIndex = PARTY_CONFIGS.findIndex(
+        config => config.name === currentDominantParty
+    );
     let mostDelegates = delegations[currentDominantParty].length;
     let newDominantParty = currentDominantParty;
     // Go clockwise from current dominant party!
@@ -2155,8 +2413,12 @@ function handleSetupNextGeneration(draft: WritableDraft<GameState>) {
     // shift the turn order by 1
     const oldTurnOrder = draft.common.playerIndexOrderForGeneration;
     const {common} = draft;
-    common.playerIndexOrderForGeneration = [...oldTurnOrder.slice(1), oldTurnOrder[0]];
-    common.firstPlayerIndex = (common.firstPlayerIndex + 1) % draft.players.length;
+    common.playerIndexOrderForGeneration = [
+        ...oldTurnOrder.slice(1),
+        oldTurnOrder[0],
+    ];
+    common.firstPlayerIndex =
+        (common.firstPlayerIndex + 1) % draft.players.length;
     common.currentPlayerIndex = common.firstPlayerIndex;
     common.turn = 1;
     common.generation++;
@@ -2176,16 +2438,19 @@ function handleSetupNextGeneration(draft: WritableDraft<GameState>) {
         };
         setSyncingTrueIfClient(draft);
         if (process.env.NODE_ENV === 'development') {
-            const bonuses = [...draft.common.deck, ...draft.common.discardPile].filter(card =>
-                bonusNames.includes(card.name)
-            );
+            const bonuses = [
+                ...draft.common.deck,
+                ...draft.common.discardPile,
+            ].filter(card => bonusNames.includes(card.name));
             // (hack for debugging)
             const deleted = player.pendingCardSelection.possibleCards.splice(
                 0,
                 bonuses.length,
                 ...bonuses
             );
-            draft.common.deck = draft.common.deck.filter(card => !bonusNames.includes(card.name));
+            draft.common.deck = draft.common.deck.filter(
+                card => !bonusNames.includes(card.name)
+            );
             draft.common.discardPile = draft.common.discardPile.filter(
                 card => !bonusNames.includes(card.name)
             );

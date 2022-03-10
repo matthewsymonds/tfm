@@ -10,7 +10,10 @@ export const useActionGuard = (user?: string) => {
         state => {
             const username = user ?? player.username;
             if (!actionGuardsByUsername[username]) {
-                actionGuardsByUsername[username] = new ActionGuard(state, username);
+                actionGuardsByUsername[username] = new ActionGuard(
+                    state,
+                    username
+                );
             }
             actionGuardsByUsername[username].state = state;
             return actionGuardsByUsername[username];

@@ -92,7 +92,10 @@ export type SerializedPlayerState = Omit<
     };
 };
 
-export type SerializedState = Omit<BaseGameState, 'common' | 'players' | 'log'> & {
+export type SerializedState = Omit<
+    BaseGameState,
+    'common' | 'players' | 'log'
+> & {
     common: SerializedCommonState;
     players: SerializedPlayerState[];
     log: SerializedGameAction[];
@@ -109,7 +112,10 @@ type SerializedGameActionPlayCard = Omit<GameActionPlayCard, 'card'> & {
     card: SerializedCard;
 };
 
-type SerializedGameActionPlayCardAction = Omit<GameActionPlayCardAction, 'card'> & {
+type SerializedGameActionPlayCardAction = Omit<
+    GameActionPlayCardAction,
+    'card'
+> & {
     card: SerializedCard;
 };
 
@@ -127,7 +133,9 @@ export type SerializedGameAction =
     | GameActionPlayerResourceUpdate
     | string;
 
-export function deserializeGameAction(serializedGameAction: SerializedGameAction): GameAction {
+export function deserializeGameAction(
+    serializedGameAction: SerializedGameAction
+): GameAction {
     if (typeof serializedGameAction === 'string') {
         return serializedGameAction;
     }
@@ -165,7 +173,10 @@ export function deserializeCard(serializedCard: SerializedCard): Card {
 }
 
 // No cheating! This method hides private information.
-export const censorGameState = (readonlyState: SerializedState, username: string) => {
+export const censorGameState = (
+    readonlyState: SerializedState,
+    username: string
+) => {
     return produce(readonlyState, state => {
         state.common.deck = [];
         state.common.discardPile = [];
@@ -183,17 +194,23 @@ export const censorGameState = (readonlyState: SerializedState, username: string
             if (player.username === username) {
                 continue;
             }
+            player.notes = '';
             if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
                 player.terraformRating = 20;
             }
 
             player.pendingCardSelection = player.pendingCardSelection
                 ? {
-                      possibleCards: Array(player.pendingCardSelection.possibleCards.length),
+                      possibleCards: Array(
+                          player.pendingCardSelection.possibleCards.length
+                      ),
                       draftPicks: player.pendingCardSelection.draftPicks
-                          ? Array(player.pendingCardSelection.draftPicks?.length)
+                          ? Array(
+                                player.pendingCardSelection.draftPicks?.length
+                            )
                           : undefined,
-                      numCardsToTake: player.pendingCardSelection.numCardsToTake,
+                      numCardsToTake:
+                          player.pendingCardSelection.numCardsToTake,
                       isBuyingCards: player.pendingCardSelection.isBuyingCards,
                   }
                 : undefined;
@@ -203,8 +220,12 @@ export const censorGameState = (readonlyState: SerializedState, username: string
                     : // Don't reveal card selection info during draft/card selection
                       player.previousCardsInHand ?? 0
             );
-            player.possibleCorporations = Array(player.possibleCorporations.length);
-            player.possiblePreludes = Array(player.possiblePreludes?.length ?? 0);
+            player.possibleCorporations = Array(
+                player.possibleCorporations.length
+            );
+            player.possiblePreludes = Array(
+                player.possiblePreludes?.length ?? 0
+            );
             player.preludes = Array(player.preludes?.length ?? 0);
 
             if (state.common.gameStage === GameStage.CORPORATION_SELECTION) {
@@ -215,13 +236,16 @@ export const censorGameState = (readonlyState: SerializedState, username: string
 
             for (const card of player.playedCards) {
                 if (!card) continue;
-                const matchingCard = cards.find(cardModel => cardModel.name === card.name)!;
+                const matchingCard = cards.find(
+                    cardModel => cardModel.name === card.name
+                )!;
                 if (matchingCard.type === CardType.EVENT) {
                     card.name = '';
                 }
 
                 if (
-                    state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+                    state.common.gameStage ===
+                        GameStage.CORPORATION_SELECTION &&
                     matchingCard.type === CardType.CORPORATION
                 ) {
                     card.name = '';

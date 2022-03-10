@@ -53,7 +53,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         const apiClient = useApiClient();
         const loggedInPlayer = useLoggedInPlayer();
 
-        const yourTurnGamesFiltered = yourTurnGames.filter(game => game !== currentGame);
+        const yourTurnGamesFiltered = yourTurnGames.filter(
+            game => game !== currentGame
+        );
 
         const isActiveRound = useTypedSelector(
             state => state.common.gameStage === GameStage.ACTIVE_ROUND
@@ -62,14 +64,20 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         /**
          * State selectors
          */
-        const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
+        const currentPlayerIndex = useTypedSelector(
+            state => state.common.currentPlayerIndex
+        );
         const players = useTypedSelector(state => state.players);
         const syncing = useTypedSelector(state => state.syncing);
 
         /**
          * Derived state
          */
-        const {index: loggedInPlayerIndex, action, pendingCardSelection} = loggedInPlayer;
+        const {
+            index: loggedInPlayerIndex,
+            action,
+            pendingCardSelection,
+        } = loggedInPlayer;
         const isLoggedInPlayerInControl = useTypedSelector(
             state =>
                 state.common.controllingPlayerIndex === loggedInPlayerIndex ||
@@ -81,11 +89,17 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         const isEndOfGame = useTypedSelector(
             state => state.common.gameStage === GameStage.END_OF_GAME
         );
-        const hasPendingCardSelection = useTypedSelector(state => !!pendingCardSelection);
-        const currentPlayer = useTypedSelector(
-            state => players[state.common.controllingPlayerIndex ?? currentPlayerIndex]
+        const hasPendingCardSelection = useTypedSelector(
+            state => !!pendingCardSelection
         );
-        const isLoggedInPlayersTurn = currentPlayerIndex === loggedInPlayer.index;
+        const currentPlayer = useTypedSelector(
+            state =>
+                players[
+                    state.common.controllingPlayerIndex ?? currentPlayerIndex
+                ]
+        );
+        const isLoggedInPlayersTurn =
+            currentPlayerIndex === loggedInPlayer.index;
         const isLoggedInPlayerPassed = useTypedSelector(
             state => action === 0 && isActionPhase(state)
         );
@@ -97,16 +111,24 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
             isActiveRound;
 
         const topBarColor =
-            isLoggedInPlayersTurn || hasPendingCardSelection || isLoggedInPlayerInControl
+            isLoggedInPlayersTurn ||
+            hasPendingCardSelection ||
+            isLoggedInPlayerInControl
                 ? colors.NAV_BG_YOUR_TURN
                 : isLoggedInPlayerPassed
                 ? colors.NAV_BG_PASSED
                 : colors.NAV_BG_WAITING;
 
-        const onlyOnePlayer = useTypedSelector(state => state.players.length === 1);
+        const onlyOnePlayer = useTypedSelector(
+            state => state.players.length === 1
+        );
         const yourTurnMessage =
             yourTurnGamesFiltered.length > 0 && (!playing || onlyOnePlayer) ? (
-                <Box marginRight="8px" display="inline-block" fontStyle="italic">
+                <Box
+                    marginRight="8px"
+                    display="inline-block"
+                    fontStyle="italic"
+                >
                     It is your turn in {yourTurnGamesFiltered.length} game
                     {yourTurnGamesFiltered.length === 1 ? '' : 's'}:
                 </Box>
@@ -124,8 +146,12 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
             ? 'You may place a greenery.'
             : 'Cannot place any more greeneries.';
 
-        const canSkip = useTypedSelector(state => actionGuard.canSkipAction()[0]);
-        const canPass = useTypedSelector(state => actionGuard.canPassGeneration()[0]);
+        const canSkip = useTypedSelector(
+            state => actionGuard.canSkipAction()[0]
+        );
+        const canPass = useTypedSelector(
+            state => actionGuard.canPassGeneration()[0]
+        );
         const isPreludesEnabled = useTypedSelector(isPlayingPrelude);
         const turn = useTypedSelector(state => state.common.turn);
         const generation = useTypedSelector(state => state.common.generation);
@@ -150,8 +176,15 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                     playerIndex={loggedInPlayer.index}
                     border={colors.LIGHT_2}
                 />
-                <Flex alignItems="center" padding="2px" marginRight="4px" flexWrap="wrap">
-                    <CorporationName>{loggedInPlayer.corporation.name}</CorporationName>
+                <Flex
+                    alignItems="center"
+                    padding="2px"
+                    marginRight="4px"
+                    flexWrap="wrap"
+                >
+                    <CorporationName>
+                        {loggedInPlayer.corporation.name}
+                    </CorporationName>
                     <Box display="inline" marginRight="4px">
                         <Box display="inline-block" marginRight="4px">
                             {isLoggedInPlayerPassed && 'You have passed.'}
@@ -166,13 +199,17 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             {!syncing && playing && !yourTurnToPlayPreludes && (
                                 <>Action {action} of 2</>
                             )}
-                            {(!isLoggedInPlayersTurn || !isLoggedInPlayerInControl) &&
+                            {(!isLoggedInPlayersTurn ||
+                                !isLoggedInPlayerInControl) &&
                                 isActiveRound &&
                                 !isLoggedInPlayerPassed && (
                                     <React.Fragment>
                                         <Box
                                             display="inline-block"
-                                            style={{marginRight: 4, color: 'white'}}
+                                            style={{
+                                                marginRight: 4,
+                                                color: 'white',
+                                            }}
                                         >
                                             Waiting for
                                         </Box>
@@ -183,14 +220,19 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                         />
                                         <Box
                                             display="inline-block"
-                                            style={{marginLeft: 0, color: 'white'}}
+                                            style={{
+                                                marginLeft: 0,
+                                                color: 'white',
+                                            }}
                                         >
                                             ...
                                         </Box>
                                     </React.Fragment>
                                 )}
                             {isLoggedInPlayersTurn && isGreeneryPlacement && (
-                                <Box display="inline-block">{greeneryPlacementText}</Box>
+                                <Box display="inline-block">
+                                    {greeneryPlacementText}
+                                </Box>
                             )}
                             {canSkip && (
                                 <Button
@@ -202,7 +244,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             )}
                             {canPass && (
                                 <Button
-                                    onClick={() => apiClient.passGenerationAsync()}
+                                    onClick={() =>
+                                        apiClient.passGenerationAsync()
+                                    }
                                     margin="0 0 0 8px"
                                 >
                                     Pass
@@ -214,7 +258,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                         <Box color="#ddd">
                             {yourTurnMessage}
                             <Link href={yourTurnLink}>
-                                <YourTurnLink href={yourTurnLink}>Click</YourTurnLink>
+                                <YourTurnLink href={yourTurnLink}>
+                                    Click
+                                </YourTurnLink>
                             </Link>
                         </Box>
                     ) : null}

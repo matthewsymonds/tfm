@@ -76,9 +76,11 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
      * Derived state
      */
     const isActiveRound = gameStage === GameStage.ACTIVE_ROUND;
-    const isCorporationSelection = gameStage === GameStage.CORPORATION_SELECTION;
+    const isCorporationSelection =
+        gameStage === GameStage.CORPORATION_SELECTION;
     const isBetweenRounds =
-        gameStage === GameStage.BUY_OR_DISCARD || gameStage === GameStage.DRAFTING;
+        gameStage === GameStage.BUY_OR_DISCARD ||
+        gameStage === GameStage.DRAFTING;
 
     const numCards = player.cards.length;
 
@@ -86,12 +88,16 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
         <CardsInHandMessage>Cards in hand: {numCards}</CardsInHandMessage>
     ) : isBetweenRounds ? (
         <CardsInHandMessage>
-            Cards in hand at the end of last round: {player.previousCardsInHand ?? 0}
+            Cards in hand at the end of last round:{' '}
+            {player.previousCardsInHand ?? 0}
         </CardsInHandMessage>
     ) : null;
 
     return (
-        <OuterWrapper isSelected={isSelected} id={`player-board-${player.index}`}>
+        <OuterWrapper
+            isSelected={isSelected}
+            id={`player-board-${player.index}`}
+        >
             {!isSelected && <NoClickOverlay />}
             <Flex width="100%" justifyContent="space-between">
                 {!isCorporationSelection && playerCardsElement}
@@ -104,10 +110,15 @@ export const PlayerBottomPanel = ({player, isSelected}: PlayerPanelProps) => {
                         tagFilterConfig={tagFilterConfig}
                         setTagFilterConfig={setTagFilterConfig}
                     />
-                    <PlayerPlayedCards player={player} tagFilterConfig={tagFilterConfig} />
+                    <PlayerPlayedCards
+                        player={player}
+                        tagFilterConfig={tagFilterConfig}
+                    />
                 </React.Fragment>
             )}
-            {isCorporationSelection ? <CorporationSelector player={player} /> : null}
+            {isCorporationSelection ? (
+                <CorporationSelector player={player} />
+            ) : null}
         </OuterWrapper>
     );
 };

@@ -1,5 +1,10 @@
 import {TFMSession} from 'check-session';
-import {appendSecurityCookieModifiers, retrieveSession, Session, usersModel} from 'database';
+import {
+    appendSecurityCookieModifiers,
+    retrieveSession,
+    Session,
+    usersModel,
+} from 'database';
 import jwt from 'jsonwebtoken';
 import {NextApiRequest, NextApiResponse} from 'next';
 
@@ -42,7 +47,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             }
 
             const theCookie = appendSecurityCookieModifiers(
-                `session=${generateAccessToken({username: String(user.username)})}`
+                `session=${generateAccessToken({
+                    username: String(user.username),
+                })}`
             );
 
             res.writeHead(200, {
@@ -67,7 +74,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             session = await retrieveSession(req, res);
             if (session) {
                 res.writeHead(200, {
-                    'Set-Cookie': 'session=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+                    'Set-Cookie':
+                        'session=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
                     'Content-Type': 'application/json',
                 });
             }

@@ -4,10 +4,16 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {Box, Flex} from './box';
 import {ColonySwitcher} from './colonies';
 
-export function AskUserToIncreaseAndDecreaseColonyTileTracks({player}: {player: PlayerState}) {
-    const [selectedIncreaseTrackColonies, setSelectedIncreaseTrackColonies] = useState([true]);
+export function AskUserToIncreaseAndDecreaseColonyTileTracks({
+    player,
+}: {
+    player: PlayerState;
+}) {
+    const [selectedIncreaseTrackColonies, setSelectedIncreaseTrackColonies] =
+        useState([true]);
 
-    const [selectedDecreaseTrackColonies, setSelectedDecreaseTrackColonies] = useState([true]);
+    const [selectedDecreaseTrackColonies, setSelectedDecreaseTrackColonies] =
+        useState([true]);
 
     const colonies = useTypedSelector(state => state.common.colonies ?? []);
 
@@ -20,17 +26,26 @@ export function AskUserToIncreaseAndDecreaseColonyTileTracks({player}: {player: 
         player.increaseAndDecreaseColonyTileTracks === 1 ? '' : 's'
     }`;
 
-    const selectedIncreaseColony = colonies[selectedIncreaseTrackColonies.indexOf(true)];
+    const selectedIncreaseColony =
+        colonies[selectedIncreaseTrackColonies.indexOf(true)];
     const selectedDecreaseColony =
-        filteredDecreaseTrackColonies[selectedDecreaseTrackColonies.indexOf(true)];
+        filteredDecreaseTrackColonies[
+            selectedDecreaseTrackColonies.indexOf(true)
+        ];
 
     const noopIncreaseMessage =
         selectedIncreaseColony.step < 0 ? (
-            <em>Note: Increasing {selectedIncreaseColony.name} will have no effect.</em>
+            <em>
+                Note: Increasing {selectedIncreaseColony.name} will have no
+                effect.
+            </em>
         ) : null;
     const noopDecreaseMessage =
         selectedDecreaseColony.step < 0 ? (
-            <em>Note: Decreasing {selectedDecreaseColony.name} will have no effect.</em>
+            <em>
+                Note: Decreasing {selectedDecreaseColony.name} will have no
+                effect.
+            </em>
         ) : null;
 
     const apiClient = useApiClient();
@@ -67,10 +82,12 @@ export function AskUserToIncreaseAndDecreaseColonyTileTracks({player}: {player: 
             <Flex justifyContent="center" marginLeft="auto" marginRight="auto">
                 <button
                     onClick={() => {
-                        apiClient.completeIncreaseAndDecreaseColonyTileTracksAsync({
-                            increase: selectedIncreaseColony.name,
-                            decrease: selectedDecreaseColony.name,
-                        });
+                        apiClient.completeIncreaseAndDecreaseColonyTileTracksAsync(
+                            {
+                                increase: selectedIncreaseColony.name,
+                                decrease: selectedDecreaseColony.name,
+                            }
+                        );
                     }}
                 >
                     Confirm

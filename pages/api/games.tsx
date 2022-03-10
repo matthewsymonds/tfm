@@ -36,7 +36,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 res.json({error: 'Game with that name already exists'});
                 return;
             }
-            const validPlayers = await usersModel.find({username: {$in: players}});
+            const validPlayers = await usersModel.find({
+                username: {$in: players},
+            });
             if (validPlayers.length !== players.length) {
                 res.json({error: 'Not all players found'});
                 return;
@@ -50,7 +52,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             try {
                 await game.save();
             } catch (error) {
-                res.json({error: 'Could not create game, please check fields and try again.'});
+                res.json({
+                    error: 'Could not create game, please check fields and try again.',
+                });
                 return;
             }
             res.json({game});

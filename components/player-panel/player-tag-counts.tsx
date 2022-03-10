@@ -9,11 +9,16 @@ import {getTagCountsByName} from 'selectors/player';
 import {SerializedPlayerState} from 'state-serialization';
 import styled from 'styled-components';
 
-const TagButton = styled(BlankButton)<{isSelected: boolean; allSelected: boolean}>`
+const TagButton = styled(BlankButton)<{
+    isSelected: boolean;
+    allSelected: boolean;
+}>`
     border-radius: 9999px; // pill
     padding: 4px;
     background-color: ${props =>
-        !props.allSelected && props.isSelected ? colors.CARD_BORDER_1 : 'inherit'};
+        !props.allSelected && props.isSelected
+            ? colors.CARD_BORDER_1
+            : 'inherit'};
     opacity: ${props => (props.isSelected || props.allSelected ? 1 : 0.4)};
     cursor: default;
     transition: opacity 150ms;
@@ -76,16 +81,28 @@ function PlayerTagCounts({
     const {filterMode, filteredTags} = tagFilterConfig;
     const toggleTag = useCallback(
         tag => {
-            if ([TagFilterMode.ALL, TagFilterMode.BLUE, TagFilterMode.GREEN].includes(filterMode)) {
+            if (
+                [
+                    TagFilterMode.ALL,
+                    TagFilterMode.BLUE,
+                    TagFilterMode.GREEN,
+                ].includes(filterMode)
+            ) {
                 // if there's only one tag, don't do anything
                 if (Object.keys(tagCountsByName).length === 1) return;
                 // If everything is selected and user clicks a tag, assume they
                 // want to filter to see JUST that tag
-                setTagFilterConfig({filterMode: TagFilterMode.SUBSET, filteredTags: [tag]});
+                setTagFilterConfig({
+                    filterMode: TagFilterMode.SUBSET,
+                    filteredTags: [tag],
+                });
             } else if (filteredTags.length === 1 && filteredTags[0] === tag) {
                 // if only one tag is selected and user clicks it again, assume they
                 // want to go back to all
-                setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []});
+                setTagFilterConfig({
+                    filterMode: TagFilterMode.ALL,
+                    filteredTags: [],
+                });
             } else {
                 // Otherwise, just toggle the tag state
                 if (filteredTags.includes(tag)) {
@@ -94,7 +111,10 @@ function PlayerTagCounts({
                         filteredTags: filteredTags.filter(t => t !== tag),
                     });
                 } else {
-                    if (filteredTags.length + 1 === Object.keys(tagCountsByName).length) {
+                    if (
+                        filteredTags.length + 1 ===
+                        Object.keys(tagCountsByName).length
+                    ) {
                         // if they've selected all the tags, go back to all mode
                         setTagFilterConfig({
                             filterMode: TagFilterMode.ALL,
@@ -114,11 +134,19 @@ function PlayerTagCounts({
     );
 
     return (
-        <Flex margin="8px 0" alignItems="center" justifyContent="space-between" width="100%">
+        <Flex
+            margin="8px 0"
+            alignItems="center"
+            justifyContent="space-between"
+            width="100%"
+        >
             <Flex flexWrap="wrap" flexShrink="0">
                 <AllButton
                     onClick={() =>
-                        setTagFilterConfig({filterMode: TagFilterMode.ALL, filteredTags: []})
+                        setTagFilterConfig({
+                            filterMode: TagFilterMode.ALL,
+                            filteredTags: [],
+                        })
                     }
                     isEnabled={filterMode === TagFilterMode.ALL}
                 >
@@ -126,7 +154,10 @@ function PlayerTagCounts({
                 </AllButton>
                 <AllButton
                     onClick={() =>
-                        setTagFilterConfig({filterMode: TagFilterMode.BLUE, filteredTags: []})
+                        setTagFilterConfig({
+                            filterMode: TagFilterMode.BLUE,
+                            filteredTags: [],
+                        })
                     }
                     isEnabled={filterMode === TagFilterMode.BLUE}
                 >
@@ -134,7 +165,10 @@ function PlayerTagCounts({
                 </AllButton>
                 <AllButton
                     onClick={() =>
-                        setTagFilterConfig({filterMode: TagFilterMode.GREEN, filteredTags: []})
+                        setTagFilterConfig({
+                            filterMode: TagFilterMode.GREEN,
+                            filteredTags: [],
+                        })
                     }
                     isEnabled={filterMode === TagFilterMode.GREEN}
                 >

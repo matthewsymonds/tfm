@@ -7,7 +7,11 @@ import styled from 'styled-components';
 
 export const PRODUCTION_PADDING = 6;
 
-const ProductionIconBase = styled.div<{size: number; paddingSize: number; margin: string | number}>`
+const ProductionIconBase = styled.div<{
+    size: number;
+    paddingSize: number;
+    margin: string | number;
+}>`
     background-color: ${colors.PRODUCTION_BG};
     display: flex;
     align-items: center;
@@ -16,7 +20,8 @@ const ProductionIconBase = styled.div<{size: number; paddingSize: number; margin
     width: ${props => props.size}px;
     padding: ${props => props.paddingSize}px;
     box-sizing: border-box;
-    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
+    margin: ${props =>
+        typeof props.margin === 'string' ? props.margin : `${props.margin}px`};
 `;
 
 export const ProductionIcon = ({
@@ -31,7 +36,11 @@ export const ProductionIcon = ({
     margin?: string | number;
 }) => {
     return (
-        <ProductionIconBase size={size} paddingSize={paddingSize} margin={margin}>
+        <ProductionIconBase
+            size={size}
+            paddingSize={paddingSize}
+            margin={margin}
+        >
             <ResourceIcon
                 border={getResourceBorder(name)}
                 name={name}

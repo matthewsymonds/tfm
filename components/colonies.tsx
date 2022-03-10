@@ -19,9 +19,18 @@ export function ColonySwitcher({
 }) {
     return (
         <>
-            <ColonyPicker {...{colonies, setSelectedColonies, selectedColonies, allowMulti}} />
+            <ColonyPicker
+                {...{
+                    colonies,
+                    setSelectedColonies,
+                    selectedColonies,
+                    allowMulti,
+                }}
+            />
             {selectedColonies.map((selected, index) => {
-                return selected ? <ColonyComponent colony={colonies[index]} key={index} /> : null;
+                return selected ? (
+                    <ColonyComponent colony={colonies[index]} key={index} />
+                ) : null;
             })}
         </>
     );
@@ -53,7 +62,11 @@ function ColonyPicker({
 
                 return (
                     <Box
-                        cursor={!allowMulti && selectedColonies[index] ? 'auto' : 'pointer'}
+                        cursor={
+                            !allowMulti && selectedColonies[index]
+                                ? 'auto'
+                                : 'pointer'
+                        }
                         key={colony.name}
                         padding="8px"
                         marginRight="8px"
@@ -62,14 +75,22 @@ function ColonyPicker({
                         background="#333"
                         borderRadius="12px"
                         boxShadow={
-                            selectedColonies[index] ? `${BOX_SHADOW_BASE} ${planetColor}` : 'none'
+                            selectedColonies[index]
+                                ? `${BOX_SHADOW_BASE} ${planetColor}`
+                                : 'none'
                         }
                         onClick={event => {
                             const newSelectedColonies =
-                                event.shiftKey && allowMulti ? [...selectedColonies] : [];
-                            newSelectedColonies[index] = !newSelectedColonies[index];
+                                event.shiftKey && allowMulti
+                                    ? [...selectedColonies]
+                                    : [];
+                            newSelectedColonies[index] =
+                                !newSelectedColonies[index];
                             // ensure at least one colony selected.
-                            if (newSelectedColonies.every(selected => !selected)) return;
+                            if (
+                                newSelectedColonies.every(selected => !selected)
+                            )
+                                return;
 
                             setSelectedColonies(newSelectedColonies);
                         }}

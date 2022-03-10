@@ -221,7 +221,12 @@ type TabsProps = Pick<
     'tabs' | 'selectedTabIndex' | 'setSelectedTabIndex' | 'tabType'
 >;
 
-export const Tabs = ({tabs, selectedTabIndex, setSelectedTabIndex, tabType}: TabsProps) => {
+export const Tabs = ({
+    tabs,
+    selectedTabIndex,
+    setSelectedTabIndex,
+    tabType,
+}: TabsProps) => {
     return (
         <Flex marginLeft="8px" position="relative" bottom="-2px">
             {tabs.map((tab, index) => {
@@ -262,7 +267,8 @@ const TabLabel = styled.label<{isSelected: boolean}>`
     border-width: 2px;
     border-style: solid;
 
-    border-bottom-color: ${props => (props.isSelected ? colors.MAIN_BG : colors.PANEL_BORDER)};
+    border-bottom-color: ${props =>
+        props.isSelected ? colors.MAIN_BG : colors.PANEL_BORDER};
     background-color: ${colors.MAIN_BG};
     opacity: ${props => (props.isSelected ? 1 : 0.5)};
 `;

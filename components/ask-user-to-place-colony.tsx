@@ -12,7 +12,11 @@ export function AskUserToPlaceColony({player}: {player: PlayerState}) {
 
     const choiceButtons = colonies
         .filter(colony => {
-            const [canBuild] = canPlaceColony(colony, player.index, player.placeColony);
+            const [canBuild] = canPlaceColony(
+                colony,
+                player.index,
+                player.placeColony
+            );
             return canBuild;
         })
         .map(colony => {

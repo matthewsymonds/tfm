@@ -1,7 +1,10 @@
 import {Flex} from 'components/box';
 import {CardContext} from 'components/card/Card';
 import {CardTextToken, MiniatureCard} from 'components/card/CardToken';
-import {TagFilterConfig, TagFilterMode} from 'components/player-panel/player-tag-counts';
+import {
+    TagFilterConfig,
+    TagFilterMode,
+} from 'components/player-panel/player-tag-counts';
 import {CardType} from 'constants/card-types';
 import {Tag} from 'constants/tag';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -44,10 +47,15 @@ function PlayerPlayedCards({
                       return false;
                   }
                   // special case the "No tag"
-                  if (filteredTags.includes(Tag.NONE) && hydratedCard.tags.length === 0) {
+                  if (
+                      filteredTags.includes(Tag.NONE) &&
+                      hydratedCard.tags.length === 0
+                  ) {
                       return true;
                   }
-                  return hydratedCard.tags.some(cardTag => filteredTags.includes(cardTag));
+                  return hydratedCard.tags.some(cardTag =>
+                      filteredTags.includes(cardTag)
+                  );
               });
 
     let activeCards: Array<Card> = [];
@@ -105,7 +113,9 @@ function PlayerPlayedCards({
                                 key={
                                     isLoggedInPlayer
                                         ? card.name
-                                        : player.username + '-event-' + eventIndex++
+                                        : player.username +
+                                          '-event-' +
+                                          eventIndex++
                                 }
                                 showCardOnHover={!!card.name}
                                 shouldUseFullWidth={true}

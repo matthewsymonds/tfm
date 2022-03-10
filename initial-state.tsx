@@ -35,14 +35,19 @@ function DEV_cardOverrides() {
 function DEV_corporationOverrides() {
     const cardOverrides: Array<string> = [];
     return cards.filter(card => {
-        return cardOverrides.includes(card.name) && card.type === CardType.CORPORATION;
+        return (
+            cardOverrides.includes(card.name) &&
+            card.type === CardType.CORPORATION
+        );
     });
 }
 
 function DEV_preludeOverides() {
     const cardOverrides: Array<string> = [];
     return cards.filter(card => {
-        return cardOverrides.includes(card.name) && card.type === CardType.PRELUDE;
+        return (
+            cardOverrides.includes(card.name) && card.type === CardType.PRELUDE
+        );
     });
 }
 
@@ -58,8 +63,14 @@ export function sample<T>(cards: T[], num: number) {
     return result;
 }
 
-export function getInitialState(players: string[], options: GameOptions, name: string): GameState {
-    const possibleCards = cards.filter(card => options.decks.includes(card.deck));
+export function getInitialState(
+    players: string[],
+    options: GameOptions,
+    name: string
+): GameState {
+    const possibleCards = cards.filter(card =>
+        options.decks.includes(card.deck)
+    );
 
     shuffle(possibleCards);
 
@@ -68,7 +79,11 @@ export function getInitialState(players: string[], options: GameOptions, name: s
         .map(card => ({name: card.name}));
 
     const deck = possibleCards
-        .filter(card => card.type !== CardType.CORPORATION && card.type !== CardType.PRELUDE)
+        .filter(
+            card =>
+                card.type !== CardType.CORPORATION &&
+                card.type !== CardType.PRELUDE
+        )
         .map(card => ({name: card.name}));
     const preludes = possibleCards
         .filter(card => card.type === CardType.PRELUDE)
@@ -103,7 +118,9 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             claimedMilestones: [],
             fundedAwards: [],
             turmoil: undefined,
-            colonies: isColoniesEnabled ? getStartingColonies(players.length) : [],
+            colonies: isColoniesEnabled
+                ? getStartingColonies(players.length)
+                : [],
         },
         players: [] as PlayerState[],
         options,
@@ -112,7 +129,9 @@ export function getInitialState(players: string[], options: GameOptions, name: s
     shuffle(players);
 
     for (const player of players) {
-        let possibleCorporations = sample(allCorporations, 2).concat(DEV_corporationOverrides());
+        let possibleCorporations = sample(allCorporations, 2).concat(
+            DEV_corporationOverrides()
+        );
 
         if (options.soloCorporationName && players.length === 1) {
             const corporationsToFind = options.soloCorporationName
@@ -121,7 +140,8 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             let matchingCorporations: Array<{name: string}> = [];
             for (const corporation of corporationsToFind) {
                 const matchingCorporation = allCorporations.find(
-                    corp => corp.name.toLowerCase() === corporation.toLowerCase()
+                    corp =>
+                        corp.name.toLowerCase() === corporation.toLowerCase()
                 );
                 if (matchingCorporation) {
                     matchingCorporations.push(matchingCorporation);
@@ -139,6 +159,7 @@ export function getInitialState(players: string[], options: GameOptions, name: s
         const fullPlayer: PlayerState = {
             // 0 for card selection, 1 / 2 for active round
             action: 0,
+            notes: 'Put your notes here',
             username: player,
             index: base.players.length,
             terraformRating: 20,
@@ -157,8 +178,10 @@ export function getInitialState(players: string[], options: GameOptions, name: s
             ),
             resources: initialResources(),
             productions: initialResources(Number(options.decks.length === 1)),
-            parameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
-            temporaryParameterRequirementAdjustments: zeroParameterRequirementAdjustments(),
+            parameterRequirementAdjustments:
+                zeroParameterRequirementAdjustments(),
+            temporaryParameterRequirementAdjustments:
+                zeroParameterRequirementAdjustments(),
             cardCost: 3,
             exchangeRates: {
                 [Resource.STEEL]: 2,
@@ -198,7 +221,9 @@ export function getInitialState(players: string[], options: GameOptions, name: s
         base.common.turmoil = initializeTurmoil(base.players);
     }
 
-    base.common.playerIndexOrderForGeneration = base.players.map(player => player.index);
+    base.common.playerIndexOrderForGeneration = base.players.map(
+        player => player.index
+    );
 
     return base;
 }

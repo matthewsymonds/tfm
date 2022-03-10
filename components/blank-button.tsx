@@ -25,7 +25,8 @@ export const BlankButton = styled.button<{
     }
 
     &:hover {
-        ${props => (props.bgColorHover ? `background: ${props.bgColorHover};` : '')}
+        ${props =>
+            props.bgColorHover ? `background: ${props.bgColorHover};` : ''}
     }
 
     &:focus {
@@ -34,6 +35,7 @@ export const BlankButton = styled.button<{
     }
 
     &:active:not([disabled]) {
-        ${props => (props.scaleOnClick === false ? '' : 'transform: scale(0.95);')}
+        ${props =>
+            props.scaleOnClick === false ? '' : 'transform: scale(0.95);'}
     }
 `;

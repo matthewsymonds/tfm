@@ -29,4 +29,5 @@ export enum ApiActionType {
     API_DO_RULING_POLICY_ACTION = 'apiDoRulingPolicyAction',
     API_COMPLETE_CHOOSE_NEXT_ACTION = 'apiCompleteChooseNextAction',
     API_START_OVER = 'apiStartOver',
+    API_SET_NOTES = 'apiSetNotes',
 }

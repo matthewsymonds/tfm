@@ -11,7 +11,8 @@ const HexagonBase = styled.div<HexagonProps>`
 
     &:hover {
         &:before {
-            background: ${props => (props.selectable ? 'dimgray' : props.color)};
+            background: ${props =>
+                props.selectable ? 'dimgray' : props.color};
         }
     }
 
@@ -22,7 +23,14 @@ const HexagonBase = styled.div<HexagonProps>`
         height: 100%;
         width: 100%;
         background-color: ${props => (props.selectable ? '#888' : props.color)};
-        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        clip-path: polygon(
+            50% 0%,
+            100% 25%,
+            100% 75%,
+            50% 100%,
+            0% 75%,
+            0% 25%
+        );
     }
 
     & > * {

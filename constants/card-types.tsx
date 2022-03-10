@@ -92,7 +92,9 @@ type MaximumGlobalParameter = {
     max: number;
 };
 
-export type RequiredGlobalParameter = MinimumGlobalParameter | MaximumGlobalParameter;
+export type RequiredGlobalParameter =
+    | MinimumGlobalParameter
+    | MaximumGlobalParameter;
 
 export enum Deck {
     BASIC,

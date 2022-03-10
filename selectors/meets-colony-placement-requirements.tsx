@@ -13,5 +13,7 @@ export function meetsColonyPlacementRequirements(
     }
 
     const colonies = state.common?.colonies ?? [];
-    return colonies.some(colony => canPlaceColony(colony, player.index, action.placeColony)[0]);
+    return colonies.some(
+        colony => canPlaceColony(colony, player.index, action.placeColony)[0]
+    );
 }

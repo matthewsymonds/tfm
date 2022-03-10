@@ -46,14 +46,27 @@ export function ScorePopover({children, playerIndex}: Props) {
     const terraformRating = player.terraformRating;
     const visibleCardScore = useTypedSelector(state =>
         getVisiblePlayedCards(player).reduce((total, card) => {
-            return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
+            return (
+                total +
+                getCardVictoryPoints(card.victoryPoints, state, player, card)
+            );
         }, 0)
     );
-    const greeneryScore = useTypedSelector(state => getGreeneryScore(state, playerIndex));
-    const citiesScore = useTypedSelector(state => getCityScore(state, playerIndex));
-    const milestoneScore = useTypedSelector(state => getMilestoneScore(state, playerIndex));
-    const awardScore = useTypedSelector(state => getAwardScore(state, playerIndex));
-    const turmoilScore = useTypedSelector(state => getTurmoilEndOfGameScore(state, playerIndex));
+    const greeneryScore = useTypedSelector(state =>
+        getGreeneryScore(state, playerIndex)
+    );
+    const citiesScore = useTypedSelector(state =>
+        getCityScore(state, playerIndex)
+    );
+    const milestoneScore = useTypedSelector(state =>
+        getMilestoneScore(state, playerIndex)
+    );
+    const awardScore = useTypedSelector(state =>
+        getAwardScore(state, playerIndex)
+    );
+    const turmoilScore = useTypedSelector(state =>
+        getTurmoilEndOfGameScore(state, playerIndex)
+    );
 
     const playingTurmoil = useTypedSelector(state => isPlayingTurmoil(state));
 

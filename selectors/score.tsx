@@ -27,7 +27,10 @@ export function getCityScore(state: GameState, playerIndex: number) {
     }, 0);
 }
 
-export function getTurmoilEndOfGameScore(state: GameState, playerIndex: number) {
+export function getTurmoilEndOfGameScore(
+    state: GameState,
+    playerIndex: number
+) {
     const {turmoil} = state.common;
     if (!turmoil) return 0;
 
@@ -47,7 +50,8 @@ export function getTurmoilEndOfGameScore(state: GameState, playerIndex: number) 
 export function getMilestoneScore(state: GameState, playerIndex: number) {
     return (
         state.common.claimedMilestones.filter(
-            claimedMilestone => claimedMilestone.claimedByPlayerIndex === playerIndex
+            claimedMilestone =>
+                claimedMilestone.claimedByPlayerIndex === playerIndex
         ).length * 5
     );
 }
@@ -69,7 +73,9 @@ export function getPlayerVenusTags(player: PlayerState) {
 }
 
 export function getPlayerSteelAndTitanium(player: PlayerState) {
-    return player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM];
+    return (
+        player.resources[Resource.STEEL] + player.resources[Resource.TITANIUM]
+    );
 }
 
 export function getAwardScore(state: GameState, playerIndex: number) {
@@ -99,25 +105,37 @@ export function getAwardScore(state: GameState, playerIndex: number) {
         if (firstPlaceQuantity === 0) {
             return;
         }
-        const numWinners = awardScores.filter(a => a.quantity === firstPlaceQuantity).length;
+        const numWinners = awardScores.filter(
+            a => a.quantity === firstPlaceQuantity
+        ).length;
         const secondPlaceQuantity = awardScores
             .map(a => (a.quantity === firstPlaceQuantity ? 0 : a.quantity))
             .sort((a, b) => b - a)[0];
         const shouldScoreFirstPlace = firstPlaceQuantity > 0;
         const shouldScoreSecondPlace =
-            numWinners === 1 && state.players.length > 2 && secondPlaceQuantity > 0;
+            numWinners === 1 &&
+            state.players.length > 2 &&
+            secondPlaceQuantity > 0;
         awardScores.forEach(awardScore => {
-            if (awardScore.quantity === firstPlaceQuantity && shouldScoreFirstPlace) {
+            if (
+                awardScore.quantity === firstPlaceQuantity &&
+                shouldScoreFirstPlace
+            ) {
                 awardScore.score = 5;
             }
-            if (awardScore.quantity === secondPlaceQuantity && shouldScoreSecondPlace) {
+            if (
+                awardScore.quantity === secondPlaceQuantity &&
+                shouldScoreSecondPlace
+            ) {
                 awardScore.score = 2;
             }
         });
 
         const awardScore = awardScores.find(a => a.playerIndex === playerIndex);
         if (!awardScore) {
-            throw new Error('could not find player when calculating award score');
+            throw new Error(
+                'could not find player when calculating award score'
+            );
         }
         awardScoreTotal += awardScore.score;
     });

@@ -8,7 +8,10 @@ export function canPlaceColony(
     placeColony?: PlaceColony
 ): CanPlayAndReason {
     if (colony.colonies.length === MAX_NUM_COLONIES) {
-        return [false, `${MAX_NUM_COLONIES} colonies have already been built here`];
+        return [
+            false,
+            `${MAX_NUM_COLONIES} colonies have already been built here`,
+        ];
     }
 
     if (!placeColony) {
@@ -16,10 +19,16 @@ export function canPlaceColony(
     }
 
     if (colony.step < 0) {
-        return [false, 'Cannot place a colony until this Colony Tile is online'];
+        return [
+            false,
+            'Cannot place a colony until this Colony Tile is online',
+        ];
     }
 
-    if (!placeColony.mayBeRepeatColony && colony.colonies.indexOf(playerIndex) >= 0) {
+    if (
+        !placeColony.mayBeRepeatColony &&
+        colony.colonies.indexOf(playerIndex) >= 0
+    ) {
         return [false, 'Player may not build another colony here'];
     }
 

@@ -6,10 +6,13 @@ import {Box, Flex} from './box';
 import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
 
-export const ChoiceWrapper = styled.div<{orientation: 'horizontal' | 'vertical'}>`
+export const ChoiceWrapper = styled.div<{
+    orientation: 'horizontal' | 'vertical';
+}>`
     display: flex;
     width: 100%;
-    flex-direction: ${props => (props.orientation === 'horizontal' ? 'row' : 'column')};
+    flex-direction: ${props =>
+        props.orientation === 'horizontal' ? 'row' : 'column'};
     flex-wrap: wrap;
 `;
 
@@ -27,7 +30,11 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken card={playedCard} showCardOnHover={true} absoluteOffset={-68} />
+                <CardTextToken
+                    card={playedCard}
+                    showCardOnHover={true}
+                    absoluteOffset={-68}
+                />
                 <span>which triggered</span>
                 <CardTextToken card={card} showCardOnHover={true} />
             </Box>
@@ -36,14 +43,22 @@ export function AskUserToMakeChoice(props: {
         triggerDetails = (
             <Box marginBottom="8px" display="flex" alignItems="center">
                 <span>You played</span>
-                <CardTextToken card={card} showCardOnHover={true} absoluteOffset={-68} />
+                <CardTextToken
+                    card={card}
+                    showCardOnHover={true}
+                    absoluteOffset={-68}
+                />
             </Box>
         );
     } else {
         triggerDetails = null;
     }
     return (
-        <Flex width="100%" flexDirection="column" style={{color: colors.TEXT_LIGHT_1}}>
+        <Flex
+            width="100%"
+            flexDirection="column"
+            style={{color: colors.TEXT_LIGHT_1}}
+        >
             {triggerDetails}
             <ChoiceWrapper orientation={orientation}>{children}</ChoiceWrapper>
         </Flex>

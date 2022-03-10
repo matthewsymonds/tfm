@@ -19,13 +19,19 @@ import {
 import {Payment} from 'constants/action';
 import {Cell} from 'constants/board';
 import {Conversion} from 'constants/conversion';
-import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
+import {
+    NumericPropertyCounter,
+    PropertyCounter,
+} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectAction} from 'constants/standard-project';
 import {batch} from 'react-redux';
 import {toast} from 'react-toastify';
 import {AnyAction, Store} from 'redux';
-import {ApiActionHandler, SupplementalResources} from 'server/api-action-handler';
+import {
+    ApiActionHandler,
+    SupplementalResources,
+} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 
 export class ApiClient implements GameActionHandler {
@@ -98,7 +104,12 @@ export class ApiClient implements GameActionHandler {
         batch(() => {
             this.store.dispatch(setIsSyncing());
             try {
-                playGame(type, payload, this.actionHandler, this.actionHandler.state);
+                playGame(
+                    type,
+                    payload,
+                    this.actionHandler,
+                    this.actionHandler.state
+                );
             } catch (error) {
                 this.logError(error, payload, type);
             }
@@ -156,7 +167,11 @@ export class ApiClient implements GameActionHandler {
         return `/api/games/${gameName}/play`;
     }
 
-    private async logError(error: Error | unknown, payload: Object, type: ApiActionType) {
+    private async logError(
+        error: Error | unknown,
+        payload: Object,
+        type: ApiActionType
+    ) {
         try {
             const apiPath = '/api/log-error';
             let errorString = '';
@@ -178,7 +193,10 @@ export class ApiClient implements GameActionHandler {
             });
             toast(<div>{errorString}</div>);
         } catch (error) {
-            console.log('there was an error while attempting to log error', error);
+            console.log(
+                'there was an error while attempting to log error',
+                error
+            );
         }
     }
 
@@ -220,7 +238,10 @@ export class ApiClient implements GameActionHandler {
             payment,
         };
 
-        await this.makeApiCall(ApiActionType.API_PLAY_STANDARD_PROJECT, payload);
+        await this.makeApiCall(
+            ApiActionType.API_PLAY_STANDARD_PROJECT,
+            payload
+        );
     }
 
     async claimMilestoneAsync(payload: {
@@ -269,14 +290,24 @@ export class ApiClient implements GameActionHandler {
             option: serializedOption,
             variableAmount,
         };
-        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS,
+            payload
+        );
     }
 
     async skipChooseResourceActionDetailsAsync() {
-        await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS, {});
+        await this.makeApiCall(
+            ApiActionType.API_SKIP_CHOOSE_RESOURCE_ACTION_DETAILS,
+            {}
+        );
     }
 
-    async completeDuplicateProductionAsync({card}: {card: SerializedCard}): Promise<void> {}
+    async completeDuplicateProductionAsync({
+        card,
+    }: {
+        card: SerializedCard;
+    }): Promise<void> {}
 
     async confirmCardSelectionAsync({
         selectedCards,
@@ -295,32 +326,54 @@ export class ApiClient implements GameActionHandler {
             corporation: {name: corporation.name},
             payment,
         };
-        await this.makeApiCall(ApiActionType.API_CONFIRM_CARD_SELECTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_CONFIRM_CARD_SELECTION,
+            payload
+        );
     }
 
     async continueAfterRevealingCardsAsync() {
         const payload = {};
-        await this.makeApiCall(ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS, payload);
+        await this.makeApiCall(
+            ApiActionType.API_CONTINUE_AFTER_REVEALING_CARDS,
+            payload
+        );
     }
 
     async completeChooseDuplicateProductionAsync(index: number) {
         const payload = {index};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_CHOOSE_DUPLICATE_PRODUCTION,
+            payload
+        );
     }
 
     async skipChooseDuplicateProductionAsync() {
         const payload = {};
-        await this.makeApiCall(ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_SKIP_CHOOSE_DUPLICATE_PRODUCTION,
+            payload
+        );
     }
 
     async increaseLowestProductionAsync({production}: {production: Resource}) {
         const payload = {production};
-        await this.makeApiCall(ApiActionType.API_INCREASE_LOWEST_PRODUCTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_INCREASE_LOWEST_PRODUCTION,
+            payload
+        );
     }
 
-    async gainStandardResourcesAsync({resources}: {resources: NumericPropertyCounter<Resource>}) {
+    async gainStandardResourcesAsync({
+        resources,
+    }: {
+        resources: NumericPropertyCounter<Resource>;
+    }) {
         const payload = {resources};
-        await this.makeApiCall(ApiActionType.API_GAIN_STANDARD_RESOURCES, payload);
+        await this.makeApiCall(
+            ApiActionType.API_GAIN_STANDARD_RESOURCES,
+            payload
+        );
     }
 
     async tradeAsync({
@@ -338,14 +391,23 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_TRADE, payload);
     }
 
-    async tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
+    async tradeForFreeAsync({
+        colony,
+        tradeIncome,
+    }: {
+        colony: string;
+        tradeIncome: number;
+    }) {
         const payload = {colony, tradeIncome};
         await this.makeApiCall(ApiActionType.API_TRADE_FOR_FREE, payload);
     }
 
     async completePlaceColonyAsync({colony}: {colony: string}) {
         const payload = {colony};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_BUILD_COLONY, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_BUILD_COLONY,
+            payload
+        );
     }
 
     async completeIncreaseAndDecreaseColonyTileTracksAsync({
@@ -362,7 +424,11 @@ export class ApiClient implements GameActionHandler {
         );
     }
 
-    async completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}) {
+    async completePutAdditionalColonyTileIntoPlayAsync({
+        colony,
+    }: {
+        colony: string;
+    }) {
         const payload = {colony};
         await this.makeApiCall(
             ApiActionType.API_COMPLETE_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
@@ -370,9 +436,15 @@ export class ApiClient implements GameActionHandler {
         );
     }
 
-    async completeChooseNextActionAsync(actionIndex: number, payment?: Payment) {
+    async completeChooseNextActionAsync(
+        actionIndex: number,
+        payment?: Payment
+    ) {
         const payload = {actionIndex, payment};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_CHOOSE_NEXT_ACTION,
+            payload
+        );
     }
 
     async lobbyAsync(party: string, payment: Payment) {
@@ -390,21 +462,35 @@ export class ApiClient implements GameActionHandler {
 
     async completePlaceDelegatesInOnePartyAsync(party: string) {
         const payload = {party};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_PLACE_DELEGATE_IN_ONE_PARTY, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_PLACE_DELEGATE_IN_ONE_PARTY,
+            payload
+        );
     }
 
     async completeRemoveNonLeaderDelegateAsync(party: string, index: number) {
         const payload = {party, index};
-        await this.makeApiCall(ApiActionType.API_COMPLETE_REMOVE_NON_LEADER_DELEGATE, payload);
+        await this.makeApiCall(
+            ApiActionType.API_COMPLETE_REMOVE_NON_LEADER_DELEGATE,
+            payload
+        );
     }
 
     async doRulingPolicyActionAsync(payment: Payment) {
         const payload = {payment};
-        await this.makeApiCall(ApiActionType.API_DO_RULING_POLICY_ACTION, payload);
+        await this.makeApiCall(
+            ApiActionType.API_DO_RULING_POLICY_ACTION,
+            payload
+        );
     }
 
     async startOverAsync() {
         const payload = {};
         await this.makeApiCall(ApiActionType.API_START_OVER, payload);
+    }
+
+    async setNotesAsync(notes: string) {
+        const payload = {notes};
+        await this.makeApiCall(ApiActionType.API_SET_NOTES, payload);
     }
 }

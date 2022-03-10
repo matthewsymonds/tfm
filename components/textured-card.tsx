@@ -98,7 +98,11 @@ const TexturedCard = React.forwardRef<HTMLDivElement, TexturedCardProps>(
                 className={className}
             >
                 <CardTexture borderRadius={borderRadius}>
-                    <Flex position="relative" height="100%" flexDirection="column">
+                    <Flex
+                        position="relative"
+                        height="100%"
+                        flexDirection="column"
+                    >
                         {children}
                     </Flex>
                 </CardTexture>

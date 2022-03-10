@@ -13,6 +13,7 @@ import {PendingChoice, Resources} from './reducer';
 
 export type BasePlayerState = {
     index: number;
+    notes: string;
     // For UNMI
     terraformedThisGeneration?: boolean;
     mostRecentProductionDecrease?: Resource;

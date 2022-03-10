@@ -98,7 +98,9 @@ export function getAllPlayedCardsWithTagThatHoldResource(
     });
 }
 
-export function getAllPlayedCardsWithNonZeroStorableResource(player: PlayerState) {
+export function getAllPlayedCardsWithNonZeroStorableResource(
+    player: PlayerState
+) {
     return getPlayedCards(player).filter(card => card.storedResourceAmount);
 }
 
@@ -161,13 +163,27 @@ export function getAllowedCardsForResourceAction({
             return [];
         }
         case ResourceLocationType.JOVIAN_CARD:
-            return getAllPlayedCardsWithTagThatHoldResource(player, Tag.JOVIAN, resource);
+            return getAllPlayedCardsWithTagThatHoldResource(
+                player,
+                Tag.JOVIAN,
+                resource
+            );
         case ResourceLocationType.VENUS_CARD:
-            return getAllPlayedCardsWithTagThatHoldResource(player, Tag.VENUS, resource);
+            return getAllPlayedCardsWithTagThatHoldResource(
+                player,
+                Tag.VENUS,
+                resource
+            );
         case ResourceLocationType.ANY_CARD:
             const result: Card[] = [];
             for (const thisPlayer of players) {
-                result.push(...getAllPlayedCardsThatHoldResource(player, thisPlayer, resource));
+                result.push(
+                    ...getAllPlayedCardsThatHoldResource(
+                        player,
+                        thisPlayer,
+                        resource
+                    )
+                );
             }
             return result;
         case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
@@ -179,7 +195,9 @@ export function getAllowedCardsForResourceAction({
         case ResourceLocationType.ANY_PLAYER:
         case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
-            throw new Error('Unsupported resource location type for card selection');
+            throw new Error(
+                'Unsupported resource location type for card selection'
+            );
         default:
             throw spawnExhaustiveSwitchError(resourceLocationType);
     }

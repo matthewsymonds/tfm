@@ -109,18 +109,24 @@ export const standardProjectActions: StandardProjectAction[] = [
     },
 ];
 
-export function getStandardProjects(state: GameState): Array<StandardProjectAction> {
+export function getStandardProjects(
+    state: GameState
+): Array<StandardProjectAction> {
     const venus = state.options?.decks.includes(Deck.VENUS);
     const colonies = state.options?.decks.includes(Deck.VENUS);
 
     let actions = [...standardProjectActions];
 
     if (!venus) {
-        actions = actions.filter(action => action.type !== StandardProjectType.VENUS);
+        actions = actions.filter(
+            action => action.type !== StandardProjectType.VENUS
+        );
     }
 
     if (!colonies) {
-        actions = actions.filter(action => action.type !== StandardProjectType.COLONY);
+        actions = actions.filter(
+            action => action.type !== StandardProjectType.COLONY
+        );
     }
 
     return actions;

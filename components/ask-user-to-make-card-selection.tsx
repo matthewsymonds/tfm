@@ -55,7 +55,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         setSelectedCards([]);
     }, [gameName]);
     const {possiblePreludes, possibleCorporations} = player;
-    const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>([]);
+    const [selectedPreludes, setSelectedPreludes] = useState<SerializedCard[]>(
+        []
+    );
     const players = useTypedSelector(state => state.players);
     const numPlayers = players.length;
 
@@ -63,7 +65,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
     const isDrafting = useTypedSelector(state => isDraftingSelector(state));
     const isSyncing = useTypedSelector(state => state.syncing);
-    const isMakingRequest = useTypedSelector(state => state.isMakingPlayRequest);
+    const isMakingRequest = useTypedSelector(
+        state => state.isMakingPlayRequest
+    );
 
     const playerBudget = useTypedSelector(state => getMoney(state, player));
     const totalCostOfCards = selectedCards.length * (player.cardCost ?? 3);
@@ -76,9 +80,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     let maxCards: number;
     let minCards: number;
     const passPlayer = useTypedSelector(state => {
-        let passTargetIndex = state.common.generation % 2 ? player.index + 1 : player.index - 1;
-        passTargetIndex = passTargetIndex < 0 ? state.players.length - 1 : passTargetIndex;
-        passTargetIndex = passTargetIndex >= state.players.length ? 0 : passTargetIndex;
+        let passTargetIndex =
+            state.common.generation % 2 ? player.index + 1 : player.index - 1;
+        passTargetIndex =
+            passTargetIndex < 0 ? state.players.length - 1 : passTargetIndex;
+        passTargetIndex =
+            passTargetIndex >= state.players.length ? 0 : passTargetIndex;
         return state.players[passTargetIndex];
     });
 
@@ -87,7 +94,10 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         cardSelectionSubtitle = (
             <Flex marginBottom="16px" marginLeft="8px" alignItems="center">
                 <span style={{marginRight: 4}}>Passing to</span>
-                <PlayerCorpAndIcon player={passPlayer} color={colors.TEXT_LIGHT_1} />
+                <PlayerCorpAndIcon
+                    player={passPlayer}
+                    color={colors.TEXT_LIGHT_1}
+                />
             </Flex>
         );
         cardSelectionButtonText = `Draft ${selectedCards[0]?.name ?? 'card'}`;
@@ -96,29 +106,40 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     } else if (pendingCardSelection.isBuyingCards) {
         // buying cards
         const numCards =
-            pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
-        let selectedCardOrCards = `card${selectedCards.length === 1 ? '' : 's'}`;
+            pendingCardSelection.numCardsToTake ??
+            pendingCardSelection.possibleCards.length;
+        let selectedCardOrCards = `card${
+            selectedCards.length === 1 ? '' : 's'
+        }`;
         let cardOrCards = `card${numCards === 1 ? '' : 's'}`;
         cardSelectionPrompt = `Select up to ${numCards} ${cardOrCards} to buy (${remainingBudget} MC remaining)`;
         cardSelectionButtonText = `Buy ${selectedCards.length} ${selectedCardOrCards}`;
-        maxCards = pendingCardSelection.numCardsToTake ?? pendingCardSelection.possibleCards.length;
+        maxCards =
+            pendingCardSelection.numCardsToTake ??
+            pendingCardSelection.possibleCards.length;
         minCards = pendingCardSelection.numCardsToTake ?? 0;
     } else if (pendingCardSelection.numCardsToTake) {
         // taking cards, e.g. Business Contacts (look at 4, take 2)
         const numCards = pendingCardSelection.numCardsToTake;
-        cardSelectionPrompt = `Select ${numCards} ${numCards === 1 ? 'card' : 'cards'} to take`;
+        cardSelectionPrompt = `Select ${numCards} ${
+            numCards === 1 ? 'card' : 'cards'
+        } to take`;
         cardSelectionButtonText = `Take ${numCards} ${cardOrCards}`;
         maxCards = pendingCardSelection.numCardsToTake;
         minCards = pendingCardSelection.numCardsToTake;
     } else {
-        throw new Error('Unhandled scenario in ask user to make card selection');
+        throw new Error(
+            'Unhandled scenario in ask user to make card selection'
+        );
     }
 
     if (isSyncing || isMakingRequest) {
         cardSelectionPrompt = `Loading...`;
     }
 
-    async function handleConfirmCardSelection(payment?: PropertyCounter<Resource>) {
+    async function handleConfirmCardSelection(
+        payment?: PropertyCounter<Resource>
+    ) {
         setSelectedCards([]);
         await apiClient.confirmCardSelectionAsync({
             selectedCards,
@@ -134,10 +155,15 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
         actionGuard.canConfirmCardSelection(selectedCards.map(getCard), state)
     );
     const shouldDisableDueToPreludes = useTypedSelector(
-        () => player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2
+        () =>
+            player.possiblePreludes?.length > 0 && selectedPreludes.length !== 2
     );
     const shouldDisableConfirmCardSelection = useTypedSelector(
-        () => !canConfirmCardSelection || isSyncing || shouldDisableDueToPreludes || isMakingRequest
+        () =>
+            !canConfirmCardSelection ||
+            isSyncing ||
+            shouldDisableDueToPreludes ||
+            isMakingRequest
     );
 
     // hide card selector while waiting on others to pick cards
@@ -162,9 +188,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
     }
 
     const passSourcePlayer = useTypedSelector(state => {
-        let passSourceIndex = state.common.generation % 2 ? player.index - 1 : player.index + 1;
-        passSourceIndex = passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
-        passSourceIndex = passSourceIndex >= state.players.length ? 0 : passSourceIndex;
+        let passSourceIndex =
+            state.common.generation % 2 ? player.index - 1 : player.index + 1;
+        passSourceIndex =
+            passSourceIndex < 0 ? state.players.length - 1 : passSourceIndex;
+        passSourceIndex =
+            passSourceIndex >= state.players.length ? 0 : passSourceIndex;
         return state.players[passSourceIndex];
     });
 
@@ -175,10 +204,14 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                     min={1}
                     max={1}
                     selectedCards={[player.corporation]}
-                    onSelect={cards => dispatch(setCorporation(cards[0], player.index))}
+                    onSelect={cards =>
+                        dispatch(setCorporation(cards[0], player.index))
+                    }
                     options={possibleCorporations}
                     orientation="vertical"
-                    cardSelectorPrompt={<Flex margin="0 8px">Select a corporation</Flex>}
+                    cardSelectorPrompt={
+                        <Flex margin="0 8px">Select a corporation</Flex>
+                    }
                 />
             )}
             {possiblePreludes?.length > 0 && (
@@ -191,7 +224,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         setSelectedPreludes(cards);
                     }}
                     options={possiblePreludes}
-                    cardSelectorPrompt={<Flex margin="0 8px">Select 2 prelude cards</Flex>}
+                    cardSelectorPrompt={
+                        <Flex margin="0 8px">Select 2 prelude cards</Flex>
+                    }
                 />
             )}
             <AskUserToMakeChoice>
@@ -200,27 +235,40 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         pendingCardSelection.draftPicks &&
                         pendingCardSelection.draftPicks.length > 0 && (
                             <Flex flexDirection="column" margin="0 8px">
-                                <span style={{fontSize: '1.1em', fontWeight: 700}}>
+                                <span
+                                    style={{fontSize: '1.1em', fontWeight: 700}}
+                                >
                                     Drafted cards
                                 </span>
-                                <Flex flexWrap="wrap" marginBottom="8px" marginTop="8px">
-                                    {pendingCardSelection.draftPicks.map(draftedCard => (
-                                        <CardTextToken
-                                            showCardOnHover={true}
-                                            card={getCard(draftedCard)}
-                                            key={draftedCard.name}
-                                            margin="0 8px 8px 0"
-                                            style={{fontSize: '1em'}}
-                                            absoluteOffset={-68}
-                                        />
-                                    ))}
+                                <Flex
+                                    flexWrap="wrap"
+                                    marginBottom="8px"
+                                    marginTop="8px"
+                                >
+                                    {pendingCardSelection.draftPicks.map(
+                                        draftedCard => (
+                                            <CardTextToken
+                                                showCardOnHover={true}
+                                                card={getCard(draftedCard)}
+                                                key={draftedCard.name}
+                                                margin="0 8px 8px 0"
+                                                style={{fontSize: '1em'}}
+                                                absoluteOffset={-68}
+                                            />
+                                        )
+                                    )}
                                 </Flex>
                             </Flex>
                         )}
                     {isWaitingOnOthersToDraft && (
                         <Flex justifyContent="center" flexDirection="column">
-                            <Flex alignItems="center" style={{display: 'inline', marginBottom: 16}}>
-                                <em style={{margin: '16px 0px'}}>Waiting on </em>
+                            <Flex
+                                alignItems="center"
+                                style={{display: 'inline', marginBottom: 16}}
+                            >
+                                <em style={{margin: '16px 0px'}}>
+                                    Waiting on{' '}
+                                </em>
                                 {playersWhoNeedToDraft.map((p, index) => (
                                     <React.Fragment key={p.username}>
                                         {index > 0 && <span>, </span>}
@@ -229,18 +277,27 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                             color={colors.TEXT_LIGHT_1}
                                             includeUsername={true}
                                             isInline={true}
-                                            style={{marginLeft: 6, marginRight: 6, fontWeight: 500}}
+                                            style={{
+                                                marginLeft: 6,
+                                                marginRight: 6,
+                                                fontWeight: 500,
+                                            }}
                                         />
                                     </React.Fragment>
                                 ))}
-                                <em style={{margin: '16px 0px'}}> to draft...</em>
+                                <em style={{margin: '16px 0px'}}>
+                                    {' '}
+                                    to draft...
+                                </em>
                             </Flex>
                             {numPlayers > 2 && (
                                 <table>
                                     <tbody>
                                         <tr>
                                             <td>
-                                                <span style={{marginRight: 4}}>Receiving from</span>
+                                                <span style={{marginRight: 4}}>
+                                                    Receiving from
+                                                </span>
                                             </td>
                                             <td>
                                                 <PlayerCorpAndIcon
@@ -253,7 +310,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span style={{marginRight: 4}}>Passing to</span>
+                                                <span style={{marginRight: 4}}>
+                                                    Passing to
+                                                </span>
                                             </td>
                                             <td>
                                                 <PlayerCorpAndIcon
@@ -279,7 +338,8 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             onSelect={cards => {
                                 if (
                                     !pendingCardSelection.isBuyingCards ||
-                                    cards.length * (player.cardCost ?? 3) <= playerBudget
+                                    cards.length * (player.cardCost ?? 3) <=
+                                        playerBudget
                                 ) {
                                     setSelectedCards(cards);
                                 }
@@ -288,7 +348,13 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             orientation="vertical"
                             cardSelectorPrompt={
                                 <React.Fragment>
-                                    <Flex margin="8px" style={{fontSize: '1.1em', fontWeight: 700}}>
+                                    <Flex
+                                        margin="8px"
+                                        style={{
+                                            fontSize: '1.1em',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {cardSelectionPrompt}
                                     </Flex>
                                     {cardSelectionSubtitle}

@@ -37,7 +37,9 @@ export const CardStoredResources = ({card}: CardStoredResourcesProps) => {
     return (
         <StoredResourcesContainer>
             <StoredResourcesContent>
-                <span style={{marginRight: 4}}>{card.storedResourceAmount}</span>
+                <span style={{marginRight: 4}}>
+                    {card.storedResourceAmount}
+                </span>
                 <ResourceIcon name={card.storedResourceType} />
             </StoredResourcesContent>
         </StoredResourcesContainer>

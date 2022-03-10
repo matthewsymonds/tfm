@@ -114,7 +114,11 @@ export function BoardInner() {
     const board = useTypedSelector(state => state.common.board);
     const {pendingTilePlacement, pendingTileRemoval} = loggedInPlayer;
     const validPlacements = useTypedSelector(state =>
-        getValidPlacementsForRequirement(state, pendingTilePlacement, loggedInPlayer)
+        getValidPlacementsForRequirement(
+            state,
+            pendingTilePlacement,
+            loggedInPlayer
+        )
     );
     const validRemovals = useTypedSelector(state => {
         if (!pendingTileRemoval) return [];
@@ -124,7 +128,9 @@ export function BoardInner() {
 
     const cells = board.flat();
 
-    const ganymede = cells.find(cell => cell.specialLocation === SpecialLocation.GANYMEDE)!;
+    const ganymede = cells.find(
+        cell => cell.specialLocation === SpecialLocation.GANYMEDE
+    )!;
 
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
@@ -180,13 +186,19 @@ export function BoardInner() {
                                                         margin: `0 calc(100% / (4 * 10 * 10))`,
                                                         flex: '0 0 calc(100% / 10)',
                                                     }}
-                                                    onClick={() => handleClick(cell)}
+                                                    onClick={() =>
+                                                        handleClick(cell)
+                                                    }
                                                 >
                                                     <Cell
                                                         cell={cell}
                                                         selectable={
-                                                            validPlacements.includes(cell) ||
-                                                            validRemovals.includes(cell)
+                                                            validPlacements.includes(
+                                                                cell
+                                                            ) ||
+                                                            validRemovals.includes(
+                                                                cell
+                                                            )
                                                         }
                                                     />
                                                 </div>

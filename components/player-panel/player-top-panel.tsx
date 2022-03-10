@@ -78,7 +78,9 @@ export const PlayerTopPanel = ({
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
-    const firstPlayerIndex = useTypedSelector(state => state.common.firstPlayerIndex);
+    const firstPlayerIndex = useTypedSelector(
+        state => state.common.firstPlayerIndex
+    );
     const loggedInPlayer = useLoggedInPlayer();
     const isFirstPlayer = player.index === firstPlayerIndex;
     const isLoggedInPlayer = player.index === loggedInPlayer.index;
@@ -101,7 +103,9 @@ export const PlayerTopPanel = ({
             className="display"
         >
             {!isSelected && <NoClickOverlay />}
-            {isFirstPlayer && <FirstPlayerToken last={isLast}>1</FirstPlayerToken>}
+            {isFirstPlayer && (
+                <FirstPlayerToken last={isLast}>1</FirstPlayerToken>
+            )}
             <CorporationHeader>
                 <Flex alignItems="center">
                     <PlayerIcon
@@ -117,16 +121,23 @@ export const PlayerTopPanel = ({
                                 player.corporation.name || player.username
                             ),
                         }}
-                        title={`${player.corporation.name ?? ''} (${player.username})`}
+                        title={`${player.corporation.name ?? ''} (${
+                            player.username
+                        })`}
                     >
                         {player.corporation.name || player.username}
                     </span>
                 </Flex>
                 <ScorePopover playerIndex={player.index}>
-                    <TerraformRating>{player.terraformRating} TR</TerraformRating>
+                    <TerraformRating>
+                        {player.terraformRating} TR
+                    </TerraformRating>
                 </ScorePopover>
             </CorporationHeader>
-            <PlayerResourceBoard player={player} isLoggedInPlayer={isLoggedInPlayer} />
+            <PlayerResourceBoard
+                player={player}
+                isLoggedInPlayer={isLoggedInPlayer}
+            />
         </Flex>
     );
 };

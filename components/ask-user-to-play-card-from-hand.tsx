@@ -38,8 +38,12 @@ export const AskUserToPlayCardFromHand = ({player}: {player: PlayerState}) => {
         <AskUserToMakeChoice playedCard={mostRecentlyPlayedCard}>
             <Flex flexDirection="column">
                 <h3>Please play a card from hand.</h3>
-                {ignoreGlobalRequirements ? <div>You may ignore global requirements.</div> : null}
-                {discount ? <div>The cost is discounted {discount}MC.</div> : null}
+                {ignoreGlobalRequirements ? (
+                    <div>You may ignore global requirements.</div>
+                ) : null}
+                {discount ? (
+                    <div>The cost is discounted {discount}MC.</div>
+                ) : null}
             </Flex>
         </AskUserToMakeChoice>
     );

@@ -61,7 +61,9 @@ const CardInner: React.FC<CardProps> = ({
     isSelected,
     borderWidth,
 }) => {
-    const firstPlayerUsername = useTypedSelector(state => state.players[0].username);
+    const firstPlayerUsername = useTypedSelector(
+        state => state.players[0].username
+    );
     const loggedInPlayer = useLoggedInPlayer();
     const actionGuard = useActionGuard(
         cardOwner?.username ?? loggedInPlayer?.username ?? firstPlayerUsername // fallback to first player for storybook
@@ -78,7 +80,11 @@ const CardInner: React.FC<CardProps> = ({
             <CardTitleBar type={card.type}>{card.name}</CardTitleBar>
             <CardRequirement card={card} />
             <CardTags card={card} />
-            <CardCost card={card} loggedInPlayer={loggedInPlayer} cardContext={cardContext} />
+            <CardCost
+                card={card}
+                loggedInPlayer={loggedInPlayer}
+                cardContext={cardContext}
+            />
             {card.text && <MainCardText>{card.text}</MainCardText>}
             <CardEffects card={card} showEffectText={true} />
             <CardActions
@@ -87,7 +93,8 @@ const CardInner: React.FC<CardProps> = ({
                 cardContext={cardContext}
                 showActionText={true}
             />
-            <BaseActionIconography card={card} /> {/* Cards with single-step actions */}
+            <BaseActionIconography card={card} />{' '}
+            {/* Cards with single-step actions */}
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}
             <CardContextButton

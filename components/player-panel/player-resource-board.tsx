@@ -39,7 +39,10 @@ const heatBgCycle = keyframes`
     }
 `;
 
-const ResourceBoardCellBase = styled.div<{canDoConversion?: boolean; showPointerCursor?: boolean}>`
+const ResourceBoardCellBase = styled.div<{
+    canDoConversion?: boolean;
+    showPointerCursor?: boolean;
+}>`
     display: grid;
     grid-template-columns: repeat(3, 24px);
     grid-template-rows: 24px;
@@ -66,7 +69,10 @@ export type ResourceBoardCellProps = {
     player: PlayerState;
 };
 
-export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) => {
+export const ResourceBoardCell = ({
+    player,
+    resource,
+}: ResourceBoardCellProps) => {
     const actionGuard = useActionGuard(player.username);
     const amount = player.resources[resource];
     const production = player.productions[resource];
@@ -74,7 +80,8 @@ export const ResourceBoardCell = ({player, resource}: ResourceBoardCellProps) =>
 
     let showConversionAnimation = false;
     if (conversion) {
-        [showConversionAnimation] = actionGuard.canDoConversionInSpiteOfUI(conversion);
+        [showConversionAnimation] =
+            actionGuard.canDoConversionInSpiteOfUI(conversion);
     }
 
     let className = 'display';
@@ -138,18 +145,32 @@ export const PlayerResourceBoard = ({player}: PlayerResourceBoardProps) => {
         <Flex flexDirection="column" marginTop="4px">
             <ResourceBoard>
                 <ResourceBoardRow>
-                    {[Resource.MEGACREDIT, Resource.STEEL, Resource.TITANIUM].map(resource => {
+                    {[
+                        Resource.MEGACREDIT,
+                        Resource.STEEL,
+                        Resource.TITANIUM,
+                    ].map(resource => {
                         return (
-                            <ResourceBoardCell key={resource} resource={resource} player={player} />
+                            <ResourceBoardCell
+                                key={resource}
+                                resource={resource}
+                                player={player}
+                            />
                         );
                     })}
                 </ResourceBoardRow>
                 <ResourceBoardRow>
-                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(resource => {
-                        return (
-                            <ResourceBoardCell key={resource} resource={resource} player={player} />
-                        );
-                    })}
+                    {[Resource.PLANT, Resource.ENERGY, Resource.HEAT].map(
+                        resource => {
+                            return (
+                                <ResourceBoardCell
+                                    key={resource}
+                                    resource={resource}
+                                    player={player}
+                                />
+                            );
+                        }
+                    )}
                 </ResourceBoardRow>
             </ResourceBoard>
         </Flex>

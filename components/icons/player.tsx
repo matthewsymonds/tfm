@@ -11,8 +11,10 @@ const PlayerIconBase = styled.div<{
     passed: boolean;
     border?: string;
 }>`
-    width: ${props => (typeof props.size === 'number' ? `${props.size}px` : props.size)};
-    height: ${props => (typeof props.size === 'number' ? `${props.size}px` : props.size)};
+    width: ${props =>
+        typeof props.size === 'number' ? `${props.size}px` : props.size};
+    height: ${props =>
+        typeof props.size === 'number' ? `${props.size}px` : props.size};
     background-color: ${props => props.color};
     opacity: ${props => (props.passed ? 0.5 : 1)};
     border: 1px solid ${props => props.border || colors.LIGHT_1};
@@ -37,7 +39,9 @@ export const PlayerIcon = ({
     shouldDimForPassedPlayers?: boolean;
 }) => {
     const color = PLAYER_COLORS[playerIndex];
-    const passed = useTypedSelector(state => getHasPlayerPassed(playerIndex, state));
+    const passed = useTypedSelector(state =>
+        getHasPlayerPassed(playerIndex, state)
+    );
     return (
         <PlayerIconBase
             size={size}
@@ -93,7 +97,9 @@ export const PlayerCorpAndIcon = ({
                 size={fontSize}
                 style={playerIconStyle}
             />
-            <span style={{marginLeft: 4, color: color ?? colors.TEXT_DARK_1}}>{text}</span>
+            <span style={{marginLeft: 4, color: color ?? colors.TEXT_DARK_1}}>
+                {text}
+            </span>
         </Flex>
     );
 };

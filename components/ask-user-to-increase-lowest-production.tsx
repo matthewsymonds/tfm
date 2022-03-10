@@ -8,7 +8,9 @@ import {Flex} from './box';
 import {colors} from './ui';
 
 export function getLowestProductions(player: PlayerState): Resource[] {
-    const lowestProductionValue = Math.min(...Object.values(player.productions));
+    const lowestProductionValue = Math.min(
+        ...Object.values(player.productions)
+    );
     return Object.entries(player.productions)
         .filter(entry => entry[1] === lowestProductionValue)
         .map(entry => entry[0] as Resource);
@@ -19,8 +21,14 @@ const ProductionButton = styled.button`
     margin-bottom: 4px;
 `;
 
-export function AskUserToIncreaseLowestProduction({player}: {player: PlayerState}) {
-    const lowestProductions = useTypedSelector(state => getLowestProductions(player));
+export function AskUserToIncreaseLowestProduction({
+    player,
+}: {
+    player: PlayerState;
+}) {
+    const lowestProductions = useTypedSelector(state =>
+        getLowestProductions(player)
+    );
     const apiClient = useApiClient();
     return (
         <Flex flexDirection="column">
@@ -32,7 +40,9 @@ export function AskUserToIncreaseLowestProduction({player}: {player: PlayerState
                     <ProductionButton
                         key={resource}
                         onClick={() =>
-                            apiClient.increaseLowestProductionAsync({production: resource})
+                            apiClient.increaseLowestProductionAsync({
+                                production: resource,
+                            })
                         }
                     >
                         {getResourceName(resource, true)}

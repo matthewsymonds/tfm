@@ -1,6 +1,11 @@
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
 import {GlobalParameters, Parameter} from 'constants/board';
-import {GameStage, MAX_PARAMETERS, MIN_PARAMETERS, PARAMETER_STEPS} from 'constants/game';
+import {
+    GameStage,
+    MAX_PARAMETERS,
+    MIN_PARAMETERS,
+    PARAMETER_STEPS,
+} from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import React from 'react';
 import {Tooltip} from 'react-tippy';
@@ -24,7 +29,11 @@ const GlobalParamColumn = styled.div`
     min-width: 0;
 `;
 
-const GlobalParamStep = styled.div<{isFilledIn: boolean; color: string; bonus: boolean}>`
+const GlobalParamStep = styled.div<{
+    isFilledIn: boolean;
+    color: string;
+    bonus: boolean;
+}>`
     flex-basis: 100%;
     border-radius: 2px;
     border: 1px solid #b5b5b5;
@@ -61,7 +70,8 @@ const GlobalParamValueBase = styled.div`
 
 function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     const numSteps =
-        (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) / PARAMETER_STEPS[parameter];
+        (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) /
+        PARAMETER_STEPS[parameter];
     const steps = new Array(numSteps).fill(null).map((_, index) => {
         return MIN_PARAMETERS[parameter] + index * PARAMETER_STEPS[parameter];
     });
@@ -91,7 +101,9 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
                             html={
                                 showTooltip ? (
                                     <ColoredTooltip color={color}>
-                                        {isFilledIn ? 'Current value' : bonus!.name}
+                                        {isFilledIn
+                                            ? 'Current value'
+                                            : bonus!.name}
                                     </ColoredTooltip>
                                 ) : (
                                     <div />
@@ -155,13 +167,19 @@ export default function GlobalParams(props: GlobalParamsProps) {
     const venus = useTypedSelector(isPlayingVenus);
     return (
         <GlobalParamWrapper className="global-params">
-            <Flex className="textLight1 round-text" fontSize="12px" marginBottom="1px">
+            <Flex
+                className="textLight1 round-text"
+                fontSize="12px"
+                marginBottom="1px"
+            >
                 {roundText}
             </Flex>
             <Box display="inline-block" width="100%">
                 <GlobalParamColumns>
                     {Object.keys(props.parameters)
-                        .filter(parameter => parameter !== Parameter.VENUS || venus)
+                        .filter(
+                            parameter => parameter !== Parameter.VENUS || venus
+                        )
                         .map(parameter => (
                             <GlobalParamColumn key={parameter as Parameter}>
                                 <GlobalParamValue

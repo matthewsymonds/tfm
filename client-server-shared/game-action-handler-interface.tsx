@@ -48,7 +48,10 @@ export interface GameActionHandler {
         payment?: PropertyCounter<Resource>;
     }): Promise<void>;
 
-    fundAwardAsync(payload: {award: string; payment?: PropertyCounter<Resource>}): Promise<void>;
+    fundAwardAsync(payload: {
+        award: string;
+        payment?: PropertyCounter<Resource>;
+    }): Promise<void>;
 
     doConversionAsync(payload: {conversion: Conversion}): Promise<void>;
 
@@ -67,7 +70,11 @@ export interface GameActionHandler {
 
     skipChooseResourceActionDetailsAsync(): Promise<void>;
 
-    completeDuplicateProductionAsync({card}: {card: SerializedCard}): Promise<void>;
+    completeDuplicateProductionAsync({
+        card,
+    }: {
+        card: SerializedCard;
+    }): Promise<void>;
 
     confirmCardSelectionAsync({
         selectedCards,
@@ -87,7 +94,11 @@ export interface GameActionHandler {
 
     skipChooseDuplicateProductionAsync(): Promise<void>;
 
-    increaseLowestProductionAsync({production}: {production: Resource}): Promise<void>;
+    increaseLowestProductionAsync({
+        production,
+    }: {
+        production: Resource;
+    }): Promise<void>;
 
     tradeAsync({
         colony,
@@ -101,7 +112,13 @@ export interface GameActionHandler {
         numHeat?: number;
     }): Promise<void>;
 
-    tradeForFreeAsync({colony, tradeIncome}: {colony: string; tradeIncome: number}): Promise<void>;
+    tradeForFreeAsync({
+        colony,
+        tradeIncome,
+    }: {
+        colony: string;
+        tradeIncome: number;
+    }): Promise<void>;
 
     completePlaceColonyAsync({colony}: {colony: string}): Promise<void>;
 
@@ -113,9 +130,16 @@ export interface GameActionHandler {
         decrease: string;
     }): Promise<void>;
 
-    completePutAdditionalColonyTileIntoPlayAsync({colony}: {colony: string}): Promise<void>;
+    completePutAdditionalColonyTileIntoPlayAsync({
+        colony,
+    }: {
+        colony: string;
+    }): Promise<void>;
 
-    completeChooseNextActionAsync(actionIndex: number, payment?: Payment): Promise<void>;
+    completeChooseNextActionAsync(
+        actionIndex: number,
+        payment?: Payment
+    ): Promise<void>;
 
     startOverAsync(): Promise<void>;
 }

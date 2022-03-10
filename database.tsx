@@ -64,7 +64,10 @@ export let forgotPasswordModel;
 try {
     forgotPasswordModel = mongoose.model('forgotPassword');
 } catch (error) {
-    forgotPasswordModel = mongoose.model('forgotPassword', forgotPasswordSchema);
+    forgotPasswordModel = mongoose.model(
+        'forgotPassword',
+        forgotPasswordSchema
+    );
 }
 
 const errorLogsSchema = new schema({
@@ -120,7 +123,9 @@ usersSchema.pre('save', function (next) {
     });
 });
 
-usersSchema.methods.comparePassword = function (candidate: string): Promise<boolean> {
+usersSchema.methods.comparePassword = function (
+    candidate: string
+): Promise<boolean> {
     return new Promise((resolve, reject) => {
         bcrypt.compare(candidate, this.password, function (error, isMatch) {
             if (error) reject(error);
@@ -142,7 +147,10 @@ export interface Session {
     username: string;
 }
 
-export async function retrieveSession(req: IncomingMessage, res: ServerResponse) {
+export async function retrieveSession(
+    req: IncomingMessage,
+    res: ServerResponse
+) {
     const cookies = req.headers.cookie || '';
 
     const cookiesObject = cookie.parse(cookies);

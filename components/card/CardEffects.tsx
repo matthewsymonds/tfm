@@ -1,5 +1,8 @@
 import {Flex} from 'components/box';
-import {renderLeftSideOfArrow, renderRightSideOfArrow} from 'components/card/CardActions';
+import {
+    renderLeftSideOfArrow,
+    renderRightSideOfArrow,
+} from 'components/card/CardActions';
 import {
     Colon,
     Equal,
@@ -26,7 +29,11 @@ import {ExchangeRates} from 'constants/card-types';
 import {EffectTrigger} from 'constants/effect-trigger';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
-import {Card as CardModel, doesCardHaveDiscounts, doesCardHaveTriggerAction} from 'models/card';
+import {
+    Card as CardModel,
+    doesCardHaveDiscounts,
+    doesCardHaveTriggerAction,
+} from 'models/card';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-expansion';
@@ -57,12 +64,23 @@ function renderCardCost(cardCost: number) {
         <>
             <ResourceIcon name={Resource.CARD} size={16} />
             <>*</>
-            <Colon /> <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${cardCost}`} />
+            <Colon />{' '}
+            <ResourceIcon
+                name={Resource.MEGACREDIT}
+                size={16}
+                amount={`${cardCost}`}
+            />
         </>
     );
 }
 
-export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffectText: boolean}) => {
+export const CardEffects = ({
+    card,
+    showEffectText,
+}: {
+    card: CardModel;
+    showEffectText: boolean;
+}) => {
     const venus = useTypedSelector(isPlayingVenus);
 
     // Bail early if there's nothing to show
@@ -133,9 +151,16 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
             Object.keys(card.discounts.tags).length !== 0 ||
             Object.keys(card.discounts.cards).length !== 0
         ) {
-            const amount = Object.values({...card.discounts.tags, ...card.discounts.cards})[0];
+            const amount = Object.values({
+                ...card.discounts.tags,
+                ...card.discounts.cards,
+            })[0];
             elements.push(
-                <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`-${amount}`} />
+                <ResourceIcon
+                    name={Resource.MEGACREDIT}
+                    size={16}
+                    amount={`-${amount}`}
+                />
             );
         }
 
@@ -162,7 +187,10 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                 <TagIcon name={conditionalPayment.tag} size={16} />
                 <Colon />
                 <ResourceIcon
-                    name={card.storedResourceType ?? Resource.ANY_STORABLE_RESOURCE}
+                    name={
+                        card.storedResourceType ??
+                        Resource.ANY_STORABLE_RESOURCE
+                    }
                     size={16}
                 />
                 <Equal />
@@ -183,7 +211,10 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         return (
             <React.Fragment>
                 <ResourceIcon
-                    name={card.storedResourceType ?? Resource.ANY_STORABLE_RESOURCE}
+                    name={
+                        card.storedResourceType ??
+                        Resource.ANY_STORABLE_RESOURCE
+                    }
                     size={16}
                 />
                 <Equal />
@@ -220,12 +251,16 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
         }
         if (card.parameterRequirementAdjustments) {
             return (
-                <InlineText>+/-{Object.values(card.parameterRequirementAdjustments)[0]}</InlineText>
+                <InlineText>
+                    +/-{Object.values(card.parameterRequirementAdjustments)[0]}
+                </InlineText>
             );
         }
 
         if (card.increaseColonyTileTrackRange) {
-            return <InlineText>+{card.increaseColonyTileTrackRange}</InlineText>;
+            return (
+                <InlineText>+{card.increaseColonyTileTrackRange}</InlineText>
+            );
         }
 
         if (!action) {
@@ -266,7 +301,11 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
             <Flex justifyContent="center" flexWrap="wrap">
                 {effects.map((effect, index) => (
                     <EffectWrapper key={index}>
-                        <Flex alignItems="center" justifyContent="center" flexWrap="wrap">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            flexWrap="wrap"
+                        >
                             {/* Exchange rates (e.g. Advanced Alloys) */}
                             {Object.keys(card.exchangeRates).length > 0 &&
                                 renderExchangeRates(card.exchangeRates)}
@@ -291,10 +330,12 @@ export const CardEffects = ({card, showEffectText}: {card: CardModel; showEffect
                             )}
 
                             {/* Conditional payments (e.g. Dirigibles) */}
-                            {card.conditionalPayment && renderConditionalPayment()}
+                            {card.conditionalPayment &&
+                                renderConditionalPayment()}
 
                             {/* Use stored resource as heat (e.g. Stormcraft) */}
-                            {card.useStoredResourceAsHeat && renderUseStoredResourceAsHeat()}
+                            {card.useStoredResourceAsHeat &&
+                                renderUseStoredResourceAsHeat()}
 
                             {/* Standard trigger/action effects (e.g. Point Luna) */}
                             {doesCardHaveTriggerAction(card) && (
@@ -317,11 +358,20 @@ export function renderExchangeRates(exchangeRates: ExchangeRates) {
     return (
         <Flex flexDirection="column">
             {Object.entries(exchangeRates).map(([resource, amount], index) => (
-                <IconographyRow key={resource} style={{marginTop: index > 0 ? '4px' : '0px'}}>
+                <IconographyRow
+                    key={resource}
+                    style={{marginTop: index > 0 ? '4px' : '0px'}}
+                >
                     <ResourceIcon name={resource as Resource} size={16} />
                     <TextWithMargin>:</TextWithMargin>
-                    {resource !== Resource.HEAT && <TextWithMargin>+</TextWithMargin>}
-                    <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${amount}`} />
+                    {resource !== Resource.HEAT && (
+                        <TextWithMargin>+</TextWithMargin>
+                    )}
+                    <ResourceIcon
+                        name={Resource.MEGACREDIT}
+                        size={16}
+                        amount={`${amount}`}
+                    />
                 </IconographyRow>
             ))}
         </Flex>
@@ -364,12 +414,25 @@ export function renderTrigger(trigger: EffectTrigger | undefined) {
     } else if (trigger?.cost) {
         return (
             <React.Fragment>
-                <ResourceIcon name={Resource.MEGACREDIT} size={16} amount={`${trigger?.cost}`} />
-                <ResourceIcon name={Resource.CARD} size={16} margin="0px 0px 0px 4px" />
+                <ResourceIcon
+                    name={Resource.MEGACREDIT}
+                    size={16}
+                    amount={`${trigger?.cost}`}
+                />
+                <ResourceIcon
+                    name={Resource.CARD}
+                    size={16}
+                    margin="0px 0px 0px 4px"
+                />
             </React.Fragment>
         );
     } else if (trigger?.increasedParameter) {
-        return <GlobalParameterIcon parameter={trigger?.increasedParameter} size={16} />;
+        return (
+            <GlobalParameterIcon
+                parameter={trigger?.increasedParameter}
+                size={16}
+            />
+        );
     } else if (trigger?.standardProject) {
         // todo: Make this look nicer
         return <IconizedText>STANDARD PROJECTS</IconizedText>;
@@ -400,9 +463,10 @@ function renderOtherEffects(card: CardModel, venus?: boolean) {
     ) as Parameter[];
 
     if (!venus) {
-        parameterRequirementAdjustments = parameterRequirementAdjustments.filter(
-            parameter => parameter !== Parameter.VENUS
-        );
+        parameterRequirementAdjustments =
+            parameterRequirementAdjustments.filter(
+                parameter => parameter !== Parameter.VENUS
+            );
     }
 
     if (card.increaseColonyTileTrackRange) {
@@ -415,7 +479,9 @@ function renderOtherEffects(card: CardModel, venus?: boolean) {
             if (index > 0) {
                 elements.push(<TextWithMargin>/</TextWithMargin>);
             }
-            elements.push(<GlobalParameterIcon parameter={parameter} size={16} />);
+            elements.push(
+                <GlobalParameterIcon parameter={parameter} size={16} />
+            );
         });
         return (
             <Flex justifyContent="center" alignItems="center">

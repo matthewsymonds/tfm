@@ -3,7 +3,12 @@ import {BaseActionIconography} from 'components/card/CardIconography';
 import {ResourceIcon} from 'components/icons/resource';
 import {getTileBgColor} from 'components/icons/tile';
 import {Square} from 'components/square';
-import {Cell as CellModel, CellType, getTileIcon, TileType} from 'constants/board';
+import {
+    Cell as CellModel,
+    CellType,
+    getTileIcon,
+    TileType,
+} from 'constants/board';
 import {PLAYER_COLORS} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import React from 'react';
@@ -28,7 +33,11 @@ export const getCellColor = (type: CellType) => {
     }
 };
 
-const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean; moveDown?: boolean}>`
+const ChildrenWrapper = styled.div<{
+    selectable?: boolean;
+    moveUp?: boolean;
+    moveDown?: boolean;
+}>`
     color: #333333;
     cursor: ${props => (props.selectable ? 'pointer' : 'auto')};
     padding: 2px;
@@ -43,10 +52,15 @@ const ChildrenWrapper = styled.div<{selectable?: boolean; moveUp?: boolean; move
     font-size: clamp(7px, 1vw, 9px);
     background: rgba(255, 255, 255, 0.8);
     white-space: nowrap;
-    transform: translateY(${props => (props.moveUp ? -32 : props.moveDown ? 48 : 0)}%);
+    transform: translateY(
+        ${props => (props.moveUp ? -32 : props.moveDown ? 48 : 0)}%
+    );
 `;
 
-export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => {
+export const Cell: React.FunctionComponent<CellProps> = ({
+    cell,
+    selectable,
+}) => {
     const {type, bonus = [], tile = null, specialName = null} = cell;
     const isLandClaim = tile?.type === TileType.LAND_CLAIM;
 
@@ -123,7 +137,9 @@ export const Cell: React.FunctionComponent<CellProps> = ({cell, selectable}) => 
                     width="100%"
                     position={tile ? 'absolute' : 'static'}
                 >
-                    {bonus.length > 0 && (isLandClaim || !tile) && renderBonus(bonus)}
+                    {bonus.length > 0 &&
+                        (isLandClaim || !tile) &&
+                        renderBonus(bonus)}
                     {tile && renderTile(tile)}
                     {!tile && cell.action && (
                         <Box transform="scale(0.75)" height="100%" width="100%">

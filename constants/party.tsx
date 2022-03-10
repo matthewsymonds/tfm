@@ -57,7 +57,11 @@ export const PARTY_CONFIGS: PartyConfig[] = [
         },
         partyBonus: {
             gainResource: {
-                [Resource.MEGACREDIT]: sum({tag: Tag.VENUS}, {tag: Tag.EARTH}, {tag: Tag.JOVIAN}),
+                [Resource.MEGACREDIT]: sum(
+                    {tag: Tag.VENUS},
+                    {tag: Tag.EARTH},
+                    {tag: Tag.JOVIAN}
+                ),
             },
         },
         symbol: '◯◯◯',
@@ -72,7 +76,11 @@ export const PARTY_CONFIGS: PartyConfig[] = [
         },
         partyBonus: {
             gainResource: {
-                [Resource.MEGACREDIT]: sum({tag: Tag.PLANT}, {tag: Tag.MICROBE}, {tag: Tag.ANIMAL}),
+                [Resource.MEGACREDIT]: sum(
+                    {tag: Tag.PLANT},
+                    {tag: Tag.MICROBE},
+                    {tag: Tag.ANIMAL}
+                ),
             },
         },
         symbol: '🌲',

@@ -5,7 +5,9 @@ import {SerializedState} from 'state-serialization';
 
 export type NamedGame = {name: string};
 
-export async function getYourTurnGameNames(username: string): Promise<NamedGame[]> {
+export async function getYourTurnGameNames(
+    username: string
+): Promise<NamedGame[]> {
     let gameNames: NamedGame[];
     try {
         let games = await gamesModel.find(
@@ -13,7 +15,11 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
                 $and: [
                     // Games with more than one player (player index 1 exists)
                     {'players.1': {$exists: true}},
-                    {'state.common.gameStage': {$not: {$eq: GameStage.END_OF_GAME}}},
+                    {
+                        'state.common.gameStage': {
+                            $not: {$eq: GameStage.END_OF_GAME},
+                        },
+                    },
                     {
                         $or: [
                             {
@@ -53,7 +59,9 @@ export async function getYourTurnGameNames(username: string): Promise<NamedGame[
             ) {
                 return true;
             }
-            const currentPlayer = state.players.find(player => player.username === username);
+            const currentPlayer = state.players.find(
+                player => player.username === username
+            );
             const pendingCardSelection = currentPlayer?.pendingCardSelection;
             if (!pendingCardSelection) return false;
             if (state.common.gameStage === GameStage.BUY_OR_DISCARD) {
@@ -85,7 +93,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     switch (req.method?.toUpperCase()) {
         case 'GET':
             // Retrieve list of public games.
-            const gameNames = await getYourTurnGameNames(sessionResult.username);
+            const gameNames = await getYourTurnGameNames(
+                sessionResult.username
+            );
             // Ensure the results are fresh!
             res.setHeader('cache-control', 'no-cache');
             return res.json({games: gameNames});

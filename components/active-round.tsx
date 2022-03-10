@@ -23,7 +23,10 @@ import {
     isWaitingOnOthersToDraft as isWaitingOnOthersToDraftSelector,
 } from 'selectors/drafting';
 import {getCard} from 'selectors/get-card';
-import {aAnOrThe, getHumanReadableTileName} from 'selectors/get-human-readable-tile-name';
+import {
+    aAnOrThe,
+    getHumanReadableTileName,
+} from 'selectors/get-human-readable-tile-name';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
@@ -59,8 +62,11 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const players = useTypedSelector(state => state.players);
     const gameName = useTypedSelector(state => state.name);
     const loggedInPlayer = useLoggedInPlayer();
-    const currentPlayerIndex = useTypedSelector(state => state.common.currentPlayerIndex);
-    const [popoverConfigByType, setPopoverConfigByType] = useState<PopoverConfigByType>({});
+    const currentPlayerIndex = useTypedSelector(
+        state => state.common.currentPlayerIndex
+    );
+    const [popoverConfigByType, setPopoverConfigByType] =
+        useState<PopoverConfigByType>({});
 
     /**
      * Derived state
@@ -79,7 +85,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     }
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
-    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(loggedInPlayer.index);
+    const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
+        loggedInPlayer.index
+    );
     useEffect(() => {
         setSelectedPlayerIndex(loggedInPlayer.index);
     }, [gameName]);
@@ -104,7 +112,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         } else {
             actionBarPromptText = `Place ${aAnOrThe(
                 loggedInPlayer.pendingTilePlacement.type
-            )} ${getHumanReadableTileName(loggedInPlayer.pendingTilePlacement.type)} tile`;
+            )} ${getHumanReadableTileName(
+                loggedInPlayer.pendingTilePlacement.type
+            )} tile`;
         }
     } else if (loggedInPlayer.pendingTileRemoval) {
         actionBarPromptText = `Remove ${aAnOrThe(
@@ -120,9 +130,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
         actionBarPromptText = 'Action';
     } else if (loggedInPlayer.placeDelegatesInOneParty) {
         const plural = loggedInPlayer.placeDelegatesInOneParty > 1;
-        actionBarPromptText = `Place ${loggedInPlayer.placeDelegatesInOneParty} delegate${
-            plural ? 's' : ''
-        }`;
+        actionBarPromptText = `Place ${
+            loggedInPlayer.placeDelegatesInOneParty
+        } delegate${plural ? 's' : ''}`;
     } else if (loggedInPlayer.removeNonLeaderDelegate) {
         actionBarPromptText = 'Remove non-leader delegate';
     } else if (loggedInPlayer.exchangeNeutralNonLeaderDelegate) {
@@ -141,7 +151,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     const parameters = useTypedSelector(state => state.common.parameters);
 
     const playerCardsString = useTypedSelector(state =>
-        state.players[loggedInPlayer.index].cards.map(card => card.name).join('-')
+        state.players[loggedInPlayer.index].cards
+            .map(card => card.name)
+            .join('-')
     );
 
     const promptElement = useTypedSelector(state => {
@@ -151,42 +163,66 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 promptElement = <EndOfGame />;
                 break;
             case !!loggedInPlayer.pendingChoice:
-                promptElement = <AskUserToMakeActionChoice player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToMakeActionChoice player={loggedInPlayer} />
+                );
                 break;
             case loggedInPlayer.pendingActionReplay:
                 promptElement = (
-                    <AskUserToUseBlueCardActionAlreadyUsedThisGeneration player={loggedInPlayer} />
+                    <AskUserToUseBlueCardActionAlreadyUsedThisGeneration
+                        player={loggedInPlayer}
+                    />
                 );
                 break;
             case !!loggedInPlayer.placeColony:
-                promptElement = <AskUserToPlaceColony player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToPlaceColony player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.pendingPlayCardFromHand:
-                promptElement = <AskUserToPlayCardFromHand player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToPlayCardFromHand player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.pendingDuplicateProduction:
-                promptElement = <AskUserToDuplicateProduction player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToDuplicateProduction player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.pendingIncreaseLowestProduction:
-                promptElement = <AskUserToIncreaseLowestProduction player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToIncreaseLowestProduction
+                        player={loggedInPlayer}
+                    />
+                );
                 break;
             case !!loggedInPlayer.pendingGainStandardResources:
-                promptElement = <AskUserToGainStandardResources player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToGainStandardResources player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.pendingDiscard:
-                promptElement = <AskUserToMakeDiscardChoice player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToMakeDiscardChoice player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.pendingCardSelection:
-                promptElement = <AskUserToMakeCardSelection player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToMakeCardSelection player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.increaseAndDecreaseColonyTileTracks:
                 promptElement = (
-                    <AskUserToIncreaseAndDecreaseColonyTileTracks player={loggedInPlayer} />
+                    <AskUserToIncreaseAndDecreaseColonyTileTracks
+                        player={loggedInPlayer}
+                    />
                 );
                 break;
             case !!loggedInPlayer.putAdditionalColonyTileIntoPlay:
                 promptElement = (
-                    <AskUserToPutAdditionalColonyTileIntoPlay player={loggedInPlayer} />
+                    <AskUserToPutAdditionalColonyTileIntoPlay
+                        player={loggedInPlayer}
+                    />
                 );
                 break;
             case (loggedInPlayer?.preludes?.length ?? 0) > 0 &&
@@ -197,9 +233,13 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 players.every(
                     player =>
                         (player.preludes?.length ?? 0) > 0 ||
-                        player.playedCards?.filter(c => getCard(c).type === CardType.PRELUDE)
+                        player.playedCards?.filter(
+                            c => getCard(c).type === CardType.PRELUDE
+                        )
                 ):
-                promptElement = <AskUserToPlayPrelude player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToPlayPrelude player={loggedInPlayer} />
+                );
                 break;
             case !!loggedInPlayer.fundAward:
                 promptElement = <AskUserToFundAward player={loggedInPlayer} />;
@@ -214,32 +254,44 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 promptElement = (
                     <AskUserToConfirmResourceActionDetails
                         player={loggedInPlayer}
-                        resourceActionDetails={loggedInPlayer.pendingResourceActionDetails!}
+                        resourceActionDetails={
+                            loggedInPlayer.pendingResourceActionDetails!
+                        }
                     />
                 );
                 break;
             case revealedCards.length > 0 &&
-                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
-                    loggedInPlayer.index:
+                (state.common.controllingPlayerIndex ??
+                    state.common.currentPlayerIndex) === loggedInPlayer.index:
                 promptElement = (
                     <Flex flexDirection="column">
                         <span style={{marginBottom: 16, color: '#ccc'}}>
-                            Card{revealedCards.length > 1 ? 's' : ''} revealed & discarded:
+                            Card{revealedCards.length > 1 ? 's' : ''} revealed &
+                            discarded:
                         </span>
                         <Flex flexWrap="wrap">
                             {revealedCards.map((card, index) => {
-                                return <CardComponent key={index} card={getCard(card)} />;
+                                return (
+                                    <CardComponent
+                                        key={index}
+                                        card={getCard(card)}
+                                    />
+                                );
                             })}
                         </Flex>
                         <Flex justifyContent="center" marginTop="16px">
-                            <button onClick={continueAfterRevealingCards}>Continue</button>
+                            <button onClick={continueAfterRevealingCards}>
+                                Continue
+                            </button>
                         </Flex>
                     </Flex>
                 );
                 break;
             // This should be last...It's saying "ask the user which item they want to handle next"
             case (loggedInPlayer.pendingNextActionChoice?.length ?? 0) > 0:
-                promptElement = <AskUserToChooseNextAction player={loggedInPlayer} />;
+                promptElement = (
+                    <AskUserToChooseNextAction player={loggedInPlayer} />
+                );
                 break;
         }
         return promptElement;
@@ -250,8 +302,14 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     return (
         <GlobalPopoverContext.Provider
             value={{
-                setPopoverConfigByType(type: PopoverType, config: PopoverConfig) {
-                    setPopoverConfigByType({...popoverConfigByType, [type]: config});
+                setPopoverConfigByType(
+                    type: PopoverType,
+                    config: PopoverConfig
+                ) {
+                    setPopoverConfigByType({
+                        ...popoverConfigByType,
+                        [type]: config,
+                    });
                 },
                 popoverConfigByType,
             }}
@@ -281,12 +339,21 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                         paddingRight="8px"
                                         color={colors.LIGHT_2}
                                     >
-                                        <h2 style={{marginBottom: 0, marginTop: 8}}>
+                                        <h2
+                                            style={{
+                                                marginBottom: 0,
+                                                marginTop: 8,
+                                            }}
+                                        >
                                             {actionBarPromptText}.
                                         </h2>
                                     </Box>
                                 ) : null}
-                                <Flex width="100%" flexDirection="column" justifyContent="center">
+                                <Flex
+                                    width="100%"
+                                    flexDirection="column"
+                                    justifyContent="center"
+                                >
                                     {promptElement}
                                 </Flex>
                             </Flex>
@@ -302,7 +369,10 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </Flex>
                 </Box>
             </Flex>
-            <PlayerHand gameName={gameName} playerCardsString={playerCardsString} />
+            <PlayerHand
+                gameName={gameName}
+                playerCardsString={playerCardsString}
+            />
         </GlobalPopoverContext.Provider>
     );
 };

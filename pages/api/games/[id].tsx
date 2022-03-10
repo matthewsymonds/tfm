@@ -30,12 +30,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     switch (req.method?.toUpperCase()) {
         case 'GET':
-            res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+            res.setHeader(
+                'Cache-Control',
+                'no-cache, no-store, max-age=0, must-revalidate'
+            );
             const index = game.players.indexOf(username);
             const {lastSeenLogItem = []} = game;
             const previousLastSeenLogItem = [...lastSeenLogItem];
             game.lastSeenLogItem ||= [];
-            if (index >= 0 && game.lastSeenLogItem[index] !== game.state.log.length) {
+            if (
+                index >= 0 &&
+                game.lastSeenLogItem[index] !== game.state.log.length
+            ) {
                 game.lastSeenLogItem[index] = game.state.log.length;
                 game.markModified('lastSeenLogItem');
                 try {
@@ -53,7 +59,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             game.state.name = game.name;
             res.json({
                 state: censorGameState(game.state, username),
-                lastSeenLogItem: previousLastSeenLogItem[index] ?? game.lastSeenLogItem[index],
+                lastSeenLogItem:
+                    previousLastSeenLogItem[index] ??
+                    game.lastSeenLogItem[index],
                 username,
             });
             return;

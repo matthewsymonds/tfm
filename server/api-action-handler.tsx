@@ -84,6 +84,7 @@ import {
     revealTakeAndDiscard,
     setCorporation,
     setGame,
+    setNotes,
     setOceanAdjacencybonus,
     setPlantDiscount,
     setPreludes,
@@ -128,11 +129,19 @@ import {CardType} from 'constants/card-types';
 import {getColony} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {EffectTrigger} from 'constants/effect-trigger';
-import {GameStage, MAX_PARAMETERS, MinimumProductions, PARAMETER_STEPS} from 'constants/game';
+import {
+    GameStage,
+    MAX_PARAMETERS,
+    MinimumProductions,
+    PARAMETER_STEPS,
+} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import {getParty} from 'constants/party';
-import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
+import {
+    NumericPropertyCounter,
+    PropertyCounter,
+} from 'constants/property-counter';
 import {
     isStorableResource,
     ResourceAndAmount,
@@ -141,7 +150,10 @@ import {
     USER_CHOICE_LOCATION_TYPES,
 } from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
-import {getStandardProjects, StandardProjectType} from 'constants/standard-project';
+import {
+    getStandardProjects,
+    StandardProjectType,
+} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {VariableAmount} from 'constants/variable-amount';
 import {GameAction, GameActionType} from 'GameActionState';
@@ -256,12 +268,21 @@ export class ApiActionHandler {
             return;
         }
 
-        const forcedActions = getForcedActionsForPlayer(state, currentPlayerIndex);
+        const forcedActions = getForcedActionsForPlayer(
+            state,
+            currentPlayerIndex
+        );
 
         for (const forcedAction of forcedActions) {
-            this.playAction({state, action: forcedAction, thisPlayerIndex: currentPlayerIndex});
+            this.playAction({
+                state,
+                action: forcedAction,
+                thisPlayerIndex: currentPlayerIndex,
+            });
             this.queue.push(completeAction(currentPlayerIndex));
-            this.queue.push(removeForcedActionFromPlayer(currentPlayerIndex, forcedAction));
+            this.queue.push(
+                removeForcedActionFromPlayer(currentPlayerIndex, forcedAction)
+            );
         }
         if (forcedActions.length > 0) {
             this.processQueue();
@@ -287,7 +308,10 @@ export class ApiActionHandler {
                             this.queue.push(
                                 this.createInitialGainResourceAction(
                                     resource as Resource,
-                                    fullCard.gainResourcesIfNotTerraformedThisGeneration[resource],
+                                    fullCard
+                                        .gainResourcesIfNotTerraformedThisGeneration[
+                                        resource
+                                    ],
                                     player.index,
                                     fullCard,
                                     fullCard,
@@ -399,7 +423,9 @@ export class ApiActionHandler {
         //    - If no `payment` is defined, the reducer will defer to paying with MC.
         //      As of Nov 2021, `payment` should always be defined.
         if (typeof card.cost !== 'undefined') {
-            this.queue.push(payToPlayCard(card, playerIndex, payment, conditionalPayments));
+            this.queue.push(
+                payToPlayCard(card, playerIndex, payment, conditionalPayments)
+            );
         }
 
         // 2. Apply effects that will affect future turns:
@@ -423,10 +449,18 @@ export class ApiActionHandler {
         this.triggerEffectsFromPlayedCard(card);
 
         if (card.playCard) {
-            this.queue.push(askUserToPlayCardFromHand(card.playCard, playerIndex));
+            this.queue.push(
+                askUserToPlayCardFromHand(card.playCard, playerIndex)
+            );
         }
         if (Object.keys(card.exchangeRates).length > 0) {
-            this.queue.push(applyExchangeRateChanges(card.name, card.exchangeRates, playerIndex));
+            this.queue.push(
+                applyExchangeRateChanges(
+                    card.name,
+                    card.exchangeRates,
+                    playerIndex
+                )
+            );
         }
 
         // 3. Play the action
@@ -451,10 +485,13 @@ export class ApiActionHandler {
         this.playActionCosts(playActionParams);
 
         if (card.forcedAction) {
-            this.queue.push(addForcedActionToPlayer(playerIndex, card.forcedAction));
+            this.queue.push(
+                addForcedActionToPlayer(playerIndex, card.forcedAction)
+            );
         }
 
-        const isEphemeralPrelude = card.type === CardType.PRELUDE && loggedInPlayer.choosePrelude;
+        const isEphemeralPrelude =
+            card.type === CardType.PRELUDE && loggedInPlayer.choosePrelude;
 
         if (isEphemeralPrelude) {
             this.queue.push(setPreludes([], playerIndex));
@@ -462,7 +499,11 @@ export class ApiActionHandler {
 
         // Don't call `completeAction` for corporations, because we use `player.action` as a proxy
         // for players being ready to start round 1, and don't want to increment it.
-        if (card.type !== CardType.CORPORATION && !card.playCard && !isEphemeralPrelude) {
+        if (
+            card.type !== CardType.CORPORATION &&
+            !card.playCard &&
+            !isEphemeralPrelude
+        ) {
             this.queue.push(completeAction(playerIndex));
         }
 
@@ -517,7 +558,11 @@ export class ApiActionHandler {
         // e.g. Ecological Zone
 
         for (const thisPlayer of state.players) {
-            const actionCardPairs = getActionsFromEffectForPlayer(thisPlayer, event, player);
+            const actionCardPairs = getActionsFromEffectForPlayer(
+                thisPlayer,
+                event,
+                player
+            );
             for (const [action, card] of actionCardPairs) {
                 this.playAction({
                     action,
@@ -598,16 +643,23 @@ export class ApiActionHandler {
         const choiceItems = items.filter(
             item =>
                 this.shouldPause(item) ||
-                (gainResource.match(item) && item.payload.resource === Resource.CARD)
+                (gainResource.match(item) &&
+                    item.payload.resource === Resource.CARD)
         );
 
         if (choiceItems.length + actions.length > 1) {
             return true;
         }
 
-        if (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) {
+        if (
+            player.corporation.name === 'Helion' &&
+            player.resources[Resource.HEAT] > 0
+        ) {
             for (const item of items) {
-                if (removeResource.match(item) && item.payload.resource === Resource.MEGACREDIT) {
+                if (
+                    removeResource.match(item) &&
+                    item.payload.resource === Resource.MEGACREDIT
+                ) {
                     // We need the player to be able to pay with heat...
                     return true;
                 }
@@ -638,8 +690,13 @@ export class ApiActionHandler {
                 return;
             }
             const currentPlayer = this.state.players[currentPlayerIndex];
-            const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
-            if (existingItems.filter(Boolean).length === 0 && items.length > 0) {
+            const existingItems = [
+                ...(currentPlayer.pendingNextActionChoice ?? []),
+            ];
+            if (
+                existingItems.filter(Boolean).length === 0 &&
+                items.length > 0
+            ) {
                 this.setStateCheckpoint = true;
             }
             this.dispatch(askUserToChooseNextAction(items, currentPlayerIndex));
@@ -680,7 +737,10 @@ export class ApiActionHandler {
                 if (completeAction.match(item)) {
                     this.setStateCheckpoint = true;
                 }
-                if (gainResource.match(item) && item.payload.resource === Resource.CARD) {
+                if (
+                    gainResource.match(item) &&
+                    item.payload.resource === Resource.CARD
+                ) {
                     this.setStateCheckpoint = true;
                 }
                 if (this.shouldPause(item)) {
@@ -691,7 +751,9 @@ export class ApiActionHandler {
                 this.queue = items;
             }
             const currentPlayer = this.state.players[currentPlayerIndex];
-            const existingItems = [...(currentPlayer.pendingNextActionChoice ?? [])];
+            const existingItems = [
+                ...(currentPlayer.pendingNextActionChoice ?? []),
+            ];
             if (
                 existingItems.filter(Boolean).length > 0 &&
                 !processingExistingItems &&
@@ -731,7 +793,9 @@ export class ApiActionHandler {
     }) {
         const player = this.getLoggedInPlayer();
         const {playedCards} = player;
-        const playedCard = playedCards.find(card => card.name === serializedCard.name);
+        const playedCard = playedCards.find(
+            card => card.name === serializedCard.name
+        );
         if (!playedCard) {
             throw new Error('Cannot find played card');
         }
@@ -742,12 +806,20 @@ export class ApiActionHandler {
 
         const {lastRoundUsedAction} = parent;
 
-        if (lastRoundUsedAction === this.state.common.generation && !pendingActionReplay) {
+        if (
+            lastRoundUsedAction === this.state.common.generation &&
+            !pendingActionReplay
+        ) {
             throw new Error('Already used action this round');
         }
 
-        if (lastRoundUsedAction !== this.state.common.generation && pendingActionReplay) {
-            throw new Error('Can only replay an action you have already played');
+        if (
+            lastRoundUsedAction !== this.state.common.generation &&
+            pendingActionReplay
+        ) {
+            throw new Error(
+                'Can only replay an action you have already played'
+            );
         }
 
         if (choiceIndex !== undefined) {
@@ -801,7 +873,9 @@ export class ApiActionHandler {
         });
 
         if (action.cost) {
-            this.queue.push(payToPlayCardAction(action, player.index, parent, payment));
+            this.queue.push(
+                payToPlayCardAction(action, player.index, parent, payment)
+            );
         }
 
         // If you use regolith eaters to remove 2 microbes to raise oxygen 1 step,
@@ -810,7 +884,13 @@ export class ApiActionHandler {
         const withPriority = isChoiceAction;
 
         if (!isChoiceAction) {
-            this.queue.push(markCardActionAsPlayed(parent, this.loggedInPlayerIndex, !action.cost));
+            this.queue.push(
+                markCardActionAsPlayed(
+                    parent,
+                    this.loggedInPlayerIndex,
+                    !action.cost
+                )
+            );
         }
 
         this.playAction({
@@ -830,7 +910,9 @@ export class ApiActionHandler {
         if (pendingActionReplay) {
             // Resolve the ask user to use blue card action call.
             this.queue.unshift(
-                useBlueCardActionAlreadyUsedThisGeneration(this.loggedInPlayerIndex)
+                useBlueCardActionAlreadyUsedThisGeneration(
+                    this.loggedInPlayerIndex
+                )
             );
         }
 
@@ -850,7 +932,9 @@ export class ApiActionHandler {
         if (!standardProjectAction) {
             throw new Error('Standard project not available');
         }
-        const [canPlay, reason] = this.actionGuard.canPlayStandardProject(standardProjectAction);
+        const [canPlay, reason] = this.actionGuard.canPlayStandardProject(
+            standardProjectAction
+        );
 
         if (!canPlay) {
             throw new Error(reason);
@@ -865,7 +949,13 @@ export class ApiActionHandler {
             payment,
         });
 
-        this.queue.push(payToPlayStandardProject(standardProjectAction, payment, playerIndex));
+        this.queue.push(
+            payToPlayStandardProject(
+                standardProjectAction,
+                payment,
+                playerIndex
+            )
+        );
 
         const {state} = this;
         this.triggerEffectsFromStandardProject(
@@ -903,44 +993,60 @@ export class ApiActionHandler {
             throw new Error('No pending card selection to confirm');
         }
         const isBuyingCards = pendingCardSelection?.isBuyingCards ?? false;
-        const possibleCards = pendingCardSelection ? pendingCardSelection.possibleCards : cards;
-        const canConfirmCardSelection = this.actionGuard.canConfirmCardSelection(
-            selectedCards.map(getCard),
-            state,
-            getCard(corporation),
-            selectedPreludes.map(getCard)
-        );
+        const possibleCards = pendingCardSelection
+            ? pendingCardSelection.possibleCards
+            : cards;
+        const canConfirmCardSelection =
+            this.actionGuard.canConfirmCardSelection(
+                selectedCards.map(getCard),
+                state,
+                getCard(corporation),
+                selectedPreludes.map(getCard)
+            );
         if (!canConfirmCardSelection) {
             throw new Error('Cannot confirm card selection');
         }
         if (
             !selectedCards.every(selectedCard =>
-                possibleCards.some(possibleCard => possibleCard.name === selectedCard.name)
+                possibleCards.some(
+                    possibleCard => possibleCard.name === selectedCard.name
+                )
             )
         ) {
             throw new Error('Trying to select invalid card');
         }
         if (pendingDiscard) {
-            this.queue.unshift(discardCards(selectedCards, loggedInPlayerIndex));
+            this.queue.unshift(
+                discardCards(selectedCards, loggedInPlayerIndex)
+            );
             this.processQueue();
             return;
         }
         const gameStage = this.getGameStage();
         switch (gameStage) {
             case GameStage.CORPORATION_SELECTION: {
-                if (!this.actionGuard.canPlayCorporation(getCard(corporation))) {
+                if (
+                    !this.actionGuard.canPlayCorporation(getCard(corporation))
+                ) {
                     throw new Error('Cannot play corporation');
                 }
                 this.dispatch(setCorporation(corporation, loggedInPlayerIndex));
                 this.playCard({serializedCard: corporation, payment: {}});
-                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
+                this.queue.push(
+                    payForCards(selectedCards, loggedInPlayerIndex, payment)
+                );
                 this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
-                this.queue.push(setPreludes(selectedPreludes, loggedInPlayerIndex));
+                this.queue.push(
+                    setPreludes(selectedPreludes, loggedInPlayerIndex)
+                );
                 this.queue.push(
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                                !selectedCards.some(
+                                    selectedCard =>
+                                        selectedCard.name === card.name
+                                )
                         ),
                         loggedInPlayerIndex
                     )
@@ -949,17 +1055,24 @@ export class ApiActionHandler {
                 break;
             }
             case GameStage.DRAFTING: {
-                this.queue.push(draftCard(selectedCards[0], loggedInPlayerIndex));
+                this.queue.push(
+                    draftCard(selectedCards[0], loggedInPlayerIndex)
+                );
                 break;
             }
             case GameStage.BUY_OR_DISCARD: {
-                this.queue.push(payForCards(selectedCards, loggedInPlayerIndex, payment));
+                this.queue.push(
+                    payForCards(selectedCards, loggedInPlayerIndex, payment)
+                );
                 this.queue.push(addCards(selectedCards, loggedInPlayerIndex));
                 this.queue.push(
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                                !selectedCards.some(
+                                    selectedCard =>
+                                        selectedCard.name === card.name
+                                )
                         ),
                         loggedInPlayerIndex
                     )
@@ -969,14 +1082,19 @@ export class ApiActionHandler {
             }
             case GameStage.ACTIVE_ROUND: {
                 if (isBuyingCards) {
-                    this.dispatch(payForCards(selectedCards, loggedInPlayerIndex, payment));
+                    this.dispatch(
+                        payForCards(selectedCards, loggedInPlayerIndex, payment)
+                    );
                 }
                 this.dispatch(addCards(selectedCards, loggedInPlayerIndex));
                 this.dispatch(
                     discardCards(
                         possibleCards.filter(
                             card =>
-                                !selectedCards.some(selectedCard => selectedCard.name === card.name)
+                                !selectedCards.some(
+                                    selectedCard =>
+                                        selectedCard.name === card.name
+                                )
                         ),
                         loggedInPlayerIndex
                     )
@@ -1008,7 +1126,10 @@ export class ApiActionHandler {
             throw new Error('No action found');
         }
 
-        const [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(action, state);
+        const [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(
+            action,
+            state
+        );
 
         if (!canPlay) {
             throw new Error(reason);
@@ -1069,7 +1190,13 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    fundAward({award, payment}: {award: string; payment: NumericPropertyCounter<Resource>}) {
+    fundAward({
+        award,
+        payment,
+    }: {
+        award: string;
+        payment: NumericPropertyCounter<Resource>;
+    }) {
         const [canPlay, reason] = this.actionGuard.canFundAward(award);
 
         if (!canPlay) {
@@ -1138,14 +1265,18 @@ export class ApiActionHandler {
             const card = getCard(prelude);
             return this.actionGuard.canSkipPrelude(card, player);
         });
-        if (playablePreludes.length === preludes.length && preludes.length > 0) {
+        if (
+            playablePreludes.length === preludes.length &&
+            preludes.length > 0
+        ) {
             this.queue.push(discardPreludes(this.loggedInPlayerIndex));
         }
         this.processQueue();
     }
 
     passGeneration() {
-        const [canPassGeneration, reason] = this.actionGuard.canPassGeneration();
+        const [canPassGeneration, reason] =
+            this.actionGuard.canPassGeneration();
 
         if (!canPassGeneration) {
             throw new Error(reason);
@@ -1161,7 +1292,8 @@ export class ApiActionHandler {
     }
 
     completePlaceTile({cell}: {cell: Cell}) {
-        const [canCompletePlaceTile, reason] = this.actionGuard.canCompletePlaceTile(cell);
+        const [canCompletePlaceTile, reason] =
+            this.actionGuard.canCompletePlaceTile(cell);
 
         if (!canCompletePlaceTile) {
             throw new Error(reason);
@@ -1170,20 +1302,31 @@ export class ApiActionHandler {
         const loggedInPlayer = this.getLoggedInPlayer();
         const {pendingTilePlacement} = loggedInPlayer;
         if (!pendingTilePlacement) throw new Error('no pending tile placement');
-        const matchingCell = this.actionGuard.getMatchingCell(cell, pendingTilePlacement);
+        const matchingCell = this.actionGuard.getMatchingCell(
+            cell,
+            pendingTilePlacement
+        );
         if (!matchingCell) throw new Error('Cannot place on specified cell');
-        this.queue.unshift(...this.makeTilePlacementActions(pendingTilePlacement, matchingCell));
+        this.queue.unshift(
+            ...this.makeTilePlacementActions(pendingTilePlacement, matchingCell)
+        );
         this.processQueue();
     }
 
-    private makeTilePlacementActions(pendingTilePlacement: TilePlacement, cell: Cell) {
+    private makeTilePlacementActions(
+        pendingTilePlacement: TilePlacement,
+        cell: Cell
+    ) {
         const items: AnyAction[] = [];
         const type = pendingTilePlacement.type!;
         this.triggerEffectsFromTilePlacement(type, cell);
         const loggedInPlayer = this.getLoggedInPlayer();
         const {state} = this;
 
-        const tilePlacementBonus = getTilePlacementBonus(cell, pendingTilePlacement);
+        const tilePlacementBonus = getTilePlacementBonus(
+            cell,
+            pendingTilePlacement
+        );
         for (const bonus of tilePlacementBonus) {
             items.unshift(
                 this.createInitialGainResourceAction(
@@ -1236,7 +1379,8 @@ export class ApiActionHandler {
     }
 
     completeRemoveTile({cell}: {cell: Cell}) {
-        const [canCompleteRemoveTile, reason] = this.actionGuard.canCompleteRemoveTile(cell);
+        const [canCompleteRemoveTile, reason] =
+            this.actionGuard.canCompleteRemoveTile(cell);
         if (!canCompleteRemoveTile) {
             throw new Error(reason);
         }
@@ -1254,7 +1398,10 @@ export class ApiActionHandler {
         const loggedInPlayer = this.getLoggedInPlayer();
 
         this.queue.unshift(
-            completeUserToPutAdditionalColonyTileIntoPlay(colony, loggedInPlayer.index)
+            completeUserToPutAdditionalColonyTileIntoPlay(
+                colony,
+                loggedInPlayer.index
+            )
         );
         this.processQueue();
     }
@@ -1267,12 +1414,19 @@ export class ApiActionHandler {
         variableAmount: number;
     }) {
         const [canCompleteChooseResourceActionDetails, reason] =
-            this.actionGuard.canCompleteChooseResourceActionDetails(option, variableAmount);
+            this.actionGuard.canCompleteChooseResourceActionDetails(
+                option,
+                variableAmount
+            );
         if (!canCompleteChooseResourceActionDetails) {
             throw new Error(reason);
         }
 
-        const action = getAction(option, this.getLoggedInPlayer(), variableAmount);
+        const action = getAction(
+            option,
+            this.getLoggedInPlayer(),
+            variableAmount
+        );
 
         this.dispatch(action);
 
@@ -1302,13 +1456,21 @@ export class ApiActionHandler {
         }
 
         this.queue.unshift(
-            increaseProduction(production, player.pendingIncreaseLowestProduction, player.index),
+            increaseProduction(
+                production,
+                player.pendingIncreaseLowestProduction,
+                player.index
+            ),
             completeIncreaseLowestProduction(player.index)
         );
         this.processQueue();
     }
 
-    gainStandardResources({resources}: {resources: NumericPropertyCounter<Resource>}) {
+    gainStandardResources({
+        resources,
+    }: {
+        resources: NumericPropertyCounter<Resource>;
+    }) {
         const player = this.getLoggedInPlayer();
         if (!player.pendingGainStandardResources) {
             throw new Error('Cannot gain standard resources right now');
@@ -1326,13 +1488,17 @@ export class ApiActionHandler {
         }
 
         if (totalResources !== quantity) {
-            throw new Error('Not asking for the right number of standard resources');
+            throw new Error(
+                'Not asking for the right number of standard resources'
+            );
         }
 
         for (const resource of STANDARD_RESOURCES) {
             const quantity = resources?.[resource];
             if (quantity) {
-                this.queue.unshift(gainResource(resource, quantity, player.index));
+                this.queue.unshift(
+                    gainResource(resource, quantity, player.index)
+                );
             }
         }
 
@@ -1351,7 +1517,11 @@ export class ApiActionHandler {
         tradeIncome: number;
         numHeat: number;
     }) {
-        const [canTrade, reason] = this.actionGuard.canTradeWithPayment(payment, colony, numHeat);
+        const [canTrade, reason] = this.actionGuard.canTradeWithPayment(
+            payment,
+            colony,
+            numHeat
+        );
 
         if (!canTrade) {
             throw new Error(reason);
@@ -1360,7 +1530,9 @@ export class ApiActionHandler {
         const player = this.getLoggedInPlayer();
 
         const validPayments = getValidTradePayment(player);
-        const validPayment = validPayments.find(validPayment => validPayment.resource === payment);
+        const validPayment = validPayments.find(
+            validPayment => validPayment.resource === payment
+        );
         if (!validPayment) throw new Error('valid payment not found');
 
         this.addGameActionToLog({
@@ -1380,19 +1552,32 @@ export class ApiActionHandler {
         let paymentQuantity = validPayment.quantity;
 
         if (numHeat && validPayment.resource === Resource.MEGACREDIT) {
-            this.dispatch(removeResource(Resource.HEAT, numHeat, player.index, player.index));
+            this.dispatch(
+                removeResource(
+                    Resource.HEAT,
+                    numHeat,
+                    player.index,
+                    player.index
+                )
+            );
             paymentQuantity -= numHeat;
         }
 
         this.dispatch(
-            removeResource(validPayment.resource, paymentQuantity, player.index, player.index)
+            removeResource(
+                validPayment.resource,
+                paymentQuantity,
+                player.index,
+                player.index
+            )
         );
 
         this.handleTrade(colony, tradeIncome);
     }
 
     tradeForFree({colony, tradeIncome}: {colony: string; tradeIncome: number}) {
-        const [canTradeForFree, reason] = this.actionGuard.canTradeForFree(colony);
+        const [canTradeForFree, reason] =
+            this.actionGuard.canTradeForFree(colony);
 
         if (!canTradeForFree) {
             throw new Error(reason);
@@ -1408,11 +1593,21 @@ export class ApiActionHandler {
         }
 
         const player = this.getLoggedInPlayer();
-        const {placeDelegatesInOneParty: numDelegates} = getLobbyingAction(this.state, player);
+        const {placeDelegatesInOneParty: numDelegates} = getLobbyingAction(
+            this.state,
+            player
+        );
         this.queue.push(makePayment(payment, player.index));
-        this.queue.push(placeDelegatesInOneParty(numDelegates, party, true, player.index));
+        this.queue.push(
+            placeDelegatesInOneParty(numDelegates, party, true, player.index)
+        );
         this.queue.push(completeAction(player.index));
         this.processQueue();
+    }
+
+    setNotes({notes}: {notes: string}) {
+        const player = this.getLoggedInPlayer();
+        this.dispatch(setNotes(notes, player.index));
     }
 
     completePlaceDelegateInOneParty({party}: {party: string}) {
@@ -1430,7 +1625,12 @@ export class ApiActionHandler {
         }
 
         this.queue.unshift(
-            placeDelegatesInOneParty(player.placeDelegatesInOneParty, party, false, player.index)
+            placeDelegatesInOneParty(
+                player.placeDelegatesInOneParty,
+                party,
+                false,
+                player.index
+            )
         );
         this.processQueue();
     }
@@ -1450,11 +1650,19 @@ export class ApiActionHandler {
             throw new Error('No neutral non leader delegate to exchange');
         }
 
-        this.queue.unshift(exchangeNeutralNonLeaderDelegate(party, player.index));
+        this.queue.unshift(
+            exchangeNeutralNonLeaderDelegate(party, player.index)
+        );
         this.processQueue();
     }
 
-    completeRemoveNonLeaderDelegate({party, index}: {party: string; index: number}) {
+    completeRemoveNonLeaderDelegate({
+        party,
+        index,
+    }: {
+        party: string;
+        index: number;
+    }) {
         const player = this.getLoggedInPlayer();
         if (!player.removeNonLeaderDelegate) {
             throw new Error('Cannot remove non leader delegate right now');
@@ -1474,7 +1682,14 @@ export class ApiActionHandler {
     }
 
     doRulingPolicyAction({payment}: {payment: Payment}) {
-        if (!canClickPolicy(this.state, this.actionGuard, this.getLoggedInPlayer(), payment)) {
+        if (
+            !canClickPolicy(
+                this.state,
+                this.actionGuard,
+                this.getLoggedInPlayer(),
+                payment
+            )
+        ) {
             throw new Error('Cannot do ruling policy');
         }
 
@@ -1500,7 +1715,11 @@ export class ApiActionHandler {
         this.processQueue();
     }
 
-    private handleTrade(colony: string, tradeIncome: number, withPriority: boolean = false) {
+    private handleTrade(
+        colony: string,
+        tradeIncome: number,
+        withPriority: boolean = false
+    ) {
         const player = this.getLoggedInPlayer();
 
         const matchingColony = this.game.state.common.colonies?.find(
@@ -1509,10 +1728,15 @@ export class ApiActionHandler {
 
         if (!matchingColony) throw new Error('colony not found');
         // Check tradeIncome is in range for player
-        const eligibleTradeIncomes = getEligibleTradeIncomes(matchingColony, player);
+        const eligibleTradeIncomes = getEligibleTradeIncomes(
+            matchingColony,
+            player
+        );
 
         if (!eligibleTradeIncomes.includes(tradeIncome)) {
-            throw new Error('Trying to claim trade income that the player is not eligible for');
+            throw new Error(
+                'Trying to claim trade income that the player is not eligible for'
+            );
         }
 
         // Just run it in both cases, doesn't matter
@@ -1532,7 +1756,9 @@ export class ApiActionHandler {
             items
         );
 
-        this.dispatch(moveColonyTileTrack(colony, matchingColony.colonies.length));
+        this.dispatch(
+            moveColonyTileTrack(colony, matchingColony.colonies.length)
+        );
 
         for (const playerIndex of matchingColony.colonies) {
             this.playAction({
@@ -1561,7 +1787,11 @@ export class ApiActionHandler {
         if (!colonyObject) {
             throw new Error('Colony does not exist');
         }
-        const [canBuild, reason] = canPlaceColony(colonyObject, player.index, player.placeColony);
+        const [canBuild, reason] = canPlaceColony(
+            colonyObject,
+            player.index,
+            player.placeColony
+        );
         if (!canBuild) {
             throw new Error(reason);
         }
@@ -1587,20 +1817,33 @@ export class ApiActionHandler {
     }) {
         const player = this.getLoggedInPlayer();
 
-        const [canPlay, reason] = this.actionGuard.canCompleteIncreaseAndDecreaseColonyTileTracks(
-            increase,
-            decrease
-        );
+        const [canPlay, reason] =
+            this.actionGuard.canCompleteIncreaseAndDecreaseColonyTileTracks(
+                increase,
+                decrease
+            );
 
         if (!canPlay) {
             throw new Error(reason);
         }
 
-        this.queue.unshift(increaseAndDecreaseColonyTileTracks(increase, decrease, player.index));
+        this.queue.unshift(
+            increaseAndDecreaseColonyTileTracks(
+                increase,
+                decrease,
+                player.index
+            )
+        );
         this.processQueue();
     }
 
-    completeChooseNextAction({actionIndex, payment}: {actionIndex: number; payment?: Payment}) {
+    completeChooseNextAction({
+        actionIndex,
+        payment,
+    }: {
+        actionIndex: number;
+        payment?: Payment;
+    }) {
         const player = this.getLoggedInPlayer();
         const actions = player.pendingNextActionChoice;
         if (!actions) {
@@ -1613,8 +1856,15 @@ export class ApiActionHandler {
         if (player.index !== state.common.currentPlayerIndex) {
             throw new Error('Not your turn');
         }
-        if (getIsPlayerMakingDecisionExceptForNextActionChoice(this.state, player)) {
-            throw new Error('Cannot choose next action while making other decision');
+        if (
+            getIsPlayerMakingDecisionExceptForNextActionChoice(
+                this.state,
+                player
+            )
+        ) {
+            throw new Error(
+                'Cannot choose next action while making other decision'
+            );
         }
         let action = actions[actionIndex];
         if (!action) {
@@ -1624,9 +1874,20 @@ export class ApiActionHandler {
             throw new Error('User cannot choose action');
         }
         const usedActions = actions.filter(Boolean);
-        const hasUnpaidActions = hasUnpaidResources(usedActions, state, player, this.actionGuard);
+        const hasUnpaidActions = hasUnpaidResources(
+            usedActions,
+            state,
+            player,
+            this.actionGuard
+        );
         if (
-            !canPlayActionNext(action, this.state, player.index, hasUnpaidActions, this.actionGuard)
+            !canPlayActionNext(
+                action,
+                this.state,
+                player.index,
+                hasUnpaidActions,
+                this.actionGuard
+            )
         ) {
             throw new Error('Cannot play this action next');
         }
@@ -1652,7 +1913,10 @@ export class ApiActionHandler {
                         payment
                     ) ||
                     // Can I pay with the player's resources? Need to check so player isnt trying to take resources they dont have
-                    !this.actionGuard.canAffordActionCost({cost: action.payload.amount}, player)
+                    !this.actionGuard.canAffordActionCost(
+                        {cost: action.payload.amount},
+                        player
+                    )
                 ) {
                     throw new Error('Payment not acceptable');
                 }
@@ -1683,12 +1947,16 @@ export class ApiActionHandler {
             throw new Error('Cannot start over as not current player');
         }
         if (this.state.common.gameStage !== GameStage.ACTIVE_ROUND) {
-            throw new Error('Starting over not currently supported outside active round');
+            throw new Error(
+                'Starting over not currently supported outside active round'
+            );
         }
         const player = this.getLoggedInPlayer();
         const items = player.pendingNextActionChoice ?? [];
         if (!hasUnpaidResources(items, this.state, player, this.actionGuard)) {
-            throw new Error('Start over not implemented outside debt scenario yet.');
+            throw new Error(
+                'Start over not implemented outside debt scenario yet.'
+            );
         }
         if (checkpoint) {
             this.dispatch(setGame(checkpoint));
@@ -1696,7 +1964,14 @@ export class ApiActionHandler {
     }
 
     private playActionBenefits(
-        {action, state, parent, playedCard, thisPlayerIndex, withPriority}: PlayActionParams,
+        {
+            action,
+            state,
+            parent,
+            playedCard,
+            thisPlayerIndex,
+            withPriority,
+        }: PlayActionParams,
         queue = this.queue
     ) {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
@@ -1704,7 +1979,12 @@ export class ApiActionHandler {
         const items: Array<AnyAction> = [];
         // Must happen first (search for life "gains resource" based on discarded card)
         if (action.revealAndDiscardTopCards) {
-            items.push(revealAndDiscardTopCards(action.revealAndDiscardTopCards, playerIndex));
+            items.push(
+                revealAndDiscardTopCards(
+                    action.revealAndDiscardTopCards,
+                    playerIndex
+                )
+            );
         }
         for (const resource in action.gainResource) {
             items.push(
@@ -1732,7 +2012,8 @@ export class ApiActionHandler {
             const isOcean = tilePlacement.type === TileType.OCEAN;
             if (
                 isOcean &&
-                numOceansPlacedSoFar + oceansInQueue >= MAX_PARAMETERS[Parameter.OCEAN]
+                numOceansPlacedSoFar + oceansInQueue >=
+                    MAX_PARAMETERS[Parameter.OCEAN]
             ) {
             } else {
                 const pendingTilePlacement = {
@@ -1741,11 +2022,24 @@ export class ApiActionHandler {
                 };
                 const cells = this.state.common.board
                     .flat()
-                    .filter(cell => this.actionGuard.canCompletePlaceTile(cell, tilePlacement)[0]);
+                    .filter(
+                        cell =>
+                            this.actionGuard.canCompletePlaceTile(
+                                cell,
+                                tilePlacement
+                            )[0]
+                    );
                 if (cells.length === 1) {
-                    items.push(...this.makeTilePlacementActions(pendingTilePlacement, cells[0]));
+                    items.push(
+                        ...this.makeTilePlacementActions(
+                            pendingTilePlacement,
+                            cells[0]
+                        )
+                    );
                 } else if (cells.length > 1) {
-                    items.push(askUserToPlaceTile(pendingTilePlacement, playerIndex));
+                    items.push(
+                        askUserToPlaceTile(pendingTilePlacement, playerIndex)
+                    );
                 }
                 if (isOcean) {
                     oceansInQueue += 1;
@@ -1761,13 +2055,17 @@ export class ApiActionHandler {
                 if (cells.length === 1) {
                     items.push(removeTile(cells[0], playerIndex));
                 } else if (cells.length > 1) {
-                    items.push(askUserToRemoveTile(action.removeTile, playerIndex));
+                    items.push(
+                        askUserToRemoveTile(action.removeTile, playerIndex)
+                    );
                 }
             }
         }
 
         if (action.useBlueCardActionAlreadyUsedThisGeneration) {
-            items.push(askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex));
+            items.push(
+                askUserToUseBlueCardActionAlreadyUsedThisGeneration(playerIndex)
+            );
         }
 
         if (action.gainAllColonyBonuses) {
@@ -1798,7 +2096,9 @@ export class ApiActionHandler {
         }
 
         if (action.choosePrelude) {
-            items.push(askUserToChoosePrelude(action.choosePrelude, playerIndex));
+            items.push(
+                askUserToChoosePrelude(action.choosePrelude, playerIndex)
+            );
         }
 
         if (action.fundAward) {
@@ -1832,7 +2132,11 @@ export class ApiActionHandler {
             if (
                 options.length === 1 &&
                 !options[0].isVariable &&
-                !canSkipResourceActionDetails(wrappers, actionType, stealResourceResourceAndAmounts)
+                !canSkipResourceActionDetails(
+                    wrappers,
+                    actionType,
+                    stealResourceResourceAndAmounts
+                )
             ) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
@@ -1867,7 +2171,10 @@ export class ApiActionHandler {
 
         if (action.increaseStoredResourceAmount) {
             items.push(
-                increaseStoredResourceAmount(action.increaseStoredResourceAmount, playerIndex)
+                increaseStoredResourceAmount(
+                    action.increaseStoredResourceAmount,
+                    playerIndex
+                )
             );
         }
 
@@ -1892,7 +2199,10 @@ export class ApiActionHandler {
                 );
             } else {
                 items.push(
-                    askUserToIncreaseLowestProduction(action.increaseLowestProduction, playerIndex)
+                    askUserToIncreaseLowestProduction(
+                        action.increaseLowestProduction,
+                        playerIndex
+                    )
                 );
             }
         }
@@ -1916,7 +2226,11 @@ export class ApiActionHandler {
             if (
                 options.length === 1 &&
                 !options[0].isVariable &&
-                !canSkipResourceActionDetails(wrappers, actionType, stealResourceResourceAndAmounts)
+                !canSkipResourceActionDetails(
+                    wrappers,
+                    actionType,
+                    stealResourceResourceAndAmounts
+                )
             ) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
@@ -1987,7 +2301,8 @@ export class ApiActionHandler {
             const increaseParametersWithBonuses: ParameterCounter = {};
 
             for (const parameter of parameters) {
-                increaseParametersWithBonuses[parameter] = action.increaseParameter[parameter] ?? 0;
+                increaseParametersWithBonuses[parameter] =
+                    action.increaseParameter[parameter] ?? 0;
             }
 
             for (const parameter of parameters) {
@@ -2010,9 +2325,13 @@ export class ApiActionHandler {
                     // If the increase triggers a parameter increase, update the object.
                     // Relying on the order of the parameters variable here.
                     const newLevel =
-                        i * PARAMETER_STEPS[parameter] + state.common.parameters[parameter];
+                        i * PARAMETER_STEPS[parameter] +
+                        state.common.parameters[parameter];
                     const bonus = PARAMETER_BONUSES[parameter][newLevel];
-                    if (!action.noParameterBonuses && bonus?.increaseParameter) {
+                    if (
+                        !action.noParameterBonuses &&
+                        bonus?.increaseParameter
+                    ) {
                         for (const parameter in bonus.increaseParameter) {
                             increaseParametersWithBonuses[parameter] +=
                                 bonus.increaseParameter[parameter];
@@ -2020,7 +2339,10 @@ export class ApiActionHandler {
                         // combine the bonus parameter increase with the rest of the parameter increases.
                         // That way an oxygen can trigger a temperature which triggers an
                         // ocean.
-                    } else if (!action.noParameterBonuses && bonus?.increaseTerraformRating) {
+                    } else if (
+                        !action.noParameterBonuses &&
+                        bonus?.increaseTerraformRating
+                    ) {
                         // combine terraform increases into one action/log message.
                         (terraformRatingIncrease as number) +=
                             bonus.increaseTerraformRating as number;
@@ -2032,7 +2354,10 @@ export class ApiActionHandler {
                             continue;
                         }
                         const playActionParams: PlayActionParams = {
-                            action: {...bonus, noParameterBonuses: action.noParameterBonuses},
+                            action: {
+                                ...bonus,
+                                noParameterBonuses: action.noParameterBonuses,
+                            },
                             state,
                             parent,
                             playedCard,
@@ -2065,7 +2390,12 @@ export class ApiActionHandler {
                 player,
                 playedCard
             );
-            items.push(increaseTerraformRating(numericTerraformRatingIncrease, playerIndex));
+            items.push(
+                increaseTerraformRating(
+                    numericTerraformRatingIncrease,
+                    playerIndex
+                )
+            );
             for (let i = 0; i < numericTerraformRatingIncrease; i++) {
                 this.triggerEffectsFromIncreasedTerraformRating();
             }
@@ -2087,11 +2417,15 @@ export class ApiActionHandler {
         }
 
         if (action.oceanAdjacencyBonus) {
-            items.push(setOceanAdjacencybonus(action.oceanAdjacencyBonus, playerIndex));
+            items.push(
+                setOceanAdjacencybonus(action.oceanAdjacencyBonus, playerIndex)
+            );
         }
 
         if (action.revealTakeAndDiscard) {
-            items.push(revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex));
+            items.push(
+                revealTakeAndDiscard(action.revealTakeAndDiscard, playerIndex)
+            );
         }
         if (action.placeColony) {
             items.push(askUserToPlaceColony(action.placeColony, playerIndex));
@@ -2101,7 +2435,10 @@ export class ApiActionHandler {
         }
         if (action.increaseColonyTileTrackRange) {
             items.push(
-                increaseColonyTileTrackRange(action.increaseColonyTileTrackRange, playerIndex)
+                increaseColonyTileTrackRange(
+                    action.increaseColonyTileTrackRange,
+                    playerIndex
+                )
             );
         }
         if (action.increaseAndDecreaseColonyTileTracks) {
@@ -2114,15 +2451,21 @@ export class ApiActionHandler {
         }
 
         if (action.placeDelegatesInOneParty) {
-            const delegatesInReserve = state.common.turmoil?.delegateReserve[playerIndex] ?? [];
+            const delegatesInReserve =
+                state.common.turmoil?.delegateReserve[playerIndex] ?? [];
             if (delegatesInReserve.length > 0) {
                 items.push(
-                    askUserToPlaceDelegatesInOneParty(action.placeDelegatesInOneParty, playerIndex)
+                    askUserToPlaceDelegatesInOneParty(
+                        action.placeDelegatesInOneParty,
+                        playerIndex
+                    )
                 );
             }
         }
         if (action.increasedInfluence) {
-            items.push(increaseBaseInfluence(action.increasedInfluence, playerIndex));
+            items.push(
+                increaseBaseInfluence(action.increasedInfluence, playerIndex)
+            );
         }
         if (action.exchangeNeutralNonLeaderDelegate) {
             // Count neutral non leader delegates.
@@ -2136,16 +2479,22 @@ export class ApiActionHandler {
                     const [partyLeader, ...rest] = delegations[delegation];
                     for (const delegate of rest) {
                         if (delegate.playerIndex == undefined) {
-                            partiesWithNeutralNonLeaderDelegates.push(delegation);
+                            partiesWithNeutralNonLeaderDelegates.push(
+                                delegation
+                            );
                             break;
                         }
                     }
                 }
                 if (partiesWithNeutralNonLeaderDelegates.length === 1) {
                     const [party] = partiesWithNeutralNonLeaderDelegates;
-                    items.push(exchangeNeutralNonLeaderDelegate(party, playerIndex));
+                    items.push(
+                        exchangeNeutralNonLeaderDelegate(party, playerIndex)
+                    );
                 } else {
-                    items.push(askUserToExchangeNeutralNonLeaderDelegate(playerIndex));
+                    items.push(
+                        askUserToExchangeNeutralNonLeaderDelegate(playerIndex)
+                    );
                 }
             }
         }
@@ -2159,13 +2508,21 @@ export class ApiActionHandler {
                     string,
                     Set<number | undefined>
                 > = new Map(
-                    Object.keys(turmoil.delegations).map(partyName => [partyName, new Set()])
+                    Object.keys(turmoil.delegations).map(partyName => [
+                        partyName,
+                        new Set(),
+                    ])
                 );
                 const {delegations} = turmoil;
-                for (const [partyName, delegation] of Object.entries(delegations)) {
+                for (const [partyName, delegation] of Object.entries(
+                    delegations
+                )) {
                     const [partyLeader, ...rest] = delegation;
                     for (const delegate of rest) {
-                        const playerIndexSet = nonLeaderDelegatePlayerIndicesByParty.get(partyName);
+                        const playerIndexSet =
+                            nonLeaderDelegatePlayerIndicesByParty.get(
+                                partyName
+                            );
 
                         if (playerIndexSet) {
                             playerIndexSet.add(delegate.playerIndex);
@@ -2176,16 +2533,20 @@ export class ApiActionHandler {
                 const allNonLeaderDelegates = Array.from(
                     nonLeaderDelegatePlayerIndicesByParty.entries()
                 ).flatMap(([partyName, nonLeaderPlayerIndices]) => {
-                    return Array.from(nonLeaderPlayerIndices).map(playerIndex => ({
-                        playerIndex,
-                        partyName,
-                    }));
+                    return Array.from(nonLeaderPlayerIndices).map(
+                        playerIndex => ({
+                            playerIndex,
+                            partyName,
+                        })
+                    );
                 });
 
                 if (allNonLeaderDelegates.length === 1) {
                     const {partyName} = allNonLeaderDelegates[0];
                     // Has to be delegate 1 (leader is delegate 0)
-                    items.push(removeNonLeaderDelegate(partyName, playerIndex, 1));
+                    items.push(
+                        removeNonLeaderDelegate(partyName, playerIndex, 1)
+                    );
                 } else {
                     items.push(askUserToRemoveNonLeaderDelegate(playerIndex));
                 }
@@ -2274,7 +2635,11 @@ export class ApiActionHandler {
             if (
                 options.length === 1 &&
                 !options[0].isVariable &&
-                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+                !canSkipResourceActionDetails(
+                    wrappers,
+                    actionType,
+                    resourceAndAmounts
+                )
             ) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
@@ -2293,7 +2658,14 @@ export class ApiActionHandler {
         }
 
         if (action.choice && action.choice.length > 0) {
-            items.push(askUserToMakeActionChoice(action.choice, parent!, playedCard, playerIndex));
+            items.push(
+                askUserToMakeActionChoice(
+                    action.choice,
+                    parent!,
+                    playedCard,
+                    playerIndex
+                )
+            );
         }
 
         for (const resource in action.removeResource) {
@@ -2419,7 +2791,11 @@ export class ApiActionHandler {
         if (
             options.length === 1 &&
             !options[0].isVariable &&
-            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            !canSkipResourceActionDetails(
+                wrappers,
+                actionType,
+                resourceAndAmounts
+            )
         ) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
@@ -2443,10 +2819,12 @@ export class ApiActionHandler {
         locationType?: ResourceLocationType
     ) {
         // HACK: all instances of `gainResourceOption` use a number amount, so we don't account for variable amounts here
-        const resourceAndAmounts = Object.keys(resourceOptions).map((resource: Resource) => ({
-            resource,
-            amount: resourceOptions[resource] as number,
-        }));
+        const resourceAndAmounts = Object.keys(resourceOptions).map(
+            (resource: Resource) => ({
+                resource,
+                amount: resourceOptions[resource] as number,
+            })
+        );
         const actionType = 'gainResource';
         const player = this.state.players[playerIndex];
         const wrappers = getPlayerOptionWrappers(this.state, player, {
@@ -2459,7 +2837,11 @@ export class ApiActionHandler {
         if (
             options.length === 1 &&
             !options[0].isVariable &&
-            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            !canSkipResourceActionDetails(
+                wrappers,
+                actionType,
+                resourceAndAmounts
+            )
         ) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
@@ -2501,7 +2883,11 @@ export class ApiActionHandler {
             if (
                 options.length === 1 &&
                 !options[0].isVariable &&
-                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+                !canSkipResourceActionDetails(
+                    wrappers,
+                    actionType,
+                    resourceAndAmounts
+                )
             ) {
                 return getAction(options[0], player, 0);
             } else if (options.length === 0) {
@@ -2566,7 +2952,11 @@ export class ApiActionHandler {
             if (
                 options.length === 1 &&
                 !options[0].isVariable &&
-                !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+                !canSkipResourceActionDetails(
+                    wrappers,
+                    actionType,
+                    resourceAndAmounts
+                )
             ) {
                 return getAction(options[0], player, 0);
             } else if (options.length === 0) {
@@ -2584,7 +2974,12 @@ export class ApiActionHandler {
 
         if (isStorableResource(resource)) {
             // Assumes you're removing from "This card" (parent)
-            return removeStorableResource(resource, amount as number, playerIndex, parent!);
+            return removeStorableResource(
+                resource,
+                amount as number,
+                playerIndex,
+                parent!
+            );
         } else {
             // Assumes you're removing from your own resources
             return removeResource(
@@ -2604,10 +2999,12 @@ export class ApiActionHandler {
         locationType?: ResourceLocationType
     ) {
         // HACK: all instances of `removeResourceOption` use a number amount, so we don't account for variable amounts here
-        const resourceAndAmounts = Object.keys(resourceOptions).map((resource: Resource) => ({
-            resource,
-            amount: resourceOptions[resource] as number,
-        }));
+        const resourceAndAmounts = Object.keys(resourceOptions).map(
+            (resource: Resource) => ({
+                resource,
+                amount: resourceOptions[resource] as number,
+            })
+        );
         const actionType = 'removeResource';
         const player = this.state.players[playerIndex];
         const wrappers = getPlayerOptionWrappers(this.state, player, {
@@ -2620,7 +3017,11 @@ export class ApiActionHandler {
         if (
             options.length === 1 &&
             !options[0].isVariable &&
-            !canSkipResourceActionDetails(wrappers, actionType, resourceAndAmounts)
+            !canSkipResourceActionDetails(
+                wrappers,
+                actionType,
+                resourceAndAmounts
+            )
         ) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
@@ -2656,7 +3057,11 @@ export class ApiActionHandler {
         const steps = action?.steps ?? [];
         if (steps.length > 0) {
             this.queue.push(
-                addActionToPlay({steps}, /* reverseOrder = */ false, this.loggedInPlayerIndex)
+                addActionToPlay(
+                    {steps},
+                    /* reverseOrder = */ false,
+                    this.loggedInPlayerIndex
+                )
             );
         }
     }
@@ -2679,7 +3084,9 @@ export function getActionsFromEffectForPlayer(
                     player,
                     loggedInPlayer.index
                 );
-                list.push(...actions.map(action => [action, card] as ActionCardPair));
+                list.push(
+                    ...actions.map(action => [action, card] as ActionCardPair)
+                );
             }
         }
     }
@@ -2701,7 +3108,10 @@ function getActionsFromEffect(
         if (trigger.placedTile === TileType.ANY_TILE && event.placedTile) {
             return [effectAction];
         }
-        if (trigger.placedTile === TileType.CITY && event.placedTile === TileType.CAPITAL) {
+        if (
+            trigger.placedTile === TileType.CITY &&
+            event.placedTile === TileType.CAPITAL
+        ) {
             return [effectAction];
         }
         if (event.placedTile !== trigger.placedTile) return [];
@@ -2711,7 +3121,11 @@ function getActionsFromEffect(
 
     if (trigger.steelOrTitaniumPlacementBonus) {
         const bonus = event.cell?.bonus || [];
-        if (!bonus.includes(Resource.STEEL) && !bonus.includes(Resource.TITANIUM)) return [];
+        if (
+            !bonus.includes(Resource.STEEL) &&
+            !bonus.includes(Resource.TITANIUM)
+        )
+            return [];
         return [effectAction];
     }
 
@@ -2778,7 +3192,9 @@ function getActionsFromEffect(
                 .filter(tags => !tags.includes(Tag.EVENT))
                 .flat();
 
-            const newTags = eventTags.filter(tag => !tagsSeenSoFar.includes(tag));
+            const newTags = eventTags.filter(
+                tag => !tagsSeenSoFar.includes(tag)
+            );
 
             return Array(newTags.length).fill(effectAction);
         }
@@ -2786,7 +3202,9 @@ function getActionsFromEffect(
     }
 
     const triggerTags = trigger.tags || [];
-    const numTagsTriggered = eventTags.filter(tag => triggerTags.includes(tag)).length;
+    const numTagsTriggered = eventTags.filter(tag =>
+        triggerTags.includes(tag)
+    ).length;
     return Array(numTagsTriggered).fill(effectAction);
 }
 
@@ -2811,12 +3229,17 @@ export function getTotalResourcesOwed(
             const tilePlacement = askUserToPlaceTile.match(item);
             return (
                 tilePlacement &&
-                actionGuard.canCompletePlaceTile(cell, item.payload.tilePlacement)[0]
+                actionGuard.canCompletePlaceTile(
+                    cell,
+                    item.payload.tilePlacement
+                )[0]
             );
         })
     );
 
-    const removeResourceActionsFromCells = reachableNegativeCells.map(cell => cell.action!);
+    const removeResourceActionsFromCells = reachableNegativeCells.map(
+        cell => cell.action!
+    );
 
     for (const action of removeResourceActionsFromCells) {
         for (const resource in action.removeResource) {
@@ -2836,7 +3259,10 @@ export function getTotalResourcesOwed(
                 );
             }
         } else if (addActionToPlay.match(action)) {
-            const actions = [action.payload.action, ...(action.payload.action?.steps ?? [])];
+            const actions = [
+                action.payload.action,
+                ...(action.payload.action?.steps ?? []),
+            ];
             for (const action of actions) {
                 const resources = action?.removeResource ?? {};
                 for (const resource in resources) {
@@ -2853,15 +3279,26 @@ export function getTotalResourcesOwed(
     return totalResourceOwed;
 }
 
-export function getTotalProductionDecreased(items: AnyAction[], state: GameState) {
+export function getTotalProductionDecreased(
+    items: AnyAction[],
+    state: GameState
+) {
     const totalProductionDecreased: Payment = {};
     for (const action of items) {
         if (decreaseProduction.match(action)) {
             const {amount, resource, targetPlayerIndex} = action.payload;
             const targetPlayer = state.players[targetPlayerIndex];
-            const targetPlayerAmountAvailable = targetPlayer.productions[resource];
-            const requiredDecrease = convertAmountToNumber(amount, state, targetPlayer);
-            if (targetPlayerAmountAvailable - requiredDecrease < MinimumProductions[resource]) {
+            const targetPlayerAmountAvailable =
+                targetPlayer.productions[resource];
+            const requiredDecrease = convertAmountToNumber(
+                amount,
+                state,
+                targetPlayer
+            );
+            if (
+                targetPlayerAmountAvailable - requiredDecrease <
+                MinimumProductions[resource]
+            ) {
                 totalProductionDecreased[resource] ||= 0;
                 totalProductionDecreased[resource]! += requiredDecrease;
             }
@@ -2877,7 +3314,12 @@ export function hasUnpaidResources(
     actionGuard: ActionGuard
 ) {
     items = items.filter(Boolean);
-    const totalResourceOwed = getTotalResourcesOwed(items, state, player, actionGuard);
+    const totalResourceOwed = getTotalResourcesOwed(
+        items,
+        state,
+        player,
+        actionGuard
+    );
     const totalProductionDecreased = getTotalProductionDecreased(items, state);
 
     for (const resource in totalResourceOwed) {

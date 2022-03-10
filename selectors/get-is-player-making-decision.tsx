@@ -1,10 +1,16 @@
 import {GameStage} from 'constants/game';
 import {GameState, PlayerState} from 'reducer';
 
-export function getIsPlayerMakingDecision(state: GameState, loggedInPlayer: PlayerState): boolean {
+export function getIsPlayerMakingDecision(
+    state: GameState,
+    loggedInPlayer: PlayerState
+): boolean {
     try {
         return (
-            getIsPlayerMakingDecisionExceptForNextActionChoice(state, loggedInPlayer) ||
+            getIsPlayerMakingDecisionExceptForNextActionChoice(
+                state,
+                loggedInPlayer
+            ) ||
             !!loggedInPlayer.pendingNextActionChoice ||
             ((loggedInPlayer?.preludes?.length ?? 0) > 0 &&
                 state.common.currentPlayerIndex === loggedInPlayer.index &&
@@ -22,7 +28,8 @@ export function getIsPlayerMakingDecisionExceptForNextActionChoice(
     try {
         const pendingActions =
             (state.common.revealedCards.length > 0 &&
-                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
+                (state.common.controllingPlayerIndex ??
+                    state.common.currentPlayerIndex) ===
                     loggedInPlayer.index) ||
             loggedInPlayer.pendingTilePlacement ||
             loggedInPlayer.pendingTileRemoval ||

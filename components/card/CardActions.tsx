@@ -91,7 +91,8 @@ export function renderRightSideOfArrow(
             <ProductionIconography
                 card={{
                     increaseProduction: {
-                        [Resource.ANY_STANDARD_RESOURCE]: action.increaseLowestProduction,
+                        [Resource.ANY_STANDARD_RESOURCE]:
+                            action.increaseLowestProduction,
                     },
                 }}
             />
@@ -115,16 +116,23 @@ export function renderRightSideOfArrow(
     }
     if (action.increaseParameter) {
         elements.push(
-            <IncreaseParameterIconography increaseParameter={action.increaseParameter} />
+            <IncreaseParameterIconography
+                increaseParameter={action.increaseParameter}
+            />
         );
     }
     if (action.useBlueCardActionAlreadyUsedThisGeneration) {
-        elements.push(<InlineText style={{color: colors.TEXT_DARK_1}}>{renderArrow()}</InlineText>);
+        elements.push(
+            <InlineText style={{color: colors.TEXT_DARK_1}}>
+                {renderArrow()}
+            </InlineText>
+        );
     }
     if (action.gainResource) {
         // if this action also has a remove, lets explicitly mark the gain with a +
         const shouldShowPlus =
-            Object.keys(action?.removeResource ?? {}).length > 0 && shouldShowPlusAllowed;
+            Object.keys(action?.removeResource ?? {}).length > 0 &&
+            shouldShowPlusAllowed;
 
         elements.push(
             <GainResourceIconography
@@ -140,14 +148,20 @@ export function renderRightSideOfArrow(
     if (action.gainResourcesIfNotTerraformedThisGeneration) {
         // if this action also has a remove, lets explicitly mark the gain with a +
         const shouldShowPlus =
-            Object.keys(action?.removeResource ?? {}).length > 0 && shouldShowPlusAllowed;
+            Object.keys(action?.removeResource ?? {}).length > 0 &&
+            shouldShowPlusAllowed;
 
         elements.push(
             <React.Fragment>
-                <IncreaseTerraformRatingIconography red={true} increaseTerraformRating={1} />
+                <IncreaseTerraformRatingIconography
+                    red={true}
+                    increaseTerraformRating={1}
+                />
                 <Colon />
                 <GainResourceIconography
-                    gainResource={action.gainResourcesIfNotTerraformedThisGeneration}
+                    gainResource={
+                        action.gainResourcesIfNotTerraformedThisGeneration
+                    }
                     opts={{
                         isInline: true,
                         shouldShowPlus,
@@ -173,7 +187,9 @@ export function renderRightSideOfArrow(
         );
     }
     if (action.removeTile) {
-        elements.push(<TileIcon type={action.removeTile} size={24} showRedBorder={true} />);
+        elements.push(
+            <TileIcon type={action.removeTile} size={24} showRedBorder={true} />
+        );
     }
     if (action.lookAtCards) {
         elements.push(<LookAtCards text={action.text ?? 'Look at cards'} />);
@@ -215,8 +231,13 @@ export function renderLeftSideOfArrow(action: Action) {
     if (action.cost) {
         elements.push(
             <div style={{display: 'inline-flex', alignItems: 'center'}}>
-                <ResourceIcon name={Resource.MEGACREDIT} amount={`${action.cost}`} />
-                {action.acceptedPayment && <span style={{marginLeft: 2}}>*</span>}
+                <ResourceIcon
+                    name={Resource.MEGACREDIT}
+                    amount={`${action.cost}`}
+                />
+                {action.acceptedPayment && (
+                    <span style={{marginLeft: 2}}>*</span>
+                )}
             </div>
         );
     }
@@ -249,10 +270,14 @@ export function renderLeftSideOfArrow(action: Action) {
     }
     if (action.decreaseProduction) {
         elements.push(
-            <ProductionIconography card={{decreaseProduction: action.decreaseProduction}} />
+            <ProductionIconography
+                card={{decreaseProduction: action.decreaseProduction}}
+            />
         );
     }
-    return elements.map((element, i) => <React.Fragment key={i}>{element}</React.Fragment>);
+    return elements.map((element, i) => (
+        <React.Fragment key={i}>{element}</React.Fragment>
+    ));
 }
 
 export const CardActions = ({
@@ -324,7 +349,9 @@ function CardAction({
 }) {
     const apiClient = useApiClient();
     const loggedInPlayer = useLoggedInPlayer();
-    const actionGuard = useActionGuard(cardOwner?.username ?? loggedInPlayer.username);
+    const actionGuard = useActionGuard(
+        cardOwner?.username ?? loggedInPlayer.username
+    );
 
     const isOwnedByLoggedInPlayer =
         (cardOwner && cardOwner.index === loggedInPlayer.index) ?? false;
@@ -332,7 +359,11 @@ function CardAction({
     let canPlay: boolean;
 
     if (canPlayInSpiteOfUI) {
-        [canPlay] = actionGuard.canPlayCardActionInSpiteOfUI(action, card, cardOwner);
+        [canPlay] = actionGuard.canPlayCardActionInSpiteOfUI(
+            action,
+            card,
+            cardOwner
+        );
     } else {
         [canPlay] = actionGuard.canPlayCardAction(action, card, cardOwner);
     }
@@ -343,7 +374,11 @@ function CardAction({
         }
         if (card.action?.choice) {
             const choiceIndex = card.action.choice.indexOf(action);
-            return apiClient.playCardActionAsync({parent: card, choiceIndex, payment});
+            return apiClient.playCardActionAsync({
+                parent: card,
+                choiceIndex,
+                payment,
+            });
         }
         apiClient.playCardActionAsync({parent: card, payment});
     }
@@ -363,7 +398,9 @@ function CardAction({
             cardContext={cardContext}
             action={action}
             playAction={playAction}
-            playActionWithSupplementalResources={playActionWithSupplementalResources}
+            playActionWithSupplementalResources={
+                playActionWithSupplementalResources
+            }
             canPlay={canPlay && isOwnedByLoggedInPlayer}
             loggedInPlayer={loggedInPlayer}
             isOwnedByLoggedInPlayer={isOwnedByLoggedInPlayer}
@@ -402,16 +439,17 @@ function ActionContainer({
     children: React.ReactNode;
 }) {
     const isPlayedCard = cardContext === CardContext.PLAYED_CARD;
-    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
-        onConfirmPayment: payment => {
-            playAction(action, payment);
-        },
-        opts: {
-            type: 'action',
-            action,
-            cost: action.cost,
-        },
-    });
+    const {collectPaymentAndPerformAction, triggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment: payment => {
+                playAction(action, payment);
+            },
+            opts: {
+                type: 'action',
+                action,
+                cost: action.cost,
+            },
+        });
 
     const shouldDisable = !canPlay || !isPlayedCard || !isOwnedByLoggedInPlayer;
     return (

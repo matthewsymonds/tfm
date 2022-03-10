@@ -51,20 +51,26 @@ const Signup: NextPage = () => {
         [username, email, password, confirmPassword]
     );
 
-    const [mayShowPasswordValidation, setMayShowPasswordValidation] = useState(false);
+    const [mayShowPasswordValidation, setMayShowPasswordValidation] =
+        useState(false);
 
     const handleSetShowPasswordValidation = useCallback(() => {
         setMayShowPasswordValidation(true);
     }, []);
 
-    const [mayShowConfirmPasswordValidation, setMayShowConfirmPasswordValidation] = useState(false);
+    const [
+        mayShowConfirmPasswordValidation,
+        setMayShowConfirmPasswordValidation,
+    ] = useState(false);
 
     const handleSetShowConfirmPasswordValidation = useCallback(() => {
         setMayShowConfirmPasswordValidation(true);
     }, []);
 
-    const passwordValidationVisible = mayShowPasswordValidation && password.length < 8;
-    const mismatchPasswords = mayShowConfirmPasswordValidation && password !== confirmPassword;
+    const passwordValidationVisible =
+        mayShowPasswordValidation && password.length < 8;
+    const mismatchPasswords =
+        mayShowConfirmPasswordValidation && password !== confirmPassword;
 
     return (
         <Container>
@@ -103,7 +109,10 @@ const Signup: NextPage = () => {
                             onBlur={handleSetShowPasswordValidation}
                             pattern=".{8,}"
                         />
-                        <MaybeVisible textAlign="center" visible={passwordValidationVisible}>
+                        <MaybeVisible
+                            textAlign="center"
+                            visible={passwordValidationVisible}
+                        >
                             <em>Password must be at least 8 characters.</em>
                         </MaybeVisible>
                         <Input
@@ -118,7 +127,12 @@ const Signup: NextPage = () => {
                         <MaybeVisible visible={mismatchPasswords}>
                             <em>Passwords must match.</em>
                         </MaybeVisible>
-                        <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
+                        <Box
+                            marginTop="32px"
+                            marginBottom="4px"
+                            marginLeft="4px"
+                            width="100px"
+                        >
                             <Button type="submit" variant="bordered">
                                 Sign up
                             </Button>

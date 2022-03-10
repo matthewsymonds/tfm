@@ -15,7 +15,10 @@ import {GameStage, PARAMETER_STEPS} from 'constants/game';
 import {getMilestone, getMilestones} from 'constants/milestones';
 import {getParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
-import {StandardProjectAction, StandardProjectType} from 'constants/standard-project';
+import {
+    StandardProjectAction,
+    StandardProjectType,
+} from 'constants/standard-project';
 import {Tag} from 'constants/tag';
 import {Delegate, RequiredChairman} from 'constants/turmoil';
 import {Card} from 'models/card';
@@ -53,16 +56,19 @@ export class ActionGuard {
     }
 
     _getPlayerToConsider() {
-        return this.state.players.find(player => player.username === this.username)!;
+        return this.state.players.find(
+            player => player.username === this.username
+        )!;
     }
 
     canPlayCard(
         card: Card,
         player = this._getPlayerToConsider(),
         payment: Payment = player.resources,
-        conditionalPayments: number[] = getConditionalPaymentWithResourceInfo(player, card).map(
-            payment => payment.resourceAmount
-        ),
+        conditionalPayments: number[] = getConditionalPaymentWithResourceInfo(
+            player,
+            card
+        ).map(payment => payment.resourceAmount),
         supplementalResources?: SupplementalResources
     ): CanPlayAndReason {
         const {state} = this;
@@ -120,11 +126,22 @@ export class ActionGuard {
         }
 
         // Check if the amount the user is trying to pay with is sufficient (or if they're cheating?).
-        const cappedConditionalPayments = getConditionalPaymentWithResourceInfo(player, card);
+        const cappedConditionalPayments = getConditionalPaymentWithResourceInfo(
+            player,
+            card
+        );
         for (let i = 0; i < cappedConditionalPayments.length; i++) {
-            cappedConditionalPayments[i].resourceAmount = conditionalPayments[i];
+            cappedConditionalPayments[i].resourceAmount =
+                conditionalPayments[i];
         }
-        if (!this.canAffordCard(card, player, payment, cappedConditionalPayments)) {
+        if (
+            !this.canAffordCard(
+                card,
+                player,
+                payment,
+                cappedConditionalPayments
+            )
+        ) {
             return [false, 'Cannot afford to play'];
         }
 
@@ -132,7 +149,8 @@ export class ActionGuard {
             return [false, 'Required tags not met'];
         }
 
-        const meetsTurmoilRequirements = this.doesCardMeetTurmoilRequirements(card);
+        const meetsTurmoilRequirements =
+            this.doesCardMeetTurmoilRequirements(card);
 
         if (!meetsTurmoilRequirements[0]) {
             return meetsTurmoilRequirements;
@@ -141,7 +159,10 @@ export class ActionGuard {
         const ignoreGlobalRequirements =
             player?.pendingPlayCardFromHand?.ignoreGlobalRequirements ?? false;
 
-        if (!ignoreGlobalRequirements && !this.canPlayWithGlobalParameters(card)) {
+        if (
+            !ignoreGlobalRequirements &&
+            !this.canPlayWithGlobalParameters(card)
+        ) {
             return [false, 'Global parameters not met'];
         }
 
@@ -163,7 +184,10 @@ export class ActionGuard {
             return [false, 'Required production not met'];
         }
 
-        if (card.minTerraformRating && player.terraformRating < card.minTerraformRating) {
+        if (
+            card.minTerraformRating &&
+            player.terraformRating < card.minTerraformRating
+        ) {
             return [false, 'Terraform rating too low'];
         }
 
@@ -183,11 +207,16 @@ export class ActionGuard {
         return [canPlay, reason];
     }
 
-    canPlayStandardProject(standardProjectAction: StandardProjectAction): CanPlayAndReason {
+    canPlayStandardProject(
+        standardProjectAction: StandardProjectAction
+    ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
-        const [canPlay, reason] = this.canPlayAction(standardProjectAction, state);
+        const [canPlay, reason] = this.canPlayAction(
+            standardProjectAction,
+            state
+        );
         if (!canPlay) {
             return [canPlay, reason];
         }
@@ -210,7 +239,10 @@ export class ActionGuard {
         }
 
         const megacredits = player.resources[Resource.MEGACREDIT];
-        const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
+        const heat =
+            player.corporation.name === 'Helion'
+                ? player.resources[Resource.HEAT]
+                : 0;
         return [cost <= megacredits + heat, 'Cannot afford standard project'];
     }
 
@@ -218,7 +250,8 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         const {state} = this;
 
-        if (this.shouldDisableUI()) return [false, 'Cannot claim milestone right now'];
+        if (this.shouldDisableUI())
+            return [false, 'Cannot claim milestone right now'];
 
         const validMilestones = getMilestones(state);
 
@@ -251,8 +284,16 @@ export class ActionGuard {
 
         const milestoneConfig = getMilestone(milestone);
 
-        const minQuantity = convertAmountToNumber(milestoneConfig.quantity, state, player);
-        const quantity = convertAmountToNumber(milestoneConfig.amount, state, player);
+        const minQuantity = convertAmountToNumber(
+            milestoneConfig.quantity,
+            state,
+            player
+        );
+        const quantity = convertAmountToNumber(
+            milestoneConfig.amount,
+            state,
+            player
+        );
 
         return [quantity >= minQuantity, 'Milestone not reached'];
     }
@@ -277,11 +318,15 @@ export class ActionGuard {
             return [false, 'Cannot fund this award'];
         }
 
-        if (player.fundAward && state.common.currentPlayerIndex === player.index) {
+        if (
+            player.fundAward &&
+            state.common.currentPlayerIndex === player.index
+        ) {
             return [true, 'Can fund an award'];
         }
 
-        if (this.shouldDisableUI()) return [false, 'Cannot fund award right now'];
+        if (this.shouldDisableUI())
+            return [false, 'Cannot fund award right now'];
 
         // Is it available?
         if (state.common.fundedAwards.length === 3) {
@@ -295,7 +340,10 @@ export class ActionGuard {
         const cost = [8, 14, 20][state.common.fundedAwards.length];
 
         const megacredits = player.resources[Resource.MEGACREDIT];
-        const heat = player.corporation.name === 'Helion' ? player.resources[Resource.HEAT] : 0;
+        const heat =
+            player.corporation.name === 'Helion'
+                ? player.resources[Resource.HEAT]
+                : 0;
         return [cost <= megacredits + heat, 'Cannot afford to fund award'];
     }
 
@@ -317,7 +365,10 @@ export class ActionGuard {
         ) {
             return [false, 'It is not your turn right now'];
         }
-        if (player.pendingPlayCardFromHand && getPlayableCards(player, this).length === 0) {
+        if (
+            player.pendingPlayCardFromHand &&
+            getPlayableCards(player, this).length === 0
+        ) {
             return [true, 'Has no cards to play'];
         }
         const {gameStage} = state.common;
@@ -325,7 +376,9 @@ export class ActionGuard {
         if (
             gameStage === GameStage.ACTIVE_ROUND &&
             player.preludes?.length > 0 &&
-            player.preludes?.every(preludeCard => this.canSkipPrelude(getCard(preludeCard)))
+            player.preludes?.every(preludeCard =>
+                this.canSkipPrelude(getCard(preludeCard))
+            )
         ) {
             return [true, 'Out of playable prelude cards'];
         }
@@ -383,11 +436,14 @@ export class ActionGuard {
 
         for (const acceptedPaymentType of acceptedPayment) {
             cost -=
-                this.getExchangeRate(acceptedPaymentType) * (payment?.[acceptedPaymentType] ?? 0);
+                this.getExchangeRate(acceptedPaymentType) *
+                (payment?.[acceptedPaymentType] ?? 0);
         }
 
         if (player.corporation.name === 'Helion') {
-            cost -= this.getExchangeRate(Resource.HEAT) * (payment?.[Resource.HEAT] ?? 0);
+            cost -=
+                this.getExchangeRate(Resource.HEAT) *
+                (payment?.[Resource.HEAT] ?? 0);
         }
 
         return cost <= (payment?.[Resource.MEGACREDIT] ?? 0);
@@ -417,17 +473,23 @@ export class ActionGuard {
 
         const isBuildingCard = card.tags.some(tag => tag === Tag.BUILDING);
         if (isBuildingCard) {
-            cost -= this.getExchangeRate(Resource.STEEL) * (payment?.[Resource.STEEL] ?? 0);
+            cost -=
+                this.getExchangeRate(Resource.STEEL) *
+                (payment?.[Resource.STEEL] ?? 0);
         }
 
         const isSpaceCard = card.tags.some(tag => tag === Tag.SPACE);
         if (isSpaceCard) {
-            cost -= this.getExchangeRate(Resource.TITANIUM) * (payment?.[Resource.TITANIUM] ?? 0);
+            cost -=
+                this.getExchangeRate(Resource.TITANIUM) *
+                (payment?.[Resource.TITANIUM] ?? 0);
         }
 
         const playerIsHelion = player.corporation.name === 'Helion';
         if (playerIsHelion) {
-            cost -= this.getExchangeRate(Resource.HEAT) * (payment?.[Resource.HEAT] ?? 0);
+            cost -=
+                this.getExchangeRate(Resource.HEAT) *
+                (payment?.[Resource.HEAT] ?? 0);
         }
         for (const payment of conditionalPayment) {
             cost -= payment.resourceAmount * payment.rate;
@@ -448,7 +510,10 @@ export class ActionGuard {
             conversion.name === 'Floaters to Heat (Stormcraft)' &&
             player.corporation.name !== 'Stormcraft Incorporated'
         ) {
-            return [false, 'Only Stormcraft Incorporated can convert floaters to heat'];
+            return [
+                false,
+                'Only Stormcraft Incorporated can convert floaters to heat',
+            ];
         }
 
         if (
@@ -462,10 +527,18 @@ export class ActionGuard {
             conversion.name !== 'Plants to Greenery' &&
             this.state.common.gameStage === GameStage.GREENERY_PLACEMENT
         ) {
-            return [false, 'May only convert plants in greenery placement phase'];
+            return [
+                false,
+                'May only convert plants in greenery placement phase',
+            ];
         }
 
-        return this.canPlayAction(conversion, this.state, parent, supplementalResources);
+        return this.canPlayAction(
+            conversion,
+            this.state,
+            parent,
+            supplementalResources
+        );
     }
 
     canDoConversionInSpiteOfUI(
@@ -476,11 +549,19 @@ export class ActionGuard {
         const {gameStage} = state.common;
         if (gameStage === GameStage.GREENERY_PLACEMENT) {
             if (conversion.resourceToRemove !== Resource.PLANT) {
-                return [false, 'May only convert plants in greenery placement phase'];
+                return [
+                    false,
+                    'May only convert plants in greenery placement phase',
+                ];
             }
         }
         const parent: Card | undefined = undefined;
-        return this.canPlayActionInSpiteOfUI(conversion, state, parent, supplementalResources);
+        return this.canPlayActionInSpiteOfUI(
+            conversion,
+            state,
+            parent,
+            supplementalResources
+        );
     }
 
     getDiscountedCardCost(card: Card) {
@@ -503,7 +584,9 @@ export class ActionGuard {
     doesPlayerHaveRequiredTags(card: Card) {
         const player = this._getPlayerToConsider();
         const playerTags = getTags(player);
-        let remainingWildTags = playerTags.filter(tag => tag === Tag.WILD).length;
+        let remainingWildTags = playerTags.filter(
+            tag => tag === Tag.WILD
+        ).length;
 
         for (const tag in card.requiredTags) {
             const requiredAmount = card.requiredTags[tag];
@@ -535,13 +618,19 @@ export class ActionGuard {
         let adjustedMin = min;
         let adjustedMax = max;
 
-        adjustedMin -= (player.parameterRequirementAdjustments[type] ?? 0) * PARAMETER_STEPS[type];
         adjustedMin -=
-            (player.temporaryParameterRequirementAdjustments[type] ?? 0) * PARAMETER_STEPS[type];
+            (player.parameterRequirementAdjustments[type] ?? 0) *
+            PARAMETER_STEPS[type];
+        adjustedMin -=
+            (player.temporaryParameterRequirementAdjustments[type] ?? 0) *
+            PARAMETER_STEPS[type];
 
-        adjustedMax += (player.parameterRequirementAdjustments[type] ?? 0) * PARAMETER_STEPS[type];
         adjustedMax +=
-            (player.temporaryParameterRequirementAdjustments[type] ?? 0) * PARAMETER_STEPS[type];
+            (player.parameterRequirementAdjustments[type] ?? 0) *
+            PARAMETER_STEPS[type];
+        adjustedMax +=
+            (player.temporaryParameterRequirementAdjustments[type] ?? 0) *
+            PARAMETER_STEPS[type];
 
         return value >= adjustedMin && value <= adjustedMax;
     }
@@ -600,12 +689,18 @@ export class ActionGuard {
             const match = tiles.find(tile => {
                 if (!tile) return false;
 
-                if (placement.currentPlayer && tile.ownerPlayerIndex !== player.index) {
+                if (
+                    placement.currentPlayer &&
+                    tile.ownerPlayerIndex !== player.index
+                ) {
                     return false;
                 }
 
                 // Special case! Capital is a city.
-                if (tile.type === TileType.CAPITAL && placement.type === TileType.CITY) {
+                if (
+                    tile.type === TileType.CAPITAL &&
+                    placement.type === TileType.CITY
+                ) {
                     return true;
                 }
 
@@ -666,7 +761,12 @@ export class ActionGuard {
         if (!canPlayCardActionPrologue[0]) {
             return canPlayCardActionPrologue;
         }
-        return this.canPlayActionInSpiteOfUI(action, state, parent, supplementalResources);
+        return this.canPlayActionInSpiteOfUI(
+            action,
+            state,
+            parent,
+            supplementalResources
+        );
     }
 
     private canPlayCardActionPrologue(
@@ -686,7 +786,10 @@ export class ActionGuard {
             return [false, 'Cannot play card action outside active round'];
         }
 
-        if (parent.lastRoundUsedAction === state.common.generation && !actionReplay) {
+        if (
+            parent.lastRoundUsedAction === state.common.generation &&
+            !actionReplay
+        ) {
             return [false, 'Already used this generation'];
         }
 
@@ -698,7 +801,9 @@ export class ActionGuard {
                     return false;
                 }
 
-                if (fullCard.action.useBlueCardActionAlreadyUsedThisGeneration) {
+                if (
+                    fullCard.action.useBlueCardActionAlreadyUsedThisGeneration
+                ) {
                     // Prevent infinite loop
                     return false;
                 }
@@ -751,10 +856,13 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         if (this.shouldDisableUI()) {
             if (
-                (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
-                player.index
+                (state.common.controllingPlayerIndex ??
+                    state.common.currentPlayerIndex) === player.index
             ) {
-                return [false, 'Cannot play action before finalizing other choices'];
+                return [
+                    false,
+                    'Cannot play action before finalizing other choices',
+                ];
             }
             return [false, 'Cannot play out of turn'];
         }
@@ -770,8 +878,9 @@ export class ActionGuard {
 
     canCompletePlaceTile(
         cell: Cell,
-        pendingTilePlacement: TilePlacement | undefined = this._getPlayerToConsider()
-            .pendingTilePlacement
+        pendingTilePlacement:
+            | TilePlacement
+            | undefined = this._getPlayerToConsider().pendingTilePlacement
     ): CanPlayAndReason {
         if (!pendingTilePlacement) {
             return [false, 'Player cannot place a tile'];
@@ -784,7 +893,8 @@ export class ActionGuard {
 
     canCompleteRemoveTile(
         cell: Cell,
-        pendingTileRemoval: TileType | undefined = this._getPlayerToConsider().pendingTileRemoval
+        pendingTileRemoval: TileType | undefined = this._getPlayerToConsider()
+            .pendingTileRemoval
     ): CanPlayAndReason {
         if (!pendingTileRemoval) {
             return [false, 'Player cannot remove a tile'];
@@ -793,7 +903,10 @@ export class ActionGuard {
         return [!!this.getMatchingCell(cell), 'Not a valid removal location'];
     }
 
-    getMatchingCell(cell: Cell, pendingTilePlacement?: TilePlacement): Cell | undefined {
+    getMatchingCell(
+        cell: Cell,
+        pendingTilePlacement?: TilePlacement
+    ): Cell | undefined {
         const player = this._getPlayerToConsider();
         const validPlacements = getValidPlacementsForRequirement(
             this.state,
@@ -805,14 +918,21 @@ export class ActionGuard {
             if (candidate.specialName) {
                 return candidate.specialName === cell.specialName;
             }
-            return candidate.coords?.every((coord, index) => coord === cell.coords?.[index]);
+            return candidate.coords?.every(
+                (coord, index) => coord === cell.coords?.[index]
+            );
         });
     }
 
-    canCompletePutAdditionalColonyTileIntoPlay(colony: string): CanPlayAndReason {
+    canCompletePutAdditionalColonyTileIntoPlay(
+        colony: string
+    ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         if (!player.putAdditionalColonyTileIntoPlay) {
-            return [false, 'Player cannot put an additional colony tile into play'];
+            return [
+                false,
+                'Player cannot put an additional colony tile into play',
+            ];
         }
 
         const coloniesAlreadyInPlay = this.state.common.colonies ?? [];
@@ -834,12 +954,19 @@ export class ActionGuard {
     ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         if (!player.increaseAndDecreaseColonyTileTracks) {
-            return [false, 'You cannot increase and decrease colony tile tracks'];
+            return [
+                false,
+                'You cannot increase and decrease colony tile tracks',
+            ];
         }
 
         const {state} = this;
         const {colonies} = state.common;
-        if (colonies?.filter(colony => [increase, decrease].includes(colony.name)).length !== 2) {
+        if (
+            colonies?.filter(colony =>
+                [increase, decrease].includes(colony.name)
+            ).length !== 2
+        ) {
             return [false, 'Not selecting valid colonies for action'];
         }
 
@@ -878,9 +1005,11 @@ export class ActionGuard {
             return wrapper.options.some(validOption => {
                 // find matching valid option!
 
-                const resourceMatches = option.resource === validOption.resource;
+                const resourceMatches =
+                    option.resource === validOption.resource;
 
-                const actionTypeMatches = option.actionType === validOption.actionType;
+                const actionTypeMatches =
+                    option.actionType === validOption.actionType;
 
                 const {location} = validOption;
 
@@ -893,8 +1022,10 @@ export class ActionGuard {
                     locationMatches = location.username === name;
                 }
 
-                const isVariableMatches = option.isVariable === validOption.isVariable;
-                const quantityMatches = option.quantity === validOption.quantity;
+                const isVariableMatches =
+                    option.isVariable === validOption.isVariable;
+                const quantityMatches =
+                    option.quantity === validOption.quantity;
 
                 return [
                     resourceMatches &&
@@ -923,7 +1054,10 @@ export class ActionGuard {
             resourceAndAmounts
         );
 
-        return [canSkipChooseResource, 'Cannot skip making a resource choice right now'];
+        return [
+            canSkipChooseResource,
+            'Cannot skip making a resource choice right now',
+        ];
     }
 
     canSkipChooseDuplicateProduction(): CanPlayAndReason {
@@ -936,7 +1070,10 @@ export class ActionGuard {
 
         const options = getOptionsForDuplicateProduction(tag, player, state);
 
-        return [options.length === 0, 'Cannot skip if at least one option available'];
+        return [
+            options.length === 0,
+            'Cannot skip if at least one option available',
+        ];
     }
 
     public ignoreSyncing = false;
@@ -949,11 +1086,15 @@ export class ActionGuard {
         const player = this._getPlayerToConsider();
         if (
             player.index !==
-            (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex)
+            (state.common.controllingPlayerIndex ??
+                state.common.currentPlayerIndex)
         ) {
             return true;
         }
-        if (gameStage !== GameStage.ACTIVE_ROUND && gameStage !== GameStage.GREENERY_PLACEMENT) {
+        if (
+            gameStage !== GameStage.ACTIVE_ROUND &&
+            gameStage !== GameStage.GREENERY_PLACEMENT
+        ) {
             return true;
         }
         if (getIsPlayerMakingDecision(state, player)) {
@@ -991,13 +1132,19 @@ export class ActionGuard {
         const numCards = selectedCards.length;
 
         const playerMoney = getMoney(state, loggedInPlayer, corporation);
-        const totalCardCost = numCards * (corporation?.cardCost ?? loggedInPlayer.cardCost);
+        const totalCardCost =
+            numCards * (corporation?.cardCost ?? loggedInPlayer.cardCost);
 
         // trying to draft a card not in their list (or discard a card they don't own)
         const possibleCards =
-            loggedInPlayer.pendingCardSelection?.possibleCards ?? loggedInPlayer.cards;
+            loggedInPlayer.pendingCardSelection?.possibleCards ??
+            loggedInPlayer.cards;
         for (const selectedCard of selectedCards) {
-            if (!possibleCards?.some(possibleCard => possibleCard.name === selectedCard.name)) {
+            if (
+                !possibleCards?.some(
+                    possibleCard => possibleCard.name === selectedCard.name
+                )
+            ) {
                 return false;
             }
         }
@@ -1011,7 +1158,11 @@ export class ActionGuard {
 
         const discardAmount = loggedInPlayer.pendingDiscard?.amount;
         if (discardAmount) {
-            const discardQuantity = convertAmountToNumber(discardAmount, state, loggedInPlayer);
+            const discardQuantity = convertAmountToNumber(
+                discardAmount,
+                state,
+                loggedInPlayer
+            );
             // User doesnt have enough cards to discard
             if (discardQuantity > numCards) {
                 return false;
@@ -1019,7 +1170,10 @@ export class ActionGuard {
         }
 
         // user doesn't have money to buy cards
-        if (loggedInPlayer.pendingCardSelection?.isBuyingCards && totalCardCost > playerMoney) {
+        if (
+            loggedInPlayer.pendingCardSelection?.isBuyingCards &&
+            totalCardCost > playerMoney
+        ) {
             return false;
         }
 
@@ -1074,7 +1228,9 @@ export class ActionGuard {
 
         const validPayment = getValidTradePayment(player);
 
-        const withResource = validPayment.find(validPayment => validPayment.resource === payment);
+        const withResource = validPayment.find(
+            validPayment => validPayment.resource === payment
+        );
 
         if (!withResource) {
             return [false, 'Cannot pay with that resource'];
@@ -1083,10 +1239,17 @@ export class ActionGuard {
         let resourceQuantity = player.resources[payment];
         if (numHeat) {
             const isValidToPayWithHeat =
-                player.corporation.name === 'Helion' && payment === Resource.MEGACREDIT;
+                player.corporation.name === 'Helion' &&
+                payment === Resource.MEGACREDIT;
             if (isValidToPayWithHeat) {
                 resourceQuantity += numHeat;
-                if (numHeat > this._getPlayerToConsider()?.resources?.[Resource.HEAT] ?? 0) {
+                if (
+                    numHeat >
+                        this._getPlayerToConsider()?.resources?.[
+                            Resource.HEAT
+                        ] ??
+                    0
+                ) {
                     return [false, 'Trying to pay with too much heat'];
                 }
             }
@@ -1109,7 +1272,9 @@ export class ActionGuard {
         return canTradeIgnoringPayment(player, name, this.state);
     }
 
-    canLobby(payment: Payment = this._getPlayerToConsider().resources): CanPlayAndReason {
+    canLobby(
+        payment: Payment = this._getPlayerToConsider().resources
+    ): CanPlayAndReason {
         const player = this._getPlayerToConsider();
         const {turmoil} = this.state.common;
         if (!turmoil) return [false, 'Turmoil disabled'];
@@ -1143,7 +1308,9 @@ export class ActionGuard {
     ) {
         const [canPlay] = this.canPlayCard(card, player, player.resources);
         if (!canPlay) return true;
-        if (!doesPlayerHaveRequiredResourcesToRemove(card, state, player, card)) {
+        if (
+            !doesPlayerHaveRequiredResourcesToRemove(card, state, player, card)
+        ) {
             return true;
         }
         return false;
@@ -1175,7 +1342,11 @@ export class ActionGuard {
         return true;
     }
 
-    private canPlayPrelude(card: Card, player: PlayerState, state: GameState): boolean {
+    private canPlayPrelude(
+        card: Card,
+        player: PlayerState,
+        state: GameState
+    ): boolean {
         if (state.common.gameStage !== GameStage.ACTIVE_ROUND) {
             return false;
         }
@@ -1229,11 +1400,15 @@ export class ActionGuard {
         if (card.requiredPartyOrTwoDelegates) {
             if (card.requiredPartyOrTwoDelegates !== turmoil.rulingParty) {
                 if (
-                    turmoil.delegations[card.requiredPartyOrTwoDelegates].filter(
-                        delegate => delegate.playerIndex === player.index
-                    ).length < 2
+                    turmoil.delegations[
+                        card.requiredPartyOrTwoDelegates
+                    ].filter(delegate => delegate.playerIndex === player.index)
+                        .length < 2
                 ) {
-                    return [false, 'Party is not ruling and you do not have 2 delegates there'];
+                    return [
+                        false,
+                        'Party is not ruling and you do not have 2 delegates there',
+                    ];
                 }
             }
         }
@@ -1309,11 +1484,21 @@ export function canPlayActionInSpiteOfUI(
     }
 
     // Also accounts for opponent productions if applicable
-    if (!meetsProductionRequirements(action, state, player, parent, sourceCard)) {
+    if (
+        !meetsProductionRequirements(action, state, player, parent, sourceCard)
+    ) {
         return [false, 'Does not have required production'];
     }
 
-    if (!meetsTilePlacementRequirements(action, state, player, parent, sourceCard)) {
+    if (
+        !meetsTilePlacementRequirements(
+            action,
+            state,
+            player,
+            parent,
+            sourceCard
+        )
+    ) {
         return [false, 'Cannot place tile'];
     }
 
@@ -1325,7 +1510,10 @@ export function canPlayActionInSpiteOfUI(
         return [false, 'Not yet terraformed this generation'];
     }
 
-    if (action.tradeForFree && !canTradeWithSomeColonyIgnoringPayment(player, state)) {
+    if (
+        action.tradeForFree &&
+        !canTradeWithSomeColonyIgnoringPayment(player, state)
+    ) {
         return [false, 'Cannot trade with any colony right now'];
     }
 

@@ -21,6 +21,9 @@ export function getPath(
     }
 
     const host = headers?.host ?? '';
-    const protocol = /^localhost(:\d+)?$/.test(host) || isCharNumber(host[0]) ? 'http' : 'https';
+    const protocol =
+        /^localhost(:\d+)?$/.test(host) || isCharNumber(host[0])
+            ? 'http'
+            : 'https';
     return protocol + PROTOCOL_HOST_DELIMITER + host + path;
 }

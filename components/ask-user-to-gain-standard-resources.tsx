@@ -21,12 +21,22 @@ function ResourceChooser({
     return (
         <Flex alignItems="center" justifyContent="center" marginLeft="8px">
             <ResourceIcon margin={4} size={10} name={resource} />
-            <input type="number" min={0} value={quantity} max={max} onChange={onChange}></input>
+            <input
+                type="number"
+                min={0}
+                value={quantity}
+                max={max}
+                onChange={onChange}
+            ></input>
         </Flex>
     );
 }
 
-export function AskUserToGainStandardResources({player}: {player: PlayerState}) {
+export function AskUserToGainStandardResources({
+    player,
+}: {
+    player: PlayerState;
+}) {
     const apiClient = useApiClient();
     const {pendingGainStandardResources: quantity} = player;
     if (!quantity) return null;
@@ -39,7 +49,10 @@ export function AskUserToGainStandardResources({player}: {player: PlayerState}) 
         [Resource.ENERGY]: 0,
         [Resource.HEAT]: 0,
     });
-    const total = STANDARD_RESOURCES.reduce((acc, resource) => acc + resources[resource] ?? 0, 0);
+    const total = STANDARD_RESOURCES.reduce(
+        (acc, resource) => acc + resources[resource] ?? 0,
+        0
+    );
     const remaining = quantity - total;
     const confirmGainResources = () => {
         apiClient.gainStandardResourcesAsync({resources});
@@ -48,7 +61,8 @@ export function AskUserToGainStandardResources({player}: {player: PlayerState}) 
     return (
         <Flex flexDirection="column">
             <span style={{marginBottom: 16, color: colors.TEXT_LIGHT_1}}>
-                Please gain {quantity} standard resource{quantity === 1 ? '' : 's'}
+                Please gain {quantity} standard resource
+                {quantity === 1 ? '' : 's'}
             </span>
             <Flex flexWrap="wrap">
                 {STANDARD_RESOURCES.map(resource => {
@@ -61,7 +75,10 @@ export function AskUserToGainStandardResources({player}: {player: PlayerState}) 
                                     ...resources,
                                     [resource]: Math.max(
                                         0,
-                                        Math.min(max, Number(event.target.value))
+                                        Math.min(
+                                            max,
+                                            Number(event.target.value)
+                                        )
                                     ),
                                 };
                                 setResources(newResources);

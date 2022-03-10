@@ -17,7 +17,11 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from './card/Card';
-import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {
+    renderArrow,
+    renderLeftSideOfArrow,
+    renderRightSideOfArrow,
+} from './card/CardActions';
 import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';
@@ -31,31 +35,47 @@ function GlobalEventCard({name}: {name: string}) {
     if (!globalEvent) return null;
     return (
         <Box marginLeft="4px" marginRight="4px">
-            <TexturedCard width={CARD_WIDTH - 20} height={CARD_HEIGHT} borderWidth={2}>
+            <TexturedCard
+                width={CARD_WIDTH - 20}
+                height={CARD_HEIGHT}
+                borderWidth={2}
+            >
                 <GenericCardTitleBar
                     bgColor={colors.CARD_GLOBAL_EVENT}
                     padding="4px 0"
                     marginTop="16px"
                 >
                     <Box margin="0 4px">
-                        <PartySymbol party={globalEvent.top.party} margin="0 auto 0 0" />
+                        <PartySymbol
+                            party={globalEvent.top.party}
+                            margin="0 auto 0 0"
+                        />
                     </Box>
                     <Box flexGrow="1" marginRight="4px">
                         {globalEvent.top.name}
                     </Box>
                 </GenericCardTitleBar>
-                <GenericCardTitleBar bgColor={colors.CARD_EVENT} padding="4px 0" marginTop="16px">
+                <GenericCardTitleBar
+                    bgColor={colors.CARD_EVENT}
+                    padding="4px 0"
+                    marginTop="16px"
+                >
                     <Box flexGrow="1" marginLeft="4px">
                         {globalEvent.bottom.name}
                     </Box>
                     <Box margin="0 4px">
-                        <PartySymbol party={globalEvent.bottom.party} margin="0 0 0 auto" />
+                        <PartySymbol
+                            party={globalEvent.bottom.party}
+                            margin="0 0 0 auto"
+                        />
                     </Box>
                 </GenericCardTitleBar>
                 <MainCardText>{globalEvent.action.text}</MainCardText>
                 {globalEvent.firstPlayerAction ? (
                     <Box margin="8px">
-                        <BaseActionIconography card={globalEvent.firstPlayerAction} />
+                        <BaseActionIconography
+                            card={globalEvent.firstPlayerAction}
+                        />
                     </Box>
                 ) : null}
                 <BaseActionIconography card={globalEvent.action} />
@@ -81,7 +101,11 @@ function EmptyGlobalEvent() {
     );
 }
 
-const PartyBase = styled.div<{background: string; margin: string; size: number}>`
+const PartyBase = styled.div<{
+    background: string;
+    margin: string;
+    size: number;
+}>`
     color: #eee;
     border-radius: ${props => props.size * 0.5}px;
     line-height: ${props => props.size * 0.7}px;
@@ -140,7 +164,10 @@ export function PartySymbol({
             className={party === UNITY ? 'unity' : ''}
         >
             {symbol === '♂' ? (
-                <Box fontFamily='"Source Sans Pro", Segoe UI Symbol' fontSize="1.4em">
+                <Box
+                    fontFamily='"Source Sans Pro", Segoe UI Symbol'
+                    fontSize="1.4em"
+                >
                     {baseSymbol}
                 </Box>
             ) : (
@@ -150,7 +177,13 @@ export function PartySymbol({
     );
 }
 
-function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boolean}) {
+function PartyPolicyInternal({
+    party,
+    disabled,
+}: {
+    party: string;
+    disabled?: boolean;
+}) {
     const rulingPartyPolicy = getParty(party);
 
     if (rulingPartyPolicy.effect) {
@@ -169,7 +202,9 @@ function PartyPolicyInternal({party, disabled}: {party: string; disabled?: boole
 
     if (rulingPartyPolicy.exchangeRates) {
         return (
-            <React.Fragment>{renderExchangeRates(rulingPartyPolicy.exchangeRates)}</React.Fragment>
+            <React.Fragment>
+                {renderExchangeRates(rulingPartyPolicy.exchangeRates)}
+            </React.Fragment>
         );
     }
 
@@ -236,12 +271,18 @@ function Lobbying({
     apiClient: ApiClient;
 }) {
     return (
-        <Flex alignItems="center" justifyContent="center" flexDirection="column">
+        <Flex
+            alignItems="center"
+            justifyContent="center"
+            flexDirection="column"
+        >
             <TurmoilAction
                 disabled={!canLobby}
                 onClick={() =>
                     canLobby &&
-                    apiClient.lobbyAsync(party.name, {[Resource.MEGACREDIT]: action.cost})
+                    apiClient.lobbyAsync(party.name, {
+                        [Resource.MEGACREDIT]: action.cost,
+                    })
                 }
                 style={{paddingBottom: '4px'}}
             >
@@ -256,7 +297,11 @@ function Lobbying({
     );
 }
 
-export function canClickDelegate(state: GameState, player: PlayerState, index: number) {
+export function canClickDelegate(
+    state: GameState,
+    player: PlayerState,
+    index: number
+) {
     const {turmoil} = state.common;
     if (!turmoil) return false;
 
@@ -266,7 +311,11 @@ export function canClickDelegate(state: GameState, player: PlayerState, index: n
     return false;
 }
 
-export function canClickParty(state: GameState, player: PlayerState, party: string) {
+export function canClickParty(
+    state: GameState,
+    player: PlayerState,
+    party: string
+) {
     const {turmoil} = state.common;
     if (!turmoil) return false;
 
@@ -307,7 +356,9 @@ export function canClickPolicy(
 }
 
 export function Turmoil() {
-    const isTurmoilEnabled = useTypedSelector(state => state.options?.decks.includes(Deck.TURMOIL));
+    const isTurmoilEnabled = useTypedSelector(state =>
+        state.options?.decks.includes(Deck.TURMOIL)
+    );
     if (!isTurmoilEnabled) return null;
     const turmoil = useTypedSelector(state => state.common.turmoil);
     if (!turmoil) return null;
@@ -318,7 +369,9 @@ export function Turmoil() {
 
     const [canLobby] = actionGuard.canLobby();
 
-    const lobbying: Action = useTypedSelector(state => getLobbyingAction(state, player));
+    const lobbying: Action = useTypedSelector(state =>
+        getLobbyingAction(state, player)
+    );
 
     const state = useTypedSelector(state => state);
 
@@ -357,16 +410,18 @@ export function Turmoil() {
     const delegations: React.ReactElement[] = [];
     for (const delegation in turmoil.delegations) {
         const party = getParty(delegation);
-        const delegates = turmoil.delegations[delegation].map((delegate, index) => (
-            <Box key={index} marginLeft={index === 0 ? '0px' : '2px'}>
-                <DelegateComponent
-                    delegate={delegate}
-                    isLeader={index === 0}
-                    canClick={canClickDelegate(state, player, index)}
-                    onClick={() => handleClickDelegate(delegation, index)}
-                />
-            </Box>
-        ));
+        const delegates = turmoil.delegations[delegation].map(
+            (delegate, index) => (
+                <Box key={index} marginLeft={index === 0 ? '0px' : '2px'}>
+                    <DelegateComponent
+                        delegate={delegate}
+                        isLeader={index === 0}
+                        canClick={canClickDelegate(state, player, index)}
+                        onClick={() => handleClickDelegate(delegation, index)}
+                    />
+                </Box>
+            )
+        );
         const canClick = canClickParty(state, player, party.name);
         const element = (
             <PartyPanel key={party.name}>
@@ -383,7 +438,9 @@ export function Turmoil() {
                         background="transparent"
                         padding="2px"
                         borderRadius="4px"
-                        boxShadow={canClick ? '0px 0px 38px 5px #000000' : 'none'}
+                        boxShadow={
+                            canClick ? '0px 0px 38px 5px #000000' : 'none'
+                        }
                         cursor={canClick ? 'pointer' : 'auto'}
                     >
                         {party.name}
@@ -398,12 +455,19 @@ export function Turmoil() {
                     </Box>
                 </Flex>
                 <Box>
-                    <span style={{marginRight: '4px', fontSize: '10px'}}>Policy:</span>
+                    <span style={{marginRight: '4px', fontSize: '10px'}}>
+                        Policy:
+                    </span>
                     <PartyPolicy party={delegation} disabled={true} />
                 </Box>
                 <Box>
-                    <span style={{marginRight: '4px', fontSize: '10px'}}>Bonus:</span>
-                    <BaseActionIconography inline={true} card={party.partyBonus} />
+                    <span style={{marginRight: '4px', fontSize: '10px'}}>
+                        Bonus:
+                    </span>
+                    <BaseActionIconography
+                        inline={true}
+                        card={party.partyBonus}
+                    />
                 </Box>
 
                 <Flex
@@ -434,7 +498,12 @@ export function Turmoil() {
         opts: {type: 'action', cost: partyActionCost, action: {}},
     });
 
-    const canDoPolicy = canClickPolicy(state, actionGuard, player, player.resources);
+    const canDoPolicy = canClickPolicy(
+        state,
+        actionGuard,
+        player,
+        player.resources
+    );
     return (
         <Flex
             color={colors.LIGHT_2}
@@ -446,7 +515,12 @@ export function Turmoil() {
             maxWidth="576px"
         >
             <h2 className="display no-margin-top">Global Events</h2>
-            <Flex flexWrap="wrap" width="100%" alignItems="center" justifyContent="center">
+            <Flex
+                flexWrap="wrap"
+                width="100%"
+                alignItems="center"
+                justifyContent="center"
+            >
                 <GlobalEventCard name={turmoil.distantGlobalEvent.name} />
                 <GlobalEventCard name={turmoil.comingGlobalEvent.name} />
                 {turmoil.currentGlobalEvent ? (
@@ -484,7 +558,10 @@ export function Turmoil() {
                             margin="12px"
                         >
                             <h3 className="display">Chairperson</h3>
-                            <DelegateComponent delegate={turmoil.chairperson} isLeader={true} />
+                            <DelegateComponent
+                                delegate={turmoil.chairperson}
+                                isLeader={true}
+                            />
                         </Flex>
                     </Box>
                 </Box>
@@ -496,7 +573,10 @@ export function Turmoil() {
                             flexDirection="column"
                             margin="12px"
                         >
-                            <h3 className="display" style={{textAlign: 'center'}}>
+                            <h3
+                                className="display"
+                                style={{textAlign: 'center'}}
+                            >
                                 Lobby
                             </h3>
 
@@ -523,27 +603,38 @@ export function Turmoil() {
                             flexDirection="column"
                             margin="12px"
                         >
-                            <h3 className="display" style={{textAlign: 'center'}}>
+                            <h3
+                                className="display"
+                                style={{textAlign: 'center'}}
+                            >
                                 Delegate Reserve
                             </h3>
 
                             <Box margin="0 auto" fontSize="10px">
-                                {Object.keys(turmoil.delegateReserve).map(playerIndex => {
-                                    const delegates = turmoil.delegateReserve[playerIndex];
-                                    return (
-                                        <Flex key={playerIndex}>
-                                            {delegates.map((delegate, index) =>
-                                                delegate ? (
-                                                    <DelegateComponent
-                                                        isLeader={false}
-                                                        delegate={delegate}
-                                                        key={index}
-                                                    />
-                                                ) : null
-                                            )}
-                                        </Flex>
-                                    );
-                                })}
+                                {Object.keys(turmoil.delegateReserve).map(
+                                    playerIndex => {
+                                        const delegates =
+                                            turmoil.delegateReserve[
+                                                playerIndex
+                                            ];
+                                        return (
+                                            <Flex key={playerIndex}>
+                                                {delegates.map(
+                                                    (delegate, index) =>
+                                                        delegate ? (
+                                                            <DelegateComponent
+                                                                isLeader={false}
+                                                                delegate={
+                                                                    delegate
+                                                                }
+                                                                key={index}
+                                                            />
+                                                        ) : null
+                                                )}
+                                            </Flex>
+                                        );
+                                    }
+                                )}
                             </Box>
                         </Flex>
                     </Box>

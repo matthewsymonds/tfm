@@ -60,7 +60,10 @@ export function playGame(
             actionHandler.completeRemoveTile(payload);
             break;
         case ApiActionType.API_COMPLETE_CHOOSE_RESOURCE_ACTION_DETAILS:
-            const option = deserializeResourceOptionAction(payload.option, actionHandler.state);
+            const option = deserializeResourceOptionAction(
+                payload.option,
+                actionHandler.state
+            );
             actionHandler.completeChooseResourceActionDetails({
                 option,
                 variableAmount: payload.variableAmount,
@@ -76,7 +79,8 @@ export function playGame(
             }
             if (
                 actionHandler.state.options?.decks.includes(Deck.PRELUDE) &&
-                actionHandler.state.common.gameStage === GameStage.CORPORATION_SELECTION &&
+                actionHandler.state.common.gameStage ===
+                    GameStage.CORPORATION_SELECTION &&
                 preludes.length !== 2
             ) {
                 throw new Error('Not selecting enough preludes');
@@ -141,6 +145,9 @@ export function playGame(
                 return;
             }
             actionHandler.startOver(JSON.parse(stateCheckpoint) as GameState);
+            break;
+        case ApiActionType.API_SET_NOTES:
+            actionHandler.setNotes(payload);
             break;
         default:
             throw spawnExhaustiveSwitchError(type);

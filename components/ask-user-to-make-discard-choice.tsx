@@ -9,7 +9,8 @@ import {Flex} from './box';
 import {colors} from './ui';
 
 export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
-    const {card, amount, isFromSellPatents, playedCard} = player.pendingDiscard!;
+    const {card, amount, isFromSellPatents, playedCard} =
+        player.pendingDiscard!;
     const [selectedCards, setSelectedCards] = useState<SerializedCard[]>([]);
     const apiClient = useApiClient();
 
@@ -27,9 +28,13 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
         cardSelectionPrompt = 'You may select a card to discard';
     } else {
         if (typeof amount !== 'number') {
-            throw new Error('Unhandled variable amount in discard choice component');
+            throw new Error(
+                'Unhandled variable amount in discard choice component'
+            );
         }
-        cardSelectionPrompt = `Select ${amount} card${amount === 1 ? '' : 's'} to discard.`;
+        cardSelectionPrompt = `Select ${amount} card${
+            amount === 1 ? '' : 's'
+        } to discard.`;
         maxCardsToDiscard = amount;
     }
 
@@ -41,11 +46,20 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
         });
     }
 
-    const min = typeof amount === 'number' ? amount : amount === VariableAmount.USER_CHOICE ? 1 : 0;
+    const min =
+        typeof amount === 'number'
+            ? amount
+            : amount === VariableAmount.USER_CHOICE
+            ? 1
+            : 0;
 
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
-            <Flex flexDirection="column" width="100%" style={{color: colors.TEXT_LIGHT_1}}>
+            <Flex
+                flexDirection="column"
+                width="100%"
+                style={{color: colors.TEXT_LIGHT_1}}
+            >
                 <CardSelector
                     max={maxCardsToDiscard}
                     min={min}
@@ -53,16 +67,22 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
                     onSelect={cards => setSelectedCards(cards)}
                     options={player.cards}
                     orientation="vertical"
-                    cardSelectorPrompt={<div style={{margin: '0 8px'}}>{cardSelectionPrompt}</div>}
+                    cardSelectorPrompt={
+                        <div style={{margin: '0 8px'}}>
+                            {cardSelectionPrompt}
+                        </div>
+                    }
                 />
                 <Flex justifyContent="center" marginTop="8px">
                     <button
                         onClick={handleConfirmCardSelection}
                         disabled={
-                            selectedCards.length < min || selectedCards.length > maxCardsToDiscard
+                            selectedCards.length < min ||
+                            selectedCards.length > maxCardsToDiscard
                         }
                     >
-                        Discard {selectedCards.length} card{selectedCards.length === 1 ? '' : 's'}
+                        Discard {selectedCards.length} card
+                        {selectedCards.length === 1 ? '' : 's'}
                     </button>
                 </Flex>
             </Flex>

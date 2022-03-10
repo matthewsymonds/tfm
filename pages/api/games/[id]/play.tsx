@@ -40,14 +40,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
         game = await gamesModel.findOne({name: id});
         if (!game) throw new Error('Not found');
-        if (!game.players.includes(username)) throw new Error('Not in this game!');
+        if (!game.players.includes(username))
+            throw new Error('Not in this game!');
         lock[game.name] ||= [];
         lock[game.name].push(username);
         const {
             type,
             payload,
             actionCount,
-        }: {type: ApiActionType; payload; actionCount: number | undefined} = req.body;
+        }: {type: ApiActionType; payload; actionCount: number | undefined} =
+            req.body;
         if (
             typeof actionCount !== 'undefined' &&
             game.state.actionCount !== actionCount &&
@@ -71,17 +73,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         hydratedGame.state.name = game.name;
 
-        playGame(type, payload, actionHandler, originalState, game.stateCheckpoint);
+        playGame(
+            type,
+            payload,
+            actionHandler,
+            originalState,
+            game.stateCheckpoint
+        );
 
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;
-        game.currentPlayer = game.state.players[game.state.common.currentPlayerIndex].username;
+        game.currentPlayer =
+            game.state.players[game.state.common.currentPlayerIndex].username;
         if (game.state.common.gameStage === GameStage.END_OF_GAME) {
             game.currentPlayer = '';
         }
         game.updatedAt = Date.now();
         game.lastSeenLogItem ||= [];
-        game.lastSeenLogItem[game.players.indexOf(username)] = game.state.log.length;
+        game.lastSeenLogItem[game.players.indexOf(username)] =
+            game.state.log.length;
         game.markModified('lastSeenLogItem');
         if (
             actionHandler.setStateCheckpoint ||
@@ -104,7 +114,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 };
 
-function purgeLock(lock: {[gameName: string]: string[]}, username: string, gameName: string) {
+function purgeLock(
+    lock: {[gameName: string]: string[]},
+    username: string,
+    gameName: string
+) {
     lock[gameName] = lock[gameName].filter(name => name !== username);
     if (lock[gameName].length === 0) {
         delete lock[gameName];

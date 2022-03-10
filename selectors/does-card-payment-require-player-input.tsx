@@ -5,7 +5,10 @@ import {PlayerState} from 'reducer';
 import {getConditionalPaymentWithResourceInfo} from './get-conditional-payment-with-resource-info';
 import {getDiscountedCardCost} from './get-discounted-card-cost';
 
-export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Card) {
+export function doesCardPaymentRequirePlayerInput(
+    player: PlayerState,
+    card: Card
+) {
     const paymentOptions: Array<[Tag, number]> = [
         [Tag.BUILDING, player.resources[Resource.STEEL]],
         [Tag.SPACE, player.resources[Resource.TITANIUM]],
@@ -21,7 +24,8 @@ export function doesCardPaymentRequirePlayerInput(player: PlayerState, card: Car
 
             return card.tags.includes(tag) && resourceAmount > 0;
         }) ||
-        (player.corporation.name === 'Helion' && player.resources[Resource.HEAT] > 0) ||
+        (player.corporation.name === 'Helion' &&
+            player.resources[Resource.HEAT] > 0) ||
         getConditionalPaymentWithResourceInfo(player, card).length > 0
     );
 }

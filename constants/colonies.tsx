@@ -316,14 +316,18 @@ COLONIES.push({
 export function getSerializedColony(colony: Colony): SerializedColony {
     return {
         name: colony.name,
-        step: colony.offlineUntilResource ? STARTING_STEP_STORABLE_RESOURCE_COLONY : STARTING_STEP,
+        step: colony.offlineUntilResource
+            ? STARTING_STEP_STORABLE_RESOURCE_COLONY
+            : STARTING_STEP,
         colonies: [],
     };
 }
 
 export function getStartingColonies(numPlayers: number): SerializedColony[] {
     const colonies = shuffle([...COLONIES]);
-    return sample(colonies, numPlayers === 2 ? 5 : numPlayers + 2).map(getSerializedColony);
+    return sample(colonies, numPlayers === 2 ? 5 : numPlayers + 2).map(
+        getSerializedColony
+    );
 }
 
 const COLONIES_BY_NAME: {[name: string]: Colony} = {};

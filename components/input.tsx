@@ -109,7 +109,9 @@ type SubmitInputProps = {
     value: string;
 };
 
-export const SubmitInput = ({value}: SubmitInputProps) => <InputBase type="submit" value={value} />;
+export const SubmitInput = ({value}: SubmitInputProps) => (
+    <InputBase type="submit" value={value} />
+);
 
 SubmitInput.defaultProps = {
     value: 'Submit',

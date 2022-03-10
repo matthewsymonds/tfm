@@ -20,10 +20,17 @@ export default function Admin() {
         <Box background="#ccc">
             <h2>Admin</h2>
             <div>Enter game name:</div>
-            <input type="text" value={game} onChange={e => setGameName(e.target.value)} />
+            <input
+                type="text"
+                value={game}
+                onChange={e => setGameName(e.target.value)}
+            />
             <button onClick={lookupGame}>Lookup</button>
             <div>State</div>
-            <textarea value={theState} onChange={e => setTheState(e.target.value)} />
+            <textarea
+                value={theState}
+                onChange={e => setTheState(e.target.value)}
+            />
             <button onClick={updateState}>Update</button>
         </Box>
     );

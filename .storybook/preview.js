@@ -6,7 +6,10 @@ import {Provider} from 'react-redux';
 import {reducer} from '../reducer';
 import {getMockState} from 'utils/getMockState';
 import {Deck} from 'constants/card-types';
-import {GlobalPopoverContext, GlobalPopoverManager} from 'context/global-popover-context';
+import {
+    GlobalPopoverContext,
+    GlobalPopoverManager,
+} from 'context/global-popover-context';
 import {Fonts} from '../fonts';
 
 export const parameters = {
@@ -41,7 +44,10 @@ const withGlobalPopoverContext = (Story, context) => {
         <GlobalPopoverContext.Provider
             value={{
                 setPopoverConfigByType(type, config) {
-                    setPopoverConfigByType({...popoverConfigByType, [type]: config});
+                    setPopoverConfigByType({
+                        ...popoverConfigByType,
+                        [type]: config,
+                    });
                 },
                 popoverConfigByType,
             }}
@@ -54,7 +60,10 @@ const withGlobalPopoverContext = (Story, context) => {
     );
 };
 
-const store = createStore(reducer, getMockState({decks: [Deck.BASIC, Deck.VENUS, Deck.PRELUDE]}));
+const store = createStore(
+    reducer,
+    getMockState({decks: [Deck.BASIC, Deck.VENUS, Deck.PRELUDE]})
+);
 const withReduxStore = (Story, context) => {
     return (
         <Provider store={store}>

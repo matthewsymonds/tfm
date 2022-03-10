@@ -12,7 +12,8 @@ export function doesAnyoneHaveResourcesToSteal(
     _player: PlayerState | null,
     card?: Card
 ) {
-    const loggedInPlayer = _player ?? getAppropriatePlayerForAction(state, card);
+    const loggedInPlayer =
+        _player ?? getAppropriatePlayerForAction(state, card);
     if (action && action instanceof Card) {
         // You can play a card without completing the theft.
         return true;
@@ -20,7 +21,11 @@ export function doesAnyoneHaveResourcesToSteal(
     // Otherwise, every other "stealResource" is a storedResource. So we only support that.
     for (const resource in action.stealResource) {
         for (const player of state.players) {
-            if (player.playedCards.find(card => card.name === 'Protected Habitats')) {
+            if (
+                player.playedCards.find(
+                    card => card.name === 'Protected Habitats'
+                )
+            ) {
                 if (PROTECTED_HABITAT_RESOURCE.includes(resource as Resource)) {
                     if (player.username !== loggedInPlayer.username) {
                         continue;

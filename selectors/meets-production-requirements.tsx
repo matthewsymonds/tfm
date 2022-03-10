@@ -20,7 +20,9 @@ export function meetsProductionRequirements(
 
     for (const production in decreaseProduction) {
         const productions =
-            production === Resource.ANY_STANDARD_RESOURCE ? STANDARD_RESOURCES : [production];
+            production === Resource.ANY_STANDARD_RESOURCE
+                ? STANDARD_RESOURCES
+                : [production];
         if (
             productions.some(resource => {
                 const decrease = convertAmountToNumber(

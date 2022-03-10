@@ -35,7 +35,8 @@ type TagProps = {
 };
 
 function getTagProps(tag: Tag): TagProps {
-    const [icon, color, backgroundColor, outerBackgroundColor, className] = dict[tag];
+    const [icon, color, backgroundColor, outerBackgroundColor, className] =
+        dict[tag];
 
     return {
         icon,
@@ -53,7 +54,12 @@ type TagIconProps = {
     margin?: number | string;
 };
 
-export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: TagIconProps) => {
+export const TagIcon = ({
+    name,
+    size = 12,
+    showRedBorder = false,
+    margin = 0,
+}: TagIconProps) => {
     const tagProps = getTagProps(name);
     let className = 'not-mac';
     if (typeof window !== 'undefined') {
@@ -71,7 +77,10 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
 
     return (
         <Box
-            border={'1px solid ' + tagProps.outerBackgroundColor ?? colors.CARD_BORDER_2}
+            border={
+                '1px solid ' + tagProps.outerBackgroundColor ??
+                colors.CARD_BORDER_2
+            }
             background={tagProps.backgroundColor}
             margin={margin}
             boxShadow={showRedBorder ? 'red 0px 0px 3px 2px' : 'initial'}
@@ -108,7 +117,11 @@ export const TagIcon = ({name, size = 12, showRedBorder = false, margin = 0}: Ta
                     lineHeight="4em"
                     inset={0}
                 >
-                    {PLAIN_ICONS.includes(tagProps.icon) ? baseIcon : <Twemoji>{baseIcon}</Twemoji>}
+                    {PLAIN_ICONS.includes(tagProps.icon) ? (
+                        baseIcon
+                    ) : (
+                        <Twemoji>{baseIcon}</Twemoji>
+                    )}
                 </Flex>
             </Flex>
         </Box>

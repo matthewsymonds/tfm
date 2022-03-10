@@ -1,5 +1,9 @@
 import {Flex} from 'components/box';
-import {Board as BoardModel, Cell as CellModel, SpecialLocation} from 'constants/board';
+import {
+    Board as BoardModel,
+    Cell as CellModel,
+    SpecialLocation,
+} from 'constants/board';
 import {Deck} from 'constants/card-types';
 import React from 'react';
 import {useTypedSelector} from 'reducer';
@@ -29,14 +33,21 @@ const px = (num?: number) => {
 
 export const OffMarsCity = ({cell, offMarsCitiesProps}: OffMarsCityProps) => (
     <OffMarsCityContainer onClick={() => offMarsCitiesProps.handleClick(cell)}>
-        <Cell selectable={offMarsCitiesProps.validPlacements.includes(cell)} cell={cell} />
+        <Cell
+            selectable={offMarsCitiesProps.validPlacements.includes(cell)}
+            cell={cell}
+        />
     </OffMarsCityContainer>
 );
 
 function OffMarsCities(props: OffMarsCitiesProps) {
     const cells = props.board.flat();
-    const venus = useTypedSelector(state => state.options?.decks.includes(Deck.VENUS));
-    const phobos = cells.find(cell => cell.specialLocation === SpecialLocation.PHOBOS)!;
+    const venus = useTypedSelector(state =>
+        state.options?.decks.includes(Deck.VENUS)
+    );
+    const phobos = cells.find(
+        cell => cell.specialLocation === SpecialLocation.PHOBOS
+    )!;
 
     return (
         <Flex
@@ -56,7 +67,8 @@ function OffMarsCities(props: OffMarsCitiesProps) {
                       SpecialLocation.STRATOPOLIS,
                   ].map(specialLocation => {
                       const cell = cells.find(
-                          thisCell => thisCell.specialLocation === specialLocation
+                          thisCell =>
+                              thisCell.specialLocation === specialLocation
                       );
                       return (
                           <OffMarsCity

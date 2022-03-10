@@ -53,26 +53,38 @@ function createActionIcon(action: AnyAction) {
     if (increaseProduction.match(action)) {
         return (
             <ProductionIconography
-                card={{increaseProduction: {[action.payload.resource]: action.payload.amount}}}
+                card={{
+                    increaseProduction: {
+                        [action.payload.resource]: action.payload.amount,
+                    },
+                }}
             />
         );
     } else if (decreaseProduction.match(action)) {
         return (
             <ProductionIconography
-                card={{decreaseProduction: {[action.payload.resource]: action.payload.amount}}}
+                card={{
+                    decreaseProduction: {
+                        [action.payload.resource]: action.payload.amount,
+                    },
+                }}
             />
         );
     } else if (gainResource.match(action)) {
         return (
             <GainResourceIconography
-                gainResource={{[action.payload.resource]: action.payload.amount}}
+                gainResource={{
+                    [action.payload.resource]: action.payload.amount,
+                }}
             />
         );
     } else if (gainStorableResource.match(action)) {
         return (
             <Flex>
                 <GainResourceIconography
-                    gainResource={{[action.payload.resource]: action.payload.amount}}
+                    gainResource={{
+                        [action.payload.resource]: action.payload.amount,
+                    }}
                 />
                 <Box marginLeft="4px">
                     <em>to {action.payload.card.name}</em>
@@ -82,13 +94,19 @@ function createActionIcon(action: AnyAction) {
     } else if (removeResource.match(action)) {
         return (
             <RemoveResourceIconography
-                removeResource={{[action.payload.resource]: action.payload.amount}}
+                removeResource={{
+                    [action.payload.resource]: action.payload.amount,
+                }}
             />
         );
     } else if (increaseParameter.match(action)) {
         return (
             <BaseActionIconography
-                card={{increaseParameter: {[action.payload.parameter]: action.payload.amount}}}
+                card={{
+                    increaseParameter: {
+                        [action.payload.parameter]: action.payload.amount,
+                    },
+                }}
             />
         );
     } else if (addActionToPlay.match(action)) {
@@ -108,11 +126,14 @@ function createActionIcon(action: AnyAction) {
                     <BaseActionIconography
                         card={{
                             [action.payload.actionType]: {
-                                [resourceAndAmount.resource]: resourceAndAmount.amount,
+                                [resourceAndAmount.resource]:
+                                    resourceAndAmount.amount,
                             },
                         }}
                     />
-                    {index < action.payload.resourceAndAmounts.length - 1 ? <span> / </span> : null}
+                    {index < action.payload.resourceAndAmounts.length - 1 ? (
+                        <span> / </span>
+                    ) : null}
                 </React.Fragment>
             )
         );
@@ -122,7 +143,9 @@ function createActionIcon(action: AnyAction) {
     } else if (askUserToDiscardCards.match(action)) {
         return (
             <BaseActionIconography
-                card={{removeResource: {[Resource.CARD]: action.payload.amount}}}
+                card={{
+                    removeResource: {[Resource.CARD]: action.payload.amount},
+                }}
             />
         );
     } else if (askUserToMakeActionChoice.match(action)) {
@@ -134,17 +157,34 @@ function createActionIcon(action: AnyAction) {
             </>
         );
     } else if (askUserToDuplicateProduction.match(action)) {
-        return <BaseActionIconography card={{duplicateProduction: action.payload.tag}} />;
+        return (
+            <BaseActionIconography
+                card={{duplicateProduction: action.payload.tag}}
+            />
+        );
     } else if (askUserToIncreaseLowestProduction.match(action)) {
-        return <BaseActionIconography card={{increaseLowestProduction: action.payload.amount}} />;
+        return (
+            <BaseActionIconography
+                card={{increaseLowestProduction: action.payload.amount}}
+            />
+        );
     } else if (askUserToChoosePrelude.match(action)) {
-        return <BaseActionIconography card={{choosePrelude: action.payload.amount}} />;
+        return (
+            <BaseActionIconography
+                card={{choosePrelude: action.payload.amount}}
+            />
+        );
     } else if (askUserToFundAward.match(action)) {
         return <BaseActionIconography card={{fundAward: true}} />;
     } else if (askUserToPlaceColony.match(action)) {
-        return <BaseActionIconography card={{placeColony: action.payload.placeColony}} />;
+        return (
+            <BaseActionIconography
+                card={{placeColony: action.payload.placeColony}}
+            />
+        );
     } else if (askUserToPlayCardFromHand.match(action)) {
-        const {discount, ignoreGlobalRequirements} = action.payload.playCardParams;
+        const {discount, ignoreGlobalRequirements} =
+            action.payload.playCardParams;
         return (
             <div>
                 Play card
@@ -159,13 +199,20 @@ function createActionIcon(action: AnyAction) {
     } else if (askUserToIncreaseAndDecreaseColonyTileTracks.match(action)) {
         return (
             <BaseActionIconography
-                card={{increaseAndDecreaseColonyTileTracks: action.payload.quantity}}
+                card={{
+                    increaseAndDecreaseColonyTileTracks:
+                        action.payload.quantity,
+                }}
             />
         );
     } else if (askUserToTradeForFree.match(action)) {
         return <BaseActionIconography card={{tradeForFree: true}} />;
     } else if (askUserToPutAdditionalColonyTileIntoPlay.match(action)) {
-        return <BaseActionIconography card={{putAdditionalColonyTileIntoPlay: true}} />;
+        return (
+            <BaseActionIconography
+                card={{putAdditionalColonyTileIntoPlay: true}}
+            />
+        );
     } else if (userCannotChooseAction(action)) {
         return null;
     } else {
@@ -199,10 +246,15 @@ export function canPlayActionNext(
     if (increaseProduction.match(action)) {
         return true;
     } else if (decreaseProduction.match(action)) {
-        const {resource, amount, playerIndex, targetPlayerIndex} = action.payload;
+        const {resource, amount, playerIndex, targetPlayerIndex} =
+            action.payload;
         return (
             state.players[targetPlayerIndex].productions[resource] -
-                convertAmountToNumber(amount, state, state.players[playerIndex]) >=
+                convertAmountToNumber(
+                    amount,
+                    state,
+                    state.players[playerIndex]
+                ) >=
             MinimumProductions[resource]
         );
     } else if (gainResource.match(action)) {
@@ -213,11 +265,20 @@ export function canPlayActionNext(
         const player = state.players[sourcePlayerIndex];
         return amount <= player.resources[resource];
     } else if (addActionToPlay.match(action)) {
-        return actionGuard.canPlayActionInSpiteOfUI(action.payload.action, state)[0];
+        return actionGuard.canPlayActionInSpiteOfUI(
+            action.payload.action,
+            state
+        )[0];
     } else if (askUserToPlaceTile.match(action)) {
         return state.common.board
             .flat()
-            .some(cell => actionGuard.canCompletePlaceTile(cell, action.payload.tilePlacement)[0]);
+            .some(
+                cell =>
+                    actionGuard.canCompletePlaceTile(
+                        cell,
+                        action.payload.tilePlacement
+                    )[0]
+            );
     } else {
         // TODO fill in more actions.
         return true;
@@ -313,7 +374,9 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
     const apiClient = useApiClient();
     const actions = player?.pendingNextActionChoice ?? [];
 
-    const unusedActions = actions.filter(Boolean).filter(action => !!createActionIcon(action));
+    const unusedActions = actions
+        .filter(Boolean)
+        .filter(action => !!createActionIcon(action));
 
     const hasUnpaidActions = useTypedSelector(state =>
         hasUnpaidResources(unusedActions, state, player, actionGuard)
@@ -323,7 +386,9 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
 
     const playerIndices = useTypedSelector(state =>
         state.players.map(player => player.index)
-    ).filter(playerIndex => unusedActions.some(action => getPlayerIndex(action) === playerIndex));
+    ).filter(playerIndex =>
+        unusedActions.some(action => getPlayerIndex(action) === playerIndex)
+    );
 
     const playerElements: React.ReactNode[] = [];
 
@@ -360,7 +425,8 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
         }
         const playerElement = (
             <Box key={playerIndex} padding={'4px'}>
-                {playerIndices.length === 1 && playerIndices[0] === player.index ? null : (
+                {playerIndices.length === 1 &&
+                playerIndices[0] === player.index ? null : (
                     <em>{state.players[playerIndex].corporation.name}:</em>
                 )}
                 <Flex>{elements}</Flex>
@@ -371,19 +437,30 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
 
     const isLoggedInPlayersTurn = useTypedSelector(
         state =>
-            (state.common.controllingPlayerIndex ?? state.common.currentPlayerIndex) ===
-            loggedInPlayer.index
+            (state.common.controllingPlayerIndex ??
+                state.common.currentPlayerIndex) === loggedInPlayer.index
     );
 
     return (
         <Box color={colors.TEXT_LIGHT_1}>
-            <h3>{isLoggedInPlayersTurn ? 'Please choose the next effect:' : 'Please wait...'}</h3>
-            <Box height="fit-content" alignItems="center" width="100%" flexWrap="wrap">
+            <h3>
+                {isLoggedInPlayersTurn
+                    ? 'Please choose the next effect:'
+                    : 'Please wait...'}
+            </h3>
+            <Box
+                height="fit-content"
+                alignItems="center"
+                width="100%"
+                flexWrap="wrap"
+            >
                 {playerElements}
                 {hasDisabledAction && isLoggedInPlayersTurn ? (
                     <div>
                         ...or, you may{' '}
-                        <button onClick={() => handleStartOver(apiClient)}>start over</button>
+                        <button onClick={() => handleStartOver(apiClient)}>
+                            start over
+                        </button>
                     </div>
                 ) : null}
             </Box>

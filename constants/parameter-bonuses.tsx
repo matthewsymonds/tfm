@@ -30,7 +30,10 @@ function getTemperatureBonuses() {
     temperatureBonuses[-24] = increaseHeatProduction;
     temperatureBonuses[-20] = increaseHeatProduction;
 
-    temperatureBonuses[0] = {tilePlacements: [t(TileType.OCEAN)], name: 'Place an ocean tile'};
+    temperatureBonuses[0] = {
+        tilePlacements: [t(TileType.OCEAN)],
+        name: 'Place an ocean tile',
+    };
 
     return temperatureBonuses;
 }

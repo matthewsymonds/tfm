@@ -20,17 +20,23 @@ export enum PopoverType {
 export type PopoverConfigByType = {[key in PopoverType]?: PopoverConfig};
 
 export const GlobalPopoverContext = React.createContext<{
-    setPopoverConfigByType: (type: PopoverType, newConfig: PopoverConfig) => void;
+    setPopoverConfigByType: (
+        type: PopoverType,
+        newConfig: PopoverConfig
+    ) => void;
     popoverConfigByType: PopoverConfigByType;
 }>({
     setPopoverConfigByType() {
-        throw new Error('Must specify context value for setPopoverConfigByType');
+        throw new Error(
+            'Must specify context value for setPopoverConfigByType'
+        );
     },
     popoverConfigByType: {},
 });
 
 export function usePopoverType(type: PopoverType) {
-    const {popoverConfigByType, setPopoverConfigByType} = useContext(GlobalPopoverContext);
+    const {popoverConfigByType, setPopoverConfigByType} =
+        useContext(GlobalPopoverContext);
 
     return {
         // pass null to blindly hide any popover of this type
@@ -56,7 +62,10 @@ export function GlobalPopoverManager({}: {}) {
     return (
         <React.Fragment>
             {Object.keys(popoverConfigByType).map(type => (
-                <IndividualPopoverManager key={type} type={type as PopoverType} />
+                <IndividualPopoverManager
+                    key={type}
+                    type={type as PopoverType}
+                />
             ))}
         </React.Fragment>
     );
@@ -103,25 +112,41 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
             if (
                 popoverConfig &&
                 e.target instanceof HTMLElement &&
-                !(triggerElement === e.target || triggerElement?.contains(e.target)) &&
                 !(
-                    document.querySelector(`#popoverContainer-${type}`) === e.target ||
-                    document.querySelector(`#popoverContainer-${type}`)?.contains(e.target)
+                    triggerElement === e.target ||
+                    triggerElement?.contains(e.target)
+                ) &&
+                !(
+                    document.querySelector(`#popoverContainer-${type}`) ===
+                        e.target ||
+                    document
+                        .querySelector(`#popoverContainer-${type}`)
+                        ?.contains(e.target)
                 ) &&
                 !(
                     document.querySelector('.payment-popover') === e.target ||
-                    document.querySelector('.payment-popover')?.contains(e.target)
+                    document
+                        .querySelector('.payment-popover')
+                        ?.contains(e.target)
                 ) &&
                 !(
                     e.target instanceof HTMLInputElement &&
-                    Array.from(e.target.labels ?? []).some(label => label === triggerElement)
+                    Array.from(e.target.labels ?? []).some(
+                        label => label === triggerElement
+                    )
                 )
             ) {
                 if (!didImmediatelyOpenNewPopover.current) {
                     hidePopover(popoverConfig.triggerRef);
                 }
-                document.removeEventListener('click', closePopoverAndDeregisterHandler);
-                document.removeEventListener('touchend', closePopoverAndDeregisterHandler);
+                document.removeEventListener(
+                    'click',
+                    closePopoverAndDeregisterHandler
+                );
+                document.removeEventListener(
+                    'touchend',
+                    closePopoverAndDeregisterHandler
+                );
             }
         }
 
@@ -130,13 +155,25 @@ function IndividualPopoverManager({type}: {type: PopoverType}) {
             window.requestAnimationFrame(() => {
                 didImmediatelyOpenNewPopover.current = false;
             });
-            document.addEventListener('click', closePopoverAndDeregisterHandler);
-            document.addEventListener('touchend', closePopoverAndDeregisterHandler);
+            document.addEventListener(
+                'click',
+                closePopoverAndDeregisterHandler
+            );
+            document.addEventListener(
+                'touchend',
+                closePopoverAndDeregisterHandler
+            );
         }
 
         return () => {
-            document.removeEventListener('click', closePopoverAndDeregisterHandler);
-            document.removeEventListener('touchend', closePopoverAndDeregisterHandler);
+            document.removeEventListener(
+                'click',
+                closePopoverAndDeregisterHandler
+            );
+            document.removeEventListener(
+                'touchend',
+                closePopoverAndDeregisterHandler
+            );
         };
     }, [popoverConfig]);
 

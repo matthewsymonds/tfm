@@ -14,7 +14,12 @@ const Template: Story<{}> = args => {
             {Array(100)
                 .fill(null)
                 .map((a, i) => (
-                    <div style={{backgroundColor: i % 2 ? 'blue' : 'red', height: 20}}></div>
+                    <div
+                        style={{
+                            backgroundColor: i % 2 ? 'blue' : 'red',
+                            height: 20,
+                        }}
+                    ></div>
                 ))}
             <CardHand cardInfos={cards.slice(0, 10).map(card => ({card}))} />
         </div>

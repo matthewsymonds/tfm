@@ -47,28 +47,36 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                 return (
                     <CenteredText>
                         <InlineText>1/</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.TWICE_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>2/</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.HALF_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/2</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.THIRD_RESOURCES_ON_CARD:
                 return (
                     <CenteredText>
                         <InlineText>1/3</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.THIRD_FLOATERS:
@@ -88,14 +96,18 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                 return (
                     <CenteredText>
                         <InlineText>1/4</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES:
                 return (
                     <CenteredText>
                         <InlineText>3:</InlineText>
-                        {storedResource && <ResourceIcon name={storedResource} size={16} />}
+                        {storedResource && (
+                            <ResourceIcon name={storedResource} size={16} />
+                        )}
                     </CenteredText>
                 );
             case VariableAmount.OCEANS_ADJACENT_TO_CAPITAL:
@@ -134,13 +146,17 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                         <CenteredText>
                             <InlineText>1/</InlineText>
                             {card.victoryPoints.dividedBy ? (
-                                <InlineText>{card.victoryPoints.dividedBy}</InlineText>
+                                <InlineText>
+                                    {card.victoryPoints.dividedBy}
+                                </InlineText>
                             ) : null}
                             <TagIcon name={card.victoryPoints.tag} size={16} />
                         </CenteredText>
                     );
                 }
-                throw new Error(`Unsupported variable amount victory points ${card.victoryPoints}`);
+                throw new Error(
+                    `Unsupported variable amount victory points ${card.victoryPoints}`
+                );
         }
     }
 

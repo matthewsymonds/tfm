@@ -5,7 +5,9 @@ import {Resource} from './resource-enum';
 import {Tag} from './tag';
 
 export const CARD_SELECTION_CRITERIA_SELECTORS = {
-    [CardSelectionCriteria.FLOATER_ICON]: (serializedCard: SerializedCard): boolean => {
+    [CardSelectionCriteria.FLOATER_ICON]: (
+        serializedCard: SerializedCard
+    ): boolean => {
         const card = getCard(serializedCard);
         const f = Resource.FLOATER;
         if (card.storedResourceType === f) {
@@ -30,15 +32,21 @@ export const CARD_SELECTION_CRITERIA_SELECTORS = {
         }
         return false;
     },
-    [CardSelectionCriteria.VENUS_TAG]: (serializedCard: SerializedCard): boolean => {
+    [CardSelectionCriteria.VENUS_TAG]: (
+        serializedCard: SerializedCard
+    ): boolean => {
         const card = getCard(serializedCard);
         return card.tags.includes(Tag.VENUS);
     },
-    [CardSelectionCriteria.PLANT_TAG]: (serializedCard: SerializedCard): boolean => {
+    [CardSelectionCriteria.PLANT_TAG]: (
+        serializedCard: SerializedCard
+    ): boolean => {
         const card = getCard(serializedCard);
         return card.tags.includes(Tag.PLANT);
     },
-    [CardSelectionCriteria.SPACE_TAG]: (serializedCard: SerializedCard): boolean => {
+    [CardSelectionCriteria.SPACE_TAG]: (
+        serializedCard: SerializedCard
+    ): boolean => {
         const card = getCard(serializedCard);
         return card.tags.includes(Tag.SPACE);
     },

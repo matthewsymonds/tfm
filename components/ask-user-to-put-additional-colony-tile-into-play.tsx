@@ -5,12 +5,16 @@ import {PlayerState, useTypedSelector} from 'reducer';
 import {Box, Flex} from './box';
 import {ColonySwitcher} from './colonies';
 
-export function AskUserToPutAdditionalColonyTileIntoPlay({player}: {player: PlayerState}) {
+export function AskUserToPutAdditionalColonyTileIntoPlay({
+    player,
+}: {
+    player: PlayerState;
+}) {
     const [selectedColonies, setSelectedColonies] = useState([true]);
 
-    const coloniesAlreadyInGame = useTypedSelector(state => state.common.colonies ?? []).map(
-        colony => colony.name
-    );
+    const coloniesAlreadyInGame = useTypedSelector(
+        state => state.common.colonies ?? []
+    ).map(colony => colony.name);
 
     const otherColonies = COLONIES.filter(
         colony => !coloniesAlreadyInGame.includes(colony.name)
@@ -31,7 +35,9 @@ export function AskUserToPutAdditionalColonyTileIntoPlay({player}: {player: Play
                 marginRight="auto"
             >
                 <Box width="340px" margin="4px" marginBottom="16px">
-                    <Box marginBottom="8px">Select an additional colony to put into play:</Box>
+                    <Box marginBottom="8px">
+                        Select an additional colony to put into play:
+                    </Box>
                     <ColonySwitcher
                         colonies={otherColonies}
                         selectedColonies={selectedColonies}

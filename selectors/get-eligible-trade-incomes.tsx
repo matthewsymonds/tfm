@@ -1,7 +1,10 @@
 import {getColony, SerializedColony} from 'constants/colonies';
 import {PlayerState} from 'reducer';
 
-export function getEligibleTradeIncomes(colony: SerializedColony, player: PlayerState): number[] {
+export function getEligibleTradeIncomes(
+    colony: SerializedColony,
+    player: PlayerState
+): number[] {
     const colonyTileTrackRange = player.colonyTileTrackRange ?? 0;
     const fullColony = getColony(colony);
     const eligibleTradeIncomes: number[] = [];

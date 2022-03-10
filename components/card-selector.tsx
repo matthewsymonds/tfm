@@ -31,17 +31,33 @@ const CardSelectorOuter = styled.div`
     margin-bottom: 8px;
 `;
 
-export const CardSelector: React.FunctionComponent<CardSelectorProps> = props => {
-    const {min = 0, max, onSelect, options, orientation, selectedCards, budget, className} = props;
+export const CardSelector: React.FunctionComponent<
+    CardSelectorProps
+> = props => {
+    const {
+        min = 0,
+        max,
+        onSelect,
+        options,
+        orientation,
+        selectedCards,
+        budget,
+        className,
+    } = props;
     const numSelected = selectedCards.length;
     const mustSelectOne = max === 1;
     const loggedInPlayer = useLoggedInPlayer();
-    const canAfford = budget === undefined || budget >= (numSelected + 1) * loggedInPlayer.cardCost;
-    const canSelect = canAfford && (selectedCards.length < max || mustSelectOne);
+    const canAfford =
+        budget === undefined ||
+        budget >= (numSelected + 1) * loggedInPlayer.cardCost;
+    const canSelect =
+        canAfford && (selectedCards.length < max || mustSelectOne);
 
     const handleSelect = (card: SerializedCard) => {
         let newSelectedCards = [...selectedCards];
-        const index = selectedCards.findIndex(selectedCard => selectedCard.name === card.name);
+        const index = selectedCards.findIndex(
+            selectedCard => selectedCard.name === card.name
+        );
         if (index < 0) {
             if (mustSelectOne) {
                 // Special case. Just change the selection to the unselected card.
@@ -60,10 +76,13 @@ export const CardSelector: React.FunctionComponent<CardSelectorProps> = props =>
             {props.cardSelectorPrompt}
             <CardSelectorBase orientation={orientation}>
                 {options.map((option, key) => {
-                    const selected = selectedCards.some(card => card.name === option?.name);
+                    const selected = selectedCards.some(
+                        card => card.name === option?.name
+                    );
 
                     const cannotSelect = !selected && !canSelect;
-                    const cannotUnselect = selected && numSelected === 1 && min === 1;
+                    const cannotUnselect =
+                        selected && numSelected === 1 && min === 1;
 
                     const disabled = cannotSelect || cannotUnselect;
                     const card = getCard(option);

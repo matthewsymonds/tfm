@@ -15,7 +15,11 @@ import {Parameter, TilePlacement, TileType} from 'constants/board';
 import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {Condition, isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
-import {getSymbolForOperation, isOperationAmount, Operation} from 'constants/operation-amount';
+import {
+    getSymbolForOperation,
+    isOperationAmount,
+    Operation,
+} from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
 import {PropertyCounter} from 'constants/property-counter';
 import {getResourceBorder, ResourceLocationType} from 'constants/resource';
@@ -24,7 +28,10 @@ import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
 import {isTileAmount} from 'constants/tile-amount';
 import {VariableAmount} from 'constants/variable-amount';
-import {Card as CardModel, doesActionHaveProductionIconography} from 'models/card';
+import {
+    Card as CardModel,
+    doesActionHaveProductionIconography,
+} from 'models/card';
 import React from 'react';
 import Twemoji from 'react-twemoji';
 import {isTagAmount} from 'selectors/is-tag-amount';
@@ -117,7 +124,8 @@ export function ChangeResourceIconography({
     };
 
     const shouldShowNegativeSymbol = (r: Resource) =>
-        !!opts?.isNegative && !(opts?.isProduction && r === Resource.MEGACREDIT);
+        !!opts?.isNegative &&
+        !(opts?.isProduction && r === Resource.MEGACREDIT);
 
     let i = 0;
     for (let [resource, amount] of Object.entries(changeResource)) {
@@ -138,12 +146,17 @@ export function ChangeResourceIconography({
     let locationTypeIcon: React.ReactNode = null;
     if (opts.locationType) {
         if (
-            opts.locationType === ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG ||
+            opts.locationType ===
+                ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG ||
             opts.locationType === ResourceLocationType.VENUS_CARD
         ) {
             locationTypeIcon = (
                 <Box position="absolute" top="-6px" right="-6px">
-                    <TagIcon name={Tag.VENUS} size={12} showRedBorder={opts.useRedBorder} />
+                    <TagIcon
+                        name={Tag.VENUS}
+                        size={12}
+                        showRedBorder={opts.useRedBorder}
+                    />
                 </Box>
             );
         }
@@ -202,28 +215,33 @@ export function ChangeResourceOptionIconography({
     };
     const elements: Array<React.ReactNode> = [];
 
-    Object.entries(changeResourceOption).forEach(([resource, quantity], index) => {
-        if (index > 0) {
-            if (opts?.useSlashSeparator) {
-                elements.push(<InlineText>/</InlineText>);
-            } else {
-                elements.push(<TextWithMargin>or</TextWithMargin>);
+    Object.entries(changeResourceOption).forEach(
+        ([resource, quantity], index) => {
+            if (index > 0) {
+                if (opts?.useSlashSeparator) {
+                    elements.push(<InlineText>/</InlineText>);
+                } else {
+                    elements.push(<TextWithMargin>or</TextWithMargin>);
+                }
             }
+            elements.push(
+                <ChangeResourceIconography
+                    changeResource={{[resource]: quantity}}
+                    opts={{...opts, isInline: true}}
+                />
+            );
         }
-        elements.push(
-            <ChangeResourceIconography
-                changeResource={{[resource]: quantity}}
-                opts={{...opts, isInline: true}}
-            />
-        );
-    });
+    );
 
     if (opts.isInline && elements.length === 1) {
         return <React.Fragment>{elements[0]}</React.Fragment>;
     }
 
     return (
-        <IconographyRow isInline={opts.isInline} style={{marginLeft: -4, marginTop: -4}}>
+        <IconographyRow
+            isInline={opts.isInline}
+            style={{marginLeft: -4, marginTop: -4}}
+        >
             {elements.map((el, i) => (
                 <Box marginLeft="4px" marginTop="4px" key={i}>
                     {el}
@@ -255,7 +273,10 @@ type RepresentAmountAndResourceProps = {
     amount: Amount;
     resource?: Resource;
     resourceOnCard?: Resource;
-    shouldShowNumericQuantity?: (amount: number, resource?: Resource) => boolean;
+    shouldShowNumericQuantity?: (
+        amount: number,
+        resource?: Resource
+    ) => boolean;
     shouldShowNegativeSymbol?: (resource?: Resource) => boolean;
     opts: ChangeResourceOpts;
     omitNumerator?: boolean;
@@ -263,7 +284,9 @@ type RepresentAmountAndResourceProps = {
     omitResourceIconography?: boolean;
 };
 
-export function RepresentAmountAndResource(props: RepresentAmountAndResourceProps) {
+export function RepresentAmountAndResource(
+    props: RepresentAmountAndResourceProps
+) {
     const {
         opts,
         amount,
@@ -284,9 +307,12 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
             showRedBorder={opts.useRedBorder}
             amount={
                 resource === Resource.MEGACREDIT
-                    ? `${!shouldShowNegativeSymbol?.(resource) && opts.isNegative ? '-' : ''}${
-                          typeof amount === 'number' ? amount : 1
-                      }`
+                    ? `${
+                          !shouldShowNegativeSymbol?.(resource) &&
+                          opts.isNegative
+                              ? '-'
+                              : ''
+                      }${typeof amount === 'number' ? amount : 1}`
                     : undefined
             }
             margin={0}
@@ -301,7 +327,10 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
                 </Box>
             );
         }
-        const showNumericQuantity = shouldShowNumericQuantity?.(amount, resource);
+        const showNumericQuantity = shouldShowNumericQuantity?.(
+            amount,
+            resource
+        );
         const prefixElements = [
             ...(opts.showStealText ? ['STEAL'] : []),
             ...(shouldShowNegativeSymbol?.(resource) ? ['-'] : []),
@@ -311,14 +340,19 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
         let el = (
             <Flex alignItems="center">
                 {prefixElements.length > 0 && (
-                    <TextWithMargin margin="0 2px 0 0">{prefixElements}</TextWithMargin>
+                    <TextWithMargin margin="0 2px 0 0">
+                        {prefixElements}
+                    </TextWithMargin>
                 )}
                 {showNumericQuantity || resource === Resource.MEGACREDIT
                     ? resourceIconElement
                     : Array(amount)
                           .fill(null)
                           .map((_, index) => (
-                              <Flex key={index} marginLeft={index > 0 ? '6px' : '0px'}>
+                              <Flex
+                                  key={index}
+                                  marginLeft={index > 0 ? '6px' : '0px'}
+                              >
                                   {resourceIconElement}
                               </Flex>
                           ))}
@@ -326,7 +360,8 @@ export function RepresentAmountAndResource(props: RepresentAmountAndResourceProp
         );
         return <React.Fragment>{el}</React.Fragment>;
     } else {
-        const [multiplierElement, customElement] = getMultiplierAndCustomElement(props);
+        const [multiplierElement, customElement] =
+            getMultiplierAndCustomElement(props);
         if (omitNumerator && multiplierElement) {
             return multiplierElement;
         }
@@ -434,7 +469,11 @@ function getMultiplierAndCustomElement(
                         borderWidth={1}
                         bgColor={colors.CARD_ACTIVE}
                     >
-                        <Flex alignItems="center" justifyContent="center" height="100%">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            height="100%"
+                        >
                             <TagIcon name={Tag.EARTH} />
                         </Flex>
                     </TexturedCard>
@@ -451,7 +490,11 @@ function getMultiplierAndCustomElement(
                         borderWidth={1}
                         bgColor={colors.CARD_AUTOMATED}
                     >
-                        <Flex alignItems="center" justifyContent="center" height="100%">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            height="100%"
+                        >
                             <TagIcon name={Tag.EARTH} />
                         </Flex>
                     </TexturedCard>
@@ -468,7 +511,11 @@ function getMultiplierAndCustomElement(
                         borderWidth={1}
                         bgColor={colors.CARD_EVENT}
                     >
-                        <Flex alignItems="center" justifyContent="center" height="100%">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            height="100%"
+                        >
                             <TagIcon name={Tag.EARTH} />
                         </Flex>
                     </TexturedCard>
@@ -513,13 +560,19 @@ function getMultiplierAndCustomElement(
             multiplierElement = null;
             break;
         case VariableAmount.OPPONENTS_SPACE_TAGS:
-            multiplierElement = <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />;
+            multiplierElement = (
+                <TagIcon name={Tag.SPACE} size={16} showRedBorder={true} />
+            );
             break;
         case VariableAmount.THIRD_FLOATERS:
-            multiplierElement = <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />;
+            multiplierElement = (
+                <ResourceIcon name={Resource.FLOATER} size={16} amount={3} />
+            );
             break;
         case VariableAmount.FLOATERS:
-            multiplierElement = <ResourceIcon name={Resource.FLOATER} size={16} amount={1} />;
+            multiplierElement = (
+                <ResourceIcon name={Resource.FLOATER} size={16} amount={1} />
+            );
             break;
         case VariableAmount.CITIES_ON_MARS:
             multiplierElement = <TileIcon type={TileType.CITY} size={16} />;
@@ -534,14 +587,23 @@ function getMultiplierAndCustomElement(
                 customElement = (
                     <React.Fragment>
                         <TextWithMargin>+</TextWithMargin>
-                        <ResourceIcon name={resource as Resource} size={16} amount="X" />
+                        <ResourceIcon
+                            name={resource as Resource}
+                            size={16}
+                            amount="X"
+                        />
                     </React.Fragment>
                 );
             } else {
                 customElement = (
                     <React.Fragment>
-                        <TextWithMargin>{opts.shouldShowPlus ? '+' : '+X'}</TextWithMargin>
-                        <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                        <TextWithMargin>
+                            {opts.shouldShowPlus ? '+' : '+X'}
+                        </TextWithMargin>
+                        <ResourceIcon
+                            name={resource as Resource}
+                            size={16}
+                        ></ResourceIcon>
                     </React.Fragment>
                 );
             }
@@ -549,8 +611,13 @@ function getMultiplierAndCustomElement(
         case VariableAmount.USER_CHOICE:
             customElement = (
                 <React.Fragment>
-                    <TextWithMargin>{shouldShowNegativeSymbol?.(resource) && '-'}X</TextWithMargin>
-                    <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                    <TextWithMargin>
+                        {shouldShowNegativeSymbol?.(resource) && '-'}X
+                    </TextWithMargin>
+                    <ResourceIcon
+                        name={resource as Resource}
+                        size={16}
+                    ></ResourceIcon>
                 </React.Fragment>
             );
             break;
@@ -558,15 +625,30 @@ function getMultiplierAndCustomElement(
             customElement = (
                 <React.Fragment>
                     <TextWithMargin>-</TextWithMargin>
-                    <ResourceIcon name={resource as Resource} size={16}></ResourceIcon>
+                    <ResourceIcon
+                        name={resource as Resource}
+                        size={16}
+                    ></ResourceIcon>
                 </React.Fragment>
             );
             break;
         case VariableAmount.TRIPLE_BASED_ON_USER_CHOICE:
-            customElement = <ResourceIcon name={resource as Resource} size={16} amount="3X" />;
+            customElement = (
+                <ResourceIcon
+                    name={resource as Resource}
+                    size={16}
+                    amount="3X"
+                />
+            );
             break;
         case VariableAmount.DOUBLE_BASED_ON_USER_CHOICE:
-            customElement = <ResourceIcon name={resource as Resource} size={16} amount="2X" />;
+            customElement = (
+                <ResourceIcon
+                    name={resource as Resource}
+                    size={16}
+                    amount="2X"
+                />
+            );
             break;
         case VariableAmount.REVEALED_CARD_MICROBE:
             customElement = (
@@ -579,11 +661,17 @@ function getMultiplierAndCustomElement(
             );
             break;
         case VariableAmount.RESOURCES_ON_CARD:
-            multiplierElement = <ResourceIcon name={resourceOnCard!} size={16} />;
+            multiplierElement = (
+                <ResourceIcon name={resourceOnCard!} size={16} />
+            );
             break;
         case VariableAmount.RESOURCES_ON_CARD_MAX_4:
             multiplierElement = (
-                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                <Flex
+                    display="inline-flex"
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     <ResourceIcon name={resourceOnCard!} size={16} />
                     <InlineText>*</InlineText>
                 </Flex>
@@ -591,7 +679,11 @@ function getMultiplierAndCustomElement(
             break;
         case VariableAmount.INFLUENCE:
             const element = (
-                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                <Flex
+                    display="inline-flex"
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     <InlineText>
                         <Twemoji>👥</Twemoji>
                     </InlineText>
@@ -605,7 +697,11 @@ function getMultiplierAndCustomElement(
             break;
         case VariableAmount.EACH_PARTY_WITH_AT_LEAST_ONE_DELEGATE:
             multiplierElement = (
-                <Flex display="inline-flex" justifyContent="center" alignItems="center">
+                <Flex
+                    display="inline-flex"
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     <MiniPartyIcon>
                         <Twemoji>👥</Twemoji>
                     </MiniPartyIcon>
@@ -618,26 +714,36 @@ function getMultiplierAndCustomElement(
             if (amount && isTagAmount(amount)) {
                 multiplierElement = (
                     <React.Fragment>
-                        {amount.dividedBy ? <InlineText>{amount.dividedBy}</InlineText> : null}
+                        {amount.dividedBy ? (
+                            <InlineText>{amount.dividedBy}</InlineText>
+                        ) : null}
                         <TagIcon name={amount.tag} size={16} />
                     </React.Fragment>
                 );
             } else if (amount && isOperationAmount(amount)) {
-                const operandElements = amount.operands.map((operand, index) => (
-                    <RepresentAmountAndResource
-                        {...props}
-                        amount={operand}
-                        key={index}
-                        omitNumerator={omitNumerator || index !== 0}
-                        includeBrackets={!omitNumerator}
-                        omitResourceIconography={omitResourceIconography || index === 1}
-                    />
-                ));
-                const isMaxOrMin = [Operation.MAX, Operation.MIN].includes(amount.operation);
+                const operandElements = amount.operands.map(
+                    (operand, index) => (
+                        <RepresentAmountAndResource
+                            {...props}
+                            amount={operand}
+                            key={index}
+                            omitNumerator={omitNumerator || index !== 0}
+                            includeBrackets={!omitNumerator}
+                            omitResourceIconography={
+                                omitResourceIconography || index === 1
+                            }
+                        />
+                    )
+                );
+                const isMaxOrMin = [Operation.MAX, Operation.MIN].includes(
+                    amount.operation
+                );
 
                 const parentheses =
                     amount.operation === Operation.SUBTRACT &&
-                    amount.operands.some(operand => typeof operand === 'number');
+                    amount.operands.some(
+                        operand => typeof operand === 'number'
+                    );
 
                 const prefix =
                     includeBrackets || parentheses ? (
@@ -661,7 +767,10 @@ function getMultiplierAndCustomElement(
                         marginLeft={'4px'}
                         marginRight="4px"
                         fontWeight={!isMaxOrMin ? 'normal' : 'bold'}
-                        style={{whiteSpace: 'pre', fontVariant: 'all-small-caps'}}
+                        style={{
+                            whiteSpace: 'pre',
+                            fontVariant: 'all-small-caps',
+                        }}
                     >
                         {getSymbolForOperation(amount.operation)}
                     </Box>
@@ -672,7 +781,9 @@ function getMultiplierAndCustomElement(
                     internalElements.push(operandElements[i]);
                     if (i < amount.operands.length - 1) {
                         internalElements.push(
-                            <React.Fragment key={'symbol-' + i}>{symbol}</React.Fragment>
+                            <React.Fragment key={'symbol-' + i}>
+                                {symbol}
+                            </React.Fragment>
                         );
                     }
                 }
@@ -690,24 +801,34 @@ function getMultiplierAndCustomElement(
                 );
             } else if (amount && isProductionAmount(amount)) {
                 multiplierElement = (
-                    <ProductionIconography card={{increaseProduction: {[amount.production]: 1}}} />
+                    <ProductionIconography
+                        card={{increaseProduction: {[amount.production]: 1}}}
+                    />
                 );
             } else if (amount && isResourceAmount(amount)) {
                 multiplierElement = (
-                    <GainResourceIconography gainResource={{[amount.resource]: 1}} />
+                    <GainResourceIconography
+                        gainResource={{[amount.resource]: 1}}
+                    />
                 );
             } else if (amount && isConditionAmount(amount)) {
                 switch (amount.condition) {
                     case Condition.TURMOIL:
                         customElement = (
-                            <RepresentAmountAndResource {...props} amount={amount.fail} />
+                            <RepresentAmountAndResource
+                                {...props}
+                                amount={amount.fail}
+                            />
                         );
                         break;
                     case Condition.GREATER_THAN_OR_EQUAL_TO:
                         customElement = (
                             <Flex flexDirection="column" alignItems="center">
                                 {amount.fail ? (
-                                    <Flex alignItems="center" marginBottom="8px">
+                                    <Flex
+                                        alignItems="center"
+                                        marginBottom="8px"
+                                    >
                                         <RepresentAmountAndResource
                                             {...props}
                                             amount={amount.fail}
@@ -715,7 +836,10 @@ function getMultiplierAndCustomElement(
                                         <TextWithMargin>OR</TextWithMargin>
                                     </Flex>
                                 ) : null}
-                                <Flex alignItems="center" justifyContent="center">
+                                <Flex
+                                    alignItems="center"
+                                    justifyContent="center"
+                                >
                                     <RepresentAmountAndResource
                                         {...props}
                                         amount={amount.operands[1]}
@@ -726,15 +850,22 @@ function getMultiplierAndCustomElement(
                                         amount={amount.operands[0]}
                                         omitResourceIconography={true}
                                     />
-                                    <TextWithMargin margin={'0 0 0 2px'}>:</TextWithMargin>
-                                    <RepresentAmountAndResource {...props} amount={amount.pass} />
+                                    <TextWithMargin margin={'0 0 0 2px'}>
+                                        :
+                                    </TextWithMargin>
+                                    <RepresentAmountAndResource
+                                        {...props}
+                                        amount={amount.pass}
+                                    />
                                 </Flex>
                             </Flex>
                         );
                         break;
                 }
             } else {
-                throw new Error('variable amount not supported: ' + JSON.stringify(amount));
+                throw new Error(
+                    'variable amount not supported: ' + JSON.stringify(amount)
+                );
             }
     }
     return [multiplierElement, customElement];
@@ -744,10 +875,14 @@ export function GainResourceWhenIncreaseProductionIconography() {
     return (
         <React.Fragment>
             <ProductionIconography
-                card={{increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1}}}
+                card={{
+                    increaseProduction: {[Resource.ANY_STANDARD_RESOURCE]: 1},
+                }}
             />
             <Colon />
-            <GainResourceIconography gainResource={{[Resource.ANY_STANDARD_RESOURCE]: 1}} />
+            <GainResourceIconography
+                gainResource={{[Resource.ANY_STANDARD_RESOURCE]: 1}}
+            />
         </React.Fragment>
     );
 }
@@ -768,7 +903,10 @@ export function GainResourceOptionIconography({
     opts?: ChangeResourceOptionOpts;
 }) {
     return (
-        <ChangeResourceOptionIconography changeResourceOption={gainResourceOption} opts={opts} />
+        <ChangeResourceOptionIconography
+            changeResourceOption={gainResourceOption}
+            opts={opts}
+        />
     );
 }
 
@@ -780,7 +918,8 @@ export function RemoveResourceIconography({
     opts?: ChangeResourceOpts;
 }) {
     const useRedBorder =
-        opts?.locationType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
+        opts?.locationType &&
+        RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
     return (
         <ChangeResourceIconography
             changeResource={removeResource}
@@ -826,7 +965,8 @@ export function RemoveResourceOptionIconography({
     opts?: ChangeResourceOptionOpts;
 }) {
     const useRedBorder =
-        opts?.locationType && RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
+        opts?.locationType &&
+        RED_BORDER_RESOURCE_LOCATION_TYPES.includes(opts?.locationType);
 
     return (
         <ChangeResourceOptionIconography
@@ -840,7 +980,11 @@ export function RemoveResourceOptionIconography({
     );
 }
 
-function TilePlacementIconography({tilePlacements}: {tilePlacements: Array<TilePlacement>}) {
+function TilePlacementIconography({
+    tilePlacements,
+}: {
+    tilePlacements: Array<TilePlacement>;
+}) {
     if (tilePlacements.length === 0) {
         return null;
     }
@@ -872,19 +1016,28 @@ export function IncreaseParameterIconography({
     const elements: Array<React.ReactNode> = [];
     for (const [parameter, amount] of Object.entries(increaseParameter)) {
         if (typeof amount !== 'number') {
-            throw new Error('unsupported variable amount in renderIncreaseParameterIconogrophy');
+            throw new Error(
+                'unsupported variable amount in renderIncreaseParameterIconogrophy'
+            );
         }
         elements.push(
             ...Array(amount)
                 .fill(null)
                 .map((_, index) => (
                     <Flex key={index} marginLeft={index > 0 ? '4px' : '0'}>
-                        <GlobalParameterIcon parameter={parameter as Parameter} size={size} />
+                        <GlobalParameterIcon
+                            parameter={parameter as Parameter}
+                            size={size}
+                        />
                     </Flex>
                 ))
         );
     }
-    return <IconographyRow className="increase-parameter">{elements}</IconographyRow>;
+    return (
+        <IconographyRow className="increase-parameter">
+            {elements}
+        </IconographyRow>
+    );
 }
 
 function DuplicateProductionIconography({
@@ -899,14 +1052,23 @@ function DuplicateProductionIconography({
     if (!duplicateProduction) return null;
 
     return (
-        <IconographyRow className="duplicate-production" isInline={opts?.isInline ?? false}>
+        <IconographyRow
+            className="duplicate-production"
+            isInline={opts?.isInline ?? false}
+        >
             <TextWithMargin margin="0 2px 0 0">Copy a </TextWithMargin>
             <TagIcon name={Tag.BUILDING} size={16} />
         </IconographyRow>
     );
 }
 
-export function ProductionIconography({card, inline}: {card: Action; inline?: boolean}) {
+export function ProductionIconography({
+    card,
+    inline,
+}: {
+    card: Action;
+    inline?: boolean;
+}) {
     if (!doesActionHaveProductionIconography(card)) {
         return null;
     }
@@ -947,7 +1109,9 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
                         isProduction: true,
                     }}
                 />
-                {hasDecreaseProduction && hasDecreaseAnyProduction && <div style={{width: 6}} />}
+                {hasDecreaseProduction && hasDecreaseAnyProduction && (
+                    <div style={{width: 6}} />
+                )}
                 <ChangeResourceIconography
                     changeResource={card.decreaseAnyProduction ?? {}}
                     opts={{
@@ -960,9 +1124,12 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
         );
     }
     if (hasIncreaseProduction) {
-        for (const [resource, amount] of Object.entries(card.increaseProduction ?? {})) {
+        for (const [resource, amount] of Object.entries(
+            card.increaseProduction ?? {}
+        )) {
             if (
-                amount === VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS ||
+                amount ===
+                    VariableAmount.MINING_RIGHTS_CELL_HAS_TITANIUM_BONUS ||
                 amount === VariableAmount.MINING_AREA_CELL_HAS_TITANIUM_BONUS
             ) {
                 // hack due to how we render mining rights/area iconography
@@ -1014,7 +1181,11 @@ export function ProductionIconography({card, inline}: {card: Action; inline?: bo
                             alignItems="center"
                             justifyContent="center"
                             margin={`${PRODUCTION_PADDING}px`}
-                            marginTop={index > 0 && !inline ? '0' : `${PRODUCTION_PADDING}px`}
+                            marginTop={
+                                index > 0 && !inline
+                                    ? '0'
+                                    : `${PRODUCTION_PADDING}px`
+                            }
                         >
                             {row}
                         </Flex>
@@ -1062,7 +1233,9 @@ export function IncreaseTerraformRatingIconography({
                     </Box>
                     <InlineText>/</InlineText>
                     {increaseTerraformRating.dividedBy ? (
-                        <InlineText>{increaseTerraformRating.dividedBy}</InlineText>
+                        <InlineText>
+                            {increaseTerraformRating.dividedBy}
+                        </InlineText>
                     ) : null}
                     <TagIcon name={increaseTerraformRating.tag} size={16} />
                 </IconographyRow>
@@ -1089,11 +1262,17 @@ export function IncreaseTerraformRatingIconography({
                         </Flex>
                     </IconographyRow>
                     <IconographyRow className="increase-terraform-rating">
-                        <Flex alignItems="center" flexWrap="wrap" justifyContent="flex-end">
+                        <Flex
+                            alignItems="center"
+                            flexWrap="wrap"
+                            justifyContent="flex-end"
+                        >
                             {renderArrow()}
                             <IncreaseTerraformRatingIconography
                                 red={red}
-                                increaseTerraformRating={increaseTerraformRating.first}
+                                increaseTerraformRating={
+                                    increaseTerraformRating.first
+                                }
                             />
                         </Flex>
                     </IconographyRow>
@@ -1104,7 +1283,9 @@ export function IncreaseTerraformRatingIconography({
                                 <Box display="inline-block">Second:</Box>
                                 <IncreaseTerraformRatingIconography
                                     red={red}
-                                    increaseTerraformRating={increaseTerraformRating.second}
+                                    increaseTerraformRating={
+                                        increaseTerraformRating.second
+                                    }
                                 />
                             </Flex>
                         </IconographyRow>
@@ -1139,7 +1320,9 @@ export function IncreaseTerraformRatingIconography({
                 internalElements.push(operandElements[i]);
                 if (i !== amount.operands.length - 1) {
                     internalElements.push(
-                        <React.Fragment key={`symbol-` + i}>{symbol}</React.Fragment>
+                        <React.Fragment key={`symbol-` + i}>
+                            {symbol}
+                        </React.Fragment>
                     );
                 }
             }
@@ -1148,13 +1331,18 @@ export function IncreaseTerraformRatingIconography({
                 <IconographyRow className="increase-terraform-rating">
                     <Flex alignItems="center" height={'20px'}>
                         {internalElements}
-                        <IncreaseTerraformRatingIconography increaseTerraformRating={1} red={red} />
+                        <IncreaseTerraformRatingIconography
+                            increaseTerraformRating={1}
+                            red={red}
+                        />
                     </Flex>
                 </IconographyRow>
             );
         }
 
-        throw new Error('unsupported variable amount in renderIncreaseTerraformRatingIconography');
+        throw new Error(
+            'unsupported variable amount in renderIncreaseTerraformRatingIconography'
+        );
     }
 }
 
@@ -1191,12 +1379,17 @@ function TemporaryAdjustmentIconography({
         temporaryParameterRequirementAdjustments
     )) {
         if (typeof adjustment !== 'number') {
-            throw new Error('Unsupported variable amount of temporary adjustment');
+            throw new Error(
+                'Unsupported variable amount of temporary adjustment'
+            );
         }
 
         elements.push(
             <IconographyRow key={elements.length}>
-                <GlobalParameterIcon parameter={parameter as Parameter} size={12} />
+                <GlobalParameterIcon
+                    parameter={parameter as Parameter}
+                    size={12}
+                />
                 <TextWithMargin>:</TextWithMargin>
                 <InlineText>+/- {adjustment}</InlineText>
             </IconographyRow>
@@ -1213,18 +1406,22 @@ function RevealTakeAndDiscardIconography({
 }) {
     return (
         <React.Fragment>
-            {Object.entries(revealTakeAndDiscard).map(([cardSelectionCriteria, amount], index) => (
-                <IconographyRow key={index}>
-                    <GainResourceIconography
-                        gainResource={{[Resource.CARD]: amount}}
-                        opts={{isInline: true}}
-                    />
-                    <InlineText style={{marginLeft: 4}}>*</InlineText>
-                    <CardSelectionCriteriaIconography
-                        cardSelectionCriteria={cardSelectionCriteria as CardSelectionCriteria}
-                    />
-                </IconographyRow>
-            ))}
+            {Object.entries(revealTakeAndDiscard).map(
+                ([cardSelectionCriteria, amount], index) => (
+                    <IconographyRow key={index}>
+                        <GainResourceIconography
+                            gainResource={{[Resource.CARD]: amount}}
+                            opts={{isInline: true}}
+                        />
+                        <InlineText style={{marginLeft: 4}}>*</InlineText>
+                        <CardSelectionCriteriaIconography
+                            cardSelectionCriteria={
+                                cardSelectionCriteria as CardSelectionCriteria
+                            }
+                        />
+                    </IconographyRow>
+                )
+            )}
         </React.Fragment>
     );
 }
@@ -1331,7 +1528,9 @@ export const BaseActionIconography = ({
     // This bad code can be alleviated by moving temporaryParameterRequirementAdjustments
     // to the base action type (it currently only exists on cards).
     const temporaryParameterRequirementAdjustments =
-        card instanceof CardModel ? card.temporaryParameterRequirementAdjustments : null;
+        card instanceof CardModel
+            ? card.temporaryParameterRequirementAdjustments
+            : null;
     const choice = 'choice' in card ? card.choice : null;
     const steps = 'steps' in card ? card.steps : null;
 
@@ -1352,16 +1551,30 @@ export const BaseActionIconography = ({
                 alignItems: 'center',
             }}
         >
-            {doesActionHaveProductionIconography(card) || tilePlacements || placeColony ? (
-                <Flex justifyContent="space-evenly" width="100%" alignItems="center">
-                    {tilePlacements && <TilePlacementIconography tilePlacements={tilePlacements} />}
-                    {placeColony && <PlaceColonyIconography placeColony={placeColony} />}
+            {doesActionHaveProductionIconography(card) ||
+            tilePlacements ||
+            placeColony ? (
+                <Flex
+                    justifyContent="space-evenly"
+                    width="100%"
+                    alignItems="center"
+                >
+                    {tilePlacements && (
+                        <TilePlacementIconography
+                            tilePlacements={tilePlacements}
+                        />
+                    )}
+                    {placeColony && (
+                        <PlaceColonyIconography placeColony={placeColony} />
+                    )}
                     <ProductionIconography card={card} />
                 </Flex>
             ) : null}
             {increaseParameter && (
                 <div>
-                    <IncreaseParameterIconography increaseParameter={increaseParameter} />
+                    <IncreaseParameterIconography
+                        increaseParameter={increaseParameter}
+                    />
                 </div>
             )}
             {choice && (
@@ -1392,7 +1605,10 @@ export const BaseActionIconography = ({
             )}
             {gainResource && (
                 <div>
-                    <GainResourceIconography gainResource={gainResource} opts={{shouldShowPlus}} />
+                    <GainResourceIconography
+                        gainResource={gainResource}
+                        opts={{shouldShowPlus}}
+                    />
                     {card instanceof CardModel && card.forcedAction && (
                         <BaseActionIconography card={card.forcedAction} />
                     )}
@@ -1410,7 +1626,10 @@ export const BaseActionIconography = ({
                 <div>
                     <GainResourceIconography
                         gainResource={opponentsGainResource}
-                        opts={{locationType: gainResourceTargetType, useRedBorder: true}}
+                        opts={{
+                            locationType: gainResourceTargetType,
+                            useRedBorder: true,
+                        }}
                     />
                 </div>
             )}
@@ -1445,7 +1664,9 @@ export const BaseActionIconography = ({
             )}
             {revealTakeAndDiscard && (
                 <div>
-                    <RevealTakeAndDiscardIconography revealTakeAndDiscard={revealTakeAndDiscard} />
+                    <RevealTakeAndDiscardIconography
+                        revealTakeAndDiscard={revealTakeAndDiscard}
+                    />
                 </div>
             )}
         </IconographyContainer>

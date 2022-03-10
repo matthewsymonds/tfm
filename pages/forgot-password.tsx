@@ -64,7 +64,12 @@ export default function ForgotPassword() {
                             value={email}
                             onChange={updateEmail}
                         />
-                        <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
+                        <Box
+                            marginTop="32px"
+                            marginBottom="4px"
+                            marginLeft="4px"
+                            width="100px"
+                        >
                             <Button type="submit" variant="bordered">
                                 Send email to reset password
                             </Button>

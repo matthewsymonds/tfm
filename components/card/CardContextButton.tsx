@@ -30,7 +30,10 @@ export function CardContextButton({
     const isSyncing = useTypedSelector(state => state.syncing);
     const activeRound = useTypedSelector(state => isActiveRound(state));
 
-    function playCard(payment: PropertyCounter<Resource>, conditionalPayments?: number[]) {
+    function playCard(
+        payment: PropertyCounter<Resource>,
+        conditionalPayments?: number[]
+    ) {
         apiClient.playCardAsync({
             name: card.name,
             payment,

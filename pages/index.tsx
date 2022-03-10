@@ -185,7 +185,10 @@ const UserGame = ({
         </Link>
     );
 };
-const Index: NextPage<{userGames: UserGame[]; session: TFMSession | undefined}> = props => {
+const Index: NextPage<{
+    userGames: UserGame[];
+    session: TFMSession | undefined;
+}> = props => {
     if (!props?.session?.username) {
         return null;
     }
@@ -242,7 +245,10 @@ Index.getInitialProps = async ctx => {
 
 export default Index;
 
-function getUserGamesPath(req: IncomingMessage | undefined, headers: IncomingHttpHeaders) {
+function getUserGamesPath(
+    req: IncomingMessage | undefined,
+    headers: IncomingHttpHeaders
+) {
     const path = '/api/games';
     return getPath(path, req, headers);
 }

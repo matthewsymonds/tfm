@@ -31,7 +31,10 @@ export function SelectButtons<T>({
                             checked={isSelected}
                             onChange={() => setSelectedItem(item)}
                         />
-                        <SelectButtonLabel htmlFor={inputId} isSelected={isSelected}>
+                        <SelectButtonLabel
+                            htmlFor={inputId}
+                            isSelected={isSelected}
+                        >
                             {itemRenderer(item)}
                         </SelectButtonLabel>
                     </React.Fragment>

@@ -88,7 +88,9 @@ function ActionWithPopover<T extends {}>({
     isVertical,
     popoverPlacement,
 }: ActionWithPopoverProps<T>) {
-    const {showPopover, popoverConfig} = usePopoverType(PopoverType.ACTION_LIST_ITEM);
+    const {showPopover, popoverConfig} = usePopoverType(
+        PopoverType.ACTION_LIST_ITEM
+    );
     const triggerRef = useRef<HTMLDivElement>(null);
     const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
 
@@ -114,7 +116,12 @@ function ActionWithPopover<T extends {}>({
             marginRight={isVertical ? undefined : '4px'}
             marginBottom={isVertical ? '4px' : undefined}
         >
-            <Flex alignItems="center" ref={triggerRef} justifyContent="flex-end" {...hoverProps}>
+            <Flex
+                alignItems="center"
+                ref={triggerRef}
+                justifyContent="flex-end"
+                {...hoverProps}
+            >
                 <StylizedActionWrapper
                     id={`${JSON.stringify(action)}`}
                     emphasizeOnHover={emphasizeOnHover}
@@ -142,5 +149,7 @@ const StylizedActionWrapper = styled.div<{
     background-color: ${props => (props.isHovering ? colors.LIGHT_BG : 'none')};
 
     box-shadow: ${props =>
-        props.emphasizeOnHover && props.isHovering ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px' : 'none'};
+        props.emphasizeOnHover && props.isHovering
+            ? 'rgb(0 0 0 / 1) 4px 6px 6px -1px'
+            : 'none'};
 `;

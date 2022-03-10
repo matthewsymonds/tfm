@@ -21,7 +21,10 @@ import {
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
-import {NumericPropertyCounter, PropertyCounter} from 'constants/property-counter';
+import {
+    NumericPropertyCounter,
+    PropertyCounter,
+} from 'constants/property-counter';
 import {ResourceLocationType} from 'constants/resource';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
@@ -226,7 +229,8 @@ export class Card {
             ...config.exchangeRates,
         };
 
-        this.parameterRequirementAdjustments = config.parameterRequirementAdjustments;
+        this.parameterRequirementAdjustments =
+            config.parameterRequirementAdjustments;
         this.temporaryParameterRequirementAdjustments =
             config.temporaryParameterRequirementAdjustments;
 
@@ -261,14 +265,16 @@ export class Card {
         this.placeColony = config.placeColony;
         this.useStoredResourceAsHeat = config.useStoredResourceAsHeat;
         this.gainTradeFleet = config.gainTradeFleet;
-        this.gainResourceWhenIncreaseProduction = config.gainResourceWhenIncreaseProduction;
+        this.gainResourceWhenIncreaseProduction =
+            config.gainResourceWhenIncreaseProduction;
         this.gainResourcesIfNotTerraformedThisGeneration =
             config.gainResourcesIfNotTerraformedThisGeneration;
         this.choice = config.choice;
 
         this.playCard = config.playCard;
         this.increaseColonyTileTrackRange = config.increaseColonyTileTrackRange;
-        this.increaseAndDecreaseColonyTileTracks = config.increaseAndDecreaseColonyTileTracks;
+        this.increaseAndDecreaseColonyTileTracks =
+            config.increaseAndDecreaseColonyTileTracks;
         this.gainAllColonyBonuses = config.gainAllColonyBonuses;
 
         this.requiredChairman = config.requiredChairman;
@@ -277,7 +283,8 @@ export class Card {
 
         this.placeDelegatesInOneParty = config.placeDelegatesInOneParty;
         this.increasedInfluence = config.increasedInfluence;
-        this.exchangeNeutralNonLeaderDelegate = config.exchangeNeutralNonLeaderDelegate;
+        this.exchangeNeutralNonLeaderDelegate =
+            config.exchangeNeutralNonLeaderDelegate;
         this.removeNonLeaderDelegate = config.removeNonLeaderDelegate;
         this.exchangeChairman = config.exchangeChairman;
         this.oceanAdjacencyBonus = config.oceanAdjacencyBonus;

@@ -26,7 +26,10 @@ function GameMiddle(props) {
     const state = useTypedSelector(state => state);
     const context = useContext(AppContext);
     const loggedInPlayer = useTypedSelector(
-        state => state?.players?.find(player => player.username === context.getUsername()) ?? null
+        state =>
+            state?.players?.find(
+                player => player.username === context.getUsername()
+            ) ?? null
     );
 
     if (!state) return null;
@@ -60,7 +63,9 @@ function GameInner() {
             }
         });
     };
-    function handleRetrievedYourTurnGames(result: {games: Array<{name: string}>}) {
+    function handleRetrievedYourTurnGames(result: {
+        games: Array<{name: string}>;
+    }) {
         setYourTurnGames(result.games.map(game => game.name));
     }
 
@@ -71,7 +76,9 @@ function GameInner() {
     const gameName = useTypedSelector(state => state.name);
     const context = useContext(AppContext);
     const loggedInPlayerIndex = useTypedSelector(state =>
-        state.players.findIndex(player => player.username === context.getUsername())
+        state.players.findIndex(
+            player => player.username === context.getUsername()
+        )
     );
 
     const {pendingCardSelection} = useLoggedInPlayer();
@@ -93,7 +100,11 @@ function GameInner() {
 
     useEffect(() => {
         // Do not sync if you're the only player!
-        if (numPlayers === 1 || gameStage === GameStage.END_OF_GAME || isSyncing) {
+        if (
+            numPlayers === 1 ||
+            gameStage === GameStage.END_OF_GAME ||
+            isSyncing
+        ) {
             // Don't retrieve server state while only you can play!
             // Can lead the game to de-sync:
             // a) the interval calls retrieve game api
@@ -175,7 +186,12 @@ function GameInner() {
     return <ActiveRound key={gameName} yourTurnGames={yourTurnGames} />;
 }
 
-type ServerGame = {state: GameState; username: string; lastSeenLogItem: number; error?: string};
+type ServerGame = {
+    state: GameState;
+    username: string;
+    lastSeenLogItem: number;
+    error?: string;
+};
 
 export default function Game(props) {
     const isServer = typeof window === 'undefined';

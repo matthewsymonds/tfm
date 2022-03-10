@@ -21,7 +21,8 @@ const FONT_WEIGHT_LIST = [400, 500, 600, 700, 900];
 const store = makeStore();
 
 const MyApp = ({Component, pageProps}: AppProps) => {
-    const documentFonts = typeof document !== 'undefined' ? document.fonts : null;
+    const documentFonts =
+        typeof document !== 'undefined' ? document.fonts : null;
     const [ready, setReady] = useState(false);
     useEffect(() => {
         if (documentFonts) {
@@ -49,7 +50,10 @@ const MyApp = ({Component, pageProps}: AppProps) => {
             </Head>
 
             <MyAppContext.Provider value={appContext}>
-                <div id={'root'} style={{visibility: ready ? 'visible' : 'hidden'}}>
+                <div
+                    id={'root'}
+                    style={{visibility: ready ? 'visible' : 'hidden'}}
+                >
                     <GlobalStyles />
 
                     <Fonts />
@@ -68,7 +72,10 @@ const MyApp = ({Component, pageProps}: AppProps) => {
                             </Box>
                         ))
                     )}
-                    <InnerAppComponent Component={Component} pageProps={pageProps} />
+                    <InnerAppComponent
+                        Component={Component}
+                        pageProps={pageProps}
+                    />
                 </div>
             </MyAppContext.Provider>
         </Provider>

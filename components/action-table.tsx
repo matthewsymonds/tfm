@@ -29,7 +29,11 @@ import {BlankButton} from './blank-button';
 import {Board} from './board/board';
 import {Box, Flex} from './box';
 import {Button} from './button';
-import {renderArrow, renderLeftSideOfArrow, renderRightSideOfArrow} from './card/CardActions';
+import {
+    renderArrow,
+    renderLeftSideOfArrow,
+    renderRightSideOfArrow,
+} from './card/CardActions';
 import {Colonies} from './colonies';
 import GlobalParams from './global-params';
 import {GlobalParameterIcon} from './icons/global-parameter';
@@ -37,13 +41,20 @@ import {ColonyIcon} from './icons/other';
 import {ProductionIcon} from './icons/production';
 import {ResourceIcon} from './icons/resource';
 import {TileIcon} from './icons/tile';
+import {Notes} from './notes';
 import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
-const actionTypes: Array<ActionType> = ['Mars', 'Actions', 'Colonies', 'Turmoil'];
+const actionTypes: Array<ActionType> = [
+    'Mars',
+    'Actions',
+    'Colonies',
+    'Turmoil',
+    'Notes',
+];
 
-type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil';
+type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil' | 'Notes';
 
 const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     border-radius: 4px;
@@ -113,7 +124,9 @@ export const ActionTable: React.FunctionComponent = () => {
     const isColoniesEnabled = useTypedSelector(state =>
         state.options?.decks.includes(Deck.COLONIES)
     );
-    const isTurmoilEnabled = useTypedSelector(state => state.options?.decks.includes(Deck.TURMOIL));
+    const isTurmoilEnabled = useTypedSelector(state =>
+        state.options?.decks.includes(Deck.TURMOIL)
+    );
 
     const visibleActionTypes = useTypedSelector(state =>
         actionTypes.filter(actionType => {
@@ -131,8 +144,6 @@ export const ActionTable: React.FunctionComponent = () => {
         })
     );
 
-    console.log(selectedTab);
-
     return (
         <Flex
             className="action-table"
@@ -142,7 +153,12 @@ export const ActionTable: React.FunctionComponent = () => {
             maxWidth="798px"
             style={{justifySelf: 'center'}}
         >
-            <Flex width="100%" flexWrap="wrap" flexShrink="0" className="action-table-buttons">
+            <Flex
+                width="100%"
+                flexWrap="wrap"
+                flexShrink="0"
+                className="action-table-buttons"
+            >
                 {visibleActionTypes.map(actionType => (
                     <Flex key={actionType} margin="0 4px 4px 0">
                         <ActionTableHeader
@@ -165,7 +181,9 @@ export const ActionTable: React.FunctionComponent = () => {
                     return (
                         <Box
                             key={actionType}
-                            display={actionType === selectedTab ? 'initial' : 'none'}
+                            display={
+                                actionType === selectedTab ? 'initial' : 'none'
+                            }
                             width="100%"
                         >
                             <ActionTableInner selectedTab={actionType} />
@@ -192,9 +210,10 @@ export const useAwardConfigsByAward = () => {
                     .includes(award.toLowerCase());
                 let fundedByPlayer;
                 if (isFunded) {
-                    const {fundedByPlayerIndex} = state.common.fundedAwards.find(
-                        fa => fa.award.toLowerCase() === award.toLowerCase()
-                    )!;
+                    const {fundedByPlayerIndex} =
+                        state.common.fundedAwards.find(
+                            fa => fa.award.toLowerCase() === award.toLowerCase()
+                        )!;
                     fundedByPlayer = state.players[fundedByPlayerIndex];
                 } else {
                     fundedByPlayer = null;
@@ -228,27 +247,37 @@ function FundAwardButton({award}: {award: string}) {
 
     const isFree = loggedInPlayer.fundAward;
     const cost = isFree ? 0 : awardConfigsByAward[award].cost;
-    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
-        onConfirmPayment: payment => {
-            if (canPlay) {
-                if (isFree) {
-                    apiClient.fundAwardAsync({award, payment: {}});
-                } else {
-                    apiClient.fundAwardAsync({award, payment});
+    const {collectPaymentAndPerformAction, triggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment: payment => {
+                if (canPlay) {
+                    if (isFree) {
+                        apiClient.fundAwardAsync({award, payment: {}});
+                    } else {
+                        apiClient.fundAwardAsync({award, payment});
+                    }
                 }
-            }
-        },
-        opts: {
-            type: 'action',
-            cost,
-            action: {},
-        },
-    });
+            },
+            opts: {
+                type: 'action',
+                cost,
+                action: {},
+            },
+        });
 
     return (
-        <Button buttonRef={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
+        <Button
+            buttonRef={triggerRef}
+            disabled={!canPlay}
+            onClick={collectPaymentAndPerformAction}
+        >
             <span>Fund</span>
-            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={cost} size={16} />
+            <ResourceIcon
+                margin="0 0 0 4px"
+                name={Resource.MEGACREDIT}
+                amount={cost}
+                size={16}
+            />
         </Button>
     );
 }
@@ -257,23 +286,33 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
     const canPlay = actionGuard.canClaimMilestone(milestone)[0];
-    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
-        onConfirmPayment: payment => {
-            if (canPlay) {
-                apiClient.claimMilestoneAsync({milestone, payment});
-            }
-        },
-        opts: {
-            type: 'action',
-            cost: 8,
-            action: {},
-        },
-    });
+    const {collectPaymentAndPerformAction, triggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment: payment => {
+                if (canPlay) {
+                    apiClient.claimMilestoneAsync({milestone, payment});
+                }
+            },
+            opts: {
+                type: 'action',
+                cost: 8,
+                action: {},
+            },
+        });
 
     return (
-        <Button buttonRef={triggerRef} disabled={!canPlay} onClick={collectPaymentAndPerformAction}>
+        <Button
+            buttonRef={triggerRef}
+            disabled={!canPlay}
+            onClick={collectPaymentAndPerformAction}
+        >
             <span>Claim</span>
-            <ResourceIcon margin="0 0 0 4px" name={Resource.MEGACREDIT} amount={8} size={16} />
+            <ResourceIcon
+                margin="0 0 0 4px"
+                name={Resource.MEGACREDIT}
+                amount={8}
+                size={16}
+            />
         </Button>
     );
 }
@@ -332,16 +371,24 @@ function ActionTableInner({selectedTab}: {selectedTab: ActionType | ''}) {
                     maxWidth="500px"
                     className="action-table-actions"
                 >
-                    <BoardActionsHeader className="display">Milestones</BoardActionsHeader>
+                    <BoardActionsHeader className="display">
+                        Milestones
+                    </BoardActionsHeader>
                     <MilestonesTable />
 
-                    <BoardActionsHeader className="display">Awards</BoardActionsHeader>
+                    <BoardActionsHeader className="display">
+                        Awards
+                    </BoardActionsHeader>
                     <AwardsTable />
 
-                    <BoardActionsHeader className="display">Standard Projects</BoardActionsHeader>
+                    <BoardActionsHeader className="display">
+                        Standard Projects
+                    </BoardActionsHeader>
                     <StandardProjects />
 
-                    <BoardActionsHeader className="display">Conversions</BoardActionsHeader>
+                    <BoardActionsHeader className="display">
+                        Conversions
+                    </BoardActionsHeader>
                     <Conversions />
                 </Flex>
             );
@@ -358,6 +405,8 @@ function ActionTableInner({selectedTab}: {selectedTab: ActionType | ''}) {
                     <GlobalParams parameters={parameters} />
                 </Flex>
             );
+        case 'Notes':
+            return <Notes />;
         default:
             throw spawnExhaustiveSwitchError(selectedTab);
     }
@@ -370,7 +419,12 @@ function ConversionIconography({conversion}: {conversion: Conversion}) {
             {renderLeftSideOfArrow({
                 ...conversion,
                 ...(conversion.name === 'Plants to Greenery'
-                    ? {removeResource: {[Resource.PLANT]: 8 - (loggedInPlayer.plantDiscount || 0)}}
+                    ? {
+                          removeResource: {
+                              [Resource.PLANT]:
+                                  8 - (loggedInPlayer.plantDiscount || 0),
+                          },
+                      }
                     : {}),
             })}
             {renderArrow()}
@@ -401,24 +455,30 @@ function StandardProjectButton({
     const actionGuard = useActionGuard();
     const apiClient = useApiClient();
     const loggedInPlayer = useLoggedInPlayer();
-    const canPlay = actionGuard.canPlayStandardProject(standardProjectAction)[0];
-    const cost = getCostForStandardProject(standardProjectAction, loggedInPlayer);
+    const canPlay = actionGuard.canPlayStandardProject(
+        standardProjectAction
+    )[0];
+    const cost = getCostForStandardProject(
+        standardProjectAction,
+        loggedInPlayer
+    );
 
-    const {collectPaymentAndPerformAction, triggerRef} = usePaymentPopover<HTMLButtonElement>({
-        onConfirmPayment: payment => {
-            if (canPlay) {
-                apiClient.playStandardProjectAsync({
-                    payment,
-                    standardProjectAction,
-                });
-            }
-        },
-        opts: {
-            type: 'action',
-            cost,
-            action: {},
-        },
-    });
+    const {collectPaymentAndPerformAction, triggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment: payment => {
+                if (canPlay) {
+                    apiClient.playStandardProjectAsync({
+                        payment,
+                        standardProjectAction,
+                    });
+                }
+            },
+            opts: {
+                type: 'action',
+                cost,
+                action: {},
+            },
+        });
 
     return (
         <StandardProjectButtonInner
@@ -434,13 +494,16 @@ function StandardProjectButton({
                 position="relative"
             >
                 <div className="standard-project-icon">
-                    <StandardProjectActionIcon actionType={standardProjectAction.type} />
+                    <StandardProjectActionIcon
+                        actionType={standardProjectAction.type}
+                    />
                 </div>
                 <div className="standard-project-cost">
                     <ResourceIcon
                         name={Resource.MEGACREDIT}
                         amount={
-                            standardProjectAction.type === StandardProjectType.SELL_PATENTS
+                            standardProjectAction.type ===
+                            StandardProjectType.SELL_PATENTS
                                 ? '+X'
                                 : cost
                         }
@@ -516,8 +579,9 @@ function MilestonesTable() {
     );
     const visibleMilestone = hoveredMilestone ?? selectedMilestone;
     const visibleClaimedByPlayer =
-        claimedMilestones.find(cm => cm.milestone.toLowerCase() === visibleMilestone.toLowerCase())
-            ?.claimedByPlayer ?? null;
+        claimedMilestones.find(
+            cm => cm.milestone.toLowerCase() === visibleMilestone.toLowerCase()
+        )?.claimedByPlayer ?? null;
     const milestoneConfig = getMilestone(visibleMilestone);
 
     const gameName = useTypedSelector(state => state.name);
@@ -536,7 +600,9 @@ function MilestonesTable() {
             <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
                 {milestones?.map(milestone => {
                     const claimedByPlayer = claimedMilestones.find(
-                        cm => cm.milestone.toLowerCase() === milestone.toLowerCase()
+                        cm =>
+                            cm.milestone.toLowerCase() ===
+                            milestone.toLowerCase()
                     )?.claimedByPlayer;
                     return (
                         <CategoryListItem
@@ -585,7 +651,9 @@ function MilestonesTable() {
                         </h3>
                         {visibleClaimedByPlayer === null ? (
                             <Box position="absolute" right="0">
-                                <ClaimMilestoneButton milestone={visibleMilestone} />
+                                <ClaimMilestoneButton
+                                    milestone={visibleMilestone}
+                                />
                             </Box>
                         ) : (
                             <PlayerCorpAndIcon
@@ -623,8 +691,10 @@ function MilestonesTable() {
                                 };
                             })
                             .sort(
-                                ({quantity: quantity1}, {quantity: quantity2}) =>
-                                    quantity2 - quantity1
+                                (
+                                    {quantity: quantity1},
+                                    {quantity: quantity2}
+                                ) => quantity2 - quantity1
                             )
                             .map(({player, quantity}) => {
                                 return (
@@ -711,7 +781,9 @@ function AwardsTable() {
                             {awardConfig.fundedByPlayer && (
                                 <PlayerIcon
                                     border={colors.TEXT_LIGHT_1}
-                                    playerIndex={awardConfig.fundedByPlayer.index}
+                                    playerIndex={
+                                        awardConfig.fundedByPlayer.index
+                                    }
                                     size={10}
                                     style={{marginLeft: 4}}
                                 />
@@ -777,8 +849,10 @@ function AwardsTable() {
                                 };
                             })
                             .sort(
-                                ({quantity: quantity1}, {quantity: quantity2}) =>
-                                    quantity2 - quantity1
+                                (
+                                    {quantity: quantity1},
+                                    {quantity: quantity2}
+                                ) => quantity2 - quantity1
                             )
                             .map(({player, quantity}) => {
                                 return (
@@ -817,7 +891,9 @@ function AwardsTable() {
 }
 
 function StandardProjects() {
-    const standardProjects = useTypedSelector(state => getStandardProjects(state));
+    const standardProjects = useTypedSelector(state =>
+        getStandardProjects(state)
+    );
 
     return (
         <Flex
@@ -858,7 +934,8 @@ function Conversions() {
     return (
         <Flex justifyContent="center" width="100%" flexWrap="wrap">
             {conversions?.map(conversion => {
-                let [canDoConversion, reason] = actionGuard.canDoConversion(conversion);
+                let [canDoConversion, reason] =
+                    actionGuard.canDoConversion(conversion);
                 function doConversion() {
                     if (canDoConversion) {
                         apiClient.doConversionAsync({conversion: conversion});
@@ -892,7 +969,10 @@ function getCostForAward(award: string, state: GameState) {
     }
 }
 
-function getCostForStandardProject(action: StandardProjectAction, player: PlayerState) {
+function getCostForStandardProject(
+    action: StandardProjectAction,
+    player: PlayerState
+) {
     switch (action.type) {
         case StandardProjectType.SELL_PATENTS:
             return 0;
@@ -925,7 +1005,11 @@ function getTextForStandardProject(standardProject: StandardProjectType) {
     }
 }
 
-function StandardProjectActionIcon({actionType}: {actionType: StandardProjectType}) {
+function StandardProjectActionIcon({
+    actionType,
+}: {
+    actionType: StandardProjectType;
+}) {
     switch (actionType) {
         case StandardProjectType.SELL_PATENTS:
             return (
@@ -935,9 +1019,20 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
                 </Flex>
             );
         case StandardProjectType.POWER_PLANT:
-            return <ProductionIcon name={Resource.ENERGY} size={24} paddingSize={3} />;
+            return (
+                <ProductionIcon
+                    name={Resource.ENERGY}
+                    size={24}
+                    paddingSize={3}
+                />
+            );
         case StandardProjectType.ASTEROID:
-            return <GlobalParameterIcon parameter={Parameter.TEMPERATURE} size={24} />;
+            return (
+                <GlobalParameterIcon
+                    parameter={Parameter.TEMPERATURE}
+                    size={24}
+                />
+            );
         case StandardProjectType.AQUIFER:
             return <TileIcon type={TileType.OCEAN} size={21} />;
         case StandardProjectType.GREENERY:
@@ -947,7 +1042,9 @@ function StandardProjectActionIcon({actionType}: {actionType: StandardProjectTyp
         case StandardProjectType.COLONY:
             return <ColonyIcon size={16} />;
         case StandardProjectType.VENUS:
-            return <GlobalParameterIcon parameter={Parameter.VENUS} size={17} />;
+            return (
+                <GlobalParameterIcon parameter={Parameter.VENUS} size={17} />
+            );
         default:
             throw spawnExhaustiveSwitchError(actionType);
     }

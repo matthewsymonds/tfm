@@ -63,8 +63,12 @@ const CardWrapper = styled.div``;
 export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     const {pendingDuplicateProduction} = player;
     const {tag, card} = pendingDuplicateProduction!;
-    const options = useTypedSelector(state => getOptionsForDuplicateProduction(tag, player, state));
-    const [selectedIndex, setSelectedIndex] = useState<null | number>(options.length ? 0 : null);
+    const options = useTypedSelector(state =>
+        getOptionsForDuplicateProduction(tag, player, state)
+    );
+    const [selectedIndex, setSelectedIndex] = useState<null | number>(
+        options.length ? 0 : null
+    );
 
     const apiClient = useApiClient();
 
@@ -81,7 +85,9 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
     return (
         <AskUserToMakeChoice card={card}>
             <Flex flexDirection="column">
-                <em style={{marginBottom: 4}}>Select a card to duplicate production</em>
+                <em style={{marginBottom: 4}}>
+                    Select a card to duplicate production
+                </em>
                 <Flex margin="0 8px 8px 0" flexWrap="wrap">
                     {options.map((option, index) => {
                         return (
@@ -100,9 +106,17 @@ export function AskUserToDuplicateProduction({player}: {player: PlayerState}) {
                         );
                     })}
                 </Flex>
-                <Flex alignItems="center" marginTop="16px" justifyContent="center">
+                <Flex
+                    alignItems="center"
+                    marginTop="16px"
+                    justifyContent="center"
+                >
                     <button
-                        onClick={() => handleConfirmDuplicateProduction(selectedIndex as number)}
+                        onClick={() =>
+                            handleConfirmDuplicateProduction(
+                                selectedIndex as number
+                            )
+                        }
                         disabled={typeof selectedIndex !== 'number'}
                     >
                         Confirm production duplication

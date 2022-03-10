@@ -9,13 +9,17 @@ import {throttle} from 'throttle-debounce';
 
 const MINIMUM_OVERLAP_PERCENT = 0.5; // e.g. cards will at least overlap by 50%. May be more if there are more cards
 
-const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}>`
+const CardHandContainer = styled.div<{
+    shouldShow: boolean;
+    shouldHoist: boolean;
+}>`
     width: 100%;
     height: ${CARD_HEIGHT}px;
     position: fixed;
     bottom: 0;
     transform: translateY(
-        ${props => (props.shouldShow ? (props.shouldHoist ? '60px' : '200px') : '500px')}
+        ${props =>
+            props.shouldShow ? (props.shouldHoist ? '60px' : '200px') : '500px'}
     );
     transition: transform ease-in-out 0.5s;
     z-index: 5; /* HACK because of tile name tags */
@@ -24,7 +28,8 @@ const CardHandContainer = styled.div<{shouldShow: boolean; shouldHoist: boolean}
     // the cards aren't being looked at. we explicitly enable pointer-events on the cards themselves.
     // ideally, even when cards are being looked at, we only need pointer events on the cards +
     // an "active area" of maybe 30px margin around the active card, but this gets us 90% of the way there
-    pointer-events: ${props => (props.shouldShow && props.shouldHoist ? 'initial' : 'none')};
+    pointer-events: ${props =>
+        props.shouldShow && props.shouldHoist ? 'initial' : 'none'};
 `;
 
 const MinimizeCardsButton = styled.button`
@@ -42,13 +47,19 @@ const MinimizeCardsButton = styled.button`
 export function CardHand({
     cardInfos,
 }: {
-    cardInfos: Array<{card: CardModel; cardContext?: CardContext; cardOwner?: PlayerState}>;
+    cardInfos: Array<{
+        card: CardModel;
+        cardContext?: CardContext;
+        cardOwner?: PlayerState;
+    }>;
 }) {
     const cards = cardInfos.map(c => c.card);
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
     const [shouldShowCardHand, setShouldShowCardHand] = useState(true);
-    const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+    const [highlightedIndex, setHighlightedIndex] = useState<number | null>(
+        null
+    );
     const prevContainerWidth = usePrevious(containerWidth);
 
     const cardsLength = cards.length;
@@ -75,7 +86,9 @@ export function CardHand({
     if (cards.length === 0 || cards.length === 1) {
         gapBetweenCards = 0;
     } else {
-        gapBetweenCards = (requiredCardWidth - cards.length * CARD_WIDTH) / (cards.length - 1);
+        gapBetweenCards =
+            (requiredCardWidth - cards.length * CARD_WIDTH) /
+            (cards.length - 1);
     }
 
     // Chock full of magic numbers
@@ -139,12 +152,18 @@ export function CardHand({
     useEffect(() => {
         const containerElement = containerRef.current;
         if (containerElement) {
-            const newContainerWidth = containerElement.getBoundingClientRect().width;
+            const newContainerWidth =
+                containerElement.getBoundingClientRect().width;
             if (newContainerWidth !== prevContainerWidth) {
                 setContainerWidth(newContainerWidth);
             }
         }
-    }, [containerRef.current, setContainerWidth, prevContainerWidth, containerWidth]);
+    }, [
+        containerRef.current,
+        setContainerWidth,
+        prevContainerWidth,
+        containerWidth,
+    ]);
 
     useEffect(() => {
         const resize = () => setContainerWidth(window.innerWidth);
@@ -164,30 +183,34 @@ export function CardHand({
                 shouldHoist={typeof highlightedIndex === 'number'}
             >
                 {containerWidth
-                    ? cardInfos.map(({card, cardOwner, cardContext}, cardIndex) => {
-                          return (
-                              <div
-                                  key={card.name}
-                                  style={{
-                                      position: 'absolute',
-                                      transform: `${getCardPosition(cardIndex)} ${getCardRotation(
-                                          cardIndex
-                                      )}`,
-                                      transition: 'transform 0.5s',
-                                      transformOrigin: 'center',
-                                      pointerEvents: 'initial',
-                                      zIndex: zIndices.CARD,
-                                  }}
-                                  onMouseEnter={() => onMouseEnter(cardIndex)}
-                              >
-                                  <Card
-                                      card={card}
-                                      cardOwner={cardOwner}
-                                      cardContext={cardContext}
-                                  />
-                              </div>
-                          );
-                      })
+                    ? cardInfos.map(
+                          ({card, cardOwner, cardContext}, cardIndex) => {
+                              return (
+                                  <div
+                                      key={card.name}
+                                      style={{
+                                          position: 'absolute',
+                                          transform: `${getCardPosition(
+                                              cardIndex
+                                          )} ${getCardRotation(cardIndex)}`,
+                                          transition: 'transform 0.5s',
+                                          transformOrigin: 'center',
+                                          pointerEvents: 'initial',
+                                          zIndex: zIndices.CARD,
+                                      }}
+                                      onMouseEnter={() =>
+                                          onMouseEnter(cardIndex)
+                                      }
+                                  >
+                                      <Card
+                                          card={card}
+                                          cardOwner={cardOwner}
+                                          cardContext={cardContext}
+                                      />
+                                  </div>
+                              );
+                          }
+                      )
                     : null}
             </CardHandContainer>
             <MinimizeCardsButton onClick={toggleCardDrawer}>

@@ -32,7 +32,10 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
                 const card = getCard(prelude);
                 return (
                     <Box marginRight="8px" marginBottom="8px" key={card.name}>
-                        <Card card={card} cardContext={CardContext.SELECT_TO_PLAY} />
+                        <Card
+                            card={card}
+                            cardContext={CardContext.SELECT_TO_PLAY}
+                        />
                     </Box>
                 );
             })}
@@ -42,7 +45,10 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     if (skippableCards.length === player.preludes.length) {
         return (
             <Flex alignItems="center" flexDirection="column">
-                <button onClick={handleSkip} style={{marginTop: '8px', marginBottom: '24px'}}>
+                <button
+                    onClick={handleSkip}
+                    style={{marginTop: '8px', marginBottom: '24px'}}
+                >
                     Skip remaining preludes
                 </button>
                 {preludesEls}
@@ -51,7 +57,12 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     }
 
     return (
-        <Box color={colors.LIGHT_2} className="display" marginLeft="16px" marginRight="16px">
+        <Box
+            color={colors.LIGHT_2}
+            className="display"
+            marginLeft="16px"
+            marginRight="16px"
+        >
             <h3 style={{color: '#eee'}}>
                 {player.choosePrelude
                     ? 'Choose the prelude you would like to play.'

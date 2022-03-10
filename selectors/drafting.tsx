@@ -15,7 +15,8 @@ export function isWaitingOnOthersToDraft(state: GameState) {
     if (!pendingCardSelection) return false;
 
     return (
-        pendingCardSelection.possibleCards.length + (pendingCardSelection.draftPicks?.length ?? 0) >
+        pendingCardSelection.possibleCards.length +
+            (pendingCardSelection.draftPicks?.length ?? 0) >
         4
     );
 }

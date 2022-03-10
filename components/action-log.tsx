@@ -51,7 +51,9 @@ export function bucketLogItems(
 }
 
 export const ActionLog = () => {
-    const {showPopover, hidePopover, popoverConfig} = usePopoverType(PopoverType.ACTION_LOG);
+    const {showPopover, hidePopover, popoverConfig} = usePopoverType(
+        PopoverType.ACTION_LOG
+    );
     const triggerRef = useRef<HTMLButtonElement>(null);
 
     function toggleLog() {
@@ -93,7 +95,11 @@ export const ActionLog = () => {
 
     return (
         <React.Fragment>
-            <BlankButton ref={triggerRef} onClick={() => toggleLog()} style={{marginRight: 4}}>
+            <BlankButton
+                ref={triggerRef}
+                onClick={() => toggleLog()}
+                style={{marginRight: 4}}
+            >
                 <Twemoji>📜</Twemoji>
             </BlankButton>
         </React.Fragment>
@@ -188,7 +194,10 @@ const LogEntryInner = ({
                             elements.splice(
                                 i,
                                 1,
-                                stringOrElement.substring(0, stringOrElement.indexOf(corpName))
+                                stringOrElement.substring(
+                                    0,
+                                    stringOrElement.indexOf(corpName)
+                                )
                             );
                             i++;
                             elements.splice(
@@ -205,7 +214,8 @@ const LogEntryInner = ({
                                 i,
                                 0,
                                 stringOrElement.substring(
-                                    stringOrElement.indexOf(corpName) + corpName.length
+                                    stringOrElement.indexOf(corpName) +
+                                        corpName.length
                                 )
                             );
                             i++;
@@ -221,7 +231,9 @@ const LogEntryInner = ({
                         if (typeof el === 'string') {
                             return <span key={index}>{el}</span>;
                         }
-                        return <React.Fragment key={index}>{el}</React.Fragment>;
+                        return (
+                            <React.Fragment key={index}>{el}</React.Fragment>
+                        );
                     })}
                 </Box>
             );
@@ -229,11 +241,14 @@ const LogEntryInner = ({
             // new style
             switch (gameAction.actionType) {
                 case GameActionType.CARD: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {payment} = gameAction;
                     const card = getCard(gameAction.card);
-                    const isFree = Object.values(payment).reduce((a, b) => a + b, 0) === 0;
+                    const isFree =
+                        Object.values(payment).reduce((a, b) => a + b, 0) === 0;
 
                     if (card.type === CardType.CORPORATION) {
                         innerElements.push(
@@ -247,28 +262,54 @@ const LogEntryInner = ({
                             <Flex display="inline" alignItems="center">
                                 <PlayerCorpAndIcon player={player} isInline />
                                 {isFree ? (
-                                    <span style={{marginLeft: 4, marginRight: 4}}>played</span>
+                                    <span
+                                        style={{marginLeft: 4, marginRight: 4}}
+                                    >
+                                        played
+                                    </span>
                                 ) : (
                                     <React.Fragment>
-                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            paid
+                                        </span>
                                         <PaymentIconography payment={payment} />
-                                        <span style={{marginLeft: 4, marginRight: 4}}>to play</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            to play
+                                        </span>
                                     </React.Fragment>
                                 )}
                                 <CardTextToken card={card} margin="0px" />
-                                {isFree && <span style={{marginLeft: 4}}>for free</span>}
+                                {isFree && (
+                                    <span style={{marginLeft: 4}}>
+                                        for free
+                                    </span>
+                                )}
                             </Flex>
                         );
                     }
                     break;
                 }
                 case GameActionType.CARD_ACTION: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const card = getCard(gameAction.card);
                     const payment = gameAction.payment ?? {};
 
-                    const didPay = Object.keys(payment).some(resource => payment[resource] > 0);
+                    const didPay = Object.keys(payment).some(
+                        resource => payment[resource] > 0
+                    );
 
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
@@ -276,12 +317,30 @@ const LogEntryInner = ({
                             <React.Fragment>
                                 {didPay ? (
                                     <React.Fragment>
-                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            paid
+                                        </span>
                                         <PaymentIconography payment={payment} />
-                                        <span style={{marginLeft: 4, marginRight: 4}}>to play</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            to play
+                                        </span>
                                     </React.Fragment>
                                 ) : (
-                                    <span style={{marginLeft: 4, marginRight: 4}}>played</span>
+                                    <span
+                                        style={{marginLeft: 4, marginRight: 4}}
+                                    >
+                                        played
+                                    </span>
                                 )}
                                 <CardTextToken card={card} margin="0px" />
                                 <span style={{marginLeft: 4}}>'s action</span>
@@ -291,7 +350,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.AWARD: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {award, payment} = gameAction;
 
@@ -301,16 +362,22 @@ const LogEntryInner = ({
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
-                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <span style={{marginLeft: 4, marginRight: 4}}>
+                                    paid
+                                </span>
                                 <PaymentIconography payment={payment} />
-                                <span style={{marginLeft: 4}}>to fund {awardConfig.name}</span>
+                                <span style={{marginLeft: 4}}>
+                                    to fund {awardConfig.name}
+                                </span>
                             </React.Fragment>
                         </Flex>
                     );
                     break;
                 }
                 case GameActionType.MILESTONE: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {milestone, payment} = gameAction;
 
@@ -318,16 +385,22 @@ const LogEntryInner = ({
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
-                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <span style={{marginLeft: 4, marginRight: 4}}>
+                                    paid
+                                </span>
                                 <PaymentIconography payment={payment} />
-                                <span style={{marginLeft: 4}}>to claim {milestone}</span>
+                                <span style={{marginLeft: 4}}>
+                                    to claim {milestone}
+                                </span>
                             </React.Fragment>
                         </Flex>
                     );
                     break;
                 }
                 case GameActionType.CONVERSION: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {conversionName} = gameAction;
                     innerElements.push(
@@ -336,7 +409,11 @@ const LogEntryInner = ({
                             <span style={{marginLeft: 4}}>converted</span>
                             {conversionName === 'Heat to Temperature' && (
                                 <React.Fragment>
-                                    <span style={{marginLeft: 4, marginRight: 4}}>heat into</span>
+                                    <span
+                                        style={{marginLeft: 4, marginRight: 4}}
+                                    >
+                                        heat into
+                                    </span>
                                     <GlobalParameterIcon
                                         parameter={Parameter.TEMPERATURE}
                                         size={20}
@@ -345,8 +422,15 @@ const LogEntryInner = ({
                             )}
                             {conversionName === 'Plants to Greenery' && (
                                 <React.Fragment>
-                                    <span style={{marginLeft: 4, marginRight: 4}}>plants into</span>
-                                    <TileIcon type={TileType.GREENERY} size={20} />
+                                    <span
+                                        style={{marginLeft: 4, marginRight: 4}}
+                                    >
+                                        plants into
+                                    </span>
+                                    <TileIcon
+                                        type={TileType.GREENERY}
+                                        size={20}
+                                    />
                                 </React.Fragment>
                             )}
                         </Flex>
@@ -354,7 +438,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.STANDARD_PROJECT: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {standardProject, payment} = gameAction;
 
@@ -362,11 +448,26 @@ const LogEntryInner = ({
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
-                                {standardProject !== StandardProjectType.SELL_PATENTS && (
+                                {standardProject !==
+                                    StandardProjectType.SELL_PATENTS && (
                                     <React.Fragment>
-                                        <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            paid
+                                        </span>
                                         <PaymentIconography payment={payment} />
-                                        <span style={{marginLeft: 4, marginRight: 4}}>to</span>
+                                        <span
+                                            style={{
+                                                marginLeft: 4,
+                                                marginRight: 4,
+                                            }}
+                                        >
+                                            to
+                                        </span>
                                     </React.Fragment>
                                 )}
                                 {getLogTextForStandardProject(standardProject)}
@@ -376,7 +477,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.TRADE: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     const {colonyName, payment} = gameAction;
 
@@ -384,7 +487,9 @@ const LogEntryInner = ({
                         <Flex display="inline" alignItems="center">
                             <PlayerCorpAndIcon player={player} isInline />
                             <React.Fragment>
-                                <span style={{marginLeft: 4, marginRight: 4}}>paid</span>
+                                <span style={{marginLeft: 4, marginRight: 4}}>
+                                    paid
+                                </span>
                                 <PaymentIconography payment={payment} />
                                 <span style={{marginLeft: 4, marginRight: 4}}>
                                     to trade with {colonyName}
@@ -395,7 +500,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.PASS: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
@@ -408,7 +515,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.SKIP: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
                         <Flex display="inline" alignItems="center">
@@ -434,7 +543,9 @@ const LogEntryInner = ({
                     break;
                 }
                 case GameActionType.PLAYER_RESOURCE_UPDATE: {
-                    const player = players.find(p => p.index === gameAction.playerIndex);
+                    const player = players.find(
+                        p => p.index === gameAction.playerIndex
+                    );
                     if (!player) throw new Error('unknown player');
                     innerElements.push(
                         <Flex flexDirection="column">
@@ -470,7 +581,11 @@ const LogEntryInner = ({
                                             }}
                                         >
                                             <ResourceIcon
-                                                amount={gameAction.resource[resource]}
+                                                amount={
+                                                    gameAction.resource[
+                                                        resource
+                                                    ]
+                                                }
                                                 name={resource as Resource}
                                                 margin="0 0 0 2px"
                                             />
@@ -515,7 +630,9 @@ function logPropsAreEqual(props1, props2) {
 
 // tense should be present (pre-text will be "User paid X to ____"),
 // except for sell patents (which has no cost)
-function getLogTextForStandardProject(standardProject: StandardProjectType): React.ReactElement {
+function getLogTextForStandardProject(
+    standardProject: StandardProjectType
+): React.ReactElement {
     switch (standardProject) {
         case StandardProjectType.SELL_PATENTS:
             return <span style={{marginLeft: 4}}>sold patents</span>;
@@ -538,7 +655,11 @@ function getLogTextForStandardProject(standardProject: StandardProjectType): Rea
     }
 }
 
-function PaymentIconography({payment}: {payment: NumericPropertyCounter<Resource>}) {
+function PaymentIconography({
+    payment,
+}: {
+    payment: NumericPropertyCounter<Resource>;
+}) {
     return (
         <React.Fragment>
             {Object.entries(payment ?? {}) // legacy games may have `null` payment
@@ -546,8 +667,17 @@ function PaymentIconography({payment}: {payment: NumericPropertyCounter<Resource
                 .map(([resource, amount], index) => {
                     return (
                         <React.Fragment key={index}>
-                            {index > 0 && <span style={{marginLeft: 4, marginRight: 4}}> + </span>}
-                            <ResourceIcon name={resource as Resource} amount={amount} size={16} />
+                            {index > 0 && (
+                                <span style={{marginLeft: 4, marginRight: 4}}>
+                                    {' '}
+                                    +{' '}
+                                </span>
+                            )}
+                            <ResourceIcon
+                                name={resource as Resource}
+                                amount={amount}
+                                size={16}
+                            />
                         </React.Fragment>
                     );
                 })}

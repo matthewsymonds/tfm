@@ -20,7 +20,9 @@ const MAX_TAG_SPREAD = 3;
 const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     border-radius: 1px;
     background-color: ${props =>
-        props.isMinRequirement ? colors.CARD_MIN_REQUIREMENT_BG : colors.CARD_MAX_REQUIREMENT_BG};
+        props.isMinRequirement
+            ? colors.CARD_MIN_REQUIREMENT_BG
+            : colors.CARD_MAX_REQUIREMENT_BG};
     display: flex;
     align-items: center;
     position: absolute;
@@ -38,8 +40,14 @@ const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
 function getCardRequirementText(card: CardModel) {
     let text: string | null = null;
     if (card.requiredGlobalParameter) {
-        text = String(card.requiredGlobalParameter.min ?? card.requiredGlobalParameter.max);
-        if ([Parameter.OXYGEN, Parameter.VENUS].includes(card.requiredGlobalParameter.type)) {
+        text = String(
+            card.requiredGlobalParameter.min ?? card.requiredGlobalParameter.max
+        );
+        if (
+            [Parameter.OXYGEN, Parameter.VENUS].includes(
+                card.requiredGlobalParameter.type
+            )
+        ) {
             text += '%';
         }
     } else if (card.requiredProduction !== undefined) {
@@ -67,10 +75,21 @@ function getCardRequirementText(card: CardModel) {
 
 function getCardRequirementIcons(card: CardModel): React.ReactElement {
     if (card.requiredGlobalParameter) {
-        return <GlobalParameterIcon parameter={card.requiredGlobalParameter.type} size={16} />;
+        return (
+            <GlobalParameterIcon
+                parameter={card.requiredGlobalParameter.type}
+                size={16}
+            />
+        );
     } else if (card.requiredProduction) {
         // currently all cards with required production only require a single production
-        return <ProductionIcon name={card.requiredProduction} size={16} paddingSize={0} />;
+        return (
+            <ProductionIcon
+                name={card.requiredProduction}
+                size={16}
+                paddingSize={0}
+            />
+        );
     } else if (card.requiredTilePlacements) {
         // for required tile placements, we only show icons
         return (
@@ -85,7 +104,9 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
         const tagElements: Array<React.ReactElement> = [];
         for (const [tag, tagCount] of Object.entries(card.requiredTags)) {
             if (typeof tagCount !== 'number') {
-                throw new Error('Tag count must be fixed number for required tags');
+                throw new Error(
+                    'Tag count must be fixed number for required tags'
+                );
             }
 
             if (tagCount > MAX_TAG_SPREAD) {
@@ -97,7 +118,13 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 );
             } else {
                 for (let i = 0; i < tagCount; i++) {
-                    tagElements.push(<TagIcon key={`${tag}-${i}`} name={tag as Tag} size={16} />);
+                    tagElements.push(
+                        <TagIcon
+                            key={`${tag}-${i}`}
+                            name={tag as Tag}
+                            size={16}
+                        />
+                    );
                 }
             }
         }
@@ -112,9 +139,13 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
         return <TerraformRatingIcon size={16} />;
     } else if (card.requiredResources) {
         const tagElements: Array<React.ReactElement> = [];
-        for (const [resource, resourceCount] of Object.entries(card.requiredResources ?? {})) {
+        for (const [resource, resourceCount] of Object.entries(
+            card.requiredResources ?? {}
+        )) {
             if (typeof resourceCount !== 'number') {
-                throw new Error('Tag count must be fixed number for required tags');
+                throw new Error(
+                    'Tag count must be fixed number for required tags'
+                );
             }
 
             if (resourceCount > MAX_TAG_SPREAD) {
@@ -144,7 +175,9 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
             </Flex>
         );
     } else if (card.requiredPartyOrTwoDelegates) {
-        return <PartySymbol party={card.requiredPartyOrTwoDelegates} size={30} />;
+        return (
+            <PartySymbol party={card.requiredPartyOrTwoDelegates} size={30} />
+        );
     } else if (card.requiredChairman) {
         return (
             <Flex padding="2px">
@@ -171,7 +204,8 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
         return null;
     }
 
-    const isMinRequirement = typeof card.requiredGlobalParameter?.min === 'number';
+    const isMinRequirement =
+        typeof card.requiredGlobalParameter?.min === 'number';
 
     const text = getCardRequirementText(card);
     const icon = getCardRequirementIcons(card);

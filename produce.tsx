@@ -1,7 +1,10 @@
 import produceImmer from 'immer';
 import {GameState} from 'reducer';
 
-export function produce(original: GameState, updater: (state: GameState) => void) {
+export function produce(
+    original: GameState,
+    updater: (state: GameState) => void
+) {
     if (typeof window === 'undefined') {
         // Mutate the state on the server!
         // This will induce mongodb update actions

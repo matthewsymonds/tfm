@@ -64,47 +64,60 @@ export function EndOfGame() {
     const store = useStore();
     const state = store.getState();
 
-    const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(player => {
-        const {index: playerIndex} = player;
-        const terraformRating = player.terraformRating;
-        const cardScore = getPlayedCards(player).reduce((total, card) => {
-            return total + getCardVictoryPoints(card.victoryPoints, state, player, card);
-        }, 0);
-        const greeneryScore = getGreeneryScore(state, playerIndex);
-        const citiesScore = getCityScore(state, playerIndex);
-        const milestoneScore = getMilestoneScore(state, playerIndex);
-        const awardScore = getAwardScore(state, playerIndex);
+    const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(
+        player => {
+            const {index: playerIndex} = player;
+            const terraformRating = player.terraformRating;
+            const cardScore = getPlayedCards(player).reduce((total, card) => {
+                return (
+                    total +
+                    getCardVictoryPoints(
+                        card.victoryPoints,
+                        state,
+                        player,
+                        card
+                    )
+                );
+            }, 0);
+            const greeneryScore = getGreeneryScore(state, playerIndex);
+            const citiesScore = getCityScore(state, playerIndex);
+            const milestoneScore = getMilestoneScore(state, playerIndex);
+            const awardScore = getAwardScore(state, playerIndex);
 
-        const turmoilScore = getTurmoilEndOfGameScore(state, playerIndex);
+            const turmoilScore = getTurmoilEndOfGameScore(state, playerIndex);
 
-        const totalScore =
-            terraformRating +
-            cardScore +
-            greeneryScore +
-            citiesScore +
-            milestoneScore +
-            awardScore +
-            turmoilScore;
+            const totalScore =
+                terraformRating +
+                cardScore +
+                greeneryScore +
+                citiesScore +
+                milestoneScore +
+                awardScore +
+                turmoilScore;
 
-        return {
-            player,
-            terraformRating,
-            cardScore,
-            greeneryScore,
-            citiesScore,
-            milestoneScore,
-            awardScore,
-            totalScore,
-            turmoilScore,
-        };
-    });
+            return {
+                player,
+                terraformRating,
+                cardScore,
+                greeneryScore,
+                citiesScore,
+                milestoneScore,
+                awardScore,
+                totalScore,
+                turmoilScore,
+            };
+        }
+    );
 
-    const winner = playerScoreInfos.sort((a, b) => b.totalScore - a.totalScore)[0];
+    const winner = playerScoreInfos.sort(
+        (a, b) => b.totalScore - a.totalScore
+    )[0];
     const isTurmoilEnabled = useTypedSelector(isPlayingTurmoil);
     return (
         <>
             <h2 className="display" style={{color: colors.TEXT_LIGHT_1}}>
-                Game over. {winner.player.corporation.name} ({winner.player.username}) wins!
+                Game over. {winner.player.corporation.name} (
+                {winner.player.username}) wins!
             </h2>
             <table style={{background: colors.LIGHTEST_BG}}>
                 <tbody>

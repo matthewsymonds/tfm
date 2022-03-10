@@ -2,7 +2,10 @@ import {PlayerState} from 'reducer';
 import {SerializedCard} from 'state-serialization';
 import {getCard} from './get-card';
 
-export function getDiscountedCardCost(serializedCard: SerializedCard, player: PlayerState) {
+export function getDiscountedCardCost(
+    serializedCard: SerializedCard,
+    player: PlayerState
+) {
     const card = getCard(serializedCard);
     let {cost = 0} = card;
     const {discounts} = player;

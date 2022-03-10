@@ -7,7 +7,13 @@ import {AnyAction} from 'redux';
 import {SupplementalResources} from 'server/api-action-handler';
 import {SerializedCard} from 'state-serialization';
 import {Action, Amount, Payment, PlayCardParams} from './constants/action';
-import {Cell, Parameter, Tile, TilePlacement, TileType} from './constants/board';
+import {
+    Cell,
+    Parameter,
+    Tile,
+    TilePlacement,
+    TileType,
+} from './constants/board';
 import {Discounts} from './constants/discounts';
 import {PropertyCounter} from './constants/property-counter';
 import {ResourceAndAmount, ResourceLocationType} from './constants/resource';
@@ -23,20 +29,27 @@ export const addGameActionToLog = withMatcher((gameAction: GameAction) => ({
 }));
 
 const SET_CORPORATION = 'SET_CORPORATION';
-export const setCorporation = withMatcher((corporation: SerializedCard, playerIndex: number) => ({
-    type: SET_CORPORATION,
-    payload: {corporation, playerIndex},
-}));
+export const setCorporation = withMatcher(
+    (corporation: SerializedCard, playerIndex: number) => ({
+        type: SET_CORPORATION,
+        payload: {corporation, playerIndex},
+    })
+);
 
 const REVEAL_AND_DISCARD_TOP_CARDS = 'REVEAL_AND_DISCARD_TOP_CARDS';
-export const revealAndDiscardTopCards = withMatcher((amount: number, playerIndex: number) => ({
-    type: REVEAL_AND_DISCARD_TOP_CARDS,
-    payload: {amount, playerIndex},
-}));
+export const revealAndDiscardTopCards = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: REVEAL_AND_DISCARD_TOP_CARDS,
+        payload: {amount, playerIndex},
+    })
+);
 
 const REVEAL_TAKE_AND_DISCARD = 'REVEAL_TAKE_AND_DISCARD';
 export const revealTakeAndDiscard = withMatcher(
-    (revealTakeAndDiscard: PropertyCounter<CardSelectionCriteria>, playerIndex: number) => ({
+    (
+        revealTakeAndDiscard: PropertyCounter<CardSelectionCriteria>,
+        playerIndex: number
+    ) => ({
         type: REVEAL_TAKE_AND_DISCARD,
         payload: {
             revealTakeAndDiscard,
@@ -46,28 +59,36 @@ export const revealTakeAndDiscard = withMatcher(
 );
 
 const DISCARD_CARDS = 'DISCARD_CARDS';
-export const discardCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
-    type: DISCARD_CARDS,
-    payload: {cards, playerIndex},
-}));
+export const discardCards = withMatcher(
+    (cards: SerializedCard[], playerIndex: number) => ({
+        type: DISCARD_CARDS,
+        payload: {cards, playerIndex},
+    })
+);
 
 const ADD_CARDS = 'ADD_CARDS';
-export const addCards = withMatcher((cards: SerializedCard[], playerIndex: number) => ({
-    type: ADD_CARDS,
-    payload: {cards, playerIndex},
-}));
+export const addCards = withMatcher(
+    (cards: SerializedCard[], playerIndex: number) => ({
+        type: ADD_CARDS,
+        payload: {cards, playerIndex},
+    })
+);
 
 const SET_PRELUDES = 'SET_PRELUDES';
-export const setPreludes = withMatcher((preludes: SerializedCard[], playerIndex: number) => ({
-    type: SET_PRELUDES,
-    payload: {playerIndex, preludes},
-}));
+export const setPreludes = withMatcher(
+    (preludes: SerializedCard[], playerIndex: number) => ({
+        type: SET_PRELUDES,
+        payload: {playerIndex, preludes},
+    })
+);
 
 const ASK_USER_TO_CHOOSE_PRELUDE = 'ASK_USER_TO_CHOOSE_PRELUDE';
-export const askUserToChoosePrelude = withMatcher((amount: number, playerIndex: number) => ({
-    type: ASK_USER_TO_CHOOSE_PRELUDE,
-    payload: {playerIndex, amount},
-}));
+export const askUserToChoosePrelude = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: ASK_USER_TO_CHOOSE_PRELUDE,
+        payload: {playerIndex, amount},
+    })
+);
 
 const DISCARD_PRELUDES = 'DISCARD_PRELUDES';
 export const discardPreludes = withMatcher((playerIndex: number) => ({
@@ -83,17 +104,23 @@ export const askUserToFundAward = withMatcher((playerIndex: number) => ({
 
 const PAY_FOR_CARDS = 'PAY_FOR_CARDS';
 export const payForCards = withMatcher(
-    (cards: SerializedCard[], playerIndex: number, payment?: PropertyCounter<Resource>) => ({
+    (
+        cards: SerializedCard[],
+        playerIndex: number,
+        payment?: PropertyCounter<Resource>
+    ) => ({
         type: PAY_FOR_CARDS,
         payload: {cards, playerIndex, payment},
     })
 );
 
 const DRAFT_CARD = 'DRAFT_CARD';
-export const draftCard = withMatcher((card: SerializedCard, playerIndex: number) => ({
-    type: DRAFT_CARD,
-    payload: {card, playerIndex},
-}));
+export const draftCard = withMatcher(
+    (card: SerializedCard, playerIndex: number) => ({
+        type: DRAFT_CARD,
+        payload: {card, playerIndex},
+    })
+);
 
 const DECREASE_PRODUCTION = 'DECREASE_PRODUCTION';
 export const decreaseProduction = withMatcher(
@@ -116,7 +143,8 @@ export const increaseProduction = withMatcher(
     })
 );
 
-const ASK_USER_TO_INCREASE_LOWEST_PRODUCTION = 'ASK_USER_TO_INCREASE_LOWEST_PRODUCTION';
+const ASK_USER_TO_INCREASE_LOWEST_PRODUCTION =
+    'ASK_USER_TO_INCREASE_LOWEST_PRODUCTION';
 export const askUserToIncreaseLowestProduction = withMatcher(
     (amount: number, playerIndex: number) => ({
         type: ASK_USER_TO_INCREASE_LOWEST_PRODUCTION,
@@ -124,11 +152,14 @@ export const askUserToIncreaseLowestProduction = withMatcher(
     })
 );
 
-const COMPLETE_INCREASE_LOWEST_PRODUCTION = 'COMPLETE_INCREASE_LOWEST_PRODUCTION';
-export const completeIncreaseLowestProduction = withMatcher((playerIndex: number) => ({
-    type: COMPLETE_INCREASE_LOWEST_PRODUCTION,
-    payload: {playerIndex},
-}));
+const COMPLETE_INCREASE_LOWEST_PRODUCTION =
+    'COMPLETE_INCREASE_LOWEST_PRODUCTION';
+export const completeIncreaseLowestProduction = withMatcher(
+    (playerIndex: number) => ({
+        type: COMPLETE_INCREASE_LOWEST_PRODUCTION,
+        payload: {playerIndex},
+    })
+);
 
 export const REMOVE_RESOURCE = 'REMOVE_RESOURCE';
 export const removeResource = withMatcher(
@@ -140,12 +171,23 @@ export const removeResource = withMatcher(
         supplementalResources?: SupplementalResources
     ) => ({
         type: REMOVE_RESOURCE,
-        payload: {resource, amount, sourcePlayerIndex, playerIndex, supplementalResources},
+        payload: {
+            resource,
+            amount,
+            sourcePlayerIndex,
+            playerIndex,
+            supplementalResources,
+        },
     })
 );
 const REMOVE_STORABLE_RESOURCE = 'REMOVE_STORABLE_RESOURCE';
 export const removeStorableResource = withMatcher(
-    (resource: Resource, amount: number, playerIndex: number, card: SerializedCard) => ({
+    (
+        resource: Resource,
+        amount: number,
+        playerIndex: number,
+        card: SerializedCard
+    ) => ({
         type: REMOVE_STORABLE_RESOURCE,
         payload: {resource, amount, card, playerIndex},
     })
@@ -153,13 +195,19 @@ export const removeStorableResource = withMatcher(
 
 const GAIN_RESOURCE = 'GAIN_RESOURCE';
 export const gainResource = withMatcher(
-    (resource: Resource, amount: Amount, playerIndex: number, parentName?: string) => ({
+    (
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parentName?: string
+    ) => ({
         type: GAIN_RESOURCE,
         payload: {resource, amount, playerIndex, parentName},
     })
 );
 
-const ASK_USER_TO_GAIN_STANDARD_RESOURCES = 'ASK_USER_TO_GAIN_STANDARD_RESOURCES';
+const ASK_USER_TO_GAIN_STANDARD_RESOURCES =
+    'ASK_USER_TO_GAIN_STANDARD_RESOURCES';
 export const askUserToGainStandardResources = withMatcher(
     (quantity: number, playerIndex: number) => ({
         type: ASK_USER_TO_GAIN_STANDARD_RESOURCES,
@@ -168,28 +216,42 @@ export const askUserToGainStandardResources = withMatcher(
 );
 
 const COMPLETE_GAIN_STANDARD_RESOURCES = 'COMPLETE_GAIN_STANDARD_RESOURCES';
-export const completeGainStandardResources = withMatcher((playerIndex: number) => ({
-    type: COMPLETE_GAIN_STANDARD_RESOURCES,
-    payload: {playerIndex},
-}));
+export const completeGainStandardResources = withMatcher(
+    (playerIndex: number) => ({
+        type: COMPLETE_GAIN_STANDARD_RESOURCES,
+        payload: {playerIndex},
+    })
+);
 
 const GAIN_STORABLE_RESOURCE = 'GAIN_STORABLE_RESOURCE';
 export const gainStorableResource = withMatcher(
-    (resource: Resource, amount: Amount, card: SerializedCard, playerIndex: number) => ({
+    (
+        resource: Resource,
+        amount: Amount,
+        card: SerializedCard,
+        playerIndex: number
+    ) => ({
         type: GAIN_STORABLE_RESOURCE,
         payload: {resource, amount, card, playerIndex},
     })
 );
 
 const INCREASE_STORED_RESOURCE_AMOUNT = 'INCREASE_STORED_RESOURCE_AMOUNT';
-export const increaseStoredResourceAmount = withMatcher((amount: Amount, playerIndex: number) => ({
-    type: INCREASE_STORED_RESOURCE_AMOUNT,
-    payload: {amount, playerIndex},
-}));
+export const increaseStoredResourceAmount = withMatcher(
+    (amount: Amount, playerIndex: number) => ({
+        type: INCREASE_STORED_RESOURCE_AMOUNT,
+        payload: {amount, playerIndex},
+    })
+);
 
 const STEAL_RESOURCE = 'STEAL_RESOURCE';
 export const stealResource = withMatcher(
-    (resource: Resource, amount: Amount, playerIndex: number, victimPlayerIndex: number) => ({
+    (
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        victimPlayerIndex: number
+    ) => ({
         type: STEAL_RESOURCE,
         payload: {resource, amount, victimPlayerIndex, playerIndex},
     })
@@ -210,16 +272,20 @@ export const stealStorableResource = withMatcher(
 );
 
 const APPLY_DISCOUNTS = 'APPLY_DISCOUNTS';
-export const applyDiscounts = withMatcher((discounts: Discounts, playerIndex: number) => ({
-    type: APPLY_DISCOUNTS,
-    payload: {discounts, playerIndex},
-}));
+export const applyDiscounts = withMatcher(
+    (discounts: Discounts, playerIndex: number) => ({
+        type: APPLY_DISCOUNTS,
+        payload: {discounts, playerIndex},
+    })
+);
 
 const SET_PLANT_DISCOUNT = 'SET_PLANT_DISCOUNT';
-export const setPlantDiscount = withMatcher((plantDiscount: number, playerIndex: number) => ({
-    type: SET_PLANT_DISCOUNT,
-    payload: {plantDiscount, playerIndex},
-}));
+export const setPlantDiscount = withMatcher(
+    (plantDiscount: number, playerIndex: number) => ({
+        type: SET_PLANT_DISCOUNT,
+        payload: {plantDiscount, playerIndex},
+    })
+);
 
 const SET_OCEAN_ADJACENCY_BONUS = 'SET_OCEAN_ADJACENCY_BONUS';
 export const setOceanAdjacencybonus = withMatcher(
@@ -265,17 +331,23 @@ export const payToPlayCardAction = withMatcher(
 
 const PAY_TO_PLAY_STANDARD_PROJECT = 'PAY_TO_PLAY_STANDARD_PROJECT';
 export const payToPlayStandardProject = withMatcher(
-    (standardProjectAction: StandardProjectAction, payment: Payment, playerIndex: number) => ({
+    (
+        standardProjectAction: StandardProjectAction,
+        payment: Payment,
+        playerIndex: number
+    ) => ({
         type: PAY_TO_PLAY_STANDARD_PROJECT,
         payload: {standardProjectAction, payment, playerIndex},
     })
 );
 
 const MAKE_PAYMENT = 'MAKE_PAYMENT';
-export const makePayment = withMatcher((payment: Payment, playerIndex: number) => ({
-    type: MAKE_PAYMENT,
-    payload: {payment, playerIndex},
-}));
+export const makePayment = withMatcher(
+    (payment: Payment, playerIndex: number) => ({
+        type: MAKE_PAYMENT,
+        payload: {payment, playerIndex},
+    })
+);
 
 const CLAIM_MILESTONE = 'CLAIM_MILESTONE';
 export const claimMilestone = withMatcher(
@@ -286,10 +358,12 @@ export const claimMilestone = withMatcher(
 );
 
 const FUND_AWARD = 'FUND_AWARD';
-export const fundAward = withMatcher((award: string, payment: Payment, playerIndex: number) => ({
-    type: FUND_AWARD,
-    payload: {award, payment, playerIndex},
-}));
+export const fundAward = withMatcher(
+    (award: string, payment: Payment, playerIndex: number) => ({
+        type: FUND_AWARD,
+        payload: {award, payment, playerIndex},
+    })
+);
 
 const MOVE_CARD_FROM_HAND_TO_PLAY_AREA = 'MOVE_CARD_FROM_HAND_TO_PLAY_AREA';
 export const moveCardFromHandToPlayArea = withMatcher(
@@ -299,7 +373,8 @@ export const moveCardFromHandToPlayArea = withMatcher(
     })
 );
 
-const ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS = 'ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS';
+const ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS =
+    'ADD_PARAMETER_REQUIREMENT_ADJUSTMENTS';
 export const addParameterRequirementAdjustments = withMatcher(
     (
         parameterRequirementAdjustments: PropertyCounter<Parameter>,
@@ -326,12 +401,14 @@ export const askUserToPlaceTile = withMatcher(
 );
 
 export const ASK_USER_TO_REMOVE_TILE = 'ASK_USER_TO_REMOVE_TILE';
-export const askUserToRemoveTile = withMatcher((tileType: TileType, playerIndex: number) => {
-    return {
-        type: ASK_USER_TO_REMOVE_TILE,
-        payload: {playerIndex, tileType},
-    };
-});
+export const askUserToRemoveTile = withMatcher(
+    (tileType: TileType, playerIndex: number) => {
+        return {
+            type: ASK_USER_TO_REMOVE_TILE,
+            payload: {playerIndex, tileType},
+        };
+    }
+);
 
 const ASK_USER_TO_DISCARD_CARDS = 'ASK_USER_TO_DISCARD_CARDS';
 export const askUserToDiscardCards = withMatcher(
@@ -347,7 +424,8 @@ export const askUserToDiscardCards = withMatcher(
     })
 );
 
-const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS = 'ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS';
+const ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS =
+    'ASK_USER_TO_CHOOSE_RESOURCE_ACTION_DETAILS';
 export const askUserToChooseResourceActionDetails = withMatcher(
     (payload: {
         actionType: ResourceActionType;
@@ -428,10 +506,12 @@ export const askUserToLookAtCards = withMatcher(
 );
 
 const PLACE_TILE = 'PLACE_TILE';
-export const placeTile = withMatcher((tile: Tile, cell: Cell, playerIndex: number) => ({
-    type: PLACE_TILE,
-    payload: {tile, cell, playerIndex},
-}));
+export const placeTile = withMatcher(
+    (tile: Tile, cell: Cell, playerIndex: number) => ({
+        type: PLACE_TILE,
+        payload: {tile, cell, playerIndex},
+    })
+);
 
 const REMOVE_TILE = 'REMOVE_TILE';
 export const removeTile = withMatcher((cell: Cell, playerIndex: number) => ({
@@ -441,7 +521,12 @@ export const removeTile = withMatcher((cell: Cell, playerIndex: number) => ({
 
 const INCREASE_PARAMETER = 'INCREASE_PARAMETER';
 export const increaseParameter = withMatcher(
-    (parameter: Parameter, amount: number, playerIndex: number, noTerraformIncrease: boolean) => ({
+    (
+        parameter: Parameter,
+        amount: number,
+        playerIndex: number,
+        noTerraformIncrease: boolean
+    ) => ({
         type: INCREASE_PARAMETER,
         payload: {parameter, amount, playerIndex, noTerraformIncrease},
     })
@@ -456,16 +541,20 @@ export const decreaseParameter = withMatcher(
 );
 
 const INCREASE_TERRAFORM_RATING = 'INCREASE_TERRAFORM_RATING';
-export const increaseTerraformRating = withMatcher((amount: number, playerIndex: number) => ({
-    type: INCREASE_TERRAFORM_RATING,
-    payload: {amount, playerIndex},
-}));
+export const increaseTerraformRating = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: INCREASE_TERRAFORM_RATING,
+        payload: {amount, playerIndex},
+    })
+);
 
 const DECREASE_TERRAFORM_RATING = 'DECREASE_TERRAFORM_RATING';
-export const decreaseTerraformRating = withMatcher((amount: number, playerIndex: number) => ({
-    type: DECREASE_TERRAFORM_RATING,
-    payload: {amount, playerIndex},
-}));
+export const decreaseTerraformRating = withMatcher(
+    (amount: number, playerIndex: number) => ({
+        type: DECREASE_TERRAFORM_RATING,
+        payload: {amount, playerIndex},
+    })
+);
 
 // Player announces she is ready to start round.
 const ANNOUNCE_READY_TO_START_ROUND = 'ANNOUNCE_READY_TO_START_ROUND';
@@ -520,13 +609,15 @@ export const setGame = withMatcher((gameState: GameState | null) => ({
 }));
 
 const ADD_FORCED_ACTION_TO_PLAYER = 'ADD_FORCED_ACTION_TO_PLAYER';
-export const addForcedActionToPlayer = withMatcher((playerIndex: number, forcedAction: Action) => ({
-    type: ADD_FORCED_ACTION_TO_PLAYER,
-    payload: {
-        playerIndex,
-        forcedAction,
-    },
-}));
+export const addForcedActionToPlayer = withMatcher(
+    (playerIndex: number, forcedAction: Action) => ({
+        type: ADD_FORCED_ACTION_TO_PLAYER,
+        payload: {
+            playerIndex,
+            forcedAction,
+        },
+    })
+);
 
 const REMOVE_FORCED_ACTION_FROM_PLAYER = 'REMOVE_FORCED_ACTION_FROM_PLAYER';
 export const removeForcedActionFromPlayer = withMatcher(
@@ -550,16 +641,21 @@ export const askUserToUseBlueCardActionAlreadyUsedThisGeneration = withMatcher(
 
 const USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION =
     'USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION';
-export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher((playerIndex: number) => ({
-    type: USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
-    payload: {playerIndex},
-}));
+export const useBlueCardActionAlreadyUsedThisGeneration = withMatcher(
+    (playerIndex: number) => ({
+        type: USE_BLUE_CARD_ACTION_ALREADY_USED_THIS_GENERATION,
+        payload: {playerIndex},
+    })
+);
 
-const GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION = 'GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION';
-export const gainResourceWhenIncreaseProduction = withMatcher((playerIndex: number) => ({
-    type: GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION,
-    payload: {playerIndex},
-}));
+const GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION =
+    'GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION';
+export const gainResourceWhenIncreaseProduction = withMatcher(
+    (playerIndex: number) => ({
+        type: GAIN_RESOURCE_WHEN_INCREASE_PRODUCTION,
+        payload: {playerIndex},
+    })
+);
 
 const ASK_USER_TO_PLAY_CARD_FROM_HAND = 'ASK_USER_TO_PLAY_CARD_FROM_HAND';
 export const askUserToPlayCardFromHand = withMatcher(
@@ -603,10 +699,12 @@ export const moveFleet = withMatcher((colony: string, playerIndex: number) => ({
 }));
 
 const MOVE_COLONY_TILE_TRACK = 'MOVE_COLONY_TILE_TRACK';
-export const moveColonyTileTrack = withMatcher((colony: string, location: number) => ({
-    type: MOVE_COLONY_TILE_TRACK,
-    payload: {colony, location},
-}));
+export const moveColonyTileTrack = withMatcher(
+    (colony: string, location: number) => ({
+        type: MOVE_COLONY_TILE_TRACK,
+        payload: {colony, location},
+    })
+);
 
 export const ASK_USER_TO_BUILD_COLONY = 'ASK_USER_TO_PLACE_COLONY';
 export type PlaceColony = {mayBeRepeatColony: boolean};
@@ -618,10 +716,12 @@ export const askUserToPlaceColony = withMatcher(
 );
 
 const BUILD_COLONY = 'BUILD_COLONY';
-export const placeColony = withMatcher((colony: string, playerIndex: number) => ({
-    type: BUILD_COLONY,
-    payload: {colony, playerIndex},
-}));
+export const placeColony = withMatcher(
+    (colony: string, playerIndex: number) => ({
+        type: BUILD_COLONY,
+        payload: {colony, playerIndex},
+    })
+);
 
 const INCREASE_COLONY_TILE_TRACK_RANGE = 'INCREASE_COLONY_TILE_TRACK_RANGE';
 export const increaseColonyTileTrackRange = withMatcher(
@@ -640,7 +740,8 @@ export const askUserToIncreaseAndDecreaseColonyTileTracks = withMatcher(
     })
 );
 
-const INCREASE_AND_DECREASE_COLONY_TILE_TRACKS = 'INCREASE_AND_DECREASE_COLONY_TILE_TRACKS';
+const INCREASE_AND_DECREASE_COLONY_TILE_TRACKS =
+    'INCREASE_AND_DECREASE_COLONY_TILE_TRACKS';
 export const increaseAndDecreaseColonyTileTracks = withMatcher(
     (increase: string, decrease: string, playerIndex: number) => ({
         type: INCREASE_AND_DECREASE_COLONY_TILE_TRACKS,
@@ -668,10 +769,12 @@ export const gainTradeFleet = withMatcher((playerIndex: number) => ({
 
 const ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
     'ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
-export const askUserToPutAdditionalColonyTileIntoPlay = withMatcher((playerIndex: number) => ({
-    type: ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
-    payload: {playerIndex},
-}));
+export const askUserToPutAdditionalColonyTileIntoPlay = withMatcher(
+    (playerIndex: number) => ({
+        type: ASK_USER_TO_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY,
+        payload: {playerIndex},
+    })
+);
 
 const COMPLETE_USER_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY =
     'COMPLETE_USER_PUT_ADDITIONAL_COLONY_TILE_INTO_PLAY';
@@ -698,7 +801,8 @@ export const askUserToChooseNextAction = withMatcher(
     })
 );
 
-const ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY = 'ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY';
+const ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY =
+    'ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY';
 export const askUserToPlaceDelegatesInOneParty = withMatcher(
     (numDelegates: number, playerIndex: number) => ({
         type: ASK_USER_TO_PLACE_DELEGATES_IN_ONE_PARTY,
@@ -708,26 +812,36 @@ export const askUserToPlaceDelegatesInOneParty = withMatcher(
 
 const PLACE_DELEGATES_IN_ONE_PARTY = 'PLACE_DELEGATES_IN_ONE_PARTY';
 export const placeDelegatesInOneParty = withMatcher(
-    (numDelegates: number, party: string, allowLobby: boolean, playerIndex: number) => ({
+    (
+        numDelegates: number,
+        party: string,
+        allowLobby: boolean,
+        playerIndex: number
+    ) => ({
         type: PLACE_DELEGATES_IN_ONE_PARTY,
         payload: {numDelegates, party, allowLobby, playerIndex},
     })
 );
 
 const INCREASE_BASE_INFLUENCE = 'INCREASE_BASE_INFLUENCE';
-export const increaseBaseInfluence = withMatcher((increase: number, playerIndex: number) => ({
-    type: INCREASE_BASE_INFLUENCE,
-    payload: {increase, playerIndex},
-}));
+export const increaseBaseInfluence = withMatcher(
+    (increase: number, playerIndex: number) => ({
+        type: INCREASE_BASE_INFLUENCE,
+        payload: {increase, playerIndex},
+    })
+);
 
 const ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE =
     'ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
-export const askUserToExchangeNeutralNonLeaderDelegate = withMatcher((playerIndex: number) => ({
-    type: ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
-    payload: {playerIndex},
-}));
+export const askUserToExchangeNeutralNonLeaderDelegate = withMatcher(
+    (playerIndex: number) => ({
+        type: ASK_USER_TO_EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
+        payload: {playerIndex},
+    })
+);
 
-const EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE = 'EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
+const EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE =
+    'EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE';
 export const exchangeNeutralNonLeaderDelegate = withMatcher(
     (party: string, playerIndex: number) => ({
         type: EXCHANGE_NEUTRAL_NON_LEADER_DELEGATE,
@@ -735,11 +849,14 @@ export const exchangeNeutralNonLeaderDelegate = withMatcher(
     })
 );
 
-const ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE = 'ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE';
-export const askUserToRemoveNonLeaderDelegate = withMatcher((playerIndex: number) => ({
-    type: ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE,
-    payload: {playerIndex},
-}));
+const ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE =
+    'ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE';
+export const askUserToRemoveNonLeaderDelegate = withMatcher(
+    (playerIndex: number) => ({
+        type: ASK_USER_TO_REMOVE_NON_LEADER_DELEGATE,
+        payload: {playerIndex},
+    })
+);
 
 const REMOVE_NON_LEADER_DELEGATE = 'REMOVE_NON_LEADER_DELEGATE';
 export const removeNonLeaderDelegate = withMatcher(
@@ -774,10 +891,12 @@ export const clearPendingActionChoice = withMatcher((playerIndex: number) => ({
 }));
 
 const COMPLETE_CHOOSE_NEXT_ACTION = 'COMPLETE_CHOOSE_NEXT_ACTION';
-export const completeChooseNextAction = withMatcher((actionIndex: number, playerIndex: number) => ({
-    type: COMPLETE_CHOOSE_NEXT_ACTION,
-    payload: {actionIndex, playerIndex},
-}));
+export const completeChooseNextAction = withMatcher(
+    (actionIndex: number, playerIndex: number) => ({
+        type: COMPLETE_CHOOSE_NEXT_ACTION,
+        payload: {actionIndex, playerIndex},
+    })
+);
 
 // When a function returns an action, it's nice to use this if nothing should happen.
 const NOOP_ACTION = 'NOOP_ACTION';
@@ -790,6 +909,12 @@ const LOG = 'LOG';
 export const makeLogItem = withMatcher((item: GameAction) => ({
     type: LOG,
     payload: {item},
+}));
+
+const SET_NOTES = 'SET_NOTES';
+export const setNotes = withMatcher((notes: string, playerIndex: number) => ({
+    type: SET_NOTES,
+    payload: {notes, playerIndex},
 }));
 
 export const PAUSE_ACTIONS = [

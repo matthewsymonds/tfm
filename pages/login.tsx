@@ -16,7 +16,12 @@ import {ErrorText} from './signup';
 
 export const AlternativeLink = ({href, text}: {href: string; text: string}) => {
     return (
-        <Box color={colors.TEXT_LIGHT_1} marginTop="8px" cursor="pointer" className="display">
+        <Box
+            color={colors.TEXT_LIGHT_1}
+            marginTop="8px"
+            cursor="pointer"
+            className="display"
+        >
             <Link href={href} passHref>
                 <InnerLink>
                     <em>{text}</em>
@@ -78,7 +83,12 @@ const Login: NextPage<{}> = props => {
                             value={password}
                             onChange={updatePassword}
                         />
-                        <Box marginTop="32px" marginBottom="4px" marginLeft="4px" width="100px">
+                        <Box
+                            marginTop="32px"
+                            marginBottom="4px"
+                            marginLeft="4px"
+                            width="100px"
+                        >
                             <Button type="submit" variant="bordered">
                                 Log in
                             </Button>

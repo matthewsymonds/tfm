@@ -30,7 +30,12 @@ export function Button({
     switch (variant) {
         case 'default':
             return (
-                <_DefaultButton ref={buttonRef} size={size} disabled={disabled} onClick={onClick}>
+                <_DefaultButton
+                    ref={buttonRef}
+                    size={size}
+                    disabled={disabled}
+                    onClick={onClick}
+                >
                     {children}
                 </_DefaultButton>
             );

@@ -5,7 +5,9 @@ import {getRequestHeaders} from 'server/get-request-headers';
 
 export type TFMSession = {username: string};
 
-export async function checkSessionInternal(ctx: NextPageContext): Promise<TFMSession> {
+export async function checkSessionInternal(
+    ctx: NextPageContext
+): Promise<TFMSession> {
     const {req, res} = ctx;
 
     const isServer = !!req && !!res;
@@ -31,7 +33,9 @@ export async function checkSessionInternal(ctx: NextPageContext): Promise<TFMSes
     }
 }
 
-export async function checkSession(ctx: NextPageContext): Promise<{session: TFMSession}> {
+export async function checkSession(
+    ctx: NextPageContext
+): Promise<{session: TFMSession}> {
     const session = await checkSessionInternal(ctx);
     return {session};
 }

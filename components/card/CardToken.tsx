@@ -86,7 +86,10 @@ export const CardToggleToken = ({
                     opacity: isSelected ? 1 : 0.4,
                     backgroundColor: isSelected
                         ? color
-                        : new Color(color).darken(0.2).desaturate(0.2).toString(),
+                        : new Color(color)
+                              .darken(0.2)
+                              .desaturate(0.2)
+                              .toString(),
                     fontSize: '1rem',
                 }}
                 {...hoverProps}
@@ -119,7 +122,12 @@ export const CardTextToken = ({
                 triggerRef,
                 popoverOpts: {
                     placement: 'bottom-start',
-                    possiblePlacements: ['bottom-start', 'bottom-end', 'top-start', 'top-end'],
+                    possiblePlacements: [
+                        'bottom-start',
+                        'bottom-end',
+                        'top-start',
+                        'top-end',
+                    ],
                 },
             });
         } else {
@@ -128,7 +136,10 @@ export const CardTextToken = ({
     }, [isOver]);
 
     return (
-        <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
+        <Flex
+            display="inline-flex"
+            width={shouldUseFullWidth ? '100%' : undefined}
+        >
             <CardTextTokenBase
                 ref={triggerRef}
                 color={color}
@@ -156,9 +167,15 @@ export const MiniatureCard = ({
 }: MiniatureCardProps) => {
     const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
     const color = getColorForCardType(card.type);
-    const currentGeneration = useTypedSelector(state => state.common.generation);
+    const currentGeneration = useTypedSelector(
+        state => state.common.generation
+    );
     const triggerRef = useRef<HTMLDivElement>(null);
-    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0, hideOnScroll: true});
+    const [isOver, hoverProps] = useHover({
+        delayEnter: 0,
+        delayLeave: 0,
+        hideOnScroll: true,
+    });
 
     useEffect(() => {
         if (isOver) {
@@ -175,8 +192,14 @@ export const MiniatureCard = ({
         card.lastRoundUsedAction === currentGeneration && !canPlayInSpiteOfUI;
 
     return (
-        <Flex display="inline-flex" width={shouldUseFullWidth ? '100%' : undefined}>
-            <Flex flexDirection="column" width={shouldUseFullWidth ? '100%' : undefined}>
+        <Flex
+            display="inline-flex"
+            width={shouldUseFullWidth ? '100%' : undefined}
+        >
+            <Flex
+                flexDirection="column"
+                width={shouldUseFullWidth ? '100%' : undefined}
+            >
                 <CardTextTokenBase
                     ref={triggerRef}
                     color={color}
@@ -195,7 +218,9 @@ export const MiniatureCard = ({
                             style={{marginRight: 4}}
                         />
                     )}
-                    <span className="truncate">{card.name === '' ? 'Event' : card.name}</span>
+                    <span className="truncate">
+                        {card.name === '' ? 'Event' : card.name}
+                    </span>
                 </CardTextTokenBase>
                 <Box
                     position="relative"

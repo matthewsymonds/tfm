@@ -7,7 +7,13 @@ import {Box, Flex} from './box';
 import {CardContext} from './card/Card';
 import {MiniatureCard} from './card/CardToken';
 
-const PlayerCardAction = ({card, player}: {card: Card; player: PlayerState}) => {
+const PlayerCardAction = ({
+    card,
+    player,
+}: {
+    card: Card;
+    player: PlayerState;
+}) => {
     return (
         <Box
             width="fit-content"
@@ -42,7 +48,13 @@ export function AskUserToUseBlueCardActionAlreadyUsedThisGeneration({
         );
     });
     const choiceButtons = cards.map((card, index) => {
-        return <PlayerCardAction card={card} player={player} key={index}></PlayerCardAction>;
+        return (
+            <PlayerCardAction
+                card={card}
+                player={player}
+                key={index}
+            ></PlayerCardAction>
+        );
     });
     return (
         // HACK: Assume that only Viron allows repeating an action

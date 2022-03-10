@@ -18,7 +18,10 @@ export type ResourceCounter = PropertyCounter<Resource>;
 // Exclude oceans from this configuration.
 // We'll use the tilePlacement property to place oceans instead.
 // This lets us specify placement requirements (like on an area not reserved for ocean)
-type ParameterExcludingOcean = Parameter.OXYGEN | Parameter.TEMPERATURE | Parameter.VENUS;
+type ParameterExcludingOcean =
+    | Parameter.OXYGEN
+    | Parameter.TEMPERATURE
+    | Parameter.VENUS;
 
 // Only allow parameter increases by numeric amounts.
 // This simplifies implementation of parameter bonus interactions e.g. Giant Ice Asteroid.

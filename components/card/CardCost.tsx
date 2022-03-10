@@ -45,11 +45,19 @@ export const CardCost = ({
         return null;
     }
     let discountedCost;
-    if (cardContext === CardContext.SELECT_TO_PLAY || cardContext === CardContext.SELECT_TO_BUY) {
+    if (
+        cardContext === CardContext.SELECT_TO_PLAY ||
+        cardContext === CardContext.SELECT_TO_BUY
+    ) {
         discountedCost = getDiscountedCardCost(card, loggedInPlayer);
     }
 
-    return <GenericCardCost originalCost={card.cost} cost={discountedCost ?? card.cost} />;
+    return (
+        <GenericCardCost
+            originalCost={card.cost}
+            cost={discountedCost ?? card.cost}
+        />
+    );
 };
 
 export const GenericCardCost = ({

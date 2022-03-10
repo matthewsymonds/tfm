@@ -35,7 +35,9 @@ export const PlayerPanels = () => {
         const parent = element?.parentElement;
         if (element && parent) {
             const scrollLeft =
-                element.offsetLeft - parent.offsetWidth / 2 + element.offsetWidth / 2;
+                element.offsetLeft -
+                parent.offsetWidth / 2 +
+                element.offsetWidth / 2;
             parent.scrollTo({left: scrollLeft, behavior: 'smooth'});
         }
     }, [topIndex]);
@@ -72,7 +74,11 @@ export const PlayerPanels = () => {
                         key={i}
                         id={'player-board-unique-' + i}
                         className={`player-board ${
-                            i === 0 ? 'first' : i === players.length - 1 ? 'last' : ''
+                            i === 0
+                                ? 'first'
+                                : i === players.length - 1
+                                ? 'last'
+                                : ''
                         }`}
                         style={{
                             display: 'flex',
@@ -84,7 +90,10 @@ export const PlayerPanels = () => {
                             swiper?.slideTo(i);
                         }}
                     >
-                        <PlayerTopPanel player={player} isSelected={topIndex === i} />
+                        <PlayerTopPanel
+                            player={player}
+                            isSelected={topIndex === i}
+                        />
                     </Box>
                 ))}
             </PlayerBoardsContainer>
@@ -102,7 +111,10 @@ export const PlayerPanels = () => {
                             style={{maxWidth: '804px'}}
                         >
                             {({isActive}) => (
-                                <PlayerBottomPanel player={player} isSelected={isActive} />
+                                <PlayerBottomPanel
+                                    player={player}
+                                    isSelected={isActive}
+                                />
                             )}
                         </SwiperSlide>
                     ))}

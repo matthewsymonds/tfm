@@ -13,8 +13,8 @@ export const ActionContainerBase = styled.button`
     border: 2px solid ${colors.DARK_2};
     border-radius: 4px;
 
-    -webkit-transition: color 200ms ease-in-out, background-color 200ms ease-in-out,
-        transform 50ms ease-in-out;
+    -webkit-transition: color 200ms ease-in-out,
+        background-color 200ms ease-in-out, transform 50ms ease-in-out;
     transition: color 200ms ease-in-out, background-color 200ms ease-in-out,
         transform 50ms ease-in-out;
     &:hover:not(:disabled),

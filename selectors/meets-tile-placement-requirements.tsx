@@ -27,7 +27,11 @@ export function meetsTilePlacementRequirements(
         }
         const {isRequired, placementRequirement} = tilePlacement;
         if (!isRequired || !placementRequirement) continue;
-        const possiblePlacements = getValidPlacementsForRequirement(state, tilePlacement, player);
+        const possiblePlacements = getValidPlacementsForRequirement(
+            state,
+            tilePlacement,
+            player
+        );
         if (possiblePlacements.length === 0) return false;
     }
 

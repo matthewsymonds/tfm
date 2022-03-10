@@ -56,7 +56,10 @@ const EXAMPLE_ACTION: Action = {
                 {
                     operation: Operation.SUBTRACT,
                     operands: [
-                        {operation: Operation.MIN, operands: [{tag: Tag.BUILDING}, 5]},
+                        {
+                            operation: Operation.MIN,
+                            operands: [{tag: Tag.BUILDING}, 5],
+                        },
                         VariableAmount.INFLUENCE,
                     ],
                 },

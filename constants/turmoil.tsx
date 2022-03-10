@@ -59,9 +59,9 @@ export function initializeTurmoil(players: PlayerState[]): Turmoil {
 
     const delegateReserve: DelegateReserve = {};
     for (const player of players) {
-        delegateReserve[player.index] = Array.from(Array(NUM_PLAYER_DELEGATES - 1)).map(() =>
-            delegate(player.index)
-        );
+        delegateReserve[player.index] = Array.from(
+            Array(NUM_PLAYER_DELEGATES - 1)
+        ).map(() => delegate(player.index));
     }
 
     return {

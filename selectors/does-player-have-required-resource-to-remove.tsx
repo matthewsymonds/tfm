@@ -40,7 +40,9 @@ export function doesPlayerHaveRequiredResourcesToRemove(
                 players: state.players,
             });
 
-            playerAmount = Math.max(...cards.map(card => card.storedResourceAmount ?? 0));
+            playerAmount = Math.max(
+                ...cards.map(card => card.storedResourceAmount ?? 0)
+            );
         } else if (resource === Resource.CARD) {
             playerAmount = player.cards.length;
         } else {
@@ -57,7 +59,10 @@ export function doesPlayerHaveRequiredResourcesToRemove(
     if (Object.keys(action.removeResourceOption ?? {}).length > 0) {
         for (const resource in action.removeResourceOption) {
             // Resource option only implemented for standard resources.
-            if (player.resources[resource] >= action.removeResourceOption[resource]) {
+            if (
+                player.resources[resource] >=
+                action.removeResourceOption[resource]
+            ) {
                 return true;
             }
         }
@@ -85,15 +90,21 @@ export function getSupplementalQuantity(
     player: PlayerState,
     supplementalResources?: SupplementalResources
 ): number {
-    const fullCard = getFullCardForSupplementalQuantity(player, supplementalResources);
+    const fullCard = getFullCardForSupplementalQuantity(
+        player,
+        supplementalResources
+    );
     let supplementalQuantity = 0;
 
     if (fullCard?.storedResourceAmount && fullCard?.useStoredResourceAsHeat) {
         if (supplementalResources?.quantity != null) {
             supplementalQuantity =
-                fullCard.useStoredResourceAsHeat * supplementalResources.quantity;
+                fullCard.useStoredResourceAsHeat *
+                supplementalResources.quantity;
         } else {
-            supplementalQuantity = fullCard.useStoredResourceAsHeat * fullCard.storedResourceAmount;
+            supplementalQuantity =
+                fullCard.useStoredResourceAsHeat *
+                fullCard.storedResourceAmount;
         }
     }
 
@@ -107,12 +118,16 @@ export function getFullCardForSupplementalQuantity(
     let fullCard: Card | undefined = undefined;
 
     if (supplementalResources?.name) {
-        const card = player.playedCards.find(card => card.name === supplementalResources.name);
+        const card = player.playedCards.find(
+            card => card.name === supplementalResources.name
+        );
         if (card) {
             fullCard = getCard(card);
         }
     } else {
-        const card = player.playedCards.map(getCard).find(card => card.useStoredResourceAsHeat);
+        const card = player.playedCards
+            .map(getCard)
+            .find(card => card.useStoredResourceAsHeat);
         if (card) {
             fullCard = getCard(card);
         }

@@ -22,7 +22,9 @@ export const DEFAULT_CONVERSIONS: {[key in Resource]?: Conversion} = {
     [Resource.PLANT]: {
         name: 'Plants to Greenery',
         resourceToRemove: Resource.PLANT,
-        removeResource: {[Resource.PLANT]: VariableAmount.PLANT_CONVERSION_AMOUNT},
+        removeResource: {
+            [Resource.PLANT]: VariableAmount.PLANT_CONVERSION_AMOUNT,
+        },
         tilePlacements: [t(TileType.GREENERY)],
         shouldIncrementActionCounter: true,
     },

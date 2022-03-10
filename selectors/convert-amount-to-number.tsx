@@ -8,8 +8,15 @@ import {
     isConditionAmount,
 } from 'constants/conditional-amount';
 import {ContestAmount, isContestAmount} from 'constants/contest-amount';
-import {isOperationAmount, Operation, OperationAmount} from 'constants/operation-amount';
-import {isProductionAmount, ProductionAmount} from 'constants/production-amount';
+import {
+    isOperationAmount,
+    Operation,
+    OperationAmount,
+} from 'constants/operation-amount';
+import {
+    isProductionAmount,
+    ProductionAmount,
+} from 'constants/production-amount';
 import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';
 import {Tag} from 'constants/tag';
 import {isTileAmount, TileAmount} from 'constants/tile-amount';
@@ -42,16 +49,22 @@ export function convertAmountToNumber(
         ) {
             amountTagAndMaybeWildcard.push(Tag.WILD);
         }
-        const matchingTags = tags.filter(tag => amountTagAndMaybeWildcard.includes(tag));
+        const matchingTags = tags.filter(tag =>
+            amountTagAndMaybeWildcard.includes(tag)
+        );
         let extraTags = 0;
         if (actionPhase && card?.name) {
             const fullCard = getCard(card);
             // Martian Survey
             if (fullCard.type === CardType.EVENT) {
-                extraTags = fullCard.tags.filter(tag => tag === amount.tag).length;
+                extraTags = fullCard.tags.filter(
+                    tag => tag === amount.tag
+                ).length;
             }
         }
-        return Math.floor((matchingTags.length + extraTags) / (amount.dividedBy ?? 1));
+        return Math.floor(
+            (matchingTags.length + extraTags) / (amount.dividedBy ?? 1)
+        );
     }
     if (isTileAmount(amount)) {
         return convertTileAmountToNumber(amount, state, player);
@@ -85,7 +98,10 @@ export function convertTileAmountToNumber(
 ) {
     const cells = getAllCellsOwnedByCurrentPlayer(state, player);
     return cells.filter(cell => {
-        if (amount.tile === TileType.CITY && cell?.tile?.type === TileType.CAPITAL) {
+        if (
+            amount.tile === TileType.CITY &&
+            cell?.tile?.type === TileType.CAPITAL
+        ) {
             return true;
         }
 
@@ -122,7 +138,10 @@ export function convertOperationAmountToNumber(
         convertAmountToNumber(operand, state, player, card)
     );
 
-    if (typeof convertedOperands[0] !== 'number' || typeof convertedOperands[1] !== 'number') {
+    if (
+        typeof convertedOperands[0] !== 'number' ||
+        typeof convertedOperands[1] !== 'number'
+    ) {
         return 0;
     }
 
@@ -193,7 +212,12 @@ export function convertContestAmountToNumber(
 ): number {
     const multiplier = amount.minimum ? -1 : 1;
     if (state.players.length === 1) {
-        const contest = convertAmountToNumber(amount.contest, state, player, card);
+        const contest = convertAmountToNumber(
+            amount.contest,
+            state,
+            player,
+            card
+        );
         if (contest * multiplier >= amount.soloFirst * multiplier) {
             return amount.first;
         }
@@ -206,7 +230,10 @@ export function convertContestAmountToNumber(
         return 0;
     }
     const playerResults: number[] = state.players.map(player => {
-        return convertAmountToNumber(amount.contest, state, player, card) * multiplier;
+        return (
+            convertAmountToNumber(amount.contest, state, player, card) *
+            multiplier
+        );
     });
 
     const firstPlace = Math.max(...playerResults);
@@ -215,10 +242,17 @@ export function convertContestAmountToNumber(
         return amount.first;
     }
 
-    const secondPlace = Math.max(...playerResults.filter(result => result !== firstPlace));
+    const secondPlace = Math.max(
+        ...playerResults.filter(result => result !== firstPlace)
+    );
 
-    const numPlayersWithFirstPlace = playerResults.filter(result => result === firstPlace).length;
-    if (playerResults[player.index] === secondPlace && numPlayersWithFirstPlace === 1) {
+    const numPlayersWithFirstPlace = playerResults.filter(
+        result => result === firstPlace
+    ).length;
+    if (
+        playerResults[player.index] === secondPlace &&
+        numPlayersWithFirstPlace === 1
+    ) {
         return amount.second;
     }
 

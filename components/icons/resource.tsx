@@ -21,11 +21,14 @@ interface ResourceIconBaseProps {
     readonly unit?: string;
 }
 
-const clampedIfViewportWidth = (props: ResourceIconBaseProps, multiplier: number) =>
+const clampedIfViewportWidth = (
+    props: ResourceIconBaseProps,
+    multiplier: number
+) =>
     props?.unit === 'vw'
-        ? `clamp(${10 * multiplier}px, ${props.size * multiplier + props?.unit}, ${Math.floor(
-              14.5 * multiplier
-          )}px)`
+        ? `clamp(${10 * multiplier}px, ${
+              props.size * multiplier + props?.unit
+          }, ${Math.floor(14.5 * multiplier)}px)`
         : `${props.size * multiplier}${props?.unit ?? 'px'}`;
 
 const ResourceIconBase = styled.div<ResourceIconBaseProps>`
@@ -36,12 +39,15 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     width: ${props => clampedIfViewportWidth(props, 1)};
     text-align: center;
     margin: ${props =>
-        typeof props.margin === 'string' ? props.margin : `${props.margin}${props?.unit ?? 'px'}`};
+        typeof props.margin === 'string'
+            ? props.margin
+            : `${props.margin}${props?.unit ?? 'px'}`};
     font-size: ${props => clampedIfViewportWidth(props, 0.5)};
     font-weight: bold;
     color: ${props => props.color};
     background: ${props => props.background};
-    box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
+    box-shadow: ${props =>
+        props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial'};
     border: ${props => props.border ?? 'none'};
 `;
 
@@ -57,11 +63,13 @@ const MegacreditIcon = styled.div<{
     width: ${props => props.size}px;
     color: ${colors.TEXT_DARK_1};
     font-size: ${props => (props.size ? props.size * 0.6 : '12')}px;
-    box-shadow: ${props => (props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial')};
+    box-shadow: ${props =>
+        props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial'};
     border-radius: 3px;
     background-color: ${colors.MEGACREDIT};
     border: 1px solid #c59739;
-    margin: ${props => (typeof props.margin === 'string' ? props.margin : `${props.margin}px`)};
+    margin: ${props =>
+        typeof props.margin === 'string' ? props.margin : `${props.margin}px`};
 `;
 interface ResourceIconProps {
     name: Resource;
@@ -84,7 +92,11 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
 }) => {
     if (name === Resource.MEGACREDIT) {
         return (
-            <MegacreditIcon size={size} showRedBorder={showRedBorder} margin={margin}>
+            <MegacreditIcon
+                size={size}
+                showRedBorder={showRedBorder}
+                margin={margin}
+            >
                 <span>{amount ?? null}</span>
             </MegacreditIcon>
         );
@@ -92,7 +104,9 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
 
     return (
         <React.Fragment>
-            {amount !== undefined && <span style={{marginRight: 2}}>{amount}</span>}
+            {amount !== undefined && (
+                <span style={{marginRight: 2}}>{amount}</span>
+            )}
             <ResourceIconBase
                 color={getResourceColor(name)}
                 background={getResourceBackgroundColor(name)}
@@ -104,7 +118,9 @@ export const ResourceIcon: React.FunctionComponent<ResourceIconProps> = ({
                 unit={unit}
             >
                 <Twemoji>
-                    <span className={getClassName(name)}>{getResourceSymbol(name)}</span>
+                    <span className={getClassName(name)}>
+                        {getResourceSymbol(name)}
+                    </span>
                 </Twemoji>
             </ResourceIconBase>
         </React.Fragment>

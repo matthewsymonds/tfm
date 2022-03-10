@@ -5,7 +5,11 @@ import spawnExhaustiveSwitchError from 'utils';
 import {Amount} from './action';
 import {Resource} from './resource-enum';
 
-export const PROTECTED_HABITAT_RESOURCE = [Resource.PLANT, Resource.ANIMAL, Resource.MICROBE];
+export const PROTECTED_HABITAT_RESOURCE = [
+    Resource.PLANT,
+    Resource.ANIMAL,
+    Resource.MICROBE,
+];
 
 const storableResources = [
     Resource.ANIMAL,
@@ -30,7 +34,9 @@ export const STANDARD_RESOURCES = [
 
 export type StorableResource = typeof storableResources[number];
 
-export function isStorableResource(resource: any): resource is StorableResource {
+export function isStorableResource(
+    resource: any
+): resource is StorableResource {
     return storableResources.includes(resource);
 }
 
@@ -131,7 +137,10 @@ export const getResourceSymbol = (resource: Resource) => {
     }
 };
 
-export const getResourceName = (resource: Resource, shouldCapitalize: boolean = false) => {
+export const getResourceName = (
+    resource: Resource,
+    shouldCapitalize: boolean = false
+) => {
     let resourceName: string;
     switch (resource) {
         case Resource.ANIMAL:

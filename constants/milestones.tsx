@@ -21,7 +21,12 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
         name: 'Terraformer',
         requirementText: '35 terraform rating (26 with Turmoil)',
         amount: VariableAmount.TERRAFORM_RATING,
-        quantity: {condition: Condition.TURMOIL, operands: [], pass: 26, fail: 35},
+        quantity: {
+            condition: Condition.TURMOIL,
+            operands: [],
+            pass: 26,
+            fail: 35,
+        },
     },
     {
         name: 'Mayor',
@@ -101,7 +106,9 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     {
         name: 'Specialist',
         requirementText: '10 production of 1 resource',
-        amount: max(...STANDARD_RESOURCES.map(resource => ({production: resource}))),
+        amount: max(
+            ...STANDARD_RESOURCES.map(resource => ({production: resource}))
+        ),
         quantity: 10,
     },
     {
@@ -139,7 +146,13 @@ export function getMilestone(name: string): MilestoneConfig {
     return found;
 }
 
-const DEFAULT_MILESTONES = ['Terraformer', 'Mayor', 'Gardener', 'Builder', 'Planner'];
+const DEFAULT_MILESTONES = [
+    'Terraformer',
+    'Mayor',
+    'Gardener',
+    'Builder',
+    'Planner',
+];
 
 const HELLAS_MILESTONES = [
     'Diversifier',
@@ -149,7 +162,13 @@ const HELLAS_MILESTONES = [
     'Rim Settler',
 ];
 
-const ELYSIUM_MILESTONES = ['Generalist', 'Specialist', 'Ecologist', 'Tycoon', 'Legend'];
+const ELYSIUM_MILESTONES = [
+    'Generalist',
+    'Specialist',
+    'Ecologist',
+    'Tycoon',
+    'Legend',
+];
 
 export function getMilestones(state: GameState) {
     const hoverlord = isPlayingVenus(state) ? ['Hoverlord'] : [];
