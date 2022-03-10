@@ -1400,6 +1400,7 @@ export const cardConfigs: CardConfig[] = [
         tilePlacements: [t(TileType.CITY)],
         decreaseProduction: {[Resource.ENERGY]: 1},
         increaseProduction: {[Resource.MEGACREDIT]: 4},
+        gainResource: {[Resource.PLANT]: 2},
     },
     {
         effect: {
