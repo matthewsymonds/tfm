@@ -325,6 +325,8 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
             gainResource: {
                 [Resource.CARD]: VariableAmount.INFLUENCE,
             },
+        },
+        firstPlayerAction: {
             decreaseParameter: {[Parameter.TEMPERATURE]: 2},
         },
     },
