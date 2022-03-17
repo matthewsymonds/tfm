@@ -3,6 +3,7 @@ import {deserializeResourceOptionAction} from 'components/ask-user-to-confirm-re
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {GameState} from 'reducer';
+import {AnyAction} from 'redux';
 import {ApiActionHandler} from 'server/api-action-handler';
 import spawnExhaustiveSwitchError from 'utils';
 
@@ -12,7 +13,8 @@ export function playGame(
     payload: any,
     actionHandler: ApiActionHandler,
     originalState: GameState,
-    stateCheckpoint?: string
+    stateCheckpoint?: string,
+    queueCheckpoint?: string
 ) {
     switch (type) {
         case ApiActionType.API_PLAY_CARD:
@@ -141,10 +143,13 @@ export function playGame(
             actionHandler.completeChooseNextAction(payload);
             break;
         case ApiActionType.API_START_OVER:
-            if (!stateCheckpoint) {
+            if (!stateCheckpoint || !queueCheckpoint) {
                 return;
             }
-            actionHandler.startOver(JSON.parse(stateCheckpoint) as GameState);
+            actionHandler.startOver(
+                JSON.parse(stateCheckpoint) as GameState,
+                JSON.parse(queueCheckpoint) as AnyAction[]
+            );
             break;
         case ApiActionType.API_SET_NOTES:
             actionHandler.setNotes(payload);

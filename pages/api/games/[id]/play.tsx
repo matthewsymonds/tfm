@@ -70,6 +70,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         };
 
         const originalState = hydratedGame.state;
+        const playerIndex = originalState.players.findIndex(
+            player => player.username === username
+        );
+        const originalPlayerState = originalState.players[playerIndex];
+        const originalPlayerAction = originalPlayerState?.action;
         const actionHandler = new ApiActionHandler(hydratedGame, username);
         hydratedGame.state.name = game.name;
 
@@ -78,7 +83,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             payload,
             actionHandler,
             originalState,
-            game.stateCheckpoint
+            game.stateCheckpoint,
+            game.queueCheckpoint ?? '[]'
         );
 
         game.queue = hydratedGame.queue;
@@ -93,12 +99,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         game.lastSeenLogItem[game.players.indexOf(username)] =
             game.state.log.length;
         game.markModified('lastSeenLogItem');
+        const newPlayerState = game.state.players[playerIndex];
         if (
-            actionHandler.setStateCheckpoint ||
-            originalState.common.gameStage !== game.state.common.gameStage
+            type !== ApiActionType.API_START_OVER &&
+            (actionHandler.setStateCheckpoint ||
+                originalState.common.gameStage !==
+                    game.state.common.gameStage ||
+                originalPlayerAction !== newPlayerState?.action)
         ) {
-            game.stateCheckpoint = JSON.stringify(originalState);
+            game.stateCheckpoint = JSON.stringify(game.state);
+            game.queueCheckpoint = JSON.stringify(game.queue);
+            game.markModified('stateCheckpoint');
             game.markModified('stateCheckpoint.actionCount');
+            game.markModified('queueCheckpoint');
         }
         await game.save({validateBeforeSave: false});
         purgeLock(lock, username, game.name);

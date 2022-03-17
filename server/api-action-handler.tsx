@@ -689,16 +689,6 @@ export class ApiActionHandler {
             if (processingExistingItems) {
                 return;
             }
-            const currentPlayer = this.state.players[currentPlayerIndex];
-            const existingItems = [
-                ...(currentPlayer.pendingNextActionChoice ?? []),
-            ];
-            if (
-                existingItems.filter(Boolean).length === 0 &&
-                items.length > 0
-            ) {
-                this.setStateCheckpoint = true;
-            }
             this.dispatch(askUserToChooseNextAction(items, currentPlayerIndex));
             // Don't double count the queue items next time around...
             this.queue = [];
@@ -731,10 +721,10 @@ export class ApiActionHandler {
                 }
                 thisPlayerIndex = getPlayerIndex(item);
                 this.dispatch(item);
-                if (thisPlayerIndex !== this.loggedInPlayerIndex) {
-                    this.setStateCheckpoint = true;
-                }
-                if (completeAction.match(item)) {
+                if (
+                    thisPlayerIndex !== undefined &&
+                    thisPlayerIndex !== this.loggedInPlayerIndex
+                ) {
                     this.setStateCheckpoint = true;
                 }
                 if (
@@ -762,8 +752,6 @@ export class ApiActionHandler {
                 this.processQueue(existingItems, true);
             } else if (processingExistingItems) {
                 this.dispatch(clearPendingActionChoice(currentPlayer.index));
-
-                this.setStateCheckpoint = true;
                 this.queue = items;
             }
         }
@@ -1374,7 +1362,7 @@ export class ApiActionHandler {
             });
         }
 
-        items.unshift(placeTile({type}, cell, loggedInPlayer.index));
+        this.dispatch(placeTile({type}, cell, loggedInPlayer.index));
         return items;
     }
 
@@ -1938,7 +1926,7 @@ export class ApiActionHandler {
         this.processQueue(this.queue, false, true);
     }
 
-    startOver(checkpoint?: GameState) {
+    startOver(checkpoint: GameState, queueCheckpoint: AnyAction[]) {
         const playerIndex = this.getLoggedInPlayerIndex();
 
         const {currentPlayerIndex, controllingPlayerIndex} = this.state.common;
@@ -1958,9 +1946,8 @@ export class ApiActionHandler {
                 'Start over not implemented outside debt scenario yet.'
             );
         }
-        if (checkpoint) {
-            this.dispatch(setGame(checkpoint));
-        }
+        this.dispatch(setGame(checkpoint));
+        this.queue = queueCheckpoint;
     }
 
     private playActionBenefits(

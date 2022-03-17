@@ -22,12 +22,14 @@ import {
     gainStorableResource,
     increaseParameter,
     increaseProduction,
+    placeTile,
     removeResource,
     setPreludes,
 } from 'actions';
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Payment} from 'constants/action';
+import {Parameter} from 'constants/board';
 import {MinimumProductions} from 'constants/game';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
@@ -99,7 +101,10 @@ function createActionIcon(action: AnyAction) {
                 }}
             />
         );
-    } else if (increaseParameter.match(action)) {
+    } else if (
+        increaseParameter.match(action) &&
+        action.payload.parameter !== Parameter.OCEAN
+    ) {
         return (
             <BaseActionIconography
                 card={{
@@ -119,6 +124,8 @@ function createActionIcon(action: AnyAction) {
         );
     } else if (askUserToPlaceTile.match(action)) {
         return <TileIcon type={action.payload.tilePlacement.type} size={24} />;
+    } else if (placeTile.match(action)) {
+        return <TileIcon type={action.payload.tile.type} size={24} />;
     } else if (askUserToChooseResourceActionDetails.match(action)) {
         const resourceAndAmountEls = action.payload.resourceAndAmounts.map(
             (resourceAndAmount, index) => (
@@ -225,7 +232,9 @@ export function userCannotChooseAction(action: AnyAction): boolean {
         completeAction.match(action) ||
         addParameterRequirementAdjustments.match(action) ||
         applyDiscounts.match(action) ||
-        setPreludes.match(action)
+        setPreludes.match(action) ||
+        (increaseParameter.match(action) &&
+            action.payload.parameter === Parameter.OCEAN)
     );
 }
 

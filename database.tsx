@@ -26,6 +26,7 @@ const gamesSchema = new schema(
         name: uniqueNameSchema,
         state: {type: Object, index: true},
         stateCheckpoint: {type: String},
+        queueCheckpoint: {type: String},
         players: {type: Array, default: [], index: true},
         queue: {type: Array, default: []},
         public: {type: Boolean, default: false},
