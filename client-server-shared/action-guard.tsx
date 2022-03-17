@@ -821,7 +821,7 @@ export class ActionGuard {
                                 fullCard,
                                 player,
                                 state,
-                                payment,
+                                player.resources,
                                 supplementalResources,
                                 /* actionReplay = */ true
                             )[0]
@@ -834,7 +834,7 @@ export class ActionGuard {
                     fullCard,
                     player,
                     state,
-                    payment,
+                    player.resources,
                     supplementalResources,
                     /* actionreplay */ true
                 )[0];

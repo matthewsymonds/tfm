@@ -82,7 +82,9 @@ export const PlayerTopPanel = ({
         state => state.common.firstPlayerIndex
     );
     const loggedInPlayer = useLoggedInPlayer();
-    const isFirstPlayer = player.index === firstPlayerIndex;
+    const isFirstPlayer = useTypedSelector(
+        state => state.players.length > 1 && player.index === firstPlayerIndex
+    );
     const isLoggedInPlayer = player.index === loggedInPlayer.index;
     const isLast = useTypedSelector(
         state =>

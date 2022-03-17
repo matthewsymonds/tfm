@@ -367,7 +367,7 @@ function handleParameterDecrease(
         draft.log.push(
             `${corporationName} did not decrease ${getParameterName(
                 parameter
-            )} because it has reached its maximum value`
+            )} because it has already reached its maximum value`
         );
     }
     const newAmount = Math.max(
