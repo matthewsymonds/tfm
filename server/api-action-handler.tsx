@@ -356,10 +356,11 @@ export class ApiActionHandler {
                         state: this.state,
                     });
                 }
-                for (const player of this.state.players) {
+                for (const playerIndex of this.state.common
+                    .playerIndexOrderForGeneration) {
                     this.playAction({
                         action,
-                        thisPlayerIndex: player.index,
+                        thisPlayerIndex: playerIndex,
                         state: this.state,
                     });
                 }
@@ -369,10 +370,11 @@ export class ApiActionHandler {
         this.queue.push(makePartyRuling());
         const rulingParty = getParty(turmoil.dominantParty);
         if (rulingParty) {
-            for (const player of this.state.players) {
+            for (const playerIndex of this.state.common
+                .playerIndexOrderForGeneration) {
                 this.playAction({
                     action: rulingParty.partyBonus,
-                    thisPlayerIndex: player.index,
+                    thisPlayerIndex: playerIndex,
                     state: this.state,
                 });
             }
@@ -1991,7 +1993,11 @@ export class ApiActionHandler {
                 this.state,
                 player
             );
-            items.push(askUserToGainStandardResources(quantity, playerIndex));
+            if (quantity) {
+                items.push(
+                    askUserToGainStandardResources(quantity, playerIndex)
+                );
+            }
         }
         const numOceansPlacedSoFar = getNumOceans(state);
         let oceansInQueue = 0;

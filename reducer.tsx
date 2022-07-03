@@ -927,6 +927,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             player = getPlayer(draft, payload);
             if (payload.quantity) {
                 player.pendingGainStandardResources = payload.quantity;
+            } else {
+                throw new Error('Cannot gain 0 standard resources.');
             }
         }
 

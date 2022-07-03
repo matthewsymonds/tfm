@@ -81,7 +81,11 @@ export const Cell: React.FunctionComponent<CellProps> = ({
 
         const scale = typeof tile.ownerPlayerIndex === 'number' ? 0.8 : 1;
         return (
-            <Hexagon scale={scale} color={getTileBgColor(tile.type)}>
+            <Hexagon
+                scale={scale}
+                color={getTileBgColor(tile.type)}
+                selectable={selectable}
+            >
                 <Flex
                     height="100%"
                     width="100%"
@@ -90,6 +94,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({
                     fontSize="clamp(16px,5vw,36px)"
                     lineHeight="clamp(16px,5vw,36px)"
                     position="absolute"
+                    cursor={selectable ? 'pointer' : 'auto'}
                     top="0"
                     left="0"
                     right="0"

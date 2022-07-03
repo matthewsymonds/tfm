@@ -1,6 +1,6 @@
 import {shuffle} from 'initial-state';
 import {PlayerState} from 'reducer';
-import {GLOBAL_EVENTS} from './global-events';
+import {GlobalEvent, GLOBAL_EVENTS} from './global-events';
 import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 
 export enum RequiredChairman {
@@ -40,9 +40,28 @@ export interface Turmoil {
     delegateReserve: DelegateReserve;
 }
 
+function DEV_globalEventOverrides(events: GlobalEvent[]) {
+    const globalEventOverrides: Array<string> = ([] as Array<string>).map(a =>
+        a.toLowerCase()
+    );
+    const priorityEvents = events.filter(globalEvent => {
+        return (
+            globalEventOverrides.includes(globalEvent.top.name.toLowerCase()) ||
+            globalEventOverrides.includes(globalEvent.bottom.name.toLowerCase())
+        );
+    });
+
+    const otherEvents = events.filter(globalEvent => {
+        return !priorityEvents.includes(globalEvent);
+    });
+
+    return priorityEvents.concat(otherEvents);
+}
+
 export function initializeTurmoil(players: PlayerState[]): Turmoil {
-    const globalEvents = [...GLOBAL_EVENTS];
+    let globalEvents = [...GLOBAL_EVENTS];
     shuffle(globalEvents);
+    globalEvents = DEV_globalEventOverrides(globalEvents);
     const [first, second, ...rest] = globalEvents;
 
     const delegations: Delegations = {
