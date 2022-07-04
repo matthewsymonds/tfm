@@ -199,8 +199,8 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             {!syncing && playing && !yourTurnToPlayPreludes && (
                                 <>Action {action} of 2</>
                             )}
-                            {(!isLoggedInPlayersTurn ||
-                                !isLoggedInPlayerInControl) &&
+                            {!isLoggedInPlayersTurn &&
+                                !isLoggedInPlayerInControl &&
                                 isActiveRound &&
                                 !isLoggedInPlayerPassed && (
                                     <React.Fragment>
