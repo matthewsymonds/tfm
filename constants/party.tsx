@@ -7,15 +7,23 @@ import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
-export const MARS_FIRST = 'Mars First';
-export const SCIENTISTS = 'Scientists';
-export const UNITY = 'Unity';
-export const GREENS = 'Greens';
-export const REDS = 'Reds';
-export const KELVINISTS = 'Kelvinists';
+export const MARS_FIRST = 'Mars First' as const;
+export const SCIENTISTS = 'Scientists' as const;
+export const UNITY = 'Unity' as const;
+export const GREENS = 'Greens' as const;
+export const REDS = 'Reds' as const;
+export const KELVINISTS = 'Kelvinists' as const;
+
+export type TurmoilParty =
+    | typeof MARS_FIRST
+    | typeof SCIENTISTS
+    | typeof UNITY
+    | typeof GREENS
+    | typeof REDS
+    | typeof KELVINISTS;
 
 export type PartyConfig = {
-    name: string;
+    name: TurmoilParty;
     effect?: CompleteEffect;
     action?: Action;
     exchangeRates?: ExchangeRates;
@@ -133,6 +141,6 @@ for (const partyConfig of PARTY_CONFIGS) {
     PARTY_CONFIGS_BY_NAME[partyConfig.name] = partyConfig;
 }
 
-export function getParty(name: string) {
+export function getPartyConfig(name: string): PartyConfig {
     return PARTY_CONFIGS_BY_NAME[name];
 }

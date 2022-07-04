@@ -4,7 +4,7 @@ import {PlayerCorpAndIcon} from 'components/icons/player';
 import {ResourceIcon} from 'components/icons/resource';
 import TexturedCard from 'components/textured-card';
 import {colors} from 'components/ui';
-import {getAward} from 'constants/awards';
+import {getAwardConfig} from 'constants/awards';
 import {Parameter, TileType} from 'constants/board';
 import {CardType} from 'constants/card-types';
 import {GameStage} from 'constants/game';
@@ -356,7 +356,7 @@ const LogEntryInner = ({
                     if (!player) throw new Error('unknown player');
                     const {award, payment} = gameAction;
 
-                    const awardConfig = getAward(award);
+                    const awardConfig = getAwardConfig(award);
 
                     innerElements.push(
                         <Flex display="inline" alignItems="center">

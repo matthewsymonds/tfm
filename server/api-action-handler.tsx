@@ -108,7 +108,6 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
-import {canClickPolicy, getLobbyingAction} from 'components/turmoil';
 import {
     Action,
     ActionType,
@@ -137,7 +136,7 @@ import {
 } from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
-import {getParty} from 'constants/party';
+import {getPartyConfig} from 'constants/party';
 import {
     NumericPropertyCounter,
     PropertyCounter,
@@ -368,7 +367,7 @@ export class ApiActionHandler {
         }
 
         this.queue.push(makePartyRuling());
-        const rulingParty = getParty(turmoil.dominantParty);
+        const rulingParty = getPartyConfig(turmoil.dominantParty);
         if (rulingParty) {
             for (const playerIndex of this.state.common
                 .playerIndexOrderForGeneration) {
@@ -590,7 +589,7 @@ export class ApiActionHandler {
             return;
         }
 
-        const party = getParty(turmoil.rulingParty);
+        const party = getPartyConfig(turmoil.rulingParty);
 
         const {effect} = party;
         if (!effect) return;
@@ -1688,7 +1687,7 @@ export class ApiActionHandler {
             throw new Error('turmoil disabled');
         }
 
-        const party = getParty(turmoil.rulingParty);
+        const party = getPartyConfig(turmoil.rulingParty);
 
         if (party) {
             const {action} = party;

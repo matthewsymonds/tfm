@@ -5,7 +5,7 @@ import {Action, Payment} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
-import {getParty, PartyConfig, UNITY} from 'constants/party';
+import {getPartyConfig, PartyConfig, UNITY} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -14,6 +14,7 @@ import React from 'react';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 import Twemoji from 'react-twemoji';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
+import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from './card/Card';
@@ -26,6 +27,8 @@ import {renderExchangeRates, renderTrigger} from './card/CardEffects';
 import {BaseActionIconography, Colon} from './card/CardIconography';
 import {GenericCardTitleBar} from './card/CardTitle';
 import {DelegateComponent} from './delegate';
+import {PartySymbol} from './icons/turmoil';
+import {TurmoilPartyListWithDetailView} from './list-with-detail-view/turmoil-party-list-with-detail-view';
 import {usePaymentPopover} from './popovers/payment-popover';
 import TexturedCard from './textured-card';
 import {colors} from './ui';
@@ -101,82 +104,6 @@ function EmptyGlobalEvent() {
     );
 }
 
-const PartyBase = styled.div<{
-    background: string;
-    margin: string;
-    size: number;
-}>`
-    color: #eee;
-    border-radius: ${props => props.size * 0.5}px;
-    line-height: ${props => props.size * 0.7}px;
-    height: ${props => props.size * 0.7}px;
-    width: ${props => props.size}px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: ${props => props.size * 0.4}px;
-    background: ${props => props.background};
-    margin: ${props => props.margin};
-    border: 1px solid ${colors.DARK_4};
-
-    &.unity > * {
-        position: relative;
-        left: -${props => props.size * 0.1}px;
-        letter-spacing: -${props => props.size * 0.2}px;
-    }
-`;
-
-export const MiniPartyIcon = styled.div`
-    border-radius: 15px;
-    height: 30px;
-    width: 40px;
-    background: gray;
-    margin: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:first-child {
-        width: 40px;
-    }
-`;
-
-export function PartySymbol({
-    party,
-    margin = '0',
-    size = 50,
-}: {
-    party: string;
-    margin?: string;
-    size?: number;
-}) {
-    const {color, symbol} = getParty(party ?? '') ?? {
-        symbol: '',
-        color: 'gray',
-    };
-
-    const baseSymbol = <span>{symbol}</span>;
-
-    return (
-        <PartyBase
-            background={color}
-            margin={margin}
-            size={size}
-            className={party === UNITY ? 'unity' : ''}
-        >
-            {symbol === '♂' ? (
-                <Box
-                    fontFamily='"Source Sans Pro", Segoe UI Symbol'
-                    fontSize="1.4em"
-                >
-                    {baseSymbol}
-                </Box>
-            ) : (
-                <Twemoji>{baseSymbol}</Twemoji>
-            )}
-        </PartyBase>
-    );
-}
-
 function PartyPolicyInternal({
     party,
     disabled,
@@ -184,7 +111,7 @@ function PartyPolicyInternal({
     party: string;
     disabled?: boolean;
 }) {
-    const rulingPartyPolicy = getParty(party);
+    const rulingPartyPolicy = getPartyConfig(party);
 
     if (rulingPartyPolicy.effect) {
         const {effect} = rulingPartyPolicy;
@@ -242,17 +169,6 @@ const PartyPolicy = React.forwardRef((props: PartyPolicyProps, ref) => {
         </Flex>
     );
 });
-
-export const LOBBYING_COST = 5;
-
-export function getLobbyingAction(state: GameState, player: PlayerState) {
-    const turmoil = state.common.turmoil!;
-    const freeDelegate = turmoil.lobby[player.index];
-    return {
-        cost: freeDelegate ? 0 : LOBBYING_COST,
-        placeDelegatesInOneParty: 1,
-    };
-}
 
 const TurmoilAction = styled(ActionContainerBase)`
     display: flex;
@@ -329,32 +245,6 @@ export function canClickParty(
     return false;
 }
 
-export function canClickPolicy(
-    state: GameState,
-    actionGuard: ActionGuard,
-    player: PlayerState,
-    payment: Payment
-) {
-    const {turmoil, gameStage} = state.common;
-    if (!turmoil) return false;
-
-    if (gameStage !== GameStage.ACTIVE_ROUND) {
-        return false;
-    }
-
-    const {action} = getParty(turmoil.rulingParty);
-
-    if (!action) {
-        return false;
-    }
-
-    if (!actionGuard.canAffordActionCost(action, player, payment)) {
-        return false;
-    }
-
-    return actionGuard.canPlayAction(action, state)[0];
-}
-
 export function Turmoil() {
     const isTurmoilEnabled = useTypedSelector(state =>
         state.options?.decks.includes(Deck.TURMOIL)
@@ -400,7 +290,7 @@ export function Turmoil() {
     }
 
     function handleClickPolicy(payment: Payment) {
-        if (!canClickPolicy(state, actionGuard, player, payment)) {
+        if (!actionGuard.canDoRulingPolicyAction(payment)) {
             return;
         }
 
@@ -409,13 +299,13 @@ export function Turmoil() {
 
     const delegations: React.ReactElement[] = [];
     for (const delegation in turmoil.delegations) {
-        const party = getParty(delegation);
+        const party = getPartyConfig(delegation);
         const delegates = turmoil.delegations[delegation].map(
             (delegate, index) => (
                 <Box key={index} marginLeft={index === 0 ? '0px' : '2px'}>
                     <DelegateComponent
                         delegate={delegate}
-                        isLeader={index === 0}
+                        // isLeader={index === 0}
                         canClick={canClickDelegate(state, player, index)}
                         onClick={() => handleClickDelegate(delegation, index)}
                     />
@@ -489,7 +379,7 @@ export function Turmoil() {
         delegations.push(element);
     }
 
-    const party = getParty(turmoil.rulingParty);
+    const party = getPartyConfig(turmoil.rulingParty);
 
     const partyActionCost = party?.action?.cost ?? 0;
 
@@ -498,10 +388,7 @@ export function Turmoil() {
         opts: {type: 'action', cost: partyActionCost, action: {}},
     });
 
-    const canDoPolicy = canClickPolicy(
-        state,
-        actionGuard,
-        player,
+    const canDoRulingPolicyAction = actionGuard.canDoRulingPolicyAction(
         player.resources
     );
     return (
@@ -542,9 +429,9 @@ export function Turmoil() {
                             <PartyPanel width="fit-content" display="flex">
                                 <PartyPolicy
                                     party={turmoil.rulingParty}
-                                    canClick={canDoPolicy}
+                                    canClick={canDoRulingPolicyAction}
                                     ref={triggerRef}
-                                    disabled={!canDoPolicy}
+                                    disabled={!canDoRulingPolicyAction}
                                     onClick={collectPaymentAndPerformAction}
                                 />
                             </PartyPanel>
@@ -560,7 +447,7 @@ export function Turmoil() {
                             <h3 className="display">Chairperson</h3>
                             <DelegateComponent
                                 delegate={turmoil.chairperson}
-                                isLeader={true}
+                                // isLeader={true}
                             />
                         </Flex>
                     </Box>
@@ -584,7 +471,7 @@ export function Turmoil() {
                                 {turmoil.lobby.map((delegate, index) =>
                                     delegate ? (
                                         <DelegateComponent
-                                            isLeader={false}
+                                            // isLeader={false}
                                             delegate={delegate}
                                             key={index}
                                         />
@@ -623,7 +510,7 @@ export function Turmoil() {
                                                     (delegate, index) =>
                                                         delegate ? (
                                                             <DelegateComponent
-                                                                isLeader={false}
+                                                                // isLeader={false}
                                                                 delegate={
                                                                     delegate
                                                                 }
@@ -640,6 +527,9 @@ export function Turmoil() {
                     </Box>
                 </Box>
             </Box>
+
+            <TurmoilPartyListWithDetailView />
+
             <Box marginTop="12px" margin="0 auto" width="100%">
                 <h3 className="display" style={{textAlign: 'center'}}>
                     Delegations

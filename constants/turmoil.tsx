@@ -25,6 +25,7 @@ export type DelegateReserve = {
 };
 
 const NUM_PLAYER_DELEGATES = 7;
+export const LOBBYING_COST = 5;
 
 export interface Turmoil {
     globalEvents: SerializedGlobalEvent[];
