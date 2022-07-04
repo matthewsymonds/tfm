@@ -90,7 +90,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         game.queue = hydratedGame.queue;
         game.state = hydratedGame.state;
         game.currentPlayer =
-            game.state.players[game.state.common.currentPlayerIndex].username;
+            game.state.players[
+                game.state.common.controllingPlayerIndex ??
+                    game.state.common.currentPlayerIndex
+            ].username;
         if (game.state.common.gameStage === GameStage.END_OF_GAME) {
             game.currentPlayer = '';
         }
