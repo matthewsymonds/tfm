@@ -35,11 +35,12 @@ export function ListWithDetailView<T extends {name: string}>({
     const visibleItem = hoveredItem ?? selectedItem;
 
     return (
-        <Flex marginBottom="16px" boxSizing="border-box" width="100%">
+        <Flex boxSizing="border-box" width="100%">
             <Flex
-                flex={`0 0 ${listWidthPercentage}%`}
+                flex={`0 0 calc(${listWidthPercentage}% - 2px)`}
                 flexDirection="column"
                 overflow="auto"
+                marginRight="2px"
             >
                 {items.map(item => {
                     return (
@@ -62,18 +63,14 @@ export function ListWithDetailView<T extends {name: string}>({
                     );
                 })}
             </Flex>
-            <Flex flex="auto" overflow="auto">
-                <Flex
-                    flexDirection="column"
-                    alignItems="flex-start"
-                    width="100%"
-                    margin="2px 0 2px 4px"
-                    padding="8px"
-                    borderRadius="4px"
-                    background={colors.DARK_2}
-                >
-                    {renderDetailItem(visibleItem)}
-                </Flex>
+            <Flex
+                flex="auto"
+                overflow="auto"
+                margin="2px 0 2px 2px"
+                borderRadius="4px"
+                background={colors.DARK_2}
+            >
+                {renderDetailItem(visibleItem)}
             </Flex>
         </Flex>
     );
@@ -94,7 +91,7 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     ${props => {
         if (props.isSelected) {
             return `
-                background: ${colors.DARK_2};
+                background: ${colors.DARK_3};
             `;
         } else {
             return `
@@ -108,7 +105,7 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     }}
 
     &:hover {
-        background-color: ${colors.DARK_2};
+        background-color: ${colors.DARK_3};
 
         &:active {
             transform: scale(0.98);

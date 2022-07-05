@@ -15,13 +15,14 @@ import {colors} from 'components/ui';
 import {ListWithDetailView} from 'components/list-with-detail-view/list-with-detail-view';
 import {getPartyConfig, PartyConfig, TurmoilParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
-import {Delegate, Turmoil} from 'constants/turmoil';
+import {Delegate} from 'constants/turmoil';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import styled from 'styled-components';
 import {PartySymbol} from 'components/icons/turmoil';
 import {getLobbyingAction} from 'selectors/get-lobbying-action';
+import {TurmoilPartyPolicy} from 'components/turmoil-party-policy';
 
 type TurmoilPartyState = PartyConfig & {
     delegates: Array<Delegate>; // delegates in the party
@@ -78,7 +79,12 @@ export function TurmoilPartyListWithDetailView() {
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
             return (
-                <React.Fragment>
+                <Flex
+                    flexDirection="column"
+                    alignItems="flex-start"
+                    width="100%"
+                    marginLeft="4px"
+                >
                     <Flex
                         justifyContent="space-between"
                         alignItems="flex-start"
@@ -99,11 +105,36 @@ export function TurmoilPartyListWithDetailView() {
                         <AddDelegateButton partyName={turmoilParty.name} />
                     </Flex>
                     <Flex
+                        flexDirection="column"
+                        justifyContent="center"
+                        alignItems="flex-start"
+                        marginTop="16px"
+                        height="24px"
+                    >
+                        {turmoilParty.delegates.length === 0 && (
+                            <span style={{fontSize: 14, lineHeight: '18px'}}>
+                                <em>No delegates</em>
+                            </span>
+                        )}
+                        <Flex>
+                            {turmoilParty.delegates.map((delegate, index) => (
+                                <DelegateComponent
+                                    key={`${turmoilParty.name}-${index}-${
+                                        delegate.playerIndex ?? 'neutral'
+                                    }`}
+                                    delegate={delegate}
+                                    margin="0 2px"
+                                    size={24}
+                                />
+                            ))}
+                        </Flex>
+                    </Flex>
+                    <Flex
                         justifyContent="space-between"
                         alignItems="flex-start"
-                        width="100%"
-                        marginTop="16px"
+                        width="calc(100% - 4px)"
                         flex="auto"
+                        marginTop="8px"
                     >
                         <Flex flexDirection="column">
                             <SubHeader>Policy</SubHeader>
@@ -121,31 +152,7 @@ export function TurmoilPartyListWithDetailView() {
                             />
                         </Flex>
                     </Flex>
-                    <Flex
-                        flexDirection="column"
-                        justifyContent="flex-start"
-                        alignItems="flex-start"
-                        marginTop="8px"
-                    >
-                        <SubHeader>Delegates</SubHeader>
-                        {turmoilParty.delegates.length === 0 && (
-                            <span style={{fontSize: 12, lineHeight: '18px'}}>
-                                (Empty)
-                            </span>
-                        )}
-                        <Flex>
-                            {turmoilParty.delegates.map((delegate, index) => (
-                                <DelegateComponent
-                                    key={`${turmoilParty.name}-${index}-${
-                                        delegate.playerIndex ?? 'neutral'
-                                    }`}
-                                    delegate={delegate}
-                                    margin="0 2px"
-                                />
-                            ))}
-                        </Flex>
-                    </Flex>
-                </React.Fragment>
+                </Flex>
             );
         },
         []
@@ -201,46 +208,18 @@ function AddDelegateButton({partyName}: {partyName: TurmoilParty}) {
     );
 }
 
-function TurmoilPartyPolicy({partyName}: {partyName: TurmoilParty}) {
-    const rulingPartyPolicy = getPartyConfig(partyName);
-
-    if (rulingPartyPolicy.effect) {
-        const {effect} = rulingPartyPolicy;
-        const {action} = effect;
-        if (!action) return null;
-        return (
-            <Flex>
-                {renderTrigger(effect.trigger)}
-                <Colon />
-                {renderLeftSideOfArrow(action)}
-                {renderRightSideOfArrow(action)}
-            </Flex>
-        );
-    }
-
-    if (rulingPartyPolicy.exchangeRates) {
-        return (
-            <Flex>{renderExchangeRates(rulingPartyPolicy.exchangeRates)}</Flex>
-        );
-    }
-
-    if (rulingPartyPolicy.action) {
-        const {action} = rulingPartyPolicy;
-        return (
-            <Flex alignItems="center">
-                {renderLeftSideOfArrow(action)}
-                {renderArrow()}
-                {renderRightSideOfArrow(action, undefined, undefined, true)}
-            </Flex>
-        );
-    }
-
-    return null;
-}
-
 const SubHeader = styled.h4`
     text-transform: uppercase;
     letter-spacing: 0.1rem;
     font-size: 0.7rem;
     margin: 8px 0;
+`;
+
+const TurmoilStatusCellHeader = styled.h4`
+    color: ${colors.YELLOW};
+    opacity: 0.8;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 4px 0;
 `;

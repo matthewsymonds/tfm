@@ -8,11 +8,13 @@ import {colors} from './ui';
 
 export function DelegateComponent({
     delegate,
+    size = 16,
     canClick,
     onClick,
     margin,
 }: {
     delegate: Delegate;
+    size?: number;
     canClick?: boolean;
     onClick?: Function;
     margin?: string;
@@ -21,8 +23,8 @@ export function DelegateComponent({
         <Flex
             onClick={onClick}
             borderRadius="50%"
-            height="16px"
-            width="16px"
+            height={`${size}px`}
+            width={`${size}px`}
             margin={margin}
             cursor={canClick ? 'pointer' : 'auto'}
             alignItems="center"

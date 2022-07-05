@@ -11,27 +11,26 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import React from 'react';
-import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
-import Twemoji from 'react-twemoji';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import styled from 'styled-components';
-import {Box, Flex} from './box';
-import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from './card/Card';
+import {Box, Flex} from 'components/box';
+import {CARD_HEIGHT, CARD_WIDTH, MainCardText} from 'components/card/Card';
 import {
     renderArrow,
     renderLeftSideOfArrow,
     renderRightSideOfArrow,
-} from './card/CardActions';
-import {renderExchangeRates, renderTrigger} from './card/CardEffects';
-import {BaseActionIconography, Colon} from './card/CardIconography';
-import {GenericCardTitleBar} from './card/CardTitle';
-import {DelegateComponent} from './delegate';
-import {PartySymbol} from './icons/turmoil';
-import {TurmoilPartyListWithDetailView} from './list-with-detail-view/turmoil-party-list-with-detail-view';
-import {usePaymentPopover} from './popovers/payment-popover';
-import TexturedCard from './textured-card';
-import {colors} from './ui';
+} from 'components/card/CardActions';
+import {renderExchangeRates, renderTrigger} from 'components/card/CardEffects';
+import {BaseActionIconography, Colon} from 'components/card/CardIconography';
+import {GenericCardTitleBar} from 'components/card/CardTitle';
+import {DelegateComponent} from 'components/delegate';
+import {PartySymbol} from 'components/icons/turmoil';
+import {TurmoilPartyListWithDetailView} from 'components/list-with-detail-view/turmoil-party-list-with-detail-view';
+import {usePaymentPopover} from 'components/popovers/payment-popover';
+import TexturedCard from 'components/textured-card';
+import {TurmoilPartyPolicy} from 'components/turmoil-party-policy';
+import {colors} from 'components/ui';
 
 function GlobalEventCard({name}: {name: string}) {
     const globalEvent = getGlobalEvent(name);
@@ -407,6 +406,7 @@ export function Turmoil() {
                 width="100%"
                 alignItems="center"
                 justifyContent="center"
+                marginBottom="8px"
             >
                 <GlobalEventCard name={turmoil.distantGlobalEvent.name} />
                 <GlobalEventCard name={turmoil.comingGlobalEvent.name} />
@@ -416,7 +416,7 @@ export function Turmoil() {
                     <EmptyGlobalEvent />
                 )}
             </Flex>
-            <Box display="table" className="policy-table" width="100%">
+            {/* <Box display="table" className="policy-table" width="100%">
                 <Box display="table-row">
                     <Box display="table-cell">
                         <Flex
@@ -526,11 +526,24 @@ export function Turmoil() {
                         </Flex>
                     </Box>
                 </Box>
-            </Box>
+            </Box> */}
 
-            <TurmoilPartyListWithDetailView />
+            <TurmoilStatusTable />
+            <Flex
+                flexDirection="column"
+                width="100%"
+                backgroundColor={colors.DARK_2}
+                padding="8px"
+                boxSizing="border-box"
+                borderRadius="4px"
+            >
+                <TurmoilStatusCellHeader className="display">
+                    Delegations
+                </TurmoilStatusCellHeader>
+                <TurmoilPartyListWithDetailView />
+            </Flex>
 
-            <Box marginTop="12px" margin="0 auto" width="100%">
+            {/* <Box marginTop="12px" margin="0 auto" width="100%">
                 <h3 className="display" style={{textAlign: 'center'}}>
                     Delegations
                 </h3>
@@ -538,7 +551,7 @@ export function Turmoil() {
                 <ResponsiveMasonry columnsCountBreakPoints={{0: 1, 390: 2}}>
                     <Masonry gutter="8px">{delegations}</Masonry>
                 </ResponsiveMasonry>
-            </Box>
+            </Box> */}
         </Flex>
     );
 }
@@ -562,3 +575,68 @@ const PartyTitle = styled(Box)`
         box-shadow: none;
     }
 `;
+
+function TurmoilStatusTable() {
+    const rulingParty = useTypedSelector(
+        state => state.common.turmoil?.rulingParty
+    );
+
+    return (
+        <Flex justifyContent="space-between" width="100%" marginBottom="4px">
+            <TurmoilStatusCell isFirstCell={true}>
+                <TurmoilStatusCellHeader className="display">
+                    Ruling policy
+                </TurmoilStatusCellHeader>
+                {rulingParty && (
+                    <TurmoilStatusCellContent>
+                        <TurmoilPartyPolicy partyName={rulingParty} />
+                    </TurmoilStatusCellContent>
+                )}
+            </TurmoilStatusCell>
+            <TurmoilStatusCell>
+                <TurmoilStatusCellHeader className="display">
+                    Chairman
+                </TurmoilStatusCellHeader>
+                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+            </TurmoilStatusCell>
+            <TurmoilStatusCell>
+                <TurmoilStatusCellHeader className="display">
+                    Lobby
+                </TurmoilStatusCellHeader>
+                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+            </TurmoilStatusCell>
+            <TurmoilStatusCell isLastCell={true}>
+                <TurmoilStatusCellHeader className="display">
+                    Delegate reserve
+                </TurmoilStatusCellHeader>
+                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+            </TurmoilStatusCell>
+        </Flex>
+    );
+}
+
+const TurmoilStatusCell = styled.div<{
+    isFirstCell?: boolean;
+    isLastCell?: boolean;
+}>`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 8px;
+    background: ${colors.DARK_2};
+    border-radius: 4px;
+    flex: 1 1 25%;
+    margin-left: ${props => (props.isFirstCell ? '0' : '2px')};
+    margin-right: ${props => (props.isLastCell ? '0' : '2px')};
+`;
+
+const TurmoilStatusCellHeader = styled.h4`
+    color: ${colors.YELLOW};
+    opacity: 0.8;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 4px 0;
+`;
+
+const TurmoilStatusCellContent = styled.div``;

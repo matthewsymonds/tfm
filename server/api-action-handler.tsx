@@ -169,6 +169,7 @@ import {
     getIsPlayerMakingDecision,
     getIsPlayerMakingDecisionExceptForNextActionChoice,
 } from 'selectors/get-is-player-making-decision';
+import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {isActionPhase} from 'selectors/is-action-phase';
 import {getForcedActionsForPlayer} from 'selectors/player';
@@ -1671,14 +1672,7 @@ export class ApiActionHandler {
     }
 
     doRulingPolicyAction({payment}: {payment: Payment}) {
-        if (
-            !canClickPolicy(
-                this.state,
-                this.actionGuard,
-                this.getLoggedInPlayer(),
-                payment
-            )
-        ) {
+        if (!this.actionGuard.canDoRulingPolicyAction(payment)) {
             throw new Error('Cannot do ruling policy');
         }
 

@@ -62,43 +62,6 @@ const actionTypes: Array<ActionType> = [
 
 type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil' | 'Notes';
 
-const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
-    border-radius: 4px;
-    margin: 2px 0;
-    padding: 4px 6px;
-    font-size: 0.8em;
-    justify-content: flex-start;
-    align-items: center;
-    white-space: nowrap;
-    cursor: default;
-    color: ${colors.TEXT_LIGHT_1};
-    transition: 200ms all;
-
-    ${props => {
-        if (props.isSelected) {
-            return `
-                background: ${colors.DARK_2};
-            `;
-        } else {
-            return `
-                opacity: 0.4;
-
-                &:hover {
-                    opacity: 0.7;
-                }
-            `;
-        }
-    }}
-
-    &:hover {
-        background-color: ${colors.DARK_2};
-
-        &:active {
-            transform: scale(0.98);
-        }
-    }
-`;
-
 export const ActionTable: React.FunctionComponent = () => {
     const [selectedTab, setSelectedTab] = useState<ActionType | ''>('');
     const player = useLoggedInPlayer();
