@@ -26,6 +26,7 @@ export function DelegateComponent({
             height={`${size}px`}
             width={`${size}px`}
             margin={margin}
+            fontSize={`${size - 2}px`}
             cursor={canClick ? 'pointer' : 'auto'}
             alignItems="center"
             justifyContent="center"

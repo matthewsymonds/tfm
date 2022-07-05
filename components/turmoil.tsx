@@ -5,7 +5,12 @@ import {Action, Payment} from 'constants/action';
 import {Deck} from 'constants/card-types';
 import {GameStage} from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
-import {getPartyConfig, PartyConfig, UNITY} from 'constants/party';
+import {
+    getPartyConfig,
+    PartyConfig,
+    TurmoilParty,
+    UNITY,
+} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
@@ -580,6 +585,24 @@ function TurmoilStatusTable() {
     const rulingParty = useTypedSelector(
         state => state.common.turmoil?.rulingParty
     );
+    const charipersonDelegate = useTypedSelector(
+        state => state.common.turmoil?.chairperson
+    );
+    const lobbyDelegates = useTypedSelector(state =>
+        state.common.turmoil?.lobby.filter(d => d !== null)
+    );
+    const reserveDelegatesByPlayerIndex = useTypedSelector(
+        state => state.common.turmoil?.delegateReserve
+    );
+
+    if (
+        !rulingParty ||
+        !charipersonDelegate ||
+        !lobbyDelegates ||
+        !reserveDelegatesByPlayerIndex
+    ) {
+        return null;
+    }
 
     return (
         <Flex justifyContent="space-between" width="100%" marginBottom="4px">
@@ -587,29 +610,80 @@ function TurmoilStatusTable() {
                 <TurmoilStatusCellHeader className="display">
                     Ruling policy
                 </TurmoilStatusCellHeader>
-                {rulingParty && (
-                    <TurmoilStatusCellContent>
-                        <TurmoilPartyPolicy partyName={rulingParty} />
-                    </TurmoilStatusCellContent>
-                )}
+                <TurmoilStatusCellContent>
+                    <TurmoilPartyPolicy
+                        partyName={rulingParty as TurmoilParty}
+                    />
+                </TurmoilStatusCellContent>
             </TurmoilStatusCell>
             <TurmoilStatusCell>
                 <TurmoilStatusCellHeader className="display">
-                    Chairman
+                    Chairperson
                 </TurmoilStatusCellHeader>
-                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+                <TurmoilStatusCellContent>
+                    <DelegateComponent
+                        delegate={charipersonDelegate}
+                        size={20}
+                    />
+                </TurmoilStatusCellContent>
             </TurmoilStatusCell>
             <TurmoilStatusCell>
                 <TurmoilStatusCellHeader className="display">
                     Lobby
                 </TurmoilStatusCellHeader>
-                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+                <TurmoilStatusCellContent>
+                    {lobbyDelegates.length === 0 ? (
+                        <span style={{fontSize: 14}}>
+                            <em>No delegates</em>
+                        </span>
+                    ) : (
+                        lobbyDelegates.map((delegate, index) => (
+                            <DelegateComponent
+                                key={`${
+                                    delegate.playerIndex ?? 'neutral'
+                                }-${index}`}
+                                delegate={delegate}
+                            />
+                        ))
+                    )}
+                </TurmoilStatusCellContent>
             </TurmoilStatusCell>
             <TurmoilStatusCell isLastCell={true}>
                 <TurmoilStatusCellHeader className="display">
                     Delegate reserve
                 </TurmoilStatusCellHeader>
-                <TurmoilStatusCellContent></TurmoilStatusCellContent>
+
+                <TurmoilStatusCellContent>
+                    {Object.entries(reserveDelegatesByPlayerIndex).map(
+                        ([playerIndex, reserveDelegates], index) => {
+                            return (
+                                <Flex
+                                    alignItems="center"
+                                    marginRight={
+                                        index ===
+                                        Object.entries(
+                                            reserveDelegatesByPlayerIndex
+                                        ).length -
+                                            1
+                                            ? '0px'
+                                            : '8px'
+                                    }
+                                >
+                                    <span style={{fontSize: 14}}>
+                                        {reserveDelegates.length}
+                                    </span>
+                                    <DelegateComponent
+                                        delegate={{
+                                            playerIndex: Number(playerIndex),
+                                        }}
+                                        size={20}
+                                        margin="0 0 0 2px"
+                                    />
+                                </Flex>
+                            );
+                        }
+                    )}
+                </TurmoilStatusCellContent>
             </TurmoilStatusCell>
         </Flex>
     );
@@ -639,4 +713,7 @@ const TurmoilStatusCellHeader = styled.h4`
     margin: 0 0 4px 0;
 `;
 
-const TurmoilStatusCellContent = styled.div``;
+const TurmoilStatusCellContent = styled.div`
+    display: flex;
+    align-items: center;
+`;

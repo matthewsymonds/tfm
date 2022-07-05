@@ -61,12 +61,7 @@ function AwardDetailView({awardState}: {awardState: AwardState}) {
     const state = useTypedSelector(state => state);
 
     return (
-        <Flex
-            flexDirection="column"
-            alignItems="flex-start"
-            width="100%"
-            padding="8px"
-        >
+        <React.Fragment>
             <Flex
                 justifyContent="space-between"
                 width="100%"
@@ -155,7 +150,7 @@ function AwardDetailView({awardState}: {awardState: AwardState}) {
                         );
                     })}
             </Flex>
-        </Flex>
+        </React.Fragment>
     );
 }
 

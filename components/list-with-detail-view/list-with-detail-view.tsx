@@ -7,10 +7,12 @@ import {colors} from '../ui';
 
 type ListWithDetailViewProps<T extends {name: string}> = {
     items: Array<T>;
-    listWidthPercentage?: number;
     renderListItem: (item: T) => React.ReactNode;
     renderDetailItem: (item: T) => React.ReactNode;
+    listWidthPercentage?: number;
     initialSelectedItemIndex?: number;
+    detailItemContainerStyleOverride?: React.CSSProperties;
+    selectedBgColor?: string;
 };
 
 /**
@@ -23,6 +25,8 @@ export function ListWithDetailView<T extends {name: string}>({
     renderDetailItem,
     listWidthPercentage = 30,
     initialSelectedItemIndex = 0,
+    detailItemContainerStyleOverride,
+    selectedBgColor = colors.DARK_2,
 }: ListWithDetailViewProps<T>) {
     const [selectedItem, setSelectedItem] = useState(
         items[initialSelectedItemIndex]
@@ -57,6 +61,7 @@ export function ListWithDetailView<T extends {name: string}>({
                                 throttledSetHoveredItem(null);
                             }}
                             isSelected={selectedItem.name === item.name}
+                            selectedBgColor={selectedBgColor}
                         >
                             {renderListItem(item)}
                         </CategoryListItem>
@@ -66,9 +71,14 @@ export function ListWithDetailView<T extends {name: string}>({
             <Flex
                 flex="auto"
                 overflow="auto"
+                flexDirection="column"
+                alignItems="flex-start"
+                width="100%"
                 margin="2px 0 2px 2px"
                 borderRadius="4px"
-                background={colors.DARK_2}
+                padding="8px"
+                background={selectedBgColor}
+                style={detailItemContainerStyleOverride}
             >
                 {renderDetailItem(visibleItem)}
             </Flex>
@@ -76,7 +86,10 @@ export function ListWithDetailView<T extends {name: string}>({
     );
 }
 
-const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
+const CategoryListItem = styled(Flex)<{
+    isSelected: boolean;
+    selectedBgColor: string;
+}>`
     border-radius: 4px;
     margin: 2px 0;
     padding: 4px 6px;
@@ -86,16 +99,16 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     white-space: nowrap;
     cursor: default;
     color: ${colors.TEXT_LIGHT_1};
-    transition: 200ms all;
+    transition: 200ms transform;
 
     ${props => {
         if (props.isSelected) {
             return `
-                background: ${colors.DARK_3};
+                background-color: ${props.selectedBgColor};
             `;
         } else {
             return `
-                opacity: 0.4;
+                opacity: 0.5;
 
                 &:hover {
                     opacity: 0.7;
@@ -105,7 +118,7 @@ const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
     }}
 
     &:hover {
-        background-color: ${colors.DARK_3};
+        background-color: ${props => props.selectedBgColor};
 
         &:active {
             transform: scale(0.98);

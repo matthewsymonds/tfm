@@ -23,6 +23,7 @@ import styled from 'styled-components';
 import {PartySymbol} from 'components/icons/turmoil';
 import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import {TurmoilPartyPolicy} from 'components/turmoil-party-policy';
+import Twemoji from 'react-twemoji';
 
 type TurmoilPartyState = PartyConfig & {
     delegates: Array<Delegate>; // delegates in the party
@@ -50,27 +51,31 @@ export function TurmoilPartyListWithDetailView() {
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
             return (
-                <React.Fragment>
-                    <PartySymbol party={turmoilParty.name} size={24} />
-                    <span
-                        style={{
-                            marginLeft: 8,
-                        }}
-                    >
-                        {turmoilParty.name}
-                    </span>
-                    <Flex marginLeft="8px">
-                        {turmoilParty.delegates.map((delegate, index) => (
-                            <DelegateComponent
-                                key={`${turmoilParty.name}-${index}-${
-                                    delegate.playerIndex ?? 'neutral'
-                                }`}
-                                delegate={delegate}
-                                margin="0 2px"
-                            />
-                        ))}
+                <Flex flex="auto" justifyContent="space-between">
+                    <Flex>
+                        <PartySymbol party={turmoilParty.name} size={24} />
+                        <span
+                            style={{
+                                marginLeft: 8,
+                            }}
+                        >
+                            {turmoilParty.name}
+                        </span>
+                        <Flex marginLeft="8px">
+                            {turmoilParty.delegates.map((delegate, index) => (
+                                <DelegateComponent
+                                    key={`${turmoilParty.name}-${index}-${
+                                        delegate.playerIndex ?? 'neutral'
+                                    }`}
+                                    delegate={delegate}
+                                    margin="0 2px"
+                                />
+                            ))}
+                        </Flex>
                     </Flex>
-                </React.Fragment>
+                    {turmoilParty.isDominantParty && <Twemoji>✊</Twemoji>}
+                    {turmoilParty.isRulingParty && <Twemoji>👑</Twemoji>}
+                </Flex>
             );
         },
         []
@@ -79,12 +84,7 @@ export function TurmoilPartyListWithDetailView() {
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
             return (
-                <Flex
-                    flexDirection="column"
-                    alignItems="flex-start"
-                    width="100%"
-                    marginLeft="4px"
-                >
+                <React.Fragment>
                     <Flex
                         justifyContent="space-between"
                         alignItems="flex-start"
@@ -152,7 +152,7 @@ export function TurmoilPartyListWithDetailView() {
                             />
                         </Flex>
                     </Flex>
-                </Flex>
+                </React.Fragment>
             );
         },
         []
@@ -165,12 +165,16 @@ export function TurmoilPartyListWithDetailView() {
         <ListWithDetailView
             items={turmoilParties}
             listWidthPercentage={50}
+            renderListItem={renderTurmoilPartyListItem}
+            renderDetailItem={renderTurmoilPartyDetailView}
             initialSelectedItemIndex={turmoilParties.indexOf(
                 turmoilParties.find(tp => tp.isDominantParty) ??
                     turmoilParties[0]
             )}
-            renderListItem={renderTurmoilPartyListItem}
-            renderDetailItem={renderTurmoilPartyDetailView}
+            detailItemContainerStyleOverride={{
+                marginTop: -20,
+            }}
+            selectedBgColor={colors.DARK_3}
         />
     );
 }
@@ -213,13 +217,4 @@ const SubHeader = styled.h4`
     letter-spacing: 0.1rem;
     font-size: 0.7rem;
     margin: 8px 0;
-`;
-
-const TurmoilStatusCellHeader = styled.h4`
-    color: ${colors.YELLOW};
-    opacity: 0.8;
-    font-size: 0.85em;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 0 0 4px 0;
 `;
