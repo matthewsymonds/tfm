@@ -79,9 +79,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
             pendingCardSelection,
         } = loggedInPlayer;
         const isLoggedInPlayerInControl = useTypedSelector(
-            state =>
-                state.common.controllingPlayerIndex === loggedInPlayerIndex ||
-                state.common.controllingPlayerIndex === undefined
+            state => state.common.controllingPlayerIndex === loggedInPlayerIndex
         );
         const isGreeneryPlacement = useTypedSelector(
             state => state.common.gameStage === GameStage.GREENERY_PLACEMENT
@@ -106,8 +104,7 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
 
         const playing =
             loggedInPlayer.action > 0 &&
-            isLoggedInPlayersTurn &&
-            isLoggedInPlayerInControl &&
+            (isLoggedInPlayersTurn || isLoggedInPlayerInControl) &&
             isActiveRound;
 
         const topBarColor =
@@ -199,8 +196,10 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             {!syncing && playing && !yourTurnToPlayPreludes && (
                                 <>Action {action} of 2</>
                             )}
-                            {!isLoggedInPlayersTurn &&
-                                !isLoggedInPlayerInControl &&
+                            {!(
+                                isLoggedInPlayersTurn ||
+                                isLoggedInPlayerInControl
+                            ) &&
                                 isActiveRound &&
                                 !isLoggedInPlayerPassed && (
                                     <React.Fragment>
