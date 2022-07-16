@@ -140,7 +140,7 @@ for (const milestone of MILESTONE_CONFIGS) {
     MILESTONE_CONFIGS_BY_NAME[milestone.name.toLowerCase()] = milestone;
 }
 
-export function getMilestone(name: string): MilestoneConfig {
+export function getMilestoneConfig(name: string): MilestoneConfig {
     const found = MILESTONE_CONFIGS_BY_NAME[name.toLowerCase()];
     if (!found) throw new Error('milestone not found');
     return found;

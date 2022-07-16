@@ -1,5 +1,5 @@
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import {getAward, getAwards} from 'constants/awards';
+import {getAwardConfig, getAwards} from 'constants/awards';
 import {Parameter, TileType} from 'constants/board';
 import {Deck} from 'constants/card-types';
 import {
@@ -8,7 +8,11 @@ import {
     HELION_CONVERSION,
     STORMCRAFT_CONVERSION,
 } from 'constants/conversion';
-import {getMilestone, getMilestones} from 'constants/milestones';
+import {
+    getMilestoneConfig,
+    getMilestones,
+    MilestoneConfig,
+} from 'constants/milestones';
 import {Resource} from 'constants/resource-enum';
 import {
     getStandardProjects,
@@ -19,7 +23,7 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import styled from 'styled-components';
@@ -41,6 +45,8 @@ import {ColonyIcon} from './icons/other';
 import {ProductionIcon} from './icons/production';
 import {ResourceIcon} from './icons/resource';
 import {TileIcon} from './icons/tile';
+import {AwardsListViewWithDetail} from './list-with-detail-view/awards-list-with-detail-view';
+import {MilestonesListViewWithDetail} from './list-with-detail-view/milestones-list-with-detail-view';
 import {Notes} from './notes';
 import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
@@ -56,43 +62,6 @@ const actionTypes: Array<ActionType> = [
 
 type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil' | 'Notes';
 
-const CategoryListItem = styled(Flex)<{isSelected: boolean}>`
-    border-radius: 4px;
-    margin: 2px 0;
-    padding: 4px 6px;
-    font-size: 0.8em;
-    justify-content: flex-start;
-    align-items: center;
-    white-space: nowrap;
-    cursor: default;
-    color: ${colors.TEXT_LIGHT_1};
-    transition: 200ms all;
-
-    ${props => {
-        if (props.isSelected) {
-            return `
-                background: ${colors.DARK_2};
-            `;
-        } else {
-            return `
-                opacity: 0.4;
-
-                &:hover {
-                    opacity: 0.7;
-                }
-            `;
-        }
-    }}
-
-    &:hover {
-        background-color: ${colors.DARK_2};
-
-        &:active {
-            transform: scale(0.98);
-        }
-    }
-`;
-
 export const ActionTable: React.FunctionComponent = () => {
     const [selectedTab, setSelectedTab] = useState<ActionType | ''>('');
     const player = useLoggedInPlayer();
@@ -106,12 +75,6 @@ export const ActionTable: React.FunctionComponent = () => {
         }
         if (player.tradeForFree) {
             setSelectedTab('Colonies');
-        } else if (
-            player.placeDelegatesInOneParty ||
-            player.removeNonLeaderDelegate ||
-            player.exchangeNeutralNonLeaderDelegate
-        ) {
-            setSelectedTab('Turmoil');
         }
     }, [
         player.tradeForFree,
@@ -195,128 +158,6 @@ export const ActionTable: React.FunctionComponent = () => {
     );
 };
 
-export const useAwardConfigsByAward = () => {
-    return useTypedSelector(
-        state =>
-            getAwards(state).reduce<{
-                [key: string]: {
-                    isFunded: boolean;
-                    cost: number;
-                    fundedByPlayer: PlayerState | null;
-                };
-            }>((acc, award) => {
-                const isFunded = state.common.fundedAwards
-                    .map(fa => fa.award.toLowerCase())
-                    .includes(award.toLowerCase());
-                let fundedByPlayer;
-                if (isFunded) {
-                    const {fundedByPlayerIndex} =
-                        state.common.fundedAwards.find(
-                            fa => fa.award.toLowerCase() === award.toLowerCase()
-                        )!;
-                    fundedByPlayer = state.players[fundedByPlayerIndex];
-                } else {
-                    fundedByPlayer = null;
-                }
-                acc[award] = {
-                    isFunded,
-                    cost: getCostForAward(award, state),
-                    fundedByPlayer,
-                };
-                return acc;
-            }, {}),
-        (prev, next) => {
-            // Brief equality check.
-            for (const award in prev) {
-                if (!next[award]) return false;
-                if (prev[award].fundedByPlayer !== next[award].fundedByPlayer) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    );
-};
-
-function FundAwardButton({award}: {award: string}) {
-    const actionGuard = useActionGuard();
-    const apiClient = useApiClient();
-    const canPlay = actionGuard.canFundAward(award)[0];
-    const awardConfigsByAward = useAwardConfigsByAward();
-    const loggedInPlayer = useLoggedInPlayer();
-
-    const isFree = loggedInPlayer.fundAward;
-    const cost = isFree ? 0 : awardConfigsByAward[award].cost;
-    const {collectPaymentAndPerformAction, triggerRef} =
-        usePaymentPopover<HTMLButtonElement>({
-            onConfirmPayment: payment => {
-                if (canPlay) {
-                    if (isFree) {
-                        apiClient.fundAwardAsync({award, payment: {}});
-                    } else {
-                        apiClient.fundAwardAsync({award, payment});
-                    }
-                }
-            },
-            opts: {
-                type: 'action',
-                cost,
-                action: {},
-            },
-        });
-
-    return (
-        <Button
-            buttonRef={triggerRef}
-            disabled={!canPlay}
-            onClick={collectPaymentAndPerformAction}
-        >
-            <span>Fund</span>
-            <ResourceIcon
-                margin="0 0 0 4px"
-                name={Resource.MEGACREDIT}
-                amount={cost}
-                size={16}
-            />
-        </Button>
-    );
-}
-
-function ClaimMilestoneButton({milestone}: {milestone: string}) {
-    const apiClient = useApiClient();
-    const actionGuard = useActionGuard();
-    const canPlay = actionGuard.canClaimMilestone(milestone)[0];
-    const {collectPaymentAndPerformAction, triggerRef} =
-        usePaymentPopover<HTMLButtonElement>({
-            onConfirmPayment: payment => {
-                if (canPlay) {
-                    apiClient.claimMilestoneAsync({milestone, payment});
-                }
-            },
-            opts: {
-                type: 'action',
-                cost: 8,
-                action: {},
-            },
-        });
-
-    return (
-        <Button
-            buttonRef={triggerRef}
-            disabled={!canPlay}
-            onClick={collectPaymentAndPerformAction}
-        >
-            <span>Claim</span>
-            <ResourceIcon
-                margin="0 0 0 4px"
-                name={Resource.MEGACREDIT}
-                amount={8}
-                size={16}
-            />
-        </Button>
-    );
-}
-
 const ActionTableHeader = styled(BlankButton)<{isSelected: boolean}>`
     white-space: nowrap;
     font-family: 'Ubuntu Condensed', sans-serif;
@@ -374,12 +215,12 @@ function ActionTableInner({selectedTab}: {selectedTab: ActionType | ''}) {
                     <BoardActionsHeader className="display">
                         Milestones
                     </BoardActionsHeader>
-                    <MilestonesTable />
+                    <MilestonesListViewWithDetail />
 
                     <BoardActionsHeader className="display">
                         Awards
                     </BoardActionsHeader>
-                    <AwardsTable />
+                    <AwardsListViewWithDetail />
 
                     <BoardActionsHeader className="display">
                         Standard Projects
@@ -545,351 +386,6 @@ const StandardProjectButtonInner = styled(BlankButton)`
     }
 `;
 
-const AwardsOrMilestonesTableBase = styled(Flex)`
-    margin-bottom: 16px;
-    box-sizing: border-box;
-    width: 100%;
-`;
-
-const AwardOrMilestoneDetailContainer = styled(Flex)`
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    margin-left: 4px;
-    padding: 8px;
-    border-radius: 4px;
-    background: ${colors.DARK_2};
-`;
-
-function MilestonesTable() {
-    const milestones = useTypedSelector(state => getMilestones(state));
-    const [selectedMilestone, setSelectedMilestone] = useState(milestones[0]);
-    const [hoveredMilestone, setHoveredMilestone] = useState(null);
-    const claimedMilestones = useTypedSelector(state =>
-        state.common.claimedMilestones.map(cm => ({
-            ...cm,
-            claimedByPlayer: state.players[cm.claimedByPlayerIndex],
-        }))
-    );
-    const state = useTypedSelector(state => state);
-    const players = useTypedSelector(state => state.players);
-    const throttledSetHoveredMilestone = useMemo(
-        () => throttle(100, setHoveredMilestone),
-        [setHoveredMilestone]
-    );
-    const visibleMilestone = hoveredMilestone ?? selectedMilestone;
-    const visibleClaimedByPlayer =
-        claimedMilestones.find(
-            cm => cm.milestone.toLowerCase() === visibleMilestone.toLowerCase()
-        )?.claimedByPlayer ?? null;
-    const milestoneConfig = getMilestone(visibleMilestone);
-
-    const gameName = useTypedSelector(state => state.name);
-
-    useEffect(() => {
-        setSelectedMilestone(milestones[0]);
-        setHoveredMilestone(null);
-    }, [gameName, milestones[0]]);
-
-    if (!milestoneConfig) {
-        return null;
-    }
-
-    return (
-        <AwardsOrMilestonesTableBase>
-            <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
-                {milestones?.map(milestone => {
-                    const claimedByPlayer = claimedMilestones.find(
-                        cm =>
-                            cm.milestone.toLowerCase() ===
-                            milestone.toLowerCase()
-                    )?.claimedByPlayer;
-                    return (
-                        <CategoryListItem
-                            key={milestone}
-                            onClick={() => setSelectedMilestone(milestone)}
-                            onMouseEnter={() => {
-                                throttledSetHoveredMilestone(milestone);
-                            }}
-                            onMouseMove={() => {
-                                throttledSetHoveredMilestone(milestone);
-                            }}
-                            onMouseLeave={() => {
-                                throttledSetHoveredMilestone(null);
-                            }}
-                            isSelected={selectedMilestone === milestone}
-                        >
-                            {milestone}
-                            {claimedByPlayer && (
-                                <PlayerIcon
-                                    border={colors.TEXT_LIGHT_1}
-                                    playerIndex={claimedByPlayer.index}
-                                    size={10}
-                                    style={{marginLeft: 4}}
-                                />
-                            )}
-                        </CategoryListItem>
-                    );
-                })}
-            </Flex>
-            <Flex flex="0 0 70%" overflow="auto">
-                <AwardOrMilestoneDetailContainer>
-                    <Flex
-                        justifyContent="space-between"
-                        width="100%"
-                        alignItems="center"
-                        position="relative"
-                    >
-                        <h3
-                            className="display"
-                            style={{
-                                color: colors.TEXT_LIGHT_1,
-                                marginBottom: 0,
-                            }}
-                        >
-                            {visibleMilestone}
-                        </h3>
-                        {visibleClaimedByPlayer === null ? (
-                            <Box position="absolute" right="0">
-                                <ClaimMilestoneButton
-                                    milestone={visibleMilestone}
-                                />
-                            </Box>
-                        ) : (
-                            <PlayerCorpAndIcon
-                                player={visibleClaimedByPlayer}
-                                color={colors.TEXT_LIGHT_1}
-                                style={{
-                                    fontWeight: 500,
-                                    fontSize: '0.9em',
-                                }}
-                            />
-                        )}
-                    </Flex>
-
-                    <Flex
-                        style={{
-                            fontSize: '10px',
-                            color: colors.TEXT_LIGHT_2,
-                            fontStyle: 'italic',
-                            marginTop: 2,
-                        }}
-                    >
-                        {milestoneConfig.requirementText}
-                    </Flex>
-                    <Flex flexDirection="column" width="100%" marginTop="8px">
-                        {players
-                            .map(player => {
-                                const quantity = convertAmountToNumber(
-                                    milestoneConfig.amount,
-                                    state,
-                                    player
-                                );
-                                return {
-                                    player,
-                                    quantity,
-                                };
-                            })
-                            .sort(
-                                (
-                                    {quantity: quantity1},
-                                    {quantity: quantity2}
-                                ) => quantity2 - quantity1
-                            )
-                            .map(({player, quantity}) => {
-                                return (
-                                    <Flex
-                                        key={player.index}
-                                        alignItems="center"
-                                        justifyContent="space-between"
-                                        margin="4px 0"
-                                        width="100%"
-                                    >
-                                        <PlayerCorpAndIcon
-                                            includeUsername={true}
-                                            player={player}
-                                            color={colors.TEXT_LIGHT_1}
-                                            style={{
-                                                fontWeight: 500,
-                                                fontSize: '0.8em',
-                                            }}
-                                        />
-                                        <span
-                                            style={{
-                                                color: colors.TEXT_LIGHT_1,
-                                                fontSize: '0.8em',
-                                            }}
-                                        >
-                                            {quantity}
-                                        </span>
-                                    </Flex>
-                                );
-                            })}
-                    </Flex>
-                </AwardOrMilestoneDetailContainer>
-            </Flex>
-        </AwardsOrMilestonesTableBase>
-    );
-}
-
-function AwardsTable() {
-    const awardConfigsByAward = useAwardConfigsByAward();
-    const awards = useTypedSelector(state => getAwards(state));
-    const [selectedAward, setSelectedAward] = useState(awards[0]);
-    const [hoveredAward, setHoveredAward] = useState(null);
-    const throttledSetHoveredAward = useMemo(
-        () => throttle(100, setHoveredAward),
-        [setHoveredAward]
-    );
-
-    const players = useTypedSelector(state => state.players);
-    const state = useTypedSelector(state => state);
-    const visibleAward = hoveredAward ?? selectedAward;
-    const visibleAwardConfig = awardConfigsByAward[visibleAward];
-    const hydratedAward = getAward(visibleAward);
-
-    const gameName = useTypedSelector(state => state.name);
-
-    useEffect(() => {
-        setSelectedAward(awards[0]);
-        setHoveredAward(null);
-    }, [gameName, awards[0]]);
-
-    if (!visibleAwardConfig) return null;
-
-    return (
-        <AwardsOrMilestonesTableBase>
-            <Flex flex="0 0 30%" flexDirection="column" overflow="auto">
-                {awards?.map((award, index) => {
-                    const awardConfig = awardConfigsByAward[award];
-                    return (
-                        <CategoryListItem
-                            key={award}
-                            onClick={() => setSelectedAward(award)}
-                            onMouseEnter={() => {
-                                throttledSetHoveredAward(award);
-                            }}
-                            onMouseMove={() => {
-                                throttledSetHoveredAward(award);
-                            }}
-                            onMouseLeave={() => {
-                                throttledSetHoveredAward(null);
-                            }}
-                            isSelected={selectedAward === award}
-                        >
-                            {award}
-                            {awardConfig.fundedByPlayer && (
-                                <PlayerIcon
-                                    border={colors.TEXT_LIGHT_1}
-                                    playerIndex={
-                                        awardConfig.fundedByPlayer.index
-                                    }
-                                    size={10}
-                                    style={{marginLeft: 4}}
-                                />
-                            )}
-                        </CategoryListItem>
-                    );
-                })}
-            </Flex>
-            <Flex flex="0 0 70%" overflow="auto">
-                <AwardOrMilestoneDetailContainer>
-                    <Flex
-                        justifyContent="space-between"
-                        width="100%"
-                        alignItems="center"
-                        position="relative"
-                    >
-                        <h3
-                            className="display"
-                            style={{
-                                color: colors.TEXT_LIGHT_1,
-                                marginBottom: 0,
-                            }}
-                        >
-                            {visibleAward}
-                        </h3>
-                        {visibleAwardConfig.fundedByPlayer === null ? (
-                            <Box position="absolute" right="0">
-                                <FundAwardButton award={visibleAward} />
-                            </Box>
-                        ) : (
-                            <PlayerCorpAndIcon
-                                style={{
-                                    fontSize: '0.9em',
-                                    fontWeight: 500,
-                                }}
-                                player={visibleAwardConfig.fundedByPlayer}
-                                color={colors.TEXT_LIGHT_1}
-                            />
-                        )}
-                    </Flex>
-
-                    <Flex
-                        style={{
-                            fontSize: '10px',
-                            color: colors.TEXT_LIGHT_2,
-                            fontStyle: 'italic',
-                            marginTop: 2,
-                        }}
-                    >
-                        {hydratedAward.description}
-                    </Flex>
-                    <Flex flexDirection="column" width="100%" marginTop="8px">
-                        {players
-                            .map(player => {
-                                const quantity = convertAmountToNumber(
-                                    hydratedAward.amount,
-                                    state,
-                                    player
-                                );
-                                return {
-                                    player,
-                                    quantity,
-                                };
-                            })
-                            .sort(
-                                (
-                                    {quantity: quantity1},
-                                    {quantity: quantity2}
-                                ) => quantity2 - quantity1
-                            )
-                            .map(({player, quantity}) => {
-                                return (
-                                    <Flex
-                                        key={player.index}
-                                        alignItems="center"
-                                        justifyContent="space-between"
-                                        margin="4px 0"
-                                        width="100%"
-                                    >
-                                        <PlayerCorpAndIcon
-                                            includeUsername={true}
-                                            player={player}
-                                            color={colors.TEXT_LIGHT_1}
-                                            style={{
-                                                fontWeight: 500,
-                                                fontSize: '0.8em',
-                                            }}
-                                        />
-                                        <span
-                                            style={{
-                                                color: colors.TEXT_LIGHT_1,
-                                                fontSize: '0.8em',
-                                            }}
-                                        >
-                                            {quantity}
-                                        </span>
-                                    </Flex>
-                                );
-                            })}
-                    </Flex>
-                </AwardOrMilestoneDetailContainer>
-            </Flex>
-        </AwardsOrMilestonesTableBase>
-    );
-}
-
 function StandardProjects() {
     const standardProjects = useTypedSelector(state =>
         getStandardProjects(state)
@@ -956,17 +452,6 @@ function Conversions() {
             })}
         </Flex>
     );
-}
-
-function getCostForAward(award: string, state: GameState) {
-    const fundedIndex = state.common.fundedAwards.findIndex(
-        config => config.award.toLowerCase() === award.toLowerCase()
-    );
-    if (fundedIndex !== -1) {
-        return [8, 14, 20][fundedIndex];
-    } else {
-        return [8, 14, 20, 20][state.common.fundedAwards.length];
-    }
 }
 
 function getCostForStandardProject(

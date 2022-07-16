@@ -108,7 +108,6 @@ import {
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
-import {canClickPolicy, getLobbyingAction} from 'components/turmoil';
 import {
     Action,
     ActionType,
@@ -137,7 +136,7 @@ import {
 } from 'constants/game';
 import {getGlobalEvent} from 'constants/global-events';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
-import {getParty} from 'constants/party';
+import {getPartyConfig} from 'constants/party';
 import {
     NumericPropertyCounter,
     PropertyCounter,
@@ -170,6 +169,7 @@ import {
     getIsPlayerMakingDecision,
     getIsPlayerMakingDecisionExceptForNextActionChoice,
 } from 'selectors/get-is-player-making-decision';
+import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import {getPlayedCards} from 'selectors/get-played-cards';
 import {isActionPhase} from 'selectors/is-action-phase';
 import {getForcedActionsForPlayer} from 'selectors/player';
@@ -214,9 +214,6 @@ export class ApiActionHandler {
         this.loggedInPlayerIndex = this.game.state.players.findIndex(
             player => player.username === this.username
         );
-        if (this.loggedInPlayerIndex < 0) {
-            debugger;
-        }
         this.actionGuard = new ActionGuard(this.game.state, username);
         this.actionGuard.ignoreSyncing = !!ignoreSyncing;
         if (dispatch) {
@@ -368,7 +365,7 @@ export class ApiActionHandler {
         }
 
         this.queue.push(makePartyRuling());
-        const rulingParty = getParty(turmoil.dominantParty);
+        const rulingParty = getPartyConfig(turmoil.dominantParty);
         if (rulingParty) {
             for (const playerIndex of this.state.common
                 .playerIndexOrderForGeneration) {
@@ -590,7 +587,7 @@ export class ApiActionHandler {
             return;
         }
 
-        const party = getParty(turmoil.rulingParty);
+        const party = getPartyConfig(turmoil.rulingParty);
 
         const {effect} = party;
         if (!effect) return;
@@ -1672,14 +1669,7 @@ export class ApiActionHandler {
     }
 
     doRulingPolicyAction({payment}: {payment: Payment}) {
-        if (
-            !canClickPolicy(
-                this.state,
-                this.actionGuard,
-                this.getLoggedInPlayer(),
-                payment
-            )
-        ) {
+        if (!this.actionGuard.canDoRulingPolicyAction(payment)) {
             throw new Error('Cannot do ruling policy');
         }
 
@@ -1688,7 +1678,7 @@ export class ApiActionHandler {
             throw new Error('turmoil disabled');
         }
 
-        const party = getParty(turmoil.rulingParty);
+        const party = getPartyConfig(turmoil.rulingParty);
 
         if (party) {
             const {action} = party;

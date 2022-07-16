@@ -109,11 +109,8 @@ export const TagIcon = ({
                     textAlign="center"
                     color={tagProps.color}
                     className={'inner-' + tagProps.className}
-                    position="absolute"
                     alignItems="center"
                     justifyContent="center"
-                    height="100%"
-                    width="100%"
                     lineHeight="4em"
                     inset={0}
                 >
