@@ -177,7 +177,7 @@ function AddDelegateButton({partyName}: {partyName: TurmoilParty}) {
     const loggedInPlayer = useLoggedInPlayer();
     const state = useTypedSelector(state => state);
     const lobbyAction = getLobbyingAction(state, loggedInPlayer);
-    const [canLobby, foo] = actionGuard.canLobby();
+    const [canLobby] = actionGuard.canLobby();
 
     return (
         <Button
