@@ -1,5 +1,5 @@
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
-import {getAward} from 'constants/awards';
+import {getAwardConfig} from 'constants/awards';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
@@ -284,7 +284,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = [];
+const bonusNames: string[] = ['Martian Media Center'];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board
@@ -1375,7 +1375,7 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                 fundedByPlayerIndex: player.index,
                 award: award,
             });
-            const awardConfig = getAward(award);
+            const awardConfig = getAwardConfig(award);
             draft.log.push(`${corporationName} funded ${awardConfig.name}`);
             player.fundAward = undefined;
         }

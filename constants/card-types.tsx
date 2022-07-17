@@ -2,6 +2,7 @@ import {Action, Amount, PlayCardParams} from './action';
 import {Parameter, TileType} from './board';
 import {CardDiscounts, TagDiscounts} from './discounts';
 import {Effect} from './effect';
+import {TurmoilParty} from './party';
 import {PropertyCounter} from './property-counter';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
@@ -56,7 +57,7 @@ export interface CardConfig extends Action {
     requiredChairman?: RequiredChairman;
     requiredPartyLeader?: boolean;
     requiredGlobalParameter?: RequiredGlobalParameter;
-    requiredPartyOrTwoDelegates?: string;
+    requiredPartyOrTwoDelegates?: TurmoilParty;
     requiredProduction?: Resource;
     requiredTags?: PropertyCounter<Tag>;
     requiredTilePlacements?: RequiredTilePlacement[];

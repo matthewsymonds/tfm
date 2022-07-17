@@ -1,7 +1,15 @@
 import {shuffle} from 'initial-state';
 import {PlayerState} from 'reducer';
 import {GlobalEvent, GLOBAL_EVENTS} from './global-events';
-import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
+import {
+    GREENS,
+    KELVINISTS,
+    MARS_FIRST,
+    REDS,
+    SCIENTISTS,
+    TurmoilParty,
+    UNITY,
+} from './party';
 
 export enum RequiredChairman {
     YOU = 'requiredChairmanYou',
@@ -13,7 +21,7 @@ export interface SerializedGlobalEvent {
 }
 
 export type Delegations = {
-    [party: string]: Delegate[];
+    [party in TurmoilParty]: Delegate[];
 };
 
 export type Delegate = {playerIndex?: number};
@@ -25,6 +33,7 @@ export type DelegateReserve = {
 };
 
 const NUM_PLAYER_DELEGATES = 7;
+export const LOBBYING_COST = 5;
 
 export interface Turmoil {
     globalEvents: SerializedGlobalEvent[];
@@ -32,8 +41,8 @@ export interface Turmoil {
     distantGlobalEvent: SerializedGlobalEvent;
     comingGlobalEvent: SerializedGlobalEvent;
     currentGlobalEvent?: SerializedGlobalEvent;
-    rulingParty: string;
-    dominantParty: string;
+    rulingParty: TurmoilParty;
+    dominantParty: TurmoilParty;
     delegations: Delegations;
     chairperson: Delegate;
     lobby: Delegate[];

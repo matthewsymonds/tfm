@@ -5,7 +5,7 @@ import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
-import {PartySymbol} from 'components/turmoil';
+import {PartySymbol} from 'components/icons/turmoil';
 import {colors} from 'components/ui';
 import {Parameter} from 'constants/board';
 import {Resource} from 'constants/resource-enum';
