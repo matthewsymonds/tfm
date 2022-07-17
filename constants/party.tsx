@@ -7,23 +7,15 @@ import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
 
-export const MARS_FIRST = 'Mars First' as const;
-export const SCIENTISTS = 'Scientists' as const;
-export const UNITY = 'Unity' as const;
-export const GREENS = 'Greens' as const;
-export const REDS = 'Reds' as const;
-export const KELVINISTS = 'Kelvinists' as const;
-
-export type TurmoilParty =
-    | typeof MARS_FIRST
-    | typeof SCIENTISTS
-    | typeof UNITY
-    | typeof GREENS
-    | typeof REDS
-    | typeof KELVINISTS;
+export const MARS_FIRST = 'Mars First';
+export const SCIENTISTS = 'Scientists';
+export const UNITY = 'Unity';
+export const GREENS = 'Greens';
+export const REDS = 'Reds';
+export const KELVINISTS = 'Kelvinists';
 
 export type PartyConfig = {
-    name: TurmoilParty;
+    name: string;
     effect?: CompleteEffect;
     action?: Action;
     exchangeRates?: ExchangeRates;
@@ -136,15 +128,11 @@ export const PARTY_CONFIGS: PartyConfig[] = [
     },
 ];
 
-const PARTY_CONFIGS_BY_NAME = PARTY_CONFIGS.reduce<{
-    [key in TurmoilParty]: PartyConfig;
-}>((acc, config) => {
-    return {
-        ...acc,
-        [config.name]: config,
-    };
-}, {} as {[key in TurmoilParty]: PartyConfig});
+const PARTY_CONFIGS_BY_NAME: {[key: string]: PartyConfig} = {};
+for (const partyConfig of PARTY_CONFIGS) {
+    PARTY_CONFIGS_BY_NAME[partyConfig.name] = partyConfig;
+}
 
-export function getPartyConfig(name: TurmoilParty): PartyConfig {
+export function getParty(name: string) {
     return PARTY_CONFIGS_BY_NAME[name];
 }

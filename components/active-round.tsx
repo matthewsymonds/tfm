@@ -39,11 +39,9 @@ import {AskUserToIncreaseAndDecreaseColonyTileTracks} from './ask-user-to-increa
 import {AskUserToIncreaseLowestProduction} from './ask-user-to-increase-lowest-production';
 import {AskUserToMakeActionChoice} from './ask-user-to-make-action-choice';
 import {AskUserToPlaceColony} from './ask-user-to-place-colony';
-import {AskUserToPlaceDelegatesInOneParty} from './ask-user-to-place-delegates-in-one-party';
 import {AskUserToPlayCardFromHand} from './ask-user-to-play-card-from-hand';
 import {AskUserToPlayPrelude} from './ask-user-to-play-prelude';
 import {AskUserToPutAdditionalColonyTileIntoPlay} from './ask-user-to-put-additional-colony-tile-into-play';
-import {AskUserToSelectNonLeaderDelegate} from './ask-user-to-select-non-leader-delegate';
 import {AskUserToUseBlueCardActionAlreadyUsedThisGeneration} from './ask-user-to-use-blue-card-action-already-used-this-generation';
 import {Board} from './board/board';
 import {Box, Flex} from './box';
@@ -125,7 +123,7 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     } else if (loggedInPlayer.fundAward) {
         actionBarPromptText = 'Fund award';
     } else if (loggedInPlayer.placeColony) {
-        actionBarPromptText = 'Place colony';
+        actionBarPromptText = 'Place a colony';
     } else if (loggedInPlayer.tradeForFree) {
         actionBarPromptText = 'Trade for free';
     } else if (loggedInPlayer.increaseAndDecreaseColonyTileTracks) {
@@ -136,9 +134,9 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             loggedInPlayer.placeDelegatesInOneParty
         } delegate${plural ? 's' : ''}`;
     } else if (loggedInPlayer.removeNonLeaderDelegate) {
-        actionBarPromptText = 'Remove delegate';
+        actionBarPromptText = 'Remove non-leader delegate';
     } else if (loggedInPlayer.exchangeNeutralNonLeaderDelegate) {
-        actionBarPromptText = 'Exchange delegate';
+        actionBarPromptText = 'Exchange neutral non-leader-delegate';
     } else if (isWaitingOnOthersToDraft) {
         actionBarPromptText = 'Draft';
     } else if (isDrafting) {
@@ -246,33 +244,6 @@ export const ActiveRound = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             case !!loggedInPlayer.fundAward:
                 promptElement = <AskUserToFundAward player={loggedInPlayer} />;
                 break;
-            case !!loggedInPlayer.placeDelegatesInOneParty:
-                promptElement = (
-                    <AskUserToPlaceDelegatesInOneParty
-                        player={loggedInPlayer}
-                    />
-                );
-                break;
-            case !!loggedInPlayer.removeNonLeaderDelegate:
-            case !!loggedInPlayer.exchangeNeutralNonLeaderDelegate: {
-                let variant;
-                if (loggedInPlayer.removeNonLeaderDelegate) {
-                    variant = 'removeNonLeader';
-                } else if (loggedInPlayer.exchangeNeutralNonLeaderDelegate) {
-                    variant = 'exchangeNeutralNonLeader';
-                } else {
-                    throw new Error(
-                        'unknown select non leader delegate variant'
-                    );
-                }
-                promptElement = (
-                    <AskUserToSelectNonLeaderDelegate
-                        player={loggedInPlayer}
-                        variant={variant}
-                    />
-                );
-                break;
-            }
             case !!loggedInPlayer.pendingTilePlacement:
                 promptElement = <div />;
                 break;

@@ -4,44 +4,51 @@ import React from 'react';
 import Twemoji from 'react-twemoji';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {colors} from './ui';
+
+const DelegateBase = styled(Flex)`
+    &:hover {
+        box-shadow: none;
+    }
+`;
 
 export function DelegateComponent({
     delegate,
-    size = 16,
+    isLeader,
     canClick,
     onClick,
-    margin,
 }: {
     delegate: Delegate;
-    size?: number;
+    isLeader: boolean;
     canClick?: boolean;
     onClick?: Function;
-    margin?: string;
 }) {
     return (
-        <Flex
+        <DelegateBase
             onClick={onClick}
             borderRadius="50%"
-            height={`${size}px`}
-            width={`${size}px`}
-            margin={margin}
-            fontSize={`${size - 2}px`}
+            boxShadow={canClick ? '0px 0px 38px 5px #000000' : 'none'}
             cursor={canClick ? 'pointer' : 'auto'}
+            borderWidth="3px"
+            width="12px"
+            height="12px"
+            lineHeight="16px"
+            fontSize="20px"
             alignItems="center"
             justifyContent="center"
             textAlign="center"
-            border={`1px solid ${colors.DARK_2}`}
+            borderColor={isLeader ? 'darkgray' : '#d7d7d7'}
+            borderStyle="solid"
+            padding="8px"
             background={
-                typeof delegate?.playerIndex === 'number'
+                delegate?.playerIndex !== undefined
                     ? PLAYER_COLORS[delegate.playerIndex]
-                    : colors.LIGHT_2
+                    : 'transparent'
             }
         >
             <Box filter="grayscale(100%) brightness(50%)">
                 <Twemoji options={{className: 'emoji delegate'}}>👤</Twemoji>
             </Box>
-        </Flex>
+        </DelegateBase>
     );
 }
 

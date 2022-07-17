@@ -1,4 +1,4 @@
-import {getAwardConfig} from 'constants/awards';
+import {getAward} from 'constants/awards';
 import {TileType} from 'constants/board';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
@@ -82,7 +82,7 @@ export function getAwardScore(state: GameState, playerIndex: number) {
     let awardScoreTotal = 0;
 
     state.common.fundedAwards.forEach(fundedAward => {
-        const awardConfig = getAwardConfig(fundedAward.award);
+        const awardConfig = getAward(fundedAward.award);
         const getQuantity = (player: PlayerState, state: GameState) =>
             convertAmountToNumber(awardConfig.amount, state, player);
 

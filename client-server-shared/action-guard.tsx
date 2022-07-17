@@ -4,6 +4,7 @@ import {
     getPlayerOptionWrappers,
     ResourceActionOption,
 } from 'components/ask-user-to-confirm-resource-action-details';
+import {getLobbyingAction} from 'components/turmoil';
 import {Action, Payment} from 'constants/action';
 import {getAwards} from 'constants/awards';
 import {Cell, TilePlacement, TileType} from 'constants/board';
@@ -11,8 +12,8 @@ import {CardType, Deck} from 'constants/card-types';
 import {COLONIES} from 'constants/colonies';
 import {Conversion} from 'constants/conversion';
 import {GameStage, PARAMETER_STEPS} from 'constants/game';
-import {getMilestoneConfig, getMilestones} from 'constants/milestones';
-import {getPartyConfig, TurmoilParty} from 'constants/party';
+import {getMilestone, getMilestones} from 'constants/milestones';
+import {getParty} from 'constants/party';
 import {Resource} from 'constants/resource-enum';
 import {
     StandardProjectAction,
@@ -33,7 +34,6 @@ import {doesPlayerHaveRequiredResourcesToRemove} from 'selectors/does-player-hav
 import {getCard} from 'selectors/get-card';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
 import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
-import {getLobbyingAction} from 'selectors/get-lobbying-action';
 import {getMoney} from 'selectors/get-money';
 import {getPlayableCards} from 'selectors/get-playable-cards';
 import {getPlayerResourceAmount} from 'selectors/get-player-resource-amount';
@@ -282,7 +282,7 @@ export class ActionGuard {
             return [false, 'Cannot afford'];
         }
 
-        const milestoneConfig = getMilestoneConfig(milestone);
+        const milestoneConfig = getMilestone(milestone);
 
         const minQuantity = convertAmountToNumber(
             milestoneConfig.quantity,
@@ -456,7 +456,7 @@ export class ActionGuard {
 
         const {turmoil} = state.common;
         if (turmoil) {
-            const {exchangeRates} = getPartyConfig(turmoil.rulingParty);
+            const {exchangeRates} = getParty(turmoil.rulingParty);
             turmoilExchangeRateIncrease = exchangeRates?.[resource] ?? 0;
         }
 
@@ -1299,28 +1299,6 @@ export class ActionGuard {
         }
 
         return [true, 'Good to go'];
-    }
-
-    canDoRulingPolicyAction(payment) {
-        const player = this._getPlayerToConsider();
-        const {turmoil, gameStage} = this.state.common;
-        if (!turmoil) return false;
-
-        if (gameStage !== GameStage.ACTIVE_ROUND) {
-            return false;
-        }
-
-        const {action} = getPartyConfig(turmoil.rulingParty as TurmoilParty);
-
-        if (!action) {
-            return false;
-        }
-
-        if (!this.canAffordActionCost(action, player, payment)) {
-            return false;
-        }
-
-        return this.canPlayAction(action, this.state)[0];
     }
 
     canSkipPrelude(

@@ -10,15 +10,7 @@ import {
     subtract,
     sum,
 } from './operation-amount';
-import {
-    GREENS,
-    KELVINISTS,
-    MARS_FIRST,
-    REDS,
-    SCIENTISTS,
-    TurmoilParty,
-    UNITY,
-} from './party';
+import {GREENS, KELVINISTS, MARS_FIRST, REDS, SCIENTISTS, UNITY} from './party';
 import {Resource} from './resource-enum';
 import {Tag} from './tag';
 import {VariableAmount} from './variable-amount';
@@ -32,12 +24,12 @@ export interface GlobalEvent {
 
 interface GlobalEventHalf {
     name: string;
-    party: TurmoilParty;
+    party: string;
 }
 
 interface GlobalEventHalf {
     name: string;
-    party: TurmoilParty;
+    party: string;
 }
 
 const triple = applyOperationAndOperand(Operation.MULTIPLY, 3);

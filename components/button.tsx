@@ -7,7 +7,14 @@ import {colors} from './ui';
 type ButtonVariant = 'default' | 'bordered';
 type ButtonSize = 'default' | 'small';
 
-type ButtonProps = React.PropsWithChildren<
+export function Button({
+    children,
+    onClick,
+    disabled,
+    buttonRef,
+    variant = 'default',
+    size = 'default',
+}: React.PropsWithChildren<
     {
         buttonRef?: React.RefObject<HTMLButtonElement>;
         variant?: ButtonVariant;
@@ -19,47 +26,35 @@ type ButtonProps = React.PropsWithChildren<
           }
         | {type: 'submit'; onClick?: undefined}
     )
->;
-
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    (props, ref) => {
-        const {
-            children,
-            onClick,
-            disabled,
-            buttonRef,
-            variant = 'default',
-            size = 'default',
-        } = props;
-        switch (variant) {
-            case 'default':
-                return (
-                    <_DefaultButton
-                        ref={buttonRef}
-                        size={size}
-                        disabled={disabled}
-                        onClick={onClick}
-                    >
-                        {children}
-                    </_DefaultButton>
-                );
-            case 'bordered':
-                return (
-                    <_BorderedButton
-                        ref={buttonRef}
-                        size={size}
-                        scaleOnClick={false}
-                        disabled={disabled}
-                        onClick={onClick}
-                    >
-                        {children}
-                    </_BorderedButton>
-                );
-            default:
-                throw spawnExhaustiveSwitchError(variant);
-        }
+>) {
+    switch (variant) {
+        case 'default':
+            return (
+                <_DefaultButton
+                    ref={buttonRef}
+                    size={size}
+                    disabled={disabled}
+                    onClick={onClick}
+                >
+                    {children}
+                </_DefaultButton>
+            );
+        case 'bordered':
+            return (
+                <_BorderedButton
+                    ref={buttonRef}
+                    size={size}
+                    scaleOnClick={false}
+                    disabled={disabled}
+                    onClick={onClick}
+                >
+                    {children}
+                </_BorderedButton>
+            );
+        default:
+            throw spawnExhaustiveSwitchError(variant);
     }
-);
+}
 
 function getStyleForSize(size: ButtonSize) {
     switch (size) {

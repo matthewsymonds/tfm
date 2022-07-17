@@ -8,6 +8,7 @@ import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
 import {TileIcon} from 'components/icons/tile';
 import TexturedCard from 'components/textured-card';
+import {MiniPartyIcon} from 'components/turmoil';
 import {colors} from 'components/ui';
 import {Action, Amount} from 'constants/action';
 import {Parameter, TilePlacement, TileType} from 'constants/board';
@@ -1671,17 +1672,3 @@ export const BaseActionIconography = ({
         </IconographyContainer>
     );
 };
-
-const MiniPartyIcon = styled.div`
-    border-radius: 15px;
-    height: 30px;
-    width: 40px;
-    background: gray;
-    margin: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:first-child {
-        width: 40px;
-    }
-`;

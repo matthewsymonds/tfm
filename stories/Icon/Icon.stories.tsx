@@ -1,6 +1,6 @@
 import {Meta, Story} from '@storybook/react';
 import {InfluenceIcon} from 'components/icons/other';
-import {PartySymbol} from 'components/icons/turmoil';
+import {PartySymbol} from 'components/turmoil';
 import {colors} from 'components/ui';
 import React from 'react';
 

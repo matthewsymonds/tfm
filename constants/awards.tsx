@@ -103,7 +103,7 @@ for (const award of AWARD_CONFIGS) {
     AWARD_CONFIGS_BY_NAME[award.name.toLowerCase()] = award;
 }
 
-export function getAwardConfig(name: string): AwardConfig {
+export function getAward(name: string): AwardConfig {
     const found = AWARD_CONFIGS_BY_NAME[name.toLowerCase()];
     if (!found) throw new Error('award not found');
     return found;

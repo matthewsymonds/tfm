@@ -21,7 +21,6 @@ import {
 import {cardConfigs} from 'constants/cards';
 import {Discounts} from 'constants/discounts';
 import {Effect} from 'constants/effect';
-import {TurmoilParty} from 'constants/party';
 import {
     NumericPropertyCounter,
     PropertyCounter,
@@ -159,7 +158,7 @@ export class Card {
     // Turmoil Requirements
     requiredChairman?: RequiredChairman;
     requiredPartyLeader?: boolean;
-    requiredPartyOrTwoDelegates?: TurmoilParty;
+    requiredPartyOrTwoDelegates?: string;
 
     // Turmoil actions
     placeDelegatesInOneParty?: number;
