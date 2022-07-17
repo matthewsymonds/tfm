@@ -13,6 +13,7 @@ type ListWithDetailViewProps<T extends {name: string}> = {
     initialSelectedItemIndex?: number;
     detailItemContainerStyleOverride?: React.CSSProperties;
     selectedBgColor?: string;
+    layoutBreakpoint?: number;
 };
 
 /**
@@ -27,6 +28,7 @@ export function ListWithDetailView<T extends {name: string}>({
     initialSelectedItemIndex = 0,
     detailItemContainerStyleOverride,
     selectedBgColor = colors.DARK_2,
+    layoutBreakpoint = 300,
 }: ListWithDetailViewProps<T>) {
     const [selectedItem, setSelectedItem] = useState(
         items[initialSelectedItemIndex]
@@ -39,12 +41,14 @@ export function ListWithDetailView<T extends {name: string}>({
     const visibleItem = hoveredItem ?? selectedItem;
 
     return (
-        <Flex boxSizing="border-box" width="100%">
-            <Flex
-                flex={`0 0 calc(${listWidthPercentage}% - 2px)`}
-                flexDirection="column"
-                overflow="auto"
-                marginRight="2px"
+        <ListWithDetailViewContainer
+            boxSizing="border-box"
+            width="100%"
+            layoutBreakpoint={layoutBreakpoint}
+        >
+            <ListItemContainer
+                listWidthPercentage={listWidthPercentage}
+                layoutBreakpoint={layoutBreakpoint}
             >
                 {items.map(item => {
                     return (
@@ -67,28 +71,60 @@ export function ListWithDetailView<T extends {name: string}>({
                         </CategoryListItem>
                     );
                 })}
-            </Flex>
-            <Flex
-                flex="auto"
-                overflow="auto"
-                flexDirection="column"
-                alignItems="flex-start"
-                width="100%"
-                margin="2px 0 2px 2px"
-                borderRadius="4px"
-                padding="8px"
+            </ListItemContainer>
+            <DetailViewContainer
                 background={selectedBgColor}
                 style={detailItemContainerStyleOverride}
+                layoutBreakpoint={layoutBreakpoint}
             >
                 {renderDetailItem(visibleItem)}
-            </Flex>
-        </Flex>
+            </DetailViewContainer>
+        </ListWithDetailViewContainer>
     );
 }
+
+const ListWithDetailViewContainer = styled(Flex)<{layoutBreakpoint: number}>`
+    @media (min-width: ${props => props.layoutBreakpoint + 1}px) {
+        flex-direction: row;
+    }
+    @media (max-width: ${props => props.layoutBreakpoint}px) {
+        flex-direction: column-reverse;
+    }
+`;
+
+const ListItemContainer = styled(Flex)<{listWidthPercentage: number}>`
+    flex-direction: column;
+    overflow: auto;
+
+    @media (min-width: ${props => props.layoutBreakpoint + 1}px) {
+        margin-right: 2px;
+        flex: ${props => `0 0 calc(${props.listWidthPercentage}% - 2px)`};
+    }
+    @media (max-width: ${props => props.layoutBreakpoint}px) {
+    }
+`;
+
+const DetailViewContainer = styled(Flex)<{layoutBreakpoint: number}>`
+    flex: auto;
+    overflow: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 4px;
+    padding: 8px;
+
+    @media (min-width: ${props => props.layoutBreakpoint + 1}px) {
+        margin: 2px 0 2px 2px;
+    }
+    @media (max-width: ${props => props.layoutBreakpoint}px) {
+        height: 140px;
+        margin: 2px 0;
+    }
+`;
 
 const CategoryListItem = styled(Flex)<{
     isSelected: boolean;
     selectedBgColor: string;
+    layoutBreakpoint: number;
 }>`
     border-radius: 4px;
     margin: 2px 0;

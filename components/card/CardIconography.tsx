@@ -1243,7 +1243,7 @@ export function IncreaseTerraformRatingIconography({
 
         if (isContestAmount(increaseTerraformRating)) {
             return (
-                <Flex flexDirection="column">
+                <Flex>
                     <IconographyRow className="increase-terraform-rating">
                         <Flex alignItems="center" flexWrap="wrap">
                             <Box
@@ -1260,7 +1260,10 @@ export function IncreaseTerraformRatingIconography({
                             />
                         </Flex>
                     </IconographyRow>
-                    <IconographyRow className="increase-terraform-rating">
+                    <IconographyRow
+                        style={{marginLeft: '8px'}}
+                        className="increase-terraform-rating"
+                    >
                         <Flex
                             alignItems="center"
                             flexWrap="wrap"

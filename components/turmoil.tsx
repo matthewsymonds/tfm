@@ -221,8 +221,12 @@ function TurmoilStatusTable({
     }
 
     return (
-        <Flex justifyContent="space-between" width="100%" marginBottom="4px">
-            <TurmoilStatusCell isFirstCell={true}>
+        <_TurmoilStatusTable
+            justifyContent="space-between"
+            width="100%"
+            marginBottom="4px"
+        >
+            <TurmoilStatusCell cellOrder={1}>
                 <TurmoilStatusCellHeader className="display">
                     Ruling policy
                 </TurmoilStatusCellHeader>
@@ -243,7 +247,7 @@ function TurmoilStatusTable({
                     )}
                 </TurmoilStatusCellContent>
             </TurmoilStatusCell>
-            <TurmoilStatusCell>
+            <TurmoilStatusCell cellOrder={2}>
                 <TurmoilStatusCellHeader className="display">
                     Chairperson
                 </TurmoilStatusCellHeader>
@@ -254,7 +258,7 @@ function TurmoilStatusTable({
                     />
                 </TurmoilStatusCellContent>
             </TurmoilStatusCell>
-            <TurmoilStatusCell>
+            <TurmoilStatusCell cellOrder={3}>
                 <TurmoilStatusCellHeader className="display">
                     Lobby
                 </TurmoilStatusCellHeader>
@@ -277,7 +281,7 @@ function TurmoilStatusTable({
                     )}
                 </TurmoilStatusCellContent>
             </TurmoilStatusCell>
-            <TurmoilStatusCell isLastCell={true}>
+            <TurmoilStatusCell cellOrder={4}>
                 <TurmoilStatusCellHeader className="display">
                     Delegate reserve
                 </TurmoilStatusCellHeader>
@@ -315,23 +319,42 @@ function TurmoilStatusTable({
                     )}
                 </TurmoilStatusCellContent>
             </TurmoilStatusCell>
-        </Flex>
+        </_TurmoilStatusTable>
     );
 }
 
+const _TurmoilStatusTable = styled(Box)`
+    display: grid;
+    gap: 4px;
+
+    @media (min-width: 501px) {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: auto;
+    }
+
+    @media (max-width: 500px) {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+`;
+
 const TurmoilStatusCell = styled.div<{
-    isFirstCell?: boolean;
-    isLastCell?: boolean;
+    cellOrder: number;
 }>`
+    @media (min-width: 501px) {
+        grid-row: 1;
+        grid-column: ${props => props.cellOrder};
+    }
+    @media (max-width: 500px) {
+        grid-row: ${props => (props.cellOrder < 3 ? 1 : 2)};
+        grid-column: ${props => (props.cellOrder % 2 ? 2 : 1)};
+    }
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding: 8px;
     background: ${colors.DARK_2};
     border-radius: 4px;
-    flex: 1 1 25%;
-    margin-left: ${props => (props.isFirstCell ? '0' : '2px')};
-    margin-right: ${props => (props.isLastCell ? '0' : '2px')};
 `;
 
 const TurmoilStatusCellHeader = styled.h4`
@@ -346,4 +369,5 @@ const TurmoilStatusCellHeader = styled.h4`
 const TurmoilStatusCellContent = styled.div`
     display: flex;
     align-items: center;
+    flex: auto;
 `;

@@ -165,9 +165,7 @@ export function TurmoilPartyListWithDetailView() {
                 turmoilParties.find(tp => tp.isDominantParty) ??
                     turmoilParties[0]
             )}
-            detailItemContainerStyleOverride={{
-                marginTop: -20,
-            }}
+            layoutBreakpoint={400}
             selectedBgColor={colors.DARK_3}
         />
     );
