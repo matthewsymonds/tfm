@@ -5,6 +5,7 @@ import {DelegateComponent} from 'components/delegate';
 import {ResourceIcon} from 'components/icons/resource';
 import {PartySymbol} from 'components/icons/turmoil';
 import {ListWithDetailView} from 'components/list-with-detail-view/list-with-detail-view';
+import {usePaymentPopover} from 'components/popovers/payment-popover';
 import {TurmoilPartyPolicy} from 'components/turmoil-party-policy';
 import {colors} from 'components/ui';
 import {getPartyConfig, PartyConfig, TurmoilParty} from 'constants/party';
@@ -178,18 +179,26 @@ function AddDelegateButton({partyName}: {partyName: TurmoilParty}) {
     const state = useTypedSelector(state => state);
     const lobbyAction = getLobbyingAction(state, loggedInPlayer);
     const [canLobby] = actionGuard.canLobby();
+    const {collectPaymentAndPerformAction, triggerRef} =
+        usePaymentPopover<HTMLButtonElement>({
+            onConfirmPayment(payment) {
+                if (canLobby) {
+                    apiClient.lobbyAsync(partyName, payment);
+                }
+            },
+            opts: {
+                type: 'action',
+                cost: lobbyAction.cost,
+                action: lobbyAction,
+            },
+        });
 
     return (
         <Button
             disabled={!canLobby}
             size="small"
-            onClick={() => {
-                if (canLobby) {
-                    apiClient.lobbyAsync(partyName, {
-                        [Resource.MEGACREDIT]: lobbyAction.cost,
-                    });
-                }
-            }}
+            ref={triggerRef}
+            onClick={collectPaymentAndPerformAction}
         >
             {lobbyAction.cost > 0 && (
                 <ResourceIcon
