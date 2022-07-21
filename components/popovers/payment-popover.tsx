@@ -223,6 +223,7 @@ type PaymentOpts =
 type PaymentPopoverProps = {
     onConfirmPayment: (
         payment: NumericPropertyCounter<Resource>,
+        // conditionalPayments are for Dirigibles, Psychrophiles, etc.
         conditionalPayments?: Array<number> | null
     ) => void;
     opts: PaymentOpts;
@@ -252,7 +253,7 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
     const conditionalPayment = useTypedSelector(() =>
         getConditionalPaymentWithResourceInfo(player, cardOrUndefined)
     );
-    const {resources, exchangeRates} = player;
+    const {resources} = player;
     const [numSteel, setNumSteel] = useState(0);
     const [numTitanium, setNumTitanium] = useState(0);
     const [numHeat, setNumHeat] = useState(0);
