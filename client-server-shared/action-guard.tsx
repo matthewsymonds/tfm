@@ -1042,16 +1042,15 @@ export class ActionGuard {
     }
 
     canSkipChooseResourceActionDetails(): CanPlayAndReason {
+        const player = this._getPlayerToConsider();
         const playerOptionWrappers = getPlayerOptionWrappers(
             this.state,
-            this._getPlayerToConsider()
+            player
         );
-        const {actionType, resourceAndAmounts} =
-            this._getPlayerToConsider().pendingResourceActionDetails!;
+        const {actionType, locationType} = player.pendingResourceActionDetails!;
         const canSkipChooseResource = canSkipResourceActionDetails(
-            playerOptionWrappers,
             actionType,
-            resourceAndAmounts
+            locationType
         );
 
         return [

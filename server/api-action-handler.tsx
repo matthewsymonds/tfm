@@ -2112,18 +2112,24 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (
-                options.length === 1 &&
-                !options[0].isVariable &&
-                !canSkipResourceActionDetails(
-                    wrappers,
-                    actionType,
-                    stealResourceResourceAndAmounts
-                )
-            ) {
+            const canSkip = canSkipResourceActionDetails(actionType);
+            if (options.length === 1 && !options[0].isVariable && !canSkip) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
-                items.push(noopAction());
+                if (
+                    stealResourceResourceAndAmounts.some(resourceAndAmount =>
+                        isStorableResource(resourceAndAmount.resource)
+                    )
+                ) {
+                    throw new Error('Required to steal storable resource');
+                } else {
+                    // Should only reach here if attempting to steal
+                    // a standard resource and there's none available.
+                    // All of these cards have theft as the *effect*
+                    // rather than the cost.
+                    // Note: this is messy.
+                    items.push(noopAction());
+                }
             } else {
                 items.push(
                     askUserToChooseResourceActionDetails({
@@ -2206,18 +2212,11 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (
-                options.length === 1 &&
-                !options[0].isVariable &&
-                !canSkipResourceActionDetails(
-                    wrappers,
-                    actionType,
-                    stealResourceResourceAndAmounts
-                )
-            ) {
+            const canSkip = canSkipResourceActionDetails(actionType);
+            if (options.length === 1 && !options[0].isVariable && !canSkip) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
-                items.push(noopAction());
+                throw new Error('Found zero increase production targets?');
             } else if (resourceAndAmounts.length > 0) {
                 items.push(
                     askUserToChooseResourceActionDetails({
@@ -2615,18 +2614,11 @@ export class ApiActionHandler {
                 card: parent!,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (
-                options.length === 1 &&
-                !options[0].isVariable &&
-                !canSkipResourceActionDetails(
-                    wrappers,
-                    actionType,
-                    resourceAndAmounts
-                )
-            ) {
+            const canSkip = canSkipResourceActionDetails(actionType);
+            if (options.length === 1 && !options[0].isVariable && !canSkip) {
                 items.push(getAction(options[0], player, 0));
             } else if (options.length === 0) {
-                items.push(noopAction());
+                throw new Error('No valid decrease production options');
             } else {
                 items.push(
                     askUserToChooseResourceActionDetails({
@@ -2771,18 +2763,11 @@ export class ApiActionHandler {
         });
 
         const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (
-            options.length === 1 &&
-            !options[0].isVariable &&
-            !canSkipResourceActionDetails(
-                wrappers,
-                actionType,
-                resourceAndAmounts
-            )
-        ) {
+        const canSkip = canSkipResourceActionDetails(actionType);
+        if (options.length === 1 && !options[0].isVariable && !canSkip) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
-            return noopAction();
+            throw new Error('No valid decrease production target');
         } else {
             return askUserToChooseResourceActionDetails({
                 actionType,
@@ -2817,15 +2802,8 @@ export class ApiActionHandler {
             locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (
-            options.length === 1 &&
-            !options[0].isVariable &&
-            !canSkipResourceActionDetails(
-                wrappers,
-                actionType,
-                resourceAndAmounts
-            )
-        ) {
+        const canSkip = canSkipResourceActionDetails(actionType);
+        if (options.length === 1 && !options[0].isVariable && !canSkip) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
             return noopAction();
@@ -2863,17 +2841,13 @@ export class ApiActionHandler {
                 locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (
-                options.length === 1 &&
-                !options[0].isVariable &&
-                !canSkipResourceActionDetails(
-                    wrappers,
-                    actionType,
-                    resourceAndAmounts
-                )
-            ) {
+            const canSkip = canSkipResourceActionDetails(actionType);
+            if (options.length === 1 && !options[0].isVariable && !canSkip) {
                 return getAction(options[0], player, 0);
             } else if (options.length === 0) {
+                // You shouldn't be able to *skip* gaining a resource,
+                // But you might not be able to (ie gain microbes).
+                // In the case there's no target, we just no-op.
                 return noopAction();
             }
             return askUserToChooseResourceActionDetails({
@@ -2932,18 +2906,19 @@ export class ApiActionHandler {
                 locationType,
             });
             const options = wrappers.flatMap(wrapper => wrapper.options);
-            if (
-                options.length === 1 &&
-                !options[0].isVariable &&
-                !canSkipResourceActionDetails(
-                    wrappers,
-                    actionType,
-                    resourceAndAmounts
-                )
-            ) {
+
+            const canSkip = canSkipResourceActionDetails(
+                actionType,
+                locationType
+            );
+            if (options.length === 1 && !options[0].isVariable && !canSkip) {
                 return getAction(options[0], player, 0);
             } else if (options.length === 0) {
-                return noopAction();
+                if (canSkip) {
+                    return noopAction();
+                } else {
+                    throw new Error('No valid remove resource target.');
+                }
             }
             return askUserToChooseResourceActionDetails({
                 actionType,
@@ -2997,18 +2972,15 @@ export class ApiActionHandler {
             locationType,
         });
         const options = wrappers.flatMap(wrapper => wrapper.options);
-        if (
-            options.length === 1 &&
-            !options[0].isVariable &&
-            !canSkipResourceActionDetails(
-                wrappers,
-                actionType,
-                resourceAndAmounts
-            )
-        ) {
+        const canSkip = canSkipResourceActionDetails(actionType, locationType);
+        if (options.length === 1 && !options[0].isVariable && !canSkip) {
             return getAction(options[0], player, 0);
         } else if (options.length === 0) {
-            return noopAction();
+            if (canSkip) {
+                return noopAction();
+            } else {
+                throw new Error('No valid remove resource');
+            }
         }
         return askUserToChooseResourceActionDetails({
             actionType,

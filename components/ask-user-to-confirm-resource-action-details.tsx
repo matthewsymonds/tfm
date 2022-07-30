@@ -51,6 +51,16 @@ export type ResourceActionType =
     | 'increaseProduction'
     | 'decreaseProduction';
 
+export type ResourceActionOption = {
+    location: PlayerState | Card;
+    quantity: number;
+    resource: Resource;
+    isVariable: boolean;
+    actionType: ResourceActionType;
+    card?: Card;
+    text: React.ReactNode;
+};
+
 type PlayerOptionWrapper = {
     title: string;
     options: ResourceActionOption[];
@@ -68,6 +78,34 @@ type Props = {
     };
 };
 
+function targetsMultiplePlayers(
+    locationType: ResourceLocationType | undefined
+): boolean {
+    switch (locationType) {
+        case undefined:
+            return false;
+        case ResourceLocationType.THIS_CARD:
+        case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
+        case ResourceLocationType.LAST_PLAYED_CARD:
+        case ResourceLocationType.OWN_CORPORATION:
+            return false;
+        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
+        case ResourceLocationType.VENUS_CARD:
+        case ResourceLocationType.JOVIAN_CARD:
+            // These really only refer to your own cards.
+            return false;
+        case ResourceLocationType.ANY_CARD:
+        case ResourceLocationType.ANY_PLAYER:
+            return true;
+        case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
+            return true;
+        case ResourceLocationType.ANY_PLAYER_WITH_VENUS_TAG:
+            return true;
+        default:
+            throw spawnExhaustiveSwitchError(locationType);
+    }
+}
+
 function getPlayersToConsider(
     player: PlayerState,
     players: PlayerState[],
@@ -81,23 +119,12 @@ function getPlayersToConsider(
     if (actionType === 'stealResource') {
         return players;
     }
-    if (!locationType) {
+    if (!targetsMultiplePlayers(locationType)) {
         return [player];
     }
+
     switch (locationType) {
-        case ResourceLocationType.THIS_CARD:
-        case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
-        case ResourceLocationType.LAST_PLAYED_CARD:
-        case ResourceLocationType.ANY_CARD_WITH_NONZERO_STORABLE_RESOURCE:
-        case ResourceLocationType.OWN_CORPORATION:
-            return [player];
-        case ResourceLocationType.VENUS_CARD:
-        case ResourceLocationType.JOVIAN_CARD:
-            // Turns out both of these only add resources.
-            return [player];
-        case ResourceLocationType.ANY_CARD:
-        case ResourceLocationType.ANY_PLAYER:
-            return players;
+        // Do some additional filtering
         case ResourceLocationType.ANY_PLAYER_WITH_TILE_ADJACENT_TO_MOST_RECENTLY_PLACED_TILE:
             const neighbors = getAdjacentCellsForCell(
                 state,
@@ -116,19 +143,9 @@ function getPlayersToConsider(
                     .some(tag => tag === Tag.VENUS)
             );
         default:
-            throw spawnExhaustiveSwitchError(locationType);
+            return players;
     }
 }
-
-export type ResourceActionOption = {
-    location: PlayerState | Card;
-    quantity: number;
-    resource: Resource;
-    isVariable: boolean;
-    actionType: ResourceActionType;
-    card?: Card;
-    text: React.ReactNode;
-};
 
 export type SerializedResourceActionOption = Omit<
     ResourceActionOption,
@@ -620,22 +637,18 @@ export function quantityAndResource(quantity: number, resource: Resource) {
 }
 
 export function canSkipResourceActionDetails(
-    playerOptionWrappers: PlayerOptionWrapper[],
-    actionType: string,
-    resourceAndAmounts: ResourceAndAmount[]
+    actionType: ResourceActionType,
+    locationType?: ResourceLocationType | undefined
 ) {
-    const hasNoOptions =
-        playerOptionWrappers.flatMap(item => item.options).length === 0;
+    // Players should be required to do *most* resource actions.
+    // - gaining resources is required.
+    // - stealing resources (predators) *cannot* be skipped to gain a tempo.
+    // - decrease production, required
+    // - increase production, required
+    // - The ONLY time that a resource effect is optional is if it's
+    //   removing resources and it may target opponents.
     return (
-        hasNoOptions ||
-        (actionType !== 'stealResource' &&
-            actionType !== 'decreaseProduction' &&
-            actionType !== 'increaseProduction' &&
-            actionType !== 'gainResource' &&
-            (actionType === 'removeResource' ||
-                resourceAndAmounts.every(resourceAndAmount =>
-                    isStorableResource(resourceAndAmount.resource)
-                )))
+        actionType == 'removeResource' && targetsMultiplePlayers(locationType)
     );
 }
 
@@ -654,9 +667,8 @@ function AskUserToConfirmResourceActionDetails({
     };
 
     let shouldShowSkip = canSkipResourceActionDetails(
-        playerOptionWrappers,
         actionType,
-        resourceAndAmounts
+        player.pendingResourceActionDetails?.locationType
     );
 
     const isNegativeAction = [
