@@ -84,6 +84,9 @@ function targetsMultiplePlayers(
     switch (locationType) {
         case undefined:
             return false;
+        // Not sure why this is needed.
+        case null:
+            return false;
         case ResourceLocationType.THIS_CARD:
         case ResourceLocationType.ANY_CARD_OWNED_BY_YOU:
         case ResourceLocationType.LAST_PLAYED_CARD:
