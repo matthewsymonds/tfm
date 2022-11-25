@@ -1,6 +1,6 @@
 import {setGame} from 'actions';
 import {makeGetCall} from 'api-calls';
-import {ActiveRound} from 'components/active-round';
+import {GameCore} from 'components/game-core';
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -183,7 +183,7 @@ function GameInner() {
         }
     };
 
-    return <ActiveRound key={gameName} yourTurnGames={yourTurnGames} />;
+    return <GameCore key={gameName} yourTurnGames={yourTurnGames} />;
 }
 
 type ServerGame = {

@@ -395,10 +395,10 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                     </Flex>
                 </Box>
             </Flex>
-            {/* <PlayerHand
+            <PlayerHand
                 gameName={gameName}
                 playerCardsString={playerCardsString}
-            /> */}
+            />
         </GlobalPopoverContext.Provider>
     );
 };
