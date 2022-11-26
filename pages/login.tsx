@@ -96,6 +96,10 @@ const Login: NextPage<{}> = props => {
                     </form>
                 </InnerContainer>
             </MidContainer>
+            <AlternativeLink
+                href={'/forgot-password'}
+                text="Forgot password?"
+            />
         </Container>
     );
 };

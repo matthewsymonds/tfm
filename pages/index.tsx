@@ -93,7 +93,7 @@ export const TitleAndButton = ({
     children,
 }: {
     text: string;
-    children: React.ReactChild | React.ReactChild[];
+    children?: React.ReactChild | React.ReactChild[];
 }) => {
     return (
         <Flex

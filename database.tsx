@@ -97,6 +97,7 @@ const usersSchema = new schema({
         validate: {validator: isEmail, message: 'Invalid email.'},
     },
     password: {type: String, required: true},
+    resetPasswordToken: {type: String, default: '', expires: '15m'},
 });
 
 // Increase the cost factor and passwords are harder to brute force,
