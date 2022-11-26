@@ -1,8 +1,11 @@
 import {usersModel} from 'database';
 import mailgun from 'mailgun-js';
 import {NextApiRequest, NextApiResponse} from 'next';
+
 const DOMAIN = process.env.DOMAIN_NAME;
 const API_KEY = process.env.MAILGUN_PRIVATE_API_KEY;
+
+const FIFTEEN_MINUTES_IN_MILLISECONDS = 15 * 60 * 1000;
 
 const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
 
@@ -32,8 +35,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     });
                     return;
                 }
+                if (Date.now() > user.resetPasswordExpires) {
+                    res.status(400).json({
+                        error: 'Token has expired.',
+                    });
+                    return;
+                }
                 user.password = password;
                 user.resetPasswordToken = undefined;
+                user.resetPasswordTokenExpires = undefined;
                 await user.save();
                 res.status(200).json({
                     message: 'Password updated',
@@ -53,6 +63,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
             token = generateToken();
             user.resetPasswordToken = token;
+            user.resetPasswordExpires =
+                Date.now() + FIFTEEN_MINUTES_IN_MILLISECONDS;
             await user.save();
 
             const data = {
@@ -62,7 +74,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 html: `<div>Please click the following link to reset your password:
                 <a href="${generateResetPasswordLink(
                     token
-                )}">Reset password</a></div>.
+                )}">Reset password</a>.</div>
                 <div>This link will expire in 15 minutes.</div>`,
             };
             try {

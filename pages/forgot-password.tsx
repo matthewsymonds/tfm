@@ -137,7 +137,7 @@ export default function ForgotPassword() {
                 setMessage(result.error);
             } else {
                 setMessage(
-                    'Check your email for a link to reset your password'
+                    'Check your email for a link to reset your password.'
                 );
             }
         },

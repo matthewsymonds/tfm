@@ -54,23 +54,6 @@ try {
     gamesModel = mongoose.model('games', gamesSchema);
 }
 
-const forgotPasswordSchema = new schema({
-    username: String,
-    token: String,
-    createdAt: {type: Date, expires: '15m', default: Date.now},
-});
-
-export let forgotPasswordModel;
-
-try {
-    forgotPasswordModel = mongoose.model('forgotPassword');
-} catch (error) {
-    forgotPasswordModel = mongoose.model(
-        'forgotPassword',
-        forgotPasswordSchema
-    );
-}
-
 const errorLogsSchema = new schema({
     username: String,
     gameName: String,
@@ -84,7 +67,7 @@ export let errorLogsModel;
 try {
     errorLogsModel = mongoose.model('errorLogModel');
 } catch (error) {
-    errorLogsModel = mongoose.model('errorLogModel', forgotPasswordSchema);
+    errorLogsModel = mongoose.model('errorLogModel', errorLogsSchema);
 }
 
 const usersSchema = new schema({
@@ -97,7 +80,8 @@ const usersSchema = new schema({
         validate: {validator: isEmail, message: 'Invalid email.'},
     },
     password: {type: String, required: true},
-    resetPasswordToken: {type: String, default: '', expires: '15m'},
+    resetPasswordToken: {type: String, default: ''},
+    resetPasswordExpires: {type: Number, default: 0},
 });
 
 // Increase the cost factor and passwords are harder to brute force,
