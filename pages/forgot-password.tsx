@@ -58,6 +58,9 @@ export default function ForgotPassword() {
     if (token) {
         const handleSubmit = useCallback(
             async event => {
+                if (password !== confirmPassword || password.length < 8) {
+                    return;
+                }
                 event.preventDefault();
                 const result = await makePostCall('/api/forgot-password', {
                     token,
