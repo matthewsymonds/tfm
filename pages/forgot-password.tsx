@@ -4,15 +4,15 @@ import {Button} from 'components/button';
 import {Input} from 'components/input';
 import {MaybeVisible} from 'components/maybe-visible';
 import {useInput} from 'hooks/use-input';
+import {NextPage} from 'next';
 import {useRouter} from 'next/dist/client/router';
 import {Container, MidContainer, Title, TitleAndButton} from 'pages';
 import {InnerContainer} from 'pages/new-game';
 import {useCallback, useEffect, useState} from 'react';
-import {redirectIfLoggedIn} from 'redirect-if-logged-in';
 import {AlternativeLink} from './login';
 import {ErrorText} from './signup';
 
-export default function ForgotPassword() {
+const ForgotPassword: NextPage = () => {
     const [username, updateUsername] = useInput('');
     const [email, updateEmail] = useInput('');
     const [message, setMessage] = useState('');
@@ -20,8 +20,8 @@ export default function ForgotPassword() {
     const query = router.query;
     const token = query.token as string;
     // password, confirmPassword
-    const [password, updatePassword] = useInput('');
-    const [confirmPassword, updateConfirmPassword] = useInput('');
+    const [password, updatePassword] = useInput<string>('');
+    const [confirmPassword, updateConfirmPassword] = useInput<string>('');
     useEffect(() => {
         if (password.length === 0) {
             setMayShowPasswordValidation(false);
@@ -52,16 +52,20 @@ export default function ForgotPassword() {
 
     const passwordValidationVisible =
         mayShowPasswordValidation && password.length < 8;
+
     const mismatchPasswords =
-        mayShowConfirmPasswordValidation && password !== confirmPassword;
+        mayShowConfirmPasswordValidation &&
+        password !== confirmPassword &&
+        confirmPassword.length > 0;
 
     if (token) {
         const handleSubmit = useCallback(
             async event => {
+                debugger;
+                event.preventDefault();
                 if (password !== confirmPassword || password.length < 8) {
                     return;
                 }
-                event.preventDefault();
                 const result = await makePostCall('/api/forgot-password', {
                     token,
                     username,
@@ -129,12 +133,17 @@ export default function ForgotPassword() {
     const handleSubmit = useCallback(
         async event => {
             event.preventDefault();
+            if (sent) {
+                return;
+            }
+            setSent(true);
             const result = await makePostCall('/api/forgot-password', {
                 username,
                 email,
             });
             if (result.error) {
                 setMessage(result.error);
+                setSent(false);
             } else {
                 setMessage(
                     'Check your email for a link to reset your password.'
@@ -143,6 +152,8 @@ export default function ForgotPassword() {
         },
         [username, email]
     );
+
+    const [sent, setSent] = useState(false);
 
     return (
         <Container>
@@ -181,7 +192,11 @@ export default function ForgotPassword() {
                             marginLeft="4px"
                             width="100px"
                         >
-                            <Button type="submit" variant="bordered">
+                            <Button
+                                type="submit"
+                                disabled={sent}
+                                variant="bordered"
+                            >
                                 Send email
                             </Button>
                         </Box>
@@ -195,6 +210,6 @@ export default function ForgotPassword() {
             </MidContainer>
         </Container>
     );
-}
+};
 
-ForgotPassword.getInitialProps = redirectIfLoggedIn;
+export default ForgotPassword;

@@ -8,7 +8,6 @@ import {NextPage} from 'next';
 import {useRouter} from 'next/dist/client/router';
 import {Container, MidContainer, Title, TitleAndButton} from 'pages';
 import {useCallback, useState} from 'react';
-import {redirectIfLoggedIn} from 'redirect-if-logged-in';
 import styled from 'styled-components';
 import {AlternativeLink} from './login';
 import {InnerContainer} from './new-game';
@@ -143,7 +142,5 @@ const Signup: NextPage = () => {
         </Container>
     );
 };
-
-Signup.getInitialProps = redirectIfLoggedIn;
 
 export default Signup;

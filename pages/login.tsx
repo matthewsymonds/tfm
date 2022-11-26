@@ -11,7 +11,6 @@ import Link from 'next/link';
 import {Container, InnerLink, MidContainer, Title, TitleAndButton} from 'pages';
 import {InnerContainer} from 'pages/new-game';
 import {useCallback, useState} from 'react';
-import {redirectIfLoggedIn} from 'redirect-if-logged-in';
 import {ErrorText} from './signup';
 
 export const AlternativeLink = ({href, text}: {href: string; text: string}) => {
@@ -103,7 +102,5 @@ const Login: NextPage<{}> = props => {
         </Container>
     );
 };
-
-Login.getInitialProps = redirectIfLoggedIn;
 
 export default Login;

@@ -100,13 +100,13 @@ const _BorderedButton = styled(_BaseButton)`
     background: ${colors.LIGHT_1};
     border: 1px solid ${colors.DARK_3};
 
-    &:hover {
+    &:hover:not([disabled]) {
         box-shadow: 1px 1px 0px 1px ${colors.DARK_4};
         position: relative;
         top: -1px;
         left: -1px;
 
-        &:active:not([disabled]) {
+        &:active {
             box-shadow: none;
             position: relative;
             top: 0;
