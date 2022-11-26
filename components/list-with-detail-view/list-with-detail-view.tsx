@@ -1,7 +1,6 @@
 import React, {useMemo, useState} from 'react';
-import {throttle} from 'throttle-debounce';
 import styled from 'styled-components';
-
+import {throttle} from 'throttle-debounce';
 import {Flex} from '../box';
 import {colors} from '../ui';
 

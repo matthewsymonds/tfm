@@ -1,5 +1,3 @@
-import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import {getAwardConfig, getAwards} from 'constants/awards';
 import {Parameter, TileType} from 'constants/board';
 import {Deck} from 'constants/card-types';
 import {
@@ -8,11 +6,6 @@ import {
     HELION_CONVERSION,
     STORMCRAFT_CONVERSION,
 } from 'constants/conversion';
-import {
-    getMilestoneConfig,
-    getMilestones,
-    MilestoneConfig,
-} from 'constants/milestones';
 import {Resource} from 'constants/resource-enum';
 import {
     getStandardProjects,
@@ -23,16 +16,13 @@ import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {useWindowWidth} from 'hooks/use-window-width';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {GameState, PlayerState, useTypedSelector} from 'reducer';
-import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
+import React, {useEffect, useMemo, useState} from 'react';
+import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
-import {throttle} from 'throttle-debounce';
 import spawnExhaustiveSwitchError from 'utils';
 import {BlankButton} from './blank-button';
 import {Board} from './board/board';
 import {Box, Flex} from './box';
-import {Button} from './button';
 import {
     renderArrow,
     renderLeftSideOfArrow,

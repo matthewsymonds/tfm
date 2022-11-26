@@ -1,4 +1,3 @@
-import {PlayerState, useTypedSelector} from 'reducer';
 import {
     GREENS,
     KELVINISTS,
@@ -8,14 +7,15 @@ import {
     TurmoilParty,
     UNITY,
 } from 'constants/party';
-import React, {useCallback, useState} from 'react';
-import {Flex, Box} from './box';
-import {DelegateComponent} from './delegate';
-import {useApiClient} from 'hooks/use-api-client';
-import {Button} from './button';
-import {colors} from './ui';
 import {Delegate} from 'constants/turmoil';
+import {useApiClient} from 'hooks/use-api-client';
+import React, {useCallback, useState} from 'react';
+import {PlayerState, useTypedSelector} from 'reducer';
+import {Box, Flex} from './box';
+import {Button} from './button';
+import {DelegateComponent} from './delegate';
 import {PartySymbol} from './icons/turmoil';
+import {colors} from './ui';
 
 export function AskUserToSelectNonLeaderDelegate({
     player,

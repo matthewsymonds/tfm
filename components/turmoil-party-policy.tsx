@@ -1,4 +1,3 @@
-import {getPartyConfig, TurmoilParty} from 'constants/party';
 import {Flex} from 'components/box';
 import {
     renderArrow,
@@ -7,6 +6,7 @@ import {
 } from 'components/card/CardActions';
 import {renderExchangeRates, renderTrigger} from 'components/card/CardEffects';
 import {Colon} from 'components/card/CardIconography';
+import {getPartyConfig, TurmoilParty} from 'constants/party';
 
 export function TurmoilPartyPolicy({partyName}: {partyName: TurmoilParty}) {
     const rulingPartyPolicy = getPartyConfig(partyName);

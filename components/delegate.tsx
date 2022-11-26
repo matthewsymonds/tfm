@@ -2,7 +2,6 @@ import {PLAYER_COLORS} from 'constants/game';
 import {Delegate} from 'constants/turmoil';
 import React from 'react';
 import Twemoji from 'react-twemoji';
-import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {colors} from './ui';
 

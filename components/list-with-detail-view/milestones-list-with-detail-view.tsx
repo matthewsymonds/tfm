@@ -1,20 +1,20 @@
+import {Box, Flex} from 'components/box';
+import {Button} from 'components/button';
+import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
+import {ResourceIcon} from 'components/icons/resource';
+import {ListWithDetailView} from 'components/list-with-detail-view/list-with-detail-view';
+import {usePaymentPopover} from 'components/popovers/payment-popover';
+import {colors} from 'components/ui';
 import {
     getMilestoneConfig,
     getMilestones,
     MilestoneConfig,
 } from 'constants/milestones';
+import {Resource} from 'constants/resource-enum';
+import {useActionGuard} from 'hooks/use-action-guard';
+import {useApiClient} from 'hooks/use-api-client';
 import React, {useCallback} from 'react';
 import {useTypedSelector} from 'reducer';
-import {ListWithDetailView} from 'components/list-with-detail-view/list-with-detail-view';
-import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
-import {colors} from 'components/ui';
-import {Box, Flex} from 'components/box';
-import {useApiClient} from 'hooks/use-api-client';
-import {useActionGuard} from 'hooks/use-action-guard';
-import {usePaymentPopover} from 'components/popovers/payment-popover';
-import {Button} from 'components/button';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource-enum';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 
 export function MilestonesListViewWithDetail() {

@@ -1,19 +1,19 @@
 import {
-    MARS_FIRST,
-    SCIENTISTS,
-    UNITY,
     GREENS,
-    REDS,
     KELVINISTS,
+    MARS_FIRST,
+    REDS,
+    SCIENTISTS,
     TurmoilParty,
+    UNITY,
 } from 'constants/party';
 import {useApiClient} from 'hooks/use-api-client';
 import {useState} from 'react';
 import {PlayerState} from 'reducer';
 import {Box, Flex} from './box';
+import {Button} from './button';
 import {PartySymbol} from './icons/turmoil';
 import {SelectButtons} from './select-buttons';
-import {Button} from './button';
 
 export function AskUserToPlaceDelegatesInOneParty({
     player,

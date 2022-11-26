@@ -1,8 +1,8 @@
 import {Box} from 'components/box';
-import {getPartyConfig, TurmoilParty, UNITY} from 'constants/party';
-import styled from 'styled-components';
-import Twemoji from 'react-twemoji';
 import {colors} from 'components/ui';
+import {getPartyConfig, TurmoilParty, UNITY} from 'constants/party';
+import Twemoji from 'react-twemoji';
+import styled from 'styled-components';
 
 export function PartySymbol({
     party,

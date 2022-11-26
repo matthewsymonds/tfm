@@ -27,7 +27,6 @@ import {
     aAnOrThe,
     getHumanReadableTileName,
 } from 'selectors/get-human-readable-tile-name';
-import {getIsPlayerMakingDecision} from 'selectors/get-is-player-making-decision';
 import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {ActionTable} from './action-table';
