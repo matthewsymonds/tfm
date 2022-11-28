@@ -1243,8 +1243,11 @@ export function IncreaseTerraformRatingIconography({
 
         if (isContestAmount(increaseTerraformRating)) {
             return (
-                <Flex>
-                    <IconographyRow className="increase-terraform-rating">
+                <Flex flexDirection="column">
+                    <IconographyRow
+                        className="increase-terraform-rating"
+                        style={{marginLeft: '4px'}}
+                    >
                         <Flex alignItems="center" flexWrap="wrap">
                             <Box
                                 display="inline-block"
@@ -1258,10 +1261,11 @@ export function IncreaseTerraformRatingIconography({
                                 omitResourceIconography={true}
                                 amount={increaseTerraformRating.contest}
                             />
+                            <TextWithMargin>:</TextWithMargin>
                         </Flex>
                     </IconographyRow>
                     <IconographyRow
-                        style={{marginLeft: '8px'}}
+                        style={{marginLeft: '8px', marginTop: '4px'}}
                         className="increase-terraform-rating"
                     >
                         <Flex
@@ -1279,7 +1283,10 @@ export function IncreaseTerraformRatingIconography({
                         </Flex>
                     </IconographyRow>
                     {increaseTerraformRating.second ? (
-                        <IconographyRow className="increase-terraform-rating">
+                        <IconographyRow
+                            className="increase-terraform-rating"
+                            style={{marginTop: '4px'}}
+                        >
                             <Flex flexWrap="wrap" justifyContent="flex-end">
                                 {renderArrow()}
                                 <Box display="inline-block">Second:</Box>
