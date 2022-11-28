@@ -90,6 +90,9 @@ export const GlobalStyles = createGlobalStyle`
     .display {
         font-family: 'Ubuntu Condensed', sans-serif;
     }
+    .display-reset {
+        font-family: 'Open Sans', 'Roboto', sans-serif;
+    }
     .active-round {
         display: flex;
         flex-direction: column;

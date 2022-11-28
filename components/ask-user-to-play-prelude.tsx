@@ -1,6 +1,5 @@
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {isActiveRound} from 'selectors/is-active-round';
@@ -27,7 +26,7 @@ export function AskUserToPlayPrelude({player}: {player: PlayerState}) {
     }
 
     const preludesEls = (
-        <Flex justifyContent="center" flexWrap="wrap">
+        <Flex justifyContent="center" flexWrap="wrap" className="display-reset">
             {player.preludes.map(prelude => {
                 const card = getCard(prelude);
                 return (
