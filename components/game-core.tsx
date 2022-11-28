@@ -16,6 +16,7 @@ import {
 } from 'context/global-popover-context';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
+import {useWindowWidth} from 'hooks/use-window-width';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {
@@ -83,6 +84,7 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
     }
 
     const gameStage = useTypedSelector(state => state.common.gameStage);
+    const windowWidth = useWindowWidth();
     const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(
         loggedInPlayer.index
     );
@@ -384,7 +386,10 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                             </Flex>
                         ) : null}
                         <ActionTable />
-                        <Box width="100%">
+                        <Box
+                            width="100%"
+                            display={windowWidth < 1500 ? 'initial' : 'none'}
+                        >
                             <PlayerPanels />
                         </Box>
                     </Flex>

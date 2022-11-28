@@ -38,11 +38,13 @@ import {TileIcon} from './icons/tile';
 import {AwardsListViewWithDetail} from './list-with-detail-view/awards-list-with-detail-view';
 import {MilestonesListViewWithDetail} from './list-with-detail-view/milestones-list-with-detail-view';
 import {Notes} from './notes';
+import {PlayerPanels} from './player-panel/player-panels';
 import {usePaymentPopover} from './popovers/payment-popover';
 import {Turmoil} from './turmoil';
 import {colors} from './ui';
 
 const actionTypes: Array<ActionType> = [
+    'Players',
     'Mars',
     'Actions',
     'Colonies',
@@ -50,18 +52,25 @@ const actionTypes: Array<ActionType> = [
     'Notes',
 ];
 
-type ActionType = 'Mars' | 'Actions' | 'Colonies' | 'Turmoil' | 'Notes';
+type ActionType =
+    | 'Players'
+    | 'Mars'
+    | 'Actions'
+    | 'Colonies'
+    | 'Turmoil'
+    | 'Notes';
 
 export const ActionTable: React.FunctionComponent = () => {
-    const [selectedTab, setSelectedTab] = useState<ActionType | ''>('');
     const player = useLoggedInPlayer();
     const windowWidth = useWindowWidth();
+    const defaultValue = windowWidth > 1500 ? 'Mars' : 'Players';
+    const [selectedTab, setSelectedTab] = useState<ActionType>(defaultValue);
 
     useEffect(() => {
-        if (windowWidth <= 1500 && selectedTab === '') {
+        if (windowWidth <= 1500 && selectedTab === 'Players') {
             setSelectedTab('Mars');
         } else if (windowWidth > 1500 && selectedTab === 'Mars') {
-            setSelectedTab('Actions');
+            setSelectedTab('Players');
         }
         if (player.tradeForFree) {
             setSelectedTab('Colonies');
@@ -92,6 +101,9 @@ export const ActionTable: React.FunctionComponent = () => {
             if (actionType === 'Mars') {
                 return windowWidth <= 1500;
             }
+            if (actionType === 'Players') {
+                return windowWidth > 1500;
+            }
 
             return true;
         })
@@ -117,11 +129,7 @@ export const ActionTable: React.FunctionComponent = () => {
                         <ActionTableHeader
                             isSelected={selectedTab === actionType}
                             onClick={() => {
-                                if (actionType !== selectedTab) {
-                                    setSelectedTab(actionType);
-                                } else {
-                                    setSelectedTab('');
-                                }
+                                setSelectedTab(actionType);
                             }}
                         >
                             {actionType}
@@ -194,6 +202,12 @@ function ActionTableInner({selectedTab}: {selectedTab: ActionType | ''}) {
     switch (selectedTab) {
         case '':
             return null;
+        case 'Players':
+            return (
+                <Box width="100%">
+                    <PlayerPanels />
+                </Box>
+            );
         case 'Actions': {
             return (
                 <Flex
