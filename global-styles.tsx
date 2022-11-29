@@ -101,6 +101,7 @@ export const GlobalStyles = createGlobalStyle`
     .player-board {
         margin-left: 8px;
         margin-right: 8px;
+        margin-top: 10px;
         &.first {
             margin-left: 0px;
             @media (max-width: 1500px) {

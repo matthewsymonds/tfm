@@ -1,6 +1,6 @@
 import {Box, Flex} from 'components/box';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React, {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import SwiperCore, {Controller, Mousewheel} from 'swiper';
@@ -9,7 +9,12 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import {PlayerBottomPanel} from './player-bottom-panel';
 import {PlayerTopPanel} from './player-top-panel';
 
-const PlayerBoardsContainer = styled(Flex)``;
+const PlayerBoardsContainer = styled(Flex)`
+    margin-top: -8px;
+    @media (max-width: 1500px) {
+        margin-top: 0;
+    }
+`;
 
 export const PlayerPanels = () => {
     const players = useTypedSelector(state => state.players);
@@ -18,6 +23,8 @@ export const PlayerPanels = () => {
     const playerIndex = useTypedSelector(state => loggedInPlayer.index);
     const gameName = useTypedSelector(state => state.name);
     const [topIndex, setTopIndex] = useState<number>(playerIndex);
+    const scrollRef = useRef<HTMLElement>(null);
+    const innerScrollRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         const handler = () => {
@@ -29,16 +36,12 @@ export const PlayerPanels = () => {
     }, [swiper, gameName]);
 
     useEffect(() => {
-        const element: HTMLDivElement | null = document.querySelector(
-            '#player-board-unique-' + topIndex
-        );
-        const parent = element?.parentElement;
-        if (element && parent) {
+        if (scrollRef?.current && innerScrollRef?.current) {
             const scrollLeft =
-                element.offsetLeft -
-                parent.offsetWidth / 2 +
-                element.offsetWidth / 2;
-            parent.scrollTo({left: scrollLeft, behavior: 'smooth'});
+                innerScrollRef.current.offsetLeft -
+                scrollRef.current.offsetWidth / 2 +
+                innerScrollRef.current.offsetWidth / 2;
+            scrollRef.current.scrollTo({left: scrollLeft, behavior: 'smooth'});
         }
     }, [topIndex]);
 
@@ -68,10 +71,15 @@ export const PlayerPanels = () => {
 
     return (
         <Box position="relative">
-            <PlayerBoardsContainer overflowX="auto" width="100%">
+            <PlayerBoardsContainer
+                ref={scrollRef}
+                overflowX="auto"
+                width="100%"
+            >
                 {players.map((player, i) => (
                     <Box
                         key={i}
+                        ref={i === topIndex ? innerScrollRef : null}
                         id={'player-board-unique-' + i}
                         className={`player-board ${
                             i === 0
@@ -84,7 +92,6 @@ export const PlayerPanels = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginTop: 10,
                         }}
                         onClick={() => {
                             swiper?.slideTo(i);

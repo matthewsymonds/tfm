@@ -154,6 +154,11 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         const generation = useTypedSelector(state => state.common.generation);
         const yourTurnToPlayPreludes =
             isPreludesEnabled && playing && turn === 1 && generation === 1;
+        const showWaitingForMessage =
+            !isLoggedInPlayerInControl &&
+            isActiveRound &&
+            !isLoggedInPlayerPassed;
+
         return (
             <TopBarBase
                 ref={ref}
@@ -194,40 +199,43 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                 'Waiting to start generation.'}
                             {syncing && <em>Saving...</em>}
                             {!syncing && playing && !yourTurnToPlayPreludes && (
-                                <>Action {action} of 2</>
+                                <Box
+                                    display={
+                                        showWaitingForMessage
+                                            ? 'block'
+                                            : 'inline'
+                                    }
+                                >
+                                    Action {action} of 2
+                                </Box>
                             )}
-                            {!(
-                                isLoggedInPlayersTurn ||
-                                isLoggedInPlayerInControl
-                            ) &&
-                                isActiveRound &&
-                                !isLoggedInPlayerPassed && (
-                                    <React.Fragment>
-                                        <Box
-                                            display="inline-block"
-                                            style={{
-                                                marginRight: 4,
-                                                color: 'white',
-                                            }}
-                                        >
-                                            Waiting for
-                                        </Box>
-                                        <PlayerCorpAndIcon
-                                            player={currentPlayer}
-                                            color="white"
-                                            isInline={true}
-                                        />
-                                        <Box
-                                            display="inline-block"
-                                            style={{
-                                                marginLeft: 0,
-                                                color: 'white',
-                                            }}
-                                        >
-                                            ...
-                                        </Box>
-                                    </React.Fragment>
-                                )}
+                            {showWaitingForMessage && (
+                                <React.Fragment>
+                                    <Box
+                                        display="inline-block"
+                                        style={{
+                                            marginRight: 4,
+                                            color: 'white',
+                                        }}
+                                    >
+                                        Waiting for
+                                    </Box>
+                                    <PlayerCorpAndIcon
+                                        player={currentPlayer}
+                                        color="white"
+                                        isInline={true}
+                                    />
+                                    <Box
+                                        display="inline-block"
+                                        style={{
+                                            marginLeft: 0,
+                                            color: 'white',
+                                        }}
+                                    >
+                                        ...
+                                    </Box>
+                                </React.Fragment>
+                            )}
                             {isLoggedInPlayersTurn && isGreeneryPlacement && (
                                 <Box display="inline-block">
                                     {greeneryPlacementText}
