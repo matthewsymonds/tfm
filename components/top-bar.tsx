@@ -81,6 +81,9 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         const isLoggedInPlayerInControl = useTypedSelector(
             state => state.common.controllingPlayerIndex === loggedInPlayerIndex
         );
+        const isControlUnceded = useTypedSelector(
+            state => state.common.controllingPlayerIndex === undefined
+        );
         const isGreeneryPlacement = useTypedSelector(
             state => state.common.gameStage === GameStage.GREENERY_PLACEMENT
         );
@@ -154,10 +157,12 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
         const generation = useTypedSelector(state => state.common.generation);
         const yourTurnToPlayPreludes =
             isPreludesEnabled && playing && turn === 1 && generation === 1;
+
+        const yourMove =
+            (isLoggedInPlayersTurn && isControlUnceded) ||
+            isLoggedInPlayerInControl;
         const showWaitingForMessage =
-            !isLoggedInPlayerInControl &&
-            isActiveRound &&
-            !isLoggedInPlayerPassed;
+            !yourMove && isActiveRound && !isLoggedInPlayerPassed;
 
         return (
             <TopBarBase
