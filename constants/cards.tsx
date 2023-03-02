@@ -5330,7 +5330,7 @@ export const cardConfigs: CardConfig[] = [
     {
         effect: {
             text: 'When any colony is placed, including this, raise your MC production 1 step.',
-            trigger: {placedColony: true},
+            trigger: {placedColony: true, anyPlayer: true},
             action: {increaseProduction: {[Resource.MEGACREDIT]: 1}},
         },
         deck: Deck.COLONIES,
