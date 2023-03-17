@@ -1878,39 +1878,38 @@ export class ApiActionHandler {
                 action.payload.reverseOrder ?? false,
                 action.payload.playerIndex
             );
-        } else if (removeResource.match(action)) {
+        } else if (
+            removeResource.match(action) &&
+            player.corporation.name === 'Helion' &&
+            action.payload.resource === Resource.MEGACREDIT &&
+            action.payload.playerIndex === this.loggedInPlayerIndex &&
+            payment
+        ) {
             if (
-                player.corporation.name === 'Helion' &&
-                action.payload.resource === Resource.MEGACREDIT &&
-                action.payload.playerIndex === this.loggedInPlayerIndex &&
-                payment
+                // Can I pay with the offered resources?
+                !this.actionGuard.canAffordActionCost(
+                    {cost: action.payload.amount},
+                    player,
+                    payment
+                ) ||
+                // Can I pay with the player's resources? Need to check so player isnt trying to take resources they dont have
+                !this.actionGuard.canAffordActionCost(
+                    {cost: action.payload.amount},
+                    player
+                )
             ) {
-                if (
-                    // Can I pay with the offered resources?
-                    !this.actionGuard.canAffordActionCost(
-                        {cost: action.payload.amount},
-                        player,
-                        payment
-                    ) ||
-                    // Can I pay with the player's resources? Need to check so player isnt trying to take resources they dont have
-                    !this.actionGuard.canAffordActionCost(
-                        {cost: action.payload.amount},
-                        player
-                    )
-                ) {
-                    throw new Error('Payment not acceptable');
-                }
+                throw new Error('Payment not acceptable');
+            }
 
-                for (const resource in payment) {
-                    this.queue.push(
-                        removeResource(
-                            resource as Resource,
-                            payment[resource],
-                            action.payload.playerIndex,
-                            action.payload.playerIndex
-                        )
-                    );
-                }
+            for (const resource in payment) {
+                this.queue.push(
+                    removeResource(
+                        resource as Resource,
+                        payment[resource],
+                        action.payload.playerIndex,
+                        action.payload.playerIndex
+                    )
+                );
             }
         } else {
             this.queue.push(action);
@@ -2001,7 +2000,9 @@ export class ApiActionHandler {
             } else {
                 const pendingTilePlacement = {
                     ...tilePlacement,
-                    noBonuses: action.noParameterBonuses,
+                    noBonuses:
+                        action.noParameterBonuses ||
+                        tilePlacement.type === TileType.LAND_CLAIM,
                 };
                 const cells = this.state.common.board
                     .flat()

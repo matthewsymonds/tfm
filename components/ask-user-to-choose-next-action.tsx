@@ -22,8 +22,11 @@ import {
     gainStorableResource,
     increaseParameter,
     increaseProduction,
+    increaseTerraformRating,
+    markCardActionAsPlayed,
     placeTile,
     removeResource,
+    removeStorableResource,
     setPreludes,
 } from 'actions';
 import {ApiClient} from 'api-client';
@@ -45,6 +48,7 @@ import {LookAtCards} from './card/CardActions';
 import {
     BaseActionIconography,
     GainResourceIconography,
+    IncreaseTerraformRatingIconography,
     ProductionIconography,
     RemoveResourceIconography,
 } from './card/CardIconography';
@@ -93,7 +97,10 @@ function createActionIcon(action: AnyAction) {
                 </Box>
             </Flex>
         );
-    } else if (removeResource.match(action)) {
+    } else if (
+        removeResource.match(action) ||
+        removeStorableResource.match(action)
+    ) {
         return (
             <RemoveResourceIconography
                 removeResource={{
@@ -112,6 +119,12 @@ function createActionIcon(action: AnyAction) {
                         [action.payload.parameter]: action.payload.amount,
                     },
                 }}
+            />
+        );
+    } else if (increaseTerraformRating.match(action)) {
+        return (
+            <IncreaseTerraformRatingIconography
+                increaseTerraformRating={action.payload.amount}
             />
         );
     } else if (addActionToPlay.match(action)) {
@@ -234,7 +247,8 @@ export function userCannotChooseAction(action: AnyAction): boolean {
         applyDiscounts.match(action) ||
         setPreludes.match(action) ||
         (increaseParameter.match(action) &&
-            action.payload.parameter === Parameter.OCEAN)
+            action.payload.parameter === Parameter.OCEAN) ||
+        markCardActionAsPlayed.match(action)
     );
 }
 
