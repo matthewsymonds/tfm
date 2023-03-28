@@ -1,11 +1,10 @@
-import {Flex} from 'components/box';
+import {Box, Flex} from 'components/box';
 import {PlayerIcon} from 'components/icons/player';
 import {PlayerResourceBoard} from 'components/player-panel/player-resource-board';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {colors} from 'components/ui';
 import {GameStage} from 'constants/game';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
-import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {NoClickOverlay} from './player-bottom-panel';
@@ -115,20 +114,34 @@ export const PlayerTopPanel = ({
                         playerIndex={player.index}
                         shouldDimForPassedPlayers={true}
                     />
-                    <span
-                        style={{
-                            marginLeft: 8,
-                            color: isSelected ? colors.LIGHT_1 : colors.LIGHT_2,
-                            fontSize: getFontSizeForCorporation(
-                                player.corporation.name || player.username
-                            ),
-                        }}
-                        title={`${player.corporation.name ?? ''} (${
-                            player.username
-                        })`}
-                    >
-                        {player.corporation.name || player.username}
-                    </span>
+                    <Flex flexDirection="column" alignItems="baseline">
+                        <span
+                            style={{
+                                marginLeft: 8,
+                                color: isSelected
+                                    ? colors.LIGHT_1
+                                    : colors.LIGHT_2,
+                                fontSize: getFontSizeForCorporation(
+                                    player.corporation.name || player.username
+                                ),
+                            }}
+                            title={`${player.corporation.name ?? ''} (${
+                                player.username
+                            })`}
+                        >
+                            {player.corporation.name || player.username}
+                        </span>
+                        <Box
+                            fontFamily="Open Sans"
+                            color={colors.LIGHT_5}
+                            fontSize="10.5px"
+                            fontWeight="normal"
+                        >
+                            {player.corporation.name ? (
+                                <Box marginLeft="1px">{player.username}</Box>
+                            ) : null}
+                        </Box>
+                    </Flex>
                 </Flex>
                 <ScorePopover playerIndex={player.index}>
                     <TerraformRating>
