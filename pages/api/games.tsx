@@ -31,13 +31,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             const {name, options} = req.body;
             let players = req.body.players.slice(0, 5);
             players = [...new Set(players)];
-            game = await gamesModel.findOne({name});
+            let game = await gamesModel.findOne({
+                name: {$regex: new RegExp(`^${name}$`, 'i')},
+            });
             if (game) {
                 res.json({error: 'Game with that name already exists'});
                 return;
             }
             const validPlayers = await usersModel.find({
-                username: {$in: players},
+                username: {
+                    $in: players.map(player => new RegExp(`^${player}$`, 'i')),
+                },
             });
             if (validPlayers.length !== players.length) {
                 res.json({error: 'Not all players found'});
@@ -45,6 +49,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             }
             game = new gamesModel();
             game.name = name;
+            players = validPlayers.map(player => player.username);
             game.state = getInitialState(players, options, name);
             game.players = players;
             // TODO make configurable
