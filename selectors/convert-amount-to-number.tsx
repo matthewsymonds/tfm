@@ -9,19 +9,19 @@ import {
 } from 'constants/conditional-amount';
 import {ContestAmount, isContestAmount} from 'constants/contest-amount';
 import {
-    isOperationAmount,
     Operation,
     OperationAmount,
+    isOperationAmount,
 } from 'constants/operation-amount';
 import {
-    isProductionAmount,
     ProductionAmount,
+    isProductionAmount,
 } from 'constants/production-amount';
-import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';
+import {ResourceAmount, isResourceAmount} from 'constants/resource-amount';
 import {Tag} from 'constants/tag';
-import {isTileAmount, TileAmount} from 'constants/tile-amount';
+import {TileAmount, isTileAmount} from 'constants/tile-amount';
 import {GameState, PlayerState} from 'reducer';
-import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
+import {VARIABLE_AMOUNT_SELECTORS, getTags} from 'selectors/variable-amount';
 import {SerializedCard} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
 import {getAllCellsOwnedByCurrentPlayer} from './board';
@@ -238,13 +238,30 @@ export function convertContestAmountToNumber(
 
     const firstPlace = Math.max(...playerResults);
 
+    if (firstPlace === 0) {
+        return 0;
+    }
+
     if (playerResults[player.index] === firstPlace) {
         return amount.first;
+    }
+
+    const firstPlacePlayers = playerResults.filter(
+        result => result === firstPlace
+    );
+
+    if (firstPlacePlayers.length > 1) {
+        // Only consider second place if there's 1 player in first place.
+        return 0;
     }
 
     const secondPlace = Math.max(
         ...playerResults.filter(result => result !== firstPlace)
     );
+
+    if (secondPlace === 0) {
+        return 0;
+    }
 
     const numPlayersWithFirstPlace = playerResults.filter(
         result => result === firstPlace
