@@ -1,7 +1,6 @@
 import {Box, Flex} from 'components/box';
 import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
-import React from 'react';
 import Twemoji from 'react-twemoji';
 
 // icon, text color, bg color, classname
@@ -115,7 +114,12 @@ export const TagIcon = ({
                     inset={0}
                 >
                     {PLAIN_ICONS.includes(tagProps.icon) ? (
-                        baseIcon
+                        <>
+                            <span
+                                dangerouslySetInnerHTML={{__html: '&#xFE0E;'}}
+                            ></span>
+                            {baseIcon}
+                        </>
                     ) : (
                         <Twemoji>{baseIcon}</Twemoji>
                     )}

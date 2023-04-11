@@ -88,6 +88,7 @@ export const PlayerCorpAndIcon = ({
         <Flex
             display="inline-flex"
             alignItems={isInline ? 'baseline' : 'center'}
+            alignContent="end"
             justifyContent="center"
             style={{...style, fontSize, fontWeight}}
         >
