@@ -114,7 +114,7 @@ export const PlayerTopPanel = ({
                         playerIndex={player.index}
                         shouldDimForPassedPlayers={true}
                     />
-                    <Flex flexDirection="column" alignItems="baseline">
+                    <Flex flexDirection="column">
                         <span
                             style={{
                                 marginLeft: 8,
@@ -136,6 +136,7 @@ export const PlayerTopPanel = ({
                             color={colors.LIGHT_5}
                             fontSize="10.5px"
                             fontWeight="normal"
+                            marginLeft="9px"
                         >
                             {player.corporation.name ? (
                                 <Box marginLeft="1px">{player.username}</Box>
