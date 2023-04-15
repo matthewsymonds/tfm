@@ -16,6 +16,7 @@ const TerraformRating = styled.button`
     cursor: pointer;
     color: ${colors.GOLD};
     margin-left: 4px;
+    border: none;
     &:hover {
         opacity: 0.75;
         border: none;
