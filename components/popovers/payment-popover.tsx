@@ -1,4 +1,5 @@
 import {Box, Flex} from 'components/box';
+import {Button} from 'components/button';
 import {ResourceIcon} from 'components/icons/resource';
 import {Action} from 'constants/action';
 import {PLAYER_COLORS} from 'constants/game';
@@ -70,10 +71,6 @@ const PaymentPopoverSummaryRow = styled.div<{isValidPayment: boolean}>`
     .running-total {
         color: ${props => (props.isValidPayment ? 'black' : 'red')};
     }
-`;
-
-const PaymentPopoverConfirmationButton = styled.button`
-    margin-top: 16px;
 `;
 
 type PaymentPopoverRowProps = {
@@ -181,19 +178,19 @@ function PaymentPopoverRow({
             </Flex>
             <div className="payment-row-right">
                 <div className="payment-row-input-container">
-                    <button
+                    <Button
                         disabled={currentQuantity === 0}
                         onClick={() => handleDecrease(resource)}
                     >
                         -
-                    </button>
+                    </Button>
                     <span>{currentQuantity}</span>
-                    <button
+                    <Button
                         disabled={shouldDisableIncrease}
                         onClick={() => handleIncrease(resource)}
                     >
                         +
-                    </button>
+                    </Button>
                 </div>
             </div>
         </PaymentPopoverRowBase>
@@ -476,22 +473,30 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
                     />
                 ))}
             </div>
-            <PaymentPopoverConfirmationButton
-                disabled={!isValidPayment}
-                onClick={() => {
-                    props.onConfirmPayment(
-                        {
-                            [Resource.MEGACREDIT]: numMC,
-                            [Resource.STEEL]: numSteel,
-                            [Resource.TITANIUM]: numTitanium,
-                            [Resource.HEAT]: numHeat,
-                        },
-                        numConditionalPayment
-                    );
+            <div
+                style={{
+                    marginTop: 16,
+                    display: 'flex',
+                    justifyContent: 'center',
                 }}
             >
-                Confirm
-            </PaymentPopoverConfirmationButton>
+                <Button
+                    disabled={!isValidPayment}
+                    onClick={() => {
+                        props.onConfirmPayment(
+                            {
+                                [Resource.MEGACREDIT]: numMC,
+                                [Resource.STEEL]: numSteel,
+                                [Resource.TITANIUM]: numTitanium,
+                                [Resource.HEAT]: numHeat,
+                            },
+                            numConditionalPayment
+                        );
+                    }}
+                >
+                    Confirm
+                </Button>
+            </div>
         </PaymentPopoverBase>
     );
 }

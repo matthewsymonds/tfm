@@ -9,7 +9,6 @@ type ButtonSize = 'default' | 'small';
 
 type ButtonProps = React.PropsWithChildren<
     {
-        buttonRef?: React.RefObject<HTMLButtonElement>;
         variant?: ButtonVariant;
         size?: ButtonSize;
         disabled?: boolean;
@@ -27,7 +26,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             children,
             onClick,
             disabled,
-            buttonRef,
             variant = 'default',
             size = 'default',
         } = props;
@@ -35,7 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             case 'default':
                 return (
                     <_DefaultButton
-                        ref={buttonRef}
+                        ref={ref}
                         size={size}
                         disabled={disabled}
                         onClick={onClick}
@@ -46,7 +44,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             case 'bordered':
                 return (
                     <_BorderedButton
-                        ref={buttonRef}
+                        ref={ref}
                         size={size}
                         scaleOnClick={false}
                         disabled={disabled}

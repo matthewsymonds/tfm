@@ -178,7 +178,7 @@ function FundAwardButton({award}: {award: string}) {
 
     return (
         <Button
-            buttonRef={triggerRef}
+            ref={triggerRef}
             disabled={!canPlay}
             onClick={collectPaymentAndPerformAction}
         >

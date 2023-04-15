@@ -6,7 +6,8 @@ button,
 input[type='button'] {
     border: none;
     margin: 0;
-    padding: 4px 8px;
+    padding: 4px;
+    border: 1px solid black;
     width: auto;
     overflow: visible;
 

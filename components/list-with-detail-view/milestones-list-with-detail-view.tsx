@@ -199,7 +199,7 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
 
     return (
         <Button
-            buttonRef={triggerRef}
+            ref={triggerRef}
             disabled={!canPlay}
             onClick={collectPaymentAndPerformAction}
         >

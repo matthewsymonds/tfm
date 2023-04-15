@@ -21,6 +21,7 @@ import styled from 'styled-components';
 import {Box, Flex} from './box';
 import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
+import {Button} from './button';
 
 const HoverToPreviewPlaceholderBase = styled.div`
     width: ${CARD_WIDTH}px;
@@ -362,12 +363,12 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                             }
                         />
                         <Flex justifyContent="center" margin="8px 0 16px">
-                            <button
+                            <Button
                                 disabled={shouldDisableConfirmCardSelection}
                                 onClick={() => handleConfirmCardSelection()}
                             >
                                 {cardSelectionButtonText}
-                            </button>
+                            </Button>
                         </Flex>
                     </Flex>
                 )}
