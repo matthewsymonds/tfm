@@ -4754,6 +4754,7 @@ export const cardConfigs: CardConfig[] = [
         tags: [Tag.BUILDING],
         type: CardType.PRELUDE,
         increaseProduction: {[Resource.STEEL]: 1, [Resource.HEAT]: 2},
+        gainResource: {[Resource.HEAT]: 2},
     },
     {
         increaseTerraformRating: 1,
