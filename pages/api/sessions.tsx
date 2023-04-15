@@ -9,7 +9,11 @@ import jwt from 'jsonwebtoken';
 import {NextApiRequest, NextApiResponse} from 'next';
 
 function generateAccessToken(payload: TFMSession): string {
-    return jwt.sign(payload, process.env.TOKEN_SECRET, {expiresIn: '365d'});
+    const TOKEN_SECRET = process.env.TOKEN_SECRET;
+    if (!TOKEN_SECRET) {
+        throw new Error('Missing TOKEN_SECRET');
+    }
+    return jwt.sign(payload, TOKEN_SECRET, {expiresIn: '365d'});
 }
 
 export function getUsernameRegExp(username: string) {

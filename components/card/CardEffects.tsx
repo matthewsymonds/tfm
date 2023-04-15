@@ -252,7 +252,10 @@ export const CardEffects = ({
         if (card.parameterRequirementAdjustments) {
             return (
                 <InlineText>
-                    +/-{Object.values(card.parameterRequirementAdjustments)[0]}
+                    +/-
+                    {`${
+                        Object.values(card.parameterRequirementAdjustments)[0]
+                    }`}
                 </InlineText>
             );
         }

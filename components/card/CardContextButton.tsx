@@ -1,8 +1,8 @@
 import {ApiClient} from 'api-client';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {Flex} from 'components/box';
+import {Button} from 'components/button';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
-import {CardButton} from 'components/card/CardButton';
 import {usePaymentPopover} from 'components/popovers/payment-popover';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
@@ -73,19 +73,19 @@ export function CardContextButton({
                                 )
                             }
                         >
-                            <div>
-                                <CardButton disabled>Play</CardButton>
-                            </div>
+                            <Button disabled onClick={() => {}}>
+                                Play
+                            </Button>
                         </Tooltip>
                     );
                 } else {
                     buttonContent = (
-                        <CardButton
+                        <Button
                             ref={paymentTriggerRef}
                             onClick={collectPaymentAndPerformAction}
                         >
                             Play
-                        </CardButton>
+                        </Button>
                     );
                 }
             }

@@ -8,6 +8,23 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {NoClickOverlay} from './player-bottom-panel';
+import {PopoverType, usePopoverType} from 'context/global-popover-context';
+import {useRef} from 'react';
+
+const TerraformRating = styled.button`
+    display: inline-flex;
+    cursor: pointer;
+    color: ${colors.GOLD};
+    margin-left: 4px;
+    &:hover {
+        opacity: 0.75;
+        border: none;
+        background: none !important;
+    }
+    &:active {
+        opacity: 1;
+    }
+`;
 
 const FirstPlayerToken = styled.div<{last?: boolean}>`
     position: absolute;
@@ -52,21 +69,6 @@ const CorporationHeader = styled.h2`
     margin-bottom: 0px;
 `;
 
-const TerraformRating = styled.span`
-    display: inline-flex;
-    cursor: pointer;
-    color: ${colors.GOLD};
-    margin-left: 4px;
-    &:hover {
-        opacity: 0.75;
-        border: none;
-        background: none !important;
-    }
-    &:active {
-        opacity: 1;
-    }
-`;
-
 export const PlayerTopPanel = ({
     player,
     isSelected,
@@ -74,6 +76,9 @@ export const PlayerTopPanel = ({
     player: PlayerState;
     isSelected: boolean;
 }) => {
+    const {showPopover, hidePopover} = usePopoverType(
+        PopoverType.SCORE_POPOVER
+    );
     const isCorporationSelection = useTypedSelector(
         state => state.common.gameStage === GameStage.CORPORATION_SELECTION
     );
@@ -90,6 +95,7 @@ export const PlayerTopPanel = ({
             state.players.findIndex(p => p.username === player.username) ===
             state.players.length - 1
     );
+    const scoreRef = useRef<HTMLButtonElement>(null);
 
     return (
         <Flex
@@ -144,11 +150,19 @@ export const PlayerTopPanel = ({
                         </Box>
                     </Flex>
                 </Flex>
-                <ScorePopover playerIndex={player.index}>
-                    <TerraformRating>
-                        {player.terraformRating} TR
-                    </TerraformRating>
-                </ScorePopover>
+                <TerraformRating
+                    onClick={() =>
+                        showPopover({
+                            triggerRef: scoreRef,
+                            popover: (
+                                <ScorePopover playerIndex={player.index} />
+                            ),
+                        })
+                    }
+                    ref={scoreRef}
+                >
+                    {player.terraformRating} TR
+                </TerraformRating>
             </CorporationHeader>
             <PlayerResourceBoard
                 player={player}

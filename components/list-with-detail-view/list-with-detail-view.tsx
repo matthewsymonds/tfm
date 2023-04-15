@@ -32,7 +32,7 @@ export function ListWithDetailView<T extends {name: string}>({
     const [selectedItem, setSelectedItem] = useState(
         items[initialSelectedItemIndex]
     );
-    const [hoveredItem, setHoveredItem] = useState(null);
+    const [hoveredItem, setHoveredItem] = useState<T | null>(null);
     const throttledSetHoveredItem = useMemo(
         () => throttle(100, setHoveredItem),
         [setHoveredItem]

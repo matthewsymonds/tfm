@@ -13,6 +13,7 @@ import {
 import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
 import {colors} from './ui';
+import {SerializedState} from 'state-serialization';
 
 const AllScoresContainer = styled.div<{numPlayers: number}>`
     display: flex;
@@ -61,7 +62,7 @@ type PlayerScoreInfos = {
 };
 
 export function EndOfGame() {
-    const store = useStore();
+    const store = useStore<SerializedState>();
     const state = store.getState();
 
     const playerScoreInfos: Array<PlayerScoreInfos> = state.players.map(

@@ -1,4 +1,3 @@
-import {Pane, Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getVisiblePlayedCards} from 'selectors/get-played-cards';
@@ -14,12 +13,12 @@ import styled from 'styled-components';
 
 type Props = {
     playerIndex: number;
-    children: React.ReactNode;
 };
 
 const ScorePopoverBase = styled.div`
     padding: 16px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
     background: #f7f7f7;
     display: flex;
     flex-direction: column;
@@ -41,7 +40,7 @@ const ScorePopoverTotalRow = styled(ScorePopoverRow)`
     margin-top: 8px;
 `;
 
-export function ScorePopover({children, playerIndex}: Props) {
+export function ScorePopover({playerIndex}: Props) {
     const player = useTypedSelector(state => state.players[playerIndex]);
     const terraformRating = player.terraformRating;
     const visibleCardScore = useTypedSelector(state =>
@@ -79,49 +78,41 @@ export function ScorePopover({children, playerIndex}: Props) {
         awardScore +
         turmoilScore;
     return (
-        <Popover
-            position={Position.BOTTOM}
-            minWidth="unset"
-            content={
-                <ScorePopoverBase>
-                    <ScorePopoverRow>
-                        <span>TR</span>
-                        <span>{terraformRating}</span>
-                    </ScorePopoverRow>
-                    <ScorePopoverRow>
-                        <span>Visible Cards</span>
-                        <span>{visibleCardScore}</span>
-                    </ScorePopoverRow>
-                    <ScorePopoverRow>
-                        <span>Cities</span>
-                        <span>{citiesScore}</span>
-                    </ScorePopoverRow>
-                    <ScorePopoverRow>
-                        <span>Greeneries</span>
-                        <span>{greeneryScore}</span>
-                    </ScorePopoverRow>
-                    <ScorePopoverRow>
-                        <span>Milestones</span>
-                        <span>{milestoneScore}</span>
-                    </ScorePopoverRow>
-                    <ScorePopoverRow>
-                        <span>Awards</span>
-                        <span>{awardScore}</span>
-                    </ScorePopoverRow>
-                    {playingTurmoil ? (
-                        <ScorePopoverRow>
-                            <span>Turmoil</span>
-                            <span>{turmoilScore}</span>
-                        </ScorePopoverRow>
-                    ) : null}
-                    <ScorePopoverTotalRow>
-                        <span>Total</span>
-                        <span>{totalScore}</span>
-                    </ScorePopoverTotalRow>
-                </ScorePopoverBase>
-            }
-        >
-            <Pane>{children}</Pane>
-        </Popover>
+        <ScorePopoverBase>
+            <ScorePopoverRow>
+                <span>TR</span>
+                <span>{terraformRating}</span>
+            </ScorePopoverRow>
+            <ScorePopoverRow>
+                <span>Visible Cards</span>
+                <span>{visibleCardScore}</span>
+            </ScorePopoverRow>
+            <ScorePopoverRow>
+                <span>Cities</span>
+                <span>{citiesScore}</span>
+            </ScorePopoverRow>
+            <ScorePopoverRow>
+                <span>Greeneries</span>
+                <span>{greeneryScore}</span>
+            </ScorePopoverRow>
+            <ScorePopoverRow>
+                <span>Milestones</span>
+                <span>{milestoneScore}</span>
+            </ScorePopoverRow>
+            <ScorePopoverRow>
+                <span>Awards</span>
+                <span>{awardScore}</span>
+            </ScorePopoverRow>
+            {playingTurmoil ? (
+                <ScorePopoverRow>
+                    <span>Turmoil</span>
+                    <span>{turmoilScore}</span>
+                </ScorePopoverRow>
+            ) : null}
+            <ScorePopoverTotalRow>
+                <span>Total</span>
+                <span>{totalScore}</span>
+            </ScorePopoverTotalRow>
+        </ScorePopoverBase>
     );
 }

@@ -55,12 +55,12 @@ const HexagonInner = styled.div`
     right: 0;
 `;
 
-type HexagonProps = {
+type HexagonProps = React.PropsWithChildren<{
     color: string;
     scale?: number;
     selectable?: boolean;
     hexRadius?: number;
-};
+}>;
 
 export const Hexagon: React.FunctionComponent<HexagonProps> = ({
     selectable,

@@ -1,6 +1,6 @@
 import {ActionLog} from 'components/action-log';
 import {Box, Flex} from 'components/box';
-import Button from 'components/controls/button';
+import {Button} from 'components/button';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {DEFAULT_CONVERSIONS} from 'constants/conversion';
@@ -40,6 +40,7 @@ const YourTurnLink = styled.a`
 const CorporationName = styled(Flex)`
     margin: 0;
     font-size: 36px;
+    line-height: 1.1;
     margin-right: 12px;
     font-family: 'Ubuntu Condensed', sans-serif;
     font-weight: bold;
@@ -177,8 +178,6 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                     style={{
                         marginRight: '8px',
                         marginLeft: '8px',
-                        marginTop: '13px',
-                        marginBottom: 'auto',
                     }}
                     playerIndex={loggedInPlayer.index}
                     border={colors.LIGHT_2}
@@ -247,22 +246,36 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                 </Box>
                             )}
                             {canSkip && (
-                                <Button
-                                    onClick={() => apiClient.skipActionAsync()}
-                                    margin="0 0 0 8px"
+                                <div
+                                    style={{
+                                        marginLeft: 2,
+                                        display: 'inline-flex',
+                                    }}
                                 >
-                                    Skip
-                                </Button>
+                                    <Button
+                                        onClick={() =>
+                                            apiClient.skipActionAsync()
+                                        }
+                                    >
+                                        Skip
+                                    </Button>
+                                </div>
                             )}
                             {canPass && (
-                                <Button
-                                    onClick={() =>
-                                        apiClient.passGenerationAsync()
-                                    }
-                                    margin="0 0 0 8px"
+                                <div
+                                    style={{
+                                        marginLeft: 2,
+                                        display: 'inline-flex',
+                                    }}
                                 >
-                                    Pass
-                                </Button>
+                                    <Button
+                                        onClick={() =>
+                                            apiClient.passGenerationAsync()
+                                        }
+                                    >
+                                        Pass
+                                    </Button>
+                                </div>
                             )}
                         </Box>
                     </Box>

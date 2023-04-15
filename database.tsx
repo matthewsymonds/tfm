@@ -77,7 +77,7 @@ const usersSchema = new schema({
         unique: true,
         required: true,
         dropDups: true,
-        validate: {validator: isEmail, message: 'Invalid email.'},
+        validate: [isEmail, 'Invalid email.'],
     },
     password: {type: String, required: true},
     resetPasswordToken: {type: String, default: ''},
@@ -149,7 +149,15 @@ export async function retrieveSession(
     }
     let payload: TFMSession;
     try {
-        payload = jwt.verify(token, process.env.TOKEN_SECRET as string);
+        const payloadRaw = jwt.verify(
+            token,
+            process.env.TOKEN_SECRET as string
+        );
+        if (typeof payloadRaw === 'string' || !payloadRaw['username']) {
+            throw new Error('Invalid token');
+        } else {
+            payload = payloadRaw as TFMSession;
+        }
     } catch (error) {
         handleRedirect(res);
         return;
