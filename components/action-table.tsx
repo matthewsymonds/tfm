@@ -63,8 +63,9 @@ type ActionType =
 export const ActionTable: React.FunctionComponent = () => {
     const player = useLoggedInPlayer();
     const windowWidth = useWindowWidth();
-    const defaultValue = windowWidth > 1500 ? 'Mars' : 'Players';
-    const [selectedTab, setSelectedTab] = useState<ActionType>(defaultValue);
+    const [selectedTab, setSelectedTab] = useState<ActionType>(
+        windowWidth > 1500 ? 'Players' : 'Mars'
+    );
 
     useEffect(() => {
         if (windowWidth <= 1500 && selectedTab === 'Players') {
