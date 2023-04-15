@@ -1,6 +1,6 @@
 import {ActionLog} from 'components/action-log';
 import {Box, Flex} from 'components/box';
-import Button from 'components/controls/button';
+import {Button} from 'components/button';
 import {PlayerCorpAndIcon, PlayerIcon} from 'components/icons/player';
 import {colors} from 'components/ui';
 import {DEFAULT_CONVERSIONS} from 'constants/conversion';
@@ -247,22 +247,26 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                 </Box>
                             )}
                             {canSkip && (
-                                <Button
-                                    onClick={() => apiClient.skipActionAsync()}
-                                    margin="0 0 0 8px"
-                                >
-                                    Skip
-                                </Button>
+                                <div className="ml-2 inline-flex">
+                                    <Button
+                                        onClick={() =>
+                                            apiClient.skipActionAsync()
+                                        }
+                                    >
+                                        Skip
+                                    </Button>
+                                </div>
                             )}
                             {canPass && (
-                                <Button
-                                    onClick={() =>
-                                        apiClient.passGenerationAsync()
-                                    }
-                                    margin="0 0 0 8px"
-                                >
-                                    Pass
-                                </Button>
+                                <div className="ml-2 inline-flex">
+                                    <Button
+                                        onClick={() =>
+                                            apiClient.passGenerationAsync()
+                                        }
+                                    >
+                                        Pass
+                                    </Button>
+                                </div>
                             )}
                         </Box>
                     </Box>

@@ -81,7 +81,7 @@ const _BaseButton = styled(BlankButton)<{size: ButtonSize}>`
     ${props => getStyleForSize(props.size)}
     border-radius: 2px;
     transition: all 100ms, transform 50ms;
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
 `;
