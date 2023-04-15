@@ -55,7 +55,7 @@ const MyApp = ({Component, pageProps}: AppProps) => {
                     id={'root'}
                     style={{visibility: ready ? 'visible' : 'hidden'}}
                 >
-                    {/* <GlobalStyles /> */}
+                    <GlobalStyles />
 
                     <Fonts />
                     {/* Force every font to load */}

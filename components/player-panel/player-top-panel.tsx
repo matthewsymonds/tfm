@@ -11,6 +11,21 @@ import {NoClickOverlay} from './player-bottom-panel';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useRef} from 'react';
 
+const TerraformRating = styled.button`
+    display: inline-flex;
+    cursor: pointer;
+    color: ${colors.GOLD};
+    margin-left: 4px;
+    &:hover {
+        opacity: 0.75;
+        border: none;
+        background: none !important;
+    }
+    &:active {
+        opacity: 1;
+    }
+`;
+
 const FirstPlayerToken = styled.div<{last?: boolean}>`
     position: absolute;
     display: flex;
@@ -135,9 +150,7 @@ export const PlayerTopPanel = ({
                         </Box>
                     </Flex>
                 </Flex>
-                <button
-                    className="inline-flex text-orange-400 cursor-pointer ml-1
-                    px-2 py-1 rounded hover:bg-dark-3"
+                <TerraformRating
                     onClick={() =>
                         showPopover({
                             triggerRef: scoreRef,
@@ -149,7 +162,7 @@ export const PlayerTopPanel = ({
                     ref={scoreRef}
                 >
                     {player.terraformRating} TR
-                </button>
+                </TerraformRating>
             </CorporationHeader>
             <PlayerResourceBoard
                 player={player}

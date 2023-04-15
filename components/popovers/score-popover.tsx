@@ -18,6 +18,7 @@ type Props = {
 const ScorePopoverBase = styled.div`
     padding: 16px;
     box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
     background: #f7f7f7;
     display: flex;
     flex-direction: column;

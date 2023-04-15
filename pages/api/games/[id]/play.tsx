@@ -34,6 +34,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     try {
+        if (id === undefined) {
+            throw new Error('no id');
+        }
         if ((lock[id] ?? []).includes(username)) {
             res.json({alert: 'Game update in progress.'});
             return;
