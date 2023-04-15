@@ -54,6 +54,7 @@ import {
 } from './card/CardIconography';
 import {TileIcon} from './icons/tile';
 import {colors} from './ui';
+import {Button} from './button';
 
 function createActionIcon(action: AnyAction) {
     if (increaseProduction.match(action)) {
@@ -432,13 +433,12 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
             if (element) {
                 elements.push(
                     <Box margin="8px" height="100%" key={i}>
-                        <button
-                            style={{padding: '4px', height: '100%'}}
+                        <Button
                             disabled={isDisabled}
                             onClick={() => handleChooseNextAction(apiClient, i)}
                         >
                             {createActionIcon(actions[i])}
-                        </button>
+                        </Button>
                     </Box>
                 );
                 if (isDisabled) {
@@ -481,9 +481,9 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
                 {hasDisabledAction && isLoggedInPlayersTurn ? (
                     <div>
                         ...or, you may{' '}
-                        <button onClick={() => handleStartOver(apiClient)}>
+                        <Button onClick={() => handleStartOver(apiClient)}>
                             start over
-                        </button>
+                        </Button>
                     </div>
                 ) : null}
             </Box>
