@@ -1,13 +1,21 @@
 import {usersModel} from 'database';
-import mailgun from 'mailgun-js';
+import Mailgun from 'mailgun.js';
+import formData from 'form-data';
 import {NextApiRequest, NextApiResponse} from 'next';
 
 const DOMAIN = process.env.DOMAIN_NAME;
+if (!DOMAIN) {
+    throw new Error('DOMAIN is undefined');
+}
 const API_KEY = process.env.MAILGUN_PRIVATE_API_KEY;
+if (!API_KEY) {
+    throw new Error('API_KEY is undefined');
+}
 
 const FIFTEEN_MINUTES_IN_MILLISECONDS = 15 * 60 * 1000;
 
-const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({username: 'MattSymonds', key: API_KEY});
 
 function generateToken() {
     return Math.random().toString(36).slice(2);
@@ -78,7 +86,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 <div>This link will expire in 15 minutes.</div>`,
             };
             try {
-                mg.messages().send(data, function () {
+                mg.messages.create(DOMAIN, data).then(() => {
                     res.status(200);
                     res.json({
                         message: 'Email sent.',

@@ -1,4 +1,3 @@
-import {Popover, Position} from 'evergreen-ui';
 import {useTypedSelector} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getVisiblePlayedCards} from 'selectors/get-played-cards';
@@ -14,7 +13,6 @@ import styled from 'styled-components';
 
 type Props = {
     playerIndex: number;
-    children: React.ReactNode;
 };
 
 const ScorePopoverBase = styled.div`

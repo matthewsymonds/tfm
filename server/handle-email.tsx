@@ -1,13 +1,21 @@
 import {usersModel} from 'database';
-import mailgun from 'mailgun-js';
+import Mailgun from 'mailgun.js';
+import formData from 'form-data';
 import {getYourTurnGameNames, NamedGame} from 'pages/api/your-turn';
 
 const FIVE_MINUTES = 60 * 1000 * 5;
 
 const DOMAIN = process.env.DOMAIN_NAME;
+if (!DOMAIN) {
+    throw new Error('DOMAIN is undefined');
+}
 const API_KEY = process.env.MAILGUN_PRIVATE_API_KEY;
+if (!API_KEY) {
+    throw new Error('API_KEY is undefined');
+}
 
-const mg = mailgun({apiKey: API_KEY, domain: DOMAIN});
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({username: 'MattSymonds', key: API_KEY});
 
 const getLink = (name: string) =>
     `<a href=https://${DOMAIN}/games/${name}>${name}</a>`;
@@ -71,7 +79,7 @@ const sendEmailIfNeeded = async (username: string) => {
             subject: getTitle(),
             html: message,
         };
-        mg.messages().send(data, function () {
+        mg.messages.create(DOMAIN, data).then(() => {
             playersToCheck.delete(username);
         });
     } catch (error) {
