@@ -40,6 +40,7 @@ const YourTurnLink = styled.a`
 const CorporationName = styled(Flex)`
     margin: 0;
     font-size: 36px;
+    line-height: 1.1;
     margin-right: 12px;
     font-family: 'Ubuntu Condensed', sans-serif;
     font-weight: bold;
@@ -177,8 +178,6 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                     style={{
                         marginRight: '8px',
                         marginLeft: '8px',
-                        marginTop: '13px',
-                        marginBottom: 'auto',
                     }}
                     playerIndex={loggedInPlayer.index}
                     border={colors.LIGHT_2}

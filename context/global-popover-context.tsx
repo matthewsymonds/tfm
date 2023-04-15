@@ -51,6 +51,7 @@ export function usePopoverType(type: PopoverType) {
             }
         },
         showPopover(config: PopoverConfig) {
+            console.time('showPopover');
             setPopoverConfigByType(type, config);
         },
         popoverConfig: popoverConfigByType[type] ?? null,

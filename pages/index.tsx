@@ -16,6 +16,9 @@ import styled from 'styled-components';
 const TitleInner = styled.h1`
     margin: 8px;
     border-radius: 8px;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 700;
     display: block;
 `;
 

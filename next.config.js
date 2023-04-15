@@ -1,7 +1,7 @@
 // next.config.js
 module.exports = {
-    experimental: {
-        // Enables the styled-components SWC transform
+    compiler: {
+        // enable styled components support
         styledComponents: true,
     },
 };
