@@ -86,7 +86,7 @@ export const MILESTONE_CONFIGS: MilestoneConfig[] = [
     {
         name: 'Rim Settler',
         requirementText: '3 jovian tags',
-        amount: {tag: Tag.JOVIAN},
+        amount: {tag: Tag.JOVIAN, includeWildcard: true},
         quantity: 3,
     },
     // Elysium
