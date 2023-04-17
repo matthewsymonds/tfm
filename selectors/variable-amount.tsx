@@ -348,13 +348,10 @@ export const VARIABLE_AMOUNT_SELECTORS: VariableAmountSelectors = {
     },
     [VariableAmount.UNIQUE_TAGS]: (state: GameState, player: PlayerState) => {
         const tags = getTags(player);
-        const numWildTags = tags.filter(tag => tag === Tag.WILD).length;
-        if (numWildTags > 1) {
-            // each wild tag can count as its own unique tag
-            return new Set(tags).size + (numWildTags - 1);
-        } else {
-            return new Set(tags).size;
-        }
+        const wildTags = tags.filter(tag => tag === Tag.WILD);
+        const nonWildTags = tags.filter(tag => tag !== Tag.WILD);
+        // count every wild tag as unique
+        return new Set(nonWildTags).size + wildTags.length;
     },
     [VariableAmount.TERRAFORM_RATING]: (
         state: GameState,
