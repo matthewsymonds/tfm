@@ -8,13 +8,12 @@ import {
 } from 'constants/game';
 import {PARAMETER_BONUSES} from 'constants/parameter-bonuses';
 import React from 'react';
-import {Tooltip} from 'react-tippy';
 import {useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {ColoredTooltip} from './colored-tooltip';
 import {colors} from './ui';
+import {MaybeTooltip} from './tooltip';
 
 const GlobalParamColumn = styled.div`
     display: flex;
@@ -51,12 +50,12 @@ const GlobalParamStep = styled.div<{
     opacity: ${props => (props.isFilledIn ? 1 : props.bonus ? 0.65 : 0.3)};
 `;
 
-type GlobalParamValueProps = {
+type GlobalParamTrackProps = {
     parameter: Parameter;
     currentValue: number;
 };
 
-const GlobalParamValueBase = styled.div`
+const GlobalParamTrackBase = styled.div`
     flex-direction: column-reverse;
     align-items: stretch;
     justify-content: stretch;
@@ -68,7 +67,45 @@ const GlobalParamValueBase = styled.div`
     }
 `;
 
-function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
+function GlobalParamTrackStep({
+    value,
+    currentValue,
+    parameter,
+}: {
+    value: number;
+    currentValue: number;
+    parameter: Parameter;
+}) {
+    const isCurrentValue = value === currentValue;
+    const bonus = PARAMETER_BONUSES[parameter][value];
+    const color = colors.PARAMETERS[parameter];
+    const shouldShowTooltip = Boolean(bonus || isCurrentValue);
+
+    return (
+        <MaybeTooltip
+            shouldShowTooltip={shouldShowTooltip}
+            delayDuration={0}
+            content={
+                shouldShowTooltip
+                    ? isCurrentValue
+                        ? 'Current value'
+                        : bonus!.name
+                    : null
+            }
+        >
+            <GlobalParamStep
+                key={value}
+                isFilledIn={isCurrentValue}
+                bonus={!!bonus && currentValue < value}
+                color={color}
+            >
+                {value}
+            </GlobalParamStep>
+        </MaybeTooltip>
+    );
+}
+
+function GlobalParamTrack({parameter, currentValue}: GlobalParamTrackProps) {
     const numSteps =
         (MAX_PARAMETERS[parameter] - MIN_PARAMETERS[parameter]) /
         PARAMETER_STEPS[parameter];
@@ -78,44 +115,18 @@ function GlobalParamValue({parameter, currentValue}: GlobalParamValueProps) {
     steps.push(MAX_PARAMETERS[parameter]);
 
     return (
-        <GlobalParamValueBase>
+        <GlobalParamTrackBase>
             {steps.map(value => {
-                const isFilledIn = currentValue === value;
-                const bonus = PARAMETER_BONUSES[parameter][value];
-                const color = colors.PARAMETERS[parameter];
-
-                const showTooltip = isFilledIn || !!bonus;
-
                 return (
-                    <GlobalParamStep
+                    <GlobalParamTrackStep
                         key={value}
-                        isFilledIn={isFilledIn}
-                        bonus={!!bonus && currentValue < value}
-                        color={color}
-                    >
-                        <Tooltip
-                            key={`${parameter}-${value}`}
-                            sticky={true}
-                            animation="fade"
-                            unmountHTMLWhenHide={true}
-                            html={
-                                showTooltip ? (
-                                    <ColoredTooltip color={color}>
-                                        {isFilledIn
-                                            ? 'Current value'
-                                            : bonus!.name}
-                                    </ColoredTooltip>
-                                ) : (
-                                    <div />
-                                )
-                            }
-                        >
-                            {value}
-                        </Tooltip>
-                    </GlobalParamStep>
+                        value={value}
+                        parameter={parameter}
+                        currentValue={currentValue}
+                    />
                 );
             })}
-        </GlobalParamValueBase>
+        </GlobalParamTrackBase>
     );
 }
 
@@ -165,6 +176,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
         : `Gen ${generation}, Turn ${turn}`;
 
     const venus = useTypedSelector(isPlayingVenus);
+
     return (
         <GlobalParamWrapper className="global-params">
             <Flex
@@ -182,7 +194,7 @@ export default function GlobalParams(props: GlobalParamsProps) {
                         )
                         .map(parameter => (
                             <GlobalParamColumn key={parameter as Parameter}>
-                                <GlobalParamValue
+                                <GlobalParamTrack
                                     parameter={parameter as Parameter}
                                     currentValue={props.parameters[parameter]}
                                 />

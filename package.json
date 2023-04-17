@@ -21,6 +21,7 @@
         }
     },
     "dependencies": {
+        "@radix-ui/react-tooltip": "^1.0.5",
         "bcryptjs": "2.4.3",
         "color": "4.2.0",
         "cookie": "0.4.1",

@@ -1,3 +1,4 @@
+import * as RadixTooltip from '@radix-ui/react-tooltip';
 import {Box} from 'components/box';
 import {appContext, AppContext as MyAppContext} from 'context/app-context';
 import {Fonts} from 'fonts';
@@ -51,35 +52,37 @@ const MyApp = ({Component, pageProps}: AppProps) => {
                 <title>TFM Online</title>
             </Head>
 
-            <MyAppContext.Provider value={appContext}>
-                <div
-                    id={'root'}
-                    style={{visibility: ready ? 'visible' : 'hidden'}}
-                >
-                    <GlobalStyles />
+            <RadixTooltip.Provider>
+                <MyAppContext.Provider value={appContext}>
+                    <div
+                        id={'root'}
+                        style={{visibility: ready ? 'visible' : 'hidden'}}
+                    >
+                        <GlobalStyles />
 
-                    <Fonts />
-                    {/* Force every font to load */}
-                    {FONT_LIST.flatMap(font =>
-                        FONT_WEIGHT_LIST.map(weight => (
-                            <Box
-                                fontFamily={font}
-                                fontWeight={weight}
-                                visibility="hidden"
-                                key={font + '-' + weight}
-                                position="absolute"
-                                transform="translate(-100%, -100%)"
-                            >
-                                Hidden
-                            </Box>
-                        ))
-                    )}
-                    <InnerAppComponent
-                        Component={Component}
-                        pageProps={pageProps}
-                    />
-                </div>
-            </MyAppContext.Provider>
+                        <Fonts />
+                        {/* Force every font to load */}
+                        {FONT_LIST.flatMap(font =>
+                            FONT_WEIGHT_LIST.map(weight => (
+                                <Box
+                                    fontFamily={font}
+                                    fontWeight={weight}
+                                    visibility="hidden"
+                                    key={font + '-' + weight}
+                                    position="absolute"
+                                    transform="translate(-100%, -100%)"
+                                >
+                                    Hidden
+                                </Box>
+                            ))
+                        )}
+                        <InnerAppComponent
+                            Component={Component}
+                            pageProps={pageProps}
+                        />
+                    </div>
+                </MyAppContext.Provider>
+            </RadixTooltip.Provider>
         </Provider>
     );
 };
