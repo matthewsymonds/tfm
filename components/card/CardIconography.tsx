@@ -2,7 +2,11 @@ import {PlaceColony} from 'actions';
 import {Hexagon} from 'components/board/hexagon';
 import {Box, Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
+import {
+    ColonyIcon,
+    TerraformRatingIcon,
+    TradeIcon,
+} from 'components/icons/other';
 import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -15,13 +19,13 @@ import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {Condition, isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
 import {
+    Operation,
     getSymbolForOperation,
     isOperationAmount,
-    Operation,
 } from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
 import {PropertyCounter} from 'constants/property-counter';
-import {getResourceBorder, ResourceLocationType} from 'constants/resource';
+import {ResourceLocationType, getResourceBorder} from 'constants/resource';
 import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
@@ -1520,6 +1524,7 @@ export const BaseActionIconography = ({
 }) => {
     const {
         placeColony,
+        gainTradeFleet,
         tilePlacements,
         increaseParameter,
         removeResource,
@@ -1562,6 +1567,7 @@ export const BaseActionIconography = ({
         >
             {doesActionHaveProductionIconography(card) ||
             tilePlacements ||
+            gainTradeFleet ||
             placeColony ? (
                 <Flex
                     justifyContent="space-evenly"
@@ -1576,6 +1582,7 @@ export const BaseActionIconography = ({
                     {placeColony && (
                         <PlaceColonyIconography placeColony={placeColony} />
                     )}
+                    {gainTradeFleet && <TradeIcon size={8} />}
                     <ProductionIconography card={card} />
                 </Flex>
             ) : null}
