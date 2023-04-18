@@ -260,6 +260,21 @@ function TradePaymentPopover({
     );
 }
 
+const BASE_TRADE_FLEET_SIZE = 36;
+
+export const TradeFleet = ({color, size}: {color: string; size?: number}) => {
+    size = size ?? BASE_TRADE_FLEET_SIZE;
+    return (
+        <Arrow
+            lineHeight={size}
+            lineWidth={Math.round((size / BASE_TRADE_FLEET_SIZE) * 14)}
+            pointHeight={Math.round((size / BASE_TRADE_FLEET_SIZE) * 24)}
+            pointWidth={Math.round((size / BASE_TRADE_FLEET_SIZE) * 29)}
+            color={color}
+        />
+    );
+};
+
 export function ColonyComponent({
     colony: serializedColony,
 }: {
@@ -307,13 +322,7 @@ export function ColonyComponent({
                 zIndex={4}
                 transform="rotate(220deg)"
             >
-                <Arrow
-                    lineHeight={36}
-                    lineWidth={14}
-                    pointHeight={24}
-                    pointWidth={29}
-                    color={PLAYER_COLORS[player]}
-                />
+                <TradeFleet color={PLAYER_COLORS[player]} />
             </Box>
         );
     });

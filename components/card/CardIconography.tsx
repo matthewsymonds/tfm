@@ -1,12 +1,9 @@
 import {PlaceColony} from 'actions';
 import {Hexagon} from 'components/board/hexagon';
 import {Box, Flex} from 'components/box';
+import {TradeFleet} from 'components/colony';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {
-    ColonyIcon,
-    TerraformRatingIcon,
-    TradeIcon,
-} from 'components/icons/other';
+import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
 import {PRODUCTION_PADDING} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -1574,7 +1571,11 @@ export const BaseActionIconography = ({
                     width="100%"
                     alignItems="center"
                 >
-                    {gainTradeFleet && <TradeIcon size={8} />}
+                    {gainTradeFleet && (
+                        <Box transform="rotate(-90deg)">
+                            <TradeFleet color="#222" size={22} />
+                        </Box>
+                    )}
                     {tilePlacements && (
                         <TilePlacementIconography
                             tilePlacements={tilePlacements}
