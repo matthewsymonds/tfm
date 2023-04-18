@@ -1574,6 +1574,7 @@ export const BaseActionIconography = ({
                     width="100%"
                     alignItems="center"
                 >
+                    {gainTradeFleet && <TradeIcon size={8} />}
                     {tilePlacements && (
                         <TilePlacementIconography
                             tilePlacements={tilePlacements}
@@ -1582,7 +1583,6 @@ export const BaseActionIconography = ({
                     {placeColony && (
                         <PlaceColonyIconography placeColony={placeColony} />
                     )}
-                    {gainTradeFleet && <TradeIcon size={8} />}
                     <ProductionIconography card={card} />
                 </Flex>
             ) : null}
