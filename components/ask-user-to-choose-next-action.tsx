@@ -20,6 +20,7 @@ import {
     decreaseProduction,
     gainResource,
     gainStorableResource,
+    gainTradeFleet,
     increaseParameter,
     increaseProduction,
     increaseTerraformRating,
@@ -44,6 +45,7 @@ import {AnyAction} from 'redux';
 import {convertAmountToNumber} from 'selectors/convert-amount-to-number';
 import {hasUnpaidResources} from 'server/api-action-handler';
 import {Box, Flex} from './box';
+import {Button} from './button';
 import {LookAtCards} from './card/CardActions';
 import {
     BaseActionIconography,
@@ -54,7 +56,6 @@ import {
 } from './card/CardIconography';
 import {TileIcon} from './icons/tile';
 import {colors} from './ui';
-import {Button} from './button';
 
 function createActionIcon(action: AnyAction) {
     if (increaseProduction.match(action)) {
@@ -234,6 +235,8 @@ function createActionIcon(action: AnyAction) {
                 card={{putAdditionalColonyTileIntoPlay: true}}
             />
         );
+    } else if (gainTradeFleet.match(action)) {
+        return <BaseActionIconography card={{gainTradeFleet: true}} />;
     } else if (userCannotChooseAction(action)) {
         return null;
     } else {
