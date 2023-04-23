@@ -2,6 +2,7 @@ import {Box} from 'components/box';
 import {appContext, AppContext as MyAppContext} from 'context/app-context';
 import {Fonts} from 'fonts';
 import '../globals.css';
+import '../nextjs-jsoneditor.css';
 import {GlobalStyles} from 'global-styles';
 import {AppProps} from 'next/app';
 import Head from 'next/head';

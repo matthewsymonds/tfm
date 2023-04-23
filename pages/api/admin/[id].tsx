@@ -24,7 +24,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (!adminNames.includes(username)) {
         res.status(403);
-        res.json({error: 'Forbidden'});
+        res.json({error: 'Forbidden', adminNames});
         return;
     }
 
@@ -43,6 +43,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     game.markModified('state');
                     game.save({validateBeforeSave: false});
                 } catch (error) {
+                    console.log(error);
                     res.json({error: 'problem'});
                 }
             }
