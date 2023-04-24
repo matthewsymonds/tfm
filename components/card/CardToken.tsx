@@ -93,12 +93,14 @@ export const CardToggleToken = ({
                 }}
             >
                 <div className="flex-none flex items-center justify-center">
-                    <ResourceIcon
-                        name={Resource.MEGACREDIT}
-                        amount={card.cost}
-                        margin="0 4px 0 0"
-                        size={20}
-                    />
+                    {typeof card.cost === 'number' && (
+                        <ResourceIcon
+                            name={Resource.MEGACREDIT}
+                            amount={card.cost}
+                            margin="0 4px 0 0"
+                            size={20}
+                        />
+                    )}
                 </div>
                 <span className="flex-auto ellipsis text-base/[16px]">
                     {card.name}
