@@ -106,6 +106,7 @@ import {
     getAction,
     getPlayerOptionWrappers,
     ResourceActionOption,
+    ResourceActionType,
 } from 'components/ask-user-to-confirm-resource-action-details';
 import {getLowestProductions} from 'components/ask-user-to-increase-lowest-production';
 import {
@@ -2586,6 +2587,26 @@ export class ApiActionHandler {
         const playerIndex = thisPlayerIndex ?? this.getLoggedInPlayerIndex();
         const items: Array<AnyAction> = [];
 
+        for (const production in action.decreaseProductionIfPossible) {
+            const player = this.state.players[playerIndex];
+            const maxAmountToDecrease = player.productions[production];
+            const desiredAmountToDecrease =
+                action.decreaseProductionIfPossible[production];
+            const actualAmountToDecrease = Math.min(
+                maxAmountToDecrease,
+                desiredAmountToDecrease
+            );
+            items.push(
+                this.createDecreaseProductionIfPossibleAction(
+                    production as Resource,
+                    actualAmountToDecrease,
+                    playerIndex,
+                    parent,
+                    playedCard
+                )
+            );
+        }
+
         for (const production in action.decreaseProduction) {
             items.push(
                 this.createDecreaseProductionAction(
@@ -2735,6 +2756,43 @@ export class ApiActionHandler {
             },
             items
         );
+    }
+
+    private createDecreaseProductionIfPossibleAction(
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        parent?: Card,
+        playedCard?: Card
+    ) {
+        const resourceAndAmounts = [{resource, amount}];
+        const actionType: ResourceActionType = 'decreaseProductionIfPossible';
+        const player = this.state.players[playerIndex];
+
+        const wrappers = getPlayerOptionWrappers(this.state, player, {
+            actionType,
+            resourceAndAmounts,
+            card: parent!,
+        });
+
+        // copied from createDecreaseProductionAction. in practice, i think
+        // we'll always have one option here, because the only card that uses this
+        // is Corporate Alliance.
+        const options = wrappers.flatMap(wrapper => wrapper.options);
+        const canSkip = canSkipResourceActionDetails(actionType);
+        if (options.length === 1 && !options[0].isVariable && !canSkip) {
+            return getAction(options[0], player, 0);
+        } else if (options.length === 0) {
+            throw new Error('No valid decrease production target');
+        } else {
+            return askUserToChooseResourceActionDetails({
+                actionType,
+                resourceAndAmounts,
+                card: parent!,
+                playedCard,
+                playerIndex,
+            });
+        }
     }
 
     private createDecreaseProductionAction(

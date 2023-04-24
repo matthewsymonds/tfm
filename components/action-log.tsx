@@ -537,7 +537,11 @@ const LogEntryInner = ({
                             className="display"
                             style={{fontSize: '1rem'}}
                         >
-                            <Twemoji>{gameAction.text}</Twemoji>
+                            <Twemoji noWrapper={true}>
+                                <span className="flex items-center">
+                                    {gameAction.text}
+                                </span>
+                            </Twemoji>
                         </Flex>
                     );
                     break;

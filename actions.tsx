@@ -135,6 +135,19 @@ export const decreaseProduction = withMatcher(
     })
 );
 
+const DECREASE_PRODUCTION_IF_POSSIBLE = 'DECREASE_PRODUCTION_IF_POSSIBLE';
+export const decreaseProductionIfPossible = withMatcher(
+    (
+        resource: Resource,
+        amount: Amount,
+        playerIndex: number,
+        targetPlayerIndex: number = playerIndex
+    ) => ({
+        type: DECREASE_PRODUCTION_IF_POSSIBLE,
+        payload: {resource, amount, playerIndex, targetPlayerIndex},
+    })
+);
+
 const INCREASE_PRODUCTION = 'INCREASE_PRODUCTION';
 export const increaseProduction = withMatcher(
     (resource: Resource, amount: Amount, playerIndex: number) => ({

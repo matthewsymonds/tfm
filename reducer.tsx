@@ -284,7 +284,7 @@ function handleChangeCurrentPlayer(state: GameState, draft: GameState) {
 }
 
 // Add Card Name here.
-const bonusNames: string[] = ['Martian Media Center'];
+const bonusNames: string[] = [];
 
 export function getNumOceans(state: GameState): number {
     return state.common.board

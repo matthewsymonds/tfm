@@ -72,6 +72,7 @@ export interface ActionWithoutSteps {
     increaseProductionOption?: ResourceCounter;
     duplicateProduction?: Tag;
     decreaseProduction?: ResourceCounter;
+    decreaseProductionIfPossible?: ResourceCounter;
     decreaseAnyProduction?: ResourceCounter;
     lookAtCards?: LookAtCardsConfig;
     tilePlacements?: TilePlacement[];

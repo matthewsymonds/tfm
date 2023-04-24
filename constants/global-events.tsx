@@ -137,8 +137,10 @@ export const GLOBAL_EVENTS: GlobalEvent[] = [
         },
         action: {
             text: 'Decrease steel and energy production 1 step each. Gain 1 steel per influence.',
-
-            decreaseProduction: {[Resource.ENERGY]: 1, [Resource.STEEL]: 1},
+            decreaseProductionIfPossible: {
+                [Resource.ENERGY]: 1,
+                [Resource.STEEL]: 1,
+            },
             gainResource: {
                 [Resource.STEEL]: VariableAmount.INFLUENCE,
             },

@@ -50,9 +50,9 @@ export interface Turmoil {
 }
 
 function DEV_globalEventOverrides(events: GlobalEvent[]) {
-    const globalEventOverrides: Array<string> = ([] as Array<string>).map(a =>
-        a.toLowerCase()
-    );
+    const globalEventOverrides: Array<string> = (
+        ['Corporate Alliance'] as Array<string>
+    ).map(a => a.toLowerCase());
     const priorityEvents = events.filter(globalEvent => {
         return (
             globalEventOverrides.includes(globalEvent.top.name.toLowerCase()) ||

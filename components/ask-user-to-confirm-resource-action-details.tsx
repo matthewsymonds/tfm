@@ -1,5 +1,6 @@
 import {
     decreaseProduction,
+    decreaseProductionIfPossible,
     gainResource,
     gainStorableResource,
     increaseProduction,
@@ -49,7 +50,8 @@ export type ResourceActionType =
     | 'gainResource'
     | 'stealResource'
     | 'increaseProduction'
-    | 'decreaseProduction';
+    | 'decreaseProduction'
+    | 'decreaseProductionIfPossible';
 
 export type ResourceActionOption = {
     location: PlayerState | Card;
@@ -280,6 +282,7 @@ export function getPlayerOptionWrappers(
             );
 
             if (actionType !== 'gainResource') {
+                // pets can't be removed
                 options = options.filter(option => {
                     if (!(option.location instanceof Card)) {
                         return true;
@@ -289,15 +292,17 @@ export function getPlayerOptionWrappers(
                 });
             }
 
-            options = options.filter(option => option.quantity !== 0);
-
+            if (actionType !== 'decreaseProductionIfPossible') {
+                options = options.filter(option => option.quantity !== 0);
+            }
             playerOptionWrapper.options.push(...options);
         }
 
         const zeroChangeAllowed =
-            actionType === 'removeResource' &&
-            locationType &&
-            locationType !== ResourceLocationType.ANY_CARD_OWNED_BY_YOU;
+            (actionType === 'removeResource' &&
+                locationType &&
+                locationType !== ResourceLocationType.ANY_CARD_OWNED_BY_YOU) ||
+            actionType === 'decreaseProductionIfPossible';
 
         playerOptionWrapper.options = playerOptionWrapper.options.filter(
             option => option.quantity > 0 || zeroChangeAllowed
@@ -319,7 +324,10 @@ function getOptions(
     locationType: ResourceLocationType | undefined,
     state: GameState
 ): ResourceActionOption[] {
-    if (actionType === 'decreaseProduction') {
+    if (
+        actionType === 'decreaseProduction' ||
+        actionType === 'decreaseProductionIfPossible'
+    ) {
         return getOptionsForDecreaseProduction(resourceAndAmount, player);
     } else if (actionType === 'increaseProduction') {
         return getOptionsForIncreaseProduction(resourceAndAmount, player);
@@ -650,6 +658,11 @@ export function canSkipResourceActionDetails(
     // - increase production, required
     // - The ONLY time that a resource effect is optional is if it's
     //   removing resources and it may target opponents.
+    //
+    // Another notable exception to this is in TURMOIL, where certain
+    // events (e.g. Corporate Alliance) can decrease production *if possible*.
+    // To avoid confusion with the otherwise ALWAYS required `decreaseProduction`,
+    // we've implemented this under a separate property `decreaseProductionIfPossible`.
     return (
         actionType == 'removeResource' && targetsMultiplePlayers(locationType)
     );
@@ -936,6 +949,13 @@ export function getAction(
             }
         case 'decreaseProduction':
             return decreaseProduction(
+                option.resource,
+                quantity,
+                player.index,
+                (option.location as PlayerState).index
+            );
+        case 'decreaseProductionIfPossible':
+            return decreaseProductionIfPossible(
                 option.resource,
                 quantity,
                 player.index,
