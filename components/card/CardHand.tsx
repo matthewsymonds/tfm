@@ -1,5 +1,5 @@
 import {Card, CardContext, CARD_HEIGHT, CARD_WIDTH} from 'components/card/Card';
-import {zIndices} from 'components/ui';
+import {colors, zIndices} from 'components/ui';
 import {usePrevious} from 'hooks/use-previous';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef, useState} from 'react';
@@ -40,6 +40,7 @@ const MinimizeCardsButton = styled.button`
     bottom: 15px;
     opacity: 1;
     border-radius: 50%;
+    background-color: ${colors.LIGHT_2};
     padding: 0;
     z-index: 6;
 `;
