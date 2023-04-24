@@ -24,11 +24,9 @@ export const TileIcon = ({
             }}
         >
             <Hexagon hexRadius={size / 2} color={getTileBgColor(type)}>
-                {/* hacks... */}
                 <span
                     style={{
-                        fontSize: `100px`,
-                        transform: `scale(${size / 200})`,
+                        fontSize: size * 0.6,
                     }}
                 >
                     <Twemoji>{getTileIcon(type)}</Twemoji>
