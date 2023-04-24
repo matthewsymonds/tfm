@@ -29,15 +29,15 @@ export function ListWithDetailView<T extends {name: string}>({
     selectedBgColor = colors.DARK_2,
     layoutBreakpoint = 300,
 }: ListWithDetailViewProps<T>) {
-    const [selectedItem, setSelectedItem] = useState(
-        items[initialSelectedItemIndex]
+    const [selectedItemIndex, setSelectedItemIndex] = useState(
+        initialSelectedItemIndex
     );
     const [hoveredItem, setHoveredItem] = useState<T | null>(null);
     const throttledSetHoveredItem = useMemo(
         () => throttle(100, setHoveredItem),
         [setHoveredItem]
     );
-    const visibleItem = hoveredItem ?? selectedItem;
+    const visibleItem = hoveredItem ?? items[selectedItemIndex];
 
     return (
         <ListWithDetailViewContainer
@@ -49,11 +49,11 @@ export function ListWithDetailView<T extends {name: string}>({
                 listWidthPercentage={listWidthPercentage}
                 layoutBreakpoint={layoutBreakpoint}
             >
-                {items.map(item => {
+                {items.map((item, index) => {
                     return (
                         <CategoryListItem
                             key={item.name}
-                            onClick={() => setSelectedItem(item)}
+                            onClick={() => setSelectedItemIndex(index)}
                             onMouseEnter={() => {
                                 throttledSetHoveredItem(item);
                             }}
@@ -63,7 +63,7 @@ export function ListWithDetailView<T extends {name: string}>({
                             onMouseLeave={() => {
                                 throttledSetHoveredItem(null);
                             }}
-                            isSelected={selectedItem.name === item.name}
+                            isSelected={index === selectedItemIndex}
                             selectedBgColor={selectedBgColor}
                         >
                             {renderListItem(item)}

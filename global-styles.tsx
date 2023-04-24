@@ -177,9 +177,6 @@ export const GlobalStyles = createGlobalStyle`
             display: none;
         }
     }
-    .no-margin-top {
-        margin-top: 0;
-    }
     .action-table {
         width: 798px;
         max-width: calc(100% - 8px);
@@ -249,22 +246,12 @@ export const GlobalStyles = createGlobalStyle`
     .textLight1 {
         color: ${colors.TEXT_LIGHT_1};
     }
-    .truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .mid-event {
         font-size: 1.5em;
         .android & {
             transform: scaleX(300%) scaleY(170%) translateY(-2.5%);
             transform-origin: 50% 60%;
         }
-    }
-
-    .outer-emoji.jovian {
-        transform: rotate(45deg);
     }
 
     .mid-city.emoji {
@@ -296,9 +283,6 @@ export const GlobalStyles = createGlobalStyle`
         margin: 0;
     }
 
-    .mid-emoji.jovian {
-        font-size: 3.6em;
-    }
     .mid-science {
         font-family: "Source Sans Pro", Segoe UI Symbol;
         font-size: 2em;

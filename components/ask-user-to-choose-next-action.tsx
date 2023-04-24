@@ -469,7 +469,7 @@ export function AskUserToChooseNextAction({player}: {player: PlayerState}) {
 
     return (
         <Box color={colors.TEXT_LIGHT_1}>
-            <h3>
+            <h3 className="text-lg">
                 {isLoggedInPlayersTurn
                     ? 'Please choose the next effect:'
                     : 'Please wait...'}

@@ -52,7 +52,7 @@ export function AskUserToSelectNonLeaderDelegate({
 
     return (
         <Box>
-            <h2 style={{color: colors.TEXT_LIGHT_1}}>
+            <h2 className="text-2xl" style={{color: colors.TEXT_LIGHT_1}}>
                 {variant === 'removeNonLeader'
                     ? 'Click a non-leader delegate to remove'
                     : variant === 'exchangeNeutralNonLeader'

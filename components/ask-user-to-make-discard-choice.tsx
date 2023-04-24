@@ -66,7 +66,6 @@ export function AskUserToMakeDiscardChoice({player}: {player: PlayerState}) {
                     selectedCards={selectedCards}
                     onSelect={cards => setSelectedCards(cards)}
                     options={player.cards}
-                    orientation="vertical"
                     cardSelectorPrompt={
                         <div style={{margin: '0 8px'}}>
                             {cardSelectionPrompt}

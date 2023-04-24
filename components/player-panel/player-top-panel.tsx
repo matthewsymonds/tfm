@@ -8,19 +8,22 @@ import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {NoClickOverlay} from './player-bottom-panel';
-import {PopoverType, usePopoverType} from 'context/global-popover-context';
-import {useRef} from 'react';
+import {Popover} from 'components/popover';
 
 const TerraformRating = styled.button`
     display: inline-flex;
     cursor: pointer;
     color: ${colors.GOLD};
+    font-size: 24px;
     margin-left: 4px;
     border: none;
+    border-radius: 4px;
+    &[data-state='open'] {
+        background: ${colors.DARK_3};
+    }
     &:hover {
-        opacity: 0.75;
         border: none;
-        background: none !important;
+        background: ${colors.DARK_3};
     }
     &:active {
         opacity: 1;
@@ -47,19 +50,19 @@ const FirstPlayerToken = styled.div<{last?: boolean}>`
 `;
 function getFontSizeForCorporation(string) {
     if (string.length > 24) {
-        return '0.65em';
+        return '16px';
     } else if (string.length > 20) {
-        return '0.7em';
+        return '17px';
     } else if (string.length > 15) {
-        return '0.8em';
+        return '19px';
     } else if (string.length > 10) {
-        return '0.85em';
+        return '20px';
     } else {
-        return '0.9em';
+        return '21px';
     }
 }
 
-const CorporationHeader = styled.h2`
+const CorporationHeader = styled.div`
     display: inline-flex;
     justify-content: space-between;
     width: 100%;
@@ -77,12 +80,6 @@ export const PlayerTopPanel = ({
     player: PlayerState;
     isSelected: boolean;
 }) => {
-    const {showPopover, hidePopover} = usePopoverType(
-        PopoverType.SCORE_POPOVER
-    );
-    const isCorporationSelection = useTypedSelector(
-        state => state.common.gameStage === GameStage.CORPORATION_SELECTION
-    );
     const firstPlayerIndex = useTypedSelector(
         state => state.common.firstPlayerIndex
     );
@@ -96,7 +93,6 @@ export const PlayerTopPanel = ({
             state.players.findIndex(p => p.username === player.username) ===
             state.players.length - 1
     );
-    const scoreRef = useRef<HTMLButtonElement>(null);
 
     return (
         <Flex
@@ -151,19 +147,14 @@ export const PlayerTopPanel = ({
                         </Box>
                     </Flex>
                 </Flex>
-                <TerraformRating
-                    onClick={() =>
-                        showPopover({
-                            triggerRef: scoreRef,
-                            popover: (
-                                <ScorePopover playerIndex={player.index} />
-                            ),
-                        })
-                    }
-                    ref={scoreRef}
+                <Popover
+                    side="top"
+                    content={<ScorePopover playerIndex={player.index} />}
                 >
-                    {player.terraformRating} TR
-                </TerraformRating>
+                    <TerraformRating>
+                        {player.terraformRating} TR
+                    </TerraformRating>
+                </Popover>
             </CorporationHeader>
             <PlayerResourceBoard
                 player={player}

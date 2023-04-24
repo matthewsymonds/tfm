@@ -20,11 +20,11 @@ const Template: Story<{}> = args => (
         }}
     >
         <div style={{marginBottom: 8}}>
-            <h3>Influence icon</h3>
+            <h3 className="text-lg">Influence icon</h3>
             <InfluenceIcon />
         </div>
         <div style={{marginBottom: 8}}>
-            <h3>Party icon</h3>
+            <h3 className="text-lg">Party icon</h3>
             <PartySymbol party="Reds" />
             <PartySymbol party="Unity" />
             <PartySymbol party="Greens" />

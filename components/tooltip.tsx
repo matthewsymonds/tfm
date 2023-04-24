@@ -4,6 +4,11 @@ import * as RadixTooltip from '@radix-ui/react-tooltip';
 type TooltipProps = React.PropsWithChildren<{
     content: React.ReactNode;
     delayDuration?: number;
+    isBespoke?: boolean;
+    side?: 'top' | 'right' | 'bottom' | 'left';
+    sideOffset?: number;
+    align?: 'start' | 'center' | 'end';
+    alignOffset?: number;
 }>;
 
 export const Tooltip = (props: TooltipProps) => {
@@ -13,7 +18,18 @@ export const Tooltip = (props: TooltipProps) => {
                 {props.children}
             </RadixTooltip.Trigger>
             <RadixTooltip.Portal>
-                <RadixTooltip.Content className="px-2 py-1 shadow-md border border-white bg-stone-300 rounded max-w-[160px] text-xs">
+                <RadixTooltip.Content
+                    side={props.side}
+                    align={props.align}
+                    sideOffset={props.sideOffset}
+                    alignOffset={props.alignOffset}
+                    // onPointerDownOutside={e => e.preventDefault()}
+                    className={
+                        props.isBespoke
+                            ? ''
+                            : 'px-2 py-1 shadow-md border border-white bg-stone-300 rounded max-w-[160px] text-xs'
+                    }
+                >
                     {props.content}
                 </RadixTooltip.Content>
             </RadixTooltip.Portal>

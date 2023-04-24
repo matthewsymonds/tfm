@@ -42,6 +42,8 @@ export function TurmoilPartyListWithDetailView() {
         });
     });
 
+    console.log(turmoilParties);
+
     const renderTurmoilPartyListItem = useCallback(
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
@@ -78,6 +80,7 @@ export function TurmoilPartyListWithDetailView() {
     const renderTurmoilPartyDetailView = useCallback(
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
+            console.log('hello?', turmoilParty);
             return (
                 <React.Fragment>
                     <Flex
@@ -88,7 +91,7 @@ export function TurmoilPartyListWithDetailView() {
                         <Flex alignItems="center">
                             <PartySymbol party={turmoilParty.name} size={32} />
                             <h3
-                                className="display"
+                                className="display text-lg"
                                 style={{
                                     color: colors.TEXT_LIGHT_1,
                                     margin: '0 0 0 4px',

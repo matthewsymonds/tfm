@@ -453,7 +453,7 @@ export function ColonyComponent({
                                     </Flex>
                                     {'tradeIncomeQuantities' in colony ? (
                                         <h3
-                                            className="display"
+                                            className="display text-lg"
                                             style={{
                                                 color: '#ddd',
                                                 marginTop: '2px',

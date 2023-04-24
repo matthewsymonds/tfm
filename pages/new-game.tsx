@@ -186,7 +186,7 @@ export default function NewGame(props) {
                             />
                         ) : null}
                         <Flex flexDirection="column" margin="16px 0">
-                            <h3>Options</h3>
+                            <h3 className="text-lg">Options</h3>
                             <label style={{marginLeft: 4}}>
                                 <input
                                     type="checkbox"
@@ -267,7 +267,7 @@ export default function NewGame(props) {
                             </label>
                         </Flex>
                         <Flex flexDirection="column" margin="16px 0">
-                            <h3>Boards</h3>
+                            <h3 className="text-lg">Boards</h3>
                             <label style={{marginLeft: 4}}>
                                 <input
                                     type="checkbox"

@@ -113,10 +113,12 @@ export function EndOfGame() {
     const winner = playerScoreInfos.sort(
         (a, b) => b.totalScore - a.totalScore
     )[0];
-    const isTurmoilEnabled = useTypedSelector(isPlayingTurmoil);
     return (
         <>
-            <h2 className="display" style={{color: colors.TEXT_LIGHT_1}}>
+            <h2
+                className="display text-2xl"
+                style={{color: colors.TEXT_LIGHT_1}}
+            >
                 Game over. {winner.player.corporation.name} (
                 {winner.player.username}) wins!
             </h2>

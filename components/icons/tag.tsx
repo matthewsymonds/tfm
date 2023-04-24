@@ -2,6 +2,7 @@ import {Box, Flex} from 'components/box';
 import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import Twemoji from 'react-twemoji';
+import JovianIcon from 'assets/jovian.svg';
 
 // icon, text color, bg color, classname
 const dict = {
@@ -24,6 +25,9 @@ const dict = {
 };
 
 const PLAIN_ICONS = ['⚛', '⬇'];
+const SVG_ICONS = {
+    [Tag.JOVIAN]: JovianIcon,
+};
 
 type TagProps = {
     icon: string;
@@ -73,6 +77,7 @@ export const TagIcon = ({
     }
     const fontSize = size / 2;
     const baseIcon = <Box>{tagProps.icon}</Box>;
+    const SvgIcon = SVG_ICONS[name];
 
     return (
         <Box
@@ -113,7 +118,11 @@ export const TagIcon = ({
                     lineHeight="4em"
                     inset={0}
                 >
-                    {PLAIN_ICONS.includes(tagProps.icon) ? (
+                    {SvgIcon ? (
+                        <div>
+                            <SvgIcon height={size} width={size} />
+                        </div>
+                    ) : PLAIN_ICONS.includes(tagProps.icon) ? (
                         <>
                             <span
                                 dangerouslySetInnerHTML={{__html: '&#xFE0E;'}}

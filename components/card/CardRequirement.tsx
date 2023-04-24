@@ -32,7 +32,7 @@ const CardRequirementBase = styled.div<{isMinRequirement: boolean}>`
     font-size: 0.75rem;
     font-weight: 600;
     color: black;
-    height: 20px;
+    height: 26px;
 `;
 
 // TODO: Consider making the requirements a discriminated union. Although maybe this is a feature,

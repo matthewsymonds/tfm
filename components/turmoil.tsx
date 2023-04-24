@@ -151,7 +151,7 @@ export function Turmoil() {
             width="100%"
             maxWidth="576px"
         >
-            <h2 className="display no-margin-top">Global Events</h2>
+            <h2 className="display mt-0 text-2xl">Global Events</h2>
             <Flex
                 flexWrap="wrap"
                 width="100%"

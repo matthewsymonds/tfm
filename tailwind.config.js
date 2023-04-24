@@ -8,6 +8,10 @@ module.exports = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                display: ['"Ubuntu Condensed"', 'sans-serif'],
+                sans: ['"Open Sans"', 'Roboto', 'sans-serif'],
+            },
             colors: {
                 gold: {
                     DEFAULT: 'hsl(28, 90%, 60%)',
@@ -20,15 +24,13 @@ module.exports = {
                     4: 'hsl(0, 0%, 40%)',
                     5: 'hsl(0, 0%, 50%)',
                 },
-            },
-            theme: {
-                fontSize: {
-                    xxs: ['10px', '14px'],
-                    xs: ['12px', '16px'],
-                    sm: ['14px', '20px'],
-                    base: ['16px', '24px'],
-                    lg: ['20px', '28px'],
-                    xl: ['24px', '32px'],
+
+                light: {
+                    1: 'hsl(0, 0%, 95%)', // lightest
+                    2: 'hsl(0, 0%, 87%)',
+                    3: 'hsl(0, 0%, 80%)',
+                    4: 'hsl(0, 0%, 70%)',
+                    5: 'hsl(0, 0%, 60%)', // darkest
                 },
             },
         },

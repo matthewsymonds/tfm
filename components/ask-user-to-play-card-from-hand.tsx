@@ -26,7 +26,9 @@ export const AskUserToPlayCardFromHand = ({player}: {player: PlayerState}) => {
         return (
             <AskUserToMakeChoice playedCard={mostRecentlyPlayedCard}>
                 <Flex flexDirection="column" alignItems="center">
-                    <h3>You cannot play a card from hand.</h3>
+                    <h3 className="text-lg">
+                        You cannot play a card from hand.
+                    </h3>
                     <div>None of your cards are playable at this time.</div>
                     <button onClick={handleSkip}>Skip</button>
                 </Flex>
@@ -37,7 +39,7 @@ export const AskUserToPlayCardFromHand = ({player}: {player: PlayerState}) => {
     return (
         <AskUserToMakeChoice playedCard={mostRecentlyPlayedCard}>
             <Flex flexDirection="column">
-                <h3>Please play a card from hand.</h3>
+                <h3 className="text-lg">Please play a card from hand.</h3>
                 {ignoreGlobalRequirements ? (
                     <div>You may ignore global requirements.</div>
                 ) : null}

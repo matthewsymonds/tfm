@@ -4,16 +4,25 @@ import {CardContext, LiveCard as LiveCardComponent} from 'components/card/Card';
 import {CardActions} from 'components/card/CardActions';
 import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
+import {Popover} from 'components/popover';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef} from 'react';
+import * as Checkbox from '@radix-ui/react-checkbox';
+import {CheckIcon, SizeIcon} from '@radix-ui/react-icons';
+
 import {useHover} from 'react-laag';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
+import {ResourceIcon} from 'components/icons/resource';
+import {Resource} from 'constants/resource-enum';
+import {CardTags} from './CardTags';
+import {TagIcon} from 'components/icons/tag';
+import classNames from 'classnames';
 
 type SharedCardTokenProps = {
     card: CardModel;
@@ -41,62 +50,82 @@ export const CardToggleToken = ({
     card,
     onClick,
     isSelected,
-    margin,
-    showCardOnHover = true,
     disabled,
 }: CardToggleTokenProps) => {
     const id = useComponentId();
     const color = getColorForCardType(card.type);
-    const {showPopover, hidePopover} = usePopoverType(PopoverType.CARD);
-    const [isOver, hoverProps] = useHover({delayEnter: 0, delayLeave: 0});
-    const triggerRef = useRef<HTMLLabelElement>(null);
-
-    useEffect(() => {
-        if (!showCardOnHover) {
-            return;
-        }
-        if (isOver) {
-            showPopover({
-                popover: <LiveCardComponent card={card} />,
-                triggerRef,
-                popoverOpts: {placement: 'bottom-start'},
-            });
-        } else {
-            hidePopover(triggerRef);
-        }
-    }, [isOver]);
 
     return (
-        <React.Fragment>
-            <CardToggleTokenHiddenInput
-                id={id}
-                type="checkbox"
-                value={card.name}
+        <div className="flex items-center">
+            <Checkbox.Root
                 checked={isSelected}
-                onChange={onClick}
+                onCheckedChange={onClick}
+                id={id}
                 disabled={disabled}
-            />
-            <CardTextTokenBase
+                className={classNames(
+                    'h-5 w-5 border border-dark-5 text-white rounded flex items-center justify-center',
+                    isSelected
+                        ? 'opacity-100 bg-dark-2 text-white '
+                        : 'opacity-30 hover:opacity-60'
+                )}
+            >
+                <Checkbox.Indicator>
+                    <CheckIcon height={20} width={20} className="text-base" />
+                </Checkbox.Indicator>
+            </Checkbox.Root>
+            <label
                 htmlFor={id}
-                ref={triggerRef}
-                as="label"
-                color={color}
-                margin={margin}
+                className={classNames(
+                    'cursor-pointer ml-2 h-8 rounded p-1.5 text-light-1',
+                    'font-display w-[200px] flex items-center border',
+                    isSelected
+                        ? 'opacity-100 border-dark-5'
+                        : 'opacity-30 hover:opacity-60 border-transparent'
+                )}
                 style={{
-                    opacity: isSelected ? 1 : 0.4,
+                    background: color,
                     backgroundColor: isSelected
                         ? color
                         : new Color(color)
                               .darken(0.2)
                               .desaturate(0.2)
                               .toString(),
-                    fontSize: '1rem',
                 }}
-                {...hoverProps}
             >
-                {card.name}
-            </CardTextTokenBase>
-        </React.Fragment>
+                <div className="flex-none flex items-center justify-center">
+                    <ResourceIcon
+                        name={Resource.MEGACREDIT}
+                        amount={card.cost}
+                        margin="0 4px 0 0"
+                        size={20}
+                    />
+                </div>
+                <span className="flex-auto ellipsis text-base/[16px]">
+                    {card.name}
+                </span>
+                <div className="flex-none flex ml-1">
+                    {card.tags.map((tag, index) => (
+                        <div key={index} style={{marginLeft: 2}}>
+                            <TagIcon name={tag} size={20} />
+                        </div>
+                    ))}
+                </div>
+            </label>
+
+            <Popover
+                align="start"
+                side="right"
+                sideOffset={4}
+                content={<LiveCardComponent card={card} />}
+            >
+                <button
+                    className="ml-1 border-none hover:bg-dark-2 rounded h-8 w-8 
+                flex items-center justify-center data-[state=open]:bg-dark-2"
+                >
+                    <SizeIcon />
+                </button>
+            </Popover>
+        </div>
     );
 };
 
@@ -149,7 +178,7 @@ export const CardTextToken = ({
                     width: shouldUseFullWidth ? 'calc(100%)' : undefined,
                     display: 'block',
                 }}
-                className="truncate"
+                className="ellipsis"
                 {...hoverProps}
             >
                 {card.name === '' ? 'Event' : card.name}
@@ -218,7 +247,7 @@ export const MiniatureCard = ({
                             style={{marginRight: 4}}
                         />
                     )}
-                    <span className="truncate">
+                    <span className="ellipsis">
                         {card.name === '' ? 'Event' : card.name}
                     </span>
                 </CardTextTokenBase>
@@ -273,17 +302,6 @@ export const CardTextTokenBase = styled.div<{
     transition: all 0.1s;
     opacity: 1;
     align-items: center;
-`;
-
-const CardToggleTokenHiddenInput = styled.input`
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
 `;
 
 function getColorForCardType(cardType: CardType) {

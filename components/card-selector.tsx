@@ -11,14 +11,13 @@ interface CardSelectorProps {
     max: number;
     onSelect: (cards: SerializedCard[]) => void;
     options: SerializedCard[];
-    orientation: string;
     selectedCards: SerializedCard[];
     cardSelectorPrompt?: React.ReactNode;
     budget?: number;
     className?: string;
 }
 
-const CardSelectorBase = styled.div<{orientation: string}>`
+const CardSelectorBase = styled.div`
     margin: 0 4px;
     display: flex;
     flex-wrap: wrap;
@@ -29,6 +28,7 @@ const CardSelectorOuter = styled.div`
     display: flex;
     flex-direction: column;
     margin-bottom: 8px;
+    max-width: 600px;
 `;
 
 export const CardSelector: React.FunctionComponent<
@@ -39,7 +39,6 @@ export const CardSelector: React.FunctionComponent<
         max,
         onSelect,
         options,
-        orientation,
         selectedCards,
         budget,
         className,
@@ -74,7 +73,7 @@ export const CardSelector: React.FunctionComponent<
     return (
         <CardSelectorOuter className={className}>
             {props.cardSelectorPrompt}
-            <CardSelectorBase orientation={orientation}>
+            <CardSelectorBase>
                 {options.map((option, key) => {
                     const selected = selectedCards.some(
                         card => card.name === option?.name
@@ -87,7 +86,7 @@ export const CardSelector: React.FunctionComponent<
                     const disabled = cannotSelect || cannotUnselect;
                     const card = getCard(option);
                     return (
-                        <Flex margin="4px" key={key}>
+                        <div className="mx-auto my-1.5" key={key}>
                             <CardToggleToken
                                 margin="0"
                                 showCardOnHover={true}
@@ -99,7 +98,7 @@ export const CardSelector: React.FunctionComponent<
                                     handleSelect(option);
                                 }}
                             />
-                        </Flex>
+                        </div>
                     );
                 })}
             </CardSelectorBase>

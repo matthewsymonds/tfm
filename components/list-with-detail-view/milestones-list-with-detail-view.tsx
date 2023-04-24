@@ -92,7 +92,7 @@ function MilestoneDetailView({
                 position="relative"
             >
                 <h3
-                    className="display"
+                    className="display text-lg"
                     style={{
                         color: colors.TEXT_LIGHT_1,
                         marginBottom: 0,

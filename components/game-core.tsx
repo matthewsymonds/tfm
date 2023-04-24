@@ -366,13 +366,8 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                                         paddingRight="8px"
                                         color={colors.LIGHT_2}
                                     >
-                                        <h2
-                                            style={{
-                                                marginBottom: 0,
-                                                marginTop: 8,
-                                            }}
-                                        >
-                                            {actionBarPromptText}.
+                                        <h2 className="text-2xl my-2">
+                                            {actionBarPromptText}
                                         </h2>
                                     </Box>
                                 ) : null}

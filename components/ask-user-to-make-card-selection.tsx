@@ -209,7 +209,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                         dispatch(setCorporation(cards[0], player.index))
                     }
                     options={possibleCorporations}
-                    orientation="vertical"
                     cardSelectorPrompt={
                         <Flex margin="0 8px">Select a corporation</Flex>
                     }
@@ -219,7 +218,6 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                 <CardSelector
                     max={2}
                     min={2}
-                    orientation="horizontal"
                     selectedCards={selectedPreludes}
                     onSelect={cards => {
                         setSelectedPreludes(cards);
@@ -346,16 +344,9 @@ export function AskUserToMakeCardSelection({player}: {player: PlayerState}) {
                                 }
                             }}
                             options={pendingCardSelection.possibleCards}
-                            orientation="vertical"
                             cardSelectorPrompt={
                                 <React.Fragment>
-                                    <Flex
-                                        margin="8px"
-                                        style={{
-                                            fontSize: '1.1em',
-                                            fontWeight: 700,
-                                        }}
-                                    >
+                                    <Flex margin="8px">
                                         {cardSelectionPrompt}
                                     </Flex>
                                     {cardSelectionSubtitle}
