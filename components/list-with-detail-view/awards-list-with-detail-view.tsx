@@ -158,7 +158,7 @@ function FundAwardButton({award}: {award: string}) {
 
     const isFree = loggedInPlayer.fundAward;
     const cost = isFree ? 0 : awardConfigsByAward[award].cost;
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: payment => {
                 if (canPlay) {
@@ -177,19 +177,19 @@ function FundAwardButton({award}: {award: string}) {
         });
 
     return (
-        <Button
-            ref={triggerRef}
-            disabled={!canPlay}
-            onClick={collectPaymentAndPerformAction}
-        >
-            <span>Fund</span>
-            <ResourceIcon
-                margin="0 0 0 4px"
-                name={Resource.MEGACREDIT}
-                amount={cost}
-                size={16}
-            />
-        </Button>
+        <React.Fragment>
+            {renderPaymentButton(
+                <Button disabled={!canPlay} onClick={onPaymentButtonClick}>
+                    <span>Fund</span>
+                    <ResourceIcon
+                        margin="0 0 0 4px"
+                        name={Resource.MEGACREDIT}
+                        amount={cost}
+                        size={16}
+                    />
+                </Button>
+            )}
+        </React.Fragment>
     );
 }
 

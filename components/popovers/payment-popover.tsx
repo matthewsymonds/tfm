@@ -1,17 +1,16 @@
 import {Box, Flex} from 'components/box';
 import {Button} from 'components/button';
 import {ResourceIcon} from 'components/icons/resource';
+import {MaybePopover} from 'components/popover';
 import {Action} from 'constants/action';
-import {PLAYER_COLORS} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';
-import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {usePrevious} from 'hooks/use-previous';
 import {Card} from 'models/card';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useTypedSelector} from 'reducer';
 import {doesCardPaymentRequirePlayerInput} from 'selectors/does-card-payment-require-player-input';
 import {getConditionalPaymentWithResourceInfo} from 'selectors/get-conditional-payment-with-resource-info';
@@ -23,10 +22,9 @@ import spawnExhaustiveSwitchError from 'utils';
 
 const PaymentPopoverBase = styled.div`
     padding: 16px;
-    border-radius: 3px;
+    border-radius: 4px;
     z-index: 31; // HACK: Remove this once the top-bar is either modalized or has less janky scroll behavior
-    box-shadow: 1px 1px 10px 0px rgba(0, 0, 0, 0.35);
-    background: #f7f7f7;
+    color: white;
     .payment-rows {
         border-top: 1px solid black;
         border-bottom: 1px solid black;
@@ -65,12 +63,8 @@ const PaymentPopoverRowBase = styled.div`
 const PaymentPopoverSummaryRow = styled.div<{isValidPayment: boolean}>`
     display: flex;
     align-items: center;
-    padding: 12px 0;
     font-weight: 600;
     justify-content: space-between;
-    .running-total {
-        color: ${props => (props.isValidPayment ? 'black' : 'red')};
-    }
 `;
 
 type PaymentPopoverRowProps = {
@@ -89,13 +83,9 @@ export function usePaymentPopover<T extends HTMLElement>({
     onConfirmPayment,
     opts,
 }: PaymentPopoverProps): {
-    collectPaymentAndPerformAction: () => void;
-    triggerRef: React.RefObject<T>;
+    onPaymentButtonClick: () => void;
+    renderPaymentButton: (button: React.ReactNode) => React.ReactNode;
 } {
-    const {showPopover, hidePopover} = usePopoverType(
-        PopoverType.PAYMENT_POPOVER
-    );
-    const triggerRef = useRef<T>(null);
     const loggedInPlayer = useLoggedInPlayer();
 
     const cost =
@@ -103,40 +93,46 @@ export function usePaymentPopover<T extends HTMLElement>({
             ? getDiscountedCardCost(opts.card, loggedInPlayer)
             : opts.cost ?? 0;
 
-    function collectPaymentAndPerformAction() {
-        showPopover({
-            triggerRef,
-            popover: (
-                <PaymentPopover
-                    onConfirmPayment={(payment, conditionalPayments) => {
-                        onConfirmPayment(payment, conditionalPayments);
-                        // close all payment popovers. we can't pass the triggerRef here
-                        // because the trigger card may no longer be mounted
-                        hidePopover(null);
-                    }}
-                    opts={opts}
-                />
-            ),
-        });
-    }
-
-    if (
+    const isCardWithPaymentRequired =
         opts.type === 'card' &&
-        doesCardPaymentRequirePlayerInput(loggedInPlayer, opts.card)
-    ) {
-        return {collectPaymentAndPerformAction, triggerRef};
-    }
-    if (
+        doesCardPaymentRequirePlayerInput(loggedInPlayer, opts.card);
+
+    const isActionWithPaymentRequired =
         opts.type === 'action' &&
-        getDoesActionPaymentRequireUserInput(loggedInPlayer, opts.action)
-    ) {
-        return {collectPaymentAndPerformAction, triggerRef};
+        getDoesActionPaymentRequireUserInput(loggedInPlayer, opts.action);
+
+    const shouldShowPopover =
+        isCardWithPaymentRequired || isActionWithPaymentRequired;
+
+    function renderPaymentButton(button: React.ReactNode) {
+        return (
+            <MaybePopover
+                shouldShowPopover={shouldShowPopover}
+                side="top"
+                sideOffset={4}
+                content={forceClose => (
+                    <PaymentPopover
+                        onConfirmPayment={(...args) => {
+                            onConfirmPayment(...args);
+                            forceClose();
+                        }}
+                        opts={opts}
+                    />
+                )}
+            >
+                {button}
+            </MaybePopover>
+        );
     }
 
     return {
-        collectPaymentAndPerformAction: () =>
-            onConfirmPayment({[Resource.MEGACREDIT]: cost}, []),
-        triggerRef,
+        onPaymentButtonClick: () => {
+            if (shouldShowPopover) {
+                return;
+            }
+            onConfirmPayment({[Resource.MEGACREDIT]: cost}, []);
+        },
+        renderPaymentButton,
     };
 }
 
@@ -398,20 +394,12 @@ export default function PaymentPopover(props: PaymentPopoverProps) {
     const isValidPayment = cost <= runningTotal;
 
     return (
-        <PaymentPopoverBase className="payment-popover">
-            <PaymentPopoverSummaryRow isValidPayment={isValidPayment}>
+        <PaymentPopoverBase className="payment-popover bg-dark-2 shadow-xl shadow-black/40 border border-dark-5 ">
+            <PaymentPopoverSummaryRow
+                className="mb-2"
+                isValidPayment={isValidPayment}
+            >
                 <span>Cost: {cost}</span>
-                <span className="running-total">
-                    <em
-                        style={{
-                            color: isValidPayment
-                                ? PLAYER_COLORS[1]
-                                : PLAYER_COLORS[0],
-                        }}
-                    >
-                        Current: {runningTotal}
-                    </em>
-                </span>
             </PaymentPopoverSummaryRow>
             <Box marginBottom="4px" fontSize="12px">
                 With <em>{numMC} MC</em> and...

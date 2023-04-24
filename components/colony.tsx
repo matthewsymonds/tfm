@@ -287,7 +287,7 @@ export function ColonyComponent({
         serializedColony.name
     );
     const {showPopover, hidePopover} = usePopoverType(
-        PopoverType.PAYMENT_POPOVER
+        PopoverType.TRADE_PAYMENT_POPOVER
     );
     function handleClickTrade() {
         showPopover({

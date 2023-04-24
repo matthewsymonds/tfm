@@ -182,7 +182,7 @@ function AddDelegateButton({partyName}: {partyName: TurmoilParty}) {
     const state = useTypedSelector(state => state);
     const lobbyAction = getLobbyingAction(state, loggedInPlayer);
     const [canLobby] = actionGuard.canLobby();
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment(payment) {
                 if (canLobby) {
@@ -197,22 +197,25 @@ function AddDelegateButton({partyName}: {partyName: TurmoilParty}) {
         });
 
     return (
-        <Button
-            disabled={!canLobby}
-            size="small"
-            ref={triggerRef}
-            onClick={collectPaymentAndPerformAction}
-        >
-            {lobbyAction.cost > 0 && (
-                <ResourceIcon
-                    name={Resource.MEGACREDIT}
-                    amount={lobbyAction.cost}
-                    margin="0 4px 0 0"
-                    size={16}
-                />
+        <React.Fragment>
+            {renderPaymentButton(
+                <Button
+                    disabled={!canLobby}
+                    size="small"
+                    onClick={onPaymentButtonClick}
+                >
+                    {lobbyAction.cost > 0 && (
+                        <ResourceIcon
+                            name={Resource.MEGACREDIT}
+                            amount={lobbyAction.cost}
+                            margin="0 4px 0 0"
+                            size={16}
+                        />
+                    )}
+                    Add delegate
+                </Button>
             )}
-            Add delegate
-        </Button>
+        </React.Fragment>
     );
 }
 

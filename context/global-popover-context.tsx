@@ -14,7 +14,7 @@ export enum PopoverType {
     CARD = 'card',
     ACTION_LOG = 'actionLog',
     CONFIRMATION_PROMPT = 'confirmationPrompt',
-    PAYMENT_POPOVER = 'paymentPopover', // this effectively counts as a confirmationPrompt
+    TRADE_PAYMENT_POPOVER = 'tradePaymentPopover',
 }
 
 export type PopoverConfigByType = {[key in PopoverType]?: PopoverConfig};
@@ -78,7 +78,7 @@ const Z_INDEX_BY_POPOVER_TYPE: {[type in PopoverType]: number} = {
     [PopoverType.ACTION_LOG]: 11,
     [PopoverType.CARD]: 12,
     [PopoverType.CONFIRMATION_PROMPT]: 13,
-    [PopoverType.PAYMENT_POPOVER]: 14,
+    [PopoverType.TRADE_PAYMENT_POPOVER]: 14,
 };
 
 function IndividualPopoverManager({type}: {type: PopoverType}) {

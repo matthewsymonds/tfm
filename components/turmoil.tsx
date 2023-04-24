@@ -132,7 +132,7 @@ export function Turmoil() {
 
     const rulingParty = getPartyConfig(turmoil.rulingParty as TurmoilParty);
     const rulingPartyActionCost = rulingParty?.action?.cost ?? 0;
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: handleClickPolicy,
             opts: {type: 'action', cost: rulingPartyActionCost, action: {}},
@@ -169,8 +169,8 @@ export function Turmoil() {
             </Flex>
             <TurmoilStatusTable
                 canClickRulingPolicyAction={canDoRulingPolicyAction}
-                onClickRulingPolicyAction={collectPaymentAndPerformAction}
-                rulingPolicyActionRef={triggerRef}
+                onClickRulingPolicyAction={onPaymentButtonClick}
+                renderPaymentButton={renderPaymentButton}
             />
             <Flex
                 flexDirection="column"
@@ -192,11 +192,11 @@ export function Turmoil() {
 function TurmoilStatusTable({
     canClickRulingPolicyAction,
     onClickRulingPolicyAction,
-    rulingPolicyActionRef,
+    renderPaymentButton,
 }: {
     canClickRulingPolicyAction: boolean;
     onClickRulingPolicyAction: () => void;
-    rulingPolicyActionRef: React.RefObject<HTMLButtonElement>;
+    renderPaymentButton: (button: React.ReactNode) => React.ReactNode;
 }) {
     const rulingParty = useTypedSelector(
         state => state.common.turmoil?.rulingParty
@@ -232,14 +232,13 @@ function TurmoilStatusTable({
                 </TurmoilStatusCellHeader>
                 <TurmoilStatusCellContent>
                     {canClickRulingPolicyAction ? (
-                        <Button
-                            onClick={onClickRulingPolicyAction}
-                            ref={rulingPolicyActionRef}
-                        >
-                            <TurmoilPartyPolicy
-                                partyName={rulingParty as TurmoilParty}
-                            />
-                        </Button>
+                        renderPaymentButton(
+                            <Button onClick={onClickRulingPolicyAction}>
+                                <TurmoilPartyPolicy
+                                    partyName={rulingParty as TurmoilParty}
+                                />
+                            </Button>
+                        )
                     ) : (
                         <TurmoilPartyPolicy
                             partyName={rulingParty as TurmoilParty}

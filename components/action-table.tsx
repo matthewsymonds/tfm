@@ -309,7 +309,7 @@ function StandardProjectButton({
         loggedInPlayer
     );
 
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: payment => {
                 if (canPlay) {
@@ -327,40 +327,45 @@ function StandardProjectButton({
         });
 
     return (
-        <StandardProjectButtonInner
-            ref={triggerRef}
-            bgColorHover={colors.DARK_2}
-            disabled={!canPlay}
-            onClick={collectPaymentAndPerformAction}
-        >
-            <Flex
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="space-between"
-                position="relative"
-            >
-                <div className="standard-project-icon">
-                    <StandardProjectActionIcon
-                        actionType={standardProjectAction.type}
-                    />
-                </div>
-                <div className="standard-project-cost">
-                    <ResourceIcon
-                        name={Resource.MEGACREDIT}
-                        amount={
-                            standardProjectAction.type ===
-                            StandardProjectType.SELL_PATENTS
-                                ? '+X'
-                                : cost
-                        }
-                        size={20}
-                    />
-                </div>
-                <span style={{marginTop: 2}}>
-                    {getTextForStandardProject(standardProjectAction.type)}
-                </span>
-            </Flex>
-        </StandardProjectButtonInner>
+        <React.Fragment>
+            {renderPaymentButton(
+                <StandardProjectButtonInner
+                    bgColorHover={colors.DARK_2}
+                    disabled={!canPlay}
+                    onClick={onPaymentButtonClick}
+                >
+                    <Flex
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        position="relative"
+                    >
+                        <div className="standard-project-icon">
+                            <StandardProjectActionIcon
+                                actionType={standardProjectAction.type}
+                            />
+                        </div>
+                        <div className="standard-project-cost">
+                            <ResourceIcon
+                                name={Resource.MEGACREDIT}
+                                amount={
+                                    standardProjectAction.type ===
+                                    StandardProjectType.SELL_PATENTS
+                                        ? '+X'
+                                        : cost
+                                }
+                                size={20}
+                            />
+                        </div>
+                        <span style={{marginTop: 2}}>
+                            {getTextForStandardProject(
+                                standardProjectAction.type
+                            )}
+                        </span>
+                    </Flex>
+                </StandardProjectButtonInner>
+            )}
+        </React.Fragment>
     );
 }
 

@@ -41,7 +41,7 @@ export function CardContextButton({
         });
     }
 
-    const {collectPaymentAndPerformAction, triggerRef: paymentTriggerRef} =
+    const {renderPaymentButton, onPaymentButtonClick} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: playCard,
             opts: {
@@ -79,13 +79,8 @@ export function CardContextButton({
                         </Tooltip>
                     );
                 } else {
-                    buttonContent = (
-                        <Button
-                            ref={paymentTriggerRef}
-                            onClick={collectPaymentAndPerformAction}
-                        >
-                            Play
-                        </Button>
+                    buttonContent = renderPaymentButton(
+                        <Button onClick={onPaymentButtonClick}>Play</Button>
                     );
                 }
             }

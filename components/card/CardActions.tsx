@@ -439,7 +439,7 @@ function ActionContainer({
     children: React.ReactNode;
 }) {
     const isPlayedCard = cardContext === CardContext.PLAYED_CARD;
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: payment => {
                 playAction(action, payment);
@@ -453,12 +453,15 @@ function ActionContainer({
 
     const shouldDisable = !canPlay || !isPlayedCard || !isOwnedByLoggedInPlayer;
     return (
-        <ActionContainerBase
-            ref={triggerRef}
-            disabled={shouldDisable}
-            onClick={collectPaymentAndPerformAction}
-        >
-            {children}
-        </ActionContainerBase>
+        <React.Fragment>
+            {renderPaymentButton(
+                <ActionContainerBase
+                    disabled={shouldDisable}
+                    onClick={onPaymentButtonClick}
+                >
+                    {children}
+                </ActionContainerBase>
+            )}
+        </React.Fragment>
     );
 }

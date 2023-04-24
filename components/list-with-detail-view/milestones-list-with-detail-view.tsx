@@ -183,7 +183,7 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
     const apiClient = useApiClient();
     const actionGuard = useActionGuard();
     const canPlay = actionGuard.canClaimMilestone(milestone)[0];
-    const {collectPaymentAndPerformAction, triggerRef} =
+    const {onPaymentButtonClick, renderPaymentButton} =
         usePaymentPopover<HTMLButtonElement>({
             onConfirmPayment: payment => {
                 if (canPlay) {
@@ -198,18 +198,18 @@ function ClaimMilestoneButton({milestone}: {milestone: string}) {
         });
 
     return (
-        <Button
-            ref={triggerRef}
-            disabled={!canPlay}
-            onClick={collectPaymentAndPerformAction}
-        >
-            <span>Claim</span>
-            <ResourceIcon
-                margin="0 0 0 4px"
-                name={Resource.MEGACREDIT}
-                amount={8}
-                size={16}
-            />
-        </Button>
+        <React.Fragment>
+            {renderPaymentButton(
+                <Button disabled={!canPlay} onClick={onPaymentButtonClick}>
+                    <span>Claim</span>
+                    <ResourceIcon
+                        margin="0 0 0 4px"
+                        name={Resource.MEGACREDIT}
+                        amount={8}
+                        size={16}
+                    />
+                </Button>
+            )}
+        </React.Fragment>
     );
 }
