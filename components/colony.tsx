@@ -337,7 +337,9 @@ export function ColonyComponent({
                 backgroundColor={colony.backgroundColor}
                 reverseBackground={colony.reverseBackground}
             >
-                <ColonyTitle className="display">{colony.name}</ColonyTitle>
+                <ColonyTitle className="display text-2xl">
+                    {colony.name}
+                </ColonyTitle>
                 <ColonyPlanet
                     backgroundColor={colony.planetColor}
                     position={colony.planetPosition}

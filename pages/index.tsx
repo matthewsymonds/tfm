@@ -62,16 +62,9 @@ export const Title = ({username}: {username?: string}) => (
 export const Container = ({children}) => {
     return (
         <Box width="calc(100% - 16px)" marginLeft="8px" marginRight="8px">
-            <Flex
-                width="fit-content"
-                alignItems="center"
-                justifyContent="center"
-                margin="0 auto"
-                maxWidth="100%"
-                flexDirection="column"
-            >
+            <div className="pb-4 my-0 mx-auto max-w-full flex flex-col justify-center items-center w-fit">
                 {children}
-            </Flex>
+            </div>
         </Box>
     );
 };

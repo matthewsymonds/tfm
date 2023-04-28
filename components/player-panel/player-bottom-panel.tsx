@@ -28,7 +28,6 @@ const OuterWrapper = styled.div<{isSelected: boolean}>`
     justify-content: stretch;
     align-items: flex-start;
     padding: 8px;
-    max-width: 766px;
     margin-top: 8px;
     @media (max-width: 1500px) {
         margin-left: 8px;
