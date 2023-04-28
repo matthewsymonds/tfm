@@ -246,32 +246,16 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                 </Box>
                             )}
                             {canSkip && (
-                                <div
-                                    style={{
-                                        marginLeft: 2,
-                                        display: 'inline-flex',
-                                    }}
-                                >
-                                    <Button
-                                        onClick={() =>
-                                            apiClient.skipActionAsync()
-                                        }
-                                    >
+                                <div className="ml-2 inline-flex">
+                                    <Button onClick={apiClient.skipActionAsync}>
                                         Skip
                                     </Button>
                                 </div>
                             )}
                             {canPass && (
-                                <div
-                                    style={{
-                                        marginLeft: 2,
-                                        display: 'inline-flex',
-                                    }}
-                                >
+                                <div className="ml-2 inline-flex">
                                     <Button
-                                        onClick={() =>
-                                            apiClient.passGenerationAsync()
-                                        }
+                                        onClick={apiClient.passGenerationAsync}
                                     >
                                         Pass
                                     </Button>
@@ -290,12 +274,15 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                         </Box>
                     ) : null}
                 </Flex>
-                <Flex marginLeft="auto">
+                <div className="ml-auto flex items-center">
                     <ActionLog />
-                    <BlankButton onClick={() => router.push('/')}>
+                    <button
+                        className="p-2 hover:bg-dark-2 rounded border-none"
+                        onClick={() => router.push('/')}
+                    >
                         <Twemoji>🏠</Twemoji>
-                    </BlankButton>
-                </Flex>
+                    </button>
+                </div>
             </TopBarBase>
         );
     }

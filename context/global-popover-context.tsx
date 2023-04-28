@@ -10,11 +10,7 @@ export type PopoverConfig = {
 
 // Multiple popovers can be shown at once, but only one of any given type can be shown.
 export enum PopoverType {
-    ACTION_LIST_ITEM = 'actionListItem',
     CARD = 'card',
-    ACTION_LOG = 'actionLog',
-    CONFIRMATION_PROMPT = 'confirmationPrompt',
-    TRADE_PAYMENT_POPOVER = 'tradePaymentPopover',
 }
 
 export type PopoverConfigByType = {[key in PopoverType]?: PopoverConfig};
@@ -74,11 +70,7 @@ export function GlobalPopoverManager({}: {}) {
 
 const Z_INDEX_BY_POPOVER_TYPE: {[type in PopoverType]: number} = {
     /** TOAST: 8 (see <ToastContainer /> */
-    [PopoverType.ACTION_LIST_ITEM]: 10,
-    [PopoverType.ACTION_LOG]: 11,
     [PopoverType.CARD]: 12,
-    [PopoverType.CONFIRMATION_PROMPT]: 13,
-    [PopoverType.TRADE_PAYMENT_POPOVER]: 14,
 };
 
 function IndividualPopoverManager({type}: {type: PopoverType}) {

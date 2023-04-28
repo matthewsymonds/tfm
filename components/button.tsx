@@ -7,18 +7,12 @@ import {colors} from './ui';
 type ButtonVariant = 'default' | 'bordered';
 type ButtonSize = 'default' | 'small';
 
-type ButtonProps = React.PropsWithChildren<
-    {
-        variant?: ButtonVariant;
-        size?: ButtonSize;
-        disabled?: boolean;
-    } & (
-        | {
-              onClick: MouseEventHandler<HTMLButtonElement>;
-          }
-        | {type: 'submit'; onClick?: undefined}
-    )
->;
+type ButtonProps = React.PropsWithChildren<{
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    disabled?: boolean;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+}>;
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     (props, ref) => {

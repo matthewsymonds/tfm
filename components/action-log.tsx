@@ -1,3 +1,4 @@
+import {GameActionType} from 'GameActionState';
 import {Box, Flex} from 'components/box';
 import {CardTextToken} from 'components/card/CardToken';
 import {PlayerCorpAndIcon} from 'components/icons/player';
@@ -11,9 +12,7 @@ import {GameStage} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
-import {PopoverType, usePopoverType} from 'context/global-popover-context';
-import {GameActionType} from 'GameActionState';
-import React, {useEffect, useLayoutEffect, useRef} from 'react';
+import React, {useEffect, useLayoutEffect} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
 import Twemoji from 'react-twemoji';
 import {PlayerState, useTypedSelector} from 'reducer';
@@ -22,9 +21,9 @@ import {getGameAction} from 'selectors/get-game-action';
 import {SerializedGameAction} from 'state-serialization';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {BlankButton} from './blank-button';
 import {GlobalParameterIcon} from './icons/global-parameter';
 import {TileIcon} from './icons/tile';
+import {Popover} from './popover';
 
 export function bucketLogItems(
     logItems: Array<SerializedGameAction>
@@ -51,58 +50,41 @@ export function bucketLogItems(
 }
 
 export const ActionLog = () => {
-    const {showPopover, hidePopover, popoverConfig} = usePopoverType(
-        PopoverType.ACTION_LOG
-    );
-    const triggerRef = useRef<HTMLButtonElement>(null);
-
-    function toggleLog() {
-        if (popoverConfig?.triggerRef === triggerRef) {
-            hidePopover(triggerRef);
-        } else {
-            const rootEl = document.querySelector('#root');
-            if (!rootEl) {
-                throw new Error('could not find root element');
-            }
-            const clientRect = rootEl.getBoundingClientRect();
-            const maxHeight = clientRect.height - 72;
-            const maxWidth = clientRect.width - 32;
-
-            showPopover({
-                popover: (
-                    <TexturedCard
-                        className="action-log"
-                        borderRadius={5}
-                        bgColor="white"
-                        style={{
-                            overflow: 'hidden',
-                            boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
-                            zIndex: 5,
-                            height: Math.min(600, maxHeight),
-                            width: Math.min(500, maxWidth),
-                        }}
-                    >
-                        <LogPanel />
-                    </TexturedCard>
-                ),
-                triggerRef,
-                popoverOpts: {
-                    placement: 'bottom-end',
-                },
-            });
-        }
+    const rootEl = document.querySelector('#root');
+    const clientRect = rootEl?.getBoundingClientRect();
+    let maxHeight = Infinity;
+    let maxWidth = Infinity;
+    if (clientRect) {
+        maxHeight = clientRect.height - 72;
+        maxWidth = clientRect.width - 32;
     }
 
     return (
-        <React.Fragment>
-            <BlankButton
-                ref={triggerRef}
-                onClick={() => toggleLog()}
-                style={{marginRight: 4}}
-            >
+        <Popover
+            side="bottom"
+            sideOffset={4}
+            align="end"
+            content={
+                <TexturedCard
+                    className="action-log"
+                    borderRadius={5}
+                    bgColor="white"
+                    style={{
+                        overflow: 'hidden',
+                        boxShadow: '2px 2px 5px 0px hsl(0, 0%, 20%)',
+                        zIndex: 5,
+                        height: Math.min(600, maxHeight),
+                        width: Math.min(500, maxWidth),
+                    }}
+                >
+                    <LogPanel />
+                </TexturedCard>
+            }
+        >
+            <button className="mr-1 p-2 hover:bg-dark-2 rounded border-none data-[state=open]:bg-dark-2">
                 <Twemoji>📜</Twemoji>
-            </BlankButton>
-        </React.Fragment>
+            </button>
+        </Popover>
     );
 };
 

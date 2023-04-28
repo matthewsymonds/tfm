@@ -7,7 +7,6 @@ import {
 import {PLAYER_COLORS} from 'constants/game';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
-import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useActionGuard} from 'hooks/use-action-guard';
 import {useApiClient} from 'hooks/use-api-client';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
@@ -21,6 +20,7 @@ import {Box, Flex} from './box';
 import {Button} from './button';
 import {BaseActionIconography} from './card/CardIconography';
 import {ResourceIcon} from './icons/resource';
+import {Popover} from './popover';
 import {SelectButtons} from './select-buttons';
 import {colors} from './ui';
 
@@ -138,10 +138,10 @@ const ColonyPlanet = styled.div<{
 
 function TradePaymentPopover({
     colony,
-    hidePopover,
+    closePopover,
 }: {
     colony: SerializedColony;
-    hidePopover: () => void;
+    closePopover: () => void;
 }) {
     const player = useLoggedInPlayer();
     const eligibleTradeIncomes = getEligibleTradeIncomes(colony, player);
@@ -238,6 +238,7 @@ function TradePaymentPopover({
                 <Button
                     variant="bordered"
                     onClick={() => {
+                        closePopover();
                         if (canTradeForFree) {
                             apiClient.tradeForFreeAsync({
                                 colony: colony.name,
@@ -250,7 +251,6 @@ function TradePaymentPopover({
                                 payment: selectedTradePayment.resource,
                             });
                         }
-                        hidePopover();
                     }}
                 >
                     Trade{canTradeForFree ? ' for free' : ''}
@@ -286,23 +286,7 @@ export function ColonyComponent({
     const [canTradeForFree] = actionGuard.canTradeForFree(
         serializedColony.name
     );
-    const {showPopover, hidePopover} = usePopoverType(
-        PopoverType.TRADE_PAYMENT_POPOVER
-    );
-    function handleClickTrade() {
-        showPopover({
-            popover: (
-                <TradePaymentPopover
-                    hidePopover={() => {
-                        hidePopover(null);
-                    }}
-                    colony={serializedColony}
-                />
-            ),
-            triggerRef,
-            popoverOpts: {},
-        });
-    }
+
     const tradeFleet = useTypedSelector(state => {
         if (!serializedColony.lastTrade) return null;
 
@@ -495,14 +479,22 @@ export function ColonyComponent({
                 flexDirection="column"
                 zIndex="2"
             >
-                <Button
-                    disabled={!canTrade && !canTradeForFree}
-                    onClick={handleClickTrade}
-                    size="small"
-                    variant="default"
+                <Popover
+                    content={forceClose => (
+                        <TradePaymentPopover
+                            colony={serializedColony}
+                            closePopover={forceClose}
+                        />
+                    )}
                 >
-                    Trade
-                </Button>
+                    <Button
+                        disabled={!canTrade && !canTradeForFree}
+                        size="small"
+                        variant="default"
+                    >
+                        Trade
+                    </Button>
+                </Popover>
             </Flex>
         </ColonyBase>
     );
