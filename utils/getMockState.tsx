@@ -8,10 +8,7 @@ import {GameOptions, GameState} from 'reducer';
 export function getMockState(opts: GameOptions): GameState {
     let initialState = getInitialState(
         ['Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5'],
-        opts ?? {
-            decks: [Deck.BASIC],
-            isDraftingEnabled: false,
-        },
+        opts,
         'my-game'
     );
 

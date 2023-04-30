@@ -23,7 +23,7 @@ const Template: Story<{}> = args => (
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;
                 return (
-                    <div style={{margin: 4}}>
+                    <div style={{margin: 4}} key={card.name}>
                         <Card card={card} cardContext={CardContext.NONE} />
                     </div>
                 );

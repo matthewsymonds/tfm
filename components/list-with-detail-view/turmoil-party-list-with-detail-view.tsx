@@ -80,7 +80,6 @@ export function TurmoilPartyListWithDetailView() {
     const renderTurmoilPartyDetailView = useCallback(
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party
-            console.log('hello?', turmoilParty);
             return (
                 <React.Fragment>
                     <Flex

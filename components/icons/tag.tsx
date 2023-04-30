@@ -25,6 +25,7 @@ const dict = {
 };
 
 const PLAIN_ICONS = ['⚛', '⬇'];
+console.log('coltine', JovianIcon);
 const SVG_ICONS = {
     [Tag.JOVIAN]: JovianIcon,
 };
@@ -119,9 +120,7 @@ export const TagIcon = ({
                     inset={0}
                 >
                     {SvgIcon ? (
-                        <div>
-                            <SvgIcon height={size} width={size} />
-                        </div>
+                        <SvgIcon height={size} width={size} />
                     ) : PLAIN_ICONS.includes(tagProps.icon) ? (
                         <>
                             <span

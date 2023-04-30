@@ -188,7 +188,7 @@ export type GameOptions = {
     isDraftingEnabled: boolean;
     decks: Deck[];
     soloCorporationName?: string;
-    boardNames: string[];
+    boardNames: Array<'Tharsis' | 'Hellas' | 'Elysium'>;
 };
 
 export type PendingChoice = {

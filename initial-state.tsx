@@ -71,7 +71,6 @@ export function getInitialState(
     const possibleCards = cards.filter(card =>
         options.decks.includes(card.deck)
     );
-
     shuffle(possibleCards);
 
     const allCorporations = possibleCards
@@ -125,7 +124,6 @@ export function getInitialState(
         players: [] as PlayerState[],
         options,
     };
-
     shuffle(players);
 
     for (const player of players) {

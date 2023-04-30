@@ -1,16 +1,14 @@
 import React, {useContext, useState} from 'react';
-import {GlobalStyles} from 'pages/_app';
-import {AppContext, appContext} from 'context/app-context';
+import {GlobalStyles} from '../global-styles';
+import {AppContext, appContext} from '../context/app-context';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 import {reducer} from '../reducer';
-import {getMockState} from 'utils/getMockState';
-import {Deck} from 'constants/card-types';
+import {getMockState} from '../utils/getMockState';
+import {Deck} from '../constants/card-types';
 import {Fonts} from '../fonts';
-
-export const parameters = {
-    actions: {argTypesRegex: '^on[A-Z].*'},
-};
+import {Preview} from '@storybook/react';
+import '../globals.css';
 
 const withGlobalStyles = (Story, context) => {
     return (
@@ -35,7 +33,11 @@ const withAppContext = (Story, context) => {
 
 const store = createStore(
     reducer,
-    getMockState({decks: [Deck.BASIC, Deck.VENUS, Deck.PRELUDE]})
+    getMockState({
+        isDraftingEnabled: true,
+        decks: [Deck.BASIC, Deck.VENUS, Deck.PRELUDE],
+        boardNames: ['Tharsis', 'Hellas', 'Elysium'],
+    })
 );
 const withReduxStore = (Story, context) => {
     return (
@@ -54,9 +56,22 @@ const withGoogleFonts = (Story, context) => {
     );
 };
 
-export const decorators = [
-    withGlobalStyles,
-    withAppContext,
-    withReduxStore,
-    withGoogleFonts,
-];
+const preview: Preview = {
+    parameters: {
+        actions: {argTypesRegex: '^on[A-Z].*'},
+        controls: {
+            matchers: {
+                color: /(background|color)$/i,
+                date: /Date$/,
+            },
+        },
+    },
+    decorators: [
+        withGlobalStyles,
+        withAppContext,
+        withReduxStore,
+        withGoogleFonts,
+    ],
+};
+
+export default preview;
