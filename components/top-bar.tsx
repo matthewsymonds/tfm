@@ -251,7 +251,12 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             )}
                             {canSkip && (
                                 <div className="ml-2 inline-flex">
-                                    <Button onClick={apiClient.skipActionAsync}>
+                                    <Button
+                                        // arrow fn to bind `apiClient`
+                                        onClick={() =>
+                                            apiClient.skipActionAsync()
+                                        }
+                                    >
                                         Skip
                                     </Button>
                                 </div>
@@ -259,7 +264,10 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                             {canPass && (
                                 <div className="ml-2 inline-flex">
                                     <Button
-                                        onClick={apiClient.passGenerationAsync}
+                                        // arrow fn to bind `apiClient`
+                                        onClick={() =>
+                                            apiClient.passGenerationAsync()
+                                        }
                                     >
                                         Pass
                                     </Button>
