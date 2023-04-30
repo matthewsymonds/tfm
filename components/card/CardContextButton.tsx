@@ -4,11 +4,11 @@ import {Flex} from 'components/box';
 import {Button} from 'components/button';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {usePaymentPopover} from 'components/popovers/payment-popover';
+import {MaybeTooltip, Tooltip} from 'components/tooltip';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
-import {Tooltip} from 'react-tippy';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {isActiveRound} from 'selectors/is-active-round';
 import spawnExhaustiveSwitchError from 'utils';
@@ -61,22 +61,18 @@ export function CardContextButton({
 
                 if (!canPlay) {
                     buttonContent = (
-                        <Tooltip
-                            unmountHTMLWhenHide={true}
-                            sticky={true}
-                            animation="fade"
-                            html={
-                                !isSyncing && activeRound && reason ? (
-                                    <DisabledTooltip>{reason}</DisabledTooltip>
-                                ) : (
-                                    <div />
-                                )
+                        <MaybeTooltip
+                            shouldShowTooltip={Boolean(
+                                isSyncing && activeRound && reason
+                            )}
+                            content={
+                                <DisabledTooltip>{reason}</DisabledTooltip>
                             }
                         >
                             <Button disabled onClick={() => {}}>
                                 Play
                             </Button>
-                        </Tooltip>
+                        </MaybeTooltip>
                     );
                 } else {
                     buttonContent = renderPaymentButton(

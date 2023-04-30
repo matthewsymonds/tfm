@@ -178,21 +178,25 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                     style={{
                         marginRight: '8px',
                         marginLeft: '8px',
+                        flex: 'none',
                     }}
                     playerIndex={loggedInPlayer.index}
                     border={colors.LIGHT_2}
                 />
                 <Flex
-                    alignItems="center"
+                    flex="auto"
+                    alignItems="flex-start"
                     padding="2px"
                     marginRight="4px"
                     flexWrap="wrap"
+                    overflow="hidden"
+                    flexDirection="column"
                 >
                     <CorporationName>
                         {loggedInPlayer.corporation.name}
                     </CorporationName>
-                    <Box display="inline" marginRight="4px">
-                        <Box display="inline-block" marginRight="4px">
+                    <div className="inline">
+                        <div className="inline-block ellipsis">
                             {isLoggedInPlayerPassed && 'You have passed.'}
                             {isEndOfGame && 'The game has ended.'}
                             {yourTurnToPlayPreludes && 'Playing preludes.'}
@@ -261,8 +265,8 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                                     </Button>
                                 </div>
                             )}
-                        </Box>
-                    </Box>
+                        </div>
+                    </div>
                     {yourTurnMessage ? (
                         <Box color="#ddd">
                             {yourTurnMessage}
@@ -274,10 +278,10 @@ export const TopBar = forwardRef<HTMLDivElement, {yourTurnGames: string[]}>(
                         </Box>
                     ) : null}
                 </Flex>
-                <div className="ml-auto flex items-center">
+                <div className="flex flex-none items-center">
                     <ActionLog />
                     <button
-                        className="p-2 hover:bg-dark-2 rounded border-none"
+                        className="flex-none p-2 hover:bg-dark-2 rounded border-none"
                         onClick={() => router.push('/')}
                     >
                         <Twemoji>🏠</Twemoji>

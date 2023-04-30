@@ -81,7 +81,7 @@ export const ActionLog = () => {
                 </TexturedCard>
             }
         >
-            <button className="mr-1 p-2 hover:bg-dark-2 rounded border-none data-[state=open]:bg-dark-2">
+            <button className="flex-none mr-1 p-2 hover:bg-dark-2 rounded border-none data-[state=open]:bg-dark-2">
                 <Twemoji>📜</Twemoji>
             </button>
         </Popover>
