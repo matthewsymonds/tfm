@@ -12,6 +12,7 @@ type ButtonProps = React.PropsWithChildren<{
     size?: ButtonSize;
     disabled?: boolean;
     onClick?: MouseEventHandler<HTMLButtonElement>;
+    type?: 'submit';
 }>;
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -20,6 +21,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             children,
             onClick,
             disabled,
+            type,
             variant = 'default',
             size = 'default',
         } = props;
@@ -31,6 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         size={size}
                         disabled={disabled}
                         onClick={onClick}
+                        type={type}
                     >
                         {children}
                     </_DefaultButton>
@@ -43,6 +46,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         scaleOnClick={false}
                         disabled={disabled}
                         onClick={onClick}
+                        type={type}
                     >
                         {children}
                     </_BorderedButton>
