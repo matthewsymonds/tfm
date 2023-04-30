@@ -69,7 +69,7 @@ const InfluenceIconBase = styled.div<{size: number; margin: string}>`
     justify-content: center;
     margin: ${props => props.margin};
     position: relative;
-    transform: rotate(45deg);
+    transform: rotate(0deg);
 
     &::before,
     &::after {

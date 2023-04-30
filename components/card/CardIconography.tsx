@@ -162,20 +162,11 @@ export function ChangeResourceIconography({
         }
     }
 
-    // marginLeft/Top "hacks" here ensure that there's adequate spacing between elements
-    // regardless of whether they wrap or not
     return (
-        <IconographyRow
-            className="change-resource"
-            isInline={opts.isInline}
-            style={{
-                marginLeft: -4,
-                marginTop: -4,
-            }}
-        >
+        <IconographyRow className="change-resource" isInline={opts.isInline}>
             {locationTypeIcon}
             {elements.map((el, i) => (
-                <Box key={i} marginLeft="4px" marginTop="4px">
+                <Box key={i} className={i > 0 ? 'ml-1.5' : ''}>
                     {el}
                 </Box>
             ))}
@@ -221,7 +212,9 @@ export function ChangeResourceOptionIconography({
                 if (opts?.useSlashSeparator) {
                     elements.push(<InlineText>/</InlineText>);
                 } else {
-                    elements.push(<TextWithMargin>or</TextWithMargin>);
+                    elements.push(
+                        <span className="mx-1 leading-none">or</span>
+                    );
                 }
             }
             elements.push(
@@ -238,12 +231,9 @@ export function ChangeResourceOptionIconography({
     }
 
     return (
-        <IconographyRow
-            isInline={opts.isInline}
-            style={{marginLeft: -4, marginTop: -4}}
-        >
+        <IconographyRow isInline={opts.isInline}>
             {elements.map((el, i) => (
-                <Box marginLeft="4px" marginTop="4px" key={i}>
+                <Box key={i} className="flex">
                     {el}
                 </Box>
             ))}
@@ -1004,7 +994,7 @@ function TilePlacementIconography({
 
 export function IncreaseParameterIconography({
     increaseParameter,
-    size = 16,
+    size = 20,
 }: {
     increaseParameter: PropertyCounter<Parameter>;
     size?: number;
@@ -1469,10 +1459,10 @@ function StepsIconography({steps}: {steps: Action[]}) {
 
 function PlaceColonyIconography({placeColony}: {placeColony: PlaceColony}) {
     return (
-        <Flex>
+        <div className="flex items-center mx-2">
             <ColonyIcon />
             {placeColony.mayBeRepeatColony ? '*' : null}
-        </Flex>
+        </div>
     );
 }
 
@@ -1605,7 +1595,7 @@ export const BaseActionIconography = ({
                 </div>
             )}
             {removeResource && (
-                <div>
+                <div className="flex">
                     <RemoveResourceIconography
                         removeResource={removeResource}
                         opts={{locationType: removeResourceSourceType}}
@@ -1621,15 +1611,17 @@ export const BaseActionIconography = ({
                 </div>
             )}
             {gainResource && (
-                <div>
-                    <GainResourceIconography
-                        gainResource={gainResource}
-                        opts={{shouldShowPlus}}
-                    />
+                <React.Fragment>
                     {card instanceof CardModel && card.forcedAction && (
                         <BaseActionIconography card={card.forcedAction} />
                     )}
-                </div>
+                    <div>
+                        <GainResourceIconography
+                            gainResource={gainResource}
+                            opts={{shouldShowPlus}}
+                        />
+                    </div>
+                </React.Fragment>
             )}
             {gainResourceOption && (
                 <div>

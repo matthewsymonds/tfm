@@ -3,6 +3,8 @@ import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import Twemoji from 'react-twemoji';
 import JovianIcon from 'assets/jovian.svg';
+import DownArrowIcon from 'assets/down-arrow.svg';
+import ScienceIcon from 'assets/science.svg';
 
 // icon, text color, bg color, classname
 const dict = {
@@ -24,10 +26,10 @@ const dict = {
     x: ['x', 'white', 'white'],
 };
 
-const PLAIN_ICONS = ['⚛', '⬇'];
-console.log('coltine', JovianIcon);
 const SVG_ICONS = {
     [Tag.JOVIAN]: JovianIcon,
+    [Tag.SCIENCE]: ScienceIcon,
+    [Tag.EVENT]: DownArrowIcon,
 };
 
 type TagProps = {
@@ -120,14 +122,7 @@ export const TagIcon = ({
                     inset={0}
                 >
                     {SvgIcon ? (
-                        <SvgIcon height={size} width={size} />
-                    ) : PLAIN_ICONS.includes(tagProps.icon) ? (
-                        <>
-                            <span
-                                dangerouslySetInnerHTML={{__html: '&#xFE0E;'}}
-                            ></span>
-                            {baseIcon}
-                        </>
+                        <SvgIcon height={size - 2} width={size - 2} />
                     ) : (
                         <Twemoji>{baseIcon}</Twemoji>
                     )}

@@ -17,8 +17,8 @@ const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
             // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
-            // .filter(c => c.name === 'Event Analysts')
-            .filter(c => [Deck.TURMOIL].includes(c.deck))
+            .filter(c => c.name === 'Tharsis Republic')
+            // .filter(c => [Deck.VENUS].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
                 card.storedResourceAmount = 3;

@@ -93,7 +93,7 @@ const CardInner: React.FC<CardProps> = ({
                 cardContext={cardContext}
                 showActionText={true}
             />
-            <BaseActionIconography card={card} />{' '}
+            <BaseActionIconography card={card} />
             {/* Cards with single-step actions */}
             <CardVictoryPoints card={card} />
             <Flex flex="auto" /> {/* push the button to the bottom */}

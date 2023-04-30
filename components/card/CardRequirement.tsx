@@ -1,6 +1,6 @@
 import {Flex} from 'components/box';
 import {GlobalParameterIcon} from 'components/icons/global-parameter';
-import {TerraformRatingIcon} from 'components/icons/other';
+import {ColonyIcon, TerraformRatingIcon} from 'components/icons/other';
 import {ProductionIcon} from 'components/icons/production';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -67,6 +67,8 @@ function getCardRequirementText(card: CardModel) {
         text = null;
     } else if (card.requiredChairman !== undefined) {
         text = null;
+    } else if (card.minColonies !== undefined) {
+        text = null;
     } else {
         throw new Error('Unhandled card requirement text');
     }
@@ -112,8 +114,8 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
             if (tagCount > MAX_TAG_SPREAD) {
                 tagElements.push(
                     <Flex alignItems="center" justifyContent="center">
-                        <span>{tagCount}</span>
-                        <TagIcon name={tag as Tag} size={16} />
+                        <span className="mr-0.5">{tagCount}</span>
+                        <TagIcon name={tag as Tag} size={20} />
                     </Flex>
                 );
             } else {
@@ -122,7 +124,8 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                         <TagIcon
                             key={`${tag}-${i}`}
                             name={tag as Tag}
-                            size={16}
+                            size={20}
+                            margin={i > 0 ? '0 0 0 2px' : ''}
                         />
                     );
                 }
@@ -184,6 +187,17 @@ function getCardRequirementIcons(card: CardModel): React.ReactElement {
                 <Twemoji options={{className: 'emoji delegate'}}>👤</Twemoji>
             </Flex>
         );
+    } else if (card.minColonies) {
+        return (
+            <div className="flex items-center justify-center">
+                {card.minColonies > 1 && (
+                    <span className="leading-none mx-1">
+                        {card.minColonies}
+                    </span>
+                )}
+                <ColonyIcon />
+            </div>
+        );
     } else {
         throw new Error('Unhandled card requirement text');
     }
@@ -198,7 +212,8 @@ export const CardRequirement = ({card}: {card: CardModel}) => {
         card.minTerraformRating ||
         card.requiredResources ||
         card.requiredPartyOrTwoDelegates ||
-        card.requiredChairman;
+        card.requiredChairman ||
+        card.minColonies;
 
     if (!hasRequirement) {
         return null;

@@ -210,17 +210,9 @@ export function renderRightSideOfArrow(
     }
 
     return (
-        <Flex
-            marginTop="-4px"
-            marginLeft="-4px"
-            flexWrap="wrap"
-            justifyContent="center"
-            alignItems="center"
-        >
+        <Flex flexWrap="wrap" justifyContent="center" alignItems="center">
             {elements.map((element, index) => (
-                <Box marginTop="4px" marginLeft="4px" key={index}>
-                    {element}
-                </Box>
+                <Box key={index}>{element}</Box>
             ))}
         </Flex>
     );
@@ -302,7 +294,7 @@ export const CardActions = ({
     return (
         <ActionsWrapper>
             {showActionText && (
-                <ActionText>
+                <ActionText className="mb-1">
                     <span style={{fontWeight: 600}}>Action: </span>
                     <span>{action.text}</span>
                 </ActionText>

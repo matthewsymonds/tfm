@@ -2793,9 +2793,12 @@ export const cardConfigs: CardConfig[] = [
         cost: 10,
         deck: Deck.PROMO,
         name: 'Small Asteroid',
-        text: 'Terraforming Mars PROMO. Increase temperature 1 step. Remove up to 2 plants from any player.',
+        text: 'Increase temperature 1 step. Remove up to 2 plants from any player.',
         tags: [Tag.SPACE, Tag.EVENT],
         type: CardType.EVENT,
+        increaseParameter: {[Parameter.TEMPERATURE]: 1},
+        removeResource: {[Resource.PLANT]: 2},
+        removeResourceSourceType: ResourceLocationType.ANY_PLAYER,
     },
     {
         action: {
@@ -2820,6 +2823,7 @@ export const cardConfigs: CardConfig[] = [
         },
         tags: [Tag.PLANT],
         type: CardType.ACTIVE,
+        increaseProduction: {[Resource.PLANT]: 1, [Resource.HEAT]: 1},
     },
     {
         action: {

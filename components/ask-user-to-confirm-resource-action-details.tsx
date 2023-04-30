@@ -570,7 +570,7 @@ function formatText({
             key={`${quantity}-${resource}-${actionType}-${locationName}`}
         >
             <span>{verb}</span>
-            <Box margin="0 4px">
+            <Flex margin="0 4px">
                 <ChangeResourceIconography
                     changeResource={{[resource]: quantity}}
                     opts={{
@@ -590,7 +590,7 @@ function formatText({
                         ].includes(actionType),
                     }}
                 />
-            </Box>
+            </Flex>
             <span>{locationAppendix}</span>
         </Flex>
     );

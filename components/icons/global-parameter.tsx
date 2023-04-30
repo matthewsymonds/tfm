@@ -68,7 +68,7 @@ export const GlobalParameterIcon = ({
         case Parameter.TEMPERATURE:
             return (
                 <AllCapsIcon
-                    size={size - 4} // for padding
+                    size={size}
                     bgColor={colors.PARAMETERS[parameter]}
                     margin={margin}
                     isInline={true}
