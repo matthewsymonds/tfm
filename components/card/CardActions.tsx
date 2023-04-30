@@ -260,12 +260,10 @@ export function renderLeftSideOfArrow(action: Action) {
             />
         );
     }
-    if (action.decreaseProduction) {
-        elements.push(
-            <ProductionIconography
-                card={{decreaseProduction: action.decreaseProduction}}
-            />
-        );
+    const decreaseProduction =
+        action.decreaseProduction ?? action.decreaseProductionIfPossible;
+    if (decreaseProduction) {
+        elements.push(<ProductionIconography card={{decreaseProduction}} />);
     }
     return elements.map((element, i) => (
         <React.Fragment key={i}>{element}</React.Fragment>
