@@ -4,7 +4,6 @@ import {appContext, AppContext as MyAppContext} from 'context/app-context';
 import {Fonts} from 'fonts';
 import '../globals.css';
 import '../nextjs-jsoneditor.css';
-import {GlobalStyles} from 'global-styles';
 import {AppProps} from 'next/app';
 import Head from 'next/head';
 import {useEffect, useState} from 'react';
@@ -58,8 +57,6 @@ const MyApp = ({Component, pageProps}: AppProps) => {
                         id={'root'}
                         style={{visibility: ready ? 'visible' : 'hidden'}}
                     >
-                        <GlobalStyles />
-
                         <Fonts />
                         {/* Force every font to load */}
                         {FONT_LIST.flatMap(font =>

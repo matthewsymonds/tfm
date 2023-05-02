@@ -112,12 +112,10 @@ export const ActionTable: React.FunctionComponent = () => {
 
     return (
         <Flex
-            className="action-table"
+            className="action-table justify-self-center w-full"
             flexDirection="column"
             alignItems="flex-start"
-            width="100%"
-            maxWidth="798px"
-            style={{justifySelf: 'center'}}
+            maxWidth="782px"
         >
             <Flex
                 width="100%"

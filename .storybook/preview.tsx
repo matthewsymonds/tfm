@@ -1,5 +1,4 @@
 import React, {useContext, useState} from 'react';
-import {GlobalStyles} from '../global-styles';
 import {AppContext, appContext} from '../context/app-context';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
@@ -9,15 +8,6 @@ import {Deck} from '../constants/card-types';
 import {Fonts} from '../fonts';
 import {Preview} from '@storybook/react';
 import '../globals.css';
-
-const withGlobalStyles = (Story, context) => {
-    return (
-        <React.Fragment>
-            <GlobalStyles />
-            <Story {...context} />
-        </React.Fragment>
-    );
-};
 
 const withAppContext = (Story, context) => {
     return (
@@ -66,12 +56,7 @@ const preview: Preview = {
             },
         },
     },
-    decorators: [
-        withGlobalStyles,
-        withAppContext,
-        withReduxStore,
-        withGoogleFonts,
-    ],
+    decorators: [withAppContext, withReduxStore, withGoogleFonts],
 };
 
 export default preview;
