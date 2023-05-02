@@ -348,13 +348,15 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 alignItems="center"
                 flex="auto"
                 bottom="0px"
+                padding="0 0 100px 0"
                 justifyContent="center"
+                margin="0 auto"
                 maxWidth="100%"
-                className="top-wrapper pb-[100px] px-2 w-full"
+                className="top-wrapper"
             >
                 <TopBar ref={topBarRef} yourTurnGames={yourTurnGames} />
-                <Box className="active-round-outer mx-auto" flex="auto">
-                    <Flex className="active-round ">
+                <Box className="active-round-outer" flex="auto">
+                    <Flex className="active-round">
                         {promptElement ? (
                             <Flex flexDirection="column" className="prompt-box">
                                 {actionBarPromptText ? (

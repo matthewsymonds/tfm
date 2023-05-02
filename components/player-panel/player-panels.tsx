@@ -45,6 +45,16 @@ export const PlayerPanels = () => {
         }
     }, [topIndex]);
 
+    const swiperProps = {
+        scrollbar: {draggable: true},
+        centeredSlides: false,
+        mousewheel: {
+            forceToAxis: true,
+        },
+        initialSlide: loggedInPlayer.index,
+        modules: [Controller, Mousewheel],
+    };
+
     const open = topIndex != null;
 
     const [overflow, setOverflow] = useState('hidden');
@@ -64,7 +74,7 @@ export const PlayerPanels = () => {
             <PlayerBoardsContainer
                 ref={scrollRef}
                 overflowX="auto"
-                className="w-full overflow-x-auto no-scrollbar"
+                width="100%"
             >
                 {players.map((player, i) => (
                     <Box
@@ -96,21 +106,16 @@ export const PlayerPanels = () => {
             </PlayerBoardsContainer>
             <Box display={topIndex != null ? 'initial' : 'none'}>
                 <Swiper
-                    centeredSlides={false}
                     controller={{control: swiper ?? undefined}}
-                    initialSlide={loggedInPlayer.index}
                     onSwiper={setSwiper}
-                    modules={[Controller, Mousewheel]}
-                    mousewheel={{
-                        forceToAxis: true,
-                    }}
-                    slidesPerView={1}
-                    scrollbar={{draggable: true, hide: true}}
+                    slidesPerView="auto"
+                    {...swiperProps}
                 >
                     {players.map((player, i) => (
                         <SwiperSlide
                             onClick={() => swiper?.slideTo(player.index)}
                             key={i}
+                            style={{maxWidth: '804px'}}
                         >
                             {({isActive}) => (
                                 <PlayerBottomPanel
