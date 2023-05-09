@@ -76,9 +76,6 @@ export function playGame(
             break;
         case ApiActionType.API_CONFIRM_CARD_SELECTION:
             const {cards, payment, corporation, preludes} = payload;
-            if (cards.length > 10) {
-                throw new Error('trying to select too many cards');
-            }
             if (
                 actionHandler.state.options?.decks.includes(Deck.PRELUDE) &&
                 actionHandler.state.common.gameStage ===
