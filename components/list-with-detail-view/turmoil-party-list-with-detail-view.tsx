@@ -42,8 +42,6 @@ export function TurmoilPartyListWithDetailView() {
         });
     });
 
-    console.log(turmoilParties);
-
     const renderTurmoilPartyListItem = useCallback(
         (turmoilParty: TurmoilPartyState) => {
             // TODO: add indicators for dominant & ruling party

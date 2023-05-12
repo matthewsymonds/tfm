@@ -1539,18 +1539,20 @@ export function canPlayActionInSpiteOfUI(
     }
 
     if (action.steps) {
-        for (const step of action.steps) {
-            const [canPlay, reason] = canPlayActionInSpiteOfUI(
-                step,
-                state,
-                player,
-                parent,
-                supplementalResources,
-                sourceCard
-            );
-            if (!canPlay) {
-                return [canPlay, reason];
-            }
+        const step = action.steps[0];
+        // Hack. Only check first step.
+        // In every case we use steps, the second step is possible to play
+        // if the first step is possible to play.
+        const [canPlay, reason] = canPlayActionInSpiteOfUI(
+            step,
+            state,
+            player,
+            parent,
+            supplementalResources,
+            sourceCard
+        );
+        if (!canPlay) {
+            return [canPlay, reason];
         }
     }
 
