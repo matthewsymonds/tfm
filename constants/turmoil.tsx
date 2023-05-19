@@ -1,6 +1,6 @@
 import {shuffle} from 'initial-state';
 import {PlayerState} from 'reducer';
-import {GlobalEvent, GLOBAL_EVENTS} from './global-events';
+import {GLOBAL_EVENTS, GlobalEvent} from './global-events';
 import {
     GREENS,
     KELVINISTS,
@@ -50,9 +50,7 @@ export interface Turmoil {
 }
 
 function DEV_globalEventOverrides(events: GlobalEvent[]) {
-    const globalEventOverrides: Array<string> = (
-        ['Corporate Alliance'] as Array<string>
-    ).map(a => a.toLowerCase());
+    const globalEventOverrides: Array<string> = [];
     const priorityEvents = events.filter(globalEvent => {
         return (
             globalEventOverrides.includes(globalEvent.top.name.toLowerCase()) ||
