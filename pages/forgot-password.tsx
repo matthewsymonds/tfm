@@ -61,7 +61,6 @@ const ForgotPassword: NextPage = () => {
     if (token) {
         const handleSubmit = useCallback(
             async event => {
-                debugger;
                 event.preventDefault();
                 if (password !== confirmPassword || password.length < 8) {
                     return;
