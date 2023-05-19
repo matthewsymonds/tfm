@@ -2313,6 +2313,26 @@ export class ApiActionHandler {
                 if (!amount) {
                     continue;
                 }
+
+                const maxParameter = MAX_PARAMETERS[parameter];
+                const scheduledParameterIncreases = this.queue.filter(
+                    action =>
+                        increaseParameter.match(action) &&
+                        action.payload.parameter === parameter
+                );
+                let totalPendingIncrease = scheduledParameterIncreases.reduce(
+                    (total, action) =>
+                        total +
+                        action.payload.amount * PARAMETER_STEPS[parameter],
+                    0
+                );
+                const pendingNewAmount =
+                    state.common.parameters[parameter] + totalPendingIncrease;
+
+                if (pendingNewAmount === maxParameter) {
+                    continue;
+                }
+
                 items.push(
                     increaseParameter(
                         parameter as Parameter,
