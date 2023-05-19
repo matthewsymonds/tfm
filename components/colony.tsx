@@ -15,7 +15,6 @@ import {useTypedSelector} from 'reducer';
 import {getEligibleTradeIncomes} from 'selectors/get-eligible-trade-incomes';
 import {getValidTradePayment} from 'selectors/valid-trade-payment';
 import styled from 'styled-components';
-import {Arrow} from './arrow';
 import {Box, Flex} from './box';
 import {Button} from './button';
 import {BaseActionIconography} from './card/CardIconography';
@@ -262,18 +261,33 @@ function TradePaymentPopover({
 
 const BASE_TRADE_FLEET_SIZE = 36;
 
-export const TradeFleet = ({color, size}: {color: string; size?: number}) => {
-    size = size ?? BASE_TRADE_FLEET_SIZE;
-    return (
-        <Arrow
-            lineHeight={size}
-            lineWidth={Math.round((size / BASE_TRADE_FLEET_SIZE) * 14)}
-            pointHeight={Math.round((size / BASE_TRADE_FLEET_SIZE) * 24)}
-            pointWidth={Math.round((size / BASE_TRADE_FLEET_SIZE) * 29)}
-            color={color}
-        />
-    );
+type TradeFleetProps = {
+    size?: number;
+    border?: string;
+    color?: string;
 };
+
+export const TradeFleet = ({
+    size = 20,
+    color = colors.DARK_3,
+    border = colors.LIGHT_4,
+}: TradeFleetProps) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 -1 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path
+            d="M2.08637 12.4308L9.17781 2.18761C9.57546 1.61322 10.4245 1.61322 10.8222 2.18761L17.9136 12.4308C18.3728 13.094 17.8981 14 17.0914 14L16 14C15.4477 14 15 14.4477 15 15V16C15 16.5523 14.5523 17 14 17H6C5.44772 17 5 16.5523 5 16L5 15C5 14.4477 4.55228 14 4 14L2.90857 14C2.10191 14 1.62721 13.094 2.08637 12.4308Z"
+            stroke={border}
+            fill={color}
+            strokeWidth="1"
+            strokeLinecap="round"
+        />
+    </svg>
+);
 
 export function ColonyComponent({
     colony: serializedColony,
@@ -301,12 +315,12 @@ export function ColonyComponent({
         return (
             <Box
                 position="absolute"
-                right="80px"
-                top="15px"
+                right="90px"
+                top="20px"
                 zIndex={4}
-                transform="rotate(220deg)"
+                transform="rotate(45deg)"
             >
-                <TradeFleet color={PLAYER_COLORS[player]} />
+                <TradeFleet color={PLAYER_COLORS[player]} size={48} />
             </Box>
         );
     });
