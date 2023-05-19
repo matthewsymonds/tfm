@@ -2309,7 +2309,8 @@ export class ApiActionHandler {
 
             for (const parameter of parameters) {
                 // Start referring to the copied increaseParameter exclusively.
-                const amount = increaseParametersWithBonuses[parameter];
+                let amount = increaseParametersWithBonuses[parameter];
+
                 if (!amount) {
                     continue;
                 }
@@ -2329,7 +2330,12 @@ export class ApiActionHandler {
                 const pendingNewAmount =
                     state.common.parameters[parameter] + totalPendingIncrease;
 
-                if (pendingNewAmount === maxParameter) {
+                amount =
+                    Math.min(
+                        amount * PARAMETER_STEPS[parameter],
+                        maxParameter - pendingNewAmount
+                    ) / PARAMETER_STEPS[parameter];
+                if (!amount) {
                     continue;
                 }
 
