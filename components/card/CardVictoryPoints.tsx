@@ -1,5 +1,4 @@
 import {Box} from 'components/box';
-import {InlineText} from 'components/card/CardIconography';
 import {ColonyIcon} from 'components/icons/other';
 import {ResourceIcon} from 'components/icons/resource';
 import {TagIcon} from 'components/icons/tag';
@@ -12,11 +11,13 @@ import {Card as CardModel} from 'models/card';
 import React from 'react';
 import {isTagAmount} from 'selectors/is-tag-amount';
 import styled from 'styled-components';
+import {u} from 'utils';
 
 const Circle = styled.div`
-    border-radius: 50%;
+    border-radius: 20px;
     height: 40px;
-    width: 40px;
+    min-width: 40px;
+    padding: 0 8px;
     margin: 4px;
     display: flex;
     font-size: 19px;
@@ -32,6 +33,9 @@ const CenteredText = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    font-weight: 700;
 `;
 
 export const CardVictoryPoints = ({card}: {card: CardModel}) => {
@@ -44,99 +48,125 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
     function renderVariableAmountVictoryPoints() {
         switch (card.victoryPoints) {
             case VariableAmount.RESOURCES_ON_CARD:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>1/</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">1/</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.TWICE_RESOURCES_ON_CARD:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>2/</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">2/</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.HALF_RESOURCES_ON_CARD:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>1/2</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">1/2</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.THIRD_RESOURCES_ON_CARD:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>1/3</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">1/3</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.THIRD_FLOATERS:
                 return (
                     <CenteredText>
-                        <InlineText>1/3</InlineText>
-                        <ResourceIcon name={Resource.FLOATER} size={16} />
+                        <span className="mr-0.5">1/3</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={Resource.FLOATER}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.FLOATERS:
                 return (
                     <CenteredText>
-                        <ResourceIcon name={Resource.FLOATER} size={16} />
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={Resource.FLOATER}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.QUARTER_RESOURCES_ON_CARD:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>1/4</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">1/4</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.THREE_IF_ONE_OR_MORE_RESOURCES:
+                u.assert(storedResource);
                 return (
                     <CenteredText>
-                        <InlineText>3:</InlineText>
-                        {storedResource && (
-                            <ResourceIcon name={storedResource} size={16} />
-                        )}
+                        <span className="mr-0.5">3 :</span>
+                        <ResourceIcon
+                            border="1px solid #000"
+                            name={storedResource}
+                            size={16}
+                        />
                     </CenteredText>
                 );
             case VariableAmount.OCEANS_ADJACENT_TO_CAPITAL:
                 return (
                     <CenteredText>
-                        <InlineText>1/</InlineText>
+                        <span className="mr-0.5">1/</span>
                         <TileIcon type={TileType.OCEAN} size={16} />
-                        <InlineText>*</InlineText>
+                        <span>*</span>
                     </CenteredText>
                 );
             case VariableAmount.CITY_TILES_ADJACENT_TO_COMMERCIAL_DISTRICT:
                 return (
                     <CenteredText>
-                        <InlineText>1/</InlineText>
+                        <span className="mr-0.5">1/</span>
                         <TileIcon type={TileType.CITY} size={16} />
-                        <InlineText>*</InlineText>
+                        <span>*</span>
                     </CenteredText>
                 );
             case VariableAmount.THIRD_ALL_CITIES:
                 return (
                     <CenteredText>
-                        <InlineText>1/3</InlineText>
+                        <span className="mr-0.5">1/3</span>
                         <TileIcon type={TileType.CITY} size={16} />
                     </CenteredText>
                 );
             case VariableAmount.HALF_ALL_COLONIES:
                 return (
                     <CenteredText>
-                        <InlineText>1/2</InlineText>
+                        <span className="mr-0.5">1/2</span>
                         <ColonyIcon size={16} />
                     </CenteredText>
                 );
@@ -144,11 +174,9 @@ export const CardVictoryPoints = ({card}: {card: CardModel}) => {
                 if (card.victoryPoints && isTagAmount(card.victoryPoints)) {
                     return (
                         <CenteredText>
-                            <InlineText>1/</InlineText>
+                            <span className="mr-0.5">1/</span>
                             {card.victoryPoints.dividedBy ? (
-                                <InlineText>
-                                    {card.victoryPoints.dividedBy}
-                                </InlineText>
+                                <span>{card.victoryPoints.dividedBy}</span>
                             ) : null}
                             <TagIcon name={card.victoryPoints.tag} size={16} />
                         </CenteredText>

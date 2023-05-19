@@ -49,6 +49,7 @@ const ResourceIconBase = styled.div<ResourceIconBaseProps>`
     box-shadow: ${props =>
         props.showRedBorder ? 'red 0px 0px 3px 2px' : 'initial'};
     border: ${props => props.border ?? 'none'};
+    border-radius: 2px;
 `;
 
 const MegacreditIcon = styled.div<{

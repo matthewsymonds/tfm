@@ -21,7 +21,7 @@ import {GameState, PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {Button} from './button';
 
-function GlobalEventCard({name}: {name: string}) {
+export function GlobalEventCard({name}: {name: string}) {
     const globalEvent = getGlobalEvent(name);
     if (!globalEvent) return null;
     return (

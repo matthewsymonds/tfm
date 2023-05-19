@@ -52,6 +52,7 @@ export const MainCardText = styled(CardText)`
     position: relative;
     display: block;
     margin: 4px;
+    margin-bottom: 8px;
 `;
 
 const CardInner: React.FC<CardProps> = ({

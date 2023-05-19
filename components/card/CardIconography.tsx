@@ -432,15 +432,15 @@ function getMultiplierAndCustomElement(
         case VariableAmount.FOUR_IF_THREE_PLANT_TAGS_ELSE_ONE:
             customElement = (
                 <Flex flexDirection="column" alignItems="center">
-                    <Flex alignItems="center" marginBottom="8px">
+                    <Flex alignItems="center" marginBottom="4px">
                         <ResourceIcon name={Resource.PLANT} size={16} />
-                        <TextWithMargin>OR</TextWithMargin>
+                        <span className="ml-1.5">OR</span>
                     </Flex>
                     <Flex alignItems="center" justifyContent="center">
-                        <TextWithMargin>3</TextWithMargin>
+                        <span className="mr-0.5">3</span>
                         <TagIcon name={Tag.PLANT} size={16} />
-                        <TextWithMargin>:</TextWithMargin>
-                        <TextWithMargin>4</TextWithMargin>{' '}
+                        <span className="mx-1">:</span>
+                        <span className="mr-0.5">4</span>
                         <ResourceIcon name={Resource.PLANT} size={16} />
                     </Flex>
                 </Flex>
@@ -1562,8 +1562,8 @@ export const BaseActionIconography = ({
                     alignItems="center"
                 >
                     {gainTradeFleet && (
-                        <Box transform="rotate(-90deg)">
-                            <TradeFleet color="#222" size={22} />
+                        <Box transform="rotate(45deg)">
+                            <TradeFleet size={36} />
                         </Box>
                     )}
                     {tilePlacements && (

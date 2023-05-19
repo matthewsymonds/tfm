@@ -40,7 +40,10 @@ export const CardStoredResources = ({card}: CardStoredResourcesProps) => {
                 <span style={{marginRight: 4}}>
                     {card.storedResourceAmount}
                 </span>
-                <ResourceIcon name={card.storedResourceType} />
+                <ResourceIcon
+                    border="1px solid #000"
+                    name={card.storedResourceType}
+                />
             </StoredResourcesContent>
         </StoredResourcesContainer>
     );

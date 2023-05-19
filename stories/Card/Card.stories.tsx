@@ -1,8 +1,10 @@
 import {Meta, Story} from '@storybook/react';
 import {Card, CardContext} from 'components/card/Card';
 import {MiniatureCard} from 'components/card/CardToken';
+import {GlobalEventCard} from 'components/turmoil';
 import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
+import {GLOBAL_EVENTS} from 'constants/global-events';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {Card as CardModel} from 'models/card';
 import React from 'react';
@@ -17,7 +19,7 @@ const Template: Story<{}> = args => (
     <div style={{display: 'flex', flexWrap: 'wrap'}}>
         {cardConfigs
             // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
-            .filter(c => c.name === 'Tharsis Republic')
+            // .filter(c => c.name === 'Tardigrades')
             // .filter(c => [Deck.VENUS].includes(c.deck))
             .map(cardConfig => {
                 const card = new CardModel(cardConfig);
@@ -32,6 +34,24 @@ const Template: Story<{}> = args => (
 );
 export const Default = Template.bind({});
 Default.args = {};
+
+const GlobalEventsTemplate: Story<{}> = args => (
+    <div style={{display: 'flex', flexWrap: 'wrap'}}>
+        {GLOBAL_EVENTS
+            // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
+            // .filter(c => c.name === 'Tardigrades')
+            // .filter(c => [Deck.VENUS].includes(c.deck))
+            .map(globalEvent => {
+                return (
+                    <div style={{margin: 4}} key={globalEvent.top.name}>
+                        <GlobalEventCard name={globalEvent.top.name} />
+                    </div>
+                );
+            })}
+    </div>
+);
+export const GlobalEvents = GlobalEventsTemplate.bind({});
+GlobalEvents.args = {};
 
 const MiniCardTemplate: Story<{}> = args => {
     const loggedInPlayer = useLoggedInPlayer();
@@ -52,7 +72,7 @@ const MiniCardTemplate: Story<{}> = args => {
                     {cardConfigs
                         // .filter(c => c.revealTakeAndDiscard || c.forcedAction?.revealTakeAndDiscard)
                         // .filter(c => c.name === 'Vitor')
-                        .filter(c => c.type === CardType.ACTIVE)
+                        // .filter(c => c.type === CardType.ACTIVE)
                         // .filter(c => c.name === 'Mars University')
                         .map(cardConfig => {
                             const card = new CardModel(cardConfig);

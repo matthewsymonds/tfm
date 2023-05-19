@@ -269,7 +269,7 @@ type TradeFleetProps = {
 
 export const TradeFleet = ({
     size = 20,
-    color = colors.DARK_3,
+    color = colors.LIGHT_1,
     border = colors.LIGHT_4,
 }: TradeFleetProps) => (
     <svg

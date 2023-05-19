@@ -1,5 +1,4 @@
 import {Box, Flex} from 'components/box';
-import {colors} from 'components/ui';
 import {Tag} from 'constants/tag';
 import Twemoji from 'react-twemoji';
 import JovianIcon from 'assets/jovian.svg';
@@ -7,23 +6,128 @@ import DownArrowIcon from 'assets/down-arrow.svg';
 import ScienceIcon from 'assets/science.svg';
 
 // icon, text color, bg color, classname
-const dict = {
-    [Tag.ANIMAL]: ['🐶', 'black', 'lightgreen', '', 'emoji animal'],
-    [Tag.BUILDING]: ['', '#9e6c43', '#8b5e3d', '', 'building'],
-    [Tag.CITY]: ['🌆', '#333333', '#C8B3C5', '', 'city emoji'],
-    [Tag.EARTH]: ['🌎', 'darkgreen', '', 'transparent', 'emoji earth'],
-    [Tag.POWER]: ['⚡', 'white', 'purple', '', 'emoji lightning'],
-    [Tag.EVENT]: ['⬇', 'black', 'gold', '', 'event'],
-    [Tag.JOVIAN]: ['🪐', 'purple', 'darkgray', 'transparent', 'emoji jovian'],
-    [Tag.MICROBE]: ['🐛', 'green', 'white', '', 'emoji microbe'],
-    [Tag.PLANT]: ['🍂', 'darkgreen', 'lightgreen', '', 'emoji plant'],
-    [Tag.SCIENCE]: ['⚛', '#666', '#eee', '', 'science'],
-    [Tag.SPACE]: ['✷', 'gold', 'black', '', 'space-tag'],
-    [Tag.VENUS]: ['V', 'darkblue', 'lightblue'],
-    [Tag.WILD]: ['?', 'black', '#fefefe'],
-    [Tag.ANY]: ['🌈', 'black', 'white', '', 'emoji'],
-    [Tag.NONE]: ['', 'black', 'white', '', 'emoji'],
-    x: ['x', 'white', 'white'],
+const dict: Record<
+    Tag | 'x',
+    {
+        icon: string;
+        textColor: string;
+        bgColor: string;
+        borderColor: string;
+        className: string;
+    }
+> = {
+    [Tag.ANIMAL]: {
+        icon: '🐶',
+        textColor: 'black',
+        bgColor: 'lightgreen',
+        borderColor: '',
+        className: 'emoji animal',
+    },
+    [Tag.BUILDING]: {
+        icon: '',
+        textColor: '#9e6c43',
+        bgColor: '#8b5e3d',
+        borderColor: '',
+        className: 'building',
+    },
+    [Tag.CITY]: {
+        icon: '🌆',
+        textColor: '#333333',
+        bgColor: '#C8B3C5',
+        borderColor: '',
+        className: 'city emoji',
+    },
+    [Tag.EARTH]: {
+        icon: '🌎',
+        textColor: 'darkgreen',
+        bgColor: '',
+        borderColor: 'transparent',
+        className: 'emoji earth',
+    },
+    [Tag.POWER]: {
+        icon: '⚡',
+        textColor: 'white',
+        bgColor: 'purple',
+        borderColor: '',
+        className: 'emoji lightning',
+    },
+    [Tag.EVENT]: {
+        icon: '⬇',
+        textColor: 'black',
+        bgColor: 'gold',
+        borderColor: '',
+        className: 'event',
+    },
+    [Tag.JOVIAN]: {
+        icon: '🪐',
+        textColor: 'purple',
+        bgColor: 'darkgray',
+        borderColor: 'transparent',
+        className: 'emoji jovian',
+    },
+    [Tag.MICROBE]: {
+        icon: '🐛',
+        textColor: 'green',
+        bgColor: 'white',
+        borderColor: '',
+        className: 'emoji microbe',
+    },
+    [Tag.PLANT]: {
+        icon: '🍂',
+        textColor: 'darkgreen',
+        bgColor: 'lightgreen',
+        borderColor: '',
+        className: 'emoji plant',
+    },
+    [Tag.SCIENCE]: {
+        icon: '⚛',
+        textColor: '#666',
+        bgColor: '#eee',
+        borderColor: '',
+        className: 'science',
+    },
+    [Tag.SPACE]: {
+        icon: '✷',
+        textColor: 'gold',
+        bgColor: 'black',
+        borderColor: '',
+        className: 'space-tag',
+    },
+    [Tag.VENUS]: {
+        icon: 'V',
+        textColor: 'darkblue',
+        bgColor: 'lightblue',
+        borderColor: '',
+        className: '',
+    },
+    [Tag.WILD]: {
+        icon: '?',
+        textColor: 'black',
+        bgColor: '#fefefe',
+        borderColor: '',
+        className: '',
+    },
+    [Tag.ANY]: {
+        icon: '🌈',
+        textColor: 'black',
+        bgColor: 'white',
+        borderColor: '',
+        className: 'emoji',
+    },
+    [Tag.NONE]: {
+        icon: '',
+        textColor: 'black',
+        bgColor: 'white',
+        borderColor: '',
+        className: 'emoji',
+    },
+    x: {
+        icon: 'x',
+        textColor: 'white',
+        bgColor: 'white',
+        borderColor: '',
+        className: '',
+    },
 };
 
 const SVG_ICONS = {
@@ -41,14 +145,12 @@ type TagProps = {
 };
 
 function getTagProps(tag: Tag): TagProps {
-    const [icon, color, backgroundColor, outerBackgroundColor, className] =
-        dict[tag];
+    const {icon, textColor, bgColor, className} = dict[tag];
 
     return {
         icon,
-        color,
-        backgroundColor,
-        outerBackgroundColor: outerBackgroundColor || '',
+        color: textColor,
+        backgroundColor: bgColor,
         className: className || 'tag-icon',
     };
 }
@@ -84,10 +186,7 @@ export const TagIcon = ({
 
     return (
         <Box
-            border={
-                '1px solid ' + tagProps.outerBackgroundColor ??
-                colors.CARD_BORDER_2
-            }
+            border={'1px solid #000'}
             background={tagProps.backgroundColor}
             margin={margin}
             boxShadow={showRedBorder ? 'red 0px 0px 3px 2px' : 'initial'}
