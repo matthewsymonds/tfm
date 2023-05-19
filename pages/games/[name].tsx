@@ -6,7 +6,7 @@ import {AppContext} from 'context/app-context';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {NextRouter, useRouter} from 'next/router';
 import {ParsedUrlQuery} from 'querystring';
-import React, {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {batch, useDispatch, useStore} from 'react-redux';
 import {GameState, useTypedSelector} from 'reducer';
 
@@ -56,6 +56,7 @@ function GameInner() {
                 // We generally don't want that.
                 // While the root cause is being fleshed out and squashed,
                 // we can alleviate a lot of the pain with this check.
+                context.setLastSeenTimestamp(game.state.timestamp);
                 dispatch(setGame(game.state));
             }
             if (game.lastSeenLogItem > context.getLastSeenLogItem()) {
@@ -87,7 +88,7 @@ function GameInner() {
     const possibleCards = pendingCardSelection?.possibleCards ?? [];
     const isWaitingInDraft = draftPicks.length + possibleCards.length === 5;
     const isSyncing = useTypedSelector(state => state.syncing);
-    const logLength = useTypedSelector(state => state.log.length);
+    const timestamp = useTypedSelector(state => state.timestamp);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -169,7 +170,7 @@ function GameInner() {
         return () => {
             isActive = false;
         };
-    }, [logLength]);
+    }, [timestamp]);
 
     const retrieveGame = async () => {
         const apiPath = '/api' + window.location.pathname;

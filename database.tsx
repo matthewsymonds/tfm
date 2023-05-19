@@ -40,6 +40,7 @@ const gamesSchema = new schema(
         },
         currentPlayer: {type: String, default: ''},
         lastSeenLogItem: {type: Array, default: []},
+        lastSeenTimestamp: {type: Array, default: []},
     },
     {
         minimize: false,

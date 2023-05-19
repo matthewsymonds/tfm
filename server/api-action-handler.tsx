@@ -1350,16 +1350,34 @@ export class ApiActionHandler {
 
         const parameterForTile = this.getParameterForTile(type);
         if (parameterForTile) {
-            this.playAction({
-                state,
-                action: {
-                    increaseParameter: {
-                        [parameterForTile as Parameter]: 1,
+            const maxParameter = MAX_PARAMETERS[parameterForTile];
+            const scheduledParameterIncreases = this.queue.filter(
+                action =>
+                    increaseParameter.match(action) &&
+                    action.payload.parameter === parameterForTile
+            );
+            const totalPendingIncrease = scheduledParameterIncreases.reduce(
+                (total, action) =>
+                    total +
+                    action.payload.amount * PARAMETER_STEPS[parameterForTile],
+                0
+            );
+            const pendingNewAmount =
+                state.common.parameters[parameterForTile] +
+                totalPendingIncrease;
+
+            if (pendingNewAmount < maxParameter) {
+                this.playAction({
+                    state,
+                    action: {
+                        increaseParameter: {
+                            [parameterForTile as Parameter]: 1,
+                        },
+                        noParameterBonuses: pendingTilePlacement.noBonuses,
                     },
-                    noParameterBonuses: pendingTilePlacement.noBonuses,
-                },
-                withPriority: true,
-            });
+                    withPriority: true,
+                });
+            }
         }
 
         this.dispatch(placeTile({type}, cell, loggedInPlayer.index));

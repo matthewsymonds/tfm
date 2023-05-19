@@ -38,12 +38,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             const {lastSeenLogItem = []} = game;
             const previousLastSeenLogItem = [...lastSeenLogItem];
             game.lastSeenLogItem ||= [];
+            const {lastSeenTimestamp = []} = game;
+            const previousLastSeenTimestamp = [...lastSeenTimestamp];
+            game.lastSeenTimestamp ||= [];
             if (
                 index >= 0 &&
-                game.lastSeenLogItem[index] !== game.state.log.length
+                game.lastSeenTimestamp[index] !== game.state.timestamp
             ) {
                 game.lastSeenLogItem[index] = game.state.log.length;
+                game.lastSeenTimestamp[index] = game.state.timestamp;
                 game.markModified('lastSeenLogItem');
+                game.markModified('lastSeenTimestamp');
                 try {
                     await game.save();
                 } catch (error) {}
@@ -62,6 +67,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 lastSeenLogItem:
                     previousLastSeenLogItem[index] ??
                     game.lastSeenLogItem[index],
+                lastSeenTimestamp:
+                    previousLastSeenTimestamp[index] ??
+                    game.lastSeenTimestamp[index],
                 username,
             });
             return;

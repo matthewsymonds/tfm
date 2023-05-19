@@ -19,7 +19,7 @@ export const useActionGuard = (user?: string) => {
             return actionGuardsByUsername[username];
         },
         (prev, next) => {
-            return prev.state.logLength === next.state.logLength;
+            return prev.state.timestamp === next.state.timestamp;
         }
     );
 };

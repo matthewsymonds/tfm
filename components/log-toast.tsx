@@ -1,9 +1,9 @@
 import {GameStage} from 'constants/game';
 import {AppContext} from 'context/app-context';
-import React, {useContext, useEffect} from 'react';
-import {toast, ToastContainer} from 'react-toastify';
+import {useContext, useEffect} from 'react';
+import {ToastContainer, toast} from 'react-toastify';
 import {useTypedSelector} from 'reducer';
-import {bucketLogItems, LogEntry} from './action-log';
+import {LogEntry, bucketLogItems} from './action-log';
 import {colors} from './ui';
 
 export const LogToast = () => {
