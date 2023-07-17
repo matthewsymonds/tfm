@@ -190,6 +190,15 @@ export function EndOfGame() {
                         ))}
                     </tr>
                     <tr>
+                        <th>Turmoil</th>
+
+                        {playerScoreInfos.map(scoreInfo => (
+                            <td key={scoreInfo.player.username}>
+                                <span>{scoreInfo.turmoilScore}</span>
+                            </td>
+                        ))}
+                    </tr>
+                    <tr>
                         <th>
                             <b>Total</b>
                         </th>
