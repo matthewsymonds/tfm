@@ -363,17 +363,18 @@ function handleParameterDecrease(
     const scale = PARAMETER_STEPS[parameter];
     const decrease = amount * scale;
     const startingAmount = draft.common.parameters[parameter];
+    let newAmount = Math.max(
+        MIN_PARAMETERS[parameter],
+        startingAmount - decrease
+    );
     if (startingAmount === MAX_PARAMETERS[parameter]) {
         draft.log.push(
             `${corporationName} did not decrease ${getParameterName(
                 parameter
             )} because it has already reached its maximum value`
         );
+        newAmount = startingAmount;
     }
-    const newAmount = Math.max(
-        MIN_PARAMETERS[parameter],
-        startingAmount - decrease
-    );
     const change = startingAmount - newAmount;
     const steps = change / scale;
     draft.common.parameters[parameter] = newAmount;
