@@ -195,6 +195,36 @@ export function CardHand({
         return () => mediaQuery.removeListener(handleChange);
     }, []);
 
+    useEffect(() => {
+        if (canHover || highlightedIndex === null) {
+            return;
+        }
+
+        const handleOutsideInteraction = (event: Event) => {
+            const containerElement = containerRef.current;
+            if (!containerElement) {
+                return;
+            }
+            const target = event.target as Node | null;
+            if (target && containerElement.contains(target)) {
+                return;
+            }
+            setHighlightedIndex(null);
+        };
+
+        document.addEventListener('pointerdown', handleOutsideInteraction);
+        document.addEventListener('touchstart', handleOutsideInteraction, {
+            passive: true,
+        });
+        return () => {
+            document.removeEventListener(
+                'pointerdown',
+                handleOutsideInteraction
+            );
+            document.removeEventListener('touchstart', handleOutsideInteraction);
+        };
+    }, [canHover, highlightedIndex]);
+
     return (
         <React.Fragment>
             <CardHandContainer
