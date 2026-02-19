@@ -61,6 +61,7 @@ export function CardHand({
     const [highlightedIndex, setHighlightedIndex] = useState<number | null>(
         null
     );
+    const [canHover, setCanHover] = useState(false);
     const prevContainerWidth = usePrevious(containerWidth);
 
     const cardsLength = cards.length;
@@ -175,11 +176,30 @@ export function CardHand({
         };
     }, []);
 
+    useEffect(() => {
+        if (typeof window === 'undefined' || !window.matchMedia) {
+            return;
+        }
+        const mediaQuery = window.matchMedia(
+            '(hover: hover) and (pointer: fine)'
+        );
+        setCanHover(mediaQuery.matches);
+        const handleChange = (event: MediaQueryListEvent) => {
+            setCanHover(event.matches);
+        };
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+        }
+        mediaQuery.addListener(handleChange);
+        return () => mediaQuery.removeListener(handleChange);
+    }, []);
+
     return (
         <React.Fragment>
             <CardHandContainer
                 ref={containerRef}
-                onMouseLeave={onMouseLeave}
+                onMouseLeave={() => canHover && onMouseLeave()}
                 shouldShow={shouldShowCardHand}
                 shouldHoist={typeof highlightedIndex === 'number'}
             >
@@ -200,7 +220,10 @@ export function CardHand({
                                           zIndex: zIndices.CARD,
                                       }}
                                       onMouseEnter={() =>
-                                          onMouseEnter(cardIndex)
+                                          canHover && onMouseEnter(cardIndex)
+                                      }
+                                      onClick={() =>
+                                          !canHover && onMouseEnter(cardIndex)
                                       }
                                   >
                                       <Card
