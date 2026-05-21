@@ -233,8 +233,10 @@ export function getPossibleValidPlacementsForRequirement(
             );
         case PlacementRequirement.ISOLATED:
             return getAvailableLandCellsOnMars(state, player).filter(cell =>
-                getAdjacentCellsForCell(state, cell).every(adjCell =>
-                    cellHelpers.isEmpty(adjCell) || adjCell.tile?.type == TileType.LAND_CLAIM
+                getAdjacentCellsForCell(state, cell).every(
+                    adjCell =>
+                        cellHelpers.isEmpty(adjCell) ||
+                        adjCell.tile?.type == TileType.LAND_CLAIM
                 )
             );
         case PlacementRequirement.NON_RESERVED:

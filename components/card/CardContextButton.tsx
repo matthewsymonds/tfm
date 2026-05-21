@@ -4,7 +4,7 @@ import {Flex} from 'components/box';
 import {Button} from 'components/button';
 import {CardContext, DisabledTooltip} from 'components/card/Card';
 import {usePaymentPopover} from 'components/popovers/payment-popover';
-import {MaybeTooltip, Tooltip} from 'components/tooltip';
+import {MaybeTooltip} from 'components/tooltip';
 import {PropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {Card as CardModel} from 'models/card';

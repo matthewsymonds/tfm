@@ -9,19 +9,19 @@ import {
 } from 'constants/conditional-amount';
 import {ContestAmount, isContestAmount} from 'constants/contest-amount';
 import {
+    isOperationAmount,
     Operation,
     OperationAmount,
-    isOperationAmount,
 } from 'constants/operation-amount';
 import {
-    ProductionAmount,
     isProductionAmount,
+    ProductionAmount,
 } from 'constants/production-amount';
-import {ResourceAmount, isResourceAmount} from 'constants/resource-amount';
+import {isResourceAmount, ResourceAmount} from 'constants/resource-amount';
 import {Tag} from 'constants/tag';
-import {TileAmount, isTileAmount} from 'constants/tile-amount';
+import {isTileAmount, TileAmount} from 'constants/tile-amount';
 import {GameState, PlayerState} from 'reducer';
-import {VARIABLE_AMOUNT_SELECTORS, getTags} from 'selectors/variable-amount';
+import {getTags, VARIABLE_AMOUNT_SELECTORS} from 'selectors/variable-amount';
 import {SerializedCard} from 'state-serialization';
 import spawnExhaustiveSwitchError from 'utils';
 import {getAllCellsOwnedByCurrentPlayer} from './board';

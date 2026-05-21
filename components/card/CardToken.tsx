@@ -1,28 +1,26 @@
+import * as Checkbox from '@radix-ui/react-checkbox';
+import {CheckIcon, SizeIcon} from '@radix-ui/react-icons';
+import classNames from 'classnames';
 import Color from 'color';
 import {Box, Flex} from 'components/box';
 import {CardContext, LiveCard as LiveCardComponent} from 'components/card/Card';
 import {CardActions} from 'components/card/CardActions';
 import {CardEffects} from 'components/card/CardEffects';
 import {PlayerIcon} from 'components/icons/player';
+import {ResourceIcon} from 'components/icons/resource';
+import {TagIcon} from 'components/icons/tag';
 import {Popover} from 'components/popover';
 import {colors} from 'components/ui';
 import {CardType} from 'constants/card-types';
+import {Resource} from 'constants/resource-enum';
 import {PopoverType, usePopoverType} from 'context/global-popover-context';
 import {useComponentId} from 'hooks/use-component-id';
 import {Card as CardModel} from 'models/card';
 import React, {useEffect, useRef} from 'react';
-import * as Checkbox from '@radix-ui/react-checkbox';
-import {CheckIcon, SizeIcon} from '@radix-ui/react-icons';
-
 import {useHover} from 'react-laag';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import spawnExhaustiveSwitchError from 'utils';
-import {ResourceIcon} from 'components/icons/resource';
-import {Resource} from 'constants/resource-enum';
-import {CardTags} from './CardTags';
-import {TagIcon} from 'components/icons/tag';
-import classNames from 'classnames';
 
 type SharedCardTokenProps = {
     card: CardModel;

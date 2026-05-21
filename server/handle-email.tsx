@@ -1,6 +1,6 @@
 import {usersModel} from 'database';
-import Mailgun from 'mailgun.js';
 import formData from 'form-data';
+import Mailgun from 'mailgun.js';
 import {getYourTurnGameNames, NamedGame} from 'pages/api/your-turn';
 
 const FIVE_MINUTES = 60 * 1000 * 5;

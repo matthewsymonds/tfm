@@ -2,8 +2,6 @@ import * as RadixTooltip from '@radix-ui/react-tooltip';
 import {Box} from 'components/box';
 import {appContext, AppContext as MyAppContext} from 'context/app-context';
 import {Fonts} from 'fonts';
-import '../globals.css';
-import '../nextjs-jsoneditor.css';
 import {GlobalStyles} from 'global-styles';
 import {AppProps} from 'next/app';
 import Head from 'next/head';
@@ -11,6 +9,8 @@ import {useEffect, useState} from 'react';
 import {Provider} from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
 import {makeStore} from 'store';
+import '../globals.css';
+import '../nextjs-jsoneditor.css';
 
 function InnerAppComponent({Component, pageProps}) {
     return <Component {...pageProps} />;

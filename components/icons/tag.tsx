@@ -1,9 +1,9 @@
+import DownArrowIcon from 'assets/down-arrow.svg';
+import JovianIcon from 'assets/jovian.svg';
+import ScienceIcon from 'assets/science.svg';
 import {Box, Flex} from 'components/box';
 import {Tag} from 'constants/tag';
 import Twemoji from 'react-twemoji';
-import JovianIcon from 'assets/jovian.svg';
-import DownArrowIcon from 'assets/down-arrow.svg';
-import ScienceIcon from 'assets/science.svg';
 
 // icon, text color, bg color, classname
 const dict: Record<

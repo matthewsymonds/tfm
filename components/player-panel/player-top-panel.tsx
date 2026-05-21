@@ -1,14 +1,13 @@
 import {Box, Flex} from 'components/box';
 import {PlayerIcon} from 'components/icons/player';
 import {PlayerResourceBoard} from 'components/player-panel/player-resource-board';
+import {Popover} from 'components/popover';
 import {ScorePopover} from 'components/popovers/score-popover';
 import {colors} from 'components/ui';
-import {GameStage} from 'constants/game';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';
 import {PlayerState, useTypedSelector} from 'reducer';
 import styled from 'styled-components';
 import {NoClickOverlay} from './player-bottom-panel';
-import {Popover} from 'components/popover';
 
 const TerraformRating = styled.button`
     display: inline-flex;

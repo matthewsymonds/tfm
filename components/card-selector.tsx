@@ -3,7 +3,6 @@ import React from 'react';
 import {getCard} from 'selectors/get-card';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
-import {Flex} from './box';
 import {CardToggleToken} from './card/CardToken';
 
 interface CardSelectorProps {

@@ -17,7 +17,6 @@ import {useTypedSelector} from 'reducer';
 import {isActionPhase} from 'selectors/is-action-phase';
 import {isPlayingPrelude} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
-import {BlankButton} from './blank-button';
 
 const TopBarBase = styled(Box)`
     display: flex;

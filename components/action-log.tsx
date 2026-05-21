@@ -1,4 +1,3 @@
-import {GameActionType} from 'GameActionState';
 import {Box, Flex} from 'components/box';
 import {CardTextToken} from 'components/card/CardToken';
 import {PlayerCorpAndIcon} from 'components/icons/player';
@@ -12,6 +11,7 @@ import {GameStage} from 'constants/game';
 import {NumericPropertyCounter} from 'constants/property-counter';
 import {Resource} from 'constants/resource-enum';
 import {StandardProjectType} from 'constants/standard-project';
+import {GameActionType} from 'GameActionState';
 import React, {useEffect, useLayoutEffect} from 'react';
 import ScrollableFeed from 'react-scrollable-feed';
 import Twemoji from 'react-twemoji';

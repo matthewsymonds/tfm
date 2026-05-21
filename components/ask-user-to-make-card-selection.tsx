@@ -19,9 +19,9 @@ import {getMoney} from 'selectors/get-money';
 import {SerializedCard} from 'state-serialization';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
+import {Button} from './button';
 import {CardTextToken} from './card/CardToken';
 import {colors} from './ui';
-import {Button} from './button';
 
 const HoverToPreviewPlaceholderBase = styled.div`
     width: ${CARD_WIDTH}px;

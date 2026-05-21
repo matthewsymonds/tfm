@@ -1,6 +1,6 @@
 import {shuffle} from 'initial-state';
 import {PlayerState} from 'reducer';
-import {GLOBAL_EVENTS, GlobalEvent} from './global-events';
+import {GlobalEvent, GLOBAL_EVENTS} from './global-events';
 import {
     GREENS,
     KELVINISTS,

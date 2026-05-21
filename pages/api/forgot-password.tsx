@@ -1,6 +1,6 @@
 import {usersModel} from 'database';
-import Mailgun from 'mailgun.js';
 import formData from 'form-data';
+import Mailgun from 'mailgun.js';
 import {NextApiRequest, NextApiResponse} from 'next';
 
 const MAILGUN_USER_NAME = process.env.MAILGUN_USER_NAME;

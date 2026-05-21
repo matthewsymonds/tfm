@@ -16,13 +16,13 @@ import {CardSelectionCriteria} from 'constants/card-selection-criteria';
 import {Condition, isConditionAmount} from 'constants/conditional-amount';
 import {isContestAmount} from 'constants/contest-amount';
 import {
-    Operation,
     getSymbolForOperation,
     isOperationAmount,
+    Operation,
 } from 'constants/operation-amount';
 import {isProductionAmount} from 'constants/production-amount';
 import {PropertyCounter} from 'constants/property-counter';
-import {ResourceLocationType, getResourceBorder} from 'constants/resource';
+import {getResourceBorder, ResourceLocationType} from 'constants/resource';
 import {isResourceAmount} from 'constants/resource-amount';
 import {Resource} from 'constants/resource-enum';
 import {Tag} from 'constants/tag';

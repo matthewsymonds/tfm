@@ -1,19 +1,19 @@
-import {GameActionType} from 'GameActionState';
 import {quantityAndResource} from 'components/ask-user-to-confirm-resource-action-details';
 import {getAwardConfig} from 'constants/awards';
 import {CardType, Deck} from 'constants/card-types';
 import {
     COLONIES,
-    STARTING_STEP,
-    STARTING_STEP_STORABLE_RESOURCE_COLONY,
     getColony,
     getSerializedColony,
+    STARTING_STEP,
+    STARTING_STEP_STORABLE_RESOURCE_COLONY,
 } from 'constants/colonies';
 import {getGlobalEvent} from 'constants/global-events';
 import {PARTY_CONFIGS} from 'constants/party';
 import {CARD_SELECTION_CRITERIA_SELECTORS} from 'constants/reveal-take-and-discard';
-import {Delegate, Turmoil, delegate} from 'constants/turmoil';
+import {Delegate, delegate, Turmoil} from 'constants/turmoil';
 import {VariableAmount} from 'constants/variable-amount';
+import {GameActionType} from 'GameActionState';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {shuffle} from 'initial-state';
@@ -138,7 +138,7 @@ import {
     wrapUpTurmoil,
 } from './actions';
 import {Action, Amount} from './constants/action';
-import {Parameter, TileType, getParameterName} from './constants/board';
+import {getParameterName, Parameter, TileType} from './constants/board';
 import {
     GameStage,
     MAX_PARAMETERS,

@@ -1,8 +1,9 @@
+import {Resource} from 'constants/resource-enum';
+import {ReactElement} from 'react';
 import {useStore} from 'react-redux';
-import {PlayerState, useTypedSelector} from 'reducer';
+import {PlayerState} from 'reducer';
 import {getCardVictoryPoints} from 'selectors/card';
 import {getPlayedCards} from 'selectors/get-played-cards';
-import {isPlayingTurmoil} from 'selectors/is-playing-expansion';
 import {
     getAwardScore,
     getCityScore,
@@ -10,10 +11,10 @@ import {
     getMilestoneScore,
     getTurmoilEndOfGameScore,
 } from 'selectors/score';
+import {SerializedState} from 'state-serialization';
 import styled from 'styled-components';
 import {PlayerCorpAndIcon} from './icons/player';
 import {colors} from './ui';
-import {SerializedState} from 'state-serialization';
 
 const AllScoresContainer = styled.div<{numPlayers: number}>`
     display: flex;
@@ -58,6 +59,7 @@ type PlayerScoreInfos = {
     awardScore: number;
     turmoilScore: number;
     totalScore: number;
+    megacredits: number;
     player: PlayerState;
 };
 
@@ -87,6 +89,8 @@ export function EndOfGame() {
 
             const turmoilScore = getTurmoilEndOfGameScore(state, playerIndex);
 
+            const megacredits = player.resources[Resource.MEGACREDIT];
+
             const totalScore =
                 terraformRating +
                 cardScore +
@@ -106,15 +110,28 @@ export function EndOfGame() {
                 awardScore,
                 totalScore,
                 turmoilScore,
+                megacredits,
             };
         }
     );
 
-    const winner = playerScoreInfos.sort(
-        (a, b) => b.totalScore - a.totalScore
-    )[0];
-    return (
-        <>
+    let scores = playerScoreInfos.map(info => info.totalScore);
+
+    const maxScore = Math.max(...scores);
+
+    let winners = playerScoreInfos.filter(info => info.totalScore == maxScore);
+
+    if (winners.length > 1) {
+        const megacredits = winners.map(info => info.megacredits);
+        const maxMegacredits = Math.max(...megacredits);
+        winners = winners.filter(info => info.megacredits == maxMegacredits);
+    }
+
+    let header: ReactElement;
+
+    if (winners.length == 1) {
+        const winner = winners[0];
+        header = (
             <h2
                 className="display text-2xl"
                 style={{color: colors.TEXT_LIGHT_1}}
@@ -122,6 +139,23 @@ export function EndOfGame() {
                 Game over. {winner.player.corporation.name} (
                 {winner.player.username}) wins!
             </h2>
+        );
+    } else {
+        header = (
+            <h2
+                className="display text-2xl"
+                style={{color: colors.TEXT_LIGHT_1}}
+            >
+                Game over. A true tie!{' '}
+                {winners.map(winner => winner.player.username).join(', ')} all
+                win!
+            </h2>
+        );
+    }
+
+    return (
+        <>
+            {header}
             <table style={{background: colors.LIGHTEST_BG}}>
                 <tbody>
                     <tr>

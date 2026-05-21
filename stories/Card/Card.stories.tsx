@@ -2,7 +2,6 @@ import {Meta, Story} from '@storybook/react';
 import {Card, CardContext} from 'components/card/Card';
 import {MiniatureCard} from 'components/card/CardToken';
 import {GlobalEventCard} from 'components/turmoil';
-import {CardType, Deck} from 'constants/card-types';
 import {cardConfigs} from 'constants/cards';
 import {GLOBAL_EVENTS} from 'constants/global-events';
 import {useLoggedInPlayer} from 'hooks/use-logged-in-player';

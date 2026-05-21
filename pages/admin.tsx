@@ -1,8 +1,8 @@
 import {makePostCall} from 'api-calls';
 import {Box} from 'components/box';
-import React, {useState} from 'react';
 import {Button} from 'components/button';
 import dynamic from 'next/dynamic';
+import React, {useState} from 'react';
 
 type JsonEditorProps = {
     value: Record<string, unknown>;

@@ -12,8 +12,8 @@ import {useTypedSelector} from 'reducer';
 import {isPlayingVenus} from 'selectors/is-playing-expansion';
 import styled from 'styled-components';
 import {Box, Flex} from './box';
-import {colors} from './ui';
 import {MaybeTooltip} from './tooltip';
+import {colors} from './ui';
 
 const GlobalParamColumn = styled.div`
     display: flex;

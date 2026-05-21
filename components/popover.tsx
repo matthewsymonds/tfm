@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
+import React, {useState} from 'react';
 
 type PopoverProps = React.PropsWithChildren<{
     content: React.ReactNode | ((forceClose: () => void) => React.ReactNode);
