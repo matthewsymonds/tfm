@@ -50,6 +50,15 @@ export default function NewGame(props) {
     const [isPreludeEnabled, setIsPreludeEnabled] = useState(true);
     const [isColoniesEnabled, setIsColoniesEnabled] = useState(true);
     const [isTurmoilEnabled, setIsTurmoilEnabled] = useState(true);
+    const [
+        isWorldGovernmentTerraformingEnabled,
+        setIsWorldGovernmentTerraformingEnabled,
+    ] = useState(true);
+    const [
+        houseRuleChairmanChoosesWorldGovernmentTerraforming,
+        setHouseRuleChairmentChoosesWorldGovermnetTerraforming,
+    ] = useState(true);
+
     const [isTharsisEnabled, setIsTharsisEnabled] = useState(true);
     const [isHellasEnabled, setIsHellasEnabled] = useState(true);
     const [isElysiumEnabled, setIsElysiumEnabled] = useState(true);
@@ -134,6 +143,8 @@ export default function NewGame(props) {
                 decks,
                 soloCorporationName,
                 boardNames,
+                isWorldGovernmentTerraformingEnabled,
+                houseRuleChairmanChoosesWorldGovernmentTerraforming,
             },
         });
         if (result.error) {
@@ -264,6 +275,45 @@ export default function NewGame(props) {
                                     }
                                 />
                                 Turmoil
+                            </label>
+                            <label style={{marginLeft: 4}}>
+                                <input
+                                    type="checkbox"
+                                    disabled={!isVenusNextEnabled}
+                                    checked={
+                                        isVenusNextEnabled &&
+                                        isWorldGovernmentTerraformingEnabled
+                                    }
+                                    onChange={e =>
+                                        setIsWorldGovernmentTerraformingEnabled(
+                                            e.target.checked
+                                        )
+                                    }
+                                />
+                                World Government Terraforming
+                            </label>
+                            <label style={{marginLeft: 4}}>
+                                <input
+                                    type="checkbox"
+                                    disabled={
+                                        !isVenusNextEnabled ||
+                                        !isWorldGovernmentTerraformingEnabled ||
+                                        !isTurmoilEnabled
+                                    }
+                                    checked={
+                                        isVenusNextEnabled &&
+                                        isWorldGovernmentTerraformingEnabled &&
+                                        isTurmoilEnabled &&
+                                        houseRuleChairmanChoosesWorldGovernmentTerraforming
+                                    }
+                                    onChange={e =>
+                                        setHouseRuleChairmentChoosesWorldGovermnetTerraforming(
+                                            e.target.checked
+                                        )
+                                    }
+                                />
+                                House Rule: Chairman [Turmoil] chooses WGT
+                                Parameter (instead of first player)
                             </label>
                         </Flex>
                         <Flex flexDirection="column" margin="16px 0">

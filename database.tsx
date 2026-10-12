@@ -47,13 +47,7 @@ const gamesSchema = new schema(
     }
 );
 
-export let gamesModel;
-
-try {
-    gamesModel = mongoose.model('games');
-} catch (error) {
-    gamesModel = mongoose.model('games', gamesSchema);
-}
+export const gamesModel = mongoose.model('games', gamesSchema);
 
 const errorLogsSchema = new schema({
     username: String,
@@ -63,13 +57,7 @@ const errorLogsSchema = new schema({
     error: String,
 });
 
-export let errorLogsModel;
-
-try {
-    errorLogsModel = mongoose.model('errorLogModel');
-} catch (error) {
-    errorLogsModel = mongoose.model('errorLogModel', errorLogsSchema);
-}
+export const errorLogsModel = mongoose.model('errorLogModel', errorLogsSchema);
 
 const usersSchema = new schema({
     username: uniqueNameSchema,
@@ -110,24 +98,19 @@ usersSchema.pre('save', function (next) {
     });
 });
 
-usersSchema.methods.comparePassword = function (
+export const usersModel = mongoose.model('users', usersSchema);
+
+export function comparePassword(
+    userPassword: string,
     candidate: string
 ): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        bcrypt.compare(candidate, this.password, function (error, isMatch) {
+        bcrypt.compare(candidate, userPassword, function (error, isMatch) {
             if (error) reject(error);
 
             resolve(isMatch);
         });
     });
-};
-
-export let usersModel;
-
-try {
-    usersModel = mongoose.model('users');
-} catch (error) {
-    usersModel = mongoose.model('users', usersSchema);
 }
 
 export interface Session {

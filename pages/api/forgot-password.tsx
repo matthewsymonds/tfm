@@ -54,8 +54,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     return;
                 }
                 user.password = password;
-                user.resetPasswordToken = undefined;
-                user.resetPasswordTokenExpires = undefined;
+                user.resetPasswordToken = '';
                 await user.save();
                 res.status(200).json({
                     message: 'Password updated',

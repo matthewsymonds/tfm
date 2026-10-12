@@ -189,6 +189,8 @@ export type GameOptions = {
     decks: Deck[];
     soloCorporationName?: string;
     boardNames: Array<'Tharsis' | 'Hellas' | 'Elysium'>;
+    isWorldGovernmentTerraformingEnabled: boolean;
+    houseRuleChairmanChoosesWorldGovernmentTerraforming: boolean;
 };
 
 export type PendingChoice = {

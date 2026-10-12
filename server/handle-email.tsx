@@ -75,11 +75,12 @@ const sendEmailIfNeeded = async (username: string) => {
         const message = getMessage(yourTurnGames);
 
         const user = await usersModel.findOne({username}, 'email').lean();
-        const email = user['email'];
-
+        if (!user) {
+            return;
+        }
         const data = {
             from: 'TFM admin <noreply@tfm-online.net>',
-            to: email,
+            to: user.email,
             subject: getTitle(),
             html: message,
         };

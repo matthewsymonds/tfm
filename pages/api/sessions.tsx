@@ -1,6 +1,7 @@
 import {TFMSession} from 'check-session';
 import {
     appendSecurityCookieModifiers,
+    comparePassword,
     retrieveSession,
     Session,
     usersModel,
@@ -22,6 +23,7 @@ export function getUsernameRegExp(username: string) {
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     let session: Session | undefined;
+    let isMatch: boolean = false;
 
     switch (req.method?.toUpperCase()) {
         case 'POST':
@@ -31,9 +33,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             const user = await usersModel.findOne({
                 username: usernameRegex,
             });
-            let isMatch: boolean;
             try {
-                isMatch = await user.comparePassword(password);
+                if (user) {
+                    isMatch = await comparePassword(user.password, password);
+                } else {
+                    isMatch = false;
+                }
             } catch (error) {
                 res.status(500);
                 res.json({
@@ -42,7 +47,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 return;
             }
 
-            if (!isMatch) {
+            if (!isMatch || !user) {
                 res.status(404);
                 res.json({
                     error: 'Username or password did not match. Please try again.',

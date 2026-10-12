@@ -8,7 +8,7 @@ import {handleEmail} from 'server/handle-email';
 import {censorGameState} from 'state-serialization';
 
 // This isn't perfect. But it's an attempted safeguard against spammed requests.
-let lock: {[gameName: string]: string[]} = {};
+const lock: {[gameName: string]: string[]} = {};
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     const sessionResult = await retrieveSession(req, res);
