@@ -3244,7 +3244,8 @@ export class ApiActionHandler {
     private shouldPause(action: AnyAction): boolean {
         if (!action) return false;
         if (action.type == ASK_USER_TO_REMOVE_TILE) {
-            // A tile will not be removed i
+            // A tile will not be removed if we're at max oceans, so no pause needed.
+            // This is a brittle fix.
             const playerIndex = action?.playerIndex;
             if (!this.state.players[playerIndex]?.pendingTileRemoval) {
                 return false;
