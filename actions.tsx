@@ -476,9 +476,10 @@ const ASK_USER_TO_MAKE_ACTION_CHOICE = 'ASK_USER_TO_MAKE_ACTION_CHOICE';
 export const askUserToMakeActionChoice = withMatcher(
     (
         choice: Action[],
-        card: SerializedCard,
+        card: SerializedCard | undefined,
         playedCard: SerializedCard | undefined,
-        playerIndex: number
+        playerIndex: number,
+        context?: string
     ) => ({
         type: ASK_USER_TO_MAKE_ACTION_CHOICE,
         payload: {
@@ -486,6 +487,7 @@ export const askUserToMakeActionChoice = withMatcher(
             card,
             playedCard,
             playerIndex,
+            context,
         },
     })
 );
@@ -888,6 +890,13 @@ export const makePartyRuling = withMatcher(() => ({
 const WRAP_UP_TURMOIL = 'WRAP_UP_TURMOIL';
 export const wrapUpTurmoil = withMatcher(() => ({
     type: WRAP_UP_TURMOIL,
+    payload: {},
+}));
+
+const WRAP_UP_WORLD_GOVERNMENT_TERRAFORMING =
+    'WRAP_UP_WORLD_GOVERNMENT_TERRAFORMING';
+export const wrapUpWorldGovernmentTerraforming = withMatcher(() => ({
+    type: WRAP_UP_WORLD_GOVERNMENT_TERRAFORMING,
     payload: {},
 }));
 

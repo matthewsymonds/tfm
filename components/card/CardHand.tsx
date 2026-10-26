@@ -221,7 +221,10 @@ export function CardHand({
                 'pointerdown',
                 handleOutsideInteraction
             );
-            document.removeEventListener('touchstart', handleOutsideInteraction);
+            document.removeEventListener(
+                'touchstart',
+                handleOutsideInteraction
+            );
         };
     }, [canHover, highlightedIndex]);
 

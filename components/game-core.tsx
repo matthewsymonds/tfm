@@ -162,6 +162,9 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
             case gameStage === GameStage.END_OF_GAME:
                 promptElement = <EndOfGame />;
                 break;
+            case !!loggedInPlayer.pendingTilePlacement:
+                promptElement = <div />;
+                break;
             case !!loggedInPlayer.pendingChoice:
                 promptElement = (
                     <AskUserToMakeActionChoice player={loggedInPlayer} />
@@ -271,9 +274,6 @@ export const GameCore = ({yourTurnGames}: {yourTurnGames: string[]}) => {
                 );
                 break;
             }
-            case !!loggedInPlayer.pendingTilePlacement:
-                promptElement = <div />;
-                break;
             case !!loggedInPlayer.pendingTileRemoval:
                 promptElement = <div />;
                 break;

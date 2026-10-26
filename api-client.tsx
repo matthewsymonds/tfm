@@ -226,6 +226,18 @@ export class ApiClient implements GameActionHandler {
         await this.makeApiCall(ApiActionType.API_PLAY_CARD_ACTION, payload);
     }
 
+    async makeActionChoiceAsync({
+        choiceIndex,
+    }: {
+        choiceIndex: number;
+    }): Promise<void> {
+        const payload = {
+            choiceIndex,
+        };
+
+        await this.makeApiCall(ApiActionType.API_MAKE_ACTION_CHOICE, payload);
+    }
+
     async playStandardProjectAsync({
         standardProjectAction,
         payment,

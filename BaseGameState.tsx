@@ -17,5 +17,6 @@ export type BaseGameState = {
     actionCount?: number;
     logLength?: number;
     timeForTurmoil?: boolean;
+    timeForWorldGovernmentTerraforming?: boolean;
     boardName?: string;
 };

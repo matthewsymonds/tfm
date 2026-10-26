@@ -11,6 +11,10 @@ export function isActionPhase(state: GameState) {
         return false;
     }
 
+    if (state.timeForWorldGovernmentTerraforming) {
+        return false;
+    }
+
     if (!state.options?.decks.includes(Deck.PRELUDE)) {
         return true;
     }

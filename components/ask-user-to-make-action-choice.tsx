@@ -1,6 +1,5 @@
 import {canPlayActionInSpiteOfUI} from 'client-server-shared/action-guard';
 import {useApiClient} from 'hooks/use-api-client';
-import React from 'react';
 import {PlayerState, useTypedSelector} from 'reducer';
 import {getCard} from 'selectors/get-card';
 import {AskUserToMakeChoice} from './ask-user-to-make-choice';
@@ -8,9 +7,9 @@ import {Flex} from './box';
 import {BaseActionIconography} from './card/CardIconography';
 
 export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
-    const {card, playedCard, choice} = player.pendingChoice!;
+    const {card, playedCard, choice, context} = player.pendingChoice!;
     const apiClient = useApiClient();
-    const parent = getCard(card);
+    const parent = card ? getCard(card) : undefined;
     const choiceButtons = choice.map((action, index) => {
         const [canPlay, reason] = useTypedSelector(state =>
             canPlayActionInSpiteOfUI(action, state, player, parent)
@@ -20,10 +19,16 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
                 <button
                     disabled={!canPlay}
                     onClick={() => {
-                        apiClient.playCardActionAsync({
-                            parent,
-                            choiceIndex: index,
-                        });
+                        if (parent) {
+                            apiClient.playCardActionAsync({
+                                parent,
+                                choiceIndex: index,
+                            });
+                        } else {
+                            apiClient.makeActionChoiceAsync({
+                                choiceIndex: index,
+                            });
+                        }
                     }}
                 >
                     <BaseActionIconography card={action} />
@@ -34,6 +39,7 @@ export function AskUserToMakeActionChoice({player}: {player: PlayerState}) {
     });
     return (
         <AskUserToMakeChoice card={card} playedCard={playedCard}>
+            {context && <h2>{context}</h2>}
             <Flex flexDirection="column">{choiceButtons}</Flex>
         </AskUserToMakeChoice>
     );

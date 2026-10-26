@@ -87,8 +87,9 @@ export type SerializedPlayerState = Omit<
     };
     pendingChoice?: {
         choice: Action[];
-        card: SerializedCard;
+        card?: SerializedCard;
         playedCard?: SerializedCard;
+        context?: string;
     };
 };
 

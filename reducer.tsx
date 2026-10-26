@@ -136,6 +136,7 @@ import {
     stealStorableResource,
     useBlueCardActionAlreadyUsedThisGeneration,
     wrapUpTurmoil,
+    wrapUpWorldGovernmentTerraforming,
 } from './actions';
 import {Action, Amount} from './constants/action';
 import {getParameterName, Parameter, TileType} from './constants/board';
@@ -1500,14 +1501,14 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
         if (askUserToMakeActionChoice.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
-            const {choice} = payload;
+            const {choice, context} = payload;
             const card = player.playedCards.find(
-                playedCard => playedCard.name === payload.card.name
+                playedCard => playedCard.name === payload?.card?.name
             )!;
             const playedCard = player.playedCards.find(
                 playedCard => playedCard.name === payload?.playedCard?.name
             );
-            player.pendingChoice = {choice, card, playedCard};
+            player.pendingChoice = {choice, card, playedCard, context};
         }
 
         if (askUserToUseBlueCardActionAlreadyUsedThisGeneration.match(action)) {
@@ -2162,6 +2163,17 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
             handleSetupNextGeneration(draft);
         }
 
+        if (wrapUpWorldGovernmentTerraforming.match(action)) {
+            draft.timeForWorldGovernmentTerraforming = false;
+            if (draft.common.turmoil) {
+                // If enabled, turmoil comes next
+                draft.timeForTurmoil = true;
+            } else {
+                // otherwise, set up the next generation.
+                handleSetupNextGeneration(draft);
+            }
+        }
+
         if (announceReadyToStartRound.match(action)) {
             const {payload} = action;
             player = getPlayer(draft, payload);
@@ -2245,6 +2257,8 @@ export const reducer = (state: GameState | null = null, action: AnyAction) => {
                     } else {
                         common.gameStage = GameStage.END_OF_GAME;
                     }
+                } else if (draft.options.isWorldGovernmentTerraformingEnabled) {
+                    draft.timeForWorldGovernmentTerraforming = true;
                 } else if (draft.common.turmoil) {
                     // Do nothing for now. We'll need to do lots of complex stuff
                     // for turmoil that's not all automatic.

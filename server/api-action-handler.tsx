@@ -28,6 +28,7 @@ import {
     askUserToRemoveTile,
     askUserToTradeForFree,
     askUserToUseBlueCardActionAlreadyUsedThisGeneration,
+    ASK_USER_TO_REMOVE_TILE,
     claimMilestone as claimMilestoneAction,
     clearPendingActionChoice,
     completeAction,
@@ -92,6 +93,7 @@ import {
     skipChoice,
     useBlueCardActionAlreadyUsedThisGeneration,
     wrapUpTurmoil,
+    wrapUpWorldGovernmentTerraforming,
 } from 'actions';
 import {ActionGuard} from 'client-server-shared/action-guard';
 import {WrappedGameModel} from 'client-server-shared/wrapped-game-model';
@@ -122,6 +124,7 @@ import {
     CellType,
     getTilePlacementBonus,
     Parameter,
+    t,
     TilePlacement,
     TileType,
 } from 'constants/board';
@@ -287,6 +290,111 @@ export class ApiActionHandler {
         }
     }
 
+    handleWorldGovernmentTerraformingIfNeeded(originalState: GameState) {
+        if (
+            !this.state.timeForWorldGovernmentTerraforming ||
+            originalState.timeForWorldGovernmentTerraforming
+        ) {
+            return;
+        }
+        // Terraforming might not happen -
+        // In house rules the chairman could be neutral in which case no one
+        // gets to choose the parameter and we skip.
+        this.handleWorldGovernmentTerraformingActionIfNeeded();
+
+        // This step is unconditional, moves us to next phase (turmoil or new gen).
+        this.queue.push(wrapUpWorldGovernmentTerraforming());
+        this.processQueue();
+        this.handleTurmoilIfNeeded(originalState);
+    }
+
+    handleWorldGovernmentTerraformingActionIfNeeded() {
+        // Default: First player terraforms
+        let playerIndex: number | undefined =
+            this.state.common.firstPlayerIndex;
+
+        // House rule: Chairman terraforms
+        if (
+            this.state.options
+                .houseRuleChairmanChoosesWorldGovernmentTerraforming
+        ) {
+            if (this.state.common.turmoil) {
+                // a neutral chairman's playerIndex is undefined.
+                ({playerIndex} = this.state.common.turmoil.chairperson);
+            }
+        }
+
+        if (playerIndex == null) {
+            return;
+        }
+
+        // Filter to valid choices. Logically, there must be at least one parameter
+        // of the main 3 that isn't complete.
+        const parameterActions: Array<[Parameter, Action]> = [
+            [
+                Parameter.TEMPERATURE,
+                {
+                    increaseParameter: {
+                        [Parameter.TEMPERATURE]: 1,
+                    },
+                    noParameterBonuses: true,
+                },
+            ],
+            [
+                Parameter.OXYGEN,
+                {
+                    increaseParameter: {[Parameter.OXYGEN]: 1},
+                    noParameterBonuses: true,
+                },
+            ],
+            [
+                Parameter.OCEAN,
+                {tilePlacements: [t(TileType.OCEAN)], noParameterBonuses: true},
+            ],
+            [
+                Parameter.VENUS,
+                {
+                    increaseParameter: {[Parameter.VENUS]: 1},
+                    noParameterBonuses: true,
+                },
+            ],
+        ];
+
+        const validChoices: Action[] = [];
+        for (const choice of parameterActions) {
+            const [parameter, action] = choice;
+            if (
+                MAX_PARAMETERS[parameter] >
+                this.state.common.parameters[parameter]
+            ) {
+                validChoices.push(action);
+            }
+        }
+
+        // So. In theory there should be no way to hit this point if we're at the end of the game.
+        // But a check is cheap.
+        if (validChoices.length == 0) {
+            return;
+        }
+
+        this.queue.push(
+            makeLogItem({
+                actionType: GameActionType.GAME_UPDATE,
+                text: `🌍 World Government Terraforming`,
+            })
+        );
+
+        this.queue.push(
+            askUserToMakeActionChoice(
+                validChoices,
+                undefined,
+                undefined,
+                playerIndex,
+                'Choose the world government terraforming parameter:'
+            )
+        );
+    }
+
     handleTurmoilIfNeeded(originalState: GameState) {
         if (
             !this.state.timeForTurmoil ||
@@ -325,7 +433,7 @@ export class ApiActionHandler {
         this.queue.push(
             makeLogItem({
                 actionType: GameActionType.GAME_UPDATE,
-                text: `⚔️ Turmoil`,
+                text: `⚔️  Turmoil`,
             })
         );
 
@@ -343,7 +451,7 @@ export class ApiActionHandler {
                 this.queue.push(
                     makeLogItem({
                         actionType: GameActionType.GAME_UPDATE,
-                        text: `⚔️ Global Event: ${globalEvent.bottom.name}`,
+                        text: `⚔️  Global Event: ${globalEvent.bottom.name}`,
                     })
                 );
                 const {action, firstPlayerAction} = globalEvent;
@@ -367,15 +475,13 @@ export class ApiActionHandler {
 
         this.queue.push(makePartyRuling());
         const rulingParty = getPartyConfig(turmoil.dominantParty);
-        if (rulingParty) {
-            for (const playerIndex of this.state.common
-                .playerIndexOrderForGeneration) {
-                this.playAction({
-                    action: rulingParty.partyBonus,
-                    thisPlayerIndex: playerIndex,
-                    state: this.state,
-                });
-            }
+        for (const playerIndex of this.state.common
+            .playerIndexOrderForGeneration) {
+            this.playAction({
+                action: rulingParty.partyBonus,
+                thisPlayerIndex: playerIndex,
+                state: this.state,
+            });
         }
         this.queue.push(wrapUpTurmoil());
         this.processQueue();
@@ -904,6 +1010,35 @@ export class ApiActionHandler {
             );
         }
 
+        this.processQueue();
+    }
+
+    makeActionChoice({choiceIndex}: {choiceIndex: number}) {
+        const player = this.getLoggedInPlayer();
+        const choice = player.pendingChoice?.choice[choiceIndex];
+        const {state} = this;
+
+        if (!choice) {
+            throw new Error('Invalid choice index');
+        }
+
+        const [canPlay, reason] = this.actionGuard.canPlayActionInSpiteOfUI(
+            choice,
+            state
+        );
+
+        if (!canPlay) {
+            throw new Error(reason);
+        }
+
+        this.playAction({
+            state,
+            action: choice,
+            thisPlayerIndex: player.index,
+            withPriority: true,
+        });
+
+        this.queue.push(makeActionChoice(player.index));
         this.processQueue();
     }
 
@@ -3106,8 +3241,15 @@ export class ApiActionHandler {
         return undefined;
     }
 
-    private shouldPause(action: {type: string}): boolean {
+    private shouldPause(action: AnyAction): boolean {
         if (!action) return false;
+        if (action.type == ASK_USER_TO_REMOVE_TILE) {
+            // A tile will not be removed i
+            const playerIndex = action?.playerIndex;
+            if (!this.state.players[playerIndex]?.pendingTileRemoval) {
+                return false;
+            }
+        }
         return PAUSE_ACTIONS.includes(action.type);
     }
 

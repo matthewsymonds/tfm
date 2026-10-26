@@ -34,6 +34,12 @@ export function playGame(
                 choiceIndex: payload.choiceIndex,
             });
             break;
+
+        case ApiActionType.API_MAKE_ACTION_CHOICE:
+            actionHandler.makeActionChoice({
+                choiceIndex: payload.choiceIndex,
+            });
+            break;
         case ApiActionType.API_PLAY_STANDARD_PROJECT:
             actionHandler.playStandardProject({
                 standardProjectActionType: payload.standardProjectActionType,
@@ -156,4 +162,5 @@ export function playGame(
     }
     actionHandler.handleForcedActionsIfNeeded(originalState);
     actionHandler.handleTurmoilIfNeeded(originalState);
+    actionHandler.handleWorldGovernmentTerraformingIfNeeded(originalState);
 }
